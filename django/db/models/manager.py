@@ -118,6 +118,16 @@ class BaseManager:
         )
 
     def contribute_to_class(self, cls, name):
+        """
+        ..:param cls: The class to which the manager is being contributed
+        ..:param name: The name under which the manager will be available as a class attribute
+        ..:return: None
+        ..description: 
+            Contributes the manager to the specified class, making it accessible as a class attribute. 
+            This involves setting up the manager's name and model, adding a descriptor to the class, 
+            and registering the manager with the class metadata. This step is essential for integrating 
+            the manager with the class, enabling its usage for querying and manipulating related data.
+        """
         self.name = self.name or name
         self.model = cls
 

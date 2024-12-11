@@ -65,6 +65,18 @@ class AdminActionsTests(TestCase):
                 self.assertEqual(list(actions.keys()), expected)
 
     def test_actions_inheritance(self):
+        """
+
+        Tests the inheritance of custom actions in admin classes.
+
+        This test case verifies that custom actions defined in a base admin class
+        are properly inherited by its subclasses. It also checks that setting
+        actions to None in a subclass correctly overrides the actions from the base class.
+
+        The test covers two scenarios: one where the subclass does not override the actions,
+        and another where the subclass sets actions to None, effectively removing the custom action.
+
+        """
         class AdminBase(admin.ModelAdmin):
             actions = ["custom_action"]
 

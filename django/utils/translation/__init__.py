@@ -124,6 +124,21 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                 return bool(kwargs["singular"])
 
             def _get_number_value(self, values):
+                """
+                Retrieve the number value from a given dictionary of values.
+
+                This method attempts to extract the number value from the provided dictionary.
+                If the dictionary lacks the required key, it raises a KeyError with a descriptive message.
+
+                Args:
+                    values (dict): A dictionary containing the values to retrieve the number from.
+
+                Returns:
+                    The number value associated with the key in the dictionary.
+
+                Raises:
+                    KeyError: If the dictionary does not contain the required key.
+                """
                 try:
                     return values[number]
                 except KeyError:
@@ -257,6 +272,22 @@ def get_supported_language_variant(lang_code, *, strict=False):
 
 
 def templatize(src, **kwargs):
+    """
+
+    Generate a templated version of the provided source string.
+
+    This function takes in a source string and returns a templated version of it.
+    The templating process replaces placeholders in the source string with actual values.
+    The values to replace the placeholders are provided as keyword arguments.
+
+    The function allows for dynamic generation of templated strings, supporting various use cases
+    such as text processing, data rendering, and content generation.
+
+    :param src: The source string to be templated.
+    :param kwargs: Keyword arguments containing the values to replace placeholders in the source string.
+    :return: The templated version of the source string.
+
+    """
     from .template import templatize
 
     return templatize(src, **kwargs)

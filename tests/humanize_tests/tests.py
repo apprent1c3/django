@@ -43,6 +43,14 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_ordinal(self):
+        """
+
+        Tests the ordinal humanization function, which appends ordinal suffixes 
+        (st, nd, rd, th) to numbers in a list. The test covers various numeric 
+        and non-numeric inputs, including positive and negative numbers, 
+        and checks for correct conversion to their corresponding ordinal forms.
+
+        """
         test_list = (
             "1",
             "2",
@@ -120,6 +128,16 @@ class HumanizeTests(SimpleTestCase):
             self.humanize_tester(test_list, result_list, "ordinal", lambda x: x)
 
     def test_intcomma(self):
+        """
+        **:meth:`test_intcomma` - Tests the functionality of humanizing numbers with comma separation.
+
+        This test method verifies that numbers, both integers and floats, are correctly formatted with commas as thousand separators.
+        It checks this formatting for both positive and negative numbers, as well as numbers represented as strings.
+        The test also handles non-numeric input, such as strings that do not represent numbers, and checks that they are not modified.
+        Additionally, it ensures that the correct formatting is applied to numbers represented in different ways, such as using the Decimal class.
+        The test case includes a variety of test inputs, including numeric strings with different thousand separators, to ensure the function works as expected in different scenarios.
+        The result is compared against a list of expected outputs to verify the correctness of the humanization process.**
+        """
         test_list = (
             100,
             -100,
@@ -278,6 +296,14 @@ class HumanizeTests(SimpleTestCase):
 
     def test_intcomma_without_number_grouping(self):
         # Regression for #17414
+        """
+        Tests the intcomma filter without number grouping in Japanese locale.
+
+        This test case verifies that the intcomma filter correctly formats integers
+        without adding thousand separators, according to the Japanese numbering
+        conventions. It ensures that the filter produces the expected output for a
+        given input, when the locale is set to Japanese.
+        """
         with translation.override("ja"):
             self.humanize_tester([100], ["100"], "intcomma")
 
@@ -386,6 +412,21 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_apnumber(self):
+        """
+
+        Tests the apnumber filter, which converts numbers to their written-out, 
+        AP-style equivalents. This filter is useful for handling numbers in a 
+        more human-friendly format, especially in text where numerals may not 
+        be suitable.
+
+        The test verifies that numbers from 1 to 10 are correctly converted to 
+        their AP-style string equivalents, and that numbers outside this range 
+        and None values are handled as expected.
+
+        The test is performed with the locale set to English to ensure 
+        consistency in the output.
+
+        """
         test_list = [str(x) for x in range(1, 11)]
         test_list.append(None)
         result_list = (
@@ -441,6 +482,9 @@ class HumanizeTests(SimpleTestCase):
     def test_naturalday_uses_localtime(self):
         # Regression for #18504
         # This is 2012-03-08HT19:30:00-06:00 in America/Chicago
+        """
+        Tests that the naturalday template filter correctly handles dates in the local timezone, taking into account daylight saving time transitions.
+        """
         dt = datetime.datetime(2012, 3, 9, 1, 30, tzinfo=datetime.timezone.utc)
 
         orig_humanize_datetime, humanize.datetime = humanize.datetime, MockDateTime

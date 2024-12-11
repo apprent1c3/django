@@ -124,6 +124,29 @@ class GeoIP2:
         return self._reader.metadata()
 
     def _query(self, query, *, require_city=False):
+        """
+
+        Perform a GeoIP query to retrieve geographic information.
+
+        Parameters
+        ----------
+        query : str or ipaddress.IPv4Address or ipaddress.IPv6Address
+            The query to perform, which can be a string (e.g., hostname, IP address), an IPv4Address, or an IPv6Address.
+        require_city : bool, optional
+            If True, the query requires city-level data. If the database does not contain city-level data, a GeoIP2Exception is raised.
+
+        Returns
+        -------
+        The result of the query, which can be either city or country-level data, depending on the database type.
+
+        Raises
+        ------
+        TypeError
+            If the query is not a string or an instance of IPv4Address or IPv6Address.
+        GeoIP2Exception
+            If city-level data is required but the database does not contain it.
+
+        """
         if not isinstance(query, (str, ipaddress.IPv4Address, ipaddress.IPv6Address)):
             raise TypeError(
                 "GeoIP query must be a string or instance of IPv4Address or "
@@ -196,6 +219,22 @@ class GeoIP2:
         }
 
     def coords(self, query, ordering=("longitude", "latitude")):
+        """
+
+        Retrieve the coordinates for a query from the GeoIP2 database.
+
+        This method takes a query and returns a tuple of the longitude and latitude in the specified order. 
+        By default, the order is (longitude, latitude), but this can be customized by passing a tuple of 'longitude' and 'latitude' in the desired order.
+
+        Note:
+            This method is deprecated and will be removed in Django 6.0. It is recommended to use the `GeoIP2.lon_lat()` method instead.
+
+        :param query: The query to search for in the GeoIP2 database.
+        :param ordering: A tuple specifying the order of the coordinates. Defaults to ('longitude', 'latitude').
+        :return: A tuple of the coordinates in the specified order.
+        :rtype: tuple
+
+        """
         warnings.warn(
             "GeoIP2.coords() is deprecated. Use GeoIP2.lon_lat() instead.",
             RemovedInDjango60Warning,

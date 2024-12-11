@@ -85,6 +85,11 @@ class SimpleArrayField(forms.CharField):
             raise ValidationError(errors)
 
     def run_validators(self, value):
+        """
+        Runs validation on the given value, ensuring that each item within it conforms to the base field's validation rules.
+
+        The validation process involves iterating over each item in the value and applying the base field's validators. If any item fails validation, a :class:`~django.core.exceptions.ValidationError` is raised with a list of error messages, each detailing the specific validation failure for an item. The error messages are prefixed with a message indicating that the item at a specific position is invalid.
+        """
         super().run_validators(value)
         errors = []
         for index, item in enumerate(value):
@@ -103,6 +108,12 @@ class SimpleArrayField(forms.CharField):
             raise ValidationError(errors)
 
     def has_changed(self, initial, data):
+        """
+        Checks if the provided data has changed from its initial value, considering empty values and validation rules.
+
+        The function first attempts to convert the data to a Python object. If this conversion fails due to a validation error, it skips this step. 
+        If both the initial and converted data are empty, it considers them unchanged. Otherwise, it delegates the change detection to its parent class, relying on the standard comparison logic.
+        """
         try:
             value = self.to_python(data)
         except ValidationError:
@@ -186,6 +197,18 @@ class SplitArrayField(forms.Field):
     }
 
     def __init__(self, base_field, size, *, remove_trailing_nulls=False, **kwargs):
+        """
+        Initializes a new instance of the class.
+
+        This constructor takes in a base field and a size parameter, and optionally removes trailing nulls from the input.
+        It utilizes a SplitArrayWidget to handle user input, splitting it into an array of the specified size.
+
+        The base field is used to determine the underlying data type and widget for each element in the array.
+        The remove_trailing_nulls parameter controls whether trailing null values are removed from the input array.
+
+        Any additional keyword arguments are passed to the parent class's constructor, allowing for further customization of the instance.
+
+        """
         self.base_field = base_field
         self.size = size
         self.remove_trailing_nulls = remove_trailing_nulls

@@ -343,6 +343,13 @@ class IntegerField(Field):
         return value
 
     def widget_attrs(self, widget):
+        """
+        Updates the attribute dictionary of the given widget, specifically for NumberInput widgets, 
+        by adding 'min', 'max', and 'step' attributes if corresponding minimum value, maximum value, 
+        and step size are defined, respectively. 
+
+        Returns the updated attribute dictionary.
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput):
             if self.min_value is not None:
@@ -407,6 +414,18 @@ class DecimalField(IntegerField):
         decimal_places=None,
         **kwargs,
     ):
+        """
+        Initialize a numeric field with specific constraints.
+
+        This field enforces various restrictions, including a maximum and minimum value, as well as a specific number of digits and decimal places. The constraints are applied through validation, ensuring that any value set for this field conforms to the specified limits.
+
+        The following constraints can be applied:
+        - Maximum and minimum value: define the range of acceptable values for this field.
+        - Maximum digits: specify the total number of digits (including decimal places) allowed for this field.
+        - Decimal places: define the number of digits that can appear after the decimal point.
+
+        The field inherits common properties and behavior from its parent class.
+        """
         self.max_digits, self.decimal_places = max_digits, decimal_places
         super().__init__(max_value=max_value, min_value=min_value, **kwargs)
         self.validators.append(validators.DecimalValidator(max_digits, decimal_places))
@@ -840,6 +859,14 @@ class BooleanField(Field):
             raise ValidationError(self.error_messages["required"], code="required")
 
     def has_changed(self, initial, data):
+        """
+        ..:noindex:
+        Checks if the input data has changed from its initial value.
+
+        :param initial: The initial data to compare against.
+        :param data: The current data to check for changes.
+        :returns: True if the data has changed, False otherwise. Note that if this instance is disabled, it will always return False.
+        """
         if self.disabled:
             return False
         # Sometimes data or initial may be a string equivalent of a boolean
@@ -884,6 +911,16 @@ class ChoiceField(Field):
     }
 
     def __init__(self, *, choices=(), **kwargs):
+        """
+        Initializes the object with a set of choices and other keyword arguments.
+
+        The object is initialized with a tuple of choices, which can be used to restrict or validate input.
+        Additional keyword arguments are passed to the parent class's initializer.
+
+        :arg tuple choices: A collection of valid or allowed choices.
+        :keyword kwargs: Additional keyword arguments passed to the parent class's initializer.
+
+        """
         super().__init__(**kwargs)
         self.choices = choices
 
@@ -1386,6 +1423,23 @@ class JSONField(CharField):
             return converted
 
     def bound_data(self, data, initial):
+        """
+        Binds data to the object by parsing it as JSON.
+
+        Args:
+            data (str): The JSON string to be parsed.
+            initial: The initial value to return if the object is disabled.
+
+        Returns:
+            The parsed JSON data, or None if the input data is None.
+            If the object is disabled, returns the initial value.
+            If the input data is not valid JSON, returns an InvalidJSONInput instance.
+
+        Note:
+            This method requires a properly configured decoder.
+            If the decoder fails to parse the data, it will raise a JSONDecodeError,
+            which is handled by returning an InvalidJSONInput instance.
+        """
         if self.disabled:
             return initial
         if data is None:

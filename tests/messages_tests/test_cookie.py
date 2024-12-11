@@ -153,6 +153,15 @@ class CookieTests(BaseTests, SimpleTestCase):
         self.assertEqual(unstored_messages[0].message, first_msg)
 
     def test_message_rfc6265(self):
+        """
+        Tests that messages containing non-compliant characters are properly encoded in accordance with RFC 6265.
+
+        Verifies that the encoding process removes or escapes characters that are not allowed in a valid message, ensuring compliance with the standard.
+
+        The test checks for a variety of non-compliant characters, including backslashes, commas, semicolons, and double quotes, and confirms that they are not present in the encoded output.
+
+        The goal of this test is to ensure that the encoding mechanism is correctly handling edge cases and producing valid, compliant messages.
+        """
         non_compliant_chars = ["\\", ",", ";", '"']
         messages = ["\\te,st", ';m"e', "\u2019", '123"NOTRECEIVED"']
         storage = self.get_storage()
@@ -215,6 +224,23 @@ class BisectTests(TestCase):
         self.assertEqual(bisect_keep_left([], fn=lambda arr: sum(arr) != 0), 0)
 
     def test_bisect_keep_right(self):
+        """
+        def test_bisect_keep_right(self):
+            \"\"\"
+            Tests the bisect_keep_right function to ensure correct output.
+
+            The function is expected to find the index at which a condition is met, 
+            keeping the right half of the array when the condition is not met.
+
+            The test cases cover various edge cases, including:
+            - An array with identical elements
+            - An empty array
+            - A condition that is not met at the start or end of the array
+
+            The test uses example conditions, such as checking if the sum of an array 
+            is not equal to a certain value, to verify the correctness of the function.
+
+        """
         self.assertEqual(bisect_keep_right([1, 1, 1], fn=lambda arr: sum(arr) != 2), 1)
         self.assertEqual(
             bisect_keep_right([1, 1, 1, 1], fn=lambda arr: sum(arr) != 2), 2

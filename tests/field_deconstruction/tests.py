@@ -30,6 +30,19 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(name, "author")
 
     def test_db_tablespace(self):
+        """
+        .Tests the deconstruction behavior of model fields related to database tablespace.
+
+        This test case verifies that the :meth:`deconstruct` method of a :class:`~django.db.models.Field`
+        instance correctly handles the ``db_tablespace`` attribute. It checks the following scenarios:
+
+        * A field with default settings (no ``db_tablespace`` specified)
+        * A field with default database tablespace overridden in settings
+        * A field with an explicit ``db_tablespace`` attribute
+        * A field with an explicit ``db_tablespace`` attribute and default database tablespace overridden in settings
+
+        The test ensures that the ``deconstruct`` method returns the expected ``args`` and ``kwargs`` values in each scenario.
+        """
         field = models.Field()
         _, _, args, kwargs = field.deconstruct()
         self.assertEqual(args, [])
@@ -78,6 +91,15 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"default": True})
 
     def test_char_field(self):
+        """
+
+        Tests the deconstruction behavior of CharField instances.
+
+        The deconstruction process involves breaking down a CharField instance into its constituent parts, including the field name, path, arguments, and keyword arguments. This test verifies that CharField instances with various configurations are correctly deconstructed, ensuring that their attributes, such as max_length, null, and blank, are properly extracted and represented as keyword arguments.
+
+        The test cases cover CharField instances with and without null and blank attributes, validating that the deconstructed keyword arguments accurately reflect the original field configuration.
+
+        """
         field = models.CharField(max_length=65)
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.CharField")
@@ -99,6 +121,19 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_choices_iterator(self):
+        """
+
+        Tests the deconstruction process of an IntegerField with choices.
+
+        This test case ensures that an IntegerField with choices can be successfully deconstructed into its constituent parts,
+        including its path, arguments, and keyword arguments. The choices are expected to be properly captured and returned
+        as a list of tuples, with each tuple containing the choice value and its corresponding string representation.
+
+        The deconstruction process is a key aspect of Django's model field serialization, allowing fields to be reconstructed
+        from their constituent parts. This test verifies that the deconstruction process works correctly for IntegerFields with
+        choices, which is essential for features like model field serialization and deserialization.
+
+        """
         field = models.IntegerField(choices=((i, str(i)) for i in range(3)))
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.IntegerField")
@@ -190,6 +225,13 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_length": 255})
 
     def test_file_field(self):
+        """
+        Tests the deconstruction of a FileField into its constituent parts.
+
+        The deconstruction process breaks down a field into its name, path, positional arguments, and keyword arguments.
+        This test ensures that a FileField with and without the max_length parameter is correctly deconstructed, 
+        verifying that the path and keyword arguments are as expected.
+        """
         field = models.FileField(upload_to="foo/bar")
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FileField")
@@ -217,6 +259,11 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_float_field(self):
+        """
+        Tests the deconstruction of a FloatField in a Django model, verifying that the resulting path, arguments, and keyword arguments match the expected values. 
+
+        This check ensures the FloatField's deconstruct method correctly breaks down the field into its constituent parts, including its import path and any initialization arguments, which is essential for serialization and other uses in Django models.
+        """
         field = models.FloatField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FloatField")
@@ -225,6 +272,22 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     def test_foreign_key(self):
         # Test basic pointing
+        """
+
+        Tests the deconstruction of :class:`~django.db.models.ForeignKey` instances.
+
+        Verifies that foreign key fields are correctly deconstructed into their component
+        parts, including the field path, arguments, and keyword arguments.
+
+        The test covers various scenarios, including:
+
+        * Foreign keys to different models (e.g. :class:`~django.contrib.auth.models.Permission`, :class:`~django.contrib.auth.models.User`)
+        * Different on delete actions (e.g. :attr:`~django.db.models.CASCADE`, :attr:`~django.db.models.SET_NULL`)
+        * Specifying a custom :paramref:`~django.db.models.ForeignKey.to_field` or :paramref:`~django.db.models.ForeignKey.related_name`
+        * Applying limits to the choices available for the foreign key (e.g. :paramref:`~django.db.models.ForeignKey.limit_choices_to`)
+        * Setting the foreign key as unique (e.g. :paramref:`~django.db.models.ForeignKey.unique`)
+
+        """
         from django.contrib.auth.models import Permission
 
         field = models.ForeignKey("auth.Permission", models.CASCADE)
@@ -331,6 +394,18 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth.Permission")
     def test_foreign_key_swapped(self):
+        """
+
+        Tests the deconstruction of a ForeignKey field when its 'to' argument is a swappable model.
+
+        This test case verifies that the deconstructed path and arguments of the ForeignKey
+        field are correctly determined, even when the 'to' argument references a swappable model.
+
+        Specifically, it checks that the 'to' argument in the deconstructed keyword arguments
+        is resolved to the correct swappable setting name, and that the other deconstructed
+        components (path, arguments, and keyword arguments) are as expected.
+
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             # It doesn't matter that we swapped out user for permission;
             # there's no validation. We just want to check the setting stuff works.
@@ -470,6 +545,15 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_integer_field(self):
+        """
+        Tests the deconstruction of an IntegerField.
+
+        Verifies that the IntegerField can be successfully deconstructed into its constituent parts,
+        including the field's path, arguments, and keyword arguments. 
+
+        The test confirms that the path is correctly identified as a Django IntegerField, 
+        and that there are no arguments or keyword arguments provided during deconstruction.
+        """
         field = models.IntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.IntegerField")
@@ -484,6 +568,18 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_generic_ip_address_field(self):
+        """
+        Tests the deconstruction of a GenericIPAddressField model field.
+
+        The test verifies if a GenericIPAddressField can be properly deconstructed into its constituent parts, 
+        including its path, arguments, and keyword arguments. It checks the deconstruction of both default 
+        and IPv6-specific GenericIPAddressFields, ensuring that the protocol parameter is correctly handled.
+
+        The goal is to validate that the GenericIPAddressField correctly reports its path, and any arguments or
+        keyword arguments that were used in its construction. In particular, the test checks that the protocol 
+        parameter, when specified, is correctly recorded in the field's keyword arguments.
+
+        """
         field = models.GenericIPAddressField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.GenericIPAddressField")
@@ -551,6 +647,19 @@ class FieldDeconstructionTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth.Permission")
     def test_many_to_many_field_swapped(self):
+        """
+        Tests the ManyToManyField deconstruction when the model is swapped.
+
+        This test case verifies that the ManyToManyField correctly deconstructs and 
+        returns the expected path, arguments, and keyword arguments when the model 
+        is swapped with the AUTH_USER_MODEL. Specifically, it checks that the 
+        'django.db.models.ManyToManyField' path is returned, and the keyword 
+        arguments contain the correct 'to' setting, which should reference the 
+        AUTH_USER_MODEL setting.
+
+        The test overrides the default AUTH_USER_MODEL setting to 'auth.Permission' 
+        and uses a temporary cache isolation to ensure reliable results.
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             # It doesn't matter that we swapped out user for permission;
             # there's no validation. We just want to check the setting stuff works.
@@ -592,6 +701,13 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_positive_integer_field(self):
+        """
+        Tests that a PositiveIntegerField deconstructs correctly, verifying its path, arguments, and keyword arguments are as expected. 
+
+        The test confirms the field's path is 'django.db.models.PositiveIntegerField', and that it does not have any arguments or keyword arguments. 
+
+        This test ensures data type integrity and proper deconstruction of the field, which is crucial for serializing and deserializing model fields in Django.
+        """
         field = models.PositiveIntegerField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.PositiveIntegerField")

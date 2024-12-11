@@ -320,6 +320,13 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_add_with_GET_args(self):
+        """
+        Tests the \"add section\" view in the admin interface to ensure it properly handles GET requests with query arguments.
+
+        The function verifies that when a GET request is made to the \"add section\" view with a 'name' parameter, the provided name is correctly populated in the resulting HTML response.
+
+        Specifically, it checks for the presence of an input field containing the provided 'name' value, confirming that the view correctly handles query arguments and prepares the form for the user to add a new section.
+        """
         response = self.client.get(
             reverse("admin:admin_views_section_add"), {"name": "My Section"}
         )
@@ -518,6 +525,15 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         self.assertEqual(Section.objects.latest("id").article_set.count(), 2)
 
     def test_change_list_column_field_classes(self):
+        """
+
+        Tests that the list column and field classes are correctly applied in the admin changelist view.
+
+        This test case checks that the 'column-callable_year' and 'field-callable_year' classes are present in the HTML response,
+        as well as the 'column-lambda8' and 'field-lambda8' classes, to ensure that the list column and field classes are
+        properly rendered in the administrative interface.
+
+        """
         response = self.client.get(reverse("admin:admin_views_article_changelist"))
         # callables display the callable name.
         self.assertContains(response, "column-callable_year")
@@ -603,6 +619,21 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
                 )
 
     def test_change_list_sorting_callable_query_expression_reverse(self):
+        """
+
+        Test the correctness of sorting order when using a callable in the query expression.
+
+        This test case verifies that the list view in the admin interface returns results
+        in the correct reverse order when sorting on a field that uses a callable as its
+        query expression. The test covers multiple fields with different callable
+        expressions and checks the order of specific items in the result set to ensure
+        that the sorting is applied correctly.
+
+        The expected order of items is verified by checking that certain items appear
+        before others in the response content. If the order is incorrect, the test will
+        fail with an assertion error.
+
+        """
         tests = [
             ("order_by_expression", -9),
             ("order_by_f_expression", -12),
@@ -769,6 +800,19 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
 
     def test_change_list_sorting_override_model_admin(self):
         # Test ordering on Model Admin is respected, and overrides Model Meta
+        """
+
+        Tests the sorting of the podcast changelist view in the admin interface.
+
+        Verifies that the sorting of the changelist is correct, specifically that the 
+        podcast with the most recent release date appears before the podcast with the 
+        earlier release date. 
+
+        The test case creates two podcasts with different release dates, generates the 
+        admin change list page, and checks the order of the links to the individual 
+        podcast change pages.
+
+        """
         dt = datetime.datetime.now()
         p1 = Podcast.objects.create(name="A", release_date=dt)
         p2 = Podcast.objects.create(name="B", release_date=dt - datetime.timedelta(10))
@@ -1385,6 +1429,26 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         self.assertContains(response, '<a href="/my-site-url/">View site</a>')
 
     def test_date_hierarchy_empty_queryset(self):
+        """
+
+        Tests if the article changelist view is correctly sorting columns.
+
+        Verifies that certain columns in the article changelist view are sortable,
+        while others are not. The sortable columns are expected to have a specific
+        HTML class, indicating that they can be sorted by the user.
+
+        The following columns are expected to be sortable:
+            - date
+            - callable_year
+
+        The following columns are expected to not be sortable:
+            - content
+            - model_year
+            - modeladmin_year
+            - model_year_reversed
+            - section
+
+        """
         self.assertIs(Question.objects.exists(), False)
         response = self.client.get(reverse("admin:admin_views_answer2_changelist"))
         self.assertEqual(response.status_code, 200)
@@ -2039,6 +2103,11 @@ class SaveAsTests(TestCase):
         self.assertTrue(response.context["show_save_as_new"])
 
     def test_save_as_new_with_inlines_with_validation_errors(self):
+        """
+        Tests the 'Save as new' functionality in the admin interface for a model with inline forms that have validation errors.
+
+        Verifies that when saving a new version of a parent object with an inline child object that has invalid data, the interface correctly displays an error message and does not offer the option to save and add another or save and continue, but still allows saving as new.
+        """
         parent = Parent.objects.create(name="Father")
         child = Child.objects.create(parent=parent, name="Child")
         response = self.client.post(
@@ -3211,6 +3280,11 @@ class AdminViewPermissionsTest(TestCase):
         self.assertContains(response, delete_link_text)
 
     def test_disabled_permissions_when_logged_in(self):
+        """
+        Tests the behavior of the system when a superuser's permissions are disabled while they are logged in. 
+        This test checks that the user is redirected to the login form and that the logout link is not visible.
+        It also verifies that the secure view, which typically requires authentication, redirects to the login form when the user's account is inactive.
+        """
         self.client.force_login(self.superuser)
         superuser = User.objects.get(username="super")
         superuser.is_active = False
@@ -4986,6 +5060,21 @@ class AdminCustomQuerysetTest(TestCase):
         # Test for #14529. defer() is used in ModelAdmin.get_queryset()
 
         # model has __str__ method
+        """
+
+        Tests adding models through the admin interface using ModelAdmin.
+
+        This test case verifies that models can be successfully added through the admin interface.
+        It checks the following:
+
+        *   A new Telegram object is created and saved to the database.
+        *   A new Paper object is created and saved to the database, separate from the Telegram object.
+        *   Both objects are added successfully through the admin interface, with the correct success messages displayed.
+        *   The database object counts are updated correctly after each addition.
+
+        This ensures that the ModelAdmin functionality is working as expected, and objects can be added through the admin interface without errors.
+
+        """
         self.assertEqual(CoverLetter.objects.count(), 0)
         # Emulate model instance creation via the admin
         post_data = {
@@ -5275,12 +5364,31 @@ class AdminInlineFileUploadTest(TestCase):
 class AdminInlineTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the class.
+
+        This method creates a superuser and a collector instance that can be used throughout the test class.
+        The superuser has the username 'super', password 'secret', and email 'super@example.com'.
+        The collector instance has the name 'John Fowles' and is assigned a primary key of 1.
+
+        Returns:
+            None
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
         cls.collector = Collector.objects.create(pk=1, name="John Fowles")
 
     def setUp(self):
+        """
+        Sets up the testing environment by initializing post data for various form sets and logging in a superuser.
+
+        The post data includes multiple form sets such as widget sets, doohickey sets, grommet sets, and others, with predefined values and empty fields for testing purposes. 
+
+        This setup is typically used as a precursor to test cases that require a specific test data and a logged-in superuser to function correctly.
+        """
         self.post_data = {
             "name": "Test Name",
             "widget_set-TOTAL_FORMS": "3",
@@ -5601,6 +5709,17 @@ class AdminInlineTests(TestCase):
 class NeverCacheTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Setup test data for the test class.
+
+        This class method creates a superuser and a test section, making them available as class attributes.
+        The superuser is created with the username 'super', password 'secret', and email 'super@example.com'.
+        The test section is created with the name 'Test section'.
+
+        This setup is performed once before running all tests in the class, providing a consistent test environment.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -5704,6 +5823,13 @@ class PrePopulatedTest(TestCase):
         )
 
     def test_prepopulated_off(self):
+        """
+
+        Tests the admin change view for a prepopulated post to ensure it correctly displays 
+        prepopulated field values and does not contain HTML id references for the slug field.
+        Verifies the presence of a specific title and the absence of dependency IDs in the response.
+
+        """
         response = self.client.get(
             reverse("admin:admin_views_prepopulatedpost_change", args=(self.p1.pk,))
         )
@@ -6970,6 +7096,9 @@ class ReadonlyTest(AdminFieldExtractionMixin, TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_readonly_manytomany_forwards_ref(self):
+        """
+        Tests the display of a readonly many-to-many relationship field on the admin change page for a Pizza instance, verifying that the related Topping instances are correctly shown as readonly.
+        """
         topping = Topping.objects.create(name="Salami")
         pizza = Pizza.objects.create(name="Americano")
         pizza.toppings.add(topping)
@@ -7006,6 +7135,17 @@ class ReadonlyTest(AdminFieldExtractionMixin, TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_readonly_unsaved_generated_field(self):
+        """
+         Tests the display of an unsaved generated field in the admin interface.
+
+        Checks that a readonly, unsaved generated field is displayed correctly in the 
+        admin view for adding a new object. Verifies that the field is rendered as a 
+        readonly div with a '-' value, indicating that the field has not been 
+        populated yet. 
+
+        Requires a database that supports stored generated columns.
+
+        """
         response = self.client.get(reverse("admin:admin_views_square_add"))
         self.assertContains(response, '<div class="readonly">-</div>')
 
@@ -7936,6 +8076,17 @@ class AdminViewLogoutTests(TestCase):
         )  # user-tools div shouldn't visible.
 
     def test_client_logout_url_can_be_used_to_login(self):
+        """
+
+        Tests that the client logout URL can be used to login.
+
+        This test case verifies that posting to the logout URL redirects to the login page.
+        It checks the status code of the initial response, and then follows the redirect to
+        ensure that the login page is displayed with a hidden 'next' field set to the admin index URL.
+        The test also verifies that the correct template is used to render the login page and that the request path is correct.
+
+
+        """
         response = self.client.post(reverse("admin:logout"))
         self.assertEqual(
             response.status_code, 302
@@ -8152,6 +8303,13 @@ class AdminKeepChangeListFiltersTests(TestCase):
         )
 
     def get_delete_url(self, user_id=None):
+        """
+        Gets the URL for deleting a user in the admin interface.
+
+        :param user_id: The ID of the user to be deleted. If not provided, the ID of a sample user will be used.
+        :return: A URL that can be used to delete the specified user, including any preserved filters.
+        :rtype: str
+        """
         if user_id is None:
             user_id = self.get_sample_user_id()
         return "%s?%s" % (
@@ -8335,6 +8493,11 @@ class TestLabelVisibility(TestCase):
         self.client.force_login(self.superuser)
 
     def test_all_fields_visible(self):
+        """
+        Checks if all fields are visible in the admin view for adding an EmptyModelVisible instance.
+
+        The test verifies that the field line and the 'first' and 'second' fields are displayed as expected when accessing the admin view to add a new EmptyModelVisible object.
+        """
         response = self.client.get(reverse("admin:admin_views_emptymodelvisible_add"))
         self.assert_fieldline_visible(response)
         self.assert_field_visible(response, "first")
@@ -8585,6 +8748,21 @@ class InlineAdminViewOnSiteTest(TestCase):
         cls.w3 = Worker.objects.create(work_at=cls.r1, name="John", surname="Doe")
 
     def setUp(self):
+        """
+        Tests that an unauthenticated user is redirected to the login page when attempting to access a known URL.
+
+        This test case verifies that the application correctly handles unauthorized access to a specific URL, 
+        redirecting the user to the login page with the original URL as the next destination.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the redirect to the login page does not occur as expected
+        """
         self.client.force_login(self.superuser)
 
     def test_false(self):

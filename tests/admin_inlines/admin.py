@@ -202,6 +202,16 @@ class TitleForm(forms.ModelForm):
     title1 = forms.CharField(max_length=100)
 
     def clean(self):
+        """
+
+        Checks if the two provided title fields ('title1' and 'title2') are identical.
+
+        Raises a ValidationError if the titles do not match.
+        Otherwise, returns the cleaned data.
+
+        This method is used for data validation, ensuring that both title fields have the same content.
+
+        """
         cleaned_data = self.cleaned_data
         title1 = cleaned_data.get("title1")
         title2 = cleaned_data.get("title2")
@@ -343,12 +353,37 @@ class BinaryTreeAdmin(admin.TabularInline):
     model = BinaryTree
 
     def get_extra(self, request, obj=None, **kwargs):
+        """
+
+        Returns the number of extra items available, taking into account the provided object.
+
+        The total number of extra items is initially set to 2. If an object is provided,
+        the number of items already associated with it (via its binary tree set) is subtracted
+        from the total, giving the remaining number of extra items available. If no object
+        is provided, the total number of extra items is returned unchanged.
+
+        :param request: The current request context (not used in this implementation)
+        :param obj: The object to consider when calculating extra items (optional)
+        :param **kwargs: Additional keyword arguments (not used in this implementation)
+        :return: The number of extra items available
+
+        """
         extra = 2
         if obj:
             return extra - obj.binarytree_set.count()
         return extra
 
     def get_max_num(self, request, obj=None, **kwargs):
+        """
+        :Get the maximum allowed number of items
+        Return the maximum number of items allowed, considering the existing items associated with the given object.
+
+        :param request: The current request
+        :param obj: The object to check for existing items, defaults to None
+        :param kwargs: Additional keyword arguments
+        :rtype: int
+        :returns: The maximum allowed number of items
+        """
         max_num = 3
         if obj:
             return max_num - obj.binarytree_set.count()
@@ -372,6 +407,9 @@ class SomeChildModelForm(forms.ModelForm):
         help_texts = {"readonly_field": "Help text from ModelForm.Meta"}
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, inheriting from its parent class and modifying the 'name' field label to 'new label' for display purposes.
+        """
         super().__init__(*args, **kwargs)
         self.fields["name"].label = "new label"
 
@@ -488,6 +526,15 @@ class UUIDParentModelAdmin(admin.ModelAdmin):
 
 class ShowInlineParentAdmin(admin.ModelAdmin):
     def get_inlines(self, request, obj):
+        """
+
+        Returns a list of inline child models to be displayed for the given object.
+
+        This function checks if the provided object exists and is configured to show inline children.
+        If both conditions are met, it returns a list containing the ShowInlineChildInline model.
+        Otherwise, an empty list is returned, indicating that no inline children should be displayed.
+
+        """
         if obj is not None and obj.show_inlines:
             return [ShowInlineChildInline]
         return []

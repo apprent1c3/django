@@ -62,6 +62,18 @@ class InheritanceTests(TestCase):
         a.save(force_update=True)
 
     def test_force_update_on_proxy_model(self):
+        """
+
+        Tests if the force_update parameter updates a saved ProxyCounter model instance.
+
+        This test case checks the behavior of the save method with force_update set to True
+        on a ProxyCounter object that has already been saved to the database. It verifies
+        that the object is updated correctly and any changes are persisted.
+
+        :param None:
+        :returns: None
+
+        """
         a = ProxyCounter(name="count", value=1)
         a.save()
         a.save(force_update=True)
@@ -79,6 +91,13 @@ class InheritanceTests(TestCase):
 
 class ForceInsertInheritanceTests(TestCase):
     def test_force_insert_not_bool_or_tuple(self):
+        """
+        ``` 
+        Checks that the force_insert parameter of the save method must be either a boolean value or a tuple, and raises a TypeError otherwise.
+
+        The test ensures that passing invalid force_insert values, such as integers, strings, or empty lists, results in a TypeError with a descriptive error message.
+        ```
+        """
         msg = "force_insert must be a bool or tuple."
         with self.assertRaisesMessage(TypeError, msg), transaction.atomic():
             Counter().save(force_insert=1)
@@ -88,6 +107,15 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=[])
 
     def test_force_insert_not_model(self):
+        """
+        Tests that the force_insert argument in the save method of a model instance raises a TypeError when not provided with a model subclass.
+
+        This test ensures that the save method correctly validates the force_insert parameter to prevent incorrect usage. It checks two scenarios: 
+        - when a non-model object is provided as part of the force_insert parameter, and 
+        - when an instance of a model is provided as part of the force_insert parameter. 
+
+        The test expects a TypeError to be raised with a specific error message in both cases, verifying that the save method handles invalid input correctly.
+        """
         msg = f"Invalid force_insert member. {object!r} must be a model subclass."
         with self.assertRaisesMessage(TypeError, msg), transaction.atomic():
             Counter().save(force_insert=(object,))
@@ -102,6 +130,20 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=(SubCounter,))
 
     def test_force_insert_false(self):
+        """
+
+        Tests that the model instance can be updated instead of inserted when force_insert is set to False.
+
+        This test case verifies that when a model instance with an existing primary key is saved,
+        it updates the existing record in the database instead of attempting to insert a new one.
+        The test checks the number of database queries executed during the save operation and
+        validates that the updated values are persisted correctly.
+
+        The test covers different scenarios, including saving an object with an existing primary key,
+        and saving an object with force_insert set to False. It ensures that the model instance is
+        updated correctly in each case, and that the expected number of database queries is executed.
+
+        """
         with self.assertNumQueries(3):
             obj = SubCounter.objects.create(pk=1, value=0)
         with self.assertNumQueries(2):
@@ -118,6 +160,13 @@ class ForceInsertInheritanceTests(TestCase):
         self.assertEqual(obj.value, 3)
 
     def test_force_insert_false_with_existing_parent(self):
+        """
+
+        Test that creating a new instance of SubCounter with an existing parent does not trigger a recursive creation of the parent.
+
+        This test case verifies that when force_insert is set to False, the existing parent instance is reused instead of attempting to create a new one.
+
+        """
         parent = Counter.objects.create(pk=1, value=1)
         with self.assertNumQueries(2):
             SubCounter.objects.create(pk=parent.pk, value=2)

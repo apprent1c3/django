@@ -11,6 +11,14 @@ from .models import BigD, Foo
 
 class DecimalFieldTests(TestCase):
     def test_to_python(self):
+        """
+
+        Tests the to_python method of a DecimalField, ensuring it correctly converts different input types to Decimal values.
+
+        This method verifies that the conversion process handles various input formats, including integers, strings, and floating point numbers,
+        and that the resulting Decimal values are rounded and truncated as expected according to the field's max_digits and decimal_places settings.
+
+        """
         f = models.DecimalField(max_digits=4, decimal_places=2)
         self.assertEqual(f.to_python(3), Decimal("3"))
         self.assertEqual(f.to_python("3.14"), Decimal("3.14"))

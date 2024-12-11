@@ -174,6 +174,17 @@ class Atomic(ContextDecorator):
     """
 
     def __init__(self, using, savepoint, durable):
+        """
+
+        Initializes a new instance of the class, configuring it for database transaction management.
+
+        :param using: The database connection to be used.
+        :param savepoint: The savepoint to be utilized for transaction control.
+        :param durable: A flag indicating whether the transaction should be durable.
+
+        These parameters set the foundation for the class's behavior and interaction with the database.
+
+        """
         self.using = using
         self.savepoint = savepoint
         self.durable = durable
@@ -222,6 +233,26 @@ class Atomic(ContextDecorator):
             connection.atomic_blocks.append(self)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Exit the runtime context related to the current database connection, 
+        performing any necessary cleanup and transaction handling.
+
+        This method is responsible for ensuring that the database connection is 
+        properly restored to its original state after the execution of the 
+        surrounding code block. It handles transactional behavior, including 
+        committing or rolling back changes as necessary, and releases any 
+        acquired resources.
+
+        It takes into account the current state of the connection, including 
+        whether an exception has occurred, and whether the connection is 
+        currently within an atomic block or savepoint.
+
+        The method ensures that the connection is left in a consistent state, 
+        either by committing changes, rolling back changes, or releasing 
+        acquired resources.
+
+        """
         connection = get_connection(self.using)
 
         if connection.in_atomic_block:

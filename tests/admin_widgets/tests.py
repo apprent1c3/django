@@ -136,6 +136,15 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_radio_fields_ForeignKey(self):
+        """
+
+        Tests that a form field with a foreign key is rendered as radio fields.
+
+        The test verifies that the 'main_band' field of the Event model is displayed as radio buttons
+        in the admin interface, with the radio fields arranged vertically. It also checks that no
+        empty label is displayed for the field.
+
+        """
         ff = self.assertFormfield(
             Event,
             "main_band",
@@ -341,6 +350,13 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_invalid_target_id(self):
+        """
+        Tests the behavior of the admin event add view when an invalid target ID is provided.
+
+        The function sends a POST request to the admin event add view with various invalid target IDs,
+        including strings with non-ASCII characters, numeric strings, and negative integers.
+        It then checks that the response contains an error message indicating that the provided choice is not valid.
+        """
         for test_str in ("Iñtërnâtiônàlizætiøn", "1234'", -1234):
             # This should result in an error message, not a server exception.
             response = self.client.post(
@@ -368,6 +384,11 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
         self.assertEqual(lookup1, lookup2)
 
     def test_label_and_url_for_value_invalid_uuid(self):
+        """
+        Tests the label and URL generation for a value with an invalid UUID in a foreign key field.
+
+        The test checks that when an invalid UUID is provided to the `label_and_url_for_value` method of a `ForeignKeyRawIdWidget` instance, it correctly returns an empty string for both the label and URL. This ensures that the widget handles invalid UUID values correctly and avoids potential errors when rendering the foreign key field in the admin interface.
+        """
         field = Bee._meta.get_field("honeycomb")
         self.assertIsInstance(field.target_field, UUIDField)
         widget = widgets.ForeignKeyRawIdWidget(field.remote_field, admin.site)
@@ -415,6 +436,16 @@ class AdminDateWidgetTest(SimpleTestCase):
 
 class AdminTimeWidgetTest(SimpleTestCase):
     def test_attrs(self):
+        """
+
+        Tests the rendering of the AdminTimeWidget.
+
+        This test ensures that the widget correctly renders HTML input fields for time
+        input, with the default and custom attributes applied. It verifies that the
+        rendered HTML matches the expected output, including the input field's value,
+        class, name, and size attributes.
+
+        """
         w = widgets.AdminTimeWidget()
         self.assertHTMLEqual(
             w.render("test", datetime(2007, 12, 1, 9, 30)),
@@ -461,6 +492,15 @@ class AdminSplitDateTimeWidgetTest(SimpleTestCase):
 
 class AdminURLWidgetTest(SimpleTestCase):
     def test_get_context_validates_url(self):
+        """
+        Triggers validation for a given URL in an AdminURLFieldWidget context. 
+
+        This method checks whether provided URLs are valid or not, demonstrating 
+        the proper usage of the `get_context` method to verify URL validity.
+        It covers both positive and negative test cases, ensuring the function
+        correctly identifies valid and invalid URLs, protecting against potential
+        security vulnerabilities such as XSS attacks.
+        """
         w = widgets.AdminURLFieldWidget()
         for invalid in ["", "/not/a/full/url/", 'javascript:alert("Danger XSS!")']:
             with self.subTest(url=invalid):
@@ -591,6 +631,16 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
         )
 
     def test_render_with_attrs_id(self):
+        """
+
+        Render an AdminFileWidget with custom attributes.
+
+        This test checks that the AdminFileWidget can be successfully rendered
+        with custom attributes, such as an 'id' attribute. The rendered HTML
+        should include the current file, a clear checkbox, and a file input field
+        with the specified 'id' attribute.
+
+        """
         storage_url = default_storage.url("")
         w = widgets.AdminFileWidget()
         self.assertHTMLEqual(
@@ -617,6 +667,14 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
         )
 
     def test_render_disabled(self):
+        """
+
+        Tests the rendering of the AdminFileWidget when it is disabled.
+
+        Verifies that the widget correctly displays the current file and provides options to clear it, 
+        while ensuring that the file input field and clear checkbox are disabled, preventing user interaction.
+
+        """
         widget = widgets.AdminFileWidget(attrs={"disabled": True})
         self.assertHTMLEqual(
             widget.render("test", self.album.cover_art),
@@ -676,6 +734,23 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class ForeignKeyRawIdWidgetTest(TestCase):
     def test_render(self):
+        """
+
+        Test rendering of the ForeignKeyRawIdWidget for band and album relationships.
+
+        This test checks if the widget correctly renders a foreign key field for both 
+        band and album models, including the display of related object details and 
+        lookup functionality.
+
+        The test case covers two scenarios:
+        - Rendering a widget for a band that has been associated with an album.
+        - Rendering a widget for an album without any associated release events.
+
+        The functionality of the ForeignKeyRawIdWidget, including its rendering of 
+        text input, lookup links, and display of related object information, is 
+        verified through assertions of the expected HTML output.
+
+        """
         band = Band.objects.create(name="Linkin Park")
         band.album_set.create(
             name="Hybrid Theory", cover_art=r"albums\hybrid_theory.jpg"
@@ -737,6 +812,13 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_fk_to_self_model_not_in_admin(self):
         # FK to self, not registered with admin site. Raw ID widget should have
         # no magnifying glass link. See #16542
+        """
+        Tests that a foreign key to the same model is correctly rendered in the admin interface when the model is not in the admin site.
+
+        Verifies that the ForeignKeyRawIdWidget displays the correct HTML for a foreign key field referencing the same model, including the input field with the correct name and value, and the display of the related object's representation.
+
+        The test creates a self-referential relationship between two instances of the Individual model, where one instance is the parent of the other, and checks that the widget renders the expected HTML output.
+        """
         subject1 = Individual.objects.create(name="Subject #1")
         Individual.objects.create(name="Child", parent=subject1)
         rel = Individual._meta.get_field("parent").remote_field
@@ -826,6 +908,14 @@ class ManyToManyRawIdWidgetTest(TestCase):
     def test_m2m_related_model_not_in_admin(self):
         # M2M relationship with model not registered with admin site. Raw ID
         # widget should have no magnifying glass link. See #16542
+        """
+        Tests the rendering of a Many-To-Many raw id widget for the Advisor model's companies field.
+
+        The function creates test data, including an Advisor instance and multiple Company instances, 
+        then establishes relationships between them. It uses this data to test the widget's rendering 
+        in various scenarios, verifying that the resulting HTML matches the expected output. 
+        This ensures that the widget correctly displays the related model instances.
+        """
         consultor1 = Advisor.objects.create(name="Rockstar Techie")
 
         c1 = Company.objects.create(name="Doodle")
@@ -872,6 +962,18 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(wrapper.can_delete_related)
 
     def test_on_delete_cascade_rel_cant_delete_related(self):
+        """
+        Tests the behavior of RelatedFieldWidgetWrapper when dealing with 'on_delete' cascade relationships.
+
+        This test case verifies that when a model has a foreign key relationship with
+        'on_delete' set to cascade, the RelatedFieldWidgetWrapper correctly reflects
+        the ability to add and change related objects, but not delete them.
+
+        Specifically, it checks the widget wrapper's properties for adding, changing, and
+        deleting related objects, ensuring they match the expected behavior for a
+        cascade relationship. The test helps guarantee that the widget wrapper handles
+        such relationships as intended, preventing accidental deletion of related objects.
+        """
         rel = Individual._meta.get_field("soulmate").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(
@@ -1251,6 +1353,23 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def assertActiveButtons(
         self, mode, field_name, choose, remove, choose_all=None, remove_all=None
     ):
+        """
+
+        Asserts the active state of buttons in a specific mode.
+
+        This function checks if the \"choose\", \"remove\", \"choose all\", and \"remove all\" buttons
+        are active or not, based on the provided mode and expected states.
+
+        :param mode: The mode of the buttons (e.g. 'horizontal')
+        :param field_name: The name of the field associated with the buttons
+        :param choose: Whether the \"choose\" button is expected to be active
+        :param remove: Whether the \"remove\" button is expected to be active
+        :param choose_all: Whether the \"choose all\" button is expected to be active (default: None)
+        :param remove_all: Whether the \"remove all\" button is expected to be active (default: None)
+
+        Note: The \"choose all\" and \"remove all\" buttons are only checked if the mode is 'horizontal'.
+
+        """
         choose_link = "#id_%s_add_link" % field_name
         choose_all_link = "#id_%s_add_all_link" % field_name
         remove_link = "#id_%s_remove_link" % field_name
@@ -1717,6 +1836,14 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
         self.wait_for_value("#id_main_band", "98")
 
     def test_many_to_many(self):
+        """
+        :class:`test_many_to_many`: Test the many-to-many relationship for supporting bands using the admin interface.
+
+        This test logs in as an admin user, navigates to the event add page, and verifies the initial state of the supporting bands field.
+        It then opens the popup window to select bands, chooses a band, and checks that the selected band is added to the supporting bands field.
+        This process is repeated to add a second band, verifying that multiple bands can be selected and added to the field.
+        The test covers the UI interaction and validation of the many-to-many relationship, ensuring that the admin interface functions as expected.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")

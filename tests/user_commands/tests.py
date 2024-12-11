@@ -34,6 +34,13 @@ from .management.commands import dance
 )
 class CommandTests(SimpleTestCase):
     def test_command(self):
+        """
+        Tests the 'dance' management command to verify its expected output. 
+
+        This test case checks if the command returns the string \"I don't feel like dancing Rock'n'Roll.\" when executed. 
+
+        It serves as a validation mechanism to ensure the command behaves as expected under normal conditions.
+        """
         out = StringIO()
         management.call_command("dance", stdout=out)
         self.assertIn("I don't feel like dancing Rock'n'Roll.\n", out.getvalue())
@@ -145,6 +152,13 @@ class CommandTests(SimpleTestCase):
     def test_calling_command_with_parameters_and_app_labels_at_the_end_should_be_ok(
         self,
     ):
+        """
+
+        Tests the execution of a command with parameters and app labels.
+        Verifies that the command 'hal' can be successfully called with the '--verbosity' parameter and app labels.
+        Confirms the output contains the expected message, indicating proper command processing.
+
+        """
         out = StringIO()
         management.call_command("hal", "--verbosity", "3", "myapp", stdout=out)
         self.assertIn(
@@ -211,6 +225,15 @@ class CommandTests(SimpleTestCase):
             Command()
 
     def test_check_migrations(self):
+        """
+
+        Checks whether the 'dance' command correctly handles migration checks.
+
+        Verifies that by default, the 'dance' command does not perform migration checks,
+        and then tests whether enabling the migration checks results in the 'check_migrations'
+        method being called.
+
+        """
         requires_migrations_checks = dance.Command.requires_migrations_checks
         self.assertIs(requires_migrations_checks, False)
         try:
@@ -224,6 +247,15 @@ class CommandTests(SimpleTestCase):
             dance.Command.requires_migrations_checks = requires_migrations_checks
 
     def test_call_command_unrecognized_option(self):
+        """
+        Tests that calling a management command with unrecognized options raises a TypeError.
+
+        The test checks that the error message correctly identifies the unknown options and lists the valid options for the command.
+
+        Two test cases are covered: passing a single unrecognized option and passing multiple unrecognized options. In both cases, the expected error message includes the names of the valid options for the command.
+
+        This test ensures that the management command correctly validates its options and provides informative error messages when invalid options are used.
+        """
         msg = (
             "Unknown option(s) for dance command: unrecognized. Valid options "
             "are: example, force_color, help, integer, no_color, opt_3, "
@@ -243,6 +275,18 @@ class CommandTests(SimpleTestCase):
             management.call_command("dance", unrecognized=1, unrecognized2=1)
 
     def test_call_command_with_required_parameters_in_options(self):
+        """
+        Tests the call_command function with required options.
+
+        This test case verifies that the call_command function, when provided with a command
+        that requires specific options, executes successfully and includes the required options
+        in its output. The test checks for the presence of the 'need_me' and 'need_me2' options
+        in the command output, ensuring that the function handles required parameters correctly.
+
+        It provides assurance that the function behaves as expected when given the necessary
+        parameters, validating the output against the expected content.
+
+        """
         out = StringIO()
         management.call_command(
             "required_option", need_me="foo", needme2="bar", stdout=out
@@ -280,6 +324,19 @@ class CommandTests(SimpleTestCase):
             management.call_command("mutually_exclusive_required", stdout=out)
 
     def test_mutually_exclusive_group_required_const_options(self):
+        """
+
+        Tests whether a set of mutually exclusive group arguments with constant options 
+        are correctly handled when required.
+
+        Verifies that each argument in the mutually exclusive group is properly 
+        processed and its corresponding output is produced. The test covers a variety 
+        of argument types, including append_const, const, count, flag_false, and flag_true.
+
+        The test covers two invocation methods: calling the command with the argument 
+        as an option and calling it with the argument as a keyword argument.
+
+        """
         tests = [
             ("append_const", [42]),
             ("const", 31),
@@ -305,6 +362,17 @@ class CommandTests(SimpleTestCase):
                 self.assertIn(expected_output, out.getvalue())
 
     def test_mutually_exclusive_group_required_with_same_dest_options(self):
+        """
+
+        Tests that mutually exclusive arguments cannot be passed with the same destination.
+
+        Verifies that when the same destination is set for multiple arguments, 
+        a TypeError is raised with the corresponding error message, 
+        indicating that the dest 'until' matches multiple arguments via **options.
+
+        Args are grouped into test cases and processed with subtests to check for correct error handling.
+
+        """
         tests = [
             {"until": "2"},
             {"for": "1", "until": "2"},
@@ -383,6 +451,14 @@ class CommandTests(SimpleTestCase):
         self.assertIn(expected_output, out.getvalue())
 
     def test_subparser(self):
+        """
+
+        Tests the functionality of the subparser command with specific arguments.
+
+        This test verifies that the subparser command behaves correctly when invoked with the 'foo' argument and an integer value of 12.
+        It checks that the command's output contains the expected string 'bar', indicating successful execution.
+
+        """
         out = StringIO()
         management.call_command("subparser", "foo", 12, stdout=out)
         self.assertIn("bar", out.getvalue())
@@ -393,6 +469,16 @@ class CommandTests(SimpleTestCase):
         self.assertIn("bar", out.getvalue())
 
     def test_subparser_dest_required_args(self):
+        """
+        Tests that the subparser properly handles required arguments.
+
+        Verifies that when the 'subparser_required' command is invoked with the 
+        required positional arguments 'foo_1' and 'foo_2', as well as the 
+        optional keyword argument 'bar', the output includes the value of 'bar'.
+
+        This test case ensures that the subparser correctly processes and 
+        includes required arguments in the command output.
+        """
         out = StringIO()
         management.call_command(
             "subparser_required", "foo_1", "foo_2", bar=12, stdout=out
@@ -420,6 +506,19 @@ class CommandTests(SimpleTestCase):
         self.assertEqual(parser.formatter_class, ArgumentDefaultsHelpFormatter)
 
     def test_outputwrapper_flush(self):
+        """
+
+        Tests the outputwrapper command's interaction with stdout.
+
+        This test case verifies that the outputwrapper command correctly writes
+        to the stdout and ensures that the flush method is called, which is 
+        necessary to display the output in real-time.
+
+        The test checks for the presence of a specific message in the output and 
+        confirms that the flush method has been invoked, providing assurance 
+        that the command behaves as expected in terms of output handling.
+
+        """
         out = StringIO()
         with mock.patch.object(out, "flush") as mocked_flush:
             management.call_command("outputwrapper", stdout=out)
@@ -482,6 +581,15 @@ class CommandRunTests(AdminScriptTestCase):
         )
 
     def test_subparser_non_django_error_formatting(self):
+        """
+        Test subparser error formatting in a non-Django context.
+
+        This test case verifies that the error messages produced by a subparser are correctly formatted when an invalid argument value is provided. The test checks the output and error streams to ensure that the error message is displayed as expected, with the correct command name and error description.
+
+        The test scenario involves running a management command with an invalid integer argument, and checking that the resulting error message is properly formatted and contains the expected information, including the command name and the description of the error. The test also verifies that no output is produced on the standard output stream.
+
+        The expected error message format is checked for correctness, including the command name, the error description, and the argument name. This test helps ensure that the error handling and formatting in the subparser work as intended in non-Django contexts.
+        """
         self.write_settings("settings.py", apps=["user_commands"])
         out, err = self.run_manage(["subparser_vanilla", "foo", "seven"])
         self.assertNoOutput(out)
@@ -496,11 +604,24 @@ class CommandRunTests(AdminScriptTestCase):
 
 class UtilsTests(SimpleTestCase):
     def test_no_existent_external_program(self):
+        """
+        kapıda 
+        Test that attempts to execute a non-existent external program, verifying that 
+        a CommandError exception is raised with the expected error message, indicating 
+        that the command does not exist. This test checks the proper handling of 
+        invalid command invocations.
+        """
         msg = "Error executing a_42_command_that_doesnt_exist_42"
         with self.assertRaisesMessage(CommandError, msg):
             popen_wrapper(["a_42_command_that_doesnt_exist_42"])
 
     def test_get_random_secret_key(self):
+        """
+        Tests the generation of a random secret key.
+
+        Verifies that the generated key has a length of 50 characters and only contains 
+        alphanumeric characters and specific special characters (!, @, #, $, %, ^, &, *, -, _, =, +).
+        """
         key = get_random_secret_key()
         self.assertEqual(len(key), 50)
         for char in key:

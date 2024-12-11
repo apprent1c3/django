@@ -74,6 +74,20 @@ class CheckboxSelectMultipleTest(WidgetTest):
         )
 
     def test_nested_choices(self):
+        """
+
+        Tests the rendering of nested choices in a checkbox widget.
+
+        This test case verifies that a checkbox widget can correctly render nested choices,
+        where some options are grouped under a category. The test checks that the HTML output
+        matches the expected structure and content, including the correct naming and id's of
+        the input fields, as well as the rendering of the category labels.
+
+        The test uses a predefined set of nested choices, including categories for 'Audio' and
+        'Video', each with their own set of options. The test then checks the HTML output of the
+        widget against a predefined expected HTML string.
+
+        """
         nested_choices = (
             ("unknown", "Unknown"),
             ("Audio", (("vinyl", "Vinyl"), ("cd", "CD"))),
@@ -196,6 +210,14 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        Tests that the widget does not localize the input value when USE_THOUSAND_SEPARATOR is True.
+
+        This test ensures that the widget correctly renders checkbox options with numeric and time values.
+        It checks the generated HTML against expected output for different types of choices, including integers and time objects.
+        The test covers scenarios where the input values should not be localized, such as when rendering checkboxes for numbers or times.
+        By verifying the expected HTML output, this test provides assurance that the widget behaves as expected in different scenarios.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),

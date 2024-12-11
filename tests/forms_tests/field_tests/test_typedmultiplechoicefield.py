@@ -7,6 +7,22 @@ from django.test import SimpleTestCase
 
 class TypedMultipleChoiceFieldTest(SimpleTestCase):
     def test_typedmultiplechoicefield_1(self):
+        """
+        Tests the TypedMultipleChoiceField with integer choices.
+
+        Verifies that the field correctly validates and cleans the input when a valid choice is provided.
+        Additionally, checks that the field raises a ValidationError with a descriptive message when an invalid choice is submitted.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: If the input choice is not one of the available options.
+
+        """
         f = TypedMultipleChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int)
         self.assertEqual([1], f.clean(["1"]))
         msg = "'Select a valid choice. 2 is not one of the available choices.'"
@@ -43,6 +59,17 @@ class TypedMultipleChoiceFieldTest(SimpleTestCase):
 
     def test_typedmultiplechoicefield_6(self):
         # Non-required fields aren't required
+        """
+        Tests the TypedMultipleChoiceField's clean method with an empty input.
+
+        This test case verifies that when an empty list is passed to the clean method,
+        it correctly returns an empty list, given the field's parameters of having 
+        integer choices, optional requirement, and a coercion to integer values.
+
+        The test scenario checks the proper handling of empty input data for a field 
+        configured with specific selection options, demonstrating its behavior when 
+        no value is provided by the user, thus ensuring its correctness in such cases.
+        """
         f = TypedMultipleChoiceField(
             choices=[(1, "+1"), (-1, "-1")], coerce=int, required=False
         )

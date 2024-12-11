@@ -30,6 +30,19 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+        Tests the string representation of various classes.
+
+        Verifies that the repr function returns a human-readable string for 
+        Token, Parser, FilterExpression, and Lexer objects, including their 
+        relevant attributes and state.
+
+        Checks string representations for:
+            - Token objects with a specific type and text
+            - Parser objects with a list of tokens and built-in filters
+            - FilterExpression objects with a specific expression
+            - Lexer objects with a template string and verbatim flag
+        """
         token = Token(TokenType.BLOCK, "some text")
         self.assertEqual(repr(token), '<Block token: "some text...">')
         parser = Parser([token], builtins=[filter_library])
@@ -46,6 +59,25 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_filter_parsing(self):
+        """
+        Tests the parsing functionality of filter expressions.
+
+        This function ensures that filter expressions are correctly parsed and resolved.
+        It covers various scenarios, including parsing of nested attributes, 
+        application of filters, and handling of quoted strings with escaped characters.
+
+        The function verifies that the parser correctly interprets filter expressions, 
+        such as accessing attributes of objects, applying filters like 'upper', and 
+        processing quoted strings with special characters.
+
+        Additionally, it checks that the parser raises an error when attempting to 
+        access variables or attributes that start with an underscore, as this is 
+        not allowed according to the template syntax rules.
+
+        The test cases exercise the parser with different inputs and verify that 
+        the expected results are returned, providing confidence in the correctness 
+        of the filter expression parsing functionality.
+        """
         c = {"article": {"section": "News"}}
         p = Parser("", builtins=[filter_library])
 
@@ -105,6 +137,26 @@ class ParserTests(SimpleTestCase):
             Variable({})
 
     def test_filter_args_count(self):
+        """
+
+        Test the handling of filter arguments in the parser.
+
+        This test case verifies that the parser correctly raises an error when an invalid
+        number of arguments is provided for a filter, and successfully parses when the
+        correct number of arguments is provided. The test covers filters with varying
+        numbers of required and optional arguments.
+
+        It checks for the following cases:
+        - Filters with no arguments
+        - Filters with one required argument
+        - Filters with one optional argument
+        - Filters with two required arguments
+        - Filters with two arguments, one of which is optional
+
+        The test ensures that the parser correctly identifies and handles invalid filter
+        expressions, and does not raise any errors for valid expressions.
+
+        """
         parser = Parser("")
         register = Library()
 

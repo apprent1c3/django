@@ -38,6 +38,14 @@ class LengthTests(SimpleTestCase):
     # Invalid uses that should fail silently.
     @setup({"length06": "{{ int|length }}"})
     def test_length06(self):
+        """
+
+        Test the length filter with integer input.
+
+        This test case checks if the length filter correctly calculates the length of an integer value.
+        It verifies that the rendered output is '0', indicating that the length of an integer is considered 0 in this context.
+
+        """
         output = self.engine.render_to_string("length06", {"int": 7})
         self.assertEqual(output, "0")
 

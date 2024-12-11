@@ -80,6 +80,19 @@ class ParsingTests(TestCase):
         )
 
     def test_unique_column(self):
+        """
+
+        Tests that the parsing of SQL definitions for unique columns functions correctly.
+
+        The function verifies that the parser can identify unique constraints in various
+        SQL definitions, including those with quoted and unquoted column names, and
+        properly sets the unique flag while leaving the constraint and check fields empty.
+
+        It covers multiple test cases with different column definitions and names, 
+        ensuring that the parsing logic is robust and works as expected in different 
+        scenarios.
+
+        """
         tests = (
             ('"ref" integer UNIQUE,', ["ref"]),
             ("ref integer UNIQUE,", ["ref"]),
@@ -152,6 +165,15 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_constraint(self):
+        """
+        Tests the parsing of SQL check constraints to ensure the function correctly identifies the constraint name and referenced columns.
+
+        The test suite covers various scenarios, including quoted and unquoted constraint names and columns, as well as custom names. 
+
+        It verifies that the function returns the expected constraint name, no additional details, and a correct check clause with the specified columns.
+
+        Each test case is run as a subtest to provide detailed information in case of failures, facilitating easier debugging and identification of specific test cases that fail.
+        """
         tests = (
             ('CONSTRAINT "ref" CHECK ("ref" != \'test\'),', "ref", ["ref"]),
             ("CONSTRAINT ref CHECK (ref != 'test'),", "ref", ["ref"]),
@@ -190,6 +212,9 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_and_unique_column(self):
+        """
+        Checks if the parser correctly handles SQL definitions with both UNIQUE and CHECK constraints on a single column, ensuring that the UNIQUE constraint is properly identified and the CHECK constraint condition is correctly parsed. The test covers different notation styles for specifying these constraints in the SQL definition.
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\') UNIQUE,', ["ref"]),
             ("ref varchar(255) UNIQUE CHECK (ref != 'test'),", ["ref"]),

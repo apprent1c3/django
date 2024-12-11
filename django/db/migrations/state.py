@@ -141,6 +141,24 @@ class ProjectState:
 
     def rename_model(self, app_label, old_name, new_name):
         # Add a new model.
+        """
+
+        Renames a model within the application.
+
+        Renaming a model involves updating its name, cloning the original model, and updating all references to the old model name.
+        This includes foreign key and many-to-many field references, as well as relations defined in the _relations attribute.
+
+        The renamed model is then reloaded, and the original model is removed. This process ensures that all dependent models are updated correctly.
+
+        Args:
+            app_label (str): The application label of the model to be renamed.
+            old_name (str): The original name of the model.
+            new_name (str): The new name for the model.
+
+        Note:
+            This method modifies the internal state of the models and relations. It is expected to be used in the context of a larger application or framework that manages models and their relationships.
+
+        """
         old_name_lower = old_name.lower()
         new_name_lower = new_name.lower()
         renamed_model = self.models[app_label, old_name_lower].clone()
@@ -196,6 +214,18 @@ class ProjectState:
         self.reload_model(app_label, model_name, delay=True)
 
     def alter_model_managers(self, app_label, model_name, managers):
+        """
+
+        Alters the managers associated with a specific model.
+
+        This function updates the managers of a model identified by its application label and model name.
+        It replaces the existing managers with the ones provided, and then reloads the model to apply the changes.
+
+        :param app_label: The label of the application that the model belongs to.
+        :param model_name: The name of the model to alter.
+        :param managers: A list of managers to associate with the model.
+
+        """
         model_state = self.models[app_label, model_name]
         model_state.managers = list(managers)
         self.reload_model(app_label, model_name, delay=True)
@@ -344,6 +374,27 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def _find_reload_model(self, app_label, model_name, delay=False):
+        """
+
+        Finds and returns all related models for a given model in the application.
+
+        This function takes an application label and a model name as input and returns a set of tuples, where each tuple contains the application label and model name of a related model.
+
+        The function can also optionally delay the retrieval of related models by only fetching direct relations and marking the process for delayed completion.
+
+        The related models are determined by recursively examining the fields of the given model and its related models, and including any models that have a relationship with the given model or its related models.
+
+        If a model is not found, it is simply skipped and the function continues with the remaining models.
+
+        Args:
+            app_label (str): The label of the application that the model belongs to.
+            model_name (str): The name of the model to find related models for.
+            delay (bool, optional): Whether to delay the retrieval of related models. Defaults to False.
+
+        Returns:
+            set: A set of tuples, where each tuple contains the application label and model name of a related model.
+
+        """
         if delay:
             self.is_delayed = True
 
@@ -394,6 +445,20 @@ class ProjectState:
         return related_models
 
     def reload_model(self, app_label, model_name, delay=False):
+        """
+
+        Reloads a model and its related models in the application.
+
+        :param app_label: The label of the Django application containing the model.
+        :param model_name: The name of the model to reload.
+        :param delay: If True, delay the reloading of the model until necessary.
+
+        (description)
+        This function reloads a specific model and its dependencies within the Django application.
+        The related models are identified and reloaded accordingly, ensuring that the application remains up-to-date.
+        The reloading process can be delayed if needed, providing flexibility in handling model updates.
+
+        """
         if "apps" in self.__dict__:  # hasattr would cache the property
             related_models = self._find_reload_model(app_label, model_name, delay)
             self._reload(related_models)
@@ -557,6 +622,13 @@ class ProjectState:
         return new_state
 
     def clear_delayed_apps_cache(self):
+        """
+
+        Removes the cached list of applications when the instance is in a delayed state.
+
+        This method is used to clear the cache when it is no longer valid, ensuring that the latest data is retrieved on the next access.
+
+        """
         if self.is_delayed and "apps" in self.__dict__:
             del self.__dict__["apps"]
 

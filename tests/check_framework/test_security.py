@@ -498,6 +498,14 @@ class CheckSecretKeyFallbacksTest(SimpleTestCase):
 
     @override_settings(SECRET_KEY_FALLBACKS=["abcd" * 20])
     def test_low_entropy_secret_key_fallbacks(self):
+        """
+
+        Tests the case where SECRET_KEY_FALLBACKS has low entropy.
+
+        Verifies that when the first fallback secret key has a length greater than the minimum required,
+        but its characters are not unique enough, a warning is raised to inform the user of potential security risks.
+
+        """
         self.assertGreater(
             len(settings.SECRET_KEY_FALLBACKS[0]),
             base.SECRET_KEY_MIN_LENGTH,

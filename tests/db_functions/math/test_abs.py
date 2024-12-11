@@ -15,6 +15,19 @@ class AbsTests(TestCase):
         self.assertIsNone(obj.null_abs)
 
     def test_decimal(self):
+        """
+        Tests the absolute value annotation for Decimal fields.
+
+        This test case creates a DecimalModel instance with negative and positive decimal values.
+        It then checks if the absolute value of these decimal fields is correctly annotated and 
+        if the result is a Decimal instance. The test also verifies that the absolute values are 
+        correctly calculated by comparing them with the original values.
+
+        The test covers the following cases:
+        - Annotation of absolute values for decimal fields
+        - Correct calculation of absolute values for negative and positive decimals
+        - Correct data type of annotated absolute values
+        """
         DecimalModel.objects.create(n1=Decimal("-0.8"), n2=Decimal("1.2"))
         obj = DecimalModel.objects.annotate(n1_abs=Abs("n1"), n2_abs=Abs("n2")).first()
         self.assertIsInstance(obj.n1_abs, Decimal)

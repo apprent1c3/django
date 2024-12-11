@@ -109,6 +109,9 @@ class TranslationTests(SimpleTestCase):
         )
 
     def test_plural_null(self):
+        """
+        Test that the plural handling of the ngettext function works correctly when the input number is null or zero, returning the correct singular or plural form of the string. The function verifies that the ngettext function behaves as expected for different input numbers, ensuring proper pluralization for English strings in the context of years.
+        """
         g = trans_null.ngettext
         self.assertEqual(g("%(num)d year", "%(num)d years", 0) % {"num": 0}, "0 years")
         self.assertEqual(g("%(num)d year", "%(num)d years", 1) % {"num": 1}, "1 year")
@@ -147,6 +150,22 @@ class TranslationTests(SimpleTestCase):
 
     def test_override_decorator(self):
         @translation.override("pl")
+        """
+        Tests the functionality of the translation override decorator.
+
+        This test case verifies that the decorator correctly overrides the language settings 
+        for the duration of the decorated function's execution. It checks that the language 
+        is correctly set to the specified value ('pl' in this case) and also handles the 
+        case where the language is set to None. The test also ensures that the language 
+        reverts to its original value after the decorated function has finished executing, 
+        even if an exception is thrown.
+
+        The test covers the following scenarios:
+        - The language is overridden to a specific value ('pl').
+        - The language is overridden to None.
+        - The language is activated to a different value ('de') before calling the decorated functions.
+
+        """
         def func_pl():
             self.assertEqual(get_language(), "pl")
 
@@ -338,6 +357,15 @@ class TranslationTests(SimpleTestCase):
                 complex_context_deferred.format(name="Jim")
 
     def test_ngettext_lazy_bool(self):
+        """
+        Tests the functionality of the ngettext_lazy function with boolean values.
+
+        This test checks two main scenarios:
+        - The function returns True when provided with non-empty translation strings.
+        - The function returns False when provided with empty translation strings.
+
+        The purpose is to ensure the ngettext_lazy function correctly handles boolean output based on its input strings, which aids in determining whether pluralized translations are available or not.
+        """
         self.assertTrue(ngettext_lazy("%d good result", "%d good results"))
         self.assertFalse(ngettext_lazy("", ""))
 
@@ -426,6 +454,19 @@ class TranslationTests(SimpleTestCase):
                 self.assertEqual(to_locale(lang), locale)
 
     def test_to_language(self):
+        """
+        Converts a language code from one format to another.
+
+        This function takes a language code in the format 'XX_XX' (e.g. 'en_US')
+        and returns the equivalent code in the format 'xx-xx' (e.g. 'en-us').
+
+        The conversion follows standard language code formatting conventions,
+        where the language and region codes are separated by a hyphen instead
+        of an underscore, and all characters are in lowercase.
+
+        :param str: A language code in the format 'XX_XX'
+        :returns: str: The language code in the format 'xx-xx'
+        """
         self.assertEqual(to_language("en_US"), "en-us")
         self.assertEqual(to_language("sr_Lat"), "sr-lat")
 
@@ -501,6 +542,17 @@ class TranslationThreadSafetyTests(SimpleTestCase):
         trans_real._translations = {sideeffect_str("en-XX"): None}
 
     def tearDown(self):
+        """
+        .. method:: tearDown
+
+            Reverts the translation settings to their original state after a test.
+
+            This method resets the translation dictionary to its initial state and
+            reactivates the language that was in use before the test started. It is
+            typically used to clean up after a test has finished running, ensuring
+            that subsequent tests are not affected by any changes made to the
+            translation settings.
+        """
         trans_real._translations = self._translations
         activate(self._old_language)
 
@@ -1171,6 +1223,29 @@ class FormattingTests(SimpleTestCase):
                 )
 
     def test_localized_input_func(self):
+        """
+
+        Tests the localize_input function with various input types to ensure correct localization.
+
+        The function checks if the localize_input function correctly handles different data types, 
+        including boolean, date, and datetime objects. It verifies that the output matches the expected 
+        localized string representation of the input values.
+
+        The test uses the USE_THOUSAND_SEPARATOR setting to test the function's behavior with thousand separators enabled.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AssertionError : If the localize_input function does not return the expected localized string.
+
+        """
         tests = (
             (True, "True"),
             (datetime.date(1, 1, 1), "0001-01-01"),
@@ -1424,6 +1499,23 @@ class FormattingTests(SimpleTestCase):
         self.assertEqual(get_format("DEBUG"), "DEBUG")
 
     def test_get_custom_format(self):
+        """
+
+        Tests the retrieval of a custom format using the get_format function.
+
+        This test case simulates a scenario where the application is set to use a specific 
+        format module and locale. It then checks if the get_format function correctly 
+        returns the custom format for the 'CUSTOM_DAY_FORMAT' key.
+
+        The test covers the following aspects:
+        - The format cache is reset before the test to ensure a clean start.
+        - The application's settings are temporarily modified to use a custom format module.
+        - The language is set to French without activating the translation, allowing for 
+          testing of the custom format in a specific locale.
+        - The get_format function is called with the 'CUSTOM_DAY_FORMAT' key and its 
+          returned value is verified to match the expected custom format.
+
+        """
         reset_format_cache()
         with self.settings(FORMAT_MODULE_PATH="i18n.other.locale"):
             with translation.override("fr", deactivate=True):
@@ -1684,6 +1776,21 @@ class MiscTests(SimpleTestCase):
         self.assertEqual(g("en-" * 30000), "en")  # catastrophic test
 
     def test_get_supported_language_variant_null(self):
+        """
+        Tests the functionality of getting a supported language variant with a null configuration.
+
+        This test case checks the behavior of the get_supported_language_variant function
+        when it is provided with different language codes. It verifies that the function
+        returns the language code when it matches the settings LANGUAGE_CODE and raises a
+        LookupError for unsupported language codes, including those with and without strict
+        matching enabled.
+
+        Validates the following scenarios:
+        - Successful retrieval of the language code matching the settings LANGUAGE_CODE
+        - Error handling for unsupported language codes with and without country or region
+          specified
+        - Error handling for unsupported language codes with strict matching enabled
+        """
         g = trans_null.get_supported_language_variant
         self.assertEqual(g(settings.LANGUAGE_CODE), settings.LANGUAGE_CODE)
         with self.assertRaises(LookupError):
@@ -1837,6 +1944,14 @@ class TestModels(TestCase):
         tm.save()
 
     def test_safestr(self):
+        """
+
+        Tests safe string functionality by creating a Company instance with a name containing special characters,
+        saving it, and verifying that the operation completes successfully.
+
+        This test case ensures that the application can handle non-ASCII characters in company names without errors.
+
+        """
         c = Company(cents_paid=12, products_delivered=1)
         c.name = SafeString("Iñtërnâtiônàlizætiøn1")
         c.save()
@@ -1866,6 +1981,15 @@ class TestLanguageInfo(SimpleTestCase):
         self.assertIs(li["bidi"], False)
 
     def test_unknown_language_code_and_country_code(self):
+        """
+        Tests that a KeyError is raised with a descriptive message when an unknown language code is passed to get_language_info.
+
+        The test case verifies that the function correctly handles invalid input and provides a meaningful error message, indicating that the language code is not recognized.
+
+        The expected error message includes the provided unknown language code, ensuring that the error is easily identifiable and debuggable.
+
+        This test is essential to ensure the robustness and reliability of the get_language_info function, guaranteeing that it behaves as expected when encountering invalid or unsupported language codes.
+        """
         with self.assertRaisesMessage(KeyError, "Unknown language code xx-xx and xx"):
             get_language_info("xx-xx")
 
@@ -2077,6 +2201,17 @@ class NonDjangoLanguageTests(SimpleTestCase):
 
     @override_settings(USE_I18N=True)
     def test_check_for_language(self):
+        """
+        Checks if a given language is properly configured and available for use.
+
+        This function verifies that the required language files are present and correctly set up,
+        allowing the language to be used within the application. It returns True if the language
+        is available and False otherwise.
+
+        :param str language_code: The language code to check for availability
+        :returns: bool indicating whether the language is available
+
+        """
         with tempfile.TemporaryDirectory() as app_dir:
             os.makedirs(os.path.join(app_dir, "locale", "dummy_Lang", "LC_MESSAGES"))
             open(
@@ -2109,16 +2244,56 @@ class NonDjangoLanguageTests(SimpleTestCase):
 class WatchForTranslationChangesTests(SimpleTestCase):
     @override_settings(USE_I18N=False)
     def test_i18n_disabled(self):
+        """
+        Disables internationalization (i18n) and tests that translation change watching is not performed.
+
+        This test case checks the behavior of the watch_for_translation_changes function when
+        i18n is disabled. It verifies that no directory watching is initiated when the USE_I18N
+        setting is set to False.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            The USE_I18N setting is overridden to False for the duration of this test.
+
+        """
         mocked_sender = mock.MagicMock()
         watch_for_translation_changes(mocked_sender)
         mocked_sender.watch_dir.assert_not_called()
 
     def test_i18n_enabled(self):
+        """
+
+        Checks if internationalization (i18n) is properly enabled.
+
+        This test verifies that directories are being monitored for translation changes.
+        It ensures that the watch_for_translation_changes function successfully triggers
+        the monitoring of directories, which is crucial for detecting updates to translation files.
+
+        """
         mocked_sender = mock.MagicMock()
         watch_for_translation_changes(mocked_sender)
         self.assertGreater(mocked_sender.watch_dir.call_count, 1)
 
     def test_i18n_locale_paths(self):
+        """
+
+        Test the functionality of watching for translation changes in i18n locale paths.
+
+        This test case verifies that the watch_for_translation_changes function correctly
+        watches the specified locale paths for changes to translation files (.mo files).
+
+        The function is tested by creating a temporary directory, setting the LOCALE_PATHS
+        to this temporary directory, and then calling watch_for_translation_changes.
+        The test asserts that the watch_dir method of the mocked sender is called with
+        the correct path and file pattern.
+
+
+        """
         mocked_sender = mock.MagicMock()
         with tempfile.TemporaryDirectory() as app_dir:
             with self.settings(LOCALE_PATHS=[app_dir]):
@@ -2126,6 +2301,20 @@ class WatchForTranslationChangesTests(SimpleTestCase):
             mocked_sender.watch_dir.assert_any_call(Path(app_dir), "**/*.mo")
 
     def test_i18n_app_dirs(self):
+        """
+
+        Tests the watch_for_translation_changes function in the context of an i18n application.
+
+        This test case verifies that the function correctly identifies and monitors the locale directories of an installed application
+        for changes to translation files (.mo files).
+
+        The test simulates the installation of the 'i18n.sampleproject' application and checks that the watch_for_translation_changes
+        function is watching the correct directory for translation changes.
+
+        It ensures that the function integrates correctly with the i18n application directory structure and can detect changes to
+        translation files in the expected location.
+
+        """
         mocked_sender = mock.MagicMock()
         with self.settings(INSTALLED_APPS=["i18n.sampleproject"]):
             watch_for_translation_changes(mocked_sender)
@@ -2155,6 +2344,14 @@ class TranslationFileChangedTests(SimpleTestCase):
         trans_real._translations = self.trans_real_translations
 
     def test_ignores_non_mo_files(self):
+        """
+
+        Checks if the translation file change function ignores non-mo files.
+
+        This test ensures that files without a.mo extension do not affect the state of the translation system.
+        It verifies that the translation is not changed when a non-mo file is passed to the translation file change function.
+
+        """
         gettext_module._translations = {"foo": "bar"}
         path = Path("test.py")
         self.assertIsNone(translation_file_changed(None, path))

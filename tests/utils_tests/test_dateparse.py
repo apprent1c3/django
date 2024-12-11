@@ -14,6 +14,21 @@ from django.utils.version import PY311
 class DateParseTests(unittest.TestCase):
     def test_parse_date(self):
         # Valid inputs
+        """
+        Tests the functionality of the parse_date function.
+
+        This function is tested with various date formats to ensure it correctly 
+        parses valid dates and handles invalid ones accordingly. It checks if the 
+        function can parse dates in the 'YYYY-MM-DD' format, with both single and 
+        double digits for month and day, and also tests its behavior with a 
+        'YYYYMMDD' format, which is supported in Python 3.11 and later. 
+
+        Additionally, it verifies that the function returns None when given a date 
+        string that does not match any supported format, and that it raises a 
+        ValueError when the date string is in a correct format but contains invalid 
+        values, such as a day greater than the maximum allowed for the given month 
+        and year.
+        """
         self.assertEqual(parse_date("2012-04-23"), date(2012, 4, 23))
         self.assertEqual(parse_date("2012-4-9"), date(2012, 4, 9))
         if PY311:
@@ -45,6 +60,21 @@ class DateParseTests(unittest.TestCase):
             parse_time("09:15:90")
 
     def test_parse_datetime(self):
+        """
+        Tests the `parse_datetime` function to ensure it correctly parses various datetime strings into datetime objects.
+
+        The test cases cover a range of formats, including:
+
+        * Dates in the format 'YYYY-MM-DD'
+        * Dates and times in the format 'YYYY-MM-DDTHH:MM:SS' or 'YYYY-MM-DD HH:MM:SS'
+        * Dates and times with time zones specified in 'Z' (UTC), offset (e.g. '-0500'), or with minutes (e.g. '+0230')
+        * Dates and times with microsecond precision
+        * Edge cases where parsing should fail due to invalid input, such as:
+          + Strings with incorrect date or time formatting
+          + Strings that are not recognized as valid datetime formats
+
+        The test expects that the `parse_datetime` function will return `None` when the input string is not recognized as a valid datetime format and will raise a `ValueError` when the input string is in an invalid format.
+        """
         valid_inputs = (
             ("2012-04-23", datetime(2012, 4, 23)),
             ("2012-04-23T09:15:00", datetime(2012, 4, 23, 9, 15)),
@@ -114,6 +144,19 @@ class DurationParseTests(unittest.TestCase):
                 self.assertEqual(parse_duration(format(delta)), delta)
 
     def test_parse_postgresql_format(self):
+        """
+        Tests the parse_duration function with various PostgreSQL interval formats.
+
+        The test cases cover positive and negative intervals, including days, hours, 
+        minutes, seconds, milliseconds, and microseconds. The function is expected 
+        to correctly parse the input strings and return timedelta objects.
+
+        The test values include edge cases with mixed-sign intervals, such as 
+        \"1 day -0:00:01\", to ensure the function handles these scenarios correctly.
+
+        Each test case is run as a separate subtest, allowing for detailed reporting 
+        of any failures that may occur.
+        """
         test_values = (
             ("1 day", timedelta(1)),
             ("-1 day", timedelta(-1)),

@@ -7,6 +7,15 @@ from ..utils import setup
 class FirstOfTagTests(SimpleTestCase):
     @setup({"firstof01": "{% firstof a b c %}"})
     def test_firstof01(self):
+        """
+        Tests the firstof template tag when all variables are falsy.
+
+        This test case verifies that when all variables passed to the firstof tag are considered falsy in a Python context (e.g., zero, empty string, etc.),
+        the resulting output of the tag is an empty string, indicating that none of the provided values were considered truthy by the tag.
+
+        The expected behavior is that since all variables 'a', 'b', and 'c' are set to 0 (a falsy value), the rendered template should not output any of these values,
+        resulting in an empty string as the final output, confirming the tag's behavior in handling falsy values as input.
+        """
         output = self.engine.render_to_string("firstof01", {"a": 0, "c": 0, "b": 0})
         self.assertEqual(output, "")
 
@@ -17,6 +26,19 @@ class FirstOfTagTests(SimpleTestCase):
 
     @setup({"firstof03": "{% firstof a b c %}"})
     def test_firstof03(self):
+        """
+
+        Test the 'firstof' template tag functionality with multiple values.
+
+        This function evaluates the 'firstof' tag with three variables (a, b, c) 
+        passed to the template engine. The 'firstof' tag returns the first 
+        \"truthy\" value it encounters, which in this case is expected to be 2 
+        from variable 'b', since 'a' and 'c' are both set to 0 (falsy values).
+
+        The function verifies that the rendered output matches the expected 
+        result, ensuring correct behavior of the 'firstof' template tag.
+
+        """
         output = self.engine.render_to_string("firstof03", {"a": 0, "c": 0, "b": 2})
         self.assertEqual(output, "2")
 
@@ -77,6 +99,15 @@ class FirstOfTagTests(SimpleTestCase):
 
     @setup({"firstof15": "{% firstof a b c as myvar %}"})
     def test_firstof15(self):
+        """
+
+        Test the 'firstof' template tag to assign the first true value from a list of variables.
+
+        This function checks if the 'firstof' tag correctly assigns the first variable with a truthy value to the given variable.
+        In this case, it verifies that when 'a' is falsy and 'b' is truthy, 'b' is assigned to 'myvar'.
+        The function also checks that the rendered template output is empty, as expected when using the 'as' keyword with 'firstof'.
+
+        """
         ctx = {"a": 0, "b": 2, "c": 3}
         output = self.engine.render_to_string("firstof15", ctx)
         self.assertEqual(ctx["myvar"], "2")
@@ -84,6 +115,14 @@ class FirstOfTagTests(SimpleTestCase):
 
     @setup({"firstof16": "{% firstof a b c as myvar %}"})
     def test_all_false_arguments_asvar(self):
+        """
+        Tests the firstof template tag with all false arguments when used with the 'as' variable syntax.
+
+            The function verifies that when all arguments passed to the firstof tag are false, 
+            the assigned variable is set to an empty string, and the rendered output is also empty. 
+            It creates a context with all arguments set to false, renders the template, 
+            and then asserts that both the assigned variable 'myvar' and the template output are empty strings.
+        """
         ctx = {"a": 0, "b": 0, "c": 0}
         output = self.engine.render_to_string("firstof16", ctx)
         self.assertEqual(ctx["myvar"], "")

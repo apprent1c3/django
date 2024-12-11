@@ -58,6 +58,12 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_no_receivers(self):
+        """
+        Tests the functionality of sending a signal when there are no receivers.
+
+         Verifies that the signal is sent successfully and the expected result is an empty list, 
+         indicating that no receivers were notified.
+        """
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [])
 
@@ -76,6 +82,16 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_garbage_collected(self):
+        """
+        Tests if a signal's connection to a callable object is properly garbage collected when the object is deleted.
+
+        Verifies that after deleting a callable object connected to a signal and triggering garbage collection, 
+        the signal no longer calls the deleted object, ensuring memory safety and preventing unexpected behavior.
+
+        The test scenario involves connecting a callable object to a signal, deleting the object, and then sending the signal. 
+        The expected outcome is that the signal does not attempt to call the deleted object, resulting in an empty list of return values.
+
+        """
         a = Callable()
         a_signal.connect(a.a, sender=self)
         del a
@@ -105,6 +121,19 @@ class DispatcherTests(SimpleTestCase):
             d_signal.disconnect(receiver_1_arg)
 
     def test_multiple_registration(self):
+        """
+
+        Tests the registration of multiple receivers to the same signal.
+
+        This test ensures that when a receiver is connected to a signal multiple times,
+        it is only triggered once when the signal is sent. Additionally, it verifies
+        that the receiver is properly disassociated from the signal after being deleted.
+
+        The test case covers the following scenarios:
+        - Connecting a receiver to a signal multiple times
+        - Sending the signal and verifying that the receiver is only triggered once
+        - Deleting the receiver and verifying that it is properly disassociated from the signal
+        """
         a = Callable()
         a_signal.connect(a)
         a_signal.connect(a)
@@ -141,10 +170,27 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_robust_no_receivers(self):
+        """
+        Tests the send_robust method of a signal when there are no receivers.
+
+        This test case verifies that the send_robust method returns an empty list when 
+        there are no receivers attached to the signal, as expected. The test sender 
+        sends a test signal with a 'test' value and checks that the result is an empty 
+        list, confirming the signal was not received by any handlers.
+        """
         result = a_signal.send_robust(sender=self, val="test")
         self.assertEqual(result, [])
 
     def test_send_robust_ignored_sender(self):
+        """
+
+        Tests the send_robust method of a signal by connecting a receiver, sending a signal from a specific sender, and verifying the result.
+        The test then disconnects the receiver and ensures the signal is left in a clean state.
+
+        The test covers the scenario where the sender of the signal is intentionally ignored by the receiver, 
+        and checks that the receiver still receives the signal's value ('val') as expected.
+
+        """
         a_signal.connect(receiver_1_arg)
         result = a_signal.send_robust(sender=self, val="test")
         self.assertEqual(result, [(receiver_1_arg, "test")])
@@ -204,6 +250,19 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_has_listeners(self):
+        """
+
+        Checks if a signal currently has any connected listeners.
+
+        This method verifies if there are any receivers attached to the signal, 
+        optionally filtering by a specific sender object. It returns True if 
+        at least one listener is found, and False otherwise.
+
+        The presence of listeners can change over time as they are connected 
+        or disconnected from the signal, and this method reflects the current 
+        state of the signal's listener connections.
+
+        """
         self.assertFalse(a_signal.has_listeners())
         self.assertFalse(a_signal.has_listeners(sender=object()))
         receiver_1 = Callable()
@@ -218,6 +277,15 @@ class DispatcherTests(SimpleTestCase):
 class ReceiverTestCase(SimpleTestCase):
     def test_receiver_single_signal(self):
         @receiver(a_signal)
+        """
+
+        Tests that a single signal is properly received and handled by a receiver function.
+
+        The receiver function updates the state of the test instance based on the signal value.
+        The test sender sends a signal with a value of True and then asserts that the state
+        has been updated correctly.
+
+        """
         def f(val, **kwargs):
             self.state = val
 
@@ -227,6 +295,19 @@ class ReceiverTestCase(SimpleTestCase):
 
     def test_receiver_signal_list(self):
         @receiver([a_signal, b_signal, c_signal])
+        """
+
+        Tests the reception of multiple signals by a single receiver function.
+
+        This test case verifies that a receiver function can correctly handle and record 
+        values from multiple signals. It checks that the receiver function is triggered 
+        for each signal sent, and that the values from these signals are properly stored.
+
+        The test covers the following signals: a_signal, b_signal, and c_signal. 
+        It asserts that the values sent by these signals are correctly received and 
+        recorded by the receiver function.
+
+        """
         def f(val, **kwargs):
             self.state.append(val)
 

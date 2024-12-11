@@ -17,6 +17,17 @@ class StrIndexTests(TestCase):
         )
 
     def test_annotate_textfield(self):
+        """
+
+        Tests the annotation of a queryset of articles to include the position of the article title in the text.
+
+        The test creates two sample articles and then annotates the queryset of articles with the position of the title in the text.
+        It then checks that the resulting queryset has the correct title positions, ensuring the annotation has been applied correctly.
+
+        The purpose of this test is to verify that the annotation functionality is working as expected, allowing for the retrieval of
+        article title positions within their corresponding text fields.
+
+        """
         Article.objects.create(
             title="How to Django",
             text="This is about How to Django.",
@@ -33,6 +44,20 @@ class StrIndexTests(TestCase):
         )
 
     def test_order_by(self):
+        """
+
+        Test the ordering of Author objects by the index of a specific substring within their names.
+
+        This test case creates a set of Author objects and verifies that they can be sorted
+        in ascending and descending order based on the position of the substring 'R.' within
+        their names. The sorting is performed using the StrIndex function, which returns the
+        position of the substring within the string. The test cases cover both ascending and
+        descending ordering, ensuring that the results are as expected.
+
+        The test verifies the correctness of the ordering by comparing the results with the
+        expected lists of author names, using the name attribute of each Author object.
+
+        """
         Author.objects.create(name="Terry Pratchett")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="George. R. R. Martin")

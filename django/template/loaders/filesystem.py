@@ -18,6 +18,23 @@ class Loader(BaseLoader):
         return self.dirs if self.dirs is not None else self.engine.dirs
 
     def get_contents(self, origin):
+        """
+
+        Retrieves the contents of a file specified by the origin.
+
+        This method attempts to open the file with a specified name and read its contents.
+        The file is expected to be encoded in the character set defined by the engine.
+
+        Args:
+            origin: The object containing the name of the file to be read.
+
+        Returns:
+            The contents of the file as a string.
+
+        Raises:
+            TemplateDoesNotExist: If the file specified by the origin does not exist.
+
+        """
         try:
             with open(origin.name, encoding=self.engine.file_charset) as fp:
                 return fp.read()

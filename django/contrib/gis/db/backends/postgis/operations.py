@@ -376,6 +376,19 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
             raise Exception("Could not determine PROJ version from PostGIS.")
 
     def spatial_aggregate_name(self, agg_name):
+        """
+        Returns a spatial aggregate name based on the provided aggregate name.
+
+        Parameters
+        ----------
+        agg_name : str
+            The name of the spatial aggregate.
+
+        Returns
+        -------
+        str
+            The spatial aggregate name, with special handling for 'Extent3D' to return the extent3d attribute, and prefixing other aggregate names with geom_func_prefix.
+        """
         if agg_name == "Extent3D":
             return self.extent3d
         else:
@@ -401,6 +414,16 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
 
     @staticmethod
     def _normalize_distance_lookup_arg(arg):
+        """
+        Normalize the distance lookup argument to a standard geometric representation.
+
+        This function takes an input argument and checks if it represents a raster or vector geometry.
+        If the argument is a raster, it is converted to a polygon representation.
+        Otherwise, the argument is returned unchanged.
+
+        The normalized geometric representation can then be used in subsequent spatial operations or analyses.
+        The function supports input arguments that are either vector or raster geometries, including those wrapped in field objects or instances of GDALRaster.
+        """
         is_raster = (
             arg.field.geom_type == "RASTER"
             if hasattr(arg, "field")

@@ -25,6 +25,17 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         # (`libspatialite`). If it's not in the system library path (e.g., it
         # cannot be found by `ctypes.util.find_library`), then it may be set
         # manually in the settings via the `SPATIALITE_LIBRARY_PATH` setting.
+        """
+        Initializes the object, setting up the paths to the Spatialite library.
+
+        The Spatialite library paths are determined by the following sources, in order of priority:
+            - The 'SPATIALITE_LIBRARY_PATH' setting, if available
+            - Common file names for the Spatialite library ('mod_spatialite.so', 'mod_spatialite')
+            - The result of the 'find_library' function, if it can locate 'spatialite'
+
+        These paths are stored in the 'lib_spatialite_paths' attribute, which can be used for further configuration or debugging.
+
+        """
         self.lib_spatialite_paths = [
             name
             for name in [

@@ -147,6 +147,16 @@ class TestRelatedFieldsAdminOrdering(TestCase):
         site.register(Song, SongAdmin)
 
     def tearDown(self):
+        """
+
+        Teardown method to clean up registrations after testing.
+
+        This method unregisters the Song model from the site, ensuring it is no longer
+        accessible. Additionally, if the Band model is registered, it is also unregistered
+        to maintain a clean state. This is typically used to reset the site's state after
+        testing to prevent interference between tests.
+
+        """
         site.unregister(Song)
         if site.is_registered(Band):
             site.unregister(Band)
@@ -175,6 +185,14 @@ class TestRelatedFieldsAdminOrdering(TestCase):
         self.check_ordering_of_field_choices([self.b2, self.b1])
 
     def test_admin_ordering_beats_model_ordering(self):
+        """
+
+        Tests whether admin ordering takes precedence over model ordering when displaying choices.
+
+        Verifies that when a model has a specified ordering and an admin class is registered with its own ordering,
+        the admin ordering is used when displaying the model instances as choices.
+
+        """
         class StaticOrderingBandAdmin(admin.ModelAdmin):
             ordering = ("rank",)
 

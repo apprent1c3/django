@@ -17,6 +17,23 @@ class User:
 
 class FunctionTests(SimpleTestCase):
     def test_property_resolver(self):
+        """
+
+        Tests the functionality of the _property_resolver function.
+
+        The _property_resolver function is designed to recursively resolve properties from a given data structure.
+        It can handle nested dictionaries, lists, and objects, and will raise exceptions if the requested property does not exist.
+
+        This test case covers a variety of scenarios, including:
+        - Resolving properties from nested dictionaries
+        - Resolving properties from objects
+        - Resolving properties from lists
+        - Handling cases where the requested property does not exist
+        - Handling cases where the data structure is not supported (e.g. trying to access an integer as if it were a dictionary or list)
+
+        It ensures that the _property_resolver function behaves as expected in both success and failure cases.
+
+        """
         user = User()
         dict_data = {
             "a": {

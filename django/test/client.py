@@ -169,6 +169,29 @@ class ClientHandler(BaseHandler):
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+
+        Handle an incoming WSGI request.
+
+        This method is the primary entry point for handling HTTP requests. It creates a new
+        WSGI request object, invokes the necessary middleware, and dispatches the request
+        to the application. It then processes the response and returns it in a format
+        suitable for the WSGI server.
+
+        The request is processed as follows:
+
+        * The middleware chain is loaded if it has not already been initialized.
+        * The request object is created from the environment data.
+        * The request is then passed to the application to generate a response.
+        * The response is processed to ensure that any unnecessary content is removed and
+          to ensure that the response is properly closed.
+        * If the response is a streaming response, the content is wrapped in a suitable
+          iterator to ensure that it is properly generated and closed.
+
+        Finally, the response object is returned, which can then be used by the WSGI server
+        to send the response back to the client.
+
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 

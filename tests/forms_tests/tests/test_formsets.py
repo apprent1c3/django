@@ -45,6 +45,18 @@ ChoiceFormSet = formset_factory(Choice)
 
 class ChoiceFormsetWithNonFormError(ChoiceFormSet):
     def clean(self):
+        """
+        ..:meth:`clean` method, which is a part of the form validation process.
+
+            Cleans the form data and checks for any non-form errors.
+
+            This method first calls the parent class's :meth:`clean` method to perform any necessary form-level validation.
+            Then, it intentionally raises a :class:`~django.core.exceptions.ValidationError` to signal a non-form error, 
+            preventing the form from being validated successfully. 
+
+            Raises:
+                :class:`~django.core.exceptions.ValidationError`: Always raised to indicate a non-form error.
+        """
         super().clean()
         raise ValidationError("non-form error")
 
@@ -73,6 +85,16 @@ FavoriteDrinksFormSet = formset_factory(
 
 class CustomKwargForm(Form):
     def __init__(self, *args, custom_kwarg, **kwargs):
+        """
+
+        Initializes the object with the given arguments and custom keyword argument.
+
+        This constructor accepts variable positional arguments and keyword arguments, 
+        in addition to a custom keyword-only argument. The custom keyword argument 
+        is stored as an instance attribute, while the remaining arguments are passed 
+        to the parent class constructor.
+
+        """
         self.custom_kwarg = custom_kwarg
         super().__init__(*args, **kwargs)
 
@@ -182,6 +204,10 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(formset.empty_form.custom_kwarg, 1)
 
     def test_empty_permitted_ignored_empty_form(self):
+        """
+        #: Tests that the empty_permitted attribute of an empty form in a formset is ignored when empty_permitted is set to False on the formset. 
+        #: The test verifies that the empty_permitted attribute on the empty form defaults to True, regardless of the value set on the formset.
+        """
         formset = ArticleFormSet(form_kwargs={"empty_permitted": False})
         self.assertIs(formset.empty_form.empty_permitted, True)
 
@@ -417,6 +443,15 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_formset_validate_max_flag_custom_error(self):
+        """
+        Test that a formset with validate_max=True raises a custom error when the maximum number of forms is exceeded.
+
+        The test verifies that when the maximum number of forms is set to 1, but 2 forms are submitted, the formset is considered invalid and a custom error message is returned.
+
+        The custom error message is checked to ensure it matches the expected format, which includes the maximum allowed number of forms.
+
+        This test case ensures that the formset validation correctly enforces the maximum number of forms allowed and provides a user-friendly error message when this limit is exceeded.
+        """
         data = {
             "choices-TOTAL_FORMS": "2",
             "choices-INITIAL_FORMS": "0",
@@ -790,6 +825,13 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_formsets_with_ordering_custom_widget(self):
+        """
+        #: Tests that formsets with custom ordering widgets render correctly.
+        #: 
+        #: This function verifies that formsets using custom ordering widgets, whether defined as an attribute or a method,
+        #: generate the correct HTML for the ordering field. It tests formsets with both attribute-based and method-based
+        #: custom ordering widgets, validating that the resulting HTML matches the expected output.
+        """
         class OrderingAttributeFormSet(BaseFormSet):
             ordering_widget = HiddenInput
 
@@ -1011,6 +1053,11 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(formset.forms, [])
 
     def test_limited_max_forms_two(self):
+        """
+        Tests the behavior of a formset with a limited maximum number of forms.
+
+        This test case verifies that when a formset is initialized with a maximum number of forms (max_num) that is less than the number of extra forms specified, only the maximum number of forms are displayed. In this scenario, the formset is limited to 2 forms, despite having an extra 5 forms specified. The test checks the HTML output of the formset to ensure it matches the expected result, which includes only the maximum number of forms (2) with the correct form fields and labels.
+        """
         LimitedFavoriteDrinkFormSet = formset_factory(
             FavoriteDrinkForm, extra=5, max_num=2
         )
@@ -1153,6 +1200,15 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_absolute_max_with_max_num(self):
+        """
+
+        Tests that the absolute maximum number of forms in a formset is enforced, 
+        while also validating the maximum number of forms that can be submitted.
+
+        Verifies that when the formset exceeds the absolute maximum, it is considered invalid,
+        and that the correct error message is displayed.
+
+        """
         data = {
             "form-TOTAL_FORMS": "1001",
             "form-INITIAL_FORMS": "0",
@@ -1225,6 +1281,16 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(formset.management_form.prefix, "form")
 
     def test_non_form_errors(self):
+        """
+        Tests that the FavoriteDrinksFormSet correctly handles non-form errors when duplicate drinks are specified.
+
+        This test checks that the formset is invalid when a duplicate drink name is provided, 
+        and that the expected non-form error message is returned and properly formatted as HTML.
+
+        The test verifies that the is_valid method returns False and that the non_form_errors 
+        method returns a list containing the expected error message, which is then correctly 
+        rendered as HTML when converted to a string.
+        """
         data = {
             "drinks-TOTAL_FORMS": "2",  # the number of forms rendered
             "drinks-INITIAL_FORMS": "0",  # the number of forms with initial data
@@ -1312,6 +1378,15 @@ class FormsFormsetTestCase(SimpleTestCase):
 
         class AnotherChoice(Choice):
             def is_valid(self):
+                """
+                Checks if the object is in a valid state, also marking the validation check as performed.
+
+                 Returns:
+                    bool: True if the object is valid, False otherwise.
+
+                 Note:
+                    This method also sets an internal flag indicating that the validity check has been called.
+                """
                 self.is_valid_called = True
                 return super().is_valid()
 
@@ -1410,6 +1485,15 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(list(formset.non_form_errors()), ["This is a non-form error"])
 
     def test_validate_max_ignores_forms_marked_for_deletion(self):
+        """
+        Tests that the formset validation ignores forms marked for deletion when checking the maximum number of forms.
+
+        This test case ensures that when a formset has a maximum number of forms (max_num) and validation is enabled (validate_max=True),
+        forms marked for deletion are excluded from the count, preventing the validation from failing due to exceeded maximum number of forms.
+
+        The test covers the scenario where a formset contains more forms than the maximum allowed, but some of those forms are marked for deletion,
+        and validates that the formset is still considered valid in this case.
+        """
         class CheckForm(Form):
             field = IntegerField()
 
@@ -1526,6 +1610,15 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_template_name_can_be_overridden(self):
+        """
+
+        Tests that the template name of a formset can be overridden by a custom formset class.
+
+        This test case verifies that when a custom formset class with a specified template name
+        is used to create a formset, the template name is successfully overridden. The test checks
+        that the template name of the resulting formset instance matches the custom template name.
+
+        """
         class CustomFormSet(BaseFormSet):
             template_name = "a/custom/formset/template.html"
 
@@ -1826,6 +1919,18 @@ class TestIsBoundBehavior(SimpleTestCase):
         self.assertEqual(formset.errors, [])
 
     def test_with_management_data_attrs_work_fine(self):
+        """
+        Tests that management data attributes are correctly handled by the ArticleFormSet.
+
+        This test case verifies that the formset accurately processes management data 
+        attributes such as total and initial form counts, and that the formset and its 
+        forms are properly bound and validated. It also checks that cleaned data is 
+        correctly returned after form validation.
+
+        The test ensures that all expected formset properties and methods behave as 
+        expected when provided with valid management data, ensuring that the formset 
+        can effectively manage and validate its forms in various scenarios.
+        """
         data = {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -1840,6 +1945,13 @@ class TestIsBoundBehavior(SimpleTestCase):
         self.assertEqual([{}], formset.cleaned_data)
 
     def test_form_errors_are_caught_by_formset(self):
+        """
+        Tests that formset validation correctly catches errors in individual forms.
+
+        Verifies that when a formset contains multiple forms and one of them has a required field left blank, 
+        the formset's `is_valid` method returns `False` and the `errors` attribute contains the expected error messages 
+        for the invalid forms, while valid forms do not report any errors. 
+        """
         data = {
             "form-TOTAL_FORMS": "2",
             "form-INITIAL_FORMS": "0",
@@ -1855,6 +1967,13 @@ class TestIsBoundBehavior(SimpleTestCase):
         )
 
     def test_empty_forms_are_unbound(self):
+        """
+
+        Test that empty forms in a formset are unbound, regardless of whether the formset is itself bound or unbound.
+
+        This test ensures that the empty form, which is used to represent a new form in the formset, does not contain any data and is not considered bound, even if the formset has been populated with data.
+
+        """
         data = {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",

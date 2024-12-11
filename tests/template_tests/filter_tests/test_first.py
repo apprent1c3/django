@@ -8,6 +8,17 @@ from ..utils import setup
 class FirstTests(SimpleTestCase):
     @setup({"first01": "{{ a|first }} {{ b|first }}"})
     def test_first01(self):
+        """
+
+        Tests the first filter by rendering a template string.
+
+        The test case checks if the first filter correctly returns the first item in a list,
+        handling both string and marked safe string values.
+
+        It verifies the proper HTML escaping of special characters, ensuring ampersands are
+        escaped to HTML entities.
+
+        """
         output = self.engine.render_to_string(
             "first01", {"a": ["a&b", "x"], "b": [mark_safe("a&b"), "x"]}
         )

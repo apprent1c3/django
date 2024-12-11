@@ -147,6 +147,14 @@ class PerformUniqueChecksTest(TestCase):
             mtv.full_clean()
 
     def test_unique_for_date(self):
+        """
+
+        Tests the uniqueness constraints for the Post model.
+
+        Verifies that the title, slug, and subtitle fields must be unique based on the posted date 
+        for the year, month, and day respectively. Also checks that the posted date field cannot be null.
+
+        """
         Post.objects.create(
             title="Django 1.0 is released",
             slug="Django 1.0",

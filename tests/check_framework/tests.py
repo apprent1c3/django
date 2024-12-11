@@ -70,6 +70,9 @@ class SystemCheckFrameworkTests(SimpleTestCase):
         self.assertEqual(sorted(errors), [4, 5])
 
     def test_register_no_kwargs_error(self):
+        """
+        Tests that attempting to register a check function that does not accept keyword arguments (**kwargs) raises a TypeError with a corresponding error message. The error message indicates that check functions must be designed to handle arbitrary keyword arguments.
+        """
         registry = CheckRegistry()
         msg = "Check functions must accept keyword arguments (**kwargs)."
         with self.assertRaisesMessage(TypeError, msg):
@@ -95,6 +98,15 @@ class SystemCheckFrameworkTests(SimpleTestCase):
 
 class MessageTests(SimpleTestCase):
     def test_printing(self):
+        """
+        Tests that the string representation of an Error object is correctly formatted.
+
+        The test verifies that the error message, hint, and object are properly 
+        included in the output string, with the expected formatting and indentation.
+
+        This ensures that error messages are human-readable and provide useful 
+        information for debugging purposes.
+        """
         e = Error("Message", hint="Hint", obj=DummyObj())
         expected = "obj: Message\n\tHINT: Hint"
         self.assertEqual(str(e), expected)
@@ -110,11 +122,26 @@ class MessageTests(SimpleTestCase):
         self.assertEqual(str(e), expected)
 
     def test_printing_with_given_id(self):
+        """
+        Tests that the string representation of an Error object contains the provided id, message, and hint. 
+        The expected output format is 'obj: (id) message\n\tHINT: hint', verifying that all relevant information 
+        is properly included in the error message when converted to a string.
+        """
         e = Error("Message", hint="Hint", obj=DummyObj(), id="ID")
         expected = "obj: (ID) Message\n\tHINT: Hint"
         self.assertEqual(str(e), expected)
 
     def test_printing_field_error(self):
+        """
+        Tests the string representation of a field error.
+
+        This test case verifies that a field error is properly formatted when converted to a string.
+        It checks that the string representation includes the model name, field name, and error message,
+        providing a clear indication of the source and nature of the error.
+
+        The expected string format is 'model_name.field_name: error_message'.
+
+        """
         field = SimpleModel._meta.get_field("field")
         e = Error("Error", obj=field)
         expected = "check_framework.SimpleModel.field: Error"
@@ -132,10 +159,30 @@ class MessageTests(SimpleTestCase):
         self.assertEqual(str(e), expected)
 
     def test_equal_to_self(self):
+        """
+
+        Tests that an Error instance is equal to itself.
+
+        This test case verifies that the equality comparison of an Error object with itself returns True.
+        It ensures the correctness of the equality check implementation, which is crucial for identifying 
+        identical error instances in the system.
+
+        """
         e = Error("Error", obj=SimpleModel)
         self.assertEqual(e, e)
 
     def test_equal_to_same_constructed_check(self):
+        """
+
+        Checks if two Error instances are considered equal when constructed with the same parameters.
+
+        This test verifies that the equality of Error objects is determined by their attributes, 
+        in this case, the error message and the object associated with the error, rather than 
+        their identity as separate objects. The test ensures that two Error instances created 
+        with the same error message and object are considered equal when compared using the 
+        equality operator.
+
+        """
         e1 = Error("Error", obj=SimpleModel)
         e2 = Error("Error", obj=SimpleModel)
         self.assertEqual(e1, e2)
@@ -146,6 +193,13 @@ class MessageTests(SimpleTestCase):
         self.assertNotEqual(e1, e2)
 
     def test_not_equal_to_non_check(self):
+        """
+
+        Checks that an Error object is not equal to a non-Error object.
+
+        Verifies that the equality comparison between an Error instance and an unrelated object (in this case, a string) returns False, as expected.
+
+        """
         e = Error("Error", obj=DummyObj())
         self.assertNotEqual(e, "a string")
 
@@ -161,6 +215,15 @@ def simple_system_check(**kwargs):
 
 
 def tagged_system_check(**kwargs):
+    """
+    Performs a system check based on the provided keyword arguments.
+
+    The function accepts a variable number of keyword arguments, which are stored for later use.
+    It then returns a list containing a single warning message indicating that a system check has been performed.
+
+    :rtype: list
+    :returns: A list containing a warning message about the system check
+    """
     tagged_system_check.kwargs = kwargs
     return [checks.Warning("System Check")]
 
@@ -188,6 +251,15 @@ class CheckCommandTests(SimpleTestCase):
 
     @override_system_checks([simple_system_check, tagged_system_check])
     def test_simple_call(self):
+        """
+        Tests the call of the check command and verifies its effect on the system checks.
+
+        Checks that the kwargs 'app_configs' and 'databases' are correctly set to None 
+        in both the simple system check and the tagged system check after calling the command.
+
+        This test case covers the basic functionality of the check command and ensures 
+        that it triggers the system checks as expected.
+        """
         call_command("check")
         self.assertEqual(
             simple_system_check.kwargs, {"app_configs": None, "databases": None}
@@ -220,12 +292,29 @@ class CheckCommandTests(SimpleTestCase):
 
     @override_system_checks([simple_system_check, tagged_system_check])
     def test_invalid_tag(self):
+        """
+
+        Tests that the check command raises a CommandError when invoked with an invalid tag.
+
+        The test simulates running the check command with a tag that does not correspond to any system check.
+        It verifies that the expected error message is raised, indicating that no system check is associated with the given tag.
+
+        :param None:
+        :raises: CommandError with a message indicating that no system check has the specified tag
+        :return: None
+
+        """
         msg = 'There is no system check with the "missingtag" tag.'
         with self.assertRaisesMessage(CommandError, msg):
             call_command("check", tags=["missingtag"])
 
     @override_system_checks([simple_system_check])
     def test_list_tags_empty(self):
+        """
+        Tests listing tags when no tags are defined, verifying that the command output is empty. 
+
+        This test checks that the system behaves as expected when tags are requested but none have been configured, ensuring that the 'check' command functions correctly in this edge case and produces the expected output.
+        """
         call_command("check", list_tags=True)
         self.assertEqual("\n", sys.stdout.getvalue())
 
@@ -260,11 +349,29 @@ class CheckCommandTests(SimpleTestCase):
         [tagged_system_check], deployment_checks=[deployment_system_check]
     )
     def test_tags_deployment_check_included(self):
+        """
+
+        Tests that the deployment system check is included when the 'deploymenttag' tag is specified.
+
+        This test case verifies that the tagged system check is executed and the deployment system check is included in the output when the 'check' command is run with the 'deploy' option and the 'deploymenttag' tag.
+
+        The test checks for the presence of 'Deployment Check' in the standard error output to confirm that the deployment system check was executed successfully.
+
+        """
         call_command("check", deploy=True, tags=["deploymenttag"])
         self.assertIn("Deployment Check", sys.stderr.getvalue())
 
     @override_system_checks([tagged_system_check])
     def test_fail_level(self):
+        """
+        Tests that the command fails when the fail level is set to WARNING.
+
+        This test case verifies that the system checks are properly handled and that the
+        command raises an exception when the fail level is set to WARNING, as expected.
+
+        The test utilizes a tagged system check to trigger the failure and asserts that
+        a CommandError is raised when the command is executed with the specified fail level.
+        """
         with self.assertRaises(CommandError):
             call_command("check", fail_level="WARNING")
 

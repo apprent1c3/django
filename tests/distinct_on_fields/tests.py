@@ -12,6 +12,22 @@ from .models import Celebrity, Fan, Staff, StaffTag, Tag
 class DistinctOnTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the application.
+
+        This class method creates a set of test data for use in testing the application.
+        It includes the creation of tags with hierarchical relationships, staff members with
+        coworker relationships, staff tags, celebrities, and fans. The test data is designed
+        to provide a comprehensive set of scenarios for testing the application's functionality.
+
+        The test data includes:
+        - A hierarchy of tags (t1, t2, t3, t4, t5) with parent-child relationships
+        - A set of staff members (p1_o1, p2_o1, p3_o1, p1_o2) with coworker relationships
+        - Staff tags associating staff members with tags
+        - Celebrities (c1, c2) and their corresponding fans (fan1, fan2, fan3)
+
+        """
         cls.t1 = Tag.objects.create(name="t1")
         cls.t2 = Tag.objects.create(name="t2", parent=cls.t1)
         cls.t3 = Tag.objects.create(name="t3", parent=cls.t1)
@@ -119,6 +135,15 @@ class DistinctOnTests(TestCase):
         self.assertNotIn("OUTER JOIN", str(c2.query))
 
     def test_sliced_queryset(self):
+        """
+
+        Tests that a TypeError is raised when attempting to create distinct fields on a sliced QuerySet.
+
+        The function verifies that once a slice has been taken from a QuerySet, it is no longer possible to create distinct fields using the 'distinct' method. This behavior is expected, as slicing a QuerySet can lead to ambiguous or inconsistent results when combined with distinct field creation.
+
+        The test case checks for a specific error message, ensuring that the correct exception is raised with a meaningful error message.
+
+        """
         msg = "Cannot create distinct fields once a slice has been taken."
         with self.assertRaisesMessage(TypeError, msg):
             Staff.objects.all()[0:5].distinct("name")
@@ -135,6 +160,24 @@ class DistinctOnTests(TestCase):
 
     def test_distinct_not_implemented_checks(self):
         # distinct + annotate not allowed
+        """
+        Tests that attempting to combine `distinct` and aggregation operations 
+        (`annotate` or `aggregate`) with specific fields raises a `NotImplementedError`.
+
+        The function checks for two main scenarios:
+
+        1. Combining `annotate` with `distinct` where the `distinct` operation is 
+           applied with specific fields, either before or after the `annotate` operation.
+
+        2. Combining `aggregate` with `distinct` where the `distinct` operation is 
+           applied with specific fields before the `aggregate` operation.
+
+        It verifies that in these scenarios, the expected error message is raised, 
+        indicating that these operations are not implemented.
+
+        The function does not check for cases where `distinct` is used without specific 
+        fields, which may behave differently or not raise an error.\"
+        """
         msg = "annotate() + distinct(fields) is not implemented."
         with self.assertRaisesMessage(NotImplementedError, msg):
             Celebrity.objects.annotate(Max("id")).distinct("id")[0]

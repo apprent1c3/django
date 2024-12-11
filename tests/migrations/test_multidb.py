@@ -106,6 +106,32 @@ class MultiDBOperationTests(OperationTestBase):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
 
     def _test_run_sql(self, app_label, should_run, hints=None):
+        """
+
+        Tests the execution of a SQL operation using the RunSQL migration operation.
+
+        This function simulates a database migration by executing a set of SQL statements
+        (inserting data into the \"Pony\" model) and then checks the resulting state of the
+        database. It ensures that the database state is correctly updated when the SQL
+        operation is applied, and that the effects of the operation are correctly
+        reverted if the operation is expected to not run.
+
+        The function takes the following parameters:
+            app_label (str): The label of the application containing the \"Pony\" model.
+            should_run (bool): A flag indicating whether the SQL operation should be
+                expected to run and update the database.
+            hints (dict, optional): A dictionary of hints to be passed to the RunSQL
+                operation. Defaults to an empty dictionary.
+
+        The function checks the following conditions:
+            - The initial state of the database is correctly set up before the SQL
+                operation is executed.
+            - The resulting state of the database is correctly updated after the SQL
+                operation is executed.
+            - The effects of the SQL operation are correctly reverted if the operation
+                is expected to not run.
+
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
@@ -146,6 +172,24 @@ class MultiDBOperationTests(OperationTestBase):
         self._test_run_sql("test_mltdb_runsql3", should_run=True, hints={"foo": True})
 
     def _test_run_python(self, app_label, should_run, hints=None):
+        """
+
+        Run a test case for a RunPython migration operation.
+
+        This method tests a RunPython migration operation by creating a test model, 
+        applying the operation, and validating the resulting database state.
+
+        The operation creates two 'Pony' objects with specified attributes. 
+        The method allows for optional hints to be passed to the operation.
+
+        The test case checks that the operation results in the expected database state, 
+        either with or without the created 'Pony' objects, depending on the 'should_run' parameter.
+
+        :param app_label: The label of the application to test
+        :param should_run: A boolean indicating whether the migration should create objects
+        :param hints: Optional hints to pass to the RunPython operation
+
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 

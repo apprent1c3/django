@@ -121,6 +121,28 @@ def get_ns_resolver(ns_pattern, resolver, converters):
     # Build a namespaced resolver for the given parent URLconf pattern.
     # This makes it possible to have captured parameters in the parent
     # URLconf pattern.
+    """
+
+    Resolves namespace patterns with a given resolver and converters.
+
+    This function creates a URL resolver that maps namespace patterns to URLs. It takes 
+    a namespace pattern, a resolver, and a set of converters as input, and returns a 
+    new URL resolver that can be used to resolve URLs matching the given pattern.
+
+    The namespace pattern is converted into a regex pattern, and the converters are 
+    applied to this pattern to enable additional functionality. The resulting resolver 
+    is then wrapped in a root-level resolver to allow for easy integration with existing 
+    URL resolution systems.
+
+    The returned resolver can be used to resolve URLs that match the given namespace 
+    pattern, with the converters applied as specified.
+
+    :param ns_pattern: The namespace pattern to resolve
+    :param resolver: The resolver to use for resolving URLs
+    :param converters: A dictionary of converters to apply to the namespace pattern
+    :return: A new URL resolver that can be used to resolve URLs matching the given pattern
+
+    """
     pattern = RegexPattern(ns_pattern)
     pattern.converters = dict(converters)
     ns_resolver = URLResolver(pattern, resolver.url_patterns)
@@ -147,6 +169,19 @@ class LocaleRegexDescriptor:
         return instance._regex_dict[language_code]
 
     def _compile(self, regex):
+        """
+
+        Compiles a regular expression pattern into a regex object.
+
+        This method takes a string representing a regular expression pattern and attempts to compile it into a regex object.
+        If the compilation is successful, the compiled regex object is returned.
+        If the compilation fails due to an invalid regular expression pattern, an ImproperlyConfigured exception is raised with a descriptive error message.
+
+        :param regex: A string representing a regular expression pattern
+        :raises ImproperlyConfigured: If the regular expression pattern is invalid
+        :return: A compiled regex object
+
+        """
         try:
             return re.compile(regex)
         except re.error as e:
@@ -322,6 +357,17 @@ class RoutePattern(CheckURLMixin):
         self.name = name
 
     def match(self, path):
+        """
+        Matches a given path against a regular expression.
+
+        This function attempts to match the provided path against a predefined regular expression.
+        If a match is found, it extracts named groups from the match and applies type conversions to their values.
+        The function returns a tuple containing the remaining part of the path, an empty tuple, and a dictionary of converted named groups.
+        If no match is found or if a type conversion fails, the function returns None.
+
+        :param path: The path to be matched against the regular expression.
+        :return: A tuple containing the remaining path, an empty tuple, and a dictionary of named groups, or None if no match is found or a type conversion fails
+        """
         match = self.regex.search(path)
         if match:
             # RoutePattern doesn't allow non-named groups so args are ignored.
@@ -387,6 +433,21 @@ class LocalePrefixPattern:
 
     @property
     def language_prefix(self):
+        """
+
+        Determines the language prefix for a given context.
+
+        Returns the language code of the currently active language, prefixed with a
+        slash, unless the language is the default language and prefixing default
+        languages is disabled. In this case, an empty string is returned.
+
+        The language code is determined by the currently active language, or falls
+        back to the default language code defined in the settings if no active
+        language is found.
+
+        :rtype: str
+
+        """
         language_code = get_language() or settings.LANGUAGE_CODE
         if language_code == settings.LANGUAGE_CODE and not self.prefix_default_language:
             return ""
@@ -742,6 +803,31 @@ class URLResolver:
         return self._reverse_with_prefix(lookup_view, "", *args, **kwargs)
 
     def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        """
+
+        Reverses the given URL pattern with the provided arguments and keyword arguments.
+
+        The function takes in a lookup view, a prefix, and variable arguments and keyword arguments.
+        It attempts to reverse the URL pattern by matching the provided arguments against the stored
+        url patterns. If a match is found, it returns the reversed URL.
+
+        The function raises a ValueError if both *args and **kwargs are provided, as these should not be mixed.
+        It raises a NoReverseMatch exception if no matching URL pattern is found.
+
+        Args:
+            lookup_view: The view to reverse the URL for
+            _prefix: The prefix to apply to the reversed URL
+            *args: Variable number of positional arguments to use in the reversal
+            **kwargs: Variable number of keyword arguments to use in the reversal
+
+        Returns:
+            The reversed URL if a match is found
+
+        Raises:
+            ValueError: If both *args and **kwargs are provided
+            NoReverseMatch: If no matching URL pattern is found
+
+        """
         if args and kwargs:
             raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
 

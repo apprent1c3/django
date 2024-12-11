@@ -129,6 +129,21 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_onetoone(self):
+        """
+
+        Test that the lookup is allowed on a one-to-one relationship in the ModelAdmin.
+
+        This test case covers the scenario where the ModelAdmin has a list_filter that
+        includes a field from a one-to-one related model. It verifies that the 
+        lookup_allowed method returns True for the one-to-one related field as well 
+        as for a field from a foreign key related model.
+
+        The test involves creating several models (Department, Employee, EmployeeProfile, 
+        EmployeeInfo) with various relationships between them, and an EmployeeProfileAdmin 
+        class that inherits from ModelAdmin. It then checks the lookup_allowed method 
+        for specific fields to ensure that the filtering works as expected.
+
+        """
         class Department(models.Model):
             code = models.CharField(max_length=4, unique=True)
 
@@ -164,6 +179,14 @@ class ModelAdminTests(TestCase):
 
     @isolate_apps("modeladmin")
     def test_lookup_allowed_for_local_fk_fields(self):
+        """
+
+        Tests whether the model administrator allows lookups on foreign key fields for local databases.
+
+        This test case verifies that the ModelAdmin class permits lookups on fields that have a foreign key relationship with other models,
+        ensuring that the lookup_allowed method returns True for various lookup types, including exact, ID, and null checks.
+
+        """
         class Country(models.Model):
             pass
 
@@ -239,6 +262,19 @@ class ModelAdminTests(TestCase):
         )
 
     def test_lookup_allowed_considers_dynamic_list_filter(self):
+        """
+        Test that the lookup_allowed method considers dynamic list filters.
+
+        This test case ensures that the lookup_allowed method takes into account the dynamic
+        filters defined in the ModelAdmin's get_list_filter method. Specifically, it checks
+        that the method returns True for allowed lookups and False for disallowed ones,
+        considering the user's permissions and the request's context.
+
+        The test covers two scenarios: one where the request user is not a superuser and
+        one where the request user is a superuser. It verifies that the lookup_allowed method
+        behaves correctly in both cases, allowing or disallowing lookups based on the
+        dynamically defined filters.
+        """
         class ConcertAdmin(ModelAdmin):
             list_filter = ["main_band__sign_date"]
 
@@ -308,6 +344,20 @@ class ModelAdminTests(TestCase):
     def test_field_arguments(self):
         # If fields is specified, fieldsets_add and fieldsets_change should
         # just stick the fields into a formsets structure and return it.
+        """
+        Tests the field arguments of a ModelAdmin instance.
+
+        This test case verifies that the ModelAdmin correctly returns the specified fields 
+        when `get_fields` and `get_fieldsets` methods are called for both general and 
+        instance-specific requests. The test ensures consistency in the returned fields 
+        for different scenarios, such as when no specific instance is provided or when 
+        an instance is explicitly passed to the methods.
+
+        The method being tested should return the expected fields, as specified in the 
+        ModelAdmin's `fields` attribute, in a consistent manner across various request 
+        types and instances. This is crucial for maintaining data integrity and 
+        consistency in the application's administrative interface.
+        """
         class BandAdmin(ModelAdmin):
             fields = ["name"]
 
@@ -494,8 +544,32 @@ class ModelAdminTests(TestCase):
         )
 
     def test_get_exclude_takes_obj(self):
+        """
+
+        Tests if the get_exclude method correctly filters fields based on the presence of an object.
+
+        This test case verifies that when an object is provided, the 'sign_date' field is excluded from the form,
+        and when no object is provided, the 'name' field is excluded.
+
+        The test checks if the resulting form fields match the expected output, ensuring that the get_exclude method
+        functions as intended.
+
+        """
         class BandAdmin(ModelAdmin):
             def get_exclude(self, request, obj=None):
+                """
+
+                Retrieves a list of fields to be excluded from a given request.
+
+                The excluded fields are determined based on the presence of an object.
+                If an object is provided, the 'sign_date' field is excluded.
+                Otherwise, the 'name' field is excluded.
+
+                :param request: The current request
+                :param obj: The optional object to consider when determining excluded fields
+                :return: A list of fields to exclude
+
+                """
                 if obj:
                     return ["sign_date"]
                 return ["name"]
@@ -539,6 +613,13 @@ class ModelAdminTests(TestCase):
             form = AdminBandForm
 
             def get_form(self, request, obj=None, **kwargs):
+                """
+                Get the form for the current view, optionally populated with data from the given object.
+
+                This method returns a form instance, similar to the parent class's implementation, but with the 'bio' field always excluded from the form fields.
+
+                The returned form can be used to validate and process user input, and can be further customized using the additional keyword arguments passed to this method.
+                """
                 kwargs["exclude"] = ["bio"]
                 return super().get_form(request, obj, **kwargs)
 
@@ -633,6 +714,17 @@ class ModelAdminTests(TestCase):
             raw_id_fields = ("opening_band",)
 
             def get_formset(self, request, obj=None, **kwargs):
+                """
+                Get a formset for the current object, optionally bound to an instance.
+
+                This method returns a formset that can be used to create or modify multiple instances of the object.
+                It inherits the default behavior from its superclass, but overrides the widget used for the 'opening_band' field to be a select dropdown.
+
+                :param request: The current HTTP request
+                :param obj: The object instance to bind the formset to, or None for an unbound formset
+                :param kwargs: Additional keyword arguments to pass to the superclass
+                :return: A formset instance
+                """
                 kwargs["widgets"] = {"opening_band": Select}
                 return super().get_formset(request, obj, **kwargs)
 
@@ -652,6 +744,20 @@ class ModelAdminTests(TestCase):
     def test_queryset_override(self):
         # If the queryset of a ModelChoiceField in a custom form is overridden,
         # RelatedFieldWidgetWrapper doesn't mess that up.
+        """
+
+        Test that the queryset of a ModelAdmin form field can be overridden.
+
+        This test case verifies that a custom queryset can be applied to a form field
+        in a ModelAdmin instance. It creates a test case where a form field's options
+        are restricted to a specific set of values, demonstrating how to customize
+        the available choices in a dropdown select box.
+
+        This is useful for administratively controlling the options available to users
+        when selecting related model instances, such as filtering a list of bands
+        to only show specific ones.
+
+        """
         band2 = Band.objects.create(
             name="The Beatles", bio="", sign_date=date(1962, 1, 1)
         )
@@ -672,6 +778,10 @@ class ModelAdminTests(TestCase):
 
         class AdminConcertForm(forms.ModelForm):
             def __init__(self, *args, **kwargs):
+                """
+                Initializes an instance of the class, setting up the main band field to only include 'The Doors' band from the database. 
+                This limits the options available for the main band field to a single, predefined band, streamlining the selection process for users.
+                """
                 super().__init__(*args, **kwargs)
                 self.fields["main_band"].queryset = Band.objects.filter(
                     name="The Doors"
@@ -878,6 +988,15 @@ class ModelAdminTests(TestCase):
                 self.assertEqual(fetched.object_repr, str(self.band))
 
     def test_log_deletions(self):
+        """
+
+            Test that log entries are created when objects are deleted through the ModelAdmin interface.
+
+            This test case verifies that when a queryset of objects is deleted, a log entry is created for each object
+            with the correct user, content type, object id, object representation, and action flag.
+            The test also checks that the log entries are created in a single database query for efficiency.
+
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="akash")
@@ -923,6 +1042,17 @@ class ModelAdminTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_deletion(self):
+        """
+        Tests the ModelAdmin.log_deletion() method to ensure it correctly logs a model deletion.
+
+        This test case verifies that the log_deletion() method, although deprecated, still logs the deletion of a model instance and
+        returns the newly created LogEntry object. It checks that the logged entry has the correct action flag, content type,
+        object ID, user, and object representation.
+
+        The test also checks that a warning is raised, indicating that log_deletion() is deprecated and log_deletions() should be used instead.
+
+        This test covers the functionality of logging model deletions in the admin interface, ensuring that changes are accurately recorded.
+        """
         ma = ModelAdmin(Band, self.site)
         mock_request = MockRequest()
         mock_request.user = User.objects.create(username="bill")

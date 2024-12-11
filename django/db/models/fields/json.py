@@ -82,6 +82,24 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return name, path, args, kwargs
 
     def from_db_value(self, value, expression, connection):
+        """
+
+        Deserializes a JSON value retrieved from a database.
+
+        This method is responsible for converting a value from its stored form in the database
+        into a Python representation. It handles cases where the value is None or not a string,
+        and it uses a custom JSON decoder to deserialize JSON data.
+
+        The method takes into account the type of database expression used to retrieve the value,
+        and it can handle KeyTransform expressions. If the value cannot be deserialized as JSON,
+        it is returned in its original form.
+
+        :param value: The value to deserialize, as retrieved from the database.
+        :param expression: The database expression used to retrieve the value.
+        :param connection: The database connection used to retrieve the value.
+        :return: The deserialized value.
+
+        """
         if value is None:
             return value
         # Some backends (SQLite at least) extract non-string values in their
@@ -108,6 +126,9 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return connection.ops.adapt_json_value(value, self.encoder)
 
     def get_db_prep_save(self, value, connection):
+        """
+        Prepares a value for saving to the database, handling the case where the value is None. If the value is None, it is returned unchanged; otherwise, it is further prepared by calling the get_db_prep_value method. This ensures that the value is properly formatted or transformed for storage in the database, regardless of its initial state.
+        """
         if value is None:
             return value
         return self.get_db_prep_value(value, connection)
@@ -301,6 +322,11 @@ class JSONExact(lookups.Exact):
     can_use_none_as_rhs = True
 
     def process_rhs(self, compiler, connection):
+        """
+        Process the right-hand side (RHS) of a SQL statement, handling special cases for MySQL JSON data.
+
+        This method overrides the parent class's implementation to provide additional processing for the RHS of a SQL query. It checks for and handles the case where the RHS is a placeholder and the parameters are not provided, replacing the parameter with 'null'. When the database connection is to a MySQL vendor, it modifies the RHS to use the JSON_EXTRACT function for JSON data extraction. The method returns the processed RHS and its corresponding parameters.
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         # Treat None lookup values as null.
         if rhs == "%s" and rhs_params == [None]:

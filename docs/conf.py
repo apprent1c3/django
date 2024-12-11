@@ -125,6 +125,17 @@ except ImportError:
 else:
 
     def django_release():
+        """
+
+        Returns a Django project version string in PEP 440 format.
+
+        The version string is obtained from the project's metadata. If the version is an alpha release, 
+        a '.dev' suffix is appended to the version string unless it already contains 'dev'.
+
+        The returned version string can be used to identify the project version in various contexts, 
+        such as package management or documentation.
+
+        """
         pep440ver = get_version()
         if VERSION[3:5] == ("alpha", 0) and "dev" not in pep440ver:
             return pep440ver + ".dev"

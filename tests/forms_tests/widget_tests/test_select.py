@@ -144,6 +144,15 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_choices_constructor(self):
+        """
+        Tests the construction of a Select widget with choices.
+
+        This function verifies that the Select widget is correctly initialized with a list of choices and that the choices are properly rendered in HTML.
+
+        The choices are defined as a list of tuples, where each tuple contains a value and a human-readable label.
+
+        The test also ensures that the correct option is selected by default.
+        """
         widget = Select(choices=[(1, 1), (2, 2), (3, 3)])
         self.check_html(
             widget,
@@ -199,6 +208,17 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_choices_escaping(self):
+        """
+        Tests the escaping of HTML special characters in the choices of a widget.
+
+        Verifies that the widget correctly escapes special characters in the choices,
+        while also respecting the use of mark_safe to prevent escaping of specific
+        values. This ensures that the generated HTML is valid and secure.
+
+        Parameters are checked to ensure that ampersands (&) are correctly escaped to
+        &amp; where necessary, and that mark_safe values are not escaped, allowing
+        for the use of HTML entities such as &gt; in the option text.
+        """
         choices = (("bad", "you & me"), ("good", mark_safe("you &gt; me")))
         self.check_html(
             self.widget(choices=choices),
@@ -278,6 +298,18 @@ class SelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_option_value(self):
+        """
+
+        Tests that the option value in a select widget is not localized.
+
+        The test checks that the numeric values of options in a select widget are not formatted
+        with thousand separators, even when the USE_THOUSAND_SEPARATOR setting is enabled.
+        It also verifies that time values are displayed in the correct format.
+
+        This test ensures that the option value is preserved in its original form, without any
+        formatting or localization, to prevent potential issues with form data processing.
+
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -444,6 +476,9 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests a ChoiceField form field rendered as a select input, verifying that it does not utilize a fieldset by default. The test case checks the resulting HTML against an expected output to ensure correct rendering of the form field. It covers the basic structure including label and select options.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

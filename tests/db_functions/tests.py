@@ -50,6 +50,17 @@ class FunctionTests(TestCase):
             )
 
     def test_func_transform_bilateral_multivalue(self):
+        """
+
+        Tests the transformation of a bilaterally supported multivalue field using the UpperBilateral lookup.
+
+        This function checks if the UpperBilateral lookup can correctly match values in both directions, 
+        i.e., both when the value is uppercase and when it is lowercase. 
+
+        It creates two Author instances with different names and checks if they can be filtered by 
+        their uppercase names. The test also verifies that the results are returned in the correct order.
+
+        """
         with register_lookup(CharField, UpperBilateral):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

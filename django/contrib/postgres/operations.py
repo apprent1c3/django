@@ -285,6 +285,22 @@ class AddConstraintNotValid(AddConstraint):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        .. method:: database_forwards(app_label, schema_editor, from_state, to_state)
+            :noindex:
+
+            Applies the database migration for the given model.
+
+            This method is called during the migration process to update the database schema.
+            It checks if the migration is allowed for the given model and creates the necessary
+            SQL constraint if required. The constraint is created with the 'NOT VALID' option.
+
+            :param app_label: The label of the application containing the model.
+            :param schema_editor: The database schema editor instance.
+            :param from_state: The previous state of the application.
+            :param to_state: The target state of the application.
+            :return: None
+        """
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             constraint_sql = self.constraint.create_sql(model, schema_editor)
@@ -305,6 +321,15 @@ class ValidateConstraint(Operation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, model_name, name):
+        """
+        ..:param str model_name: the name of the model associated with this instance
+            :param str name: a unique identifier for this instance
+            :return: None
+            :rtype: None
+            Initializes an instance with a model name and a unique identifier. 
+            This method is typically used to set up the basic attributes of the class 
+            when creating a new instance.
+        """
         self.model_name = model_name
         self.name = name
 

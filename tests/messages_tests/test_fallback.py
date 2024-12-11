@@ -85,6 +85,19 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_flush_used_backends(self):
+        """
+        Test the storage backend to ensure session data is correctly flushed.
+
+        This test case verifies that when the storage backend is updated with a response,
+        any session data associated with the request is properly removed. It checks that
+        the number of stored session messages after flushing is zero, indicating a
+        successful flush operation.
+
+        The test scenario simulates a request and response cycle, where cookie and
+        session data are initially set, and then the storage backend is updated with the
+        response. The outcome is then verified to ensure the session data has been
+        correctly removed from the storage backend.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)

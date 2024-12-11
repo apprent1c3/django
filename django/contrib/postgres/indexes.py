@@ -117,6 +117,16 @@ class BTreeIndex(PostgresIndex):
     suffix = "btree"
 
     def __init__(self, *expressions, fillfactor=None, deduplicate_items=None, **kwargs):
+        """
+
+        Initialize an instance of the class.
+
+        This constructor accepts a variable number of expressions and optional keyword arguments.
+        The fillfactor and deduplicate_items parameters allow for customization of the instance's behavior.
+        The fillfactor parameter controls the filling factor, and deduplicate_items determines whether items are removed.
+        Any additional keyword arguments are passed to the superclass constructor.
+
+        """
         self.fillfactor = fillfactor
         self.deduplicate_items = deduplicate_items
         super().__init__(*expressions, **kwargs)
@@ -186,6 +196,12 @@ class GistIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of WITH clause parameters used for creation of a database object.
+        The parameters are 'buffering' and 'fillfactor', and their inclusion in the list 
+        depends on whether they have been specified or not. Each parameter is represented 
+        as a string in the format 'parameter_name = parameter_value'.
+        """
         with_params = []
         if self.buffering is not None:
             with_params.append("buffering = %s" % ("on" if self.buffering else "off"))

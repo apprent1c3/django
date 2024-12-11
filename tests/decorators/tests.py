@@ -33,6 +33,17 @@ fully_decorated.anything = "Expected __dict__"
 
 def compose(*functions):
     # compose(f, g)(*args, **kwargs) == f(g(*args, **kwargs))
+    """
+    Compose multiple functions together, creating a pipeline where the output of each function is used as the input for the next.
+
+    The functions are applied in reverse order, meaning the first function passed to compose is executed first and the last function passed is executed last.
+
+    This allows for a concise way to chain together multiple operations without the need for intermediate variables or nested function calls. 
+
+    The returned function takes in any number of positional and keyword arguments, which are passed directly to the first function in the pipeline. 
+
+    Example use cases include data processing pipelines, function composition, and higher-order programming.
+    """
     functions = list(reversed(functions))
 
     def _inner(*args, **kwargs):
@@ -91,6 +102,17 @@ class DecoratorsTest(TestCase):
         """
 
         def test1(user):
+            """
+
+            Tests the functionality related to a given user.
+
+            This function applies a test decorator to the provided user and returns a boolean result.
+            The decorator is tracked in the user's decorators_applied list, allowing for further analysis or processing.
+
+            :param user: The user object to be tested
+            :return: A boolean indicating the success of the test operation
+
+            """
             user.decorators_applied.append("test1")
             return True
 
@@ -122,6 +144,13 @@ class DecoratorsTest(TestCase):
 # We will get type arguments if there is a mismatch in the number of arguments.
 def simple_dec(func):
     @wraps(func)
+    """
+
+    Decorator function that modifies the behavior of the decorated function by prepending 'test:' to its input argument.
+
+    This decorator is designed to wrap a function that takes a single argument, and returns the result of calling the original function with the modified argument. The original function's behavior is preserved, but its input is transformed before being processed.
+
+    """
     def wrapper(arg):
         return func("test:" + arg)
 
@@ -144,6 +173,18 @@ myattr_dec_m = method_decorator(myattr_dec)
 
 
 def myattr2_dec(func):
+    """
+    Decorator function to set a custom attribute `myattr2` on a function.
+
+    This decorator allows you to mark a function with the `myattr2` attribute, 
+    indicating that it has been modified or extended in some way. The original 
+    function's behavior is preserved, and the decorated function will return the 
+    same results as the original. The `myattr2` attribute can be used for inspection 
+    or filtering purposes. 
+
+    :returns: The decorated function with the `myattr2` attribute set to `True`.
+
+    """
     def wrapper(*args, **kwargs):
         return func(*args, **kwargs)
 
@@ -171,6 +212,15 @@ class MethodDecoratorTests(SimpleTestCase):
     """
 
     def test_preserve_signature(self):
+        """
+        Tests that a function decorated with simple_dec_m preserves its original signature.
+
+        This test case verifies that the decorated function can be called with the expected
+        arguments and returns the correct result, ensuring that the decorator does not alter
+        the function's behavior or interface. The test uses a simple example class `Test`
+        with a method `say` that takes an argument, and checks that the decorated method
+        returns the expected output when called with a specific input.
+        """
         class Test:
             @simple_dec_m
             def say(self, arg):
@@ -278,6 +328,16 @@ class MethodDecoratorTests(SimpleTestCase):
 
     # Test for argumented decorator
     def test_argumented(self):
+        """
+        Test that a class decorator correctly overrides the return value of a method.
+
+        This test verifies that a class-level decorator properly modifies the behavior of a
+        decorated method. The decorator is expected to return False, regardless of the original
+        method's return value.
+
+        The test case creates a test class with a decorated method, invokes the method, and
+        asserts that the return value is False, as expected from the decorator's behavior.
+        """
         class Test:
             @method_decorator(ClsDec(False))
             def method(self):
@@ -286,7 +346,33 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(Test().method(), False)
 
     def test_descriptors(self):
+        """
+
+        Tests the functionality of method decorators in conjunction with descriptor wrappers.
+
+        This test case verifies that the application of a decorator to a method using a descriptor wrapper 
+        results in the correct execution of the original method. The test involves creating a decorator, 
+        a descriptor wrapper, and a class with a decorated method. It then asserts that the decorated method 
+        behaves as expected when invoked on an instance of the class.
+
+        """
         def original_dec(wrapped):
+            """
+
+            Create a decorator that preserves the original behavior of a function.
+
+            This decorator returns a new function that wraps the original function, 
+            passing the input argument to it and returning its result. The original 
+            function's behavior and output are not modified in any way.
+
+            The purpose of this decorator is likely to serve as a foundation for 
+            more complex decorators that need to build upon the original function's 
+            behavior.
+
+            :param wrapped: The function to be wrapped
+            :return: A new function that wraps the original function
+
+            """
             def _wrapped(arg):
                 return wrapped(arg)
 
@@ -327,6 +413,18 @@ class MethodDecoratorTests(SimpleTestCase):
         """
 
         def deco(func):
+            """
+
+            A decorator function that replaces the original function with a wrapper.
+
+            The wrapper function currently returns True, effectively overriding the original function's behavior.
+            It captures all positional and keyword arguments passed to the original function, 
+            but does not use them in the current implementation.
+
+            This decorator can be used to alter or extend the behavior of existing functions,
+            although its current implementation simply returns a constant value.
+
+            """
             def _wrapper(*args, **kwargs):
                 return True
 
@@ -345,6 +443,16 @@ class MethodDecoratorTests(SimpleTestCase):
         """
 
         def add_question_mark(func):
+            """
+            A decorator function that appends a question mark to the output of a given function.
+
+             It takes in a function as an argument, wraps it with a new function, and returns the wrapped function.
+             The wrapped function calls the original function with its original arguments and keyword arguments, 
+             then appends a question mark to the result before returning it.
+
+             This decorator can be used to easily add a question mark to the output of any function, 
+             which can be useful for functions that return strings or other text-based outputs.
+            """
             def _wrapper(*args, **kwargs):
                 return func(*args, **kwargs) + "?"
 
@@ -418,7 +526,45 @@ class MethodDecoratorTests(SimpleTestCase):
 
         def decorator(func):
             @wraps(func)
+            """
+            décorator 
+
+                A function decorator that captures and assigns the name and module of the 
+                decorated function to the func_name and func_module variables, 
+                respectively, while preserving the original function's behavior and 
+                metadata. It enables the decoration of functions without altering their 
+                functionality, thereby providing a seamless way to track or log 
+                function-specific information.
+            """
             def inner(*args, **kwargs):
+                """
+                Inner function wrapper that preserves the original function's name and module.
+
+                This wrapper captures the name and module of the original function, allowing for 
+                accurate identification and logging of function calls. It then calls the original 
+                function with the provided arguments, returning the result. The wrapper does not 
+                alter the behavior of the original function, making it suitable for use in 
+                decorator patterns.
+
+                Parameters
+                ----------
+                *args : variable
+                    Variable length non-keyword arguments to be passed to the original function.
+                **kwargs : variable
+                    Variable length keyword arguments to be passed to the original function.
+
+                Returns
+                -------
+                result
+                    The result of calling the original function with the provided arguments.
+
+                Notes
+                -----
+                This wrapper is intended for use within a decorator, and should not be called 
+                directly. The preserved function name and module are stored in the func_name and 
+                func_module variables, respectively, and can be accessed as needed.
+
+                """
                 nonlocal func_name, func_module
                 func_name = getattr(func, "__name__", None)
                 func_module = getattr(func, "__module__", None)

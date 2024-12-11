@@ -11,6 +11,20 @@ class DatabaseSequenceTests(TransactionTestCase):
     available_apps = []
 
     def test_get_sequences(self):
+        """
+
+
+        Tests the retrieval of sequences for the Square model.
+
+        This test case verifies that the correct sequence information is obtained from the database
+        for the Square model's table. It checks the following:
+        - That exactly one sequence is returned.
+        - That the sequence has a valid name.
+        - That the sequence is associated with the correct table.
+        - That the sequence corresponds to the 'id' column of the table.
+
+
+        """
         with connection.cursor() as cursor:
             seqs = connection.introspection.get_sequences(
                 cursor, Square._meta.db_table, Square._meta.local_fields
@@ -36,6 +50,17 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_view_default_collation(self):
+        """
+
+        Tests the behavior of getting table description for a database view with default collation.
+
+        This test checks that when a view is created without specifying a collation,
+        the resulting table description does not include a collation for the view's columns.
+
+        It verifies that the column description contains the expected number of columns
+        and that the collation attribute is None, as expected for a view with default collation.
+
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )
@@ -59,6 +84,21 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_materialized_view_non_default_collation(self):
+        """
+        Test the table description of a materialized view with non-default collation.
+
+        This test checks if the table description of a materialized view correctly reflects the collation of its columns,
+        even when the materialized view itself has a non-default collation. The test creates a materialized view with a
+        specific collation, retrieves its table description, and verifies that the collation of the columns is correctly
+        reported.
+
+        The test covers the following cases:
+        - Creation of a materialized view with a non-default collation
+        - Retrieval of the table description of the materialized view
+        - Verification of the collation of the columns in the table description
+
+        This test requires a database backend that supports collation on char fields.
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )

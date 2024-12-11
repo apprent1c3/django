@@ -33,6 +33,9 @@ class ChainingTests(SimpleTestCase):
     # Using a filter that forces a string back to unsafe:
     @setup({"chaining03": '{{ a|cut:"b"|capfirst }}.{{ b|cut:"b"|capfirst }}'})
     def test_chaining03(self):
+        """
+        Tests rendering of a template string with chained filters, specifically the 'cut' and 'capfirst' filters, to ensure correct output when rendering a template with less-than signs. The test verifies that the filters are applied correctly and HTML special characters are escaped as expected.
+        """
         output = self.engine.render_to_string(
             "chaining03", {"a": "a < b", "b": mark_safe("a < b")}
         )
@@ -96,11 +99,26 @@ class ChainingTests(SimpleTestCase):
         }
     )
     def test_chaining10(self):
+        """
+        Tests the end-to-end behavior of the templating engine's autoescape and force_escape functionality
+        when applied in a sequence to user-provided input. Specifically, it verifies that HTML special characters
+        are correctly escaped, preventing potential XSS vulnerabilities, while allowing the template to 
+        temporarily bypass autoescaping and then reapply it to ensure safe output
+        """
         output = self.engine.render_to_string("chaining10", {"a": "a < b"})
         self.assertEqual(output, "a &lt; b")
 
     @setup({"chaining11": '{{ a|cut:"b"|safe }}'})
     def test_chaining11(self):
+        """
+        Render a template string with chained filters to test the output.
+
+        The function verifies that the 'cut' filter correctly removes the specified substring 
+        and the 'safe' filter prevents HTML escaping, resulting in the expected output string.
+
+        :raises AssertionError: If the rendered output does not match the expected string.
+
+        """
         output = self.engine.render_to_string("chaining11", {"a": "a < b"})
         self.assertEqual(output, "a < ")
 
@@ -124,5 +142,8 @@ class ChainingTests(SimpleTestCase):
         }
     )
     def test_chaining14(self):
+        """
+        Tests the behavior of chaining filters in template rendering, specifically the interaction between the 'safe' and 'force_escape' filters. This test case verifies that when the 'autoescape' directive is disabled and the 'safe' filter is applied, subsequent application of the 'force_escape' filter correctly escapes the output to prevent XSS vulnerabilities.
+        """
         output = self.engine.render_to_string("chaining14", {"a": "a < b"})
         self.assertEqual(output, "a &lt; b")

@@ -266,6 +266,14 @@ class ViewTest(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_not_calling_parent_setup_error(self):
+        """
+
+        Tests that a proper error is raised when the setup method of a View subclass 
+        does not call the setup method of its parent class, resulting in the 'request' 
+        attribute not being set. Verifies that the error message accurately describes 
+        the potential cause of the issue.
+
+        """
         class TestView(View):
             def setup(self, request, *args, **kwargs):
                 pass  # Not calling super().setup()
@@ -411,11 +419,22 @@ class TemplateViewTest(SimpleTestCase):
         self.assertEqual(response.headers["Content-Type"], "text/plain")
 
     def test_resolve_view(self):
+        """
+        Tests that the URL '/template/content_type/' resolves to the correct view and passes the expected keyword arguments.
+
+        This test case ensures that the TemplateView is correctly associated with the given URL pattern and that the 'content_type' parameter is passed as 'text/plain' to the view's initialization method.
+        """
         match = resolve("/template/content_type/")
         self.assertIs(match.func.view_class, TemplateView)
         self.assertEqual(match.func.view_initkwargs["content_type"], "text/plain")
 
     def test_resolve_login_required_view(self):
+        """
+
+         Tests that resolving the '/template/login_required/' URL correctly returns a view that requires login functionality, 
+         specifically a TemplateView.
+
+        """
         match = resolve("/template/login_required/")
         self.assertIs(match.func.view_class, TemplateView)
 
@@ -552,6 +571,16 @@ class RedirectViewTest(SimpleTestCase):
 
 class GetContextDataTest(SimpleTestCase):
     def test_get_context_data_super(self):
+        """
+        Tests the get_context_data method of a custom view to ensure it correctly 
+        includes required context variables and overrides default values when provided 
+        keyword arguments. This test covers the case where keyword arguments are passed 
+        to the get_context_data method and verifies that they are correctly reflected 
+        in the returned context dictionary. It checks for the presence and values of 
+        specific keys in the context data, including 'test_name', 'kwarg_test', and 
+        'custom_key', to confirm the method behaves as expected under different input 
+        conditions.
+        """
         test_view = views.CustomContextView()
         context = test_view.get_context_data(kwarg_test="kwarg_value")
 
@@ -573,6 +602,15 @@ class GetContextDataTest(SimpleTestCase):
 
     def test_object_in_get_context_data(self):
         # Checks 'object' key presence in dict returned by get_context_date #20234
+        """
+
+        Tests that the 'object' key in the context data returned by get_context_data()
+        matches the object attribute of the view.
+
+        This test case ensures that the view's object is correctly passed to the template
+        context, allowing it to be accessed and rendered correctly.
+
+        """
         test_view = views.CustomSingleObjectView()
         context = test_view.get_context_data()
         self.assertEqual(context["object"], test_view.object)

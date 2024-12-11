@@ -371,6 +371,14 @@ class BaseDatabaseWrapper:
             cursor.execute(self.ops.savepoint_rollback_sql(sid))
 
     def _savepoint_commit(self, sid):
+        """
+        Commits a savepoint transaction.
+
+         Commits a previously created savepoint to the database, effectively saving the changes made up to this point.
+
+         :param sid: The identifier of the savepoint to commit.
+
+        """
         with self.cursor() as cursor:
             cursor.execute(self.ops.savepoint_commit_sql(sid))
 
@@ -619,10 +627,28 @@ class BaseDatabaseWrapper:
 
     @property
     def allow_thread_sharing(self):
+        """
+        Getter property that indicates whether thread sharing is currently allowed.
+
+        Returns:
+            bool: True if thread sharing is permitted, False otherwise.
+
+        Note:
+            The result is determined by checking the internal thread sharing count, which is protected by a lock to ensure thread safety.
+        """
         with self._thread_sharing_lock:
             return self._thread_sharing_count > 0
 
     def inc_thread_sharing(self):
+        """
+        Increment the count of threads sharing a resource.
+
+        This method acquires the internal thread sharing lock, ensuring thread safety, and then increments the internal counter tracking the number of threads currently sharing the resource.
+
+        :returns: None
+        :raises: No exceptions are raised by this method directly, but any exceptions raised by the lock acquisition mechanism may be propagated.
+
+        """
         with self._thread_sharing_lock:
             self._thread_sharing_count += 1
 
@@ -725,6 +751,29 @@ class BaseDatabaseWrapper:
         return self.SchemaEditorClass(self, *args, **kwargs)
 
     def on_commit(self, func, robust=False):
+        """
+
+        Register a callback function to be executed when the current database transaction is successfully committed.
+
+        The callback function `func` will be executed after the commit, when the transaction is guaranteed to be successful.
+        If the transaction is rolled back, the callback will not be executed.
+
+        When using this function within an atomic block (i.e., within a transaction managed by Django), the callback
+        is added to a queue and executed after the block is committed.
+
+        If `robust` is `True`, the callback function is executed immediately and any exceptions raised by the callback
+        are caught and logged, so they do not interfere with the normal execution of the transaction.
+
+        When using manual transaction management (i.e., not within an atomic block), using `on_commit()` with `robust=True`
+        is the only way to register a callback.
+
+        Note that in order to use this function, the database connection must be in autocommit mode, unless it's inside
+        an atomic block.
+
+        :param func: The callback function to be executed after the commit.
+        :param robust: Whether to execute the callback function immediately and catch any exceptions. Defaults to `False`.
+
+        """
         if not callable(func):
             raise TypeError("on_commit()'s callback must be a callable.")
         if self.in_atomic_block:

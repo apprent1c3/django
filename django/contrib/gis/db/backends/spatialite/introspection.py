@@ -27,6 +27,24 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
     data_types_reverse = GeoFlexibleFieldLookupDict()
 
     def get_geometry_type(self, table_name, description):
+        """
+
+        Determines the geometry type of a table column in a PostgreSQL database.
+
+        Args:
+            table_name (str): The name of the table that contains the geometry column.
+            description (object): An object containing information about the geometry column, including its name.
+
+        Returns:
+            tuple: A tuple containing the Django field type (e.g. GeometryField, PointField) and a dictionary of field parameters (e.g. SRID, dimension).
+
+        Raises:
+            Exception: If a geometry column matching the provided table name and description cannot be found.
+
+        Note:
+            This function queries the geometry_columns table in the PostgreSQL database to retrieve information about the geometry column, including its SRID and dimension.
+
+        """
         with self.connection.cursor() as cursor:
             # Querying the `geometry_columns` table to get additional metadata.
             cursor.execute(
@@ -63,6 +81,23 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
         return field_type, field_params
 
     def get_constraints(self, cursor, table_name):
+        """
+
+            Retrieves and extends database constraints for a given table.
+
+            This function fetches standard constraints for a table using the parent class
+            implementation and then augments them with spatial index constraints.
+
+            The spatial index constraints are retrieved by querying the geometry columns
+            table for the specified table name, where the spatial index is enabled. These
+            constraints are then added to the standard constraints dictionary with a
+            unique key indicating the column with a spatial index.
+
+            :param cursor: Database cursor object
+            :param table_name: Name of the table for which to retrieve constraints
+            :return: Dictionary containing all constraints (standard and spatial index) for the table
+
+        """
         constraints = super().get_constraints(cursor, table_name)
         cursor.execute(
             "SELECT f_geometry_column "

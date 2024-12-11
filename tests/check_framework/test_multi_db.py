@@ -21,6 +21,20 @@ class TestMultiDBChecks(SimpleTestCase):
         return mock.patch.object(connections[db].validation, "check_field")
 
     def test_checks_called_on_the_default_database(self):
+        """
+        Tests that model validation checks are called on the default database.
+
+        This test case verifies that when a model instance is validated, the checks
+        are performed on the default database, and not on any other database. It
+        ensures that the check methods are called correctly, depending on the
+        database specified.
+
+        The test covers the scenario where a model instance is validated with
+        multiple databases, and it checks that the validation checks are executed
+        only on the default database, while ignoring any other databases.
+
+
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100)
 

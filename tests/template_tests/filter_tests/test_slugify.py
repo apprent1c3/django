@@ -52,6 +52,20 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(slugify(123), "123")
 
     def test_slugify_lazy_string(self):
+        """
+        Tests the slugify function with a lazy string.
+
+        This test case ensures that the slugify function correctly converts a string containing 
+        special characters, numbers, and spaces into a slugified string. The slugified string 
+        should contain only lowercase letters, numbers, and hyphens, with spaces replaced by 
+        hyphens, and special characters removed.
+
+        The test uses a lazy string to verify that the slugify function can handle strings 
+        that are generated on the fly, rather than being predefined.
+
+        The expected output of this test is a slugified string that represents the input string 
+        in a URL-friendly format.
+        """
         lazy_str = lazy(lambda string: string, str)
         self.assertEqual(
             slugify(

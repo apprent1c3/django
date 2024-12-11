@@ -173,6 +173,26 @@ class ManagersRegressionTests(TestCase):
 @isolate_apps("managers_regress")
 class TestManagerInheritance(SimpleTestCase):
     def test_implicit_inheritance(self):
+        """
+
+        Tests the implicit inheritance of custom managers in Django models.
+
+        This test suite verifies that custom managers are correctly inherited by 
+        models in various scenarios, including abstract base classes, plain models, 
+        proxy models, and multi-table inheritance (MTI) models. It checks that the 
+        _base_manager and _default_manager attributes of the models are instances 
+        of the expected manager classes. 
+
+        The test cases cover the following situations:
+        - Plain models with custom managers
+        - Models inheriting from abstract base classes with custom managers
+        - Proxy models with custom managers
+        - MTI models with custom managers
+
+        The purpose of these tests is to ensure that Django's model inheritance 
+        mechanism correctly propagates custom managers to derived models.
+
+        """
         class CustomManager(models.Manager):
             pass
 

@@ -76,6 +76,14 @@ def xframe_options_exempt(view_func):
     if iscoroutinefunction(view_func):
 
         async def _view_wrapper(*args, **kwargs):
+            """
+
+            Wrapper function to exempt a view from clickjacking protection by setting the X-Frame-Options header.
+
+            This function calls the wrapped view function with the provided arguments and keyword arguments, 
+            then modifies the response to allow it to be framed by other pages, and finally returns the modified response.
+
+            """
             response = await view_func(*args, **kwargs)
             response.xframe_options_exempt = True
             return response

@@ -19,6 +19,17 @@ def set_session_data(storage, messages):
 
 
 def stored_session_messages_count(storage):
+    """
+    Returns the number of stored session messages.
+
+    This function retrieves the stored session messages from the given storage object,
+    deserializes them, and returns the count.
+
+    :param storage: The storage object containing the session messages.
+    :rtype: int
+    :return: The number of stored session messages.
+
+    """
     data = storage.deserialize_messages(
         storage.request.session.get(storage.session_key, [])
     )
@@ -47,6 +58,13 @@ class SessionTests(BaseTests, TestCase):
             self.storage_class(HttpRequest())
 
     def test_get(self):
+        """
+        #: Tests the retrieval of data from a storage instance.
+        #: 
+        #: Verifies that the stored data can be correctly fetched and matches the expected output.
+        #: The test case uses a predefined set of example messages, stores them in the session data, 
+        #: and then checks if the data retrieved from the storage matches the initial messages.
+        """
         storage = self.storage_class(self.get_request())
         example_messages = ["test", "me"]
         set_session_data(storage, example_messages)

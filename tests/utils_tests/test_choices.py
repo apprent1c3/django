@@ -19,6 +19,9 @@ class SimpleChoiceIterator(BaseChoiceIterator):
 
 class ChoiceIteratorTests(SimpleTestCase):
     def test_not_implemented_error_on_missing_iter(self):
+        """
+        Tests that a NotImplementedError is raised when a subclass of BaseChoiceIterator does not implement the __iter__() method, ensuring that all subclasses provide the required iterator functionality. The error message specifically indicates that the __iter__() method must be implemented in BaseChoiceIterator subclasses.
+        """
         class InvalidChoiceIterator(BaseChoiceIterator):
             pass  # Not overriding __iter__().
 
@@ -50,6 +53,11 @@ class ChoiceIteratorTests(SimpleTestCase):
                 self.assertEqual(choices[i], expected)
 
     def test_getitem_indexerror(self):
+        """
+        Tests that attempting to access an item in the SimpleChoiceIterator by index raises an IndexError when the index is out of range.
+
+        Checks that the error is correctly raised for both positive and negative indices that exceed the valid range, and verifies that the error message indicates the index is out of range.
+        """
         choices = SimpleChoiceIterator()
         for i in (4, -4):
             with self.subTest(index=i):
@@ -180,6 +188,16 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         get_choices_spy.assert_called_once()
 
     def test_mapping(self):
+        """
+
+        Tests the mapping of suit abbreviations to their corresponding full names.
+
+        This test case verifies that the `normalize_choices` function correctly transforms
+        a dictionary of suit abbreviations into a format that matches the expected output.
+        It checks that the mapping from abbreviations ('C', 'D', 'H', 'S') to their respective
+        full names ('Club', 'Diamond', 'Heart', 'Spade') is accurate.
+
+        """
         choices = {
             "C": _("Club"),
             "D": _("Diamond"),
@@ -230,6 +248,17 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         get_media_choices_spy.assert_called_once()
 
     def test_nested_mapping(self):
+        """
+        Tests the normalization of nested mapping choices.
+
+        This function verifies that a dictionary with nested choices is correctly normalized, 
+        ensuring that the resulting structure is as expected. The test case covers a mapping 
+        with multiple levels of nesting, including a mix of sub-dictionaries and standalone values.
+
+        The expected output is compared to a predefined result, allowing for the validation 
+        of the normalization process. This test is crucial for ensuring the correct handling 
+        of complex choice structures in the application.
+        """
         choices = {
             "Audio": {"vinyl": _("Vinyl"), "cd": _("CD")},
             "Video": {"vhs": _("VHS Tape"), "dvd": _("DVD")},
@@ -238,6 +267,15 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected_nested)
 
     def test_nested_iterable(self):
+        """
+
+        Tests the normalization of nested iterables in the choices list.
+
+        This function checks that the normalize_choices function can correctly handle a list
+        of choices where some options have nested sub-options. The test data includes a mix
+        of nested and non-nested options to ensure the function can handle both cases.
+
+        """
         choices = [
             ("Audio", [("vinyl", _("Vinyl")), ("cd", _("CD"))]),
             ("Video", [("vhs", _("VHS Tape")), ("dvd", _("DVD"))]),
@@ -246,11 +284,30 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected_nested)
 
     def test_nested_iterator(self):
+        """
+
+        Tests the normalization of nested iterator choices.
+
+        This function verifies that the normalize_choices function can correctly handle
+        nested iterators, which are used to generate choices for categorical fields.
+        The test case covers a scenario where the choices are organized in a hierarchical
+        structure, with top-level categories ('Audio', 'Video', 'unknown') containing
+        sub-choices. The function checks if the normalized output matches the expected
+        result, ensuring that the normalization process correctly flattens the nested
+        structure.
+
+        """
         def generate_audio_choices():
             yield "vinyl", _("Vinyl")
             yield "cd", _("CD")
 
         def generate_video_choices():
+            """
+            Generates a list of video format choices for selection.
+
+            Returns:
+                An iterator of tuples, each containing a video format code and its corresponding human-readable name, translated into the current language.
+            """
             yield "vhs", _("VHS Tape")
             yield "dvd", _("DVD")
 
@@ -327,6 +384,17 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_nested_iterable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+
+        Tests the normalization of a nested iterable containing non-canonical choices.
+
+        This function verifies that the normalize_choices function correctly processes a 
+        nested list of choices, where each choice may contain multiple sub-options, and 
+        returns the expected normalized result. The input choices include a mix of 
+        canonical and non-canonical options, such as audio and video formats, to ensure 
+        that the normalization function handles these cases correctly.
+
+        """
         choices = [
             ["Audio", [["vinyl", _("Vinyl")], ["cd", _("CD")]]],
             ["Video", [["vhs", _("VHS Tape")], ["dvd", _("DVD")]]],

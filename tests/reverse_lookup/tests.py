@@ -20,6 +20,18 @@ class ReverseLookupTests(TestCase):
         )
 
     def test_reverse_by_field(self):
+        """
+
+        Tests the reverse lookup by field functionality.
+
+        This test case checks if it's possible to retrieve a User object based on the question 
+        field of the related Poll object. It verifies that the retrieved User objects have 
+        the expected names.
+
+        The test covers two scenarios: one for the user with the first question and one for 
+        the user with the second question.
+
+        """
         u1 = User.objects.get(poll__question__exact="What's the first question?")
         self.assertEqual(u1.name, "John Doe")
 

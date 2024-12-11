@@ -31,6 +31,21 @@ class CustomManyToManyField(RelatedField):
         db_table=None,
         **kwargs,
     ):
+        """
+        Initializes a many-to-many relationship field.
+
+        This field establishes a many-to-many relationship between the model it is defined on and the model specified by the `to` argument. It can be customized to use an intermediary model (`through`), apply database constraints (`db_constraint`), or limit the choices available for this relationship (`limit_choices_to`).
+
+        The `related_name` and `related_query_name` arguments allow you to specify the name for the relationship on the related model, while `symmetrical` controls whether this relationship is considered symmetrical.
+
+        Additional optional parameters include `swappable` (to control whether this field can be swapped with a different type), `db_table` (to specify a custom database table name), and `through_fields` (to specify the fields used for the many-to-many relationship when using an intermediary model).
+
+        If the `to` argument is not a model, it will be converted to a string.
+
+        Raises a `ValueError` if both an intermediary model (`through`) and a custom database table name (`db_table`) are specified, as this is not allowed.
+
+        Returns the initialized many-to-many relationship field instance.
+        """
         try:
             to._meta
         except AttributeError:

@@ -184,6 +184,20 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertEqual(e, e_deepcopy)
 
     def test_error_dict_html_safe(self):
+        """
+
+        Tests that the ErrorDict class returns HTML-safe output when converted to a string.
+
+        This test case verifies that the ErrorDict class has an __html__ method and that 
+        its string representation is equivalent to the HTML output. This ensures that 
+        ErrorDict instances can be safely used in HTML templates without introducing 
+        cross-site scripting vulnerabilities.
+
+        The test creates an ErrorDict instance, adds an error message for the 'username' 
+        field, and then checks that the string representation of the ErrorDict matches 
+        its HTML representation.
+
+        """
         e = ErrorDict()
         e["username"] = "Invalid username."
         self.assertTrue(hasattr(ErrorDict, "__html__"))
@@ -260,12 +274,36 @@ class FormsUtilsTestCase(SimpleTestCase):
             mixin.get_context()
 
     def test_field_mixin_as_hidden_must_be_implemented(self):
+        """
+        Tests that the RenderableFieldMixin requires implementing the as_hidden method.
+
+        This test checks that any subclass of RenderableFieldMixin must provide its own 
+        implementation of the as_hidden method. The mixin itself raises a NotImplementedError 
+        if this method is not implemented, ensuring that all subclasses handle this case.
+
+        Raises:
+            AssertionError: If the mixin does not raise a NotImplementedError when as_hidden is called.
+
+        """
         mixin = RenderableFieldMixin()
         msg = "Subclasses of RenderableFieldMixin must provide an as_hidden() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             mixin.as_hidden()
 
     def test_field_mixin_as_widget_must_be_implemented(self):
+        """
+
+        Tests that RenderableFieldMixin subclasses must implement the as_widget method.
+
+        This test case verifies that an attempt to call the as_widget method on an instance
+        of RenderableFieldMixin directly will raise a NotImplementedError, ensuring that
+        subclasses provide their own implementation of this method.
+
+        The error message indicates that the as_widget method is required for all subclasses
+        of RenderableFieldMixin, and that the method was not found, prompting the developer
+        to implement it accordingly.
+
+        """
         mixin = RenderableFieldMixin()
         msg = "Subclasses of RenderableFieldMixin must provide an as_widget() method."
         with self.assertRaisesMessage(NotImplementedError, msg):

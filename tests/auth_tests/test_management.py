@@ -50,6 +50,28 @@ def mock_inputs(inputs):
 
     def inner(test_func):
         def wrapper(*args):
+            """
+            ietet
+            Wrapper function that temporarily patches the built-in input and getpass functions 
+            to provide mock input for testing purposes.
+
+            This function takes arbitrary arguments and passes them to the test_func function.
+            It intercepts calls to input and getpass, replacing them with mock implementations 
+            that return predefined responses based on the prompt message.
+
+            The mock responses are defined in the inputs dictionary, where each key corresponds 
+            to a prompt message and the value is the response to return. If the response is a 
+            callable, it will be invoked to generate the response.
+
+            The wrapper function ensures that the original input and getpass functions are 
+            restored after the test_func has completed, regardless of whether an exception 
+            occurs.
+
+            Raises:
+                ValueError: If a mock input for a given prompt is not found.
+                KeyboardInterrupt: If the mock input for a given prompt is set to KeyboardInterrupt.
+
+            """
             class mock_getpass:
                 @staticmethod
                 def getpass(prompt=b"Password: ", stream=None):
@@ -131,6 +153,15 @@ class GetDefaultUsernameTestCase(TestCase):
         self.assertEqual(management.get_default_username(), "joe")
 
     def test_existing(self):
+        """
+
+        Tests the functionality of retrieving the default username when a user already exists.
+
+        This test case verifies two scenarios:
+        - When the database is checked, an empty string is returned as the default username.
+        - When the database is not checked, the system username is returned as the default username.
+
+        """
         User.objects.create(username="joe")
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "")
@@ -142,6 +173,21 @@ class GetDefaultUsernameTestCase(TestCase):
         self.assertEqual(management.get_default_username(), "julia")
 
     def test_with_database(self):
+        """
+
+         Tests the functionality of getting the default username with and without a database.
+
+         This test case verifies the behavior of the management module's get_default_username function.
+         It checks the return value of this function when no default username is set and when a default username is available in a specific database.
+
+         The test covers the following scenarios:
+         - Getting the default username without a specified database
+         - Getting the default username with a specified database where a user exists
+         - Getting the default username with a specified database where a user does not exist
+
+         The expected behavior is that an empty string is returned when no default username is set, and the username of the existing user is returned when a default username is available in the specified database.
+
+        """
         User.objects.create(username="joe")
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "")
@@ -162,6 +208,12 @@ class ChangepasswordManagementCommandTestCase(TestCase):
         cls.user = User.objects.create_user(username="joe", password="qwerty")
 
     def setUp(self):
+        """
+        Sets up the test environment by initializing output streams for standard output and standard error.
+
+        The function creates in-memory text streams to capture output that would normally be printed to the console, allowing for testing and verification of output in a controlled manner. 
+        It also ensures that these streams are properly closed after the test is completed, regardless of the test outcome.
+        """
         self.stdout = StringIO()
         self.addCleanup(self.stdout.close)
         self.stderr = StringIO()
@@ -354,6 +406,12 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_verbosity_zero(self):
         # We can suppress output on the management command
+        """
+        Tests that the createsuperuser command behaves correctly when run with verbosity level 0. 
+        This test case verifies that no output is produced when the command is run non-interactively with verbosity set to 0, 
+        and that a new superuser is successfully created with the specified username and email. 
+        The test also checks that the created user does not have a usable password, as expected when the command is run non-interactively.
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -548,6 +606,19 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            Tests the createsuperuser command with custom user creation.
+
+            This test case simulates the interactive creation of a superuser by mocking user inputs.
+            It verifies that the command executes successfully, and the resulting superuser has the expected attributes.
+
+            The test checks the following:
+            - The command output indicates successful superuser creation.
+            - The created user has the correct email as their username.
+            - The created user is associated with the specified group.
+
+            This ensures that the createsuperuser command functions correctly with custom user models and interactive input.
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -571,6 +642,20 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
         @mock_inputs({"password": "nopasswd"})
         def test(self):
+            """
+
+            Test the creation of a superuser using the 'createsuperuser' command.
+
+            This function simulates the creation of a superuser by calling the 'createsuperuser' management command
+            with the necessary input parameters, including username, email, and group. It then verifies that the
+            command is executed successfully and that the created superuser has the expected attributes.
+
+            The test case checks for the following conditions:
+            - The command output indicates that the superuser was created successfully.
+            - The created superuser has the correct username, which is set to their email address.
+            - The created superuser is assigned to the specified group.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1092,6 +1177,20 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             {"password": return_passwords, "username": return_usernames, "email": ""}
         )
         def test(self):
+            """
+
+            Tests the creation of a superuser with an existing username.
+
+            This test case simulates the interactive process of creating a superuser using the
+            `createsuperuser` command. It verifies that the command correctly handles the
+            attempt to create a superuser with a username that is already taken, and that it
+            ultimately succeeds in creating the superuser.
+
+            The test expects the command to output an error message indicating that the
+            username is already taken, followed by a success message confirming that the
+            superuser was created.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,

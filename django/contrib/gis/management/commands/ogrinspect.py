@@ -109,6 +109,20 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+
+        Handles the inspection of a geospatial data source and generates supporting code and configuration.
+
+        This function takes a geospatial data source and a model name as input, and uses them to inspect the data source and generate code that can be used to work with the data in a Django application.
+        It supports the use of various GDAL data sources and uses the OGR library to perform the inspection.
+
+        The function can also generate a `LayerMapping` dictionary, which can be used to configure the mapping between the geospatial data and a Django model.
+        The resulting code and configuration are returned as a string.
+
+        The function accepts various options that can be used to customize its behavior, such as the name of the geometry field and the layer key.
+        It raises a `CommandError` if an error occurs while inspecting the geospatial data source.
+
+        """
         data_source, model_name = options.pop("data_source"), options.pop("model_name")
 
         # Getting the OGR DataSource from the string parameter.

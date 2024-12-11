@@ -23,6 +23,23 @@ class SearchVectorExact(Lookup):
         return rhs, rhs_params
 
     def as_sql(self, qn, connection):
+        """
+        Generates SQL representation of an expression.
+
+        This function takes a query name (qn) and a database connection as input, 
+        processes the left-hand side (LHS) and right-hand side (RHS) of the expression, 
+        and returns a tuple containing the SQL string and the combined parameters.
+
+        The returned SQL string represents the expression in a format compatible with 
+        the given database connection, while the parameters are used to prevent SQL 
+        injection attacks.
+
+        The function relies on the process_lhs and process_rhs methods to generate the 
+        LHS and RHS components of the SQL string, respectively.
+
+        :returns: A tuple containing the SQL string and a list of parameters.
+        :rtype: tuple
+        """
         lhs, lhs_params = self.process_lhs(qn, connection)
         rhs, rhs_params = self.process_rhs(qn, connection)
         params = lhs_params + rhs_params
@@ -151,6 +168,16 @@ class SearchVector(SearchVectorCombinable, Func):
 
 class CombinedSearchVector(SearchVectorCombinable, CombinedExpression):
     def __init__(self, lhs, connector, rhs, config, output_field=None):
+        """
+
+        Initializes an object that represents a conditional expression.
+
+        The expression consists of a left-hand side (lhs), a connector, and a right-hand side (rhs).
+        It is configured using the provided configuration (config) and can produce output in a specific field (output_field) if specified.
+
+        The initialization process sets up the object's internal state with the given configuration and passes the expression components to its parent class for further initialization.
+
+        """
         self.config = config
         super().__init__(lhs, connector, rhs, output_field)
 

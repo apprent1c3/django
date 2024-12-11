@@ -156,6 +156,11 @@ class TokenGeneratorTest(TestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_check_token_secret_key_fallbacks(self):
+        """
+        Tests the password reset token generator's ability to validate tokens created with a secret key that has been superseded by a new secret key, ensuring a smooth transition between old and new secret keys. 
+
+        The test case verifies that a token generated with an old secret key can still be validated after a new secret key has been set, demonstrating the fallback mechanism for secret keys in password reset token validation.
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p1 = PasswordResetTokenGenerator()
         p1.secret = "oldsecret"

@@ -43,11 +43,25 @@ class SiteEachContextTest(TestCase):
         )
 
     def setUp(self):
+        """
+        Initializes the test setup by simulating a GET request to the admin site index page, 
+        assigns a test user to the request, and generates the context for the request.
+        """
         request = self.request_factory.get(reverse("test_adminsite:index"))
         request.user = self.u1
         self.ctx = site.each_context(request)
 
     def test_each_context(self):
+        """
+        Tests the values of several context variables for the admin site.
+
+            Specifically, verifies that the site header, site title, and site URL
+            are set to their expected values. Additionally, checks that the user
+            has permission to access the site.
+
+            This test ensures that the admin site context is properly configured
+            for use in the application.
+        """
         ctx = self.ctx
         self.assertEqual(ctx["site_header"], "Django administration")
         self.assertEqual(ctx["site_title"], "Django site admin")

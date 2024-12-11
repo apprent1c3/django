@@ -415,6 +415,18 @@ class TestContextDecorator:
             decorated_setUp = cls.setUp
 
             def setUp(inner_self):
+                """
+
+                Set up the test environment with a clean context.
+
+                This method enables the test context, schedules its disablement after the test,
+                and optionally assigns the context to an attribute on the test instance.
+                It then proceeds to call the original setup method, allowing for further 
+                test preparation. 
+
+                :param inner_self: The test instance being set up.
+
+                """
                 context = self.enable()
                 inner_self.addCleanup(self.disable)
                 if self.attr_name:
@@ -440,6 +452,22 @@ class TestContextDecorator:
 
             @wraps(func)
             def inner(*args, **kwargs):
+                """
+                A decorator function that wraps an original function, providing a context 
+                management mechanism. When the decorated function is invoked, it establishes 
+                a context using the given object, and optionally injects the context into 
+                the function's keyword arguments. The context is automatically managed, 
+                ensuring it is properly cleaned up after the function execution completes. 
+
+                The wrapped function's original behavior is preserved, allowing for seamless 
+                integration of context management into existing code. If a keyword argument 
+                name is specified, the context is passed to the function under that name, 
+                otherwise the context is simply managed around the function invocation. 
+
+                This decorator is useful for handling resources or setup/teardown operations 
+                that need to occur around a function call, while keeping the code concise 
+                and readable.
+                """
                 with self as context:
                     if self.kwarg_name:
                         kwargs[self.kwarg_name] = context
@@ -496,6 +524,13 @@ class override_settings(TestContextDecorator):
                 self.disable()
 
     def disable(self):
+        """
+        Disable a previous override of Django settings.
+
+        This function resets the Django settings to their original state after they have been temporarily overridden.
+        It reverses the changes made to the settings, sends notifications to listeners for each setting change, 
+        and potentially raises an exception if one was previously caught during the override.
+        """
         if "INSTALLED_APPS" in self.options:
             apps.unset_installed_apps()
         settings._wrapped = self.wrapped
@@ -732,6 +767,17 @@ class CaptureQueriesContext:
 
 class ignore_warnings(TestContextDecorator):
     def __init__(self, **kwargs):
+        """
+
+        Initializes the warning filter object.
+
+        This constructor takes keyword arguments and determines whether to use the 
+        `warnings.filterwarnings` or `warnings.simplefilter` function for filtering 
+        warnings based on the presence of 'message' or 'module' keyword arguments.
+
+        The provided keyword arguments are stored and used to configure the warning filter.
+
+        """
         self.ignore_kwargs = kwargs
         if "message" in self.ignore_kwargs or "module" in self.ignore_kwargs:
             self.filter_func = warnings.filterwarnings
@@ -889,6 +935,17 @@ class LoggingCaptureMixin:
     """
 
     def setUp(self):
+        """
+        Configures the test environment by setting up a logger and redirecting its output.
+
+        This method initializes a logger named 'django' and captures its output by temporarily replacing its stream with a StringIO object. The original stream is stored for later restoration.
+
+        The purpose of this setup is to allow for the testing of logging behavior within the Django framework, enabling the verification of log messages and their contents.
+
+        The logger's output is redirected to a StringIO object, `logger_output`, which can be examined after the test is executed to verify the log messages that were generated.
+
+        This setup is typically used in a test context to isolate and test logging behavior in a controlled environment.
+        """
         self.logger = logging.getLogger("django")
         self.old_stream = self.logger.handlers[0].stream
         self.logger_output = StringIO()
@@ -916,6 +973,13 @@ class isolate_apps(TestContextDecorator):
     """
 
     def __init__(self, *installed_apps, **kwargs):
+        """
+        Initializes an instance of the class, storing a variable number of installed applications and passing additional keyword arguments to the parent class's initializer.
+
+        :param installed_apps: A variable number of installed applications to be stored in the instance
+        :param kwargs: Additional keyword arguments to be passed to the parent class's initializer
+        :returns: None
+        """
         self.installed_apps = installed_apps
         super().__init__(**kwargs)
 

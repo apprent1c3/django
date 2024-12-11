@@ -204,6 +204,18 @@ class FilteredRelationTests(TestCase):
         )
 
     def test_internal_queryset_alias_mapping(self):
+        """
+
+        Tests the internal queryset alias mapping for filtered relations.
+
+        Verifies that the internal alias mapping is correctly applied when using 
+        FilteredRelation to annotate a queryset. Specifically, checks that the 
+        resulting SQL query includes an INNER JOIN with the correct alias.
+
+        This test ensures that the alias mapping is properly handled, allowing 
+        for efficient filtering of related objects based on specific conditions.
+
+        """
         queryset = Author.objects.annotate(
             book_alice=FilteredRelation(
                 "book", condition=Q(book__title__iexact="poem by alice")
@@ -412,6 +424,16 @@ class FilteredRelationTests(TestCase):
 
     def test_defer(self):
         # One query for the list and one query for the deferred title.
+        """
+        Tests the ability to defer fields after annotating and filtering a QuerySet.
+
+        This test case checks that an Author's book information can be retrieved while 
+        excluding certain fields from the book relation, in this case the title. The 
+        deferred attribute is checked after filtering Authors based on the presence of 
+        a book with a specific title ('poem by alice') and selecting the related book 
+        information. The test verifies that only the required number of database queries 
+        are executed and that the resulting book titles match the expected outcome.
+        """
         with self.assertNumQueries(2):
             self.assertQuerySetEqual(
                 Author.objects.annotate(
@@ -427,6 +449,14 @@ class FilteredRelationTests(TestCase):
             )
 
     def test_only_not_supported(self):
+        """
+        Tests that using the only() method on a FilteredRelation raises a ValueError.
+
+        This function verifies that attempting to use the only() method on a FilteredRelation
+        results in an error, as this is not a supported operation. It checks that a ValueError
+        is raised with a specific error message when trying to use only() on a FilteredRelation
+        in a query. The error message indicates that using only() with FilteredRelation is not supported.
+        """
         msg = "only() is not supported with FilteredRelation."
         with self.assertRaisesMessage(ValueError, msg):
             Author.objects.annotate(
@@ -583,6 +613,21 @@ class FilteredRelationTests(TestCase):
         )
 
     def test_deep_nested_foreign_key(self):
+        """
+
+        Tests the ability to perform a deep nested foreign key lookup using Django's ORM.
+
+        This test case verifies that a filtered relation can be applied to a nested foreign key,
+        specifically to retrieve books where the author's favorite book's editor matches a certain condition.
+        The test also checks that the query is executed efficiently, using a single database query.
+
+        The test covers the following aspects:
+        - Annotation of a queryset with a filtered relation
+        - Filtering of the queryset based on the annotated relation
+        - Efficient retrieval of related objects using select_related
+        - Correct ordering of the results by primary key and related object primary key
+
+        """
         qs = (
             Book.objects.annotate(
                 author_favorite_book_editor=FilteredRelation(
@@ -711,6 +756,17 @@ class FilteredRelationTests(TestCase):
         )
 
     def test_conditional_expression(self):
+        """
+
+        Tests the usage of a conditional expression in the annotation of a QuerySet.
+
+        Specifically, this test checks that when a FilteredRelation is applied with a condition
+        that is always False, the resulting QuerySet is empty, as no objects match the condition.
+
+        The test verifies that the QuerySet returned by the annotation and filter operations
+        contains no elements.
+
+        """
         qs = Author.objects.annotate(
             the_book=FilteredRelation("book", condition=Q(Value(False))),
         ).filter(the_book__isnull=False)

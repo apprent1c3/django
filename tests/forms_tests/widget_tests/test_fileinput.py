@@ -35,6 +35,15 @@ class FileInputTest(WidgetTest):
     def test_use_required_attribute(self):
         # False when initial data exists. The file input is left blank by the
         # user to keep the existing, initial value.
+        """
+        Tests the use_required_attribute method of the widget.
+
+        This method determines whether the required attribute should be used based on the provided value.
+        It returns True when no value is provided (i.e., None) and False when a value is given (e.g., a filename).
+
+        The purpose of this test is to ensure the widget behaves as expected when deciding whether to apply the required attribute, 
+        influenced by the presence or absence of a file or other relevant data.
+        """
         self.assertIs(self.widget.use_required_attribute(None), True)
         self.assertIs(self.widget.use_required_attribute("resume.txt"), False)
 
@@ -80,6 +89,19 @@ class FileInputTest(WidgetTest):
         self.assertEqual(value, file_2)
 
     def test_multiple_default(self):
+        """
+
+        Test the multiple file input functionality.
+
+        This test case verifies that the MultipleFileInput widget correctly sets the 'multiple' attribute 
+        based on the provided attributes. It checks for different input scenarios, including when no 
+        attributes are provided, when a class attribute is provided, and when the 'multiple' attribute is 
+        explicitly set to False.
+
+        The test ensures that the 'multiple' attribute is set as expected in each scenario, 
+        with the 'allow_multiple_selected' flag determining the default behavior. 
+
+        """
         class MultipleFileInput(FileInput):
             allow_multiple_selected = True
 

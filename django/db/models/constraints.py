@@ -174,6 +174,14 @@ class CheckConstraint(BaseConstraint):
         return self.condition
 
     def _set_check(self, value):
+        """
+        Sets the condition for a check constraint, deprecating the previous `check` attribute in favor of `condition`.
+
+        :deprecated: Use `.condition` instead, as `check` will be removed in Django 6.0.
+
+        :param value: The condition to set for the check constraint.
+        :return: None
+        """
         warnings.warn(
             "CheckConstraint.check is deprecated in favor of `.condition`.",
             RemovedInDjango60Warning,
@@ -234,6 +242,19 @@ class CheckConstraint(BaseConstraint):
         return schema_editor._check_sql(self.name, check)
 
     def create_sql(self, model, schema_editor):
+        """
+
+        Creates the SQL statement to add a database constraint.
+
+        This method generates the SQL command required to create a check constraint 
+        in the database for the given model. It relies on the schema editor to 
+        construct the final SQL statement.
+
+        :param model: The model for which the check constraint is being created.
+        :param schema_editor: The editor responsible for creating the SQL statement.
+        :return: The SQL statement to create the check constraint.
+
+        """
         check = self._get_check_sql(model, schema_editor)
         return schema_editor._create_check_sql(model, self.name, check)
 
@@ -488,6 +509,25 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def constraint_sql(self, model, schema_editor):
+        """
+        Generates the SQL command for creating a constraint on a model.
+
+        This function takes a model and a schema editor as input, and returns a SQL command 
+        that creates a constraint on the specified model. The constraint is defined by the 
+        fields, include, condition, and other parameters specified in the class.
+
+        The generated SQL command includes options such as deferrability, included columns, 
+        operator classes, and expressions, which can be customized based on the specific 
+        requirements of the model.
+
+        The returned SQL command can be used by the schema editor to create the constraint 
+        on the database table corresponding to the model.
+
+        :param model: The model on which the constraint is to be created.
+        :param schema_editor: The schema editor object used to generate the SQL command.
+        :returns: The SQL command for creating the constraint on the model.
+        :rtype: str
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include

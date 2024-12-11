@@ -82,6 +82,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return False
 
     def skip_default_on_alter(self, field):
+        """
+        Determines whether the default value of a given field should be skipped when altering a database table.
+
+        This decision is based on the type of field and its default value. Specifically, it checks if the default value is empty 
+        and if the field is of a text or blob type, or if it's a limited data type and the database connection is not to a 
+        MariaDB instance. If either condition is met, the function returns True, indicating that the default value should be 
+        skipped; otherwise, it returns False. This logic helps maintain compatibility and consistency across different 
+        database configurations.
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -110,6 +119,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super()._column_default_sql(field)
 
     def add_field(self, model, field):
+        """
+        Add a new field to the specified model, executing a database update to set the field's default value if it is not null and should be skipped.
+
+        :param model: The model to which the field will be added
+        :param field: The field to be added to the model
+        :note: The update operation will only occur if the field has a non-null default value and is marked to be skipped by default. The effective default value will be determined based on the field's configuration and then applied to all existing rows in the model's table.
+        """
         super().add_field(model, field)
 
         # Simulate the effect of a one-off default.
@@ -254,6 +270,23 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return field_db_params["check"]
 
     def _rename_field_sql(self, table, old_field, new_field, new_type):
+        """
+
+        Renames a field in a SQL table, adjusting the new field type as necessary.
+
+        This method orchestrates the renaming of a field within a given table, 
+        taking into account the original field name, the new field name, and the 
+        desired new type for the field. It ensures that the new field type is 
+        properly determined based on the original field, before delegating the 
+        actual SQL renaming operation to a parent class.
+
+        :param table: The name of the SQL table containing the field to be renamed.
+        :param old_field: The original name of the field to be renamed.
+        :param new_field: The new name for the field.
+        :param new_type: The desired type for the renamed field.
+        :return: The SQL command to rename the field.
+
+        """
         new_type = self._set_field_new_type(old_field, new_type)
         return super()._rename_field_sql(table, old_field, new_field, new_type)
 

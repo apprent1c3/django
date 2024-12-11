@@ -75,6 +75,15 @@ class DataTests(OptionsBaseTests):
             self.assertEqual([f.attname for f in fields], expected_result)
 
     def test_local_fields(self):
+        """
+
+        Tests that a model's local fields are correctly identified and validated.
+
+        Checks that the list of local field attribute names matches the expected result,
+        and verifies that each field belongs to the current model and is a data field
+        (i.e., not a many-to-many field).
+
+        """
         def is_data_field(f):
             return isinstance(f, Field) and not f.many_to_many
 
@@ -86,6 +95,12 @@ class DataTests(OptionsBaseTests):
                 self.assertTrue(is_data_field(f))
 
     def test_local_concrete_fields(self):
+        """
+        Tests that the local concrete fields of a model are correctly identified and configured.
+
+        This function iterates over a set of test models and their expected local concrete fields, verifying that the actual fields match the expected results. 
+        It checks that each field has a valid column name, ensuring that the model's database structure is properly defined.
+        """
         for model, expected_result in TEST_RESULTS["local_concrete_fields"].items():
             fields = model._meta.local_concrete_fields
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -112,6 +127,11 @@ class RelatedObjectsTests(OptionsBaseTests):
         return r[0]
 
     def test_related_objects(self):
+        """
+        Tests whether the function to retrieve all related objects with model returns the expected results. 
+
+        This test iterates over a set of predefined models and their expected related objects. For each model, it generates a list of related objects by examining the model's fields that are automatically created and not concrete. The related query names of these objects are then compared to the expected results, ensuring that they match and are in the same order. This test verifies the correctness of the related object retrieval functionality.
+        """
         result_key = "get_all_related_objects_with_model"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -125,6 +145,23 @@ class RelatedObjectsTests(OptionsBaseTests):
             )
 
     def test_related_objects_local(self):
+        """
+        Tests the retrieval of related objects for each model in the local context.
+
+        Checks if the related objects obtained from the model's fields match the expected results.
+        The test iterates over each model, constructs a list of related objects and then compares 
+        the sorted query names of these objects with the expected results, ensuring they match.
+
+        The test uses the :const:`TEST_RESULTS` dictionary to retrieve the expected results 
+        for each model, and the :meth:`_model` and :meth:`_map_related_query_names` methods 
+        to construct and process the related objects, respectively. 
+
+        The comparison is done using the :meth:`assertEqual` method, which verifies that 
+        the sorted related query names are identical to the expected results. 
+
+        :param result_key: The key used to retrieve the expected results from the TEST_RESULTS dictionary.
+        :type result_key: str
+        """
         result_key = "get_all_related_objects_with_model_local"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -175,6 +212,13 @@ class PrivateFieldsTests(OptionsBaseTests):
 
 class GetFieldByNameTests(OptionsBaseTests):
     def test_get_data_field(self):
+        """
+
+        Tests the retrieval of field information for the 'data_abstract' field in the Person model.
+        Verifies that the field type is CharField and checks the field's model inheritance and properties.
+        This test ensures the correctness of field information retrieval, which is crucial for model introspection and validation.
+
+        """
         field_info = self._details(Person, Person._meta.get_field("data_abstract"))
         self.assertEqual(field_info[1:], (BasePerson, True, False))
         self.assertIsInstance(field_info[0], CharField)
@@ -197,6 +241,15 @@ class GetFieldByNameTests(OptionsBaseTests):
         self.assertIsInstance(field_info[0], ForeignObjectRel)
 
     def test_get_generic_relation(self):
+        """
+        Tests the retrieval of a generic relation field.
+
+        Verifies that the correct information is returned for a generic relation
+        field on a model, including the field type and other relevant attributes.
+        The test checks the field's type, nullability, and whether it can be edited
+        or create new related instances. Ensures a GenericRelation instance is
+        returned with the expected properties and behavior.
+        """
         field_info = self._details(
             Person, Person._meta.get_field("generic_relation_base")
         )
@@ -247,10 +300,24 @@ class SwappedTests(SimpleTestCase):
         self.assertIsNone(Swappable._meta.swapped)
 
     def test_setting_none(self):
+        """
+        Tests that setting MODEL_META_TESTS_SWAPPED to None results in Swappable._meta.swapped being None.
+
+         Verifies the behavior of the Swappable class when the swapped model is not specified in the settings.
+
+         This test ensures that the Swappable class correctly interprets the absence of a swapped model setting.
+        """
         with override_settings(MODEL_META_TESTS_SWAPPED=None):
             self.assertIsNone(Swappable._meta.swapped)
 
     def test_setting_non_label(self):
+        """
+        Tests that setting the MODEL_META_TESTS_SWAPPED setting correctly updates the swapped attribute of the Swappable model's meta class. 
+
+        This test case specifically checks if the swapped attribute is updated when the setting is set to a non-label value. 
+
+        It verifies that the correct value is reflected in the model's meta class, ensuring that the setting change is properly applied.
+        """
         with override_settings(MODEL_META_TESTS_SWAPPED="not-a-label"):
             self.assertEqual(Swappable._meta.swapped, "not-a-label")
 
@@ -269,12 +336,36 @@ class RelationTreeTests(SimpleTestCase):
         # The apps.clear_cache is setUp() should have deleted all trees.
         # Exclude abstract models that are not included in the Apps registry
         # and have no cache.
+        """
+        Tests that the clear cache method removes the relation tree from all models.
+
+        This test case ensures that after clearing the cache, the _relation_tree attribute is
+        removed from the metadata of all non-abstract models, verifying that the cache is
+        properly cleared and the relation tree is recalculated as needed.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the _relation_tree attribute is still present in the metadata
+                of any non-abstract model after clearing the cache.
+        """
         all_models_with_cache = (m for m in self.all_models if not m._meta.abstract)
         for m in all_models_with_cache:
             self.assertNotIn("_relation_tree", m._meta.__dict__)
 
     def test_first_relation_tree_access_populates_all(self):
         # On first access, relation tree should have populated cache.
+        """
+
+        Test that the relation tree is properly populated for the first model.
+
+        This test case verifies that the relation tree attribute is present and populated 
+        for all models, except for the AbstractPerson model which has an empty relation tree.
+        It checks the presence of the _relation_tree attribute in the meta dictionary of each model,
+        ensuring that the relation tree data structure is correctly initialized.
+
+        """
         self.assertTrue(self.all_models[0]._meta._relation_tree)
 
         # AbstractPerson does not have any relations, so relation_tree
@@ -383,6 +474,14 @@ class ReturningFieldsTests(SimpleTestCase):
 
 class AbstractModelTests(SimpleTestCase):
     def test_abstract_model_not_instantiated(self):
+        """
+
+        Tests that attempting to instantiate an abstract model raises a TypeError.
+
+        This test verifies that the AbstractPerson class, which is intended to be an abstract base class,
+        cannot be directly instantiated. It checks that a TypeError is raised with the expected error message.
+
+        """
         msg = "Abstract models cannot be instantiated."
         with self.assertRaisesMessage(TypeError, msg):
             AbstractPerson()

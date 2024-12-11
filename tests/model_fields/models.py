@@ -276,6 +276,18 @@ if Image:
             super().__init__(*args, **kwargs)
 
         def open(self):
+            """
+            Opens the object, marking it as opened and delegating the actual opening process to its parent class.
+
+            This method sets the internal state to indicate that the object has been opened, and then calls the parent class's open method to perform the necessary actions.
+
+            Returns:
+                None
+
+            Notes:
+                This method does not perform any error checking or handling; it assumes that the object can be opened successfully.
+
+            """
             self.was_opened = True
             super().open()
 
@@ -396,6 +408,15 @@ class CustomJSONDecoder(json.JSONDecoder):
         return super().__init__(object_hook=self.as_uuid, *args, **kwargs)
 
     def as_uuid(self, dct):
+        """
+        Converts a UUID string in a dictionary to a UUID object if present.
+
+         Args:
+             dct (dict): Dictionary that may contain a 'uuid' key with a string value.
+
+         Returns:
+             dict: The input dictionary with the 'uuid' value converted to a UUID object if it exists, otherwise the original dictionary.
+        """
         if "uuid" in dct:
             dct["uuid"] = uuid.UUID(dct["uuid"])
         return dct

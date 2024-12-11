@@ -32,6 +32,16 @@ class OperationsTests(TransactionTestCase):
         )
 
     def test_sql_flush(self):
+        """
+
+        Tests the SQL flush functionality by verifying the generated SQL statements.
+
+        The function checks that the correct SQL commands are produced to disable constraints,
+        truncate tables, and re-enable constraints for the specified database tables.
+        It verifies that the constraint on the 'BACKENDS_TAG' table is correctly disabled and
+        re-enabled, and that the 'BACKENDS_PERSON' and 'BACKENDS_TAG' tables are properly truncated.
+
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],
@@ -111,6 +121,18 @@ class OperationsTests(TransactionTestCase):
         self.assertIn("BACKENDS_TAG_SQ", statements[5])
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+        Tests the sql_flush function to ensure it correctly generates SQL statements 
+        for flushing data from the database while allowing cascade operations.
+
+        This test case specifically checks that the function generates the correct SQL 
+        statements to disable and enable constraints, truncate tables, and reset sequences 
+        for the Person, Tag, and VeryLongModelName540F tables, when allow_cascade is set to True.
+
+        It verifies that the generated SQL statements match the expected statements, 
+        including the order and content of the statements, to ensure that the data is 
+        correctly flushed from the database and the sequences are reset as expected.
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

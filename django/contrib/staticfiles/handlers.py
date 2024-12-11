@@ -76,6 +76,18 @@ class StaticFilesHandler(StaticFilesHandlerMixin, WSGIHandler):
         super().__init__()
 
     def __call__(self, environ, start_response):
+        """
+        A special method invoked when an instance of the class is called as a function.
+
+        This method handles HTTP requests based on the provided environment and start response.
+        It determines whether the request path should be handled by this instance or delegated to the underlying application.
+        If this instance should handle the request, it proceeds with the handling using the default behavior.
+        Otherwise, it directly invokes the underlying application to process the request.
+
+        :param environ: The WSGI environment dictionary containing request information.
+        :param start_response: The WSGI callable used to send the HTTP response status and headers.
+        :return: The result of the request handling, which may be a response body or an iterable of response bodies.
+        """
         if not self._should_handle(get_path_info(environ)):
             return self.application(environ, start_response)
         return super().__call__(environ, start_response)
@@ -108,6 +120,18 @@ class ASGIStaticFilesHandler(StaticFilesHandlerMixin, ASGIHandler):
             _iterator = response.streaming_content
 
             async def awrapper():
+                """
+                Asynchronous wrapper function that iterates over an iterator.
+
+                This function takes an iterator, converts it to an asynchronous iterable, 
+                and yields each part of the iterator. It allows for asynchronous iteration 
+                over a synchronous iterator, enabling greater flexibility in handling 
+                different types of data sources.
+
+                Returns:
+                    An asynchronous iterator yielding parts of the original iterator.
+
+                """
                 for part in await sync_to_async(list)(_iterator):
                     yield part
 

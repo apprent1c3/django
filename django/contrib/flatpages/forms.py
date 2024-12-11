@@ -28,6 +28,9 @@ class FlatpageForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the class instance, inheriting attributes from its parent class and optionally updates the 'url' field's help text based on the trailing slash requirement. The help text will be modified to include guidance on proper URL formatting, such as including a leading slash, if a trailing slash is not necessary.
+        """
         super().__init__(*args, **kwargs)
         if not self._trailing_slash_required():
             self.fields["url"].help_text = _(
@@ -55,6 +58,15 @@ class FlatpageForm(forms.ModelForm):
         return url
 
     def clean(self):
+        """
+
+        Verifies that a flat page does not have a duplicate URL on any of the selected sites.
+
+        Checks for the existence of a flat page with the same URL on any of the specified sites.
+        If a duplicate is found, raises a ValidationError to prevent the creation or update of the flat page.
+        This validation ensures data consistency and prevents potential conflicts between flat pages.
+
+        """
         url = self.cleaned_data.get("url")
         sites = self.cleaned_data.get("sites")
 

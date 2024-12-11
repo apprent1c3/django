@@ -30,6 +30,13 @@ class TemplateStringsTests(SimpleTestCase):
         cls.engine = cls.engine_class(params)
 
     def test_from_string(self):
+        """
+        Test rendering a template from a string.
+
+        This test case verifies that a template created from a string can be rendered correctly,
+        producing the expected output. It ensures that the rendering process preserves the original content,
+        including any newline characters, and that the resulting content matches the initial string exactly.
+        """
         template = self.engine.from_string("Hello!\n")
         content = template.render()
         self.assertEqual(content, "Hello!\n")
@@ -83,6 +90,16 @@ class TemplateStringsTests(SimpleTestCase):
         self.assertEqual(token1, token2)
 
     def test_csrf_token(self):
+        """
+
+        Tests the CSRF token is correctly rendered and matches the expected value.
+
+        This test simulates a request through the CsrfViewMiddleware and checks that the
+        rendered CSRF token template contains a hidden field with the expected token value.
+        The test verifies that the token is correctly generated and inserted into the 
+        HTML output, ensuring the CSRF protection mechanism is functioning as expected.
+
+        """
         request = HttpRequest()
         CsrfViewMiddleware(lambda req: HttpResponse()).process_view(
             request, lambda r: None, (), {}
@@ -99,10 +116,32 @@ class TemplateStringsTests(SimpleTestCase):
         self.check_tokens_equivalent(match[1], get_token(request))
 
     def test_no_directory_traversal(self):
+        """
+        Tests that the template engine prevents directory traversal attacks.
+
+        This test case verifies that attempting to access a template outside of the
+        designated template directories raises a TemplateDoesNotExist exception,
+        preventing potential security vulnerabilities.
+
+        :raises TemplateDoesNotExist: if directory traversal is attempted
+        """
         with self.assertRaises(TemplateDoesNotExist):
             self.engine.get_template("../forbidden/template_backends/hello.html")
 
     def test_non_ascii_characters(self):
+        """
+
+        Tests the rendering of templates with non-ASCII characters.
+
+        This test case checks if the template engine correctly handles strings 
+        containing non-ASCII characters, such as accented letters, by rendering 
+        a template with a name containing these characters and verifying the output.
+
+        The test uses a predefined template and checks if the rendered content 
+        matches the expected output, ensuring that the non-ASCII characters are 
+        preserved and displayed correctly.
+
+        """
         template = self.engine.get_template("template_backends/hello.html")
         content = template.render({"name": "Jérôme"})
         self.assertEqual(content, "Hello Jérôme!\n")

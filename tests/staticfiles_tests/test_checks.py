@@ -68,6 +68,16 @@ class FindersCheckTests(CollectionTestCase):
         )
 
     def test_dirs_contains_static_root(self):
+        """
+        Checks if the STATICFILES_DIRS setting contains the STATIC_ROOT setting, 
+        which is an invalid configuration that can cause unexpected behavior.
+
+        This test verifies that using the STATICFILES_DIRS setting to serve files 
+        from the STATIC_ROOT directory raises the correct error, as this is 
+        discouraged due to potential issues with static file collection and serving.
+
+        The expected error is a django.core.checks.Error with the id 'staticfiles.E002'.
+        """
         with self.settings(STATICFILES_DIRS=[settings.STATIC_ROOT]):
             self.assertEqual(
                 check_finders(None),
@@ -162,5 +172,16 @@ class StoragesCheckTests(SimpleTestCase):
         }
     )
     def test_staticfiles_no_errors(self):
+        """
+
+        Tests that no errors occur when checking static files storage.
+
+        Verifies that the :func:`check_storages` function returns an empty list of errors when
+        using the default static files storage backend.
+
+        This test ensures the integrity of the static files storage configuration and provides
+        a basic sanity check for the :func:`check_storages` function.
+
+        """
         errors = check_storages(None)
         self.assertEqual(errors, [])

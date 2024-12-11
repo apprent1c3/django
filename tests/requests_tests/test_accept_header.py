@@ -6,6 +6,14 @@ from django.http.request import MediaType
 
 class MediaTypeTests(TestCase):
     def test_empty(self):
+        """
+        Tests the construction and properties of a MediaType object when initialized with an empty media type.
+
+        Verifies that an empty media type (represented by None or an empty string) results in a MediaType object that:
+        - does not match all media types
+        - has an empty string representation
+        - has a specific repr() output indicating an empty media type
+        """
         for empty_media_type in (None, ""):
             with self.subTest(media_type=empty_media_type):
                 media_type = MediaType(empty_media_type)
@@ -82,17 +90,43 @@ class AcceptHeaderTests(TestCase):
         )
 
     def test_request_accepts_any(self):
+        """
+        disciple the function's purpose and behavior 
+
+         Test that an HTTP request accepts any content type.
+
+         This test case verifies that when the 'Accept' header in the HTTP request is set to '*/*', 
+         the request object correctly identifies that it can accept any content type, 
+         including 'application/json'.
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = "*/*"
         self.assertIs(request.accepts("application/json"), True)
 
     def test_request_accepts_none(self):
+        """
+        Tests that an HttpRequest object correctly handles a request with no Accept header set.
+
+        This test case checks if the request object behaves as expected when the HTTP Accept header is empty.
+        Specifically, it verifies that the :meth:`accepts` method returns False for 'application/json' and 
+        the :attr:`accepted_types` attribute returns an empty list, indicating no accepted content types.
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = ""
         self.assertIs(request.accepts("application/json"), False)
         self.assertEqual(request.accepted_types, [])
 
     def test_request_accepts_some(self):
+        """
+
+        Tests that an HttpRequest object correctly interprets the HTTP Accept header.
+
+        The function checks that the request accepts various MIME types based on their
+        presence and priority in the Accept header. This includes testing for types
+        that are explicitly listed, as well as those that are implicitly accepted due
+        to a wildcard or default priority.
+
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = (
             "text/html,application/xhtml+xml,application/xml;q=0.9"

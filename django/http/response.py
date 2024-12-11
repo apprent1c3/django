@@ -153,6 +153,17 @@ class HttpResponseBase:
 
     @property
     def charset(self):
+        """
+        Determines the character set (charset) of the current object.
+
+        The charset is first retrieved from the internal cache. If not cached, it is
+        attempted to be extracted from the 'Content-Type' header. If the header is
+        present and contains a charset specification, it is parsed and returned.
+        Otherwise, the default charset defined in the application settings is used.
+
+        :rtype: str
+        :returns: The character set of the object, or the default charset if not specified
+        """
         if self._charset is not None:
             return self._charset
         # The Content-Type header may not yet be set, because the charset is

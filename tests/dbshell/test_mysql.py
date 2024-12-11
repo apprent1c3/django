@@ -17,6 +17,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         return DatabaseClient.settings_to_cmd_args_env(settings_dict, parameters)
 
     def test_fails_with_keyerror_on_incomplete_config(self):
+        """
+        Tests that the settings_to_cmd_args_env function fails with a KeyError when provided an incomplete configuration dictionary, ensuring proper error handling for missing configuration keys.
+        """
         with self.assertRaises(KeyError):
             self.settings_to_cmd_args_env({})
 
@@ -131,6 +134,19 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_can_connect_using_sockets(self):
+        """
+
+        Tests that a MySQL database connection can be established using a Unix socket.
+
+        Verifies that the correct command-line arguments and environment variables are generated
+        from the provided database settings, allowing a connection to be made to the database
+        via a Unix socket file.
+
+        The test checks that the resulting command-line arguments and environment variables match
+        the expected values for a successful connection, ensuring that the database connection
+        settings are properly translated into the required format for the MySQL client.
+
+        """
         expected_args = [
             "mysql",
             "--user=someuser",

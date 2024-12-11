@@ -43,6 +43,17 @@ class RightTests(TestCase):
         )
 
     def test_expressions(self):
+        """
+        Tests the usage of database expressions to extract parts of a string field.
+
+        Verifies that the Right database function can be used to extract a specified
+        number of characters from the right side of a string field, in this case the
+        'name' field of an Author object. The test checks that the resulting annotated
+        field 'name_part' contains the expected values when sorted by the 'name' field.
+
+        The test case covers the annotation of a QuerySet with a database expression
+        and the subsequent ordering of the results by the annotated field.
+        """
         authors = Author.objects.annotate(
             name_part=Right("name", Value(3, output_field=IntegerField()))
         )

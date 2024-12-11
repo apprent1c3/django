@@ -594,6 +594,15 @@ class Shuffler:
         return h.hexdigest()
 
     def __init__(self, seed=None):
+        """
+
+        Initialize the object with a random seed.
+
+        The seed can be either provided as an argument or generated randomly if not specified.
+        If a seed is provided, it is used directly; otherwise, a random integer between 0 and 10^10 - 1 is generated.
+        The seed and its source (either 'generated' or 'given') are stored as instance attributes.
+
+        """
         if seed is None:
             # Limit seeds to 10 digits for simpler output.
             seed = random.randint(0, 10**10 - 1)
@@ -854,6 +863,21 @@ class DiscoverRunner:
 
     @contextmanager
     def load_with_patterns(self):
+        """
+
+        Temporarily overrides the test name patterns of the test loader.
+
+        This context manager sets the test loader's test name patterns to the 
+        instance's test name patterns for the duration of the context. After 
+        the context is exited, the original test name patterns are restored.
+
+        Use this context manager to execute a block of code with custom test 
+        name patterns.
+
+        Returns:
+            None
+
+        """
         original_test_name_patterns = self.test_loader.testNamePatterns
         self.test_loader.testNamePatterns = self.test_name_patterns
         try:
@@ -900,6 +924,24 @@ class DiscoverRunner:
         return tests
 
     def build_suite(self, test_labels=None, **kwargs):
+        """
+
+        Build a test suite based on the provided test labels and configuration.
+
+        This method constructs a test suite by discovering tests that match the given labels,
+        applying filters based on tags, and ordering the tests according to the specified
+        reordering rules. The resulting suite can be executed in parallel if the parallel
+        mode is enabled.
+
+        Args:
+            test_labels (list): A list of test labels to include in the suite. If not provided,
+                all tests are included.
+            **kwargs: Additional keyword arguments, currently not used.
+
+        Returns:
+            A test suite containing the discovered and filtered tests.
+
+        """
         test_labels = test_labels or ["."]
 
         discover_kwargs = {}
@@ -1022,6 +1064,18 @@ class DiscoverRunner:
         )
 
     def _get_databases(self, suite):
+        """
+
+        Retrieve all databases required by test cases in a given suite.
+
+        This function iterates over each test case in the suite, checks for the 'databases' attribute, 
+        and updates the databases dictionary accordingly. If the 'databases' attribute is set to '__all__', 
+        it defaults to all available connections. The function also considers the 'serialized_rollback' 
+        attribute for each test case and stores the relevant setting for each database alias.
+
+        :returns: A dictionary mapping database aliases to their respective serialized rollback settings.
+
+        """
         databases = {}
         for test in iter_test_cases(suite):
             test_databases = getattr(test, "databases", None)

@@ -33,6 +33,16 @@ class NullIfTests(TestCase):
         )
 
     def test_null_argument(self):
+        """
+        Tests that the NullIf database function correctly handles null arguments.
+
+        This test case checks the behavior of the NullIf function when one of its
+        arguments is None. It verifies that the function returns the correct results
+        for a set of authors, demonstrating its ability to handle null values as expected.
+
+        The test compares the results of the NullIf function with the expected output,
+        ensuring that the function behaves as intended in the presence of null arguments.
+        """
         authors = Author.objects.annotate(
             nullif=NullIf("name", Value(None))
         ).values_list("nullif")

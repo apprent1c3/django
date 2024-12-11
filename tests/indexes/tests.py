@@ -71,6 +71,13 @@ class SchemaIndexesTests(TestCase):
         )
 
     def test_columns_list_sql(self):
+        """
+        Tests that the Index class correctly generates SQL for creating an index on a list of columns.
+
+        This test case verifies that the create_sql method of the Index class includes the quoted column name in the generated SQL statement, ensuring proper handling of potential reserved words or special characters in column names.
+
+        The test focuses on the interaction between the Index class and the schema editor, checking that the resulting SQL accurately reflects the specified index configuration and column list.
+        """
         index = Index(fields=["headline"], name="whitespace_idx")
         editor = connection.schema_editor()
         self.assertIn(
@@ -127,6 +134,17 @@ class PartialIndexConditionIgnoredTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_condition_ignored(self):
+        """
+        Tests that the condition specified in an index is ignored when creating the index SQL.
+
+        This test case ensures that the condition set on an index (using the Q object) does not
+        influence the SQL used to create the index itself. The index creation SQL should not 
+        include a WHERE clause based on the condition, allowing the index to be applied 
+        unconditionally to all records in the table.
+
+        The test covers a specific scenario where an index is created with a condition and 
+        then verifies that the generated SQL does not include the condition as a WHERE clause.
+        """
         index = Index(
             name="test_condition_ignored",
             fields=["published"],
@@ -205,6 +223,16 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), expected_ops_classes)
 
     def test_ops_class_partial(self):
+        """
+
+        Tests the creation and registration of a partial index with a specific operator class.
+
+        This test case creates a new index named 'test_ops_class_partial' on the IndexedArticle2 model,
+        with a condition that filters articles containing the word 'China' in their headline.
+        The index uses the 'text_pattern_ops' operator class.
+        It then verifies that the index has been successfully added and registered in the database.
+
+        """
         index = Index(
             name="test_ops_class_partial",
             fields=["body"],
@@ -220,6 +248,22 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             )
 
     def test_ops_class_partial_tablespace(self):
+        """
+
+        Tests the creation of a partial index with a specific tablespace.
+
+        This test function creates an index on the 'body' field of the IndexedArticle2 model,
+        using the 'text_pattern_ops' operator class. It also specifies a condition for the index
+        to be applied only when the 'headline' field contains the string 'China'.
+        The test verifies that the index is created with the specified tablespace 'pg_default'
+        and that the correct operator class is used.
+
+        The test uses the Django database schema editor to create the index and then checks
+        the generated SQL to ensure that it includes the correct tablespace specification.
+        Additionally, it queries the database to confirm that the index is correctly created
+        with the specified operator class.
+
+        """
         indexname = "test_ops_class_tblspace"
         index = Index(
             name=indexname,
@@ -282,6 +326,19 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_ops_class_include_tablespace(self):
+        """
+
+        Tests the creation of an index with a specific opclass and included tablespace.
+
+        This test checks that an index can be successfully added to a model with the
+        specified opclass and tablespace. It verifies that the generated SQL includes
+        the tablespace directive and that the opclass is correctly assigned to the index.
+
+        The test creates an index with the 'text_pattern_ops' opclass, includes the
+        'headline' field, and specifies the 'pg_default' tablespace. It then checks the
+        generated SQL and queries the database to confirm the opclass assignment.
+
+        """
         index_name = "test_ops_class_include_tblspace"
         index = Index(
             name=index_name,
@@ -301,6 +358,16 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", index_name)])
 
     def test_ops_class_columns_lists_sql(self):
+        """
+        Tests if the Index class correctly handles column lists with PostgreSQL-specific operation classes in SQL creation.
+
+        Specifically, this test case verifies that an index with a custom operation class ('text_pattern_ops') 
+        is correctly represented in the SQL query generated for its creation. The test checks if the operation 
+        class is properly appended to the column definition in the SQL query.
+
+        This ensures that indexes with custom operation classes are properly created in the database, 
+        enabling efficient querying and indexing of data in PostgreSQL databases.
+        """
         index = Index(
             fields=["headline"],
             name="whitespace_idx",
@@ -459,6 +526,18 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_functions_in_partial_indexes")
     def test_multiple_conditions(self):
+        """
+
+        Tests the creation of partial indexes with multiple conditions.
+
+        This test checks whether the database system supports creating indexes with
+        multiple conditions in the WHERE clause. It creates a partial index on the
+        Article model with two conditions: publication date greater than January 1, 2015,
+        and headline containing the word 'China'. The test verifies that the generated
+        SQL includes both conditions and that the index is correctly added and removed
+        from the database.
+
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -559,6 +638,15 @@ class CoveringIndexTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_covering_index(self):
+        """
+        Tests the creation and removal of a covering index on the Article model.
+
+        The test verifies that the index includes the specified fields and that it is correctly added and removed from the database.
+
+        It checks the generated SQL to ensure that the index is created with the correct columns, and then uses the database introspection API to confirm that the index exists in the database and has the correct columns.
+
+        Finally, it removes the index and verifies that it is no longer present in the database, ensuring that the removal operation is successful and does not leave any residual database state.
+        """
         index = Index(
             name="covering_headline_idx",
             fields=["headline"],
@@ -641,6 +729,19 @@ class CoveringIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_covering_func_index(self):
+        """
+
+        Tests the creation of a covering function index.
+
+        This test case verifies that a database index with a function-based column
+        and included columns can be successfully created and removed.
+        The index in question is created on the 'headline' column of the 'Article' model,
+        with the 'pub_date' column included in the index.
+        The test checks that the generated SQL correctly references the 'headline' column,
+        includes the 'pub_date' column, and that the index is properly added to and removed
+        from the database schema.
+
+        """
         index_name = "covering_func_headline_idx"
         index = Index(Lower("headline"), name=index_name, include=["pub_date"])
         with connection.schema_editor() as editor:

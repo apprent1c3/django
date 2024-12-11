@@ -26,10 +26,29 @@ class MultiTableTests(TestCase):
         CompetingTeam.objects.create(event=cls.event, team=cls.team_alpha)
 
     def test_m2m_query(self):
+        """
+
+        Tests the many-to-many query for event team membership.
+
+        Verifies that the teams associated with a given event are correctly retrieved.
+        In this case, it checks that the event is associated with exactly one team,
+        which is the team alpha, and that no other teams are returned.
+
+        """
         result = self.event.teams.all()
         self.assertCountEqual(result, [self.team_alpha])
 
     def test_m2m_reverse_query(self):
+        """
+        Tests the reverse query for a many-to-many relationship.
+
+        Verifies that the inverse relationship from the related object to the original object 
+        works as expected, by checking that the result of the reverse query matches the 
+        expected related object.
+
+        Note: This test case ensures data consistency and correct setup of many-to-many 
+        relationships in the application's data model.
+        """
         result = self.chris.event_set.all()
         self.assertCountEqual(result, [self.event])
 
@@ -42,6 +61,16 @@ class MultiTableTests(TestCase):
         self.assertCountEqual(result, [self.event])
 
     def test_m2m_prefetch_proxied(self):
+        """
+
+        Tests the prefetching of proxied many-to-many relationships in the Event model.
+
+        This test ensures that the special_people related objects are correctly prefetched
+        when the Event objects are retrieved from the database, reducing the number of database queries.
+        It verifies that the results match the expected Event and that the prefetched special_people
+        objects are returned in the correct order.
+
+        """
         result = Event.objects.filter(name="Exposition Match").prefetch_related(
             "special_people"
         )

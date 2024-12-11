@@ -15,6 +15,13 @@ from django.test import SimpleTestCase
 
 class JSONFieldTest(SimpleTestCase):
     def test_valid(self):
+        """
+
+        Tests that a valid JSON string is cleaned and parsed correctly into a Python dictionary.
+
+        Verifies that the :class:`JSONField` is able to properly handle valid JSON input, converting it into a native Python data structure.
+
+        """
         field = JSONField()
         value = field.clean('{"a": "b"}')
         self.assertEqual(value, {"a": "b"})
@@ -25,6 +32,10 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIsNone(field.clean(None))
 
     def test_invalid(self):
+        """
+        Tests the validation of the JSONField by checking if it raises a ValidationError 
+        with an appropriate error message when given badly formed JSON input.
+        """
         field = JSONField()
         with self.assertRaisesMessage(ValidationError, "Enter a valid JSON."):
             field.clean("{some badly formed: json}")
@@ -76,6 +87,14 @@ class JSONFieldTest(SimpleTestCase):
                 self.assertEqual(field.clean(val), val)
 
     def test_has_changed(self):
+        """
+        Checks whether the data in a JSON field has changed between two states. 
+
+        The function takes two inputs: the current data and the initial data. 
+        It returns True if the data has changed and False otherwise. 
+        The comparison is order-independent, meaning the function considers {'a': 1, 'b': 2} and {'b': 2, 'a': 1} as equal. 
+        It is used to determine if the JSON field requires an update, for example in a database or other storage system.
+        """
         field = JSONField()
         self.assertIs(field.has_changed({"a": True}, '{"a": 1}'), True)
         self.assertIs(field.has_changed({"a": 1, "b": 2}, '{"b": 2, "a": 1}'), False)
@@ -86,6 +105,19 @@ class JSONFieldTest(SimpleTestCase):
                 return super().__init__(object_hook=self.as_uuid, *args, **kwargs)
 
             def as_uuid(self, dct):
+                """
+                Converts the 'uuid' value in a dictionary to a UUID object if present.
+
+                Args:
+                    dct (dict): The dictionary to convert the 'uuid' value in.
+
+                Returns:
+                    dict: The input dictionary with the 'uuid' value converted to a UUID object if it existed.
+
+                Notes:
+                    This function modifies the input dictionary in-place and returns it.
+                    If the 'uuid' key is not present in the dictionary, the function will return the original dictionary unchanged.
+                """
                 if "uuid" in dct:
                     dct["uuid"] = uuid.UUID(dct["uuid"])
                 return dct

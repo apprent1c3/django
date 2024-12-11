@@ -81,6 +81,9 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_3(self):
+        """
+        Tests that the FileField allows empty files to be cleaned and still returns a SimpleUploadedFile instance when allow_empty_file is set to True. This validation ensures that empty files are properly handled and validated by the FileField.
+        """
         f = FileField(allow_empty_file=True)
         self.assertIsInstance(
             f.clean(SimpleUploadedFile("name", b"")), SimpleUploadedFile

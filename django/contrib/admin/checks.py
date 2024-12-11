@@ -45,6 +45,18 @@ def _contains_subclass(class_path, candidate_paths):
 
 
 def check_admin_app(app_configs, **kwargs):
+    """
+    Checks the admin interface for a list of application configurations.
+
+    This function iterates over all Django admin sites and runs their check methods 
+    on the provided application configurations. It aggregates and returns any 
+    errors encountered during this process.
+
+    :param app_configs: A list of application configurations to be checked.
+    :rtype: list
+    :return: A list of errors found during the admin interface check.
+
+    """
     from django.contrib.admin.sites import all_sites
 
     errors = []
@@ -1239,6 +1251,25 @@ class ModelAdminChecks(BaseModelAdminChecks):
 
 class InlineModelAdminChecks(BaseModelAdminChecks):
     def check(self, inline_obj, **kwargs):
+        """
+
+        Performs comprehensive validation on an inline object.
+
+        This method checks the inline object against a set of rules and constraints,
+        including the object's relationship with its parent model, exclusion rules,
+        additional validation, and numerical limits. It also verifies the object's
+        formset to ensure consistency.
+
+        The validation process involves multiple checks, which may raise errors or
+        warnings if any of the rules are not met. The results of these checks are
+        combined and returned, providing a comprehensive overview of the object's
+        validity.
+
+        :param inline_obj: The inline object to be validated.
+        :param kwargs: Additional keyword arguments.
+        :return: A list of validation results, which can include errors, warnings, or other feedback.
+
+        """
         parent_model = inline_obj.parent_model
         return [
             *super().check(inline_obj),

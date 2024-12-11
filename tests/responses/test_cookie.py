@@ -75,6 +75,13 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(max_age_cookie["expires"], http_date(set_cookie_time + 10))
 
     def test_max_age_int(self):
+        """
+
+        Tests that the 'max_age' parameter of the set_cookie method is converted to an integer when setting the 'max-age' attribute of the cookie.
+
+        This test ensures that non-integer values provided for 'max_age' are truncated to the nearest integer, as per the HTTP cookie specification.
+
+        """
         response = HttpResponse()
         response.set_cookie("max_age", max_age=10.6)
         self.assertEqual(response.cookies["max_age"]["max-age"], 10)
@@ -118,6 +125,11 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["example"]["samesite"], "strict")
 
     def test_invalid_samesite(self):
+        """
+        Tests that attempting to set the SameSite attribute of a cookie to an invalid value raises a ValueError.
+
+        The function checks that the set_cookie method of an HttpResponse object correctly validates the samesite parameter, ensuring it is one of the allowed values (\"lax\", \"none\", or \"strict\"). If an invalid value is provided, it verifies that a ValueError is raised with a corresponding error message.
+        """
         msg = 'samesite must be "lax", "none", or "strict".'
         with self.assertRaisesMessage(ValueError, msg):
             HttpResponse().set_cookie("example", samesite="invalid")
@@ -150,6 +162,19 @@ class DeleteCookieTests(SimpleTestCase):
 
     def test_delete_cookie_secure_samesite_none(self):
         # delete_cookie() sets the secure flag if samesite='none'.
+        """
+
+        Tests that deleting a cookie with the samesite attribute set to 'none' also sets the secure attribute to True.
+
+        This ensures that cookies marked as samesite='none' are transmitted over a secure protocol, preventing potential security vulnerabilities.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        """
         response = HttpResponse()
         response.delete_cookie("c", samesite="none")
         self.assertIs(response.cookies["c"]["secure"], True)

@@ -25,6 +25,16 @@ class RangeWidget(MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        Decompresses the given value into a tuple containing the lower and upper bounds.
+
+        If the provided value is valid, returns a tuple with two elements: 
+        the lower bound and the upper bound, both as attributes of the input value.
+        If the input value is None or empty, returns a tuple containing None for both bounds.
+
+        :rtype: tuple
+        :returns: A tuple of (lower, upper) bounds or (None, None) if the input value is invalid
+        """
         if value:
             return (value.lower, value.upper)
         return (None, None)
@@ -47,6 +57,21 @@ class BaseRangeField(forms.MultiValueField):
     hidden_widget = HiddenRangeWidget
 
     def __init__(self, **kwargs):
+        """
+
+        Initializes a range field widget with customizable parameters.
+
+        The initialization process sets default values for the widget, fields, and required status.
+        It also accepts optional parameters, including default bounds, which define the range for the field.
+        The function ensures that the range field is properly configured and ready for use.
+
+        Args:
+            **kwargs: Additional keyword arguments to customize the range field widget.
+
+        Attributes:
+            range_kwargs: A dictionary containing the range-specific parameters, including bounds.
+
+        """
         if "widget" not in kwargs:
             kwargs["widget"] = RangeWidget(self.base_field.widget)
         if "fields" not in kwargs:

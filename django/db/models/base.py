@@ -459,6 +459,21 @@ class ModelState:
 class Model(AltersData, metaclass=ModelBase):
     def __init__(self, *args, **kwargs):
         # Alias some things as locals to avoid repeat global lookups
+        """
+        Initializes a model instance.
+
+        This method is responsible for setting up a new instance of the model. It checks if the model is abstract, in which case it raises a TypeError, and then proceeds to initialize the instance's state and attributes.
+
+        The method accepts both positional and keyword arguments, which are used to set the values of the model's fields. If a field is not provided a value, its default value will be used.
+
+        The method also performs validation checks to ensure that the number of positional arguments does not exceed the number of fields, and that fields are not specified using both positional and keyword arguments.
+
+        Additionally, the method checks for any unexpected keyword arguments and raises a TypeError if any are found. 
+
+        After initialization, the method sends a post_init signal to allow for any additional setup or processing of the instance. 
+
+        Note that this method should not be called directly, but rather is used internally by the model's class.
+        """
         cls = self.__class__
         opts = self._meta
         _setattr = setattr
@@ -1261,6 +1276,29 @@ class Model(AltersData, metaclass=ModelBase):
                     )
 
     def delete(self, using=None, keep_parents=False):
+        """
+        Deletes the current object from the database.
+
+        Parameters
+        ----------
+        using : str, optional
+            The database alias to use for the deletion. If not provided, the default database alias will be used.
+        keep_parents : bool, optional
+            Whether to also delete related objects in a cascade. Defaults to False.
+
+        Raises
+        ------
+        ValueError
+            If the object's primary key is not set.
+
+        Returns
+        -------
+        The result of the deletion operation, as returned by the collector.
+
+        Note
+        ----
+        This method only deletes objects that have a primary key set. Attempting to delete an object without a primary key will result in a ValueError. The deletion operation is performed on the database specified by the 'using' parameter, or the default database if none is provided.
+        """
         if self.pk is None:
             raise ValueError(
                 "%s object can't be deleted because its %s attribute is set "
@@ -1491,6 +1529,28 @@ class Model(AltersData, metaclass=ModelBase):
         return errors
 
     def _perform_date_checks(self, date_checks):
+        """
+
+        Perform date checks on the object's attributes.
+
+        This function iterates over a list of date checks, where each check consists of a model class, 
+        lookup type, field name, and a unique date field. It verifies whether an instance of the 
+        model class already exists with the same attributes and date.
+
+        The function returns a dictionary of errors, where each key is a field name and the corresponding 
+        value is a list of error messages. If no errors are found, an empty dictionary is returned.
+
+        The date checks are performed based on the lookup type, which can be 'date' or another date-related 
+        attribute. If the lookup type is 'date', the check is performed based on the day, month, and year 
+        of the date. Otherwise, the check is performed based on the specified date attribute.
+
+        The function also takes into account whether the object is being added or updated, and excludes 
+        the current object from the checks if it is being updated.
+
+        The errors are constructed using the :meth:`date_error_message` method, which is called with the 
+        lookup type, field name, and unique date field as arguments.
+
+        """
         errors = {}
         for model_class, lookup_type, field, unique_for in date_checks:
             lookup_kwargs = {}
@@ -2154,6 +2214,21 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_local_fields(cls, fields, option):
+        """
+
+        Verify that the provided field names refer to valid, local fields on the model.
+
+        This method checks that each field name in the given list corresponds to a field
+        that exists on the model and is not a ManyToManyField. It also ensures that the
+        field is local to the model, rather than being inherited from a parent model.
+
+        :param fields: An iterable of field names to check.
+        [param option: The name of the option that refers to the fields.
+
+        :return: A list of errors encountered during the validation process. Each error
+            is an instance of :class:`django.core.checks.Error`.
+
+        """
         from django.db import models
 
         # In order to avoid hitting the relation tree prematurely, we use our
@@ -2398,6 +2473,20 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _get_expr_references(cls, expr):
+        """
+
+        Gets all references used in an expression, recursively traversing the expression tree.
+
+        This method takes an expression as input and yields all the field references used within it.
+        A field reference is represented as a tuple of strings, denoting the path to the field.
+        For example, if the field is `outer__inner__field`, the reference would be yielded as `('outer', 'inner', 'field')`.
+
+        The function supports various types of expressions, including Q objects, F objects, and any other type of expression that can provide its source expressions.
+
+        Yields:
+            tuple[str]: A tuple representing the path to a field reference.
+
+        """
         if isinstance(expr, Q):
             for child in expr.children:
                 if isinstance(child, tuple):

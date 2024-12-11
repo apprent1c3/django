@@ -11,6 +11,13 @@ from .models import Author, ConcreteModel, FooWithUrl, ProxyModel
 
 class ContentTypesTests(TestCase):
     def setUp(self):
+        """
+
+        Sets up the test environment by clearing the ContentType cache to ensure a clean start.
+        Additionally, schedules a cleanup task to clear the cache again after the test has finished,
+        regardless of the outcome, to maintain a consistent state for subsequent tests.
+
+        """
         ContentType.objects.clear_cache()
         self.addCleanup(ContentType.objects.clear_cache)
 
@@ -80,6 +87,16 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_partial_cache(self):
         # Partial cache
+        """
+
+        Tests retreival of content types for multiple models with partial caching.
+
+        Verifies that the `get_for_models` method of the `ContentType` manager correctly
+        utilizes caching to reduce database queries when fetching content types for
+        multiple models. The test case also checks that the returned content types
+        match the expected results for each model.
+
+        """
         ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(1):
             cts = ContentType.objects.get_for_models(ContentType, FooWithUrl)
@@ -297,22 +314,67 @@ class ContentTypesTests(TestCase):
         )
 
     def test_str(self):
+        """
+
+        Tests the string representation of a ContentType object.
+
+        This test verifies that the string representation of a ContentType object
+        is correctly formatted, including the app label and model name. It checks
+        that the string is in the expected format, which includes the app label
+        in title case and the model name in lowercase, separated by a vertical bar.
+
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(str(ct), "Contenttypes_Tests | site")
 
     def test_str_auth(self):
+        """
+        Tests that the string representation of a ContentType object for an 'auth' group is correctly formatted.
+
+        The test verifies that the string representation includes the application name 'Authentication and Authorization' and the model name 'group', 
+        to ensure that the string representation is human-readable and descriptive.
+
+        This test case is important to ensure that the ContentType object is correctly converting its internal state into a meaningful string, 
+        which can be used for display or logging purposes in the application. 
+        """
         ct = ContentType.objects.get(app_label="auth", model="group")
         self.assertEqual(str(ct), "Authentication and Authorization | group")
 
     def test_name(self):
+        """
+        Tests that the name attribute of a ContentType object is correctly retrieved.
+
+        Checks if the name of the ContentType for the 'site' model in the 'contenttypes_tests' app matches the expected value 'site'.
+
+        This ensures the accuracy of ContentType names in the database.
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.name, "site")
 
     def test_app_labeled_name(self):
+        """
+        Tests that the app_labeled_name property of a ContentType object returns the expected string.
+
+        The app_labeled_name is a string that combines the app label and the model name, 
+        separated by a vertical bar. This test ensures that the property is correctly 
+        formatted, with the app label title-cased and a space-separated list of words 
+        if it contains underscores, and the model name in lowercase.
+
+        This property is useful for generating human-readable labels for content types 
+        in the application, particularly in administrative interfaces or other areas 
+        where content types need to be easily identified by users.
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.app_labeled_name, "Contenttypes_Tests | site")
 
     def test_name_unknown_model(self):
+        """
+        Tests the name attribute of a ContentType instance for an unknown model.
+
+        Verifies that the name of the ContentType matches the expected model name, even if the model is unknown to the system.
+
+        :raises AssertionError: If the name attribute does not match the expected model name
+        """
         ct = ContentType(app_label="contenttypes_tests", model="unknown")
         self.assertEqual(ct.name, "unknown")
 
@@ -351,6 +413,15 @@ class ContentTypesMultidbTests(TestCase):
 
 class GenericPrefetchTests(TestCase):
     def test_querysets_required(self):
+        """
+        Tests that the GenericPrefetch class raises a TypeError when initialized without the required 'querysets' argument.
+
+        Verifies that the error message matches the expected string, ensuring that the
+        exception is properly documented and user-friendly.
+
+        This test case confirms that the class enforces its required parameters, preventing
+        potential bugs or unexpected behavior due to missing or incomplete configuration.
+        """
         msg = (
             "GenericPrefetch.__init__() missing 1 required "
             "positional argument: 'querysets'"

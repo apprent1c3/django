@@ -76,6 +76,15 @@ class LoaderTests(TestCase):
                 recorder.record_unapplied(app, name)
 
     def record_applied(self, recorder, app, name):
+        """
+        Records an application of a change to a recorder and stores the record for future reference.
+
+        :param recorder: The recorder object to use for recording the change.
+        :param app: The application that is being recorded.
+        :param name: The name of the change being applied.
+
+        This method provides a way to track changes made to an application, allowing for auditing and logging of all applied changes. The applied record is stored internally for later use, enabling easy referencing and management of the application's history. 
+        """
         recorder.record_applied(app, name)
         self.applied_records.append((recorder, app, name))
 
@@ -214,6 +223,9 @@ class LoaderTests(TestCase):
             migration_loader.get_migration_by_prefix("migrations", "blarg")
 
     def test_load_import_error(self):
+        """
+        Tests that a MigrationLoader raises an ImportError when attempting to load migrations from a package that has an import error. Verifies that the migration loader correctly handles and propagates import-related exceptions, ensuring robust error handling in migration management.
+        """
         with override_settings(
             MIGRATION_MODULES={"migrations": "import_error_package"}
         ):
@@ -232,6 +244,18 @@ class LoaderTests(TestCase):
             )
 
     def test_load_empty_dir(self):
+        """
+        Tests that an empty directory is properly handled by the migration loader.
+
+        Verifies that when a migrations module is specified but contains no migration
+        files (i.e., an empty directory), the loader correctly identifies it as an
+        unmigrated application.
+
+        Ensures that when a migrations module is incorrectly configured (e.g., missing
+        __init__.py file), the loader behaves as expected and the application is
+        included in the list of unmigrated applications.
+
+        """
         with override_settings(
             MIGRATION_MODULES={"migrations": "migrations.faulty_migrations.namespace"}
         ):
@@ -313,6 +337,15 @@ class LoaderTests(TestCase):
         self.addCleanup(recorder.flush)
 
         def num_nodes():
+            """
+
+            Returns the number of unapplied database migration nodes.
+
+            This function determines the total count of migration nodes that have not yet been applied to the database.
+            It considers the migration plan generated for the given migration ('migrations', '7_auto') and subtracts the keys of already applied migrations.
+            The result provides an indication of the number of pending database schema changes.
+
+            """
             plan = set(loader.graph.forwards_plan(("migrations", "7_auto")))
             return len(plan - loader.applied_migrations.keys())
 

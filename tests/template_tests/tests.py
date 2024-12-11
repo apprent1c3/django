@@ -118,6 +118,11 @@ class TemplateTestMixin:
             self.assertEqual(e.exception.template_debug["during"], "{% badtag %}")
 
     def test_compile_tag_error_27584(self):
+        """
+        Tests the compilation of a template tag to ensure it raises the expected TemplateSyntaxError when encountering an invalid tag.
+
+        The test case verifies that the template engine correctly handles the error and provides the expected debug information when the `debug_engine` flag is enabled. Specifically, it checks that the error occurs during the processing of a template tag labeled as `{% badtag %}`.
+        """
         engine = self._engine(
             app_dirs=True,
             libraries={"tag_27584": "template_tests.templatetags.tag_27584"},

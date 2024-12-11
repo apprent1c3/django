@@ -30,6 +30,13 @@ class CarAdmin(admin.ModelAdmin):
 
 class CarTireAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+        Returns a form field for a foreign key relationship, applying specific filtering when the foreign key field is named 'car'. 
+
+        In this case, the function limits the available choices to cars owned by the current user, making it easier to select the correct car when creating or editing a related object. 
+
+        For all other foreign key fields, it falls back to the default behavior, returning a form field without any custom filtering.
+        """
         if db_field.name == "car":
             kwargs["queryset"] = Car.objects.filter(owner=request.user)
             return db_field.formfield(**kwargs)

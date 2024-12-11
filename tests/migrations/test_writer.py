@@ -115,6 +115,20 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_args_signature(self):
+        """
+        Tests the serialization of an ArgsOperation object, verifying that the correct import statement and operation signature are generated.
+
+        The function checks that the ArgsOperation is correctly represented as a string, including the proper indentation and argument formatting, and that the necessary import statement is included.
+
+        This test ensures that the OperationWriter class can properly serialize ArgsOperation objects, which is crucial for generating valid migration code.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the expected import statement or operation signature do not match the actual output.
+
+        """
         operation = custom_migration_operations.operations.ArgsOperation(1, 2)
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -127,6 +141,18 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_kwargs_signature(self):
+        """
+
+        Test the correctness of keyword arguments signature serialization.
+
+        This test case verifies that the :class:`OperationWriter` correctly handles the 
+        serialization of operations with keyword arguments, ensuring proper import statements 
+        and formatted operation representation.
+
+        The test checks that the serialized operation has the expected import statement and 
+        the operation is correctly formatted with indentation and newline characters.
+
+        """
         operation = custom_migration_operations.operations.KwargsOperation(kwarg1=1)
         buff, imports = OperationWriter(operation, indentation=0).serialize()
         self.assertEqual(imports, {"import custom_migration_operations.operations"})
@@ -138,6 +164,15 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_args_kwargs_signature(self):
+        """
+        Tests the ArgsKwargsOperation signature by creating an instance and serializing it.
+
+        Verifies that the resulting serialized operation has the correct import statements and
+        accurately represents the provided arguments, including both positional and keyword arguments.
+
+        The test case checks the serialized output against the expected string representation
+        and ensures that the necessary imports are included in the output.
+        """
         operation = custom_migration_operations.operations.ArgsKwargsOperation(
             1, 2, kwarg2=4
         )
@@ -153,6 +188,16 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_keyword_only_args_signature(self):
+        """
+        Tests the serialization of an operation with a mix of positional and keyword-only arguments.
+
+        Verifies that the resulting serialized string accurately represents the operation's arguments
+        and that the necessary imports are included.
+
+        The operation's signature is expected to be properly formatted with correct indentation and
+        argument ordering, including both positional arguments (e.g. arg1, arg2) and keyword-only
+        arguments (e.g. kwarg1, kwarg2).
+        """
         operation = (
             custom_migration_operations.operations.ArgsAndKeywordOnlyArgsOperation(
                 1, 2, kwarg1=3, kwarg2=4
@@ -171,6 +216,22 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_nested_args_signature(self):
+        """
+
+        Tests the serialization of a nested ArgsOperation with ArgsOperation and KwargsOperation as arguments.
+
+        This test case verifies that the ArgsOperation can handle nested operations as its arguments, and that the resulting serialized output is correctly formatted and contains the necessary import statements. The test checks for the expected import statement and the serialized representation of the operation, ensuring that the arguments are properly nested and formatted.
+
+        The test case covers the following scenarios:
+
+        *   Serialization of a nested ArgsOperation with ArgsOperation as an argument
+        *   Serialization of a nested ArgsOperation with KwargsOperation as an argument
+        *   Verification of the import statement for the custom migration operations
+        *   Verification of the correctly formatted serialized output
+
+        By testing the serialization of complex operations, this test ensures that the OperationWriter can handle a variety of scenarios and produce the expected output.
+
+        """
         operation = custom_migration_operations.operations.ArgsOperation(
             custom_migration_operations.operations.ArgsOperation(1, 2),
             custom_migration_operations.operations.KwargsOperation(kwarg1=3, kwarg2=4),
@@ -261,6 +322,21 @@ class WriterTests(SimpleTestCase):
             return cls.X
 
     def safe_exec(self, string, value=None):
+        """
+
+        Executes a string as Python code in a safe environment.
+
+        The string is executed with the global namespace and a custom dictionary for local variables.
+        If an exception occurs during execution, the function fails with an error message.
+        The error message includes the original string and the exception that occurred.
+
+        If a value is provided, it is included in the error message for additional context.
+
+        The function returns the dictionary of local variables after execution.
+
+        This function is useful for safely evaluating dynamic Python code, such as user input or configuration files.
+
+        """
         d = {}
         try:
             exec(string, globals(), d)
@@ -293,6 +369,18 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(value.unique, new_value.unique)
 
     def test_serialize_numbers(self):
+        """
+        Tests the serialization of various number types.
+
+        This test ensures that different types of numbers, including integers, floats, 
+        infinite and NaN values, decimal numbers, and monetary amounts, are correctly 
+        serialized and deserialized. It covers both the simple equality of serialized 
+        values and the more complex cases where specific import statements or class 
+        instantiations are required for deserialization. The test cases include positive 
+        and negative infinity, NaN, and decimal numbers to provide comprehensive 
+        coverage of various numeric representations. The goal is to guarantee that the 
+        serialization mechanism can handle distinct numerical data types accurately.
+        """
         self.assertSerializedEqual(1)
         self.assertSerializedEqual(1.2)
         self.assertTrue(math.isinf(self.serialize_round_trip(float("inf"))))
@@ -316,6 +404,13 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(False)
 
     def test_serialize_strings(self):
+        """
+        Test the serialization of string values to ensure correct representation as Python literals.
+
+        The function verifies that both byte strings and Unicode strings are properly serialized. 
+        It checks that the serialization results in the expected Python string representation, 
+        such as `b'foobar'` for byte strings and `'foobar'` for Unicode strings.
+        """
         self.assertSerializedEqual(b"foobar")
         string, imports = MigrationWriter.serialize(b"foobar")
         self.assertEqual(string, "b'foobar'")
@@ -573,6 +668,21 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_pathlib(self):
         # Pure path objects work in all platforms.
+        """
+        ``` 
+        Tests the serialization of pathlib objects.
+
+        This test case checks the serialization of various pathlib objects, including 
+        PurePosixPath, PureWindowsPath, WindowsPath, and PosixPath. It verifies that 
+        these objects are correctly serialized into their string representations and 
+        that the necessary import statements are included.
+
+        The test covers both Unix-based and Windows platforms to ensure compatibility 
+        across different operating systems. Additionally, it checks the serialization 
+        of pathlib objects within specific fields, such as FilePathField, to ensure 
+        correct handling in these cases.
+        ```
+        """
         self.assertSerializedEqual(pathlib.PurePosixPath())
         self.assertSerializedEqual(pathlib.PureWindowsPath())
         path = pathlib.PurePosixPath("/path/file.txt")
@@ -602,6 +712,16 @@ class WriterTests(SimpleTestCase):
         self.assertIn("import pathlib", imports)
 
     def test_serialize_path_like(self):
+        """
+
+        Tests the serialization of a path-like object.
+
+        This test case verifies that a path-like object can be successfully serialized
+        and its result matches the expected output. It checks the serialization of the
+        object using the :class:`MigrationWriter` and ensures that the generated string
+        represents the object correctly.
+
+        """
         with os.scandir(os.path.dirname(__file__)) as entries:
             path_like = list(entries)[0]
         expected = (repr(path_like.path), {})
@@ -612,6 +732,21 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "models.FilePathField(path=%r)" % path_like.path)
 
     def test_serialize_functions(self):
+        """
+        Tests the serialization functionality for various function types.
+
+        This test case verifies the ability of the serialization system to handle different
+        kinds of functions. It checks that lambda functions, which cannot be serialized,
+        raise the expected error message. It also tests the serialization of specific
+        Django model functions, such as `SET_NULL` and `SET`, ensuring they are correctly
+        converted to their string representations. Additionally, it validates that these
+        serialized functions can be successfully round-tripped, meaning that the original
+        function can be recreated from its serialized form without any loss of information.
+
+        The goal of this test is to guarantee that the serialization system behaves as
+        expected for various function types, ensuring the reliability and consistency of
+        the migration process.
+        """
         with self.assertRaisesMessage(ValueError, "Cannot serialize function: lambda"):
             self.assertSerializedEqual(lambda x: 42)
         self.assertSerializedEqual(models.SET_NULL)
@@ -625,6 +760,26 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(function_with_lru_cache)
 
     def test_serialize_datetime(self):
+        """
+        '''Tests the serialization of various datetime objects.
+
+        This test case covers the serialization of different types of datetime objects, 
+        including datetime instances with and without timezone information, 
+        datetime classes, date objects, and time objects.
+
+        It checks that each object can be successfully serialized and deserialized, 
+        and that the serialized result matches the expected output.
+
+        Specifically, it tests serialization of:
+        - Current date and time with and without timezone info
+        - Date and time classes
+        - Time objects
+        - Datetime objects with fixed and default timezones
+        - Datetime objects with timezone info from the zoneinfo module
+
+        The test ensures that the serialization process correctly handles 
+        different types of datetime objects and timezones.'''
+        """
         self.assertSerializedEqual(datetime.datetime.now())
         self.assertSerializedEqual(datetime.datetime.now)
         self.assertSerializedEqual(datetime.datetime.today())
@@ -660,6 +815,19 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_fields(self):
+        """
+
+        Tests the serialization of Django model fields.
+
+        This function verifies that various model fields, including CharField and TextField,
+        are correctly serialized into their string representation and import statements.
+        It checks both the field itself and the result of serialization, which includes
+        the field's string representation and the necessary import statements.
+
+        The goal of this test is to ensure that model fields can be properly serialized
+        and deserialized, allowing for accurate reconstruction of Django models.
+
+        """
         self.assertSerializedFieldEqual(models.CharField(max_length=255))
         self.assertSerializedResultEqual(
             models.CharField(max_length=255),
@@ -675,6 +843,18 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_settings(self):
+        """
+
+        Tests the serialization of settings references.
+
+        This test case verifies that settings references are correctly serialized and deserialized.
+        It checks that the settings reference is properly converted to a serialized format and that the imported modules are correctly tracked.
+
+        The test covers two scenarios: 
+        1. The serialization of a setting that references the default auth user model.
+        2. The serialization of a setting that references a custom model from a different app, ensuring that the required import statement is correctly generated.
+
+        """
         self.assertSerializedEqual(
             SettingsReference(settings.AUTH_USER_MODEL, "AUTH_USER_MODEL")
         )
@@ -812,6 +992,12 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(imports, set())
 
     def test_serialize_builtins(self):
+        """
+
+        Tests the serialization of built-in types, specifically the range type.
+        Verifies that the serialized representation of the range type is accurate and that no unnecessary imports are generated.
+
+        """
         string, imports = MigrationWriter.serialize(range)
         self.assertEqual(string, "range")
         self.assertEqual(imports, set())
@@ -835,6 +1021,18 @@ class WriterTests(SimpleTestCase):
             self.serialize_round_trip(TestModel2.thing)
 
     def test_serialize_managers(self):
+        """
+        Tests the serialization of model managers.
+
+        This test case checks that different types of managers are correctly serialized.
+        It covers the serialization of a basic Manager instance, a custom Manager subclass,
+        and a custom QuerySet manager. The tests ensure that the serialized output matches
+        the expected results, including any necessary imports.
+
+        The test cases verify the serialization of managers with varying numbers of arguments,
+        including positional and keyword arguments, to ensure that the serialization process
+        handles different input scenarios correctly.
+        """
         self.assertSerializedEqual(models.Manager())
         self.assertSerializedResultEqual(
             FoodQuerySet.as_manager(),
@@ -862,10 +1060,33 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedResultEqual({"c", "b", "a"}, ("{'a', 'b', 'c'}", set()))
 
     def test_serialize_timedelta(self):
+        """
+        Tests the serialization of datetime.timedelta objects.
+
+        Verifies that timedelta instances with various values, including zero and non-zero durations, are correctly serialized and deserialized, ensuring data integrity and consistency.
+
+        The test covers the following scenarios:
+        - Zero-duration timedelta
+        - Non-zero duration timedelta with minutes
+        """
         self.assertSerializedEqual(datetime.timedelta())
         self.assertSerializedEqual(datetime.timedelta(minutes=42))
 
     def test_serialize_functools_partial(self):
+        """
+        .. function:: test_serialize_functools_partial
+
+           Tests the serialization and deserialization of a functools.partial object.
+
+           This test case verifies that a partial function object, specifically a 
+           functools.partial object wrapping the datetime.timedelta function, can be 
+           successfully serialized and then deserialized back into its original form.
+
+           The assertion checks ensure that the deserialized partial function has the 
+           same function reference, positional arguments, and keyword arguments as the 
+           original partial function. This guarantees that the round trip serialization 
+           preserves the essential properties of the functools.partial object.
+        """
         value = functools.partial(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertEqual(result.func, value.func)
@@ -1099,6 +1320,12 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_register_serializer(self):
+        """
+        Tests registration of a custom serializer for complex numbers with the MigrationWriter.
+
+        This test case ensures that the registration of a custom serializer allows for the successful serialization of complex numbers, 
+        and that unregistering the serializer reverts to the default behavior of raising a ValueError when attempting to serialize a complex number.
+        """
         class ComplexSerializer(BaseSerializer):
             def serialize(self):
                 return "complex(%r)" % self.value, {}

@@ -10,6 +10,11 @@ RECURSIVE = os.path.join(ROOT, "recursive_templates")
 
 class ExtendsBehaviorTests(SimpleTestCase):
     def test_normal_extend(self):
+        """
+        Tests the normal operation of template extension by rendering a template that extends another and verifying the output matches the expected result. 
+
+        This method checks if a template's extends directive correctly includes the content of the parent template, ensuring the final output contains the expected sequence of elements.
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("one.html")
         output = template.render(Context({}))

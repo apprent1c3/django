@@ -7,6 +7,19 @@ from asgiref.sync import iscoroutinefunction
 
 class classonlymethod(classmethod):
     def __get__(self, instance, cls=None):
+        """
+        Returns the descriptor for the class, preventing instance access.
+
+        This method is part of the descriptor protocol and is used to implement
+        class-level access control. It ensures that the descriptor can only be
+        accessed on the class itself, and not on instances of the class.
+
+        :raises AttributeError: If the descriptor is accessed on an instance.
+        :returns: The descriptor for the class.
+        :note: This method does not perform any instance-specific operations
+               and will always raise an exception if called on an instance.
+
+        """
         if instance is not None:
             raise AttributeError(
                 "This method is available only on the class, not on instances."
@@ -118,11 +131,53 @@ def decorator_from_middleware(middleware_class):
 
 
 def make_middleware_decorator(middleware_class):
+    """
+    Creates a decorator that applies a middleware to a view function.
+
+    The middleware is instantiated with the provided arguments and keyword arguments.
+    The decorator then wraps the view function, allowing the middleware to process
+    requests, views, and responses before and after the view function is called.
+
+    The middleware can provide several methods to customize its behavior:
+        - ``process_request(request)``: Called before the view function is called.
+          If it returns a response, the view function will not be called.
+        - ``process_view(request, view_func, args, kwargs)``: Called before the view function is called.
+          If it returns a response, the view function will not be called.
+        - ``process_template_response(request, response)``: Called after the view function has returned a response,
+          but before the response is sent to the client. This method is only called for response objects that have a
+          ``render`` method.
+        - ``process_response(request, response)``: Called after the view function has returned a response.
+          This method can be used to modify the response before it is sent to the client.
+        - ``process_exception(request, exception)``: Called if an exception occurs while calling the view function.
+          If it returns a response, the exception will not be re-raised.
+
+    The resulting decorator can be used to wrap view functions, applying the middleware
+    to all requests handled by those views.
+
+    :param middleware_class: The class of the middleware to apply.
+    :returns: A decorator that applies the middleware to a view function.
+
+    """
     def _make_decorator(*m_args, **m_kwargs):
         def _decorator(view_func):
             middleware = middleware_class(view_func, *m_args, **m_kwargs)
 
             def _pre_process_request(request, *args, **kwargs):
+                """
+
+                Pre-processes a request by invoking middleware processing if available.
+
+                This function checks if the middleware has a :meth:`process_request` or 
+                :meth:`process_view` method and calls it with the given request and 
+                other relevant information. If either method returns a non-None result, 
+                it is returned immediately; otherwise, the function returns None.
+
+                :param request: The request object to be processed
+                :param args: Additional positional arguments to be passed to middleware processing
+                :param kwargs: Additional keyword arguments to be passed to middleware processing
+                :rtype: The result of middleware processing if it returns a non-None value, otherwise None
+
+                """
                 if hasattr(middleware, "process_request"):
                     result = middleware.process_request(request)
                     if result is not None:

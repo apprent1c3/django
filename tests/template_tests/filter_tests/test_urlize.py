@@ -15,6 +15,16 @@ class UrlizeTests(SimpleTestCase):
         }
     )
     def test_urlize01(self):
+        """
+
+        Test the urlize template filter functionality.
+
+        This function verifies that the urlize filter correctly converts URLs 
+        into HTML links, handling both plain and mark_safe strings, and properly 
+        escaping any special characters in the URL. The test case checks that the 
+        output matches the expected HTML string with correctly formatted links.
+
+        """
         output = self.engine.render_to_string(
             "urlize01",
             {
@@ -49,6 +59,23 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize03": "{% autoescape off %}{{ a|urlize }}{% endautoescape %}"})
     def test_urlize03(self):
+        """
+        Tests the urlize filter with autoescape disabled.
+
+        This test case verifies that when autoescape is disabled, the urlize filter
+        does not modify the input string. It checks that the output string remains
+        unchanged, preserving any HTML entities that may be present in the input.
+
+         Args:
+            None
+
+         Returns:
+            None
+
+         Raises:
+            AssertionError: If the rendered output does not match the expected output.
+
+        """
         output = self.engine.render_to_string("urlize03", {"a": mark_safe("a &amp; b")})
         self.assertEqual(output, "a &amp; b")
 
@@ -61,6 +88,19 @@ class UrlizeTests(SimpleTestCase):
     # exploitable for XSS purposes when auto-escaping is on.
     @setup({"urlize05": "{% autoescape off %}{{ a|urlize }}{% endautoescape %}"})
     def test_urlize05(self):
+        """
+
+        Tests the urlize filter's behavior when autoescaping is disabled.
+
+        This test case verifies that the urlize filter does not escape HTML characters when
+        autoescaping is turned off. It checks if the output of the filter matches the input
+        string, which contains a script tag.
+
+        The purpose of this test is to ensure that the urlize filter behaves correctly in
+        situations where the input string may contain HTML code and autoescaping is explicitly
+        disabled.
+
+        """
         output = self.engine.render_to_string(
             "urlize05", {"a": "<script>alert('foo')</script>"}
         )
@@ -86,6 +126,15 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize08": "{{ a|urlize }}"})
     def test_urlize08(self):
+        """
+
+        Tests the functionality of the urlize filter.
+
+        The urlize filter is used to convert URLs and email addresses in plain text into clickable links.
+        This test case checks if the filter correctly urlizes an email address embedded in a string, 
+        escaping any special characters and wrapping the email address in an anchor tag with a mailto link.
+
+        """
         output = self.engine.render_to_string(
             "urlize08", {"a": "Email me at <me@example.com>"}
         )
@@ -96,6 +145,26 @@ class UrlizeTests(SimpleTestCase):
 
     @setup({"urlize09": "{% autoescape off %}{{ a|urlize }}{% endautoescape %}"})
     def test_urlize09(self):
+        """
+        Tests the urlize template filter with autoescaping disabled.
+
+        The test case verifies that the urlize filter correctly converts a string
+        containing a URL into an HTML link, while ensuring that special characters
+        are properly escaped to prevent XSS attacks.
+
+         Args:
+             None
+
+         Returns:
+             None
+
+         Raises:
+             AssertionError: If the rendered output does not match the expected result
+
+         Note:
+             This test uses the 'autoescape off' directive to disable template autoescaping,
+             allowing for manual testing of the urlize filter's escaping behavior.
+        """
         output = self.engine.render_to_string(
             "urlize09", {"a": "http://example.com/?x=&amp;y=&lt;2&gt;"}
         )
@@ -108,6 +177,14 @@ class UrlizeTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_urls(self):
+        """
+
+        Tests the functionality of the urlize function, which converts plain text URLs into HTML links.
+        The function is verified to correctly handle different types of URLs, including those starting with 'http://', 'https://' (implied by 'www.' prefix), and those without any prefix.
+        The test cases ensure that the urlize function prepends 'http://' to URLs without a protocol and preserves URL paths.
+        All generated HTML links are checked to have the 'rel=\"nofollow\"' attribute, indicating the link is external and should not be followed by search engine crawlers.
+
+        """
         self.assertEqual(
             urlize("http://google.com"),
             '<a href="http://google.com" rel="nofollow">http://google.com</a>',
@@ -342,6 +419,20 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_wrapping_characters(self):
+        """
+
+        Tests the urlize function's handling of wrapping characters around URLs.
+
+        This test checks that the urlize function correctly replaces specified wrapping characters 
+        with their corresponding HTML entities when they surround a URL. The test covers various 
+        types of wrapping characters, including parentheses, angle brackets, square brackets, 
+        double quotes, and single quotes.
+
+        It verifies that the function produces the expected output for each type of wrapping 
+        character, ensuring that the wrapping characters are properly replaced with their HTML 
+        entities and the URL is correctly linked.
+
+        """
         wrapping_chars = (
             ("()", ("(", ")")),
             ("<>", ("&lt;", "&gt;")),
@@ -457,6 +548,14 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_lazystring(self):
+        """
+        Tests the functionality of lazy string evaluation in conjunction with urlize function.
+
+        The test prepends 'www.' to a given URL and checks if the resulting string
+        is correctly converted into an HTML anchor tag. It verifies that the urlize 
+        function properly handles the lazy string and produces the expected output.
+
+        """
         prepend_www = lazy(lambda url: "www." + url, str)
         self.assertEqual(
             urlize(prepend_www("google.com")),

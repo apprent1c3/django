@@ -13,6 +13,18 @@ class PropertyTests(TestCase):
 
     def test_setter(self):
         # The "full_name" property hasn't provided a "set" method.
+        """
+
+        Tests the functionality of property setter methods for the Person class.
+
+        Verifies that attempting to set the 'full_name' attribute directly raises an AttributeError,
+        both when using setattr on an existing instance and when passing the attribute as a keyword argument
+        to the class constructor.
+
+        Additionally, tests that setting the 'full_name_2' attribute and then saving the instance
+        correctly populates the 'first_name' attribute.
+
+        """
         with self.assertRaises(AttributeError):
             setattr(self.a, "full_name", "Paul McCartney")
 

@@ -16,6 +16,16 @@ class LastTests(SimpleTestCase):
         {"last02": "{% autoescape off %}{{ a|last }} {{ b|last }}{% endautoescape %}"}
     )
     def test_last02(self):
+        """
+        Tests the 'last' filter functionality in conjunction with autoescaping.
+
+        Verifies that the 'last' filter correctly retrieves the last element of a list, 
+        and that autoescaping is properly handled for both regular and marked-safe strings.
+
+        This test case ensures the correct output is generated when rendering a template 
+        with the 'last' filter applied to lists containing strings that may require 
+        escaping, as well as strings that have been explicitly marked as safe.
+        """
         output = self.engine.render_to_string(
             "last02", {"a": ["x", "a&b"], "b": ["x", mark_safe("a&b")]}
         )

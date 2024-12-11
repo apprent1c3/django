@@ -113,6 +113,18 @@ class ExplainTests(TestCase):
             qs.explain(**options)
 
     def test_invalid_option_names(self):
+        """
+        Tests that specifying invalid option names raises a ValueError.
+
+        This test case checks that the function correctly identifies and handles
+        option names that contain invalid characters, such as quotation marks,
+        backticks, whitespace, semicolons, and non-ASCII characters.
+
+        The test validates the function's error handling by checking that a
+        ValueError is raised with a descriptive error message when an invalid option
+        name is provided. This ensures that the function behaves as expected and
+        provides informative error messages in case of invalid input.
+        """
         qs = Tag.objects.filter(name="test")
         tests = [
             'opt"ion',
@@ -138,6 +150,15 @@ class ExplainTests(TestCase):
     def test_mysql_text_to_traditional(self):
         # Ensure these cached properties are initialized to prevent queries for
         # the MariaDB or MySQL version during the QuerySet evaluation.
+        """
+        Tests that the MySQL database connection uses the traditional format when 
+        explaining a query with the 'text' format.
+
+        This test case checks if the database connection correctly interprets the 'text' 
+        format as the traditional format when generating an explanation for a query. It 
+        verifies that the resulting SQL query includes the 'FORMAT=TRADITIONAL' keyword.
+
+        """
         connection.features.supported_explain_formats
         with CaptureQueriesContext(connection) as captured_queries:
             Tag.objects.filter(name="test").explain(format="text")
@@ -166,6 +187,13 @@ class ExplainTests(TestCase):
 @skipIfDBFeature("supports_explaining_query_execution")
 class ExplainUnsupportedTests(TestCase):
     def test_message(self):
+        """
+        Tests that explaining query execution on a backend that does not support it raises a NotSupportedError.
+
+        This test case checks that when attempting to explain query execution on a database backend
+        without the necessary support, a NotSupportedError exception is correctly raised with a
+        meaningful error message, indicating the limitation of the backend in question.
+        """
         msg = "This backend does not support explaining query execution."
         with self.assertRaisesMessage(NotSupportedError, msg):
             Tag.objects.filter(name="test").explain()

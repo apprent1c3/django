@@ -64,6 +64,14 @@ class AdminForm:
         )
 
     def __iter__(self):
+        """
+        Returns an iterator over the fieldsets defined for the form.
+
+        This method allows for iteration over the fieldsets, yielding a Fieldset object for each one.
+        The Fieldset object is initialized with the form instance, fieldset name, and the specified options, 
+        including readonly fields and model admin. This enables easy access and manipulation of the fieldsets 
+        in the form, making it easier to work with complex forms that have multiple sections or field groups. 
+        """
         for name, options in self.fieldsets:
             yield Fieldset(
                 self.form,
@@ -134,6 +142,16 @@ class Fieldset:
 
 class Fieldline:
     def __init__(self, form, field, readonly_fields=None, model_admin=None):
+        """
+        Initializes an instance of the class, configuring it to work with a given form and one or more fields.
+
+        The instance is set up with a provided form, and one or more fields which can be specified as a single field or an iterable of fields. 
+        If a single field is provided, it is wrapped in a list for internal consistency.
+
+        The class determines whether any of the specified fields are visible (i.e., not hidden by their widget), and stores this information for later use.
+
+        Additionally, an optional model admin and readonly fields can be provided. If readonly fields are not specified, an empty tuple is used by default.
+        """
         self.form = form  # A django.forms.Form instance
         if not hasattr(field, "__iter__") or isinstance(field, str):
             self.fields = [field]
@@ -249,6 +267,14 @@ class AdminReadonlyField:
         )
 
     def get_admin_url(self, remote_field, remote_obj):
+        """
+        Return an HTML link to the admin change page for a given remote object.
+
+            :param remote_field: The field that defines the relationship to the remote object.
+            :param remote_obj: The remote object for which to generate the admin URL.
+            :return: An HTML string containing a link to the admin change page for the remote object, or a string representation of the object if the URL cannot be reversed.
+
+        """
         url_name = "admin:%s_%s_change" % (
             remote_field.model._meta.app_label,
             remote_field.model._meta.model_name,
@@ -484,6 +510,27 @@ class InlineAdminForm(AdminForm):
         model_admin=None,
         view_on_site_url=None,
     ):
+        """
+        Initializes the class instance with the necessary attributes.
+
+        This method sets up the object with information about the formset, form, 
+        fieldsets, prepopulated fields, original object, and model admin. 
+        It also determines whether to show a URL for viewing the object on site, 
+        based on the presence of an original object and a view on site URL.
+
+        The instance is then further initialized with a call to the parent class's 
+        constructor, passing in the form, fieldsets, prepopulated fields, readonly fields, 
+        and model admin.
+
+        :param formset: The formset associated with this instance.
+        :param form: The form used to render the object.
+        :param fieldsets: The fieldsets used to organize the form fields.
+        :param prepopulated_fields: The fields that are prepopulated with values.
+        :param original: The original object being edited or viewed.
+        :param readonly_fields: The fields that are read-only (optional).
+        :param model_admin: The model admin instance associated with this object (optional).
+        :param view_on_site_url: The URL for viewing the object on site (optional).
+        """
         self.formset = formset
         self.model_admin = model_admin
         self.original = original

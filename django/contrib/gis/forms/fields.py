@@ -28,6 +28,17 @@ class GeometryField(forms.Field):
     }
 
     def __init__(self, *, srid=None, geom_type=None, **kwargs):
+        """
+        .. _GeometryField:
+
+        Initialize a Geometry Field instance.
+
+        :param srid: The Spatial Reference System Identifier (SRID) of the geometry field
+        :param geom_type: The type of geometry (e.g. Point, LineString, Polygon)
+        :param kwargs: Additional keyword arguments to pass to the parent class
+
+        Initialize a Geometry Field instance with the specified SRID and geometry type. The SRID is used to define the spatial reference system of the geometry, while the geometry type determines the type of geometric object that can be stored in the field. The instance is then initialized with any additional keyword arguments passed to the parent class. The geometry type is also set as an attribute of the associated widget.
+        """
         self.srid = srid
         if geom_type is not None:
             self.geom_type = geom_type

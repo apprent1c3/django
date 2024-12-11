@@ -25,6 +25,16 @@ class FloatformatTests(SimpleTestCase):
 
     @setup({"floatformat02": "{{ a|floatformat }} {{ b|floatformat }}"})
     def test_floatformat02(self):
+        """
+        Tests the floatformat template filter with a rendered template.
+
+        The floatformat filter is applied to two variables, 'a' and 'b', which are 
+        rendered as strings. This test case verifies that the filter correctly formats 
+        the float values, displaying them with one decimal place.
+
+        It also checks the behavior when the input is marked as safe, ensuring that 
+        the filter applies correctly in both cases and produces the expected output.
+        """
         output = self.engine.render_to_string(
             "floatformat02", {"a": "1.42", "b": mark_safe("1.42")}
         )
@@ -33,6 +43,18 @@ class FloatformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_inputs(self):
+        """
+        Tests the floatformat function with various inputs and precision values.
+
+        The test suite covers a range of scenarios to ensure the function behaves correctly, including:
+        - Formatting floating point numbers with and without decimal places
+        - Handling precision values from 0 to large positive and negative numbers
+        - Correctly rounding numbers to the specified precision
+        - Supporting decimal numbers and exponential notation
+        - Returning the original value when the precision is invalid
+
+        The tests aim to provide comprehensive coverage of the function's behavior and edge cases, ensuring its correctness and reliability in different use scenarios.
+        """
         self.assertEqual(floatformat(7.7), "7.7")
         self.assertEqual(floatformat(7.0), "7")
         self.assertEqual(floatformat(0.7), "0.7")
@@ -164,6 +186,15 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(num, decimal_places), expected)
 
     def test_infinity(self):
+        """
+        Tests the formatting of floating point infinity and NaN values.
+
+        Verifies that positive and negative infinity are correctly represented as 'inf' and '-inf',
+        and that Not-a-Number (NaN) values are properly formatted as 'nan' when resulting from
+        operations involving infinity.
+
+        This test ensures that the floatformat function handles edge cases of extreme floating point values.
+        """
         pos_inf = float(1e30000)
         neg_inf = float(-1e30000)
         self.assertEqual(floatformat(pos_inf), "inf")
@@ -171,6 +202,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(pos_inf / pos_inf), "nan")
 
     def test_float_dunder_method(self):
+        """
+        Tests the floatformat function's ability to handle objects that implement the __float__ dunder method, ensuring that it correctly converts the object to a float and applies the specified precision formatting, resulting in a string representation of the float value rounded to the desired number of decimal places.
+        """
         class FloatWrapper:
             def __init__(self, value):
                 self.value = value

@@ -13,6 +13,19 @@ from .utils import DummyStorage
 
 class MessageTests(SimpleTestCase):
     def test_eq(self):
+        """
+        Tests the equality of Message objects based on their attributes.
+
+        This test case checks the following scenarios:
+
+        *Equality of a Message object with itself
+        *Equality of a Message object with any other object (using mock.ANY)
+        *Inequality of Message objects with different messages but the same level
+        *Inequality of Message objects with the same message but different levels
+        *Inequality of Message objects with different messages and levels
+
+        The purpose of this test is to ensure that the equality operator for Message objects behaves as expected and distinguishes between objects based on their attributes.
+        """
         msg_1 = Message(constants.INFO, "Test message 1")
         msg_2 = Message(constants.INFO, "Test message 2")
         msg_3 = Message(constants.WARNING, "Test message 1")
@@ -88,6 +101,17 @@ class TestLevelTags(SimpleTestCase):
     def test_override_settings_lazy(self):
         # The update_level_tags handler has been called at least once before
         # running this code when using @override_settings.
+        """
+
+        Tests the override_settings decorator's ability to lazily apply changed settings.
+
+        This test verifies that changes made to a setting within a test case are properly
+        reflected in other parts of the system that rely on that setting, ensuring that
+        the override_settings decorator works as intended in a dynamic environment.
+
+        :raises AssertionError: if the setting override is not successfully applied.
+
+        """
         settings.MESSAGE_TAGS = {constants.ERROR: "very-bad"}
         self.assertEqual(base.LEVEL_TAGS[constants.ERROR], "very-bad")
 
@@ -161,6 +185,17 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         self.assertMessages(response, [Message(42, "CUSTOM message.")])
 
     def test_ordered(self):
+        """
+        Tests that messages are correctly stored in the request, and can be asserted 
+        in an unordered manner. 
+
+        The purpose of this test is to ensure that the :func:`add_message` function 
+        correctly adds messages to the request, regardless of their order. It verifies 
+        that the :func:`assertMessages` function works as expected when the 'ordered' 
+        parameter is set to False, allowing for messages to be in any order. Additionally, 
+        it checks that an AssertionError is raised when the 'ordered' parameter is not 
+        specified or set to True, and the messages are not in the expected order.
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "First message.")
         add_message(response.wsgi_request, constants.WARNING, "Second message.")
@@ -173,6 +208,14 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
             self.assertMessages(response, expected_messages)
 
     def test_mismatching_length(self):
+        """
+        Tests that the assertMessages method raises an AssertionError when the expected and actual message lists have mismatching lengths.
+
+        This test case verifies that the method correctly identifies and reports a difference in the number of messages when comparing two lists, and that it provides a meaningful error message indicating the extra or missing messages.
+
+        The test includes a scenario where a single message is added to the request, and then the assertMessages method is called with an empty list of expected messages, resulting in an AssertionError being raised with a specific error message.
+
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
         msg = (

@@ -72,6 +72,17 @@ class SpatialRefSysTest(TestCase):
         return connection.ops.connection.ops.spatial_ref_sys()
 
     def test_get_units(self):
+        """
+
+        Tests the retrieval of spatial reference system units.
+
+        This function checks that the :meth:`get_units` method correctly extracts the unit of measurement
+        and its name from a given spatial reference system definition. It uses a predefined test spatial
+        reference system (EPSG:4326) as input and verifies that the resulting unit and unit name match
+        the expected values, which are degree for the unit name and approximately 0.01745329251994328
+        for the unit value.
+
+        """
         epsg_4326 = next(f for f in test_srs if f["srid"] == 4326)
         unit, unit_name = self.SpatialRefSys().get_units(epsg_4326["wkt"])
         self.assertEqual(unit_name, "degree")

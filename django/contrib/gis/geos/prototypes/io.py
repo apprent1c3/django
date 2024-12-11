@@ -198,6 +198,20 @@ class WKTWriter(IOBase):
     _precision = None
 
     def __init__(self, dim=2, trim=False, precision=None):
+        """
+
+        Initializes an instance of the class.
+
+        :param dim: The output dimension, defaults to 2.
+        :param trim: A flag indicating whether to trim, defaults to False.
+        :param precision: The precision to use, can be None for default precision.
+
+        This constructor sets up the object with the specified dimension and trimming
+        behavior. If a precision is provided, it will be used; otherwise, the default
+        precision will be applied. The resulting object's properties can be used for
+        further operations.
+
+        """
         super().__init__()
         self._trim = DEFAULT_TRIM_VALUE
         self.trim = trim
@@ -255,6 +269,20 @@ class WKBWriter(IOBase):
         self.outdim = dim
 
     def _handle_empty_point(self, geom):
+        """
+        .\"\"\"
+        Handle an empty geometric point.
+
+        This method takes a geometric point as input and checks if it is empty.
+        If the point is empty and its Spatial Reference System Identifier (SRID) is defined,
+        it returns a new point with NaN coordinates in the same SRID.
+        If the SRID is not defined, it raises a ValueError because empty points cannot be represented in Well-Known Binary (WKB) format.
+
+        :param geom: The geometric point to be handled.
+        :returns: The handled geometric point, or raises ValueError if SRID is not defined.
+        :type geom: django.contrib.gis.geos.Point
+
+        """
         from django.contrib.gis.geos import Point
 
         if isinstance(geom, Point) and geom.empty:

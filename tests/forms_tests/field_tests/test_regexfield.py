@@ -39,6 +39,21 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("2A2 ")
 
     def test_regexfield_4(self):
+        """
+
+        Tests the functionality of the RegexField class.
+
+        This test case checks the following scenarios:
+        - Validation of input with less than the minimum required length
+        - Validation of input with non-numeric characters
+        - Validation of input with the exact minimum required length
+        - Validation of input with the exact maximum allowed length
+        - Validation of input with more than the maximum allowed length
+        - Validation of input with a mix of numeric and non-numeric characters
+
+        Each scenario verifies that the expected validation error message is raised, or that the input is cleaned and returned without errors if it is valid.
+
+        """
         f = RegexField("^[0-9]+$", min_length=5, max_length=10)
         with self.assertRaisesMessage(
             ValidationError, "'Ensure this value has at least 5 characters (it has 3).'"
@@ -72,10 +87,33 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("abcd")
 
     def test_get_regex(self):
+        """
+
+        Tests the retrieval of a regex pattern from a RegexField instance.
+
+        Verifies that the regex pattern provided during the creation of the RegexField
+        is correctly compiled and stored as an instance attribute.
+
+        The test case checks if the expected regex pattern matches the actual pattern
+        stored in the instance, confirming the proper initialization of the RegexField.
+
+        """
         f = RegexField("^[a-z]+$")
         self.assertEqual(f.regex, re.compile("^[a-z]+$"))
 
     def test_regexfield_strip(self):
+        """
+
+        Tests the functionality of the RegexField when the strip parameter is enabled.
+
+        This test case verifies that leading and trailing whitespace is removed from the input string 
+        before it is validated against the regular expression pattern. The regular expression pattern 
+        used in this test only matches strings consisting of one or more lowercase letters.
+
+        The test confirms that the RegexField's clean method correctly strips whitespace from the input 
+        strings and returns the resulting string if it matches the pattern.
+
+        """
         f = RegexField("^[a-z]+$", strip=True)
         self.assertEqual(f.clean(" a"), "a")
         self.assertEqual(f.clean("a "), "a")

@@ -16,6 +16,18 @@ class WordwrapTests(SimpleTestCase):
         }
     )
     def test_wordwrap01(self):
+        """
+        Tests the wordwrap filter with autoescaped and mark_safe input.
+
+        This test case checks the rendering of a template that applies the wordwrap filter
+        to two input strings. The first string is autoescaped while the second is marked
+        as safe, allowing for the comparison of the filter's behavior in different escaping
+        contexts. The test verifies that the output is correctly wordwrapped and that the
+        escaping of special characters is handled as expected.
+
+        The expected output is a string with the input text wrapped at a specified width,
+        with special characters treated accordingly based on their escaping status.
+        """
         output = self.engine.render_to_string(
             "wordwrap01", {"a": "a & b", "b": mark_safe("a & b")}
         )

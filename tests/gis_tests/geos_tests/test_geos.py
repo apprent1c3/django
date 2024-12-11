@@ -299,6 +299,13 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
     @skipIf(geos_version_tuple() < (3, 12), "GEOS >= 3.12.0 is required")
     def test_infinite_values_equals_identical(self):
         # Input with identical infinite values are equals_identical.
+        """
+        Tests the equals_identical method for points with infinite values.
+
+        Checks that two points with identical infinite values (NaN and infinity) 
+        are considered equal by the equals_identical method, 
+        as long as GEOS version is 3.12.0 or higher, which is required for proper handling of infinite values.
+        """
         g1 = Point(x=float("nan"), y=math.inf)
         g2 = Point(x=float("nan"), y=math.inf)
         self.assertIs(g1.equals_identical(g2), True)
@@ -368,6 +375,16 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             prev = pnt  # setting the previous geometry
 
     def test_point_reverse(self):
+        """
+        Tests the reverse method of a point geometry object.
+
+        Verifies that the reverse method correctly swaps the coordinate order (longitude, latitude) of a point geometry to (latitude, longitude).
+
+        The test case creates a point object with a specific SRID and then checks that the SRID is correctly assigned.
+        After reversing the point coordinates, it checks that the resulting EWKT representation matches the expected output.
+
+        This test ensures that the reverse method works as expected and produces the correct output for point geometries.
+        """
         point = GEOSGeometry("POINT(144.963 -37.8143)", 4326)
         self.assertEqual(point.srid, 4326)
         point.reverse()
@@ -456,6 +473,21 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_linestring_reverse(self):
+        """
+        Tests the functionality of reversing a linestring.
+
+        This function verifies that the Spatial Reference System Identifier (SRID)
+        of a linestring is correctly set and that the linestring can be reversed,
+        resulting in the correct ordering of its coordinates.
+
+        The function checks the following:
+        - The initial SRID of the linestring matches the expected value.
+        - The linestring is correctly reversed, with its coordinates in the opposite order.
+        - The SRID of the reversed linestring remains unchanged.
+
+        This test ensures the correctness of the linestring reversal operation
+        in the context of geographic information systems (GIS).
+        """
         line = GEOSGeometry("LINESTRING(144.963 -37.8143,151.2607 -33.887)", 4326)
         self.assertEqual(line.srid, 4326)
         line.reverse()
@@ -811,6 +843,24 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self._test_buffer(self.geometries.buffer_geoms, "buffer")
 
     def test_buffer_with_style(self):
+        """
+        Tests the buffer_with_style functionality of geometric objects.
+
+        This test case checks for invalid inputs to the buffer_with_style method, 
+        verifying that it correctly raises exceptions when provided with incorrect 
+        parameters, such as non-integer values for quadsegs, and out-of-range values 
+        for end_cap_style and join_style. It also ensures that the method behaves as 
+        expected with valid inputs by comparing its results with the buffer method.
+
+        Validates error handling for the following scenarios:
+        - Non-integer quadsegs value
+        - Invalid end_cap_style value (non-integer and out-of-range)
+        - Invalid join_style value (non-integer and out-of-range)
+
+        Finally, it compares the results of buffer_with_style with the standard buffer 
+        method for a range of geometric objects to ensure their equivalence and 
+        correctness in various scenarios. 
+        """
         bg = self.geometries.buffer_with_style_geoms[0]
         g = fromstr(bg.wkt)
 
@@ -1031,6 +1081,17 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         # del mpoly
 
     def test_point_list_assignment(self):
+        """
+
+        Tests the assignment of a list of values to a Point object using slice notation.
+
+        Verifies the following scenarios:
+        - Assignment of three values (x, y, z) to a Point object
+        - Assignment of an empty list to reset the Point object
+        - Assignment of two values (x, y) to a Point object
+        - Attempting to assign an invalid number of values (less or more than the required dimensions) raises a ValueError.
+
+        """
         p = Point(0, 0)
 
         p[:] = (1, 2, 3)
@@ -1048,6 +1109,16 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             p[:] = (1, 2, 3, 4, 5)
 
     def test_linestring_list_assignment(self):
+        """
+
+        Tests the assignment of a list to the LineString object.
+
+        This function verifies that a LineString can be reassigned via slice assignment.
+        It checks if an empty tuple can be assigned to reset the LineString to its default state,
+        and if a tuple of points can be assigned to update the LineString's coordinates.
+        Additionally, it ensures that assigning a single value (not a sequence of points) raises a ValueError.
+
+        """
         ls = LineString((0, 0), (1, 1))
 
         ls[:] = ()
@@ -1072,6 +1143,11 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             ls[:] = ((0, 0), (1, 1), (2, 2))
 
     def test_polygon_list_assignment(self):
+        """
+        Tests the assignment of a list of polygons to a Polygon object through slice assignment.
+
+        The function verifies that a Polygon object can be initialized or reset to an empty state by assigning a tuple of polygon points or an empty tuple through the use of the slice assignment operator (:). It checks that the state of the Polygon object is correctly updated after assignment and matches the expected Polygon object.
+        """
         pol = Polygon()
 
         pol[:] = (((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)),)
@@ -1086,6 +1162,14 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(pol, Polygon())
 
     def test_geometry_collection_list_assignment(self):
+        """
+        Tests the assignment of a list of geometries to a GeometryCollection instance.
+
+        Verifies that assigning a list of geometries to a GeometryCollection using slice assignment updates the collection correctly.
+        Checks both the assignment of a non-empty list and an empty list, ensuring the collection is updated as expected in both cases.
+
+        This test case covers the edge cases of assigning a list with a single element and an empty list, ensuring the resulting GeometryCollection is equivalent to one created directly with the same geometries.
+        """
         p = Point()
         gc = GeometryCollection()
 
@@ -1204,6 +1288,15 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
                     g.__getitem__(0)
 
     def test_collection_dims(self):
+        """
+
+        Tests that the dimensionality of a GeometryCollection is correctly calculated.
+
+        The dimensionality of a GeometryCollection is determined by the highest dimensional
+        geometry it contains. The dimensions are as follows: Point (0D), LineString (1D), 
+        Polygon (2D). If the collection is empty, the dimensionality is considered undefined (-1).
+
+        """
         gc = GeometryCollection([])
         self.assertEqual(gc.dims, -1)
 
@@ -1569,12 +1662,24 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_from_ewkt(self):
+        """
+        Tests the creation of geometry objects from EWKT (Extended Well-Known Text) strings.
+
+        Verifies that the from_ewkt method correctly interprets EWKT strings and returns 
+        the corresponding geometry objects, including points with and without SRID (Spatial 
+        Reference System Identifier) definitions.
+        """
         self.assertEqual(
             GEOSGeometry.from_ewkt("SRID=1;POINT(1 1)"), Point(1, 1, srid=1)
         )
         self.assertEqual(GEOSGeometry.from_ewkt("POINT(1 1)"), Point(1, 1))
 
     def test_from_ewkt_empty_string(self):
+        """
+        Tests that creating a GEOSGeometry object from an empty string using the Extended Well-Known Text (EWKT) format raises a ValueError.
+
+        This test case verifies that the GEOSGeometry class properly handles empty strings and incomplete EWKT strings, ensuring that a meaningful error message is provided when invalid input is encountered. The expected error message indicates that the input string was expected to be in WKT format, but was empty or incomplete instead.
+        """
         msg = "Expected WKT but got an empty string."
         with self.assertRaisesMessage(ValueError, msg):
             GEOSGeometry.from_ewkt("")
@@ -1592,6 +1697,18 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(GEOSGeometry("POINT(1.0e-1 1.0e+1)"), Point(0.1, 10))
 
     def test_normalize(self):
+        """
+        Tests the normalization of a MultiPoint object.
+
+        Normalizing a MultiPoint object rearranges its points in a consistent order.
+        This is useful for ensuring that two MultiPoint objects with the same points
+        but in a different order are considered equal.
+
+        The test checks that the normalization process works correctly, both in-place
+        and when creating a new cloned object. It verifies that the normalized object
+        has the correct points in the correct order, and that the original object is
+        not modified when a clone is requested.
+        """
         multipoint = MultiPoint(Point(0, 0), Point(2, 2), Point(1, 1))
         normalized = MultiPoint(Point(2, 2), Point(1, 1), Point(0, 0))
         # Geometry is normalized in-place and nothing is returned.

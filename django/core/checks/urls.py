@@ -9,6 +9,13 @@ from . import Error, Tags, Warning, register
 
 @register(Tags.urls)
 def check_url_config(app_configs, **kwargs):
+    """
+    Checks the configuration of URL routing in the application.
+
+    This function verifies that the URL configuration is properly set up by checking the presence of a root URL configuration.
+    If the configuration is present, it retrieves the URL resolver and checks its validity.
+    The function returns a list of errors or warnings encountered during the check. If no issues are found, an empty list is returned.
+    """
     if getattr(settings, "ROOT_URLCONF", None):
         from django.urls import get_resolver
 
@@ -104,6 +111,14 @@ def get_warning_for_invalid_pattern(pattern):
 
 @register(Tags.urls)
 def check_url_settings(app_configs, **kwargs):
+    """
+    Checks the URL settings in the application configuration.
+
+    This function verifies that the STATIC_URL and MEDIA_URL settings are properly configured, 
+    specifically that they end with a slash (/) if they are not empty. 
+    It returns a list of errors if any of the URL settings are invalid. 
+    Each error is represented by an instance of E006, which corresponds to a specific URL setting that requires a trailing slash.
+    """
     errors = []
     for name in ("STATIC_URL", "MEDIA_URL"):
         value = getattr(settings, name)

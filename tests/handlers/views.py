@@ -67,6 +67,16 @@ async def async_regular(request):
 
 async def async_streaming(request):
     async def async_streaming_generator():
+        """
+        Asynchronous generator that produces a stream of bytes.
+
+        This generator yields a sequence of byte strings, enabling asynchronous streaming of content.
+        It can be used in applications where data needs to be processed in a streaming fashion,
+        such as when handling large amounts of data or working with real-time data sources.
+
+        Yields:
+            bytes: The next chunk of the stream as a byte string
+        """
         yield b"streaming"
         yield b" "
         yield b"content"
@@ -82,6 +92,12 @@ class CoroutineClearingView:
         return self._unawaited_coroutine
 
     def __del__(self):
+        """
+        Finalizer method to clean up resources when an instance is about to be destroyed.
+
+        This method ensures that any open coroutines are properly closed to prevent resource leaks.
+        If the instance does not have an unawaited coroutine, this method does nothing.
+        """
         try:
             self._unawaited_coroutine.close()
         except AttributeError:

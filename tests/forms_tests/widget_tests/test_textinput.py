@@ -106,6 +106,9 @@ class TextInputTest(WidgetTest):
         )
 
     def test_attrs_safestring(self):
+        """
+        Tests that a TextInput widget with a SafeString attribute value is rendered correctly in the HTML output, ensuring that the attribute is properly escaped and the widget functions as expected.
+        """
         widget = TextInput(attrs={"onBlur": mark_safe("function('foo')")})
         self.check_html(
             widget,
@@ -116,11 +119,28 @@ class TextInputTest(WidgetTest):
 
     def test_use_required_attribute(self):
         # Text inputs can safely trigger the browser validation.
+        """
+        Tests the use_required_attribute method of the widget.
+
+        This method checks whether the use_required_attribute method of the widget
+        returns True for various inputs, including None, an empty string, and a file name.
+        It verifies that the method behaves consistently and always returns True,
+        regardless of the input provided.
+        """
         self.assertIs(self.widget.use_required_attribute(None), True)
         self.assertIs(self.widget.use_required_attribute(""), True)
         self.assertIs(self.widget.use_required_attribute("resume.txt"), True)
 
     def test_fieldset(self):
+        """
+        Tests the functionality of a form fieldset.
+
+        This test case verifies that a form field is correctly rendered without a fieldset.
+        It creates a test form with a single character field and checks that the rendered
+        HTML matches the expected output, ensuring that no fieldset is used.
+        The test also confirms that the use_fieldset attribute of the widget is False.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

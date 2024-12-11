@@ -123,6 +123,13 @@ class SimpleTemplateResponse(HttpResponse):
         return self._is_rendered
 
     def __iter__(self):
+        """
+        카라.Measure Returns an iterator over the response content. 
+
+        Before iterating, this method checks if the response content has been rendered. 
+        If not, it raises a :exc:`ContentNotRenderedError`, as iteration is only possible after rendering. 
+        Once the content is rendered, it delegates to the superclass's :meth:`__iter__` method to perform the actual iteration.
+        """
         if not self._is_rendered:
             raise ContentNotRenderedError(
                 "The response content must be rendered before it can be iterated over."

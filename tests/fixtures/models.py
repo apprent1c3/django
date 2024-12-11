@@ -126,6 +126,10 @@ class Book(models.Model):
         ordering = ("name",)
 
     def __str__(self):
+        """
+        ичноReturns a string representation of the object, providing a human-readable description.
+        The string includes the object's name, followed by its authors if any, in a formatted 'name by authors' style. If no authors are associated, the string simply contains the object's name.
+        """
         authors = " and ".join(a.name for a in self.authors.all())
         return "%s by %s" % (self.name, authors) if authors else self.name
 

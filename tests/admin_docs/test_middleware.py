@@ -51,6 +51,12 @@ class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
 
     @override_settings(MIDDLEWARE=[])
     def test_no_auth_middleware(self):
+        """
+        .Tests that a 403 ImproperlyConfigured exception is raised when attempting to access the XView view without authentication middleware configured in the MIDDLEWARE setting.
+
+        :raises ImproperlyConfigured: When 'django.contrib.auth.middleware.AuthenticationMiddleware' is not included in the MIDDLEWARE setting.
+        :note: Authentication middleware is required for XView to function correctly. To resolve this error, add 'django.contrib.auth.middleware.AuthenticationMiddleware' to the MIDDLEWARE setting in your Django project's settings.
+        """
         msg = (
             "The XView middleware requires authentication middleware to be "
             "installed. Edit your MIDDLEWARE setting to insert "

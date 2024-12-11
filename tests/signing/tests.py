@@ -28,6 +28,16 @@ class TestSigner(SimpleTestCase):
             self.assertNotEqual(signer.signature(s), signer2.signature(s))
 
     def test_signature_with_salt(self):
+        """
+        ..: 
+            Tests the generation of signatures with a salt value.
+
+            This test case verifies that the signer correctly generates a signature when a salt value is provided.
+            It checks that the generated signature matches the expected signature calculated using the base64_hmac function.
+            Additionally, it ensures that different salt values produce different signatures for the same input data. 
+
+            The test covers the effectiveness of the salt in maintaining the uniqueness of signatures.
+        """
         signer = signing.Signer(key="predictable-secret", salt="extra-salt")
         self.assertEqual(
             signer.signature("hello"),
@@ -44,6 +54,14 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_custom_algorithm(self):
+        """
+
+        Tests the custom signature algorithm by verifying the output of the signing process.
+
+        The test generates a signature for the input string 'hello' using the SHA-512 algorithm and a predefined secret key.
+        It then asserts that the generated signature matches the expected output, ensuring the correctness of the custom algorithm implementation.
+
+        """
         signer = signing.Signer(key="predictable-secret", algorithm="sha512")
         self.assertEqual(
             signer.signature("hello"),
@@ -52,6 +70,9 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_invalid_algorithm(self):
+        """
+        Tests that an InvalidAlgorithm exception is raised when an unsupported algorithm is used for signing, ensuring that only algorithms accepted by the hashlib module are utilized. This verification helps maintain the security and integrity of the signing process.
+        """
         signer = signing.Signer(key="predictable-secret", algorithm="whatever")
         msg = "'whatever' is not an algorithm accepted by the hashlib module."
         with self.assertRaisesMessage(InvalidAlgorithm, msg):

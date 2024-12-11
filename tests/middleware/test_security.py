@@ -14,6 +14,26 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return {"wsgi.url_scheme": "https"}
 
     def response(self, *args, headers=None, **kwargs):
+        """
+        Returns a function that generates an HTTP response.
+
+        This function creates a closure that produces an HttpResponse object when called. 
+        It takes in a variable number of positional arguments and keyword arguments, 
+        which are passed directly to the HttpResponse constructor.
+
+        Optional headers can be specified as a dictionary, where keys are header names 
+        and values are the corresponding header values. These headers are then added to 
+        the generated HttpResponse object.
+
+        The returned function takes a single argument, a request object, although this 
+        argument is not used within the function. It is expected to be used as a 
+        callback or a view function in a web framework, where the request object is 
+        passed automatically.
+
+        The generated HttpResponse object can then be further customized or processed 
+        by the caller, depending on the specific use case and requirements.
+
+        """
         def get_response(req):
             response = HttpResponse(*args, **kwargs)
             if headers:
@@ -37,6 +57,21 @@ class SecurityMiddlewareTest(SimpleTestCase):
     request = RequestFactory()
 
     def process_request(self, method, *args, secure=False, **kwargs):
+        """
+
+        Process a request with the specified method and arguments.
+
+        This function sends a request using the provided method and arguments, applying
+        additional security settings if the 'secure' flag is enabled. The request is then 
+        passed through the middleware for further processing before being returned.
+
+        :param method: The HTTP method to use for the request (e.g. 'GET', 'POST', etc.)
+        :param args: Variable number of positional arguments to pass to the request
+        :param secure: Optional flag to enable secure request settings (default: False)
+        :param kwargs: Variable number of keyword arguments to pass to the request
+        :return: The processed request object
+
+        """
         if secure:
             kwargs.update(self.secure_request_kwargs)
         req = getattr(self.request, method.lower())(*args, **kwargs)

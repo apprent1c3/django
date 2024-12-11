@@ -115,12 +115,30 @@ class CheckboxInputTest(WidgetTest):
         self.assertIs(value, True)
 
     def test_value_omitted_from_data(self):
+        """
+        dbus 
+            Tests whether a value is omitted from data based on the provided field name.
+
+            The function checks if a field is present in the data and returns False if it is.
+            It also handles cases where the data or the field is empty.
+
+            :return: Whether the value is omitted from data (bool)
+            :note: This method is used for testing purposes and may not be part of the public API.
+        """
         self.assertIs(
             self.widget.value_omitted_from_data({"field": "value"}, {}, "field"), False
         )
         self.assertIs(self.widget.value_omitted_from_data({}, {}, "field"), False)
 
     def test_get_context_does_not_mutate_attrs(self):
+        """
+
+        Tests that the get_context method of the widget does not mutate the provided attributes.
+
+        This test case verifies that the get_context method behaves as expected, 
+        leaving the original attribute dictionary unchanged after it has been called.
+
+        """
         attrs = {"checked": False}
         self.widget.get_context("name", True, attrs)
         self.assertIs(attrs["checked"], False)

@@ -105,6 +105,19 @@ class BaseDetailView(SingleObjectMixin, View):
     """A base view for displaying a single object."""
 
     def get(self, request, *args, **kwargs):
+        """
+        Retrieves an object and renders it in a template response.
+
+        Handles HTTP GET requests by fetching the desired object, generating the
+        context data for the object, and rendering the response using the provided
+        template.
+
+        :param request: The incoming HTTP request.
+        :param args: Variable number of non-keyword arguments.
+        :param kwargs: Variable number of keyword arguments.
+        :return: A template response containing the rendered object.
+
+        """
         self.object = self.get_object()
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)

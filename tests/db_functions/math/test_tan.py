@@ -32,6 +32,14 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.f2_tan, math.tan(obj.f2))
 
     def test_integer(self):
+        """
+        Tests that the Tan database function correctly calculates the tangent of integer values.
+
+        It checks that the Tan function returns float results for small, normal, and big integer values, 
+        and that these results match the expected values calculated using the math library's tan function.
+
+        The test covers positive, negative, and edge cases to ensure the correctness of the Tan function.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_tan=Tan("small"),

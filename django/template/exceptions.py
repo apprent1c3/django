@@ -26,6 +26,14 @@ class TemplateDoesNotExist(Exception):
     """
 
     def __init__(self, msg, tried=None, backend=None, chain=None):
+        """
+        Initializes a new instance of the exception class, providing a message and optional indicators of attempted recovery efforts and a call chain.
+
+         :param msg: The message describing the exception.
+         :param tried: A list of previous attempts made to recover from the exception, defaults to an empty list.
+         :param backend: The backend associated with the exception, defaults to None.
+         :param chain: A list representing the call chain leading to the exception, defaults to an empty list.
+        """
         self.backend = backend
         if tried is None:
             tried = []

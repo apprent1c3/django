@@ -69,6 +69,11 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
         ]
 
     def test_indentation_whitespace(self):
+        """
+        Verify that JSON data serialized with indentation contains no trailing whitespace.
+
+        This test checks the output of the :class:`Serializer` when serializing data with indentation, ensuring that each line does not contain any unnecessary whitespace after a comma.
+        """
         s = serializers.json.Serializer()
         json_data = s.serialize([Score(score=5.0), Score(score=6.0)], indent=2)
         for line in json_data.splitlines():
@@ -307,6 +312,15 @@ class JsonSerializerTransactionTestCase(
 
 class DjangoJSONEncoderTests(SimpleTestCase):
     def test_lazy_string_encoding(self):
+        """
+        Tests the encoding of lazy strings using Django's JSON encoder.
+
+        Verifies that gettext_lazy strings are correctly translated and encoded to JSON,
+        both when the language is set to the default (English) and when it is overridden
+        with a different language (French). Ensures that the encoded string is correctly
+        formatted as per the DjangoJSONEncoder's specifications, including handling of
+        non-ASCII characters in the translated text.
+        """
         self.assertEqual(
             json.dumps({"lang": gettext_lazy("French")}, cls=DjangoJSONEncoder),
             '{"lang": "French"}',

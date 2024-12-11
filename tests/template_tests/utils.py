@@ -49,6 +49,22 @@ def setup(templates, *args, test_once=False):
         @wraps(func)
         def inner(self):
             # Set up custom template tag libraries if specified
+            """
+
+            Run the provided function multiple times with different Django template engine configurations.
+
+            This function wraps the input function and runs it under various template engine
+            settings to test its behavior. The function is run with the following configurations:
+            - Without any template engine settings
+            - With the default template engine settings
+            - With the template engine set to render invalid templates as 'INVALID'
+            - With the template engine in debug mode
+
+            The purpose of this function is to ensure the input function behaves correctly
+            under different template engine configurations, which is useful for testing and
+            debugging purposes.
+
+            """
             libraries = getattr(self, "libraries", {})
 
             self.engine = Engine(

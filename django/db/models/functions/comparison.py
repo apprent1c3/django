@@ -17,6 +17,19 @@ class Cast(Func):
         super().__init__(expression, output_field=output_field)
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL representation of the current object.
+
+        This method takes into account the database connection and type, 
+        using the output field to determine the correct database type casting.
+        It delegates the actual SQL generation to the parent class, 
+        providing additional context to ensure accurate database type handling.
+
+        :param compiler: The SQL compiler to use for generating the SQL.
+        :param connection: The database connection to consider for type casting.
+        :param extra_context: Additional context to pass to the parent class.
+        :return: The generated SQL representation as a string.
+        """
         extra_context["db_type"] = self.output_field.cast_db_type(connection)
         return super().as_sql(compiler, connection, **extra_context)
 
@@ -61,6 +74,20 @@ class Cast(Func):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        Emulates an Oracle-specific query when used in a database context.
+
+        This method allows the model field to be used as if it were an Oracle database field,
+        returning the query string as a string. 
+
+        If the field is a JSONField, it wraps the expression in a JSON_QUERY call to ensure compatibility.
+        Otherwise, it behaves as the parent class, returning the SQL representation of the field.
+
+        :param compiler: the compiler used to generate the SQL query
+        :param connection: the database connection to use
+        :param extra_context: additional context to pass to the SQL compiler
+        :return: the SQL representation of the field
+        """
         if self.output_field.get_internal_type() == "JSONField":
             # Oracle doesn't support explicit cast to JSON.
             template = "JSON_QUERY(%(expressions)s, '$')"
@@ -154,6 +181,23 @@ class JSONObject(Func):
         super().__init__(*expressions)
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        Generates SQL code for a query, adapting it for JSON object functionality.
+
+        This method checks if the current database backend supports the JSONObject()
+        function. If support is lacking, a NotSupportedError is raised. Otherwise,
+        it delegates to the parent class to produce the SQL code, incorporating any
+        additional context provided.
+
+        Args:
+            compiler: The query compiler instance.
+            connection: The database connection object.
+            **extra_context: Additional context to include in the SQL generation process.
+
+        Raises:
+            NotSupportedError: If the database backend does not support JSONObject().
+
+        """
         if not connection.features.has_json_object_function:
             raise NotSupportedError(
                 "JSONObject() is not supported on this database backend."
@@ -163,6 +207,18 @@ class JSONObject(Func):
     def as_native(self, compiler, connection, *, returning, **extra_context):
         class ArgJoiner:
             def join(self, args):
+                """
+
+                Join a list of key-value pairs into a string.
+
+                This function takes a list of arguments where each key is immediately followed by its corresponding value.
+                It pairs up these key-value pairs and then joins them into a single string, with each pair separated by a comma and each key separated from its value by ' VALUE '.
+
+                For example, given the list ['key1', 'value1', 'key2', 'value2'], it will return the string 'key1 VALUE value1, key2 VALUE value2'.
+
+                The input list must have an even number of elements, with each key immediately followed by its value. If the input list has an odd number of elements, a ValueError will be raised.
+
+                """
                 pairs = zip(args[::2], args[1::2], strict=True)
                 return ", ".join([" VALUE ".join(pair) for pair in pairs])
 

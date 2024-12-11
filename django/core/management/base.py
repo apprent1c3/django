@@ -159,6 +159,13 @@ class OutputWrapper(TextIOBase):
             self._style_func = lambda x: x
 
     def __init__(self, out, ending="\n"):
+        """
+        Initializes a Writer object to handle formatted output.
+
+        :param out: The destination where the output will be written.
+        :param ending: The ending character to be appended after each write operation, defaults to a newline character ('\n').
+
+        """
         self._out = out
         self.style_func = None
         self.ending = ending
@@ -269,6 +276,19 @@ class BaseCommand:
     suppressed_base_arguments = set()
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
+        """
+        Initializes the object with output streams and style configuration.
+
+        :param stdout: Optional output stream for standard output. Defaults to sys.stdout if not provided.
+        :param stderr: Optional output stream for standard error. Defaults to sys.stderr if not provided.
+        :param no_color: If True, disables color output. Defaults to False.
+        :param force_color: If True, forces color output even if the terminal does not support it. Defaults to False.
+
+        :raises CommandError: If both 'no_color' and 'force_color' are used together.
+        :raises TypeError: If 'requires_system_checks' is not a list, tuple, or ALL_CHECKS.
+
+        This initialization method sets up the output streams and determines whether to use color or plain text for output based on the system capabilities and user preferences. It also validates the 'requires_system_checks' attribute to ensure it has the correct type.
+        """
         self.stdout = OutputWrapper(stdout or sys.stdout)
         self.stderr = OutputWrapper(stderr or sys.stderr)
         if no_color and force_color:

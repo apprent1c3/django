@@ -253,6 +253,22 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _add_databases_failures(cls):
+        """
+
+        Adds database failures to prevent certain operations on unconfigured databases.
+
+        This method validates the configured databases and then iterates over all available
+        database connections. For each connection that is not explicitly configured, it
+        overrides specific disallowed database methods to raise an error when called.
+        The overridden methods include those that could potentially modify the database.
+        This ensures that tests do not accidentally modify or interact with unconfigured
+        databases.
+
+        The method uses a context manager to patch the database connection behavior for
+        the duration of the test, ensuring that the original behavior is restored after
+        the test completes.
+
+        """
         cls.databases = cls._validate_databases()
         for alias in connections:
             if alias in cls.databases:
@@ -286,6 +302,18 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def ensure_connection_patch_method(cls):
+        """
+        Ensures a database connection, patching the original method to prevent 
+         disallowed database operations for threaded connections.
+
+         This class method patches the :meth:`~BaseDatabaseWrapper.ensure_connection` 
+         method to check if a connection to the specified database alias is allowed 
+         before establishing it. If the connection is not allowed, it raises a 
+         :class:`~_DatabaseFailure` exception with a corresponding error message. 
+         If the connection is allowed, it proceeds with the original database connection 
+         logic. This patching is used to maintain consistency and control over 
+         database connections in multi-threaded environments.
+        """
         real_ensure_connection = BaseDatabaseWrapper.ensure_connection
 
         def patched_ensure_connection(self, *args, **kwargs):
@@ -736,6 +764,30 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _get_template_used(self, response, template_name, msg_prefix, method_name):
+        """
+
+        Determines the template used in a given response.
+
+        This function checks if a template name or a response object is provided, 
+        and returns the template name and a list of template names if found in the response.
+        It also constructs a message prefix for potential error messages.
+
+        It first checks the validity of the input arguments and raises an error 
+        if neither response nor template_name is provided.
+
+        The function then checks if the response object contains a 'templates' attribute 
+        and if so, extracts a list of template names from it.
+
+        Args:
+            response: The response object to check for templates.
+            template_name: The name of the template to look for.
+            msg_prefix: A prefix for potential error messages.
+            method_name: The name of the method calling this function.
+
+        Returns:
+            A tuple containing the template name, a list of template names, and the message prefix.
+
+        """
         if response is None and template_name is None:
             raise TypeError("response and/or template_name argument must be provided")
 
@@ -828,6 +880,37 @@ class SimpleTestCase(unittest.TestCase):
     def _assertFooMessage(
         self, func, cm_attr, expected_exception, expected_message, *args, **kwargs
     ):
+        """
+        Assertion helper for verifying a specific exception message.
+
+        This method checks if calling a given function (`func`) raises or warns with a specified exception (`expected_exception`) 
+        and verifies that the exception message matches the expected message (`expected_message`).
+
+        Optional `callable_obj` can be provided along with its arguments (`args` and `kwargs`) to be called within the 
+        assertion context. If `callable_obj` is not provided, the method will only return a context manager (`cm`) for 
+        manual exception checks.
+
+        Parameters
+        ----------
+        func : callable
+            The function to be checked for exception or warning.
+        cm_attr : str
+            The attribute to be used for assertion context manager.
+        expected_exception : Exception
+            The expected exception type to be raised or warned.
+        expected_message : str
+            The expected message for the exception.
+        *args : any
+            The positional arguments to be passed to the `callable_obj`.
+        **kwargs : any
+            The keyword arguments to be passed to the `callable_obj`.
+
+        Returns
+        -------
+        context manager
+            If `callable_obj` is not provided, returns a context manager to manually handle exception checks.
+
+        """
         callable_obj = None
         if args:
             callable_obj, *args = args
@@ -1420,6 +1503,16 @@ class TestCase(TransactionTestCase):
         pass
 
     def _should_reload_connections(self):
+        """
+        Determines whether database connections should be reloaded.
+
+        This method considers the database's support for transactions. If transactions are supported, 
+        it immediately returns False, indicating that connections do not need to be reloaded. 
+        Otherwise, it defers to the parent class's implementation of this method to make the decision.
+
+        Returns:
+            bool: Whether database connections should be reloaded.
+        """
         if self._databases_support_transactions():
             return False
         return super()._should_reload_connections()
@@ -1823,6 +1916,17 @@ class LiveServerTestCase(TransactionTestCase):
     @classmethod
     def _terminate_thread(cls):
         # Terminate the live server's thread.
+        """
+        Terminates the server thread and releases shared thread connections.
+
+        This method stops the execution of the server thread and then iterates over all 
+        active connections, decreasing their shared thread count to ensure proper cleanup.
+        It is typically used when the server needs to be shut down or restarted.
+
+        Note: This method should be used with caution, as it terminates the server thread 
+        without waiting for any pending operations to complete. It is intended for internal 
+        use within the class and should not be called directly by external users.
+        """
         cls.server_thread.terminate()
         # Restore shared connections' non-shareability.
         for conn in cls.server_thread.connections_override.values():

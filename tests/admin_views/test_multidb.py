@@ -63,6 +63,16 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_add_view(self, mock):
+        """
+
+        Tests the add view functionality for adding a new book instance.
+
+        This test iterates over multiple databases and checks that the add view 
+        successfully redirects to the changelist view after posting a new book. 
+        It also verifies that the transaction is properly wrapped in an atomic 
+        block for the respective database, ensuring data consistency.
+
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -80,6 +90,18 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_add_view(self, mock):
+        """
+
+        Tests that the read-only methods in the add view of the admin interface do not
+        invoke a database transaction.
+
+        This test case iterates over multiple databases and a set of read-only HTTP methods,
+        verifying that each method returns a successful response (200 status code) without
+        initiating a transaction. It ensures that the expected behavior is maintained across
+        different databases and methods, providing a robust validation of the admin interface's
+        read-only functionality.
+
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):
@@ -132,6 +154,21 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_delete_view(self, mock):
+        """
+
+        Tests the delete view for a book in the admin interface.
+
+        This test ensures that when a book is deleted, the view responds with a 
+        302 status code (redirect) to the book changelist page. It also verifies 
+        that the deletion is performed within a database transaction using the 
+        correct database.
+
+        The test iterates over each configured database, simulating the deletion 
+        of a book while logged in as a superuser for each database. It checks 
+        that the redirect URL is correct and that the transaction is properly 
+        used.
+
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -194,6 +231,16 @@ class ViewOnSiteTests(TestCase):
     databases = {"default", "other"}
 
     def test_contenttype_in_separate_db(self):
+        """
+
+        Tests that the 'view on site' admin shortcut correctly handles content types 
+        in a separate database.
+
+        Verifies that a user with superuser privileges can access the 'view on site' 
+        shortcut for a model instance stored in a different database, and that the 
+        response redirects to the correct URL.
+
+        """
         ContentType.objects.using("other").all().delete()
         book = Book.objects.using("other").create(name="other book")
         user = User.objects.create_superuser(

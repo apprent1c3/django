@@ -56,6 +56,15 @@ class FileTests(unittest.TestCase):
             self.assertEqual(f.read(), b"content")
 
     def test_open_reopens_closed_file_and_returns_context_manager(self):
+        """
+
+        Tests that the open method can successfully reopen a closed file and returns a context manager.
+
+        This method verifies that after a file object is closed, calling the open method
+        will correctly reopen the file and provide a file-like object that can be used
+        within a 'with' statement, ensuring the file is properly closed after use.
+
+        """
         temporary_file = tempfile.NamedTemporaryFile(delete=False)
         file = File(temporary_file)
         try:
@@ -116,6 +125,17 @@ class FileTests(unittest.TestCase):
         self.assertEqual(list(f), [b"one\r", b"two\n", b"three\r\n", b"four"])
 
     def test_file_iteration_with_unix_newline_at_chunk_boundary(self):
+        """
+        Tests that file iteration handles Unix-style newlines at chunk boundaries.
+
+        Verifies that when reading a file in chunks, newlines are preserved even when they
+        occur exactly at the boundary between chunks. Ensures that the file is correctly
+        split into chunks while maintaining the integrity of newline characters.
+
+        This test case checks the chunking behavior of the :class:`File` class when dealing
+        with Unix-style newlines and small chunk sizes, ensuring that the resulting chunks
+        are as expected and newlines are not lost or corrupted during the iteration process.
+        """
         f = File(BytesIO(b"one\ntwo\nthree"))
         # Set chunk size to create a boundary after \n:
         # b'one\n...
@@ -132,6 +152,14 @@ class FileTests(unittest.TestCase):
         self.assertEqual(list(f), [b"one\r\n", b"two\r\n", b"three"])
 
     def test_file_iteration_with_mac_newline_at_chunk_boundary(self):
+        """
+        Tests iteration over a file with a chunk size boundary at a Mac newline (\r) character.
+
+        This test verifies that the File class correctly handles iteration when a chunk size boundary coincides with a Mac newline character,
+        ensuring that the newline character is properly included in the chunk without being split across chunks.
+
+        The test case checks that the file is iterated over in chunks of the specified size, and that the resulting chunks match the expected output.
+        """
         f = File(BytesIO(b"one\rtwo\rthree"))
         # Set chunk size to create a boundary after \r:
         # b'one\r...
@@ -152,6 +180,17 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.readable())
 
     def test_writable(self):
+        """
+        Tests the writable property of a File object.
+
+        Verifies that a File object is writable when opened in a writable mode and 
+        not writable when opened in a read-only mode or after it has been closed. 
+
+        The test covers different scenarios, including checking writability 
+        immediately after opening the file and after the file has been closed, 
+        demonstrating the expected behavior in both cases, thus ensuring the 
+        reliability of the File object's writable attribute in various situations.
+        """
         with (
             tempfile.TemporaryFile() as temp,
             File(temp, name="something.txt") as test_file,
@@ -273,6 +312,16 @@ class ContentFileTestCase(unittest.TestCase):
 
 class InMemoryUploadedFileTests(unittest.TestCase):
     def test_open_resets_file_to_start_and_returns_context_manager(self):
+        """
+        Tests that opening an InMemoryUploadedFile resets the file pointer to the beginning and returns a context manager.
+
+        This test case verifies that after reading from the file, reopening it using the open method resets the file pointer to the start, 
+        allowing the contents to be read again. The test also ensures that the open method returns a context manager, which can be used 
+        in a with statement to ensure the file is properly closed after use.
+
+        It checks the correctness of the file's state after reading and reopening, and the functionality of the context manager returned 
+        by the open method, providing assurance about the reliability of InMemoryUploadedFile instances in handling file operations.
+        """
         uf = InMemoryUploadedFile(StringIO("1"), "", "test", "text/plain", 1, "utf8")
         uf.read()
         with uf.open() as f:

@@ -41,6 +41,16 @@ class ForceEscapeTests(SimpleTestCase):
 
     @setup({"force-escape04": "{{ a|force_escape|force_escape }}"})
     def test_force_escape04(self):
+        """
+
+        Tests the force_escape filter is applied twice when rendering a template string.
+
+        The test verifies that the force_escape filter is correctly chained, ensuring that 
+        special characters in the input string are properly escaped for HTML output.
+        The expected output is a string where ampersands are escaped as '&amp;amp;' to prevent
+        incorrect HTML rendering.
+
+        """
         output = self.engine.render_to_string("force-escape04", {"a": "x&y"})
         self.assertEqual(output, "x&amp;amp;y")
 

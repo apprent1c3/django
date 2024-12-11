@@ -33,6 +33,17 @@ class CsOperation(GEOSFuncFactory):
     restype = c_int
 
     def __init__(self, *args, ordinate=False, get=False, **kwargs):
+        """
+        Initialize an object with a variable number of arguments and keyword arguments.
+
+        The object's initialization depends on two flags: `ordinate` and `get`. If `ordinate` is `True`, the object is configured to work with ordered coordinates. If `get` is `True`, the object is set up to retrieve values, otherwise it is configured for operations.
+
+         Keyword arguments:
+            * `ordinate`: A boolean flag indicating whether to work with ordered coordinates. Defaults to `False`.
+            * `get`: A boolean flag indicating whether to configure the object for value retrieval or operations. Defaults to `False`.
+
+        Additionally, arbitrary keyword arguments (`**kwargs`) can be passed to configure the object further. This allows for flexible initialization of the object with various settings and parameters.
+        """
         if get:
             # Get routines have double parameter passed-in by reference.
             errcheck = check_cs_get

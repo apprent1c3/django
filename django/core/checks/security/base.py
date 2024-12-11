@@ -200,6 +200,11 @@ def check_content_type_nosniff(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_ssl_redirect(app_configs, **kwargs):
+    """
+    Checks if the application has SSL redirect configured correctly, ensuring a secure connection.
+
+     This check verifies that the SECURE_SSL_REDIRECT setting is enabled when a security middleware is present. It returns a warning (W008) if the setting is not properly configured.
+    """
     passed_check = not _security_middleware() or settings.SECURE_SSL_REDIRECT is True
     return [] if passed_check else [W008]
 

@@ -124,6 +124,18 @@ class RawQueryTests(TestCase):
                 self.assertEqual(getattr(result, annotation), value)
 
     def test_rawqueryset_repr(self):
+        """
+
+        Tests the representation of a RawQuerySet object.
+
+        This test case verifies that the repr() function returns a string representation
+        of the RawQuerySet object, including the raw query that it executes. It also checks
+        that the representation of the underlying RawQuery object is correctly formatted.
+
+        The test ensures that the outputs match the expected string formats, providing 
+        confidence in the debugging and logging capabilities of the RawQuerySet class.
+
+        """
         queryset = RawQuerySet(raw_query="SELECT * FROM raw_query_author")
         self.assertEqual(
             repr(queryset), "<RawQuerySet: SELECT * FROM raw_query_author>"
@@ -410,6 +422,16 @@ class RawQueryTests(TestCase):
         )
 
     def test_len(self):
+        """
+
+        Tests the length of query results for the Book model.
+
+        This test case checks two scenarios:
+        - The total number of rows in the raw_query_book table, which is expected to be 4.
+        - The number of rows in the raw_query_book table where the id is 0, which is expected to be 0.
+        The test passes if the actual lengths match the expected lengths.
+
+        """
         self.assertEqual(len(Book.objects.raw("SELECT * FROM raw_query_book")), 4)
         self.assertEqual(
             len(Book.objects.raw("SELECT * FROM raw_query_book WHERE id = 0")), 0

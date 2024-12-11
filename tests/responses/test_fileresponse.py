@@ -37,6 +37,16 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_length_nonzero_starting_position_buffer(self):
+        """
+
+        Tests that the Content-Length header of a FileResponse is correctly calculated 
+        when the buffer's starting position is non-zero.
+
+        This test covers different types of buffers to ensure compatibility. It 
+        verifies that the Content-Length header value reflects the actual amount of 
+        data that will be sent, rather than the total size of the buffer.
+
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -49,6 +59,13 @@ class FileResponseTests(SimpleTestCase):
                 self.assertEqual(response.headers["Content-Length"], "4")
 
     def test_content_length_nonzero_starting_position_file_seekable_no_tell(self):
+        """
+        Tests that the Content-Length header in a FileResponse is correctly calculated 
+        when the file is seekable and the file pointer is at a non-zero starting position. 
+
+        The function verifies that the Content-Length header reflects the size of the 
+        remaining file content after the seek position, rather than the total file size.
+        """
         class TestFile:
             def __init__(self, path, *args, **kwargs):
                 self._file = open(path, *args, **kwargs)
@@ -107,6 +124,22 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Type"], "text/html; charset=utf-8")
 
     def test_content_type_buffer_named(self):
+        """
+
+        Tests the determination of the Content-Type header in a FileResponse,
+        given a buffer with a specified name.
+
+        The test covers various scenarios where the filename in the buffer
+        suggests a specific content type, and verifies that the Content-Type
+        header in the response matches one of the expected content types.
+
+        The test cases include files with known extensions (e.g..py) and
+        non-existent files, ensuring that the content type is correctly
+        inferred from the filename when possible, and defaults to a safe
+        value (application/octet-stream) when the filename does not provide
+        enough information.
+
+        """
         test_tuples = (
             (__file__, ["text/x-python", "text/plain"]),
             (__file__ + "nosuchfile", ["application/octet-stream"]),
@@ -203,6 +236,15 @@ class FileResponseTests(SimpleTestCase):
             )
 
     def test_response_buffer(self):
+        """
+
+        Tests the response buffer functionality by verifying that a FileResponse object 
+        correctly buffers and returns its contents.
+
+        The function checks that the response object yields the expected binary content 
+        when iterated over, ensuring that the buffering mechanism works as expected.
+
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(list(response), [b"binary content"])
 

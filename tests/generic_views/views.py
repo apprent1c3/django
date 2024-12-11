@@ -38,6 +38,18 @@ class AuthorCustomDetail(generic.DetailView):
 
     def get(self, request, *args, **kwargs):
         # Ensures get_context_object_name() doesn't reference self.object.
+        """
+        Return a rendered response for a specific author object.
+
+        This view retrieves an author object and passes it to a template as a context variable.
+        The context variable name is dynamically generated based on the author object.
+        The resulting rendered template is then returned as an HTTP response.
+
+        :param request: The current HTTP request
+        :param args: Additional positional arguments
+        :param kwargs: Additional keyword arguments
+        :return: A rendered HTTP response containing the author object as context
+        """
         author = self.get_object()
         context = {"custom_" + self.get_context_object_name(author): author}
         return self.render_to_response(context)

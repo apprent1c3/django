@@ -96,6 +96,28 @@ def srs_output(func, argtypes):
 
 
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
+    """
+    Configures a function to output a constant string and applies additional checks.
+
+    This function prepares a given function to return a constant string by setting its
+    argument types and return type accordingly. If an offset is specified, the function's
+    return type is set to an integer; otherwise, it is set to a character pointer.
+
+    The function also sets up an error checking mechanism to verify the const-ness of the
+    output string. This check can be customized to use a specified decoding and to
+    perform additional checks using the :param:`cpl` flag.
+
+    Once configured, the function will return either a bytes object or a decoded string
+    depending on whether decoding is specified.
+
+    :param func: The function to be configured.
+    :param argtypes: The argument types of the function.
+    :param offset: An optional offset for the function's return type.
+    :param decoding: An optional decoding to apply to the output string.
+    :param cpl: A flag to enable additional checks on the output string.
+    :returns: The configured function.
+
+    """
     func.argtypes = argtypes
     if offset:
         func.restype = c_int

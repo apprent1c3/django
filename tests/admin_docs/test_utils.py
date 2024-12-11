@@ -105,6 +105,14 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(stderr.getvalue(), "")
 
     def test_parse_rst_view_case_sensitive(self):
+        """
+
+        Tests that the parse_rst function correctly parses a view reference in reStructuredText 
+        from a string and returns the expected HTML output. The test checks if the function 
+        is case sensitive, i.e., it treats 'myapp.views.Index' and 'myapp.views.index' as different references.
+        The expected output is an HTML paragraph containing a link to the view documentation.
+
+        """
         source = ":view:`myapp.views.Index`"
         rendered = (
             '<p><a class="reference external" '

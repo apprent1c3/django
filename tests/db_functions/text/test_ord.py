@@ -23,6 +23,16 @@ class OrdTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        Tests the transformation of string fields to their ASCII ordinal values.
+
+        This test case verifies that the transformation is correctly applied when filtering
+        and excluding objects based on the ordinal value of the first initial of an author's name.
+
+        The test ensures that authors with names starting with 'J' are correctly filtered and
+        those with names not starting with 'J' are correctly excluded, confirming that the 
+        transformation and lookup are working as expected.
+        """
         with register_lookup(CharField, Ord):
             authors = Author.objects.annotate(first_initial=Left("name", 1))
             self.assertCountEqual(

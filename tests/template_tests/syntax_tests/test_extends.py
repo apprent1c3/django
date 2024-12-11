@@ -350,6 +350,13 @@ class InheritanceTests(SimpleTestCase):
     # (in parent), still gets overridden
     @setup(inheritance_templates)
     def test_inheritance31(self):
+        """
+        Tests the rendering of a template that uses inheritance with optional elements.
+
+        Verifies that the engine correctly renders the 'inheritance31' template when
+        optional elements are present, and that the output matches the expected result.
+
+        """
         output = self.engine.render_to_string("inheritance31", {"optional": True})
         self.assertEqual(output, "1two3")
 
@@ -413,6 +420,16 @@ class InheritanceTests(SimpleTestCase):
     # The super block will still be found.
     @setup(inheritance_templates)
     def test_inheritance39(self):
+        """
+
+        Tests the rendering of a template with inheritance, specifically when an optional parameter is set to True.
+
+        This test case verifies that the rendered output matches the expected result when the 'optional' variable is passed to the template with a value of True. It checks if the template correctly inherits and replaces the relevant sections to produce the desired output string. 
+
+        :returns: None 
+        :raises: AssertionError if the rendered output does not match the expected string '1new23'
+
+        """
         output = self.engine.render_to_string("inheritance39", {"optional": True})
         self.assertEqual(output, "1new23")
 
@@ -443,6 +460,18 @@ class InheritanceTests(SimpleTestCase):
 
     @setup(inheritance_templates)
     def test_extends_duplicate(self):
+        """
+
+        Tests that the 'extends' keyword cannot be used more than once in the same template.
+
+        This test case checks for a specific validation rule in the templating engine, ensuring that 
+        template inheritance is properly enforced. If a template attempts to extend another template 
+        more than once, a TemplateSyntaxError is raised with a descriptive error message.
+
+        Raises:
+            TemplateSyntaxError: If the 'extends' keyword appears more than once in the same template.
+
+        """
         msg = "'extends' cannot appear more than once in the same template"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("extends_duplicate")

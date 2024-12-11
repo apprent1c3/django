@@ -53,6 +53,23 @@ def _all_related_fields(model):
 def _related_non_m2m_objects(old_field, new_field):
     # Filter out m2m objects from reverse relations.
     # Return (old_relation, new_relation) tuples.
+    """
+
+    Generate pairs of related non-many-to-many objects between two models.
+
+    This function traverses the relationships between two given fields and yields
+    pairs of corresponding related objects, excluding many-to-many relationships.
+    The traversal is recursive, following the relationships between the related
+    objects.
+
+    Args:
+        old_field: The original field to start the traversal from.
+        new_field: The new field to compare relationships with.
+
+    Yields:
+        Tuples of (old related object, new related object) pairs.
+
+    """
     related_fields = zip(
         (
             obj
@@ -690,6 +707,17 @@ class BaseDatabaseSchemaEditor:
                 sql.rename_table_references(old_db_table, new_db_table)
 
     def alter_db_table_comment(self, model, old_db_table_comment, new_db_table_comment):
+        """
+        Alters the comment of a database table.
+
+        This method updates the comment associated with a given database table.
+        It checks if the database backend supports comments and the required SQL to alter table comments is available.
+
+        :param model: The model whose database table comment is to be altered.
+        :param old_db_table_comment: The current comment of the database table.
+        :param new_db_table_comment: The new comment to be applied to the database table.
+
+        """
         if self.sql_alter_table_comment and self.connection.features.supports_comments:
             self.execute(
                 self.sql_alter_table_comment
@@ -2000,6 +2028,19 @@ class BaseDatabaseSchemaEditor:
         return result
 
     def _delete_primary_key(self, model, strict=False):
+        """
+        Deletes the primary key constraint from a given model's database table.
+
+        Args:
+            model: The model whose primary key constraint is to be deleted.
+            strict (bool): If True, raises a ValueError if the model has more or less than one primary key constraint. Defaults to False.
+
+        Raises:
+            ValueError: If strict is True and the model has an incorrect number of primary key constraints.
+
+        Notes:
+            The function will delete all primary key constraints found for the given model, but will raise an error if strict mode is enabled and the number of constraints does not match the expected value of one.
+        """
         constraint_names = self._constraint_names(model, primary_key=True)
         if strict and len(constraint_names) != 1:
             raise ValueError(

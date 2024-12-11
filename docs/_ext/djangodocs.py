@@ -25,6 +25,19 @@ simple_option_desc_re = re.compile(r"([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$
 
 
 def setup(app):
+    """
+
+    Set up the Sphinx application with custom configurations and directives for documenting Django projects.
+
+    This function initializes the Sphinx application by adding custom cross-reference types, object types, directives, and config values.
+    It also sets up custom translators, node visitors, and connects to specific events in the Sphinx build process.
+
+    The setup includes configurations for documenting Django-specific concepts such as settings, template tags, template filters, field lookup types, and django-admin commands.
+    It also adds support for version added and changed directives, as well as console output rendering.
+
+    The function returns a dictionary indicating that the setup is parallel read-safe.
+
+    """
     app.add_crossref_type(
         directivename="setting",
         rolename="setting",
@@ -184,6 +197,24 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
 
 def parse_django_admin_node(env, sig, signode):
+    """
+
+    Parse a Django administration command and update the Sphinx documentation context.
+
+    This function takes a Django administration command string, extracts the command name,
+    and updates the Sphinx environment's reference context with the command name.
+    It also generates a descriptive title for the command, which is used to create a node
+    in the Sphinx documentation.
+
+    The function returns the extracted command name.
+
+    :param env: The Sphinx build environment.
+    :param sig: The Django administration command string.
+    :param signode: The Sphinx documentation node.
+
+    :returns: The name of the Django administration command.
+
+    """
     command = sig.split(" ")[0]
     env.ref_context["std:program"] = command
     title = "django-admin %s" % sig

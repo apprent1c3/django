@@ -343,6 +343,19 @@ class BaseHandler:
     # Other utility methods.
 
     def make_view_atomic(self, view):
+        """
+
+        Wrap a view function to ensure atomicity for database transactions.
+
+        This function checks the project's database settings to determine if atomic requests are enabled.
+        If atomic requests are enabled for a database alias and the view does not explicitly opt-out, 
+        it applies the `transaction.atomic` decorator to the view using that database alias.
+
+        Note that this function cannot be used with asynchronous views, as atomic transactions are not supported in asynchronous context.
+
+        Returns the view function wrapped in a transaction if atomic requests are enabled, otherwise returns the original view.
+
+        """
         non_atomic_requests = getattr(view, "_non_atomic_requests", set())
         for alias, settings_dict in connections.settings.items():
             if settings_dict["ATOMIC_REQUESTS"] and alias not in non_atomic_requests:

@@ -6,6 +6,9 @@ from django.test.runner import Shuffler
 
 class ShufflerTests(SimpleTestCase):
     def test_hash_text(self):
+        """
+        Tests that the _hash_text method of the Shuffler class correctly generates a SHA-1 hash for a given string of text.
+        """
         actual = Shuffler._hash_text("abcd")
         self.assertEqual(actual, "e2fc714c4727ee9395f324cd2e7f331f")
 
@@ -52,6 +55,15 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_hash_item_key(self):
+        """
+        Tests that the _hash_item method of the Shuffler class correctly hashes an item using different key functions.
+
+        The test checks that the hash values match the expected results for various key functions, ensuring the method works as intended.
+
+        The key functions tested include identity and string uppercase conversion, verifying that the hash calculation is sensitive to the key function used.
+
+        This test case ensures the correctness and reliability of the _hash_item method, which is crucial for the proper functioning of the Shuffler class.
+        """
         cases = [
             (lambda x: x, "64ad3fb166ddb41a2ca24f1803b8b722"),
             (lambda x: x.upper(), "ee22e8597bff91742affe4befbf4649a"),

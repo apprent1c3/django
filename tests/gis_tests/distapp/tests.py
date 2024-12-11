@@ -529,6 +529,19 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Distance_function", "supports_distance_geodetic")
     def test_distance_geodetic_spheroid(self):
+        """
+
+        Tests the geodetic distance calculation between two points on a spheroid and a sphere.
+
+        The test compares the calculated distances between a reference city and other cities
+        in the AustraliaCity model, using both spheroid and sphere distance calculations.
+        It verifies that the calculated distances match the expected values within a
+        certain tolerance.
+
+        This test is skipped if the database does not support the Distance function or
+        geodetic distance calculations.
+
+        """
         tol = 2 if connection.ops.oracle else 4
 
         # Got the reference distances using the raw SQL statements:
@@ -765,6 +778,23 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     def test_perimeter_geodetic(self):
         # Currently only Oracle supports calculating the perimeter on geodetic
         # geometries (without being transformed).
+        """
+
+        Tests the usage of the Perimeter function in a geodetic context.
+
+        This test case checks the functionality of annotating a query set with the perimeter
+        of a geometric field. It verifies that the function behaves as expected when the 
+        database supports geodetic calculations and when it does not. The test also covers 
+        transforming the geometry to a different spatial reference system before calculating 
+        the perimeter.
+
+        The test case covers two scenarios:
+
+        * Direct calculation of the perimeter in the original spatial reference system.
+        * Calculation of the perimeter after transforming the geometry to a different spatial 
+          reference system.
+
+        """
         qs1 = CensusZipcode.objects.annotate(perim=Perimeter("poly"))
         if connection.features.supports_perimeter_geodetic:
             self.assertAlmostEqual(qs1[0].perim.m, 18406.3818954314, 3)

@@ -75,6 +75,13 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_pagination(self):
+        """
+        Tests the pagination functionality in the user history page.
+
+        Checks that the paginator is displayed, contains the correct number of entries, and has an ellipsis.
+        Verifies that the current page is initially set to 1 and that the last page is correctly linked.
+        Tests navigation to the second page, ensuring the URL is updated and the correct log entries are displayed on the new page.
+        """
         from selenium.webdriver.common.by import By
 
         user_history_url = reverse("admin:auth_user_history", args=(self.superuser.pk,))

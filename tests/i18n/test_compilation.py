@@ -42,6 +42,14 @@ class PoFileTests(MessageCompilationTests):
         self.assertFalse(os.path.exists(self.MO_FILE))
 
     def test_no_write_access(self):
+        """
+
+        Tests that the compilemessages command fails when the mo file location is not writable.
+
+        This test case simulates a scenario where the mo file has read-only access and verifies 
+        that the compilemessages command raises a CommandError with an appropriate error message.
+
+        """
         mo_file_en = Path(self.MO_FILE_EN)
         err_buffer = StringIO()
         # Put file in read-only mode.
@@ -182,6 +190,17 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
         self.assertAllExist(self.NESTED_DIR, ["en", "fr", "it"])
 
     def test_multiple_locale_dirs_ignored(self):
+        """
+
+        Tests that multiple locale directories are correctly ignored during the message compilation process.
+
+        This test verifies that the compilemessages command, when run with specified directories to ignore, 
+        correctly compiles messages for the desired locales and excludes the ignored directories.
+
+        The test checks for the existence of compiled messages in the expected locales and verifies that 
+        the ignored directories do not contain compiled messages.
+
+        """
         call_command(
             "compilemessages", ignore=["cache/locale", "outdated"], verbosity=0
         )
@@ -190,6 +209,11 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
         self.assertNoneExist(self.NESTED_DIR, ["en", "fr", "it"])
 
     def test_ignores_based_on_pattern(self):
+        """
+        Tests the effect of the ignore pattern on the compilemessages command, ensuring that translation files are compiled in the locale directory but ignored in the cache and nested directories. 
+
+        This test case validates that the ignore pattern '*' is correctly applied to the specified directories, resulting in the expected translation files being present in 'locale' and absent in 'CACHE_DIR' and 'NESTED_DIR' for the languages 'en', 'fr', and 'it'.
+        """
         call_command("compilemessages", ignore=["*/locale"], verbosity=0)
         self.assertAllExist("locale", ["en", "fr", "it"])
         self.assertNoneExist(self.CACHE_DIR, ["en", "fr", "it"])
@@ -312,6 +336,16 @@ class FuzzyTranslationTest(ProjectAndAppTests):
 
 class AppCompilationTest(ProjectAndAppTests):
     def test_app_locale_compiled(self):
+        """
+
+        Tests the compilation of locale messages for the application.
+
+        This test case verifies that the locale compilation process completes successfully by
+        checking the existence of compiled message files (.mo) for both the project and the
+        application in the specified locale. The test uses the compilemessages management
+        command to compile the messages and then asserts the presence of the compiled files.
+
+        """
         call_command("compilemessages", locale=[self.LOCALE], verbosity=0)
         self.assertTrue(os.path.exists(self.PROJECT_MO_FILE))
         self.assertTrue(os.path.exists(self.APP_MO_FILE))

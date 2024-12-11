@@ -124,6 +124,18 @@ class DeferRegressionTest(TestCase):
 
     def test_only_and_defer_usage_on_proxy_models(self):
         # Regression for #15790 - only() broken for proxy models
+        """
+
+        Tests the usage of QuerySet methods 'only' and 'defer' on proxy models.
+
+        Verifies that using 'only' and 'defer' methods to load specific fields of a proxy model 
+        do not return incorrect results. It checks that the fields loaded using 'only' and 
+        those not deferred using 'defer' match the original values of the proxy model instance.
+
+        This test case ensures the consistent behavior of 'only' and 'defer' methods when 
+        working with proxy models, providing confidence in their reliability for specific use cases.
+
+        """
         proxy = Proxy.objects.create(name="proxy", value=42)
 
         msg = "QuerySet.only() return bogus results with proxy models"
@@ -208,6 +220,19 @@ class DeferRegressionTest(TestCase):
 
     def test_proxy_model_defer_with_select_related(self):
         # Regression for #22050
+        """
+
+        Tests that ProxyRelated model with select_related and only correctly 
+        defers loading of related object fields.
+
+        This test verifies that when using select_related and only on the 
+        ProxyRelated model, the related item's fields are loaded as expected.
+        The test checks that accessing the 'name' field, which is explicitly 
+        fetched, does not trigger an extra database query, while accessing 
+        the 'value' field, which is not explicitly fetched, triggers a single 
+        additional query.
+
+        """
         item = Item.objects.create(name="first", value=47)
         RelatedItem.objects.create(item=item)
         # Defer fields with only()
@@ -232,6 +257,19 @@ class DeferRegressionTest(TestCase):
         self.assertEqual(len(qs), 1)
 
     def test_defer_annotate_select_related(self):
+        """
+
+        Test that the defer, annotate, and select_related methods work correctly in conjunction.
+
+        This test case verifies that a query can successfully annotate a count of related items,
+        select related objects for eager loading, and defer loading of specified fields. The test
+        covers various scenarios, including selecting related objects by attribute name and by
+        nested attribute name.
+
+        The test ensures that the resulting querysets are lists, regardless of the combination of
+        defer, annotate, and select_related methods used.
+
+        """
         location = Location.objects.create()
         Request.objects.create(location=location)
         self.assertIsInstance(
@@ -294,6 +332,15 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Request.objects.only("items").get(), request)
 
     def test_defer_reverse_many_to_many_ignored(self):
+        """
+
+        Tests that deferring a many-to-many field does not affect query performance.
+
+        This test ensures that using the defer method to exclude a many-to-many field
+        from a query does not lead to additional database queries being executed.
+        It verifies that the related objects are still accessible and correctly retrieved.
+
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         item = Item.objects.create(value=1)
@@ -358,11 +405,35 @@ class DeferDeletionSignalsTests(TestCase):
         self.post_delete_senders.append(sender)
 
     def test_delete_defered_model(self):
+        """
+        Tests the deletion of a deferred model instance.
+
+        Verifies that the pre and post delete signals are sent to the correct senders when deleting a model instance 
+        using the 'only' method to defer the loading of non-requested fields. 
+
+        Confirms that the delete operation correctly removes the instance and that both pre and post delete signals are 
+        sent to the Item model class, as expected. 
+        """
         Item.objects.only("value").get(pk=self.item_pk).delete()
         self.assertEqual(self.pre_delete_senders, [Item])
         self.assertEqual(self.post_delete_senders, [Item])
 
     def test_delete_defered_proxy_model(self):
+        """
+
+        Tests the deletion of a deferred proxy model instance.
+
+        This test case checks that the model instance is correctly removed from the database
+        and that the expected signals are sent before and after the deletion.
+
+        It verifies that both the pre-delete and post-delete signals are dispatched to the
+        Proxy model, ensuring that any registered receivers are properly notified.
+
+        The test focuses on the correct behavior of the deferred proxy model during the
+        deletion process, without modifying any external state. This validation helps
+        ensure the integrity and consistency of the data in the system.
+
+        """
         Proxy.objects.only("value").get(pk=self.item_pk).delete()
         self.assertEqual(self.pre_delete_senders, [Proxy])
         self.assertEqual(self.post_delete_senders, [Proxy])

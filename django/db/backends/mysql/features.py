@@ -71,6 +71,18 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def test_collations(self):
+        """
+        Returns a dictionary of collation names for testing purposes.
+
+        The collations are determined based on the MySQL version and whether it's a MariaDB instance.
+        The dictionary contains four collation names: 'ci', 'non_default', 'swedish_ci', and 'virtual'.
+        Each collation name is constructed using a specific character set, which is either 'utf8' or 'utf8mb3' depending on the MySQL version.
+
+        The returned dictionary can be used to test different collation scenarios in a database setup.
+        It provides a convenient way to access various collation names without having to manually construct them.
+        The 'ci' collation is case-insensitive, while 'non_default' and 'virtual' use the Esperanto collation, and 'swedish_ci' uses the Swedish collation.
+
+        """
         charset = "utf8"
         if (
             self.connection.mysql_is_mariadb
@@ -258,6 +270,13 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     def supported_explain_formats(self):
         # Alias MySQL's TRADITIONAL to TEXT for consistency with other
         # backends.
+        """
+        Return a set of supported explain formats for the current database connection.
+
+        The supported formats include 'JSON', 'TEXT', and 'TRADITIONAL'. 
+        If the connection is to a MySQL server (version 8.0.16 or later) that is not MariaDB, 'TREE' is also supported. 
+        The returned set of formats can be used to determine the available options for explaining query execution plans.
+        """
         formats = {"JSON", "TEXT", "TRADITIONAL"}
         if not self.connection.mysql_is_mariadb and self.connection.mysql_version >= (
             8,

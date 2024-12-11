@@ -220,6 +220,14 @@ class AppsTests(SimpleTestCase):
         self.assertEqual(apps.get_app_config("relabeled").name, "apps")
 
     def test_duplicate_labels(self):
+        """
+
+        Tests that the framework raises an error when duplicate application labels are encountered.
+
+        Checks that an ImproperlyConfigured exception is raised with the correct error message when
+        two applications with the same label are installed, ensuring that application labels must be unique.
+
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Application labels aren't unique"
         ):
@@ -227,6 +235,16 @@ class AppsTests(SimpleTestCase):
                 pass
 
     def test_duplicate_names(self):
+        """
+        Test that an ImproperlyConfigured exception is raised when duplicate application names are encountered.
+
+        This test case verifies that the application configuration raises an error when
+        multiple applications have the same name, ensuring that application names remain unique
+        across the project.
+
+        :raises ImproperlyConfigured: If application names are not unique.
+
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Application names aren't unique"
         ):
@@ -484,6 +502,13 @@ class AppConfigTests(SimpleTestCase):
         DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField",
     )
     def test_app_default_auto_field(self):
+        """
+        Tests that the default auto field for a Django application is correctly set and overridden.
+
+        The test checks if the specified application configuration has the default auto field set to 'django.db.models.BigAutoField' 
+        and verifies that the '_is_default_auto_field_overridden' flag is set to True, indicating that the default auto field has been 
+        explicitly overridden by a setting. This ensures that the application correctly handles auto field settings.
+        """
         apps_config = apps.get_app_config("apps")
         self.assertEqual(
             apps_config.default_auto_field,
@@ -558,6 +583,15 @@ class QueryPerformingAppTests(TransactionTestCase):
     )
 
     def test_query_default_database_using_model(self):
+        """
+
+        Tests the querying of the default database using a model configuration.
+
+        Checks if the query results from the default database match the expected outcome.
+        The test case verifies that the result sequence contains the correct data, 
+        confirming the successful retrieval of data from the default database.
+
+        """
         query_results = self.run_setup("QueryDefaultDatabaseModelAppConfig")
         self.assertSequenceEqual(query_results, [("new name",)])
 
@@ -593,6 +627,19 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_other_database_using_stored_procedure(self):
+        """
+        Tests the ability to query another database using a stored procedure.
+
+        This test case verifies that a stored procedure can be successfully created
+        in another database and executed to retrieve data. The test procedure is
+        created, setup is run, and then the procedure is removed to ensure a clean
+        teardown.
+
+        The test requires the 'create_test_procedure_without_params_sql' database
+        feature to be supported.
+
+
+        """
         connection = connections["other"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -604,6 +651,22 @@ class QueryPerformingAppTests(TransactionTestCase):
                 editor.remove_procedure("test_procedure")
 
     def run_setup(self, app_config_name):
+        """
+        Sets up and runs the Django application with a custom configuration.
+
+        This function allows for the execution of Django's setup process with a specific
+        application configuration, identified by the provided :param:`app_config_name`.
+        It temporarily overrides the installed applications and configures the Django
+        application to use the specified configuration.
+
+        The function returns the query results from the configured application, allowing
+        for further processing or inspection of the query outcomes.
+
+        :param string app_config_name: The name of the application configuration to use.
+        :returns: The query results from the configured application.
+        :raises RuntimeWarning: If the setup process encounters an issue, a runtime warning is raised with a message describing the problem.
+
+        """
         custom_settings = override_settings(
             INSTALLED_APPS=[f"apps.query_performing_app.apps.{app_config_name}"]
         )

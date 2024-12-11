@@ -122,6 +122,15 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                     f.clean(value)
 
     def test_urlfield_clean_required(self):
+        """
+        Tests that the URLField enforces the required validation.
+
+        This test checks that attempting to clean an empty or null value using the
+        URLField results in a ValidationError with the expected error message.
+
+        The validation ensures that the field must contain a non-empty value, and
+        provides a meaningful error message when this requirement is not met.
+        """
         f = URLField()
         msg = "'This field is required.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -135,11 +144,30 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.clean(""), "")
 
     def test_urlfield_strip_on_none_value(self):
+        """
+        Tests the behavior of a URLField when stripping values that are None.
+
+        This test case verifies that the URLField correctly handles empty strings and 
+        None values, ensuring that both are cleaned to None when the required attribute 
+        is set to False and the empty_value attribute is set to None.
+
+        The test covers the expected behavior when the field is not required and 
+        empty values should be stripped, providing assurance that the field behaves 
+        as expected in these scenarios.
+        """
         f = URLField(required=False, empty_value=None)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))
 
     def test_urlfield_unable_to_set_strip_kwarg(self):
+        """
+        Test that URLField raises a TypeError when attempting to set the 'strip' keyword argument.
+
+        The 'strip' argument is not a valid parameter for URLField, and this test ensures that
+        passing it raises the expected error message. This check is in place to prevent potential
+        confusion with the 'strip' argument from other field types, and to maintain consistency
+        across field implementations.
+        """
         msg = "got multiple values for keyword argument 'strip'"
         with self.assertRaisesMessage(TypeError, msg):
             URLField(strip=False)

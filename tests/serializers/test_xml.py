@@ -32,6 +32,13 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Checks if a given XML string is valid.
+
+        :param serial_str: The XML string to be validated.
+        :returns: True if the XML string is valid, False otherwise.
+        :note: Validation is performed using the minidom parser. If parsing fails, the string is considered invalid.
+        """
         try:
             minidom.parseString(serial_str)
         except Exception:

@@ -113,6 +113,23 @@ class TestLoginRequiredMiddleware(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_paths_with_logged_in_user(self):
+        """
+
+        Tests that various application paths return a successful response (200 OK) when accessed by a logged-in user.
+
+        The test covers both public and protected views, including those that utilize class-based views and decorator-based authentication.
+
+        The following paths are verified:
+            - Public views
+            - Public function views
+            - Protected views
+            - Protected function views
+            - Login-required class-based views
+            - Login-required decorator-based views
+
+        A successful test indicates that all of these paths can be accessed without error by an authenticated user.
+
+        """
         paths = [
             "public_view",
             "public_function_view",

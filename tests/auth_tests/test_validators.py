@@ -86,6 +86,19 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(validator.password, "password")
 
     def test_password_validators_help_texts(self):
+        """
+
+        Tests the function that generates help texts for password validators.
+
+        This test case verifies that the function returns the expected number of help texts 
+        and checks their content. It also ensures that the function behaves correctly 
+        when no password validators are provided, returning an empty list.
+
+        The test checks for the presence of specific text, such as the minimum password length,
+        in the help texts. This ensures that the generated help texts are informative and 
+        consistent with the password validation rules.
+
+        """
         help_texts = password_validators_help_texts()
         self.assertEqual(len(help_texts), 2)
         self.assertIn("12 characters", help_texts[1])
@@ -98,6 +111,17 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertIn("12 characters", help_text)
 
     def test_password_validators_help_text_html_escaping(self):
+        """
+        Tests the password validators help text HTML escaping functionality.
+
+        Ensures that the help text returned by password validators is properly escaped for HTML,
+        preventing potential XSS vulnerabilities. Specifically, this test checks that special characters
+        such as ampersands (&) are correctly escaped to their corresponding HTML entities (&amp;).
+
+        Verifies that the password_validators_help_text_html function correctly escapes the help text,
+        and that the escaped text is equivalent to the original text after re-escaping it using
+        conditional_escape.
+        """
         class AmpersandValidator:
             def get_help_text(self):
                 return "Must contain &"
@@ -114,6 +138,21 @@ class PasswordValidationTest(SimpleTestCase):
 
 class MinimumLengthValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+        Tests the validation logic of the MinimumLengthValidator.
+
+        This test case covers various scenarios, including validation of passwords with
+        sufficient length, insufficient length, and custom minimum length settings.
+        It verifies that the validator correctly identifies and raises exceptions for
+        passwords that are too short, and that the error messages and codes are correctly
+        generated.
+
+        The test checks for the following conditions:
+        - Successful validation of a password with sufficient length
+        - Successful validation of a password with custom minimum length
+        - Failed validation of a password that is too short, with the correct error message
+        - Failed validation of a password with custom minimum length, with the correct error message
+        """
         expected_error = (
             "This password is too short. It must contain at least %d characters."
         )
@@ -207,6 +246,14 @@ class UserAttributeSimilarityValidatorTest(TestCase):
 
 class CommonPasswordValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+        Tests the validation of passwords against a list of common passwords.
+
+        This test checks that the CommonPasswordValidator correctly identifies both safe and common passwords.
+        It verifies that safe passwords are accepted without raising an error, while common passwords raise a ValidationError with a specific error message.
+        The test ensures that the error message returned is as expected when a common password is encountered.
+
+        """
         expected_error = "This password is too common."
         self.assertIsNone(CommonPasswordValidator().validate("a-safe-password"))
 
@@ -277,6 +324,18 @@ class UsernameValidatorsTests(SimpleTestCase):
                     v(invalid)
 
     def test_ascii_validator(self):
+        """
+
+        Tests the ASCIIUsernameValidator function to ensure it correctly identifies valid and invalid usernames.
+
+        The function validates a list of usernames to check if they conform to the ASCII character set.
+        A valid username is one that only contains ASCII characters, with no whitespace, non-ASCII characters, 
+        or special characters except for hyphens. The test covers various scenarios, including usernames 
+        with different cases, usernames with hyphens, and usernames with non-ASCII characters.
+
+        The test expects the validator to pass for valid usernames and raise a ValidationError for invalid usernames.
+
+        """
         valid_usernames = ["glenn", "GLEnN", "jean-marc"]
         invalid_usernames = [
             "o'connell",

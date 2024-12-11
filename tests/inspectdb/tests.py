@@ -120,6 +120,17 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("can_introspect_json_field", "supports_json_field")
     def test_json_field(self):
+        """
+        Tests the introspection of JSON fields in the database.
+
+        This test case ensures that the inspectdb command correctly identifies and generates
+        Django model fields for JSON columns in the database. It verifies that the command
+        produces the expected output for both JSON fields that can be null and those that cannot.
+
+        The test checks the output of the inspectdb command for the presence of JSONField
+        definitions, including cases where the field allows null or blank values. The test
+        outcome depends on the database's behavior regarding empty strings and null values.
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_jsonfieldcolumntype", stdout=out)
         output = out.getvalue()
@@ -376,6 +387,16 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_table_with_func_unique_constraint(self):
+        """
+        Tests the database inspection command when a table has a unique constraint defined by a function.
+
+        This test case verifies that the command correctly identifies and represents a unique constraint
+        that uses a database function. It checks that the inspected model is correctly generated and
+        contains the expected class definition.
+
+        The test assumes that the database backend being used supports expression indexes, which are
+        necessary for defining unique constraints that involve functions.
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_funcuniqueconstraint", stdout=out)
         output = out.getvalue()
@@ -396,6 +417,18 @@ class InspectDBTestCase(TestCase):
         )
 
     def test_unique_together_meta(self):
+        """
+
+        Tests the inspectdb command's ability to correctly identify and output unique together metadata.
+
+        This test case verifies that the command can successfully inspect the database and
+        generate the correct unique together constraints. It checks that the output contains
+        the expected unique together fields, including both unique and non-unique field combinations.
+
+        The test asserts that the inspectdb command outputs a single unique together constraint,
+        and that this constraint includes the expected field pairs.
+
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_uniquetogether", stdout=out)
         output = out.getvalue()
@@ -478,6 +511,9 @@ class InspectDBTestCase(TestCase):
         self.assertIn("# The error was:", output)
 
     def test_same_relations(self):
+        """
+        Tests that the 'inspectdb' command correctly identifies and generates foreign key relations for the InspectdbMessage model, specifically the 'author' field. The test verifies that the generated relation matches the expected output, ensuring that the relation is a foreign key to the InspectdbPeople model with a related name of 'inspectdbmessage_author_set'.
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_message", stdout=out)
         self.assertIn(

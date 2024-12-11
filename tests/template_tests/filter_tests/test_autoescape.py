@@ -30,6 +30,19 @@ class AutoescapeStringfilterTests(SimpleTestCase):
 
     @setup({"autoescape-stringfilter03": "{{ safe|capfirst }}"})
     def test_autoescape_stringfilter03(self):
+        """
+
+        Test autoescape functionality with string filter in templating engine.
+
+        This test verifies that the templating engine correctly applies autoescaping 
+        when using a string filter, specifically the 'capfirst' filter, on an object 
+        wrapped in a Safe class to prevent escaping.
+
+        The expected output is a comparison of the rendered string against the 
+        expected string, confirming that the autoescape functionality behaves as 
+        expected in this scenario.
+
+        """
         output = self.engine.render_to_string(
             "autoescape-stringfilter03", {"safe": SafeClass()}
         )

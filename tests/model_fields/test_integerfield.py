@@ -179,6 +179,15 @@ class IntegerFieldTests(TestCase):
                         ranged_value_field.run_validators(max_backend_value + 1)
 
     def test_types(self):
+        """
+
+        Tests the consistency of the value field's data type in the model.
+
+        Verifies that the value attribute of the model instance remains an integer 
+        across various operations, including instantiation, saving to the database, 
+        and retrieval from the database.
+
+        """
         instance = self.model(value=1)
         self.assertIsInstance(instance.value, int)
         instance.save()
@@ -187,6 +196,22 @@ class IntegerFieldTests(TestCase):
         self.assertIsInstance(instance.value, int)
 
     def test_coercing(self):
+        """
+        Tests the implicit coercion of a model field to an integer type.
+
+        This test creates an instance of the model with a string value, retrieves the
+        instance, and verifies that the value has been coerced to an integer.
+
+        Ensures that the model's field correctly interprets string input as an integer
+        value, allowing for seamless data conversion and manipulation.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the coercion to integer fails.
+
+        """
         self.model.objects.create(value="10")
         instance = self.model.objects.get(value="10")
         self.assertEqual(instance.value, 10)
@@ -297,6 +322,15 @@ class ValidationTests(SimpleTestCase):
         self.assertIsNone(f.clean(None, None))
 
     def test_integerfield_raises_error_on_empty_input(self):
+        """
+        Verifies that a ValidationError is raised when an empty input is provided to an IntegerField.
+
+        Checks that the field correctly handles null and empty string inputs, ensuring that a 
+        ValidationError is raised in both cases, as the field is defined as not allowing null values.
+
+        Raises:
+            AssertionError: If a ValidationError is not raised when providing empty input to the field.
+        """
         f = models.IntegerField(null=False)
         with self.assertRaises(ValidationError):
             f.clean(None, None)
@@ -313,6 +347,9 @@ class ValidationTests(SimpleTestCase):
         self.assertEqual(f.clean("1", None), 1)
 
     def test_enum_choices_invalid_input(self):
+        """
+        Tests the validation of an IntegerField with enum choices to ensure that invalid input raises a ValidationError, covering cases where the input is not a valid choice.
+        """
         f = models.IntegerField(choices=self.Choices)
         with self.assertRaises(ValidationError):
             f.clean("A", None)
@@ -320,6 +357,20 @@ class ValidationTests(SimpleTestCase):
             f.clean("3", None)
 
     def test_callable_choices(self):
+        """
+        Tests that the :class:`~models.IntegerField` can correctly validate and clean choices provided by a callable.
+
+        The test ensures that the field can handle a dynamic set of choices and raises a :class:`~ValidationError` for invalid inputs.
+        It verifies that the field can clean valid choices and returns the expected value.
+
+        The test case covers the following scenarios:
+
+        * Cleaning valid choices
+        * Cleaning invalid choices (non-integer values)
+        * Cleaning invalid choices (integer values outside of the provided range)
+
+        This test provides assurance that the :class:`~models.IntegerField` behaves as expected when using callable choices.
+        """
         def get_choices():
             return {i: str(i) for i in range(3)}
 

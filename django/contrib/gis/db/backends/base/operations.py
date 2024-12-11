@@ -187,6 +187,22 @@ class BaseSpatialOperations:
         )
 
     def get_area_att_for_field(self, field):
+        """
+        Returns the area unit attribute name for a given field.
+
+        This function checks if the field uses a geodetic coordinate system. If it does, 
+        it returns 'sq_m' if the connection supports area calculations on geodetic 
+        coordinate systems, otherwise it raises a NotImplementedError.
+
+        For non-geodetic fields, it returns the area unit attribute name based on the 
+        field's units name, if available.
+
+        .args:
+            field: The field to retrieve the area unit attribute name for
+
+        .returns:
+            str: The area unit attribute name for the given field.
+        """
         if field.geodetic(self.connection):
             if self.connection.features.supports_area_geodetic:
                 return "sq_m"

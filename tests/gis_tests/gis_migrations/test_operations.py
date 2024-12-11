@@ -52,12 +52,38 @@ class OperationTestCase(TransactionTestCase):
         self.assertNotIn(column, [c.name for c in self.get_table_description(table)])
 
     def apply_operations(self, app_label, project_state, operations):
+        """
+
+        Apply a series of operations to the project state.
+
+        Applies the given operations to the project state in the context of the specified application label.
+        This involves creating a migration object with the given operations and then applying it to the project state.
+
+        :param app_label: The label of the application to which the operations belong.
+        :param project_state: The current state of the project.
+        :param operations: A list of operations to be applied to the project state.
+        :return: The result of applying the operations to the project state.
+
+        """
         migration = Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor() as editor:
             return migration.apply(project_state, editor)
 
     def set_up_test_model(self, force_raster_creation=False):
+        """
+
+        Sets up a test model with basic fields and optionally a raster field.
+
+        The test model, named 'Neighborhood', includes an auto-incrementing primary key 'id', 
+        a unique 'name' field, and a 'geom' field for storing multi-polygon geographic data.
+
+        If the database connection supports raster data or if `force_raster_creation` is True, 
+        an additional 'rast' field is added for storing raster data.
+
+        The method updates the current state of the project by applying the necessary migration operations.
+
+        """
         test_fields = [
             ("id", models.AutoField(primary_key=True)),
             ("name", models.CharField(max_length=100, unique=True)),
@@ -231,6 +257,16 @@ class OperationTests(OperationTestCase):
         self.assertColumnNotExists("gis_neighborhood", "rast")
 
     def test_create_model_spatial_index(self):
+        """
+        Tests the creation of a spatial index for a model.
+
+        This test checks if a spatial index exists for the 'geom' field in the 'gis_neighborhood' model.
+        If the database supports raster data types, it also checks for the existence of a spatial index for the 'rast' field.
+        The test is skipped if the database does not support spatial indexes.
+
+        .. note:: This test relies on the database connection features and the availability of spatial index support.
+
+        """
         if not self.has_spatial_indexes:
             self.skipTest("No support for Spatial indexes")
 

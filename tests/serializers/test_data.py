@@ -106,6 +106,17 @@ def fk_create(pk, klass, data):
 
 
 def m2m_create(pk, klass, data):
+    """
+
+    Creates a new instance of the specified model class and associates it with the provided data.
+
+    :param pk: The primary key of the instance to be created.
+    :param klass: The model class to instantiate.
+    :param data: The data to be associated with the created instance.
+
+    :return: A list containing the newly created instance.
+
+    """
     instance = klass(id=pk)
     models.Model.save_base(instance, raw=True)
     instance.data.set(data)
@@ -136,6 +147,20 @@ def o2o_create(pk, klass, data):
 
 
 def pk_create(pk, klass, data):
+    """
+    Creates a new instance of the given class and saves it to the database.
+
+    :param pk: The primary key to use for the new instance.
+    :param klass: The class of the instance to create.
+    :param data: The data to initialize the instance with.
+
+    :returns: A list containing the newly created instance.
+
+    :note: This function bypasses any validation or hooks that may be defined on the model, 
+           as it uses the `raw=True` parameter when saving the instance. 
+
+
+    """
     instance = klass()
     instance.data = data
     models.Model.save_base(instance, raw=True)
@@ -191,6 +216,21 @@ def data_compare(testcase, pk, klass, data):
 
 
 def generic_compare(testcase, pk, klass, data):
+    """
+
+    Compares the data and tags of a database instance with the expected data.
+
+    This function retrieves a database instance of the given class with the specified primary key,
+    and then checks if its data matches the first element of the provided data.
+    Additionally, it verifies that the tags associated with the instance, ordered by their id,
+    match the remaining elements of the provided data.
+
+    :param testcase: The test case object used for assertions.
+    :param pk: The primary key of the database instance to compare.
+    :param klass: The class of the database instance to compare.
+    :param data: A tuple containing the expected data and tags.
+
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data[0], instance.data)
     testcase.assertEqual(data[1:], [t.data for t in instance.tags.order_by("id")])
@@ -202,6 +242,16 @@ def fk_compare(testcase, pk, klass, data):
 
 
 def m2m_compare(testcase, pk, klass, data):
+    """
+    Compares the provided data with the ordered 'id' values of a Many-To-Many field belonging to a specific instance.
+
+    :param testcase: The test case instance to assert the comparison result.
+    :param pk: The primary key of the instance to compare data from.
+    :param klass: The class model that the instance belongs to.
+    :param data: The list of expected ordered 'id' values to compare with the instance's Many-To-Many field data.
+
+    This function retrieves an instance of the given class by its primary key, orders the 'id' values of its Many-To-Many field data, and asserts that the provided data matches the ordered 'id' values. It is intended for use within a test case to verify the correctness of the Many-To-Many field data for a specific instance.
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data, [obj.id for obj in instance.data.order_by("id")])
 
@@ -212,6 +262,19 @@ def im2m_compare(testcase, pk, klass, data):
 
 
 def im_compare(testcase, pk, klass, data):
+    """
+
+    Compares the expected data with the actual values of an instance retrieved from the database.
+
+    Args:
+        testcase: The current test case being executed.
+        pk (int): The primary key of the instance to compare.
+        klass: The class of the instance to compare.
+        data (dict): A dictionary containing the expected values for the instance.
+
+    The function checks for the 'left' and 'right' values in the instance, and optionally checks for the 'extra' value if it exists in the data dictionary.
+
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data["left"], instance.left_id)
     testcase.assertEqual(data["right"], instance.right_id)
@@ -227,6 +290,22 @@ def o2o_compare(testcase, pk, klass, data):
 
 
 def pk_compare(testcase, pk, klass, data):
+    """
+
+    Compares the data of a retrieved database instance with the expected data.
+
+    This function tests whether the data retrieved from the database matches the expected data.
+    It does this by fetching an instance of the specified class from the database based on the provided data,
+    and then asserting that the data of the retrieved instance is equal to the expected data.
+
+    :param testcase: The test case instance.
+    :param pk: The primary key (not used in this function).
+    :param klass: The class of the instance to be retrieved from the database.
+    :param data: The data to be used for retrieving the instance and comparison.
+
+    :raises AssertionError: If the retrieved instance's data does not match the expected data.
+
+    """
     instance = klass.objects.get(data=data)
     testcase.assertEqual(data, instance.data)
 

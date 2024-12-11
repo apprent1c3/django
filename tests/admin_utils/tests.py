@@ -47,6 +47,16 @@ class NestedObjectsTests(TestCase):
         self.n.collect([self.objs[i] for i in indices])
 
     def test_unrelated_roots(self):
+        """
+
+        Tests the scenario where roots are unrelated, verifying that the collection process correctly handles 
+        disconnected objects. This test case specifically checks the structure where object 2 is connected to 
+        objects 0 and 1, but objects 0 and 1 are not connected to each other.
+
+        Checks that the collected objects match the expected structure, ensuring the correctness of the 
+        collection mechanism in the presence of unrelated roots.
+
+        """
         self._connect(2, 1)
         self._collect(0)
         self._collect(1)
@@ -59,6 +69,12 @@ class NestedObjectsTests(TestCase):
         self._check([0, [1, 2]])
 
     def test_non_added_parent(self):
+        """
+        ..: Tests that a non-added parent node is correctly handled.
+
+            This test case verifies the behavior when a parent node is not explicitly added to the collection. 
+            It connects two nodes, collects data from the root node, and then checks the resulting collection to ensure it contains the expected node.
+        """
         self._connect(0, 1)
         self._collect(0)
         self._check([0])
@@ -197,6 +213,11 @@ class UtilsTests(SimpleTestCase):
                 )
 
     def test_number_formats_display_for_field(self):
+        """
+        Automatically formats numeric field values for display.
+
+        Tests that the display value of a given field is formatted correctly based on its type, which can be FloatField, DecimalField, or IntegerField. Verifies that both floating point numbers and integers are displayed as strings in their original numeric format without any additional formatting or rounding. The display value is also checked for Decimal type to ensure accurate and precise representation.
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -230,6 +251,20 @@ class UtilsTests(SimpleTestCase):
         self.assertEqual(display_value, "12,345")
 
     def test_list_display_for_value(self):
+        """
+        Tests the display of list values.
+
+        This test checks that a list of values is correctly formatted into a string.
+        It verifies that the :func:`display_for_value` function can handle lists of
+        different lengths and containing various data types, and that it returns a
+        comma-separated string representation of the list.
+
+        The test uses the :attr:`empty_value` attribute to handle empty or missing values,
+        ensuring that the function behaves correctly in these cases.
+
+        The expected output is a string where each element of the input list is separated
+        by a comma, without any additional formatting or wrapping.”
+        """
         display_value = display_for_value([1, 2, 3], self.empty_value)
         self.assertEqual(display_value, "1, 2, 3")
 
@@ -240,6 +275,16 @@ class UtilsTests(SimpleTestCase):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_list_display_for_value_boolean(self):
+        """
+
+        Displays the value as a boolean with optional formatting as an HTML image.
+
+        If the boolean parameter is True, it returns an HTML image tag referencing either
+        icon-yes.svg or icon-no.svg, depending on the input value.
+        If the boolean parameter is False, it returns the string representation of the input value.
+        This function is useful for customizing the display of boolean values in a list view.
+
+        """
         self.assertEqual(
             display_for_value(True, "", boolean=True),
             '<img src="/static/admin/img/icon-yes.svg" alt="True">',
@@ -324,6 +369,20 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_form_argument(self):
+        """
+        Return the label of a given field in a model, considering form fields if provided.
+
+        This function retrieves the label of a specified field, first checking if it's 
+        available in the provided form. If the field is not found in the form, the model 
+        is checked. If the field still cannot be found, an AttributeError is raised.
+
+        :param field_name: The name of the field for which to retrieve the label.
+        :param model: The model in which to look up the field.
+        :param form: An optional form to check for the field before falling back to the model.
+        :raises AttributeError: If the specified field cannot be found in either the form or the model.
+        :return: The label of the field.
+
+        """
         class ArticleForm(forms.ModelForm):
             extra_form_field = forms.BooleanField()
 
@@ -352,6 +411,16 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_help_text_for_field(self):
+        """
+
+        Test that help text is correctly retrieved for specific fields.
+
+        This test case checks the functionality of the help_text_for_field function by 
+        verifying its output against a set of predefined field names and their 
+        corresponding help texts. It covers both cases where a field has a specific help 
+        text and where it does not.
+
+        """
         tests = [
             ("article", ""),
             ("unknown", ""),
@@ -439,6 +508,24 @@ class UtilsTests(SimpleTestCase):
         self.assertEqual(quote("something\nor\nother"), "something_0Aor_0Aother")
 
     def test_build_q_object_from_lookup_parameters(self):
+        """
+
+        Build a Django ORM Q object from a dictionary of lookup parameters.
+
+        This function takes a dictionary where keys are field lookups and values are lists of
+        values to filter by. It constructs a Q object that represents the filter conditions
+        combined using logical AND or OR operators, depending on the lookup type.
+
+        The supported lookup types include:
+
+        * Exact and case-insensitive lookups (e.g., 'field__iexact')
+        * \"in\" lookups for filtering by a list of values (e.g., 'field__in')
+        * Primary key lookups (e.g., 'field__pk') for filtering by specific IDs
+
+        The function returns a Q object that can be used directly in Django ORM queries.
+
+
+        """
         parameters = {
             "title__in": [["Article 1", "Article 2"]],
             "hist__iexact": ["history"],

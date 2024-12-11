@@ -192,6 +192,16 @@ try:
 
     class OptionalImageFile(models.Model):
         def custom_upload_path(self, filename):
+            """
+            Return a custom file upload path.
+
+            Determines the directory path where a file will be uploaded. If a custom path is
+            set, it will be used; otherwise, it defaults to 'tests'. The filename is then
+            appended to this path to form the full upload path.
+
+            :param filename: The name of the file being uploaded
+            :returns: A string representing the full upload path for the file
+            """
             path = self.path or "tests"
             return "%s/%s" % (path, filename)
 
@@ -351,6 +361,9 @@ class BigInt(models.Model):
 
 class MarkupField(models.CharField):
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting a default maximum length of 20 characters and passing all other arguments to the parent class's initializer.
+        """
         kwargs["max_length"] = 20
         super().__init__(*args, **kwargs)
 
@@ -478,6 +491,18 @@ class StrictAssignmentFieldSpecific(models.Model):
     _should_error = False
 
     def __setattr__(self, key, value):
+        """
+        Sets an attribute on the instance.
+
+        Raises:
+            ValidationError: If the instance is in an error state, indicated by _should_error being True.
+                            The error message includes the attribute key that was attempted to be set.
+
+        Otherwise, sets the attribute as normal, using the superclass's __setattr__ method.
+
+        This method allows for control over attribute modification based on the instance's current state,
+        preventing changes when the instance is in an invalid or error state.
+        """
         if self._should_error is True:
             raise ValidationError(message={key: "Cannot set attribute"}, code="invalid")
         super().__setattr__(key, value)
@@ -488,6 +513,15 @@ class StrictAssignmentAll(models.Model):
     _should_error = False
 
     def __setattr__(self, key, value):
+        """
+        Sets an attribute on the object.
+
+        This method allows setting attributes on the object, but only if the object is in a valid state.
+        If the object is in an error state, indicated by the `_should_error` flag, attempting to set an attribute will raise a `ValidationError`.
+
+        :raises: ValidationError if the object is in an error state
+        :note: This method overrides the default attribute setting behavior to provide additional validation and error handling.
+        """
         if self._should_error is True:
             raise ValidationError(message="Cannot set attribute", code="invalid")
         super().__setattr__(key, value)

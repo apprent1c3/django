@@ -161,6 +161,23 @@ def get_label_module(label):
 
 
 def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=None):
+    """
+    Generates a filtered sequence of test module names based on the provided criteria.
+
+    The function starts yielding test modules from the specified `start_at` or `start_after` label.
+    If `test_labels` are provided, it filters the test modules to only include those matching the labels.
+    In addition, it checks if the 'gis_tests' label is present and if the GIS database backend is not enabled, it aborts the process.
+
+    The function yields test module names that match the filter criteria. If no `test_labels` are provided, it yields all test modules starting from the specified `start_at` or `start_after` label.
+
+    :param start_at: The label to start yielding test modules from.
+    :param start_after: The label to start yielding test modules after.
+    :param gis_enabled: A flag indicating whether the GIS database backend is enabled.
+    :param test_labels: A list of labels to filter the test modules by. Defaults to an empty list.
+
+    :yields: A sequence of test module names that match the filter criteria.
+
+    """
     if test_labels is None:
         test_labels = []
     # Reduce each test label to just the top-level module part.

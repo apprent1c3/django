@@ -77,6 +77,11 @@ class FileStorageTests(SimpleTestCase):
     storage_class = FileSystemStorage
 
     def setUp(self):
+        """
+        Sets up a temporary environment for testing by creating a temporary directory and initializing a storage instance. 
+        The temporary directory is automatically deleted after the test is completed. 
+        The storage instance is configured with a base URL of '/test_media_url/' to mimic a test media server.
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
         self.storage = self.storage_class(
@@ -121,6 +126,19 @@ class FileStorageTests(SimpleTestCase):
         # is UTC+1 and has no DST change. We can set the Django TZ to something
         # else so that UTC, Django's TIME_ZONE, and the system timezone are all
         # different.
+        """
+
+        Tests the handling of timezone-aware dates by the provided file time getter.
+
+        This test ensures that the getter correctly handles timezone-aware dates when the
+        timezone is set to 'Africa/Algiers'. It verifies that the returned date is
+        timezone-aware, and that its timezone matches the current timezone. Additionally,
+        it checks that the offset from UTC is correctly calculated and that the returned
+        date is close to the current time.
+
+        :param getter: The file time getter function being tested.
+
+        """
         now_in_algiers = timezone.make_aware(datetime.now())
 
         with timezone.override(timezone.get_fixed_timezone(-300)):
@@ -154,6 +172,25 @@ class FileStorageTests(SimpleTestCase):
         # is UTC+1 and has no DST change. We can set the Django TZ to something
         # else so that UTC, Django's TIME_ZONE, and the system timezone are all
         # different.
+        """
+
+        Tests the time getter function with time zone handling disabled.
+
+        This test checks that the time getter function correctly retrieves the
+        last modified date of a file when time zone handling is disabled. It
+        verifies that the returned datetime object is naive (i.e., it does not
+        contain any timezone information), and that it is close to the current
+        time in the Africa/Algiers timezone. The test also checks that the
+        timezone offsets are correctly calculated.
+
+        Args:
+            getter (function): A function that takes a file name as input and
+                returns the last modified date of the file.
+
+        Returns:
+            None
+
+        """
         now_in_algiers = timezone.make_aware(datetime.now())
 
         with timezone.override(timezone.get_fixed_timezone(-300)):
@@ -302,6 +339,14 @@ class FileStorageTests(SimpleTestCase):
         self.assertIs(os.path.exists(os.path.join(self.temp_dir, f_name)), True)
 
     def test_save_doesnt_close(self):
+        """
+
+        Tests that saving a file to storage does not close the uploaded file.
+
+        Verifies that both TemporaryUploadedFile and InMemoryUploadedFile instances remain open
+        after being saved to storage, ensuring that the file handle is not prematurely closed.
+
+        """
         with TemporaryUploadedFile("test", "text/plain", 1, "utf8") as file:
             file.write(b"1")
             file.seek(0)
@@ -629,10 +674,30 @@ class OverwritingStorageOSOpenFlagsWarningTests(SimpleTestCase):
     storage_class = OverwritingStorage
 
     def setUp(self):
+        """
+
+        Sets up the test environment by creating a temporary directory.
+
+        The temporary directory is created using :mod:`tempfile` and its path is stored
+        in the :attr:`temp_dir` attribute. A cleanup function is also registered to
+        remove the temporary directory after the test is completed, ensuring that no
+        temporary files are left behind.
+
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
 
     def test_os_open_flags_deprecation_warning(self):
+        """
+
+        Test that setting OS_OPEN_FLAGS raises a deprecation warning.
+
+        This test checks that using the OS_OPEN_FLAGS setting triggers a warning, as it is
+        deprecated in favor of the allow_overwrite parameter.
+
+        :raises: RemovedInDjango60Warning
+
+        """
         msg = "Overriding OS_OPEN_FLAGS is deprecated. Use the allow_overwrite "
         msg += "parameter instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -920,6 +985,19 @@ class FileFieldStorageTests(TestCase):
     def test_extended_length_storage(self):
         # Testing FileField with max_length > 255. Most systems have filename
         # length limitation of 255. Path takes extra chars.
+        """
+
+        Tests the functionality of the Storage class's extended length storage.
+
+        This test case checks if the Storage class can handle file paths that exceed 
+        the standard maximum length limit. It creates a file with a long name, saves 
+        it to the storage, and then verifies that the file's name and contents are 
+        correctly stored and retrieved.
+
+        The test is skipped on Windows platforms, as they have a known limitation 
+        of supporting at most 260 characters in a path.
+
+        """
         filename = (
             self._storage_max_filename_length(temp_storage) - 4
         ) * "a"  # 4 chars for extension.
@@ -953,6 +1031,10 @@ class FileFieldStorageTests(TestCase):
         obj.empty.close()
 
     def test_pathlib_upload_to(self):
+        """
+        Checks the upload functionality of the pathlib interface by saving files using the callable and direct interfaces, 
+        then verifies that the resulting paths are correctly formatted with the expected directory prefix.
+        """
         obj = Storage()
         obj.pathlib_callable.save("some_file1.txt", ContentFile("some content"))
         self.assertEqual(obj.pathlib_callable.name, "bar/some_file1.txt")
@@ -980,6 +1062,14 @@ class FileFieldStorageTests(TestCase):
 
     def test_filefield_pickling(self):
         # Push an object into the cache to make sure it pickles properly
+        """
+        Test the pickling of a FileField in a model instance.
+
+        This test case verifies that when a model instance containing a FileField is stored in the cache,
+        the FileField's attributes are preserved after retrieving the instance from the cache.
+        Specifically, it checks that the FileField's name is correctly restored after pickling and unpickling.
+
+        """
         obj = Storage()
         obj.normal.save("django_test.txt", ContentFile("more content"))
         obj.normal.close()
@@ -988,6 +1078,22 @@ class FileFieldStorageTests(TestCase):
 
     def test_file_object(self):
         # Create sample file
+        """
+
+        Tests the ability to save and retrieve a file object.
+
+        This test creates a file in temporary storage, then saves a File object to 
+        the storage system. It verifies that the file exists and that its contents 
+        match the original file. This ensures that file objects can be correctly 
+        saved and retrieved from the storage system.
+
+        The test covers the following steps:
+        - Saving a file to temporary storage
+        - Saving a file object to the storage system
+        - Verifying the existence of the saved file object
+        - Verifying the contents of the saved file object
+
+        """
         temp_storage.save("tests/example.txt", ContentFile("some content"))
 
         # Load it as Python file object
@@ -1035,6 +1141,9 @@ class FieldCallableFileStorageTests(SimpleTestCase):
         self.assertEqual(FileField().storage, default_storage)
 
     def test_callable_function_storage_file_field(self):
+        """
+        Tests the proper initialization and storage assignment of a FileField instance with a callable storage function, verifying that the provided storage object and its location are correctly set.
+        """
         storage = FileSystemStorage(location=self.temp_storage_location)
 
         def get_storage():
@@ -1083,6 +1192,15 @@ class FieldCallableFileStorageTests(SimpleTestCase):
 
 class SlowFile(ContentFile):
     def chunks(self):
+        """
+        Retrieves chunks from the parent class, introducing a brief delay before returning the result.
+
+        The delay is a fixed 1-second pause, allowing for potential synchronization or pacing in the application.
+
+        Returns:
+            The chunks as retrieved from the parent class, following the brief delay.
+
+        """
         time.sleep(1)
         return super().chunks()
 
@@ -1098,6 +1216,13 @@ class FileSaveRaceConditionTest(SimpleTestCase):
         name = self.storage.save(name, SlowFile(b"Data"))
 
     def test_race_condition(self):
+        """
+        Checks if a race condition occurs when attempting to save a file concurrently with another operation, resulting in the creation of a conflict file.
+
+        The test simulates a concurrent save operation by starting a thread and then immediately attempting to save a file, leading to a potential naming conflict.
+
+        It verifies that the conflict resolution mechanism generates a unique filename for the second file, while the first file saved retains its original name.
+        """
         self.thread.start()
         self.save_file("conflict")
         self.thread.join()
@@ -1119,6 +1244,21 @@ class FileStoragePermissions(unittest.TestCase):
 
     @override_settings(FILE_UPLOAD_PERMISSIONS=0o654)
     def test_file_upload_permissions(self):
+        """
+        Tests that file uploads are saved with the correct permissions.
+
+        This test case verifies that when a file is uploaded using the `FileSystemStorage`
+        backend, the resulting file on disk has the permissions specified by the
+        `FILE_UPLOAD_PERMISSIONS` setting.
+
+        The test creates a new file in storage, retrieves the actual file mode, and checks
+        that it matches the expected permission value of 428 (octal), which corresponds to
+        r--r----x permissions.
+
+        This ensures that uploaded files are accessible and secure according to the
+        configured permissions, which is crucial for maintaining data integrity and
+        security in a web application.
+        """
         self.storage = FileSystemStorage(self.storage_dir)
         name = self.storage.save("the_file", ContentFile("data"))
         actual_mode = os.stat(self.storage.path(name))[0] & 0o777
@@ -1126,6 +1266,11 @@ class FileStoragePermissions(unittest.TestCase):
 
     @override_settings(FILE_UPLOAD_PERMISSIONS=None)
     def test_file_upload_default_permissions(self):
+        """
+        Tests the default permissions assigned to an uploaded file when no specific file upload permissions are defined.
+
+        The test verifies that the permissions of the uploaded file are correctly set to a default value, taking into account the current umask. This ensures that uploaded files have the expected access permissions, which is crucial for maintaining security and data integrity in file-based applications.
+        """
         self.storage = FileSystemStorage(self.storage_dir)
         fname = self.storage.save("some_file", ContentFile("data"))
         mode = os.stat(self.storage.path(fname))[0] & 0o777
@@ -1133,6 +1278,17 @@ class FileStoragePermissions(unittest.TestCase):
 
     @override_settings(FILE_UPLOAD_DIRECTORY_PERMISSIONS=0o765)
     def test_file_upload_directory_permissions(self):
+        """
+
+        Tests the permissions of directories created during a file upload.
+
+        This test verifies that the directory permissions set in the FILE_UPLOAD_DIRECTORY_PERMISSIONS setting are properly applied
+        to the directories created when uploading a file. It checks the permissions of both the immediate parent directory and the 
+        parent directory of the immediate parent to ensure that the permissions are correctly inherited. 
+
+        :raises AssertionError: If the directory permissions do not match the expected value.
+
+        """
         self.storage = FileSystemStorage(self.storage_dir)
         name = self.storage.save("the_directory/subdir/the_file", ContentFile("data"))
         file_path = Path(self.storage.path(name))
@@ -1208,6 +1364,15 @@ class FileLikeObjectTestCase(LiveServerTestCase):
     available_apps = []
 
     def setUp(self):
+        """
+        Setup the test environment by creating a temporary directory and a file system storage instance.
+
+        This method initializes a temporary directory for testing purposes and schedules its removal after the test is completed.
+        It also creates a :class:`FileSystemStorage` instance, storing files in the temporary directory, to isolate test data and prevent interference with the main file system.
+
+        The created temporary directory and storage instance are stored as instance attributes, making them accessible throughout the test class.
+
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
         self.storage = FileSystemStorage(location=self.temp_dir)
@@ -1240,6 +1405,17 @@ class StorageHandlerTests(SimpleTestCase):
         self.assertIs(cache1, cache2)
 
     def test_defaults(self):
+        """
+        Tests that the StorageHandler class correctly initializes with default storage backends.
+
+        This test verifies that the StorageHandler class sets the default storage backends
+        for default and static files as expected. The test checks that the `backends` attribute
+        of the StorageHandler instance contains the expected default storage aliases and their
+        corresponding backend configurations.
+
+        The test case covers the default storage setup and ensures that the StorageHandler
+        class behaves as expected when no custom storage configurations are provided.
+        """
         storages = StorageHandler()
         self.assertEqual(
             storages.backends,

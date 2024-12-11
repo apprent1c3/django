@@ -53,6 +53,16 @@ class TemplateTests(SimpleTestCase):
         self.assertEqual(Template(template_string).render(Context()), template_string)
 
     def test_repr(self):
+        """
+
+        Tests the string representation of a Template object.
+
+        Verifies that the repr() method returns a concise and informative string that
+        includes the template's class name and a truncated version of its template string.
+        This ensures that the template can be easily identified and inspected when
+        debugging or logging.
+
+        """
         template = Template(
             "<html><body>\n"
             "{% if test %}<h1>{{ varvalue }}</h1>{% endif %}"

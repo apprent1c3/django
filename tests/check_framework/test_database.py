@@ -11,6 +11,18 @@ class DatabaseCheckTests(TestCase):
 
     @mock.patch("django.db.backends.base.validation.BaseDatabaseValidation.check")
     def test_database_checks_called(self, mocked_check):
+        """
+
+        Tests whether database checks are called when the function check_database_backends is invoked.
+
+        The test checks two scenarios:
+            - When the function is called without specifying any databases, it verifies that no database checks are performed.
+            - When the function is called with a list of databases, it verifies that the checks are indeed performed.
+
+        This test case ensures that the check_database_backends function behaves as expected in both cases, 
+        providing confidence in its ability to handle database checks correctly.
+
+        """
         check_database_backends()
         self.assertFalse(mocked_check.called)
         check_database_backends(databases=self.databases)

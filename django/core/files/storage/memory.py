@@ -57,6 +57,14 @@ class InMemoryFileNode(ContentFile, TimingMixin):
         return super().open(mode)
 
     def write(self, data):
+        """
+        Writes the provided data and updates the modified time of the object.
+
+        Args:
+            data: The data to be written.
+
+        This method extends the base write functionality by also updating the object's last modified time after writing the data. This ensures that the object's state remains consistent and up-to-date after any write operations. 
+        """
         super().write(data)
         self._update_modified_time()
 
@@ -209,6 +217,17 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         )
 
     def _relative_path(self, name):
+        """
+
+        Calculate the relative path of a given name with respect to the current location.
+
+        Args:
+            name (str): The name of the file or directory for which to calculate the relative path.
+
+        Returns:
+            str: The relative path of the given name.
+
+        """
         full_path = self.path(name)
         return os.path.relpath(full_path, self.location)
 

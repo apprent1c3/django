@@ -353,6 +353,9 @@ class OGRGeometry(GDALBase):
 
     # #### Output Methods ####
     def _geos_ptr(self):
+        """
+        Returns a GEOSGeometry pointer object from the Well-Known Binary (WKB) representation stored in the instance. This method creates a GEOSGeometry object, which provides an interface to the GEOS geometry engine, allowing for advanced spatial operations and analysis.
+        """
         from django.contrib.gis.geos import GEOSGeometry
 
         return GEOSGeometry._from_wkb(self.wkb)

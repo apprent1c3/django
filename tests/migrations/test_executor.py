@@ -846,6 +846,15 @@ class ExecutorTests(MigrationTestBase):
 
 class FakeLoader:
     def __init__(self, graph, applied):
+        """
+
+        Initializes a migration object.
+
+        :param graph: The graph data structure used for migration.
+        :param applied: A collection of applied migrations.
+        :ivar bool replace_migrations: Flag to indicate whether migrations should be replaced.
+
+        """
         self.graph = graph
         self.applied_migrations = applied
         self.replace_migrations = True

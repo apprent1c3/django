@@ -29,6 +29,19 @@ test_processor_name = "template_tests.test_response.test_processor"
 # A test middleware that installs a temporary URLConf
 def custom_urlconf_middleware(get_response):
     def middleware(request):
+        """
+        Middleware function to modify the URL configuration for a given request.
+
+        This function overrides the default URL configuration by setting the urlconf attribute
+        of the request object to 'template_tests.alternate_urls'. It then passes the modified
+        request to the next middleware or view in the chain by calling get_response.
+
+        Using this middleware allows for alternate URL routing to be applied to specific
+        requests, enabling more flexible and dynamic URL handling in the application.
+
+        :param request: The current HTTP request object
+        :return: The response from the next middleware or view in the chain
+        """
         request.urlconf = "template_tests.alternate_urls"
         return get_response(request)
 
@@ -37,10 +50,52 @@ def custom_urlconf_middleware(get_response):
 
 class SimpleTemplateResponseTest(SimpleTestCase):
     def _response(self, template="foo", *args, **kwargs):
+        """
+        Returns a SimpleTemplateResponse object based on a provided template and arguments.
+
+        The template can be a string representation of a Django template. The function uses the Django template engine to render the template.
+
+        Parameters
+        ----------
+        template : str, optional
+            A string representation of a Django template (default is 'foo').
+        *args
+            Variable length argument list to be passed to the SimpleTemplateResponse object.
+        **kwargs
+            Arbitrary keyword arguments to be passed to the SimpleTemplateResponse object.
+
+        Returns
+        -------
+        SimpleTemplateResponse
+            A response object with the rendered template.
+        Note
+        ----
+        This function is intended for internal use, as indicated by the leading underscore in its name.
+        """
         template = engines["django"].from_string(template)
         return SimpleTemplateResponse(template, *args, **kwargs)
 
     def test_template_resolving(self):
+        """
+
+        Tests the resolving of templates in the :class:`SimpleTemplateResponse` class.
+
+        This test case covers the scenario where a single template is provided, as well as
+        when multiple templates are given. The test verifies that the correct template is
+        resolved and rendered, even when multiple templates with the same name are found
+        in different directories. The test also checks the rendering of templates with
+        different contents.
+
+        The test consists of three main parts:
+
+        1.  Resolving a single template
+        2.  Resolving multiple templates with the same name in different directories
+        3.  Rendering a template with a custom response object
+
+        The expected output of each rendering is verified to ensure that the correct
+        template is being used.
+
+        """
         response = SimpleTemplateResponse("first/test.html")
         response.render()
         self.assertEqual(response.content, b"First template\n")
@@ -63,6 +118,13 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_render(self):
         # response is not re-rendered without the render call
+        """
+        Tests the rendering of a response object by verifying its content under different conditions.
+
+         The function checks if the initial rendering of the response produces the expected content.
+         It then modifies the response's template and re-renders, checking if the new template is ignored when rendering.
+         Finally, it tests if manually setting the response content overrides any rendering results.
+        """
         response = self._response().render()
         self.assertEqual(response.content, b"foo")
 
@@ -221,6 +283,15 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         pickle.dumps(unpickled_response)
 
     def test_pickling_cookie(self):
+        """
+        Tests the ability to pickle and unpickle a response object that contains a cookie.
+
+        Verifies that a response with a cookie can be successfully serialized using the pickle module,
+        and that the cookie's value is preserved after deserialization.
+
+        Checks that the cookie's value is correctly restored after the pickling and unpickling process,
+        ensuring that the cookie remains intact and functional throughout the serialization process.
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -261,11 +332,32 @@ class TemplateResponseTest(SimpleTestCase):
     factory = RequestFactory()
 
     def _response(self, template="foo", *args, **kwargs):
+        """
+
+        Return a TemplateResponse instance using the provided template string.
+
+        The template string is rendered using the Django template engine. 
+        You can pass additional positional and keyword arguments to customize the response.
+
+        :param template: A string representing the template to be rendered (defaults to 'foo')
+        :param args: Additional positional arguments to be passed to the TemplateResponse constructor
+        :param kwargs: Additional keyword arguments to be passed to the TemplateResponse constructor
+        :return: A TemplateResponse instance
+
+        """
         self._request = self.factory.get("/")
         template = engines["django"].from_string(template)
         return TemplateResponse(self._request, template, *args, **kwargs)
 
     def test_render(self):
+        """
+        Tests the rendering of a template with variables.
+
+        This test case verifies that the template engine correctly replaces placeholders with
+        their corresponding values, resulting in the expected output content. The test checks
+        for the presence of specific variables ('foo' and 'processors') in the rendered response
+        and asserts that the rendered content is as expected.
+        """
         response = self._response("{{ foo }}{{ processors }}").render()
         self.assertEqual(response.content, b"yes")
 
@@ -281,6 +373,13 @@ class TemplateResponseTest(SimpleTestCase):
         self.assertEqual(response.content, b"no")
 
     def test_kwargs(self):
+        """
+        Tests response object initialization with keyword arguments.
+
+        Verifies that the response object is correctly created with the specified content type and status code.
+        The function checks if the 'content-type' header and the status code of the response match the expected values.
+
+        """
         response = self._response(content_type="application/json", status=504)
         self.assertEqual(response.headers["content-type"], "application/json")
         self.assertEqual(response.status_code, 504)
@@ -348,6 +447,21 @@ class TemplateResponseTest(SimpleTestCase):
                 getattr(unpickled_response, attr)
 
     def test_repickling(self):
+        """
+        Tests the repickling of a SimpleTemplateResponse object after it has been rendered.
+
+        This test ensures that the object can be successfully pickled and unpickled after rendering, 
+        while also verifying that it cannot be pickled before rendering.
+
+        The test case covers the following scenarios:
+            - Attempting to pickle the response before rendering, which should raise a ContentNotRenderedError.
+            - Rendering the response and then pickling it, which should be successful.
+            - Unpickling the pickled response and then pickling it again, which should also be successful.
+
+        The goal of this test is to ensure that the SimpleTemplateResponse object behaves correctly 
+        when it comes to pickling and rendering, which is essential for certain use cases such as caching 
+        or storing the response for later use.
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {

@@ -58,6 +58,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         }
 
     def unification_cast_sql(self, output_field):
+        """
+        Generates a SQL string for casting to the specified output field type.
+
+        This function takes an output field as input and returns a SQL string that can be used to cast a value to the type of the output field.
+        The casting is done based on the internal type of the output field, with special handling for certain field types such as IP addresses, time, and UUIDs.
+        The returned string can be used directly in a SQL query to ensure that the value is properly cast to the desired type before being retrieved or manipulated.
+
+        """
         internal_type = output_field.get_internal_type()
         if internal_type in (
             "GenericIPAddressField",
@@ -96,6 +104,16 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+        Truncates a date to a specified precision by wrapping the given SQL query.
+
+        :param lookup_type: The precision to truncate the date to (e.g. 'day', 'month', 'year')
+        :param sql: The SQL query to truncate
+        :param params: The parameters to be used in the SQL query
+        :param tzname: The time zone to use for the truncation (optional)
+        :return: A tuple containing the modified SQL query and the updated parameters for date truncation
+        :rtype: tuple[str, tuple]
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
@@ -214,6 +232,22 @@ class DatabaseOperations(BaseDatabaseOperations):
     def sequence_reset_by_name_sql(self, style, sequences):
         # 'ALTER SEQUENCE sequence_name RESTART WITH 1;'... style SQL statements
         # to reset sequence indices
+        """
+        Generates SQL statements to reset sequences by name for a list of tables.
+
+        Args:
+            style (object): A style object used to properly format SQL keywords and identifiers.
+            sequences (list): A list of dictionaries, each containing information about a sequence to reset.
+                Each dictionary should have a 'table' key, and optionally a 'column' key (defaulting to 'id').
+
+        Returns:
+            list: A list of SQL statements to reset the sequences for the given tables.
+
+        Note:
+            The generated SQL statements use the pg_get_serial_sequence and setval functions to reset the sequences.
+            This function is typically used to reset auto-incrementing IDs in PostgreSQL databases.
+
+        """
         sql = []
         for sequence_info in sequences:
             table_name = sequence_info["table"]

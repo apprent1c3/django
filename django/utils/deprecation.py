@@ -53,6 +53,31 @@ class RenameMethodsBase(type):
     renamed_methods = ()
 
     def __new__(cls, name, bases, attrs):
+        """
+        A metaclass that automatically renames methods in a class and its base classes.
+
+        This metaclass checks for methods that have been renamed and updates the class
+        dictionary to reflect the new names. It also issues deprecation warnings for
+        methods that are still using the old names. The renaming is done based on a
+        predefined list of method name changes.
+
+        The metaclass supports two scenarios:
+        - When a method has been renamed, it ensures that the new method name is used
+          and that the old method name is deprecated.
+        - When a new method has been added, it ensures that the old method name is
+          deprecated and points to the new method.
+
+        The class attribute `renamed_methods` should be a list of tuples, where each
+        tuple contains the old method name, the new method name, and the type of
+        deprecation warning to issue.
+
+        The metaclass modifies the class and its base classes in place, and returns the
+        new class object.
+
+        The purpose of this metaclass is to facilitate a smooth transition when
+        renaming methods in a class hierarchy, by providing a way to deprecate old
+        method names and encourage the use of new ones.
+        """
         new_class = super().__new__(cls, name, bases, attrs)
 
         for base in inspect.getmro(new_class):

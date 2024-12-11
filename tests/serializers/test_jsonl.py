@@ -33,6 +33,16 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Validate a string containing JSON-formatted lines.
+
+        Checks if each non-empty line in the provided string can be parsed as valid JSON.
+        Returns True if all lines are valid JSON, False otherwise.
+
+        :param serial_str: A string containing JSON-formatted lines separated by newline characters.
+        :return: A boolean indicating whether the string contains valid JSON on each line.
+
+        """
         try:
             for line in serial_str.split("\n"):
                 if line:
@@ -64,11 +74,36 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+
+        Tests the functionality of a custom JSON encoder with Django serializers.
+
+        This test case verifies that the custom encoder correctly handles decimal values
+        when serializing a model instance to JSON. It checks if the serialized output
+        contains the expected decimal value as a string.
+
+        The purpose of this test is to ensure that the custom encoder can be used with
+        Django serializers to produce the desired JSON output.
+
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 
         class CustomJSONEncoder(json.JSONEncoder):
             def default(self, o):
+                """
+                Handles the serialization of an object to its default string representation.
+
+                This method overrides the default serialization behavior for objects of type
+                decimal.Decimal, converting them to a string. For all other object types, it
+                falls back to the default implementation provided by the superclass.
+
+                Args:
+                    o: The object to be serialized.
+
+                Returns:
+                    A string representation of the object.
+                """
                 if isinstance(o, decimal.Decimal):
                     return str(o)
                 return super().default(o)

@@ -51,6 +51,22 @@ class SessionStore(DBStore):
         return data
 
     async def aload(self):
+        """
+
+        Loads data from the cache, falling back to the database if the cache is empty.
+
+        This function first attempts to retrieve data from the cache. If the cache is empty or 
+        an error occurs, it attempts to fetch the data from the database. If data is found in 
+        the database, it is decoded, stored in the cache, and returned. If no data is found 
+        in either the cache or the database, an empty dictionary is returned.
+
+        The cache expiry is determined by the expire date of the session data retrieved from 
+        the database, if available.
+
+        Returns:
+            dict: The loaded data, or an empty dictionary if no data is found.
+
+        """
         try:
             data = await self._cache.aget(await self.acache_key())
         except Exception:

@@ -188,6 +188,19 @@ class DateHierarchyTests(TestCase):
                 self.assertEqual(choices, expected_choices)
 
     def test_choice_links_datetime(self):
+        """
+
+        Tests the date hierarchy choice links for the Question model admin.
+
+        This test ensures that the date hierarchy links are correctly generated for the
+        'expires' field in the Question model admin. It tests various scenarios, including
+        different years and months, to verify that the expected links are displayed.
+
+        The test creates a set of Question objects with different 'expires' dates and then
+        queries the date hierarchy for each scenario, checking that the generated links
+        match the expected results.
+
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "expires"
         Question.objects.bulk_create(

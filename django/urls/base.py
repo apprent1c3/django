@@ -25,6 +25,29 @@ def resolve(path, urlconf=None):
 
 
 def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
+    """
+
+    Reverses a view URL pattern by name.
+
+    This function takes a viewname and reverses the URL pattern, 
+    optionally using a specific URL configuration. It can also 
+    pass arguments and keyword arguments to the view function.
+
+    The function can handle view names that are in the format 'namespace:app_name:view_name'.
+    It resolves the given viewname and returns the reversed URL.
+
+    The URL is reversed by looking up the view name in the given URL configuration.
+    The function uses the current application and URL prefix to determine the base URL.
+
+    :param viewname: The name of the view to reverse.
+    :param urlconf: The URL configuration to use. Defaults to None.
+    :param args: A list of positional arguments to pass to the view.
+    :param kwargs: A dictionary of keyword arguments to pass to the view.
+    :param current_app: The current application. Defaults to None.
+    :returns: The reversed URL pattern.
+    :raises NoReverseMatch: If the viewname is not found in the URL configuration.
+
+    """
     if urlconf is None:
         urlconf = get_urlconf()
     resolver = get_resolver(urlconf)

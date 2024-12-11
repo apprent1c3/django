@@ -66,6 +66,15 @@ if os.name == "nt":
             self.close()
 
         def __enter__(self):
+            """
+
+            Enters the runtime context of this object, ensuring proper setup and teardown of resources.
+
+            This method is part of the context management protocol, allowing the object to be used with a `with` statement. When entering the context, it ensures that the underlying file is properly opened and prepared for use. The object itself is then returned, allowing it to be used within the `with` block.
+
+            Upon exiting the `with` block, the object's `__exit__` method will be automatically called to clean up resources, even if exceptions are thrown.
+
+            """
             self.file.__enter__()
             return self
 

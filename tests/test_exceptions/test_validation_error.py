@@ -17,6 +17,20 @@ class TestValidationError(unittest.TestCase):
         self.assertEqual(sorted(exception.messages), ["E1", "E2", "E3", "E4"])
 
     def test_eq(self):
+        """
+        Test validation error equality.
+
+        This method checks whether two `ValidationError` instances are equal based on their attributes, including the message, error code, and error parameters.
+
+        Equality is determined by the following rules:
+        - Two validation errors with the same message are considered equal if and only if they have the same message and no error code or parameters are specified.
+        - If error codes are present, they must match for the two validation errors to be considered equal.
+        - If parameters are specified, they must also match for the two validation errors to be considered equal. The order of parameters does not matter.
+        - Validation errors with error dictionaries are considered equal if and only if the dictionaries have the same keys and values, regardless of the order of the keys.
+        - Validation errors with error lists are considered equal if and only if the lists contain the same validation errors or messages in the same order, regardless of the order of the error list itself and the order of lists or dictionaries inside the list.
+
+        Note that a `ValidationError` instance is also considered equal to `mock.ANY`.
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")
@@ -135,6 +149,19 @@ class TestValidationError(unittest.TestCase):
         self.assertNotEqual(ValidationError({"field1": error4}), error4)
 
     def test_eq_nested(self):
+        """
+        Tests the equality of `ValidationError` objects with nested error dictionaries.
+
+        The function checks if two `ValidationError` objects are considered equal based on their error dictionaries.
+        Equality is verified whether the order of the parameters in the validation error message and the order of the keys in the error dictionary differ.
+        It also checks if the objects are not equal when the error dictionaries have different values for the same key or when the validation error message has different parameters or parameter order.
+
+        The test cases cover the following scenarios:
+        - equality when comparing an object with itself
+        - equality when the order of parameters in the validation error message differs
+        - inequality when the error dictionaries have different values for the same key
+        - inequality when the validation error message has different parameters
+        """
         error_dict = {
             "field1": ValidationError(
                 "error %(parm1)s %(parm2)s",

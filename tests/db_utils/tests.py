@@ -50,6 +50,11 @@ class ConnectionHandlerTests(SimpleTestCase):
         self.assertEqual(conn.settings, conn.databases)
 
     def test_nonexistent_alias(self):
+        """
+        Checks if a :class:`ConnectionDoesNotExist` exception is raised when attempting to access a nonexistent database connection alias. 
+
+        The test case verifies that the connection handler correctly handles cases where an alias is not defined, ensuring that an informative error message is provided to the user.
+        """
         msg = "The connection 'nonexistent' doesn't exist."
         conns = ConnectionHandler(
             {
@@ -63,6 +68,19 @@ class ConnectionHandlerTests(SimpleTestCase):
 class DatabaseErrorWrapperTests(TestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
     def test_reraising_backend_specific_database_exception(self):
+        """
+
+        Test that a PostgreSQL-specific database exception is reraised correctly.
+
+        This test verifies that when a PostgreSQL backend-specific exception occurs,
+        it is wrapped in a higher-level exception and the original exception is preserved as the cause.
+        The test specifically checks the attributes of the cause exception, depending on whether psycopg3 is used.
+
+        The test case simulates a situation where a non-existent table is attempted to be dropped,
+        resulting in a database error that is then reraised by the Django database backend.
+
+
+        """
         from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
         with connection.cursor() as cursor:

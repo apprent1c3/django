@@ -338,6 +338,12 @@ class PasswordResetTest(AuthViewsTestCase):
         )
 
     def test_reset_custom_redirect(self):
+        """
+        Tests that resetting a password with a custom redirect endpoint correctly redirects the user.
+
+        This test case sends a POST request to the password reset custom redirect endpoint with a valid email address,
+        then verifies that the response redirects the user to the custom redirect URL without following the redirect.
+        """
         response = self.client.post(
             "/password_reset/custom_redirect/", {"email": "staffmember@example.com"}
         )
@@ -450,6 +456,20 @@ class PasswordResetTest(AuthViewsTestCase):
         self.assertEqual(client.session["_password_reset_token"], token)
 
     def test_confirm_custom_reset_url_token_link_redirects_to_set_password_page(self):
+        """
+
+        Confirm custom reset URL token link redirects to set password page.
+
+        This test checks that a custom reset URL token link correctly redirects the user
+        to the set password page. The test verifies that the redirect URL is correctly
+        formatted and that the password reset token is stored in the user's session.
+
+        The test starts by generating a custom reset URL, then simulates a GET request
+        to that URL. It checks that the response is a redirect to the set password page,
+        and that the redirect URL includes the correct user ID and token. Finally, it
+        verifies that the password reset token is stored in the user's session.
+
+        """
         url, path = self._test_confirm_start()
         path = path.replace("/reset/", "/reset/custom/token/")
         client = Client()
@@ -832,6 +852,15 @@ class LoginTest(AuthViewsTestCase):
     def test_login_form_contains_request(self):
         # The custom authentication form for this login requires a request to
         # initialize it.
+        """
+        Tests that a successful login via the custom request authentication form redirects to the login redirect URL.
+
+        Verifies that when a valid username and password are submitted to the login form, the user is successfully authenticated and redirected to the designated page.
+
+        Note:
+            This test case assumes that the custom request authentication login form is correctly configured and that the test client has the necessary credentials.
+
+        """
         response = self.client.post(
             "/custom_request_auth_login/",
             {
@@ -956,6 +985,15 @@ class LoginTest(AuthViewsTestCase):
         self.assertRedirects(response, "/test/", fetch_redirect_response=False)
 
     def test_login_redirect_url_overrides_get_default_redirect_url(self):
+        """
+
+        Tests that the login redirect URL can be overridden by passing a 'next' parameter in the GET request.
+
+        The function checks if the login process correctly redirects the user to a custom URL specified in the 'next' parameter of the GET request.
+
+        :return: None
+
+        """
         response = self.login(url="/login/get_default_redirect_url/?next=/test/")
         self.assertRedirects(response, "/test/", fetch_redirect_response=False)
 
@@ -1037,6 +1075,19 @@ class RedirectToLoginTests(AuthViewsTestCase):
 
     @override_settings(LOGIN_URL=reverse_lazy("login"))
     def test_redirect_to_login_with_lazy(self):
+        """
+
+        Tests the redirect to login functionality using a lazy login URL.
+
+        This test verifies that when the user is redirected to the login page, the 
+        next URL is correctly appended to the redirect URL. It checks if the 
+        redirect response URL matches the expected URL, which includes the login 
+        page and the original URL as the next parameter.
+
+        The test case ensures that the redirect_to_login function behaves as expected 
+        when using a lazy login URL, which is set to '/login/' in this test scenario.
+
+        """
         login_redirect_response = redirect_to_login(next="/else/where/")
         expected = "/login/?next=/else/where/"
         self.assertEqual(expected, login_redirect_response.url)
@@ -1201,6 +1252,18 @@ class LoginSuccessURLAllowedHostsTest(AuthViewsTestCase):
         )
 
     def test_success_url_allowed_hosts_safe_host(self):
+        """
+
+        Tests that a successful login redirects to a URL on a host in ALLOWED_HOSTS.
+
+        Verifies that after a successful authentication attempt, the user is redirected to
+        the originally requested URL, which is on a hostname that is configured as an
+        allowed host.
+
+        The test checks that the user's session is successfully authenticated after logging
+        in, and that the redirect URL matches the originally requested URL.
+
+        """
         response = self.client.post(
             "/login/allowed_hosts/",
             {

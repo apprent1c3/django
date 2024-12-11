@@ -431,6 +431,14 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def mysql_version(self):
+        """
+        .. method:: mysql_version(self)
+            :return: A tuple containing the MySQL version numbers (major, minor, patch) as integers.
+            :raises Exception: If the MySQL version cannot be determined from the server information.
+
+            Retrieves the version of the MySQL server. The version is parsed from the server information string
+            and returned as a tuple of integers. This property is lazily evaluated and its result is cached.
+        """
         match = server_version_re.match(self.mysql_server_info)
         if not match:
             raise Exception(

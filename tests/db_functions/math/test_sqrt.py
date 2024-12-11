@@ -11,6 +11,16 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class SqrtTests(TestCase):
     def test_null(self):
+        """
+
+        Tests the behavior of the Sqrt function when dealing with null values.
+
+        This test case verifies that the Sqrt function correctly handles null input values
+        by checking that the result is also null. It creates an instance of IntegerModel,
+        annotates it with the Sqrt function applied to the 'normal' field, and then asserts
+        that the resulting 'null_sqrt' value is None.
+
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_sqrt=Sqrt("normal")).first()
         self.assertIsNone(obj.null_sqrt)

@@ -28,6 +28,20 @@ class AreaField(models.FloatField):
         return getattr(value, area_att) if area_att else value
 
     def from_db_value(self, value, expression, connection):
+        """
+        ..: 
+            Convert a database value to a Python object.
+
+            This method is used to transform a database value retrieved from the database
+            into a Python object that can be used in the application. It handles cases
+            where the value is None, a Decimal object, or a value that needs to be
+            converted into an Area object.
+
+            :param value: The value from the database
+            :param expression: The expression that was used to retrieve the value
+            :param connection: The database connection
+            :return: The converted Python object or the original value if no conversion is needed
+        """
         if value is None:
             return
         # If the database returns a Decimal, convert it to a float as expected
@@ -50,6 +64,13 @@ class DistanceField(models.FloatField):
         self.geo_field = geo_field
 
     def get_prep_value(self, value):
+        """
+        ..:param value: The value to be prepared
+        :returns: The prepared value, unchanged if it's an instance of Distance, otherwise the result of the superclass's get_prep_value method
+        :rtype: Distance or object
+
+        Prepares a given value for further processing, with special handling for Distance instances, which are returned unchanged. For all other types, the superclass's preparation logic is applied.
+        """
         if isinstance(value, Distance):
             return value
         return super().get_prep_value(value)
@@ -65,6 +86,26 @@ class DistanceField(models.FloatField):
         return getattr(value, distance_att)
 
     def from_db_value(self, value, expression, connection):
+        """
+
+        Converts a database value to a Python object.
+
+        This function transforms a value retrieved from the database into a Python object
+        that can be used in the application. It takes into account the database connection
+        and the specific field being queried.
+
+        The returned value is either a Distance object or the original value, depending
+        on the database's support for geospatial data.
+
+        Args:
+            value (any): The value retrieved from the database.
+            expression (any): The expression used to retrieve the value.
+            connection (any): The database connection.
+
+        Returns:
+            any: The converted value or None if the input value is None.
+
+        """
         if value is None:
             return
         distance_att = connection.ops.get_distance_att_for_field(self.geo_field)

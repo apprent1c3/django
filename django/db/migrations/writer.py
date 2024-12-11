@@ -23,6 +23,20 @@ class OperationWriter:
 
     def serialize(self):
         def _write(_arg_name, _arg_value):
+            """
+
+            Writes the argument name and value to the serialization output.
+
+            If the argument value is a list, tuple, or dictionary and its name is in
+            :attr:`operation.serialization_expand_args`, it will be expanded into a
+            multi-line format. Otherwise, the value will be serialized as a single line.
+
+            The function handles recursion and indentation for nested data structures.
+
+            :param _arg_name: The name of the argument to write.
+            :param _arg_value: The value of the argument to write.
+
+            """
             if _arg_name in self.operation.serialization_expand_args and isinstance(
                 _arg_value, (list, tuple, dict)
             ):
@@ -122,6 +136,22 @@ class MigrationWriter:
     """
 
     def __init__(self, migration, include_header=True):
+        """
+        Initialize a migration object.
+
+        Parameters
+        ----------
+        migration : object
+            The migration object to be processed.
+        include_header : bool, optional
+            Flag indicating whether to include the header in the migration. Defaults to True.
+
+        This initializer sets up the necessary attributes for a migration object, including
+        the migration data itself and a flag to track whether a header is included. It also
+        initializes a flag to track whether manual porting is needed, which is initially set
+        to False. This class is likely used to manage and process migrations in a larger
+        system or application.
+        """
         self.migration = migration
         self.include_header = include_header
         self.needs_manual_porting = False

@@ -33,6 +33,17 @@ class MigrationTestBase(TransactionTestCase):
             return connections[using].introspection.get_table_description(cursor, table)
 
     def assertTableExists(self, table, using="default"):
+        """
+
+        Assert that a specific table exists in the database.
+
+        This method checks if a given table is present in the database using the specified
+        database connection. It raises an AssertionError if the table does not exist.
+
+        :param table: The name of the table to check for existence.
+        :param using: The database connection to use (defaults to 'default').
+
+        """
         with connections[using].cursor() as cursor:
             self.assertIn(table, connections[using].introspection.table_names(cursor))
 
@@ -92,6 +103,31 @@ class MigrationTestBase(TransactionTestCase):
     def assertIndexExists(
         self, table, columns, value=True, using="default", index_type=None
     ):
+        """
+
+        Asserts that a specific index exists on a database table.
+
+        This function checks for the presence of an index on the specified columns of a table.
+        It can verify the existence of an index with a specific type, but can also check for
+        any type of index. By default, it checks for non-unique indexes.
+
+        The function returns True if the index exists and False otherwise. It can be used to
+        validate database schema.
+
+        Parameters
+        ----------
+        table : str
+            The name of the table to check.
+        columns : list
+            A list of column names to check the index for.
+        value : bool, optional
+            Whether the index should exist or not (default is True).
+        using : str, optional
+            The database connection to use (default is 'default').
+        index_type : str, optional
+            The type of index to check for (default is None, which means any type of index).
+
+        """
         with connections[using].cursor() as cursor:
             self.assertEqual(
                 value,
@@ -139,6 +175,21 @@ class MigrationTestBase(TransactionTestCase):
         return self.assertConstraintExists(table, name, False)
 
     def assertUniqueConstraintExists(self, table, columns, value=True, using="default"):
+        """
+        Asserts whether a unique constraint exists on the specified table columns.
+
+        Args:
+            table (str): The name of the table to check.
+            columns (list): A list of column names to check for a unique constraint.
+            value (bool, optional): Whether a unique constraint is expected to exist. Defaults to True.
+            using (str, optional): The database connection to use. Defaults to 'default'.
+
+        This assertion checks the existence of a unique constraint on the specified columns
+        of the given table. It uses the database connection's introspection capabilities
+        to retrieve the table's constraints and then checks if a unique constraint exists
+        on the specified columns. If the `value` parameter is True, the test will pass
+        if a unique constraint exists; otherwise, it will pass if no unique constraint exists. 
+        """
         with connections[using].cursor() as cursor:
             constraints = (
                 connections[using].introspection.get_constraints(cursor, table).values()
@@ -211,6 +262,13 @@ class OperationTestBase(MigrationTestBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class by initializing the database connection and storing the initial table names.
+
+        This method is called before running any tests in the class. It retrieves a list of existing table names from the database and stores them in the `_initial_table_names` class attribute for later use.
+
+        This setup is necessary to ensure that the tests have a known starting point and can properly clean up after themselves, avoiding any interference with other tests or data.
+        """
         super().setUpClass()
         cls._initial_table_names = frozenset(connection.introspection.table_names())
 
@@ -219,6 +277,21 @@ class OperationTestBase(MigrationTestBase):
         super().tearDown()
 
     def cleanup_test_tables(self):
+        """
+        Removes test tables that were created during testing.
+
+        This function identifies tables that were not present initially and deletes them.
+        It ensures that the database is restored to its original state after testing,
+        preventing any potential conflicts or data inconsistencies in subsequent tests.
+
+        The function operates on the database connection and uses a schema editor to
+        perform the necessary operations, including disabling constraint checks to allow
+        for deletion of tables with dependencies.
+
+        Note that this function only removes tables that were created after the initial
+        set of tables was recorded, and does not affect any existing data or tables that
+        were present initially.
+        """
         table_names = (
             frozenset(connection.introspection.table_names())
             - self._initial_table_names

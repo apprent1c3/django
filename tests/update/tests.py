@@ -157,6 +157,13 @@ class AdvancedTests(TestCase):
         self.assertEqual(bar_qs[0].foo_id, b_foo.target)
 
     def test_update_m2m_field(self):
+        """
+        Tests that updating a Many-To-Many field using the update method raises a FieldError.
+
+        This test case checks that attempting to update a Many-To-Many field (m2m_foo) on model Bar using the update method will fail and raise a FieldError with a descriptive message, as only non-relations and foreign keys are permitted for bulk updates.
+
+        The expected error message is 'Cannot update model field <django.db.models.fields.related.ManyToManyField: m2m_foo> (only non-relations and foreign keys permitted)'.
+        """
         msg = (
             "Cannot update model field "
             "<django.db.models.fields.related.ManyToManyField: m2m_foo> "
@@ -166,6 +173,16 @@ class AdvancedTests(TestCase):
             Bar.objects.update(m2m_foo="whatever")
 
     def test_update_transformed_field(self):
+        """
+
+        Tests the update functionality of a model's field after applying a transformation lookup.
+
+        This test case checks if a custom lookup (Absolute value) can be successfully applied 
+        to a model field, and if the values in the field can be updated to their absolute values.
+
+        It verifies that the update operation correctly transforms both positive and negative values.
+
+        """
         A.objects.create(x=5)
         A.objects.create(x=-6)
         with register_lookup(IntegerField, Abs):
@@ -211,6 +228,21 @@ class AdvancedTests(TestCase):
             qs.update(name=F("max"))
 
     def test_update_with_joined_field_annotation(self):
+        """
+
+        Tests the update functionality with field annotations that include joined fields.
+
+        This test case verifies that the ORM raises a FieldError when attempting to update a model instance
+        with an annotation that references a joined field. The test checks various annotation types,
+        including F expressions and built-in database functions like Lower and Concat, to ensure that
+        the error is consistently raised for all invalid annotation types.
+
+        The test scenario involves a RelatedPoint model with a related 'data' field, which is used to
+        create annotations that reference joined fields. The expected error message is \"Joined field
+        references are not permitted in this query\", indicating that the ORM does not support updating
+        a model instance with a joined field reference in the annotation.
+
+        """
         msg = "Joined field references are not permitted in this query"
         with register_lookup(CharField, Lower):
             for annotation in (
@@ -226,6 +258,19 @@ class AdvancedTests(TestCase):
                         ).update(name=F("new_name"))
 
     def test_update_ordered_by_m2m_aggregation_annotation(self):
+        """
+
+        Tests that updating a model instance raises an error when ordered by an aggregate annotation on a many-to-many field.
+
+        This test ensures that attempting to update model instances that are ordered by an aggregate annotation, 
+        such as a Count on a many-to-many field, results in a FieldError being raised.
+
+        The error occurs because Django cannot guarantee the stability of the ordering when using aggregate annotations 
+        in the ordering clause, and thus does not allow updates to be performed in this scenario.
+
+        The expected error message is \"Cannot update when ordering by an aggregate: Count(Col(update_bar_m2m_foo, update.Bar_m2m_foo.foo))\".
+
+        """
         msg = (
             "Cannot update when ordering by an aggregate: "
             "Count(Col(update_bar_m2m_foo, update.Bar_m2m_foo.foo))"
@@ -250,6 +295,18 @@ class AdvancedTests(TestCase):
         self.assertEqual(Bar.objects.get().x, 3)
 
     def test_update_ordered_by_m2m_annotation_desc(self):
+        """
+
+        Tests that updating model instances ordered by a many-to-many field annotation works as expected.
+
+        Verifies that the update operation is applied to the correct instances when the queryset is ordered by
+        a many-to-many field in descending order, using an annotation to compute the absolute value of the related
+        object's id.
+
+        The test case checks that the update is successful by asserting that the updated attribute matches the
+        expected value.
+
+        """
         foo = Foo.objects.create(target="test")
         Bar.objects.create(foo=foo)
 
@@ -257,6 +314,21 @@ class AdvancedTests(TestCase):
         self.assertEqual(Bar.objects.get().x, 4)
 
     def test_update_negated_f(self):
+        """
+        Tests the update functionality of DataPoint objects with negated 'is_active' status.
+
+        This test checks the correctness of toggling the 'is_active' field of DataPoint objects using the update method. It verifies that the 'is_active' status is correctly flipped for all DataPoint instances and that this change is persisted across multiple updates. The test cases cover scenarios where the 'is_active' status is initially True or False, ensuring that the update method behaves as expected in both cases.
+
+        The test validates the outcome by comparing the expected and actual 'is_active' status of the DataPoint objects after each update operation, confirming that the update functionality works as intended.
+
+        The test scenario involves the following steps:
+            * Initial update: Toggles the 'is_active' status of all DataPoint objects.
+            * Verification: Checks that the 'is_active' status of the DataPoint objects matches the expected values after the initial update.
+            * Second update: Toggles the 'is_active' status again.
+            * Final verification: Confirms that the 'is_active' status of the DataPoint objects matches the expected values after the second update.
+
+        This test provides assurance that the update functionality with negated 'is_active' status works correctly and reliably for DataPoint objects.
+        """
         DataPoint.objects.update(is_active=~F("is_active"))
         self.assertCountEqual(
             DataPoint.objects.values_list("name", "is_active"),
@@ -269,6 +341,20 @@ class AdvancedTests(TestCase):
         )
 
     def test_update_negated_f_conditional_annotation(self):
+        """
+
+        Tests the update functionality on a queryset with a negated F expression
+        in the conditional annotation.
+
+        This test case verifies that the is_active field of DataPoints is correctly
+        updated based on the negation of a conditional annotation. The annotation
+        checks if the name of a DataPoint is 'd2', and if so, sets is_d2 to True.
+        The update operation then sets is_active to the negation of is_d2.
+
+        The test asserts that the resulting DataPoints have the correct is_active
+        status, with 'd2' being inactive and all other DataPoints being active.
+
+        """
         DataPoint.objects.annotate(
             is_d2=Case(When(name="d2", then=True), default=False)
         ).update(is_active=~F("is_d2"))
@@ -327,6 +413,15 @@ class MySQLUpdateOrderByTest(TestCase):
     def test_order_by_update_on_parent_unique_constraint(self):
         # Ordering by inherited fields is omitted because joined fields cannot
         # be used in the ORDER BY clause.
+        """
+
+        Tests if updating rows in the UniqueNumberChild model ordered by the 'number' field
+        raises an IntegrityError when a unique constraint on the 'number' field is violated.
+        The test creates multiple UniqueNumberChild objects with unique numbers and then
+        attempts to update them in a way that would introduce duplicate numbers, verifying
+        that the database correctly enforces the unique constraint.
+
+        """
         UniqueNumberChild.objects.create(number=3)
         UniqueNumberChild.objects.create(number=4)
         with self.assertRaises(IntegrityError):

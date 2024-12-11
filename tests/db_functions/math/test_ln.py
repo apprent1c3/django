@@ -16,6 +16,19 @@ class LnTests(TestCase):
         self.assertIsNone(obj.null_ln)
 
     def test_decimal(self):
+        """
+
+        Test the application of the natural logarithm (ln) function to decimal fields in a model.
+
+        This function creates an instance of DecimalModel with specified decimal values, 
+        annotates the model with the natural logarithm of these values, and asserts that 
+        the resulting values are of the correct type (Decimal) and match the expected results 
+        calculated using the math.log function. 
+
+        The test verifies the correct behavior of the Ln function when applied to decimal fields 
+        in a Django model, ensuring that it produces accurate and correctly typed results.
+
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_ln=Ln("n1"), n2_ln=Ln("n2")).first()
         self.assertIsInstance(obj.n1_ln, Decimal)

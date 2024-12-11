@@ -536,6 +536,11 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_crosses(self):
+        """
+        Checks whether two geometric objects cross each other.
+        This method evaluates the spatial relationship between two objects and returns True 
+        if they have some, but not all, interior points in common, False otherwise.
+        """
         self.assertIs(
             OGRGeometry("LINESTRING(0 0, 1 1)").crosses(
                 OGRGeometry("LINESTRING(0 1, 1 0)")
@@ -572,6 +577,22 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_intersects(self):
+        """
+        Tests the intersects method of OGRGeometry objects.
+
+        This test case checks if two geometries intersect with each other. It verifies 
+        that the method correctly identifies intersections between two line strings 
+        that cross each other and correctly identifies non-intersections between 
+        two line strings that are parallel to each other.
+
+        The test includes two scenarios:
+        - Two line strings that intersect at a single point.
+        - Two line strings that do not intersect, as they are parallel to each other.
+
+        The expected results are:
+        - True for intersecting geometries.
+        - False for non-intersecting geometries. 
+        """
         self.assertIs(
             OGRGeometry("LINESTRING(0 0, 1 1)").intersects(
                 OGRGeometry("LINESTRING(0 1, 1 0)")
@@ -730,6 +751,10 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
             geom.set_3d(None)
 
     def test_wkt_and_wkb_output(self):
+        """
+        Tests the WKT and WKB output of various geometric objects, including points, line strings, polygons, multi points, multi line strings, multi polygons, and geometry collections, both in 2D and 3D space. 
+        Verifies that the Well-Known Text (WKT) representation and the Well-Known Binary (WKB) hexadecimal representation of the geometry objects match the expected values.
+        """
         tests = [
             # 2D
             ("POINT (1 2)", "0101000000000000000000f03f0000000000000040"),
@@ -901,6 +926,18 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(geometrycollection.centroid.wkt, "POINT (110 30)")
 
     def test_linestring_m_dimension(self):
+        """
+
+        Tests the functionality of a linestring geometry with an m-dimension.
+
+        Verifies the creation and properties of a linestring geometry with 
+        measured values (m-dimension), including ensuring that the is_measured 
+        flag is correctly set and that the m values are properly assigned and 
+        accessible. The test also covers the case where a linestring is defined 
+        with the 'M' keyword and checks the behavior when the measured dimension 
+        is explicitly disabled.
+
+        """
         geom = OGRGeometry("LINESTRING(0 1 2 10, 1 2 3 11, 2 3 4 12)")
         self.assertIs(geom.is_measured, True)
         self.assertEqual(geom.m, [10.0, 11.0, 12.0])
@@ -916,6 +953,20 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertIs(geom.m, None)
 
     def test_polygon_m_dimension(self):
+        """
+        Test support for the M dimension in OGR polygons.
+
+        Verifies that polygons with an M dimension can be created and that their measured status can be toggled.
+
+        Specifically, it checks the following:
+
+        * Polygons created without an M dimension do not have measurements.
+        * Polygons created with an M dimension do have measurements.
+        * The WKT representation of the polygon's shell matches the expected format.
+        * Setting the measured status of a polygon to False removes the measurements.
+
+        Ensures correct functionality of OGRGeometry objects with the M dimension.
+        """
         geom = OGRGeometry("POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))")
         self.assertIs(geom.is_measured, False)
         self.assertEqual(

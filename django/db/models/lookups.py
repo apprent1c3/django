@@ -314,6 +314,23 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
             return super().process_rhs(compiler, connection)
 
     def resolve_expression_parameter(self, compiler, connection, sql, param):
+        """
+        Resolves an expression parameter for use in a SQL query.
+
+        This method takes an expression parameter and resolves it into a SQL string and
+        a list of parameter values. If the parameter is an object with a `resolve_expression`
+        method, it is used to resolve the parameter into an expression that can be used in a
+        SQL query. If the resolved parameter has an `as_sql` method, it is compiled into a
+        SQL string and a list of parameter values.
+
+        Returns:
+            A tuple containing the resolved SQL string and a list of parameter values.
+        Parameters:
+            compiler: The query compiler to use for compilation.
+            connection: The database connection to use for the query.
+            sql: The original SQL query.
+            param: The expression parameter to resolve.
+        """
         params = [param]
         if hasattr(param, "resolve_expression"):
             param = param.resolve_expression(compiler.query)
@@ -322,6 +339,28 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
         return sql, params
 
     def batch_process_rhs(self, compiler, connection, rhs=None):
+        """
+        Batch processes the right-hand side of SQL expressions.
+
+        This method preprocesses the right-hand side (RHS) of SQL expressions, and then 
+        resolves any expression parameters. It returns a tuple containing a string of 
+        SQL expressions and a tuple of the resolved parameters.
+
+        Parameters
+        ----------
+        compiler : object
+            The compiler object used for the SQL expressions.
+        connection : object
+            The database connection object.
+        rhs : object, optional
+            The right-hand side of the SQL expression (default is None).
+
+        Returns
+        -------
+        tuple
+            A tuple containing a string of SQL expressions and a tuple of resolved parameters.
+
+        """
         pre_processed = super().batch_process_rhs(compiler, connection, rhs)
         # The params list may contain expressions which compile to a
         # sql/param pair. Zip them to get sql and param pairs that refer to the
@@ -442,6 +481,15 @@ class IntegerFieldFloatRounding:
     """
 
     def get_prep_lookup(self):
+        """
+        Returns the prepared lookup value, adjusting the lookup value to the ceiling of the input if it's a floating point number.
+
+        This method ensures that floating point numbers are rounded up to the nearest integer before being used in a lookup, effectively treating them as if they were integer values. 
+
+        Returns:
+            The prepared lookup value.
+
+        """
         if isinstance(self.rhs, float):
             self.rhs = math.ceil(self.rhs)
         return super().get_prep_lookup()
@@ -479,6 +527,20 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     lookup_name = "in"
 
     def get_refs(self):
+        """
+
+        Return a set of references associated with this object.
+
+        This method expands on the references obtained from the parent class by also
+        including references from the right-hand side (RHS) components, if they
+        are direct values. It recursively gathers references from each RHS component
+        that has a `get_refs` method, effectively aggregating all relevant references
+        into a single set.
+
+        The returned set includes all references that can be traced from this object,
+        providing a comprehensive overview of its dependencies and relationships.
+
+        """
         refs = super().get_refs()
         if self.rhs_is_direct_value():
             for rhs in self.rhs:

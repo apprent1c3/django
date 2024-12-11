@@ -241,6 +241,26 @@ class IndexExpression(Func):
         summarize=False,
         for_save=False,
     ):
+        """
+        Resolves an expression by flattening and processing its components, handling indexed expressions and wrappers.
+
+        This method takes several parameters to control the resolution process:
+
+        * `query`: The query to use for resolution.
+        * `allow_joins`: A flag indicating whether joins are allowed during resolution.
+        * `reuse`: An object to reuse during resolution.
+        * `summarize`: A flag indicating whether to summarize the resolution result.
+        * `for_save`: A flag indicating whether the resolution is for saving purposes.
+
+        The method first flattens the expression into its constituent parts, then separates index expressions from wrappers. It validates the expression structure, ensuring that wrappers are used correctly and that index expressions are properly ordered.
+
+        The method then resolves the root expression and, if necessary, wraps it in a function call. It processes any wrappers present in the expression, ordering and linking them correctly.
+
+        Finally, the method resolves the expression using the processed components and returns the result, passing any unresolved parts to the parent class for further processing.
+
+        Raises:
+            ValueError: If multiple references to the same wrapper class are used in an indexed expression, or if a wrapper is not used as a topmost expression.
+        """
         expressions = list(self.flatten())
         # Split expressions and wrappers.
         index_expressions, wrappers = partition(

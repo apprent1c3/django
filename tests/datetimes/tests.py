@@ -8,6 +8,18 @@ from .models import Article, Category, Comment
 
 class DateTimesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+        Tests traversal of related models using the datetimes() method.
+
+        This test creates multiple Articles with related Comments, and associates some
+        Articles with a Category. It then verifies that the datetimes() method
+        correctly returns a list of dates for various date parts (year, month, week, day)
+        when traversing from one model to a related model. The tests cover traversals
+        from Comments to Articles and from Articles to Comments, as well as from
+        Categories to Articles. The expected dates are compared with the results of the
+        datetimes() method to ensure that the traversal is correct and returns the
+        expected dates.
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.datetime(2005, 7, 28, 9, 0, 0),
@@ -188,6 +200,11 @@ class DateTimesTests(TestCase):
             list(Article.objects.datetimes("published_on", "second"))
 
     def test_datetimes_fails_when_given_invalid_kind_argument(self):
+        """
+        Test that the datetimes method on the Article manager fails when passed an invalid 'kind' argument.
+
+        The datetimes method is expected to raise a ValueError when the 'kind' argument does not match one of the following values: 'year', 'month', 'week', 'day', 'hour', 'minute', or 'second'. This test verifies that the appropriate error message is provided when an invalid 'kind' argument is supplied.
+        """
         msg = (
             "'kind' must be one of 'year', 'month', 'week', 'day', 'hour', "
             "'minute', or 'second'."
@@ -196,6 +213,14 @@ class DateTimesTests(TestCase):
             Article.objects.datetimes("pub_date", "bad_kind")
 
     def test_datetimes_fails_when_given_invalid_order_argument(self):
+        """
+
+        Tests that the datetimes method raises a ValueError when an invalid order argument is provided.
+
+        The datetimes method is expected to accept an 'order' parameter that is either 'ASC' for ascending order or 'DESC' for descending order. 
+        This test case verifies that passing any other value results in a ValueError with a descriptive error message.
+
+        """
         msg = "'order' must be either 'ASC' or 'DESC'."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.datetimes("pub_date", "year", order="bad order")

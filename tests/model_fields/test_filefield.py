@@ -74,6 +74,14 @@ class FileFieldTests(TestCase):
                 document.save()
 
     def test_save_content_file_without_name(self):
+        """
+
+        Tests that saving a Document instance fails when its ContentFile does not have a specified name.
+
+        This test verifies that attempting to save a Document with a ContentFile lacking a 'name' attribute raises a FieldError.
+        The expected error message indicates that a 'name' argument must be provided to ContentFile for the file to be saved.
+
+        """
         d = Document()
         d.myfile = ContentFile(b"")
         msg = "File for myfile must have the name attribute specified to be saved."
@@ -86,6 +94,17 @@ class FileFieldTests(TestCase):
             )
 
     def test_delete_content_file(self):
+        """
+        Tests that deleting a content file associated with a document results in the 'myfile' attribute being set to None and attempting to access the file raises a ValueError.
+
+        Checks the following conditions:
+
+        * The file is properly deleted from the document.
+        * The 'myfile' attribute is set to None after deletion.
+        * Accessing the file after deletion raises a ValueError with the expected error message.
+
+        Verifies the correct behavior of the document model when a content file is deleted, ensuring data consistency and preventing unexpected errors.
+        """
         file = ContentFile(b"", name="foo")
         d = Document.objects.create(myfile=file)
         d.myfile.delete()
@@ -151,6 +170,22 @@ class FileFieldTests(TestCase):
                     )
 
     def test_pickle(self):
+        """
+
+        Tests the pickling of Document instances and their associated File objects.
+
+        This test ensures that the key attributes of a Document, specifically its file, 
+        are preserved when the Document is pickled and then unpickled. It also verifies 
+        that the same attributes are preserved when the File object itself is pickled 
+        and unpickled.
+
+        The test covers the following aspects:
+        - The Document instance can be successfully pickled and unpickled.
+        - The file associated with the Document is correctly pickled and unpickled.
+        - The key attributes of the file (url, storage, instance, field) are preserved 
+          through the pickling and unpickling process, both for the Document and its file.
+
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(MEDIA_ROOT=Path(tmp_dir)):
                 with open(__file__, "rb") as fp:

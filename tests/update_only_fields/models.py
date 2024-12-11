@@ -28,6 +28,18 @@ class NonConcreteField(models.IntegerField):
         return None
 
     def get_attname_column(self):
+        """
+        Returns the attribute name and column for the current object.
+
+        This method extends the functionality of its parent class by returning
+        the attribute name along with a default column value of None.
+
+        The returned attribute name is retrieved from the parent class, while the
+        column is explicitly set to None.
+
+        :return: tuple containing the attribute name and column value
+        :rtype: tuple
+        """
         attname, _ = super().get_attname_column()
         return attname, None
 

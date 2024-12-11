@@ -552,6 +552,18 @@ class Field(RegisterLookupMixin):
 
     @cached_property
     def cached_col(self):
+        """
+
+        Returns a cached column expression object for the current model field.
+
+        This property provides a shortcut to create a :class:`~django.db.models.expressions.Col` instance,
+        which represents a column in the database table associated with the model.
+        The returned object can be used in database queries to reference the column.
+
+        The caching behavior ensures that the column expression object is only created once,
+        improving performance by avoiding redundant computations.
+
+        """
         from django.db.models.expressions import Col
 
         return Col(self.model._meta.db_table, self)
@@ -677,6 +689,11 @@ class Field(RegisterLookupMixin):
     def __lt__(self, other):
         # This is needed because bisect does not take a comparison function.
         # Order by creation_counter first for backward compatibility.
+        """
+        Determines if the current field is less than another field.
+
+        Comparison is based on the field's creation counter. If both fields have the same creation counter or lack of a model association, their order is determined by model metadata, specifically the application label and model name. If one field is associated with a model and the other is not, the unassociated field is considered less than the associated one. If both fields are unassociated or associated, the comparison falls back to the creation counter. If the compared object is not a Field instance, the comparison is not supported.
+        """
         if isinstance(other, Field):
             if (
                 self.creation_counter != other.creation_counter
@@ -700,6 +717,19 @@ class Field(RegisterLookupMixin):
     def __deepcopy__(self, memodict):
         # We don't have to deepcopy very much here, since most things are not
         # intended to be altered after initial creation.
+        """
+        Create a deep copy of the object, duplicating its attributes and relationships.
+
+        This method is responsible for creating a new, independent copy of the current object.
+        It ensures that all attributes and relationships, including remote fields, are properly copied.
+        The resulting copy is a new object that is not linked to the original, except through explicitly defined relationships.
+
+        The copying process preserves the object's structure and content, allowing the new object to be used independently.
+        The :attr:`memodict` parameter is used internally to track objects that have already been copied, to avoid infinite recursion.
+
+        This method is typically used by the :func:`copy.deepcopy` function, and should not be called directly unless you have a specific reason to do so.
+
+        """
         obj = copy.copy(self)
         if self.remote_field:
             obj.remote_field = copy.copy(self.remote_field)
@@ -775,6 +805,18 @@ class Field(RegisterLookupMixin):
         return [*self.default_validators, *self._validators]
 
     def run_validators(self, value):
+        """
+        Run field-level validation on the provided value.
+
+        This method checks the provided value against a set of predefined validators.
+        If the value is in the list of empty values, validation is skipped.
+        Otherwise, each validator is called in sequence with the value as an argument.
+        Any validation errors that occur during this process are collected and raised
+        as a single ValidationError exception, with error messages customized if possible.
+
+        :param value: The value to be validated.
+        :raises exceptions.ValidationError: If any validation error occurs.
+        """
         if value in self.empty_values:
             return
 
@@ -933,6 +975,16 @@ class Field(RegisterLookupMixin):
         )
 
     def set_attributes_from_name(self, name):
+        """
+
+        Sets attributes of the instance based on the provided name.
+
+        This method initializes or updates the instance's name, attribute name, and column
+        information. It also determines whether the instance is concrete based on the presence
+        of a column. If a verbose name has not been set, it is automatically generated from the
+        provided name by replacing underscores with spaces.
+
+        """
         self.name = self.name or name
         self.attname, self.column = self.get_attname_column()
         self.concrete = self.column is not None
@@ -1288,6 +1340,16 @@ class CharField(Field):
         return "CharField"
 
     def to_python(self, value):
+        """
+        Converts a value into a Python compatible format.
+
+        Returns the input value if it is already a string or None. 
+        Otherwise, converts the value to a string using its string representation.
+
+        :param value: The value to be converted
+        :rtype: str or None
+        :return: The converted value
+        """
         if isinstance(value, str) or value is None:
             return value
         return str(value)
@@ -1308,12 +1370,31 @@ class CharField(Field):
         return super().formfield(**defaults)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, allowing it to be serialized or reconstructed later.
+
+        This method enhances the base deconstruction behavior by including database collation information if it has been specified. The resulting deconstructed form can be used to accurately recreate the object, including any custom database collation settings that were applied. 
+
+        Returns:
+            A tuple containing the name, path, positional arguments, and keyword arguments that define the object.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.db_collation:
             kwargs["db_collation"] = self.db_collation
         return name, path, args, kwargs
 
     def slice_expression(self, expression, start, length):
+        """
+        Extracts a slice of characters from a database expression.
+
+        This function creates a database expression that returns a substring of a given 
+        expression, starting at the specified position and with the specified length.
+
+        :param expression: The database expression to extract from
+        :param start: The starting position of the slice
+        :param length: The length of the slice
+        :return: A database expression that returns the extracted slice
+        """
         from django.db.models.functions import Substr
 
         return Substr(expression, start, length)
@@ -1435,6 +1516,17 @@ class DateField(DateTimeCheckMixin, Field):
     def __init__(
         self, verbose_name=None, name=None, auto_now=False, auto_now_add=False, **kwargs
     ):
+        """
+        Initializes a new instance of the class, configuring its behavior and properties.
+
+        :param verbose_name: A human-readable name for the instance, used for display purposes.
+        :param name: The machine-readable name of the instance, used internally.
+        :param auto_now: Automatically sets the instance's value to the current time whenever the instance is updated.
+        :param auto_now_add: Automatically sets the instance's value to the current time when the instance is first created.
+        :note: When either `auto_now` or `auto_now_add` is `True`, the instance will be non-editable and allowed to be blank.
+
+        All additional keyword arguments (`**kwargs`) are passed to the parent class's initializer, allowing for further customization of the instance's behavior and properties.
+        """
         self.auto_now, self.auto_now_add = auto_now, auto_now_add
         if auto_now or auto_now_add:
             kwargs["editable"] = False
@@ -1656,6 +1748,25 @@ class DateTimeField(DateField):
     # get_next_by_FOO and get_prev_by_FOO
 
     def get_prep_value(self, value):
+        """
+        Prepares a value for storage by converting it to the appropriate Python object.
+
+        This method ensures that the provided value is properly formatted and timezone aware, 
+        if time zone support is enabled. It first attempts to convert the value using the 
+        parent class's method, followed by conversion to a Python object. If time zone support 
+        is active and the provided date/time value is naive (i.e., it does not include timezone 
+        information), a warning is issued and the value is converted to be timezone aware using 
+        the default timezone. The properly prepared value is then returned. 
+
+        Note: This method triggers a warning if it receives a naive datetime while time zone 
+        support is active. This warning can be avoided by providing timezone-aware datetime 
+        objects or by disabling time zone support. 
+
+        :param value: The value to be prepared for storage.
+        :returns: The prepared value, ready for storage.
+        :raises RuntimeWarning: If time zone support is active and a naive datetime is provided.
+
+        """
         value = super().get_prep_value(value)
         value = self.to_python(value)
         if value is not None and settings.USE_TZ and timezone.is_naive(value):
@@ -1795,6 +1906,13 @@ class DecimalField(Field):
         return decimal.Context(prec=self.max_digits)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its components, including name, path, arguments, and keyword arguments.
+
+         This method extends the deconstruction process provided by the parent class, adding any maximum digits and decimal places settings to the keyword arguments if they have been specified.
+
+         :return: A tuple containing the object's name, path, positional arguments, and keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.max_digits is not None:
             kwargs["max_digits"] = self.max_digits
@@ -1896,6 +2014,22 @@ class DurationField(Field):
         return duration_microseconds(value)
 
     def get_db_converters(self, connection):
+        """
+
+        Get a list of database converters for the given connection.
+
+        This function returns a list of converter functions that can be used to convert 
+        Python values to database values. It builds upon the converters returned by the 
+        parent class, adding an additional converter for duration fields if the database 
+        does not support native duration fields.
+
+        The returned converters are specific to the provided database connection and 
+        can be used to ensure that data is properly formatted for storage in the database.
+
+        :param connection: The database connection to get converters for
+        :return: A list of converter functions for the given connection
+
+        """
         converters = []
         if not connection.features.has_native_duration_field:
             converters.append(connection.ops.convert_durationfield_value)
@@ -2072,6 +2206,14 @@ class IntegerField(Field):
         ]
 
     def _check_max_length_warning(self):
+        """
+        Check if max_length setting is applicable for the current field.
+
+        Returns a list of warnings if 'max_length' is specified but ignored for this field type.
+        The warning suggests removing the 'max_length' parameter to avoid confusion.
+
+        :returns: A list of warnings (empty list if 'max_length' is not ignored)
+        """
         if self.max_length is not None:
             return [
                 checks.Warning(
@@ -2088,6 +2230,17 @@ class IntegerField(Field):
     def validators(self):
         # These validators can't be added at field initialization time since
         # they're based on values retrieved from `connection`.
+        """
+        Returns a list of validators for the current field, including any additional min and max value validators based on the field's internal database type.
+
+         The list of validators is generated by first retrieving the validators from the parent class, then checking the minimum and maximum values allowed by the field's internal type.
+
+         If the field's internal type has a minimum value and no MinValueValidator with a limit value greater than or equal to the minimum value is already included, a new MinValueValidator is added to the list.
+
+         Similarly, if the field's internal type has a maximum value and no MaxValueValidator with a limit value less than or equal to the maximum value is already included, a new MaxValueValidator is added to the list.
+
+         The resulting list of validators is then returned, ensuring that the field's value is within the valid range for its internal database type.
+        """
         validators_ = super().validators
         internal_type = self.get_internal_type()
         min_value, max_value = connection.ops.integer_field_range(internal_type)
@@ -2195,6 +2348,14 @@ class IPAddressField(Field):
     }
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object with the provided arguments and sets the maximum length to 15.
+
+        This constructor overrides the default initialization behavior by enforcing a fixed maximum length, ensuring consistency across all instances.
+
+        :param args: Variable number of non-keyword arguments
+        :param kwargs: Keyword arguments, with 'max_length' being overridden to 15
+        """
         kwargs["max_length"] = 15
         super().__init__(*args, **kwargs)
 
@@ -2325,6 +2486,13 @@ class NullBooleanField(BooleanField):
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the model field into its constituent parts, excluding null and blank validation parameters.
+
+        This method is used by the Django database migration framework to serialize the model field into a format that can be stored in a migration file.
+
+        It returns a tuple containing the model field's name, path, positional arguments, and keyword arguments, with the null and blank validation parameters removed.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["null"]
         del kwargs["blank"]
@@ -2411,6 +2579,18 @@ class SlugField(CharField):
     def __init__(
         self, *args, max_length=50, db_index=True, allow_unicode=False, **kwargs
     ):
+        """
+        Initializes a field with custom validation rules.
+
+        This field accepts a variable number of arguments and keyword arguments.
+        The following parameters are available:
+
+        * max_length: The maximum length of the field. Defaults to 50.
+        * db_index: Whether to create a database index for the field. Defaults to True.
+        * allow_unicode: Whether to allow Unicode characters in the field. Defaults to False.
+
+        If Unicode characters are allowed, the field will be validated using Unicode slug validation rules.
+        """
         self.allow_unicode = allow_unicode
         if self.allow_unicode:
             self.default_validators = [validators.validate_unicode_slug]
@@ -2709,6 +2889,16 @@ class BinaryField(Field):
         return default
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Prepares a value for insertion into the database, converting it to a binary object if necessary.
+
+        This method takes a value and a database connection as input, and returns the prepared value. If the value is not None, it is converted to a binary object using the database connection's Binary class. Otherwise, the value is returned unchanged.
+
+        :param value: The value to be prepared for database insertion
+        :param connection: The database connection to use for preparation
+        :param prepared: A flag indicating whether the value has already been prepared
+        :return: The prepared value, or None if the input value is None
+        """
         value = super().get_db_prep_value(value, connection, prepared)
         if value is not None:
             return connection.Database.Binary(value)
@@ -2759,6 +2949,12 @@ class UUIDField(Field):
         return value.hex
 
     def to_python(self, value):
+        """
+        ..:param value: The value to be converted to a Python UUID object
+        ..:return: A UUID object if the input value is valid, otherwise the original value
+        ..:raises exceptions.ValidationError: If the input value is not a valid UUID, integer or hexadecimal string
+        ..:note: The function accepts integers or hexadecimal strings and converts them to UUID objects. If the input is already a UUID object or None, it is returned as is.
+        """
         if value is not None and not isinstance(value, uuid.UUID):
             input_form = "int" if isinstance(value, int) else "hex"
             try:
@@ -2794,6 +2990,15 @@ class AutoFieldMixin:
         ]
 
     def _check_primary_key(self):
+        """
+        Checks if the primary key has been set for AutoFields.
+
+        Ensures that a primary key is defined, which is a requirement for AutoFields. 
+        If the primary key is not set, it returns an error indicating that primary_key must be set to True.
+
+        Returns:
+            list: A list of errors if the primary key is not set, otherwise an empty list.
+        """
         if not self.primary_key:
             return [
                 checks.Error(
@@ -2821,6 +3026,20 @@ class AutoFieldMixin:
         return value
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contributes this field to the given class, handling auto-generated fields.
+
+        This method checks if the model already has an auto-generated field, and if so,
+        raises a ValueError. If not, it proceeds to contribute the field to the class
+        using the superclass implementation, and then marks the class as having an
+        auto-generated field.
+
+        :param cls: The model class to contribute the field to.
+        :param name: The name of the field.
+        :param kwargs: Additional keyword arguments.
+        :raises ValueError: If the model already has an auto-generated field.
+
+        """
         if cls._meta.auto_field:
             raise ValueError(
                 "Model %s can't have more than one auto-generated field."

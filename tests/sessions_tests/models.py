@@ -32,6 +32,19 @@ class SessionStore(DBStore):
         return CustomSession
 
     def create_model_instance(self, data):
+        """
+        Create an instance of a model, augmented with an account identifier.
+
+        This method extends the base model creation functionality by attempting to extract
+        an account ID from the provided data. The account ID is expected to be located under
+        the '_auth_user_id' key and is converted to an integer. If the conversion fails or
+        the key is missing, the account ID is set to None.
+
+        The resulting model instance is then returned, complete with the assigned account ID.
+
+        :param data: The data used to create the model instance
+        :return: The created model instance with an assigned account ID
+        """
         obj = super().create_model_instance(data)
 
         try:

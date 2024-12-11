@@ -70,6 +70,21 @@ class FileSystemStorageGenerateFilenameTests(StorageGenerateFilenameTests):
 
 class GenerateFilenameStorageTests(SimpleTestCase):
     def test_storage_dangerous_paths(self):
+        """
+
+        Tests the handling of potentially dangerous file paths in the FileSystemStorage class.
+
+        This test case checks that the get_available_name and generate_filename methods
+        raise a SuspiciousFileOperation exception when given file paths that could be
+        used to access files outside of the intended storage directory.
+
+        The test covers a range of potentially malicious file paths, including those
+        containing '..' and '.' directory traversal characters, as well as absolute and
+        relative paths. It verifies that the FileSystemStorage class correctly detects
+        and prevents these potentially dangerous file operations, both with and without
+        the allow_overwrite option enabled.
+
+        """
         candidates = [
             ("/tmp/..", ".."),
             ("\\tmp\\..", ".."),
@@ -128,6 +143,15 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     f.generate_filename(None, file_name)
 
     def test_filefield_dangerous_filename_dot_segments(self):
+        """
+        Tests that the FileField class correctly detects and prevents path traversal attempts
+        when generating filenames with dot segments.
+
+        The function verifies that a SuspiciousFileOperation exception is raised when a potentially
+        dangerous filename is provided, ensuring the security and integrity of file uploads.
+
+        :raises: SuspiciousFileOperation if a path traversal attempt is detected
+        """
         f = FileField(upload_to="some/folder/")
         msg = "Detected path traversal attempt in 'some/folder/../path'"
         with self.assertRaisesMessage(SuspiciousFileOperation, msg):
@@ -146,6 +170,21 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     f.generate_filename(None, file_name)
 
     def test_filefield_generate_filename(self):
+        """
+
+        Generates a filename for a file being uploaded through a :class:`FileField`.
+
+        This method takes into account the upload directory specified in the :class:`FileField`
+        instance and sanitizes the filename by replacing spaces with underscores, ensuring a valid
+        path is created.
+
+        The generated filename is then normalized using the system's path normalization rules.
+
+        :param None: The instance the file is being uploaded to (not used in this implementation)
+        :param str: The original filename of the uploaded file
+        :return: A normalized path to the generated filename
+
+        """
         f = FileField(upload_to="some/folder/")
         self.assertEqual(
             f.generate_filename(None, "test with space.txt"),
@@ -153,6 +192,28 @@ class GenerateFilenameStorageTests(SimpleTestCase):
         )
 
     def test_filefield_generate_filename_with_upload_to(self):
+        """
+        Tests the generation of a filename for a FileField when the upload_to parameter is specified.
+
+        This test case verifies that the filename is correctly generated based on the upload_to function.
+        The function is expected to return a string that represents the path where the file should be uploaded.
+        In this case, the upload_to function returns a path with a fixed directory and the original filename.
+        The test checks that the generated filename is correctly formatted and that spaces in the original filename are properly replaced with underscores, and then normalized using the os.path.normpath function.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AssertionError
+            If the generated filename does not match the expected result.
+
+        """
         def upload_to(instance, filename):
             return "some/folder/" + filename
 

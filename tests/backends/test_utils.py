@@ -19,6 +19,25 @@ from django.test import (
 
 class TestUtils(SimpleTestCase):
     def test_truncate_name(self):
+        """
+
+        Truncates a table name to a specified length while preserving its schema and uniqueness.
+
+        The function takes a table name, a maximum length, and an optional prefix length.
+        If the table name exceeds the maximum length, it is truncated and a unique hash is appended.
+        If a prefix length is provided, the table name is truncated to that length before appending the hash.
+        If the table name is already within the maximum length, it is returned unchanged.
+        This function handles table names with schemas and preserves the schema during truncation.
+
+        Args:
+            table_name (str): The name of the table to truncate.
+            max_length (int, optional): The maximum length of the truncated table name. Defaults to None.
+            prefix_length (int, optional): The length to truncate the table name to before appending the hash. Defaults to None.
+
+        Returns:
+            str: The truncated table name.
+
+        """
         self.assertEqual(truncate_name("some_table", 10), "some_table")
         self.assertEqual(truncate_name("some_long_table", 10), "some_la38a")
         self.assertEqual(truncate_name("some_long_table", 10, 3), "some_loa38")
@@ -74,6 +93,15 @@ class TestUtils(SimpleTestCase):
             equal("1234567890.1234", 5, None, "1234600000")
 
     def test_split_tzname_delta(self):
+        """
+        Tests the split_tzname_delta function to ensure it correctly separates time zone names from their UTC offset components.
+
+        The function is expected to extract the base time zone name, the sign of the offset (if any), and the offset value (if any) from a given time zone string.
+
+        Examples of time zone strings include 'Asia/Ust+Nera', 'America/Coral_Harbour+02:30', and 'UTC-04:43'. The function should handle various time zone formats and return a tuple containing the base time zone name, the offset sign, and the offset value.
+
+        The test cases cover a range of scenarios, including time zones with and without UTC offsets, and time zones with different offset formats.
+        """
         tests = [
             ("Asia/Ust+Nera", ("Asia/Ust+Nera", None, None)),
             ("Asia/Ust-Nera", ("Asia/Ust-Nera", None, None)),
@@ -95,6 +123,16 @@ class CursorWrapperTests(TransactionTestCase):
     available_apps = []
 
     def _test_procedure(self, procedure_sql, params, param_types, kparams=None):
+        """
+        Tests a database procedure by executing it, calling it with provided parameters, and then removing it.
+
+        :param procedure_sql: The SQL statement used to create the procedure.
+        :param params: A list of parameters to pass to the procedure when it's called.
+        :param param_types: A list of data types corresponding to the parameters, used when removing the procedure.
+        :param kparams: Optional keyword parameters to pass to the procedure when it's called.
+        :note: This function assumes a connection to the database has already been established.
+
+        """
         with connection.cursor() as cursor:
             cursor.execute(procedure_sql)
         # Use a new cursor because in MySQL a procedure can't be used in the
@@ -131,6 +169,17 @@ class CursorWrapperTests(TransactionTestCase):
 
     @skipIfDBFeature("supports_callproc_kwargs")
     def test_unsupported_callproc_kparams_raises_error(self):
+        """
+        Tests that calling a stored procedure with keyword parameters raises a NotSupportedError.
+
+        This test verifies that the database backend correctly handles the case where keyword
+        parameters are passed to the callproc method, which is not supported by all database
+        backends. The expected error message is checked to ensure it matches the expected
+        behavior.
+
+        :raises: NotSupportedError if the database backend does not support keyword parameters
+            for stored procedures.
+        """
         msg = (
             "Keyword parameters for callproc are not supported on this database "
             "backend."

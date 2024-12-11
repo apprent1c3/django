@@ -49,6 +49,14 @@ class ManyToOneTests(TestCase):
 
     def test_get(self):
         # Article objects have access to their related Reporter objects.
+        """
+
+        Tests the retrieval of a reporter object.
+
+        Verifies that the retrieved reporter object has the correct id and name attributes,
+        matching the expected first name 'John' and last name 'Smith'.
+
+        """
         r = self.a.reporter
         self.assertEqual(r.id, self.r.id)
         self.assertEqual((r.first_name, self.r.last_name), ("John", "Smith"))
@@ -116,6 +124,19 @@ class ManyToOneTests(TestCase):
         )
 
     def test_set(self):
+        """
+
+        Tests the functionality of assigning and updating a set of articles to a reporter.
+
+        This test case creates new articles, assigns them to reporters, and checks that the
+        assignments are correctly updated. It also tests the 'set' method for replacing
+        the set of articles assigned to a reporter.
+
+        The test covers scenarios where an article is assigned to one reporter, then
+        reassigned to another, and verifies that the changes are correctly reflected in
+        the article sets of both reporters.
+
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -199,6 +220,20 @@ class ManyToOneTests(TestCase):
         self.assertFalse(hasattr(self.r2.article_set, "clear"))
 
     def test_assign_fk_id_value(self):
+        """
+
+        Tests the assignment of a foreign key id value to an instance attribute.
+
+        Verifies that setting the foreign key id attribute on an instance updates the 
+        related object reference and caching behavior accordingly. 
+
+        Specifically, this test checks that:
+        - Setting the foreign key id attribute updates the related object reference.
+        - The related object is not cached until it is accessed.
+        - Once accessed, the related object is cached.
+        - Subsequent assignments of the same foreign key id do not affect caching.
+
+        """
         parent = Parent.objects.create(name="jeff")
         child1 = Child.objects.create(name="frank", parent=parent)
         child2 = Child.objects.create(name="randy", parent=parent)
@@ -461,6 +496,17 @@ class ManyToOneTests(TestCase):
         )
 
     def test_delete(self):
+        """
+
+        Tests the deletion of Reporter objects and its cascading effect on associated Article objects.
+
+        Checks if deleting a Reporter instance correctly removes it from the database and 
+        verifies the ordering and presence of remaining Reporter and Article objects. 
+
+        Additionally, tests the bulk deletion of Reporter objects based on specific criteria 
+        applied to their associated Article objects, ensuring all related objects are removed.
+
+        """
         new_article1 = self.r.article_set.create(
             headline="John's second story",
             pub_date=datetime.date(2005, 7, 29),
@@ -712,6 +758,16 @@ class ManyToOneTests(TestCase):
 
     def test_multiple_foreignkeys(self):
         # Test of multiple ForeignKeys to the same model (bug #7125).
+        """
+        Tests the functionality of multiple foreign keys in various Django models.
+
+        This test case verifies that the relationships between models such as Category, Record, and Relation are correctly established and queried.
+        It checks that filters can be applied to traverse relationships between foreign keys, and that the correct results are returned.
+
+        Additionally, it tests the validation of foreign key assignments, ensuring that an instance of a different model cannot be assigned to a foreign key that expects a specific model type, in this case, a Child's parent must be a Parent instance.
+
+        The test covers multiple scenarios, including filtering by category names, traversing relationships between records, and validating foreign key constraints, to ensure the correct behavior of the models and their relationships.
+        """
         c1 = Category.objects.create(name="First")
         c2 = Category.objects.create(name="Second")
         c3 = Category.objects.create(name="Third")
@@ -809,6 +865,17 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [d1, d2])
 
     def test_clear_after_prefetch(self):
+        """
+        ..: 
+            Tests that clearing a prefetched many-to-one relationship clears the associated objects.
+
+            This test creates a city and a district associated with that city, 
+            then uses prefetch_related to load the city's districts. 
+            It verifies that the district is correctly associated with the city, 
+            then clears the districts and checks that the association is removed. 
+            The test ensures that the clear method behaves correctly 
+            even when the related objects have been prefetched.
+        """
         c = City.objects.create(name="Musical City")
         d = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -817,6 +884,19 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [])
 
     def test_remove_after_prefetch(self):
+        """
+
+        Tests the removal of a district from a city after prefetching the city's districts.
+
+        This test case ensures that when a city's districts are prefetched, removing a district
+        from the city correctly updates the city's districts. It verifies that the district 
+        is initially associated with the city and that after removal, the city's districts 
+        are updated accordingly.
+
+        It covers the scenario where a city has at least one district and the removal of that 
+        district results in the city having no districts.
+
+        """
         c = City.objects.create(name="Musical City")
         d = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -834,6 +914,11 @@ class ManyToOneTests(TestCase):
         self.assertEqual(city.districts.count(), 2)
 
     def test_set_after_prefetch(self):
+        """
+        Tests that setting related objects works correctly after prefetching, 
+        ensuring the operation updates the cached related objects and reflects 
+        the changes on subsequent queries.
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -870,6 +955,11 @@ class ManyToOneTests(TestCase):
             self.assertIs(child.parent, parent)
 
     def test_reverse_foreign_key_instance_to_field_caching(self):
+        """
+        Test that the foreign key instance to field caching works correctly when accessing a related object through a to_field relationship.
+
+        This test case verifies that the ORM can efficiently retrieve a related parent object from a child object without incurring additional database queries, ensuring the cache is properly utilized.
+        """
         parent = Parent.objects.create(name="a")
         ToFieldChild.objects.create(parent=parent)
         child = parent.to_field_children.get()
@@ -877,6 +967,13 @@ class ManyToOneTests(TestCase):
             self.assertIs(child.parent, parent)
 
     def test_add_remove_set_by_pk_raises(self):
+        """
+
+        Tests that adding, removing or setting a city on a country instance using a primary key raises a TypeError.
+
+        The function verifies that passing an integer primary key instead of a 'City' instance to the 'add', 'remove', or 'set' methods of a country's 'cities' field results in an error, ensuring that only 'City' objects can be associated with a country.
+
+        """
         usa = Country.objects.create(name="United States")
         chicago = City.objects.create(name="Chicago")
         msg = "'City' instance expected, got %s" % chicago.pk

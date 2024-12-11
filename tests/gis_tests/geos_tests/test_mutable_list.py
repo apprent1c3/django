@@ -29,6 +29,16 @@ class UserListA(ListMixin):
         # this would work:
         # self._list = self._mytype(items)
         # but then we wouldn't be testing length parameter
+        """
+
+        Initializes a list with a specified length and populates it with provided items.
+
+        :param length: The desired length of the list.
+        :param items: The items to populate the list with. If the number of items is less than the specified length, the remaining elements will be initialized with a default value.
+
+        :note: The list is then cast to a specific type (_mytype) before being stored in the instance.
+
+        """
         itemList = ["x"] * length
         for i, v in enumerate(items):
             itemList[i] = v
@@ -64,6 +74,19 @@ class ListMixinTest(unittest.TestCase):
     listType = UserListA
 
     def lists_of_len(self, length=None):
+        """
+
+        Generates a pair of lists, one containing integers from 0 to a specified length, 
+        and another containing the same integers but of a specific list type.
+
+        The length of the lists can be specified explicitly, otherwise it defaults to 
+        the instance's limit. The function returns a tuple containing both lists.
+
+        :param length: The desired length of the lists. If None, the instance's limit is used.
+        :rtype: tuple
+        :return: A pair of lists, one with integers and another with integers of the instance's list type.
+
+        """
         if length is None:
             length = self.limit
         pl = list(range(length))

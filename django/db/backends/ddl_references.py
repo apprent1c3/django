@@ -95,6 +95,11 @@ class Columns(TableColumns):
         super().__init__(table, columns)
 
     def __str__(self):
+        """
+        Returns a string representation of the object, listing its columns.
+        The string is a comma-separated list of column names, where each name is 
+        properly quoted. If a column suffix is defined, it is appended to the column name.
+        """
         def col_str(column, idx):
             col = self.quote_name(column)
             try:
@@ -124,6 +129,17 @@ class IndexName(TableColumns):
 
 class IndexColumns(Columns):
     def __init__(self, table, columns, quote_name, col_suffixes=(), opclasses=()):
+        """
+        Initializes a class instance for representing a database index.
+
+        :param table: The database table associated with the index.
+        :param columns: The columns in the table that are part of the index.
+        :param quote_name: A flag indicating whether to quote the index name.
+        :param col_suffixes: Optional tuple of column suffixes (default is an empty tuple).
+        :param opclasses: Optional tuple of operator classes (default is an empty tuple).
+
+        This constructor sets up the necessary attributes for the index, including operator classes, and then calls the parent class constructor to perform further initialization. The operator classes are stored as an instance attribute for later use. This class is likely used in the context of creating or manipulating database indexes, and provides a foundation for more specific index-related functionality.
+        """
         self.opclasses = opclasses
         super().__init__(table, columns, quote_name, col_suffixes)
 

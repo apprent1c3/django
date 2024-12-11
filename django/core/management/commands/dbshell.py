@@ -13,6 +13,17 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the parser for configuring the database connection and specifying additional parameters.
+
+        The database connection can be customized by specifying the target database using the '--database' option, which defaults to the 'default' database if not provided. The available databases are determined by the configured connections.
+
+        Additional parameters can be passed to the command using the 'parameters' argument, which accepts a variable number of values. These parameters can be used to further customize the behavior of the command.
+
+        Args:
+            parser: The argument parser to which the arguments will be added.
+
+        """
         parser.add_argument(
             "--database",
             default=DEFAULT_DB_ALIAS,

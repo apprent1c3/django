@@ -12,6 +12,13 @@ class UrlencodeTests(SimpleTestCase):
 
     @setup({"urlencode02": '/test/{{ urlbit|urlencode:"" }}/'})
     def test_urlencode02(self):
+        """
+        testName: test_urlencode02
+            Tests whether the urlencode filter correctly URL encodes a string containing a slash (/) within a template path.
+
+            The function verifies that the output string matches the expected URL-encoded result, ensuring that special characters are properly escaped.
+            It checks for correct replacement of special characters with their corresponding URL-encoded equivalents.
+        """
         output = self.engine.render_to_string("urlencode02", {"urlbit": "escape/slash"})
         self.assertEqual(output, "/test/escape%2Fslash/")
 

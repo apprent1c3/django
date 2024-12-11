@@ -32,6 +32,23 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(function(value), output)
 
     def test_escape(self):
+        """
+        Tests the HTML escaping functionality of the `escape` function.
+
+        This function verifies that special HTML characters are correctly replaced with 
+        their corresponding HTML entities. The tested characters include ampersand (&),
+        less-than sign (<), greater-than sign (>), quotation mark (\"), and single 
+        quotation mark (').
+
+        The function also checks that the `escape` function works correctly with 
+        various input patterns, including the special characters alone, surrounded by 
+        other text, and repeated. Additionally, it tests the function's behavior when 
+        passed a `lazystr` object instead of a regular string.
+
+        The expected output for each test case is compared with the actual output of 
+        the `escape` function to ensure that it produces the correct HTML-escaped 
+        strings.
+        """
         items = (
             ("&", "&amp;"),
             ("<", "&lt;"),
@@ -67,6 +84,13 @@ class TestUtilsHtml(SimpleTestCase):
         )
 
     def test_format_html_no_params(self):
+        """
+        Tests that the format_html function returns the correct HTML string when called without passing any arguments or keyword arguments.
+
+        The test checks that a deprecation warning is raised when format_html is called without arguments or keyword arguments, as this behavior is deprecated and will be removed in Django 6.0.
+
+        The test case uses a simple HTML string containing a name, and verifies that the formatted HTML string matches the expected output.
+        """
         msg = "Calling format_html() without passing args or kwargs is deprecated."
         # RemovedInDjango60Warning: when the deprecation ends, replace with:
         # msg = "args or kwargs must be provided."
@@ -76,6 +100,11 @@ class TestUtilsHtml(SimpleTestCase):
             self.assertEqual(format_html(f"<i>{name}</i>"), "<i>Adam</i>")
 
     def test_linebreaks(self):
+        """
+        测试输语句(linebreaks)处理多种换行符的功能，包括换行（\n）和回车（\r）。 
+
+        该测试案例包括多个具有不同换行符输入及其预期输出的测试场景，并检查linebreaks函数生成的输出与预期输出是否匹配，包括使用lazystr进行包装的输入情况。测试场景涵盖了嵌套换行、单行内的多个换行符以及混合换行符的常见使用方式。
+        """
         items = (
             ("para1\n\npara2\r\rpara3", "<p>para1</p>\n\n<p>para2</p>\n\n<p>para3</p>"),
             (
@@ -189,6 +218,23 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(escapejs, lazystr(value), output)
 
     def test_json_script(self):
+        """
+
+        Tests the json_script function to ensure it correctly escapes special characters
+        and generates a JSON script tag.
+
+        The function is tested with various inputs, including strings, dictionaries, and lazy strings,
+        to verify that the output is a properly formatted JSON script tag with escaped characters.
+
+        The tests cover different scenarios, such as:
+        - Escaping special characters in strings
+        - Escaping special characters in dictionary values
+        - Handling lazy strings
+
+        The test function checks if the output of the json_script function matches the expected result
+        for each test case, ensuring the function behaves as expected.
+
+        """
         tests = (
             # "<", ">" and "&" are quoted inside JSON strings
             (
@@ -270,6 +316,19 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(smart_urlquote(value), output)
 
     def test_conditional_escape(self):
+        """
+
+        Escapes HTML special characters in a string if it hasn't been marked as safe.
+
+        This function checks if a given string has been marked as safe from HTML escaping,
+        and if so, it returns the string unchanged. If the string hasn't been marked as safe,
+        it escapes any HTML special characters it contains.
+
+        For example, if a string contains HTML tags like '<h1>', they will be replaced with
+        their equivalent HTML entities like '&lt;h1&gt;'. This helps prevent XSS attacks
+        by ensuring that user-provided data is properly sanitized before being rendered as HTML.
+
+        """
         s = "<h1>interop</h1>"
         self.assertEqual(conditional_escape(s), "&lt;h1&gt;interop&lt;/h1&gt;")
         self.assertEqual(conditional_escape(mark_safe(s)), s)
@@ -277,6 +336,16 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_html_safe(self):
         @html_safe
+        """
+
+        Tests that the @html_safe decorator correctly marks classes and instances as HTML safe.
+
+        This decorator should add an __html__ method to both the class and instances of the class,
+        allowing them to be safely rendered as HTML without escaping. The test verifies that the
+        decorator has the desired effect by checking for the presence of the __html__ attribute
+        and ensuring that its output matches the string representation of the object.
+
+        """
         class HtmlClass:
             def __str__(self):
                 return "<h1>I'm a html class!</h1>"

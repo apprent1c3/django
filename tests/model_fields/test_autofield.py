@@ -26,6 +26,14 @@ class SmallAutoFieldTests(SmallIntegerFieldTests):
 
 class AutoFieldInheritanceTests(SimpleTestCase):
     def test_isinstance_of_autofield(self):
+        """
+        Checks if instances of BigAutoField and SmallAutoField are instances of Autofield.
+
+        This test verifies that both BigAutoField and SmallAutoField classes inherit from 
+        the Autofield class, ensuring they share the same base functionality. The test 
+        covers both BigAutoField and SmallAutoField to guarantee consistency across 
+        different auto field types.
+        """
         for field in (models.BigAutoField, models.SmallAutoField):
             with self.subTest(field.__name__):
                 self.assertIsInstance(field(), models.AutoField)

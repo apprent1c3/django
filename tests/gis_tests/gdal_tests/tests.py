@@ -5,6 +5,14 @@ from django.contrib.gis.gdal import GDAL_VERSION, gdal_full_version, gdal_versio
 
 class GDALTest(unittest.TestCase):
     def test_gdal_version(self):
+        """
+
+        Tests the version of the Geospatial Data Abstraction Library (GDAL) against the expected version.
+
+        Verifies that the reported GDAL version matches the version specified in GDAL_VERSION, 
+        or at least contains a version number (indicated by the presence of a '.') if GDAL_VERSION is not defined.
+
+        """
         if GDAL_VERSION:
             self.assertEqual(gdal_version(), ("%s.%s.%s" % GDAL_VERSION).encode())
         else:

@@ -39,6 +39,13 @@ class TestUtilsIPv6(unittest.TestCase):
         self.assertFalse(is_valid_ipv6_address("::zzzz:0a0a"))
 
     def test_cleans_plain_address(self):
+        """
+        Tests the cleaning process of IPv6 addresses by removing unnecessary zeros and converting to lowercase.
+
+        This function verifies the correctness of address cleaning by comparing the output of the cleaning function with expected results for different input addresses.
+
+        The test cases cover various scenarios, including abbreviation of zero sequences and conversion of hexadecimal values to lowercase, ensuring the cleaned addresses conform to standard IPv6 notation.
+        """
         self.assertEqual(clean_ipv6_address("DEAD::0:BEEF"), "dead::beef")
         self.assertEqual(
             clean_ipv6_address("2001:000:a:0000:0:fe:fe:beef"), "2001:0:a::fe:fe:beef"
@@ -55,6 +62,15 @@ class TestUtilsIPv6(unittest.TestCase):
         self.assertEqual(clean_ipv6_address("::ffff:0.0.0.0"), "::ffff:0.0.0.0")
 
     def test_unpacks_ipv4(self):
+        """
+        Tests the unpacking of IPv4 addresses embedded in IPv6 addresses.
+
+        Verifies that the function correctly extracts and returns the IPv4 address
+        from an IPv6 address in the ::ffff:xxxx format, as well as when the IPv4
+        address is already in its standard dotted decimal form. The test covers
+        various scenarios to ensure the function works as expected when unpacking
+        IPv4 addresses from IPv6 strings with different input formats.
+        """
         self.assertEqual(
             clean_ipv6_address("::ffff:0a0a:0a0a", unpack_ipv4=True), "10.10.10.10"
         )

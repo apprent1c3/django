@@ -7,6 +7,14 @@ from ..utils import setup
 class CycleTagTests(SimpleTestCase):
     @setup({"cycle01": "{% cycle a %}"})
     def test_cycle01(self):
+        """
+
+        Tests that an error is raised when a named cycle is used in a template without being defined.
+
+        Checks that the correct error message is generated when the template engine encounters an undefined cycle, 
+        ensuring that the template syntax validation works correctly for cycle tags.
+
+        """
         msg = "No named cycles in template. 'a' is not defined"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.get_template("cycle01")
@@ -25,11 +33,17 @@ class CycleTagTests(SimpleTestCase):
 
     @setup({"cycle10": "{% cycle 'a' 'b' 'c' as abc %}{% cycle abc %}"})
     def test_cycle10(self):
+        """
+        Tests the correct rendering of a Django template that utilizes the cycle template tag to iterate over a sequence of values, ensuring that the output matches the expected result when two cycles are nested, with the inner cycle referencing the outer cycle's name as a variable.
+        """
         output = self.engine.render_to_string("cycle10")
         self.assertEqual(output, "ab")
 
     @setup({"cycle11": "{% cycle 'a' 'b' 'c' as abc %}{% cycle abc %}{% cycle abc %}"})
     def test_cycle11(self):
+        """
+        Tests the rendering of a Django template that utilizes the cycle tag to iterate over a sequence of values, ensuring the output matches the expected string 'abc' after multiple iterations.
+        """
         output = self.engine.render_to_string("cycle11")
         self.assertEqual(output, "abc")
 
@@ -57,6 +71,14 @@ class CycleTagTests(SimpleTestCase):
 
     @setup({"cycle15": "{% for i in test %}{% cycle aye bee %}{{ i }},{% endfor %}"})
     def test_cycle15(self):
+        """
+
+        Tests the cycle function with two arguments, checking if it correctly alternates between the given values.
+
+        This test case verifies the behavior of the cycle function when used within a loop, ensuring it produces the expected output 
+        by cycling between 'aye' and 'bee' for each item in the 'test' list.
+
+        """
         output = self.engine.render_to_string(
             "cycle15", {"test": list(range(5)), "aye": "a", "bee": "b"}
         )
@@ -74,6 +96,16 @@ class CycleTagTests(SimpleTestCase):
         }
     )
     def test_cycle17(self):
+        """
+        Test the silent cycling functionality with multiple occurrences.
+
+        This test checks that when the 'silent' keyword is applied to the 'cycle'
+        tag, it prevents the cycling variable from being rendered, even when
+        the cycle is repeated multiple times.
+
+        The expected result is an empty string, indicating that the cycling
+        variable has not been output. 
+        """
         output = self.engine.render_to_string("cycle17")
         self.assertEqual(output, "")
 
@@ -90,6 +122,10 @@ class CycleTagTests(SimpleTestCase):
 
     @setup({"cycle20": "{% cycle one two as foo %} &amp; {% cycle foo %}"})
     def test_cycle20(self):
+        """
+        Tests the cycle template tag to ensure it properly generates alternating values from a list and can be reused within the same template. 
+        The test verifies that when a cycle is used to generate two alternating values, and then the same cycle is reused, the correct sequence of values is produced, including proper HTML escaping of ampersand characters.
+        """
         output = self.engine.render_to_string(
             "cycle20", {"two": "C & D", "one": "A & B"}
         )
@@ -116,6 +152,11 @@ class CycleTagTests(SimpleTestCase):
         }
     )
     def test_cycle22(self):
+        """
+        Tests the rendering of a template with a 'cycle' tag, specifically when the 'silent' option is used. 
+         The function verifies that the 'cycle' tag, even when assigned a variable name, does not affect the rendered output when the 'silent' option is specified. 
+         It checks if the engine correctly renders the input values without any influence from the 'cycle' tag, resulting in a simple concatenated string of the input values.
+        """
         output = self.engine.render_to_string("cycle22", {"values": [1, 2, 3, 4]})
         self.assertEqual(output, "1234")
 
@@ -126,6 +167,17 @@ class CycleTagTests(SimpleTestCase):
         }
     )
     def test_cycle23(self):
+        """
+
+        Tests the cycle function in the template engine.
+
+        This test case checks if the cycle function correctly cycles over the given values ('a', 'b', 'c') 
+        and appends the values from a list ('values') in the template.
+
+        The expected output is a string where each value from the 'values' list is prepended with 
+        a character from the cycle ('a', 'b', 'c'), repeating the cycle when necessary.
+
+        """
         output = self.engine.render_to_string("cycle23", {"values": [1, 2, 3, 4]})
         self.assertEqual(output, "a1b2c3a4")
 
@@ -167,6 +219,9 @@ class CycleTagTests(SimpleTestCase):
 
     @setup({"cycle28": "{% cycle a|safe b as ab %}{% cycle ab %}"})
     def test_cycle28(self):
+        """
+        Tests the rendering of a template containing nested cycle tags, ensuring that HTML-safe strings are properly handled and escaped within the cycle. The test verifies that the output is correctly rendered, maintaining the original HTML characters.
+        """
         output = self.engine.render_to_string("cycle28", {"a": "<", "b": ">"})
         self.assertEqual(output, "<&gt;")
 
@@ -224,6 +279,15 @@ class CycleTagTests(SimpleTestCase):
         }
     )
     def test_cycle_undefined(self):
+        """
+        Tests that using an undefined cycle in a Django template raises a TemplateSyntaxError.
+
+        Raises a TemplateSyntaxError when attempting to render a template containing an undefined cycle, 
+        verifying the error message indicates the cycle does not exist.
+
+        The test evaluates the rendering process with a template containing a silent cycle definition 
+        and a for loop attempting to use an undefined cycle, ensuring the correct error handling behavior.
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "Named cycle 'undefined' does not exist"
         ):

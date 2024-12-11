@@ -27,9 +27,25 @@ class FromDBValueTest(TestCase):
         self.assertIsInstance(maximum, Cash)
 
     def test_defer(self):
+        """
+
+        Tests that a CashModel instance retrieved with deferred fields still returns a valid Cash object.
+
+        This test case verifies that even when the 'cash' field is deferred during retrieval from the database,
+        the instance's 'cash' attribute is correctly initialized as a Cash object, ensuring integrity of the model.
+
+        """
         instance = CashModel.objects.defer("cash").get()
         self.assertIsInstance(instance.cash, Cash)
 
     def test_connection(self):
+        """
+
+        Tests the connection between the CashModel and its associated vendor.
+
+        Verifies that the vendor associated with a CashModel instance matches the expected vendor.
+        This ensures data consistency and validates the connection setup.
+
+        """
         instance = CashModel.objects.get()
         self.assertEqual(instance.cash.vendor, connection.vendor)

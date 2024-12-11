@@ -238,6 +238,23 @@ class ConnectionRouter:
     db_for_write = _router_func("db_for_write")
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        Determines whether a relationship between two objects should be allowed.
+
+        This method checks each of the registered routers in sequence, calling their 
+        `allow_relation` method if available, and returns the result if it is not `None`. 
+        If none of the routers specify a decision, it defaults to allowing the relation 
+        if both objects are associated with the same database. 
+
+        Args:
+            obj1: The first object in the proposed relationship.
+            obj2: The second object in the proposed relationship.
+            **hints: Additional context that may influence the router's decision.
+
+        Returns:
+            A boolean value indicating whether the relationship between `obj1` and `obj2` 
+            should be allowed, or `None` if the default behavior should apply.
+        """
         for router in self.routers:
             try:
                 method = router.allow_relation

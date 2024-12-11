@@ -167,6 +167,18 @@ class UserManagerTestCase(TransactionTestCase):
             )
 
     def test_runpython_manager_methods(self):
+        """
+        Tests the execution of custom migration manager methods.
+
+        This test case verifies the successful creation of a new user through the 
+        RunPython migration operation. It checks if the created user is an instance 
+        of the correct model and if the password set during creation is valid.
+
+        The test involves setting up a project state with necessary models, 
+        executing the migration operation, and then verifying the results 
+        by retrieving the created user and checking its password.
+
+        """
         def forwards(apps, schema_editor):
             UserModel = apps.get_model("auth", "User")
             user = UserModel.objects.create_user("user1", password="secure")
@@ -249,6 +261,13 @@ class AbstractUserTestCase(TestCase):
         self.assertEqual(message.to, [user.email])
 
     def test_last_login_default(self):
+        """
+        Tests that the last login date for a newly created user is None by default.
+
+        Verifies that whether a user is created directly or using the create_user method, 
+        their last login date is not set initially. This check ensures that the default 
+        behavior for new user accounts is correct and as expected.
+        """
         user1 = User.objects.create(username="user1")
         self.assertIsNone(user1.last_login)
 
@@ -390,6 +409,22 @@ class UserWithPermTestCase(TestCase):
                     User.objects.with_perm("auth.test", backend=backend)
 
     def test_basic(self):
+        """
+
+        Test basic functionality of the User.objects.with_perm method.
+
+        This test method exercises the with_perm method with various keyword arguments,
+        verifying that it returns the expected set of users for different permission
+        and filter criteria. The test cases cover different scenarios, including:
+        - retrieving all active users
+        - retrieving users based on object-level permissions
+        - filtering by user activity status
+        - including or excluding superusers from the results
+
+        The test uses a set of predefined test cases to validate the correctness of the
+        with_perm method, ensuring that it behaves as expected under various conditions.
+
+        """
         active_users = [self.user1, self.user2]
         tests = [
             ({}, [*active_users, self.superuser]),

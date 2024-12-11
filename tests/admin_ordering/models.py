@@ -32,6 +32,14 @@ class SongInlineNewOrdering(admin.StackedInline):
 
 class DynOrderingBandAdmin(admin.ModelAdmin):
     def get_ordering(self, request):
+        """
+        Returns the ordering of items based on the user's role.
+
+        For superusers, the items are ordered by their rank. For non-superusers, the items are ordered alphabetically by name.
+
+        :rtype: list
+        :return: A list of strings representing the ordering fields.
+        """
         if request.user.is_superuser:
             return ["rank"]
         else:

@@ -324,6 +324,13 @@ class ImageFieldNoDimensionsTests(ImageFieldTwoDimensionsTests):
     PersonModel = Person
 
     def test_post_init_not_connected(self):
+        """
+        Tests that the post_init signal is not connected to the PersonModel instance after initialization.
+
+        Checks if the PersonModel's id is not present in the list of receivers for the post_init signal, 
+        indicating that it has not been connected to receive this signal. This ensures that the 
+        PersonModel instance does not receive the post_init signal, as expected when it is not connected.
+        """
         person_model_id = id(self.PersonModel)
         self.assertNotIn(
             person_model_id,
@@ -385,11 +392,29 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, 8, 4, "headshot")
 
     def test_create(self):
+        """
+        Tests the creation of a PersonModel instance with mugshot and headshot images and verifies that the resulting images have the expected dimensions. 
+
+        The test checks the dimensions of both the mugshot and headshot images after creation, ensuring that the mugshot is resized to 4x8 pixels and the headshot is resized to 8x4 pixels.
+        """
         p = self.PersonModel.objects.create(mugshot=self.file1, headshot=self.file2)
         self.check_dimensions(p, 4, 8)
         self.check_dimensions(p, 8, 4, "headshot")
 
     def test_assignment(self):
+        """
+        Test the assignment of mugshot and headshot attributes to a PersonModel instance.
+
+        This test case verifies that the dimensions of the mugshot and headshot images are correctly updated when the corresponding attributes are set or cleared. It covers the following scenarios:
+
+        * initially, both mugshot and headshot are unset
+        * setting the mugshot attribute updates its dimensions
+        * setting the headshot attribute updates its dimensions
+        * clearing the mugshot attribute resets its dimensions
+        * clearing the headshot attribute resets its dimensions
+
+        The test ensures that the dimensions of one attribute do not affect the dimensions of the other attribute.
+        """
         p = self.PersonModel()
         self.check_dimensions(p, None, None, "mugshot")
         self.check_dimensions(p, None, None, "headshot")
@@ -410,6 +435,24 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, None, None, "headshot")
 
     def test_field_save_and_delete_methods(self):
+        """
+
+        Tests the functionality of saving and deleting field methods in the PersonModel.
+
+        This test case creates a PersonModel instance and checks the dimensions of its 
+        'mugshot' and 'headshot' fields after saving and deleting image files. It verifies 
+        that the dimensions are correctly updated after each operation and that the 
+        changes are saved to the model instance when specified.
+
+        The test covers the following scenarios: 
+        - Saving an image to the 'mugshot' field and verifying its dimensions
+        - Saving an image to the 'headshot' field and verifying its dimensions
+        - Deleting an image from the 'headshot' field and verifying its dimensions, 
+          with the changes saved to the model instance
+        - Deleting an image from the 'mugshot' field and verifying its dimensions, 
+          without saving the changes to the model instance
+
+        """
         p = self.PersonModel(name="Joe")
         p.mugshot.save("mug", self.file1)
         self.check_dimensions(p, 4, 8, "mugshot")
@@ -475,6 +518,14 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
 @skipIf(Image is None, "Pillow is required to test ImageField")
 class NoReadTests(ImageFieldTestMixin, TestCase):
     def test_width_height_correct_name_mangling_correct(self):
+        """
+        Tests that the mugshot width and height are correctly calculated and remain consistent after saving the instance.
+
+        Verifies that the width and height attributes of the PersonNoReadImage instance are correctly set when a mugshot image is saved.
+        Also checks that the name of the mugshot image is correctly mangled to prevent conflicts when multiple instances are saved.
+
+        Ensures that the calculated width and height of the mugshot image are correctly retrieved and compared between instances, demonstrating consistent behavior.
+        """
         instance1 = PersonNoReadImage()
 
         instance1.mugshot.save("mug", self.file1)

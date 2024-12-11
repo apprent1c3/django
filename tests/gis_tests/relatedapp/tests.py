@@ -307,6 +307,22 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_collect_aggr")
     def test_collect_filter(self):
+        """
+        Tests the usage of the Collect aggregation function with filtering.
+
+        This test case verifies that the Collect function correctly aggregates 
+        geo RentableFloorArea instances for a given City, while applying filters 
+        to exclude or include specific parcels based on their names.
+
+        It checks three main scenarios:
+        - Collecting all parcel centers that do not contain a specific ignore string.
+        - Collecting all parcel centers that do contain a string that is known not to exist.
+        - Collecting all parcel centers that contain a specific substring.
+
+        The test ensures that the resulting aggregated geometries are correct 
+        and as expected, including cases where no matching parcels are found.
+
+        """
         qs = City.objects.annotate(
             parcel_center=Collect(
                 "parcel__center1",

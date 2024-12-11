@@ -18,6 +18,15 @@ class SlugFieldTest(SimpleTestCase):
         self.assertEqual(f.clean("foo-ıç-bar"), "foo-ıç-bar")
 
     def test_empty_value(self):
+        """
+        Tests the handling of empty values in a SlugField.
+
+        This function verifies that when the required parameter is set to False,
+        empty strings and None values are cleaned to empty strings by default.
+        It also checks that when the empty_value parameter is set to None,
+        both empty strings and None values are cleaned to None, allowing for
+        custom handling of empty values in the field.
+        """
         f = SlugField(required=False)
         self.assertEqual(f.clean(""), "")
         self.assertEqual(f.clean(None), "")

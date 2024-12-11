@@ -130,6 +130,24 @@ def sensitive_post_parameters(*parameters):
 
             @wraps(view)
             def sensitive_post_parameters_wrapper(request, *args, **kwargs):
+                """
+
+                Wraps a view function to handle sensitive POST parameters.
+
+                This decorator ensures that the view function receives an HttpRequest object and
+                sets the sensitive_post_parameters attribute on the request. If parameters are
+                provided, they are assigned to the attribute; otherwise, all POST parameters are
+                considered sensitive.
+
+                The primary purpose of this decorator is to control the logging of sensitive
+                information. By decorating a view function with this wrapper, you can prevent
+                sensitive data, such as passwords or credit card numbers, from being logged.
+
+                It raises a TypeError if the decorated function does not receive an HttpRequest
+                object, which may occur when decorating a classmethod without using the
+                @method_decorator.
+
+                """
                 if not isinstance(request, HttpRequest):
                     raise TypeError(
                         "sensitive_post_parameters didn't receive an HttpRequest "

@@ -45,6 +45,21 @@ class Tests(TestCase):
                 )
 
     def test_distinct_aggregation(self):
+        """
+
+        Tests the aggregation function's support for the DISTINCT keyword.
+
+        This test case verifies that the database backend correctly handles
+        aggregate functions with multiple arguments when the DISTINCT keyword is used.
+        In particular, it checks that an error is raised when the DISTINCT keyword is
+        applied to an aggregate function that accepts multiple arguments, as this is
+        not supported by SQLite.
+
+        The test creates a custom aggregate function that allows the use of DISTINCT
+        and then attempts to use it with the DISTINCT keyword, expecting a
+        NotSupportedError to be raised with a specific error message.
+
+        """
         class DistinctAggregate(Aggregate):
             allow_distinct = True
 
@@ -111,6 +126,24 @@ class Tests(TestCase):
 
     @mock.patch.object(connection, "get_database_version", return_value=(3, 30))
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+
+        Checks if the database version is supported by the application.
+
+        currently requires SQLite 3.31 or later to function correctly. This function
+        verifies the database version and raises a NotSupportedError if the version
+        is not compatible.
+
+        Args:
+            None
+
+        Raises:
+            NotSupportedError: If the database version is not supported.
+
+        Returns:
+            None
+
+        """
         msg = "SQLite 3.31 or later is required (found 3.30)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()
@@ -235,6 +268,9 @@ class EscapingChecks(TestCase):
 
     def test_parameter_escaping(self):
         # '%s' escaping support for sqlite3 (#13648).
+        """
+        Tests if the parameter escaping functionality is working correctly by executing a SQL query with a current timestamp and verifying that the result is a non-zero integer.
+        """
         with connection.cursor() as cursor:
             cursor.execute("select strftime('%s', date('now'))")
             response = cursor.fetchall()[0][0]
@@ -286,6 +322,14 @@ class TestTransactionMode(SimpleTestCase):
         self.assertEqual(commit_query["sql"], "COMMIT")
 
     def test_invalid_transaction_mode(self):
+        """
+        Tests that an Invalid Transaction Mode raises an ImproperlyConfigured exception.
+
+        This test verifies that the 'transaction_mode' setting in the database configuration
+        is correctly validated. It checks that an 'invalid' mode triggers an error, ensuring
+        that only the allowed modes ('DEFERRED', 'EXCLUSIVE', 'IMMEDIATE', or None) are accepted.
+
+        """
         msg = (
             "settings.DATABASES['default']['OPTIONS']['transaction_mode'] is "
             "improperly configured to 'invalid'. Use one of 'DEFERRED', 'EXCLUSIVE', "
@@ -296,6 +340,22 @@ class TestTransactionMode(SimpleTestCase):
                 new_connection.ensure_connection()
 
     def test_valid_transaction_modes(self):
+        """
+        Tests the validity of different transaction modes.
+
+        This function checks that the database connection correctly applies
+        different transaction modes, including deferred, immediate, and exclusive.
+        For each mode, it verifies that the corresponding SQL command is executed,
+        specifically checking the 'BEGIN' statement with the expected transaction mode.
+
+        The test covers the following scenarios:
+        - The connection is set to the specified transaction mode.
+        - A new transaction is started with the given mode.
+        - The 'BEGIN' SQL statement is captured and verified to match the expected mode.
+
+        The test ensures that the database connection behaves correctly and consistently
+        across different transaction modes, providing a reliable foundation for further testing and development.
+        """
         valid_transaction_modes = ("deferred", "immediate", "exclusive")
         for transaction_mode in valid_transaction_modes:
             with (
@@ -313,6 +373,19 @@ class TestTransactionMode(SimpleTestCase):
 
     @contextmanager
     def change_transaction_mode(self, transaction_mode):
+        """
+
+        A context manager that temporarily changes the transaction mode for a database connection.
+
+        This method creates a copy of the current connection with the specified transaction mode, 
+        allowing for temporary changes to the connection settings without affecting the original connection.
+
+        The new connection is available within the context block, and is automatically closed when the block is exited.
+
+        :param transaction_mode: The transaction mode to use for the temporary connection
+        :type transaction_mode: str
+
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"] = {
             **new_connection.settings_dict["OPTIONS"],

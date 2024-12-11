@@ -95,6 +95,24 @@ class DatesTests(TestCase):
             Article.objects.dates()
 
     def test_dates_fails_when_given_invalid_field_argument(self):
+        """
+        Tests that the dates method of the Article queryset raises a FieldError when an invalid field argument is provided.
+
+        This test checks that the method correctly handles an invalid field name and returns an informative error message with the available field choices.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            FieldError: When an invalid field name is provided.
+
+        Note:
+            This test ensures the robustness of the dates method and helps prevent unexpected behavior when dealing with invalid field names.
+
+        """
         with self.assertRaisesMessage(
             FieldError,
             "Cannot resolve keyword 'invalid_field' into field. Choices are: "
@@ -108,6 +126,13 @@ class DatesTests(TestCase):
             Article.objects.dates("pub_date", "bad_kind")
 
     def test_dates_fails_when_given_invalid_order_argument(self):
+        """
+        Tests that the dates function raises a ValueError when an invalid order argument is provided.
+
+        The function validates that an error is raised when the order parameter is not either 'ASC' or 'DESC', 
+        ensuring that the function only accepts valid ordering options. This check prevents unexpected behavior 
+        and provides a clear error message to users.
+        """
         msg = "'order' must be either 'ASC' or 'DESC'."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.dates("pub_date", "year", order="bad order")

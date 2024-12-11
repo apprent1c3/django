@@ -245,6 +245,25 @@ class RequestContext(Context):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        Temporarily binds a template to the current context.
+
+        This context manager ensures that the template is properly set up and cleaned up after use.
+        It collects context variables from the template's context processors and the application's processors,
+        then updates the context dictionary. The template is bound for the duration of the context manager,
+        and any changes made to the context are cleaned up when the context manager exits.
+
+        Args:
+            template: The template to bind to the context.
+
+        Raises:
+            RuntimeError: If the context is already bound to a template.
+            TypeError: If a context processor does not return a dictionary.
+
+        Yields:
+            None
+
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
 

@@ -54,6 +54,23 @@ class RasterFieldTest(TransactionTestCase):
         qs[0].rast.bands[0].data()
 
     def test_deserialize_with_pixeltype_flags(self):
+        """
+
+        Tests the deserialization of a raster object with pixeltype flags.
+
+        This test creates a raster object with a single band and a specified no-data value,
+        serializes and then deserializes it, and checks that the no-data value is correctly
+        preserved during this process.
+
+        Specifically, it verifies that the no-data value is correctly set and retrieved
+        for the deserialized raster band, and that the band's data matches the expected
+        no-data value.
+
+        The test relies on the ability to create and update a raster model object in the
+        database, and to refresh the object from the database after updating its raster
+        attributes.
+
+        """
         no_data = 3
         rast = GDALRaster(
             {
@@ -344,6 +361,13 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_input_tuple_too_long(self):
+        """
+        Tests that a ValueError is raised when using an input tuple that is too long 
+        with the bbcontains lookup on a raster field. The bbcontains lookup expects 
+        a tuple containing a single raster object, but this test case provides a tuple 
+        with additional arguments, verifying that the function correctly handles this 
+        invalid input and raises the expected error with a descriptive message.
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         msg = "Tuple too long for lookup bbcontains."
         with self.assertRaisesMessage(ValueError, msg):
@@ -357,6 +381,19 @@ class RasterFieldTest(TransactionTestCase):
             qs.count()
 
     def test_isvalid_lookup_with_raster_error(self):
+        """
+        Tests the validity lookup with raster errors.
+
+        This test case checks the expected behaviour of the `isvalid` lookup when used
+        with a RasterField. It verifies that a TypeError is raised with the correct
+        message, indicating that the `isvalid` function is intended for use with
+        GeometryFields, not RasterFields.
+
+        The test query attempts to filter a queryset based on the 'isvalid' lookup
+        applied to a RasterField, and asserts that the resulting error message is as
+        expected. This ensures that the ORM correctly handles invalid lookup usage
+        and provides informative error messages to the user. 
+        """
         qs = RasterModel.objects.filter(rast__isvalid=True)
         msg = (
             "IsValid function requires a GeometryField in position 1, got RasterField."
@@ -366,6 +403,13 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_result_of_gis_lookup_with_rasters(self):
         # Point is in the interior
+        """
+        Tests the results of geographic information system (GIS) lookups involving raster data. 
+        The function checks the behavior of various spatial lookup types, including contains, contains properly, and left, 
+        to ensure they return the expected number of results for different point locations. 
+        It verifies that the lookup functions correctly identify whether a point is within a raster or not, 
+        and whether a point is properly contained within a raster or to the left of it.
+        """
         qs = RasterModel.objects.filter(
             rast__contains=GEOSGeometry("POINT (-0.5 0.5)", 4326)
         )
@@ -385,6 +429,16 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_raster_bbox(self):
+        """
+        Tests the lookup functionality with a raster bounding box.
+
+         The function checks if a raster is correctly identified as being 
+         strictly below another raster by adjusting the y-coordinate of 
+         the origin point and verifying the count of matched raster models 
+         in the database. It ensures that no raster models match when the 
+         raster is positioned above and that exactly one raster model 
+         matches when the raster is positioned below.
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Shift raster upward
         rast.origin.y = 2

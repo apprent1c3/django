@@ -34,7 +34,42 @@ def setup(templates, *args, **kwargs):
 
     def decorator(func):
         @wraps(func)
+        """
+
+        A decorator function that enhances the behavior of the target function by applying 
+        setup functions from the `tags` dictionary. 
+
+        For each tag, it checks if the tag name is a parameter of the target function. 
+        If it is, the setup function is applied with the target function partially bound 
+        to the specific tag name. If not, the setup function is applied directly to the 
+        target function.
+
+        This allows for flexible and dynamic setup of the target function based on the 
+        available tags. The decorator preserves the original function's metadata using 
+        the `wraps` decorator.
+
+        Args:
+            func: The target function to be decorated.
+
+        Returns:
+            A decorated function that applies the setup functions from the `tags` dictionary.
+
+        """
         def inner(self, *args):
+            """
+            Wraps a given function to apply setup functions based on tags.
+
+            This inner function inspects the signature of the wrapped function to determine if a 'tag_name' parameter is present.
+            If the 'tag_name' parameter is found, it applies the corresponding setup function to the wrapped function with the 'tag_name' as an argument.
+            Otherwise, it applies the setup function to the wrapped function without any additional arguments.
+
+            The setup functions are applied with the current instance ('self') as an argument, allowing for object-level initialization or configuration.
+            The function returns the result of the setup function applied to the wrapped function, enabling a fluent interface for further processing or initialization.
+
+            Parameters are passed through to the wrapped function, allowing for flexible and dynamic application of setup functions based on the function signature and tags.
+
+            This function is designed to provide a flexible and reusable way to apply setup functions to wrapped functions, simplifying object initialization and configuration in a variety of scenarios.
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:
@@ -212,6 +247,14 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_legacyi18n17(self):
+        """
+
+        Test case for legacy i18n block translation with HTML escaping.
+
+        This test verifies that the blocktranslate template tag correctly escapes HTML entities
+        in the translated string, ensuring that special characters are properly encoded in the output.
+
+        """
         output = self.engine.render_to_string("legacyi18n17", {"anton": "α & β"})
         self.assertEqual(output, "α &amp; β")
 
@@ -325,6 +368,18 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34(self):
+        """
+        Tests rendering of a template that uses Django's internationalization and 
+        translation tags with a missing variable.
+
+        This test evaluates how the template engine handles a situation where 
+        the required translation variable is not available. The test covers two 
+        possible scenarios depending on whether the engine is configured to 
+        replace invalid variables with a specific string or an empty string. 
+
+        It verifies that the rendered output matches the expected result based 
+        on the engine's configuration for handling invalid variables.
+        """
         output = self.engine.render_to_string("i18n34")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -340,6 +395,16 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34_2(self):
+        """
+
+        Tests the rendering of a template with a missing variable in a blocktranslate tag.
+
+        This test case ensures that the templating engine handles the case when a variable
+        is referenced within a blocktranslate tag but is not defined in the context. The
+        test verifies that the engine either renders an 'INVALID' string or an empty string,
+        depending on the string_if_invalid setting.
+
+        """
         output = self.engine.render_to_string("i18n34_2")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -369,6 +434,15 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n37(self):
+        """
+
+        Tests the internationalization (i18n) functionality within a templating engine.
+
+        This test case verifies that a page can be rendered in a specific language, in this case German ('de').
+        It checks that the translation of the string \"Page not found\" is correctly applied and rendered as \"Seite nicht gefunden\".
+        The test validates the correctness of the i18n implementation by comparing the expected output with the actual rendered string.
+
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n37")
         self.assertEqual(output, "Error: Seite nicht gefunden")
@@ -412,6 +486,18 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n41(self):
+        """
+
+        Tests the translation of a page not found error message using the i18n template tag.
+
+        Verifies that the error message is correctly translated to German when the language
+        is set to 'de'. The test checks that the rendered template output matches the
+        expected translation of the error message.
+
+        This test ensures that the i18n functionality is working as expected, properly
+        handling translations and rendering the correct output.
+
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n41")
         self.assertEqual(output, ">Error: Seite nicht gefunden<")
@@ -460,6 +546,19 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_with_block(self, tag_name):
+        """
+        Tests whether a template tag does not allow other block tags inside it.
+
+        Args:
+            tag_name (str): The name of the template tag being tested.
+
+        This test ensures that the specified template tag does not permit other block tags 
+        to be nested within it, raising a TemplateSyntaxError if such a block tag is found.
+
+        Raises:
+            TemplateSyntaxError: If the template tag allows other block tags inside it.
+
+        """
         msg = "'{}' doesn't allow other block tags (seen 'block b') inside it".format(
             tag_name
         )
@@ -515,6 +614,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_count(self, tag_name):
+        """
+        Tests that the `{% blocktranslate count %}` template tag raises a TemplateSyntaxError when more than one keyword argument is provided, specifically testing the 'count' keyword in the given template tag context.
+        """
         msg = "\"count\" in '{}' tag expected exactly one keyword argument.".format(
             tag_name
         )

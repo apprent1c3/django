@@ -303,6 +303,16 @@ class ListMixin:
         newLen = origLen - stop + start + len(valueList)
 
         def newItems():
+            """
+            Generates a sequence of new items by combining a list of values with existing internal items.
+
+            The function iterates over an original length, inserting the provided value list at a specified start index.
+            It preserves internal items at indices outside of the specified start and stop range, and includes the value list at the start index.
+            The generated sequence is yielded item by item, allowing for lazy iteration and efficient processing of large datasets.
+
+            :returns: A generator yielding the sequence of new items
+            :raises: No explicit exceptions, but may propagate exceptions from internal item retrieval
+            """
             for i in range(origLen + 1):
                 if i == start:
                     yield from valueList

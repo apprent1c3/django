@@ -5,6 +5,20 @@ from .models import Flea, House, Person, Pet, Room
 
 class UUIDPrefetchRelated(TestCase):
     def test_prefetch_related_from_uuid_model(self):
+        """
+
+        Test that prefetch_related works correctly for models with a many-to-many relationship.
+
+        This test case verifies that the number of database queries is reduced when using
+        prefetch_related to fetch related objects. It creates a Pet instance with two associated
+        People instances, then uses prefetch_related to fetch the Pet instance and its associated
+        People in two database queries. It then checks that no additional queries are made when
+        accessing the People instances.
+
+        The test ensures that the database query count is correct when using prefetch_related,
+        which helps improve performance by reducing the number of database queries.
+
+        """
         Pet.objects.create(name="Fifi").people.add(
             Person.objects.create(name="Ellen"),
             Person.objects.create(name="George"),
@@ -68,6 +82,16 @@ class UUIDPrefetchRelatedLookups(TestCase):
 
     def test_from_uuid_pk_lookup_uuid_pk_integer_pk(self):
         # From uuid-pk model, prefetch <uuid-pk model>.<integer-pk model>:
+        """
+
+        Tests the lookup of a Pet instance with a UUID primary key and subsequent related object access.
+
+        This test case checks if the lookup and retrieval of a Pet instance by name is successful,
+        and that subsequent access to related objects (in this case, the Flea hosted by the Pet,
+        its current room, and the house where the room is located) works correctly without incurring
+        additional database queries due to the use of prefetch_related.
+
+        """
         with self.assertNumQueries(4):
             spooky = Pet.objects.prefetch_related(
                 "fleas_hosted__current_room__house"

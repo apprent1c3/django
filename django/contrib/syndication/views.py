@@ -76,6 +76,29 @@ class Feed:
         return []
 
     def _get_dynamic_attr(self, attname, obj, default=None):
+        """
+
+        Obtains a dynamic attribute from the current object.
+
+        This method retrieves the attribute with the given name and, if it exists, checks if it is callable.
+        If the attribute is callable, it is invoked with the provided object as an argument, unless it takes no arguments.
+        The method also performs checks to ensure the attribute is properly configured, such as being decorated with functools.wraps if necessary.
+
+        Parameters
+        ----------
+        attname : str
+            The name of the attribute to retrieve.
+        obj : object
+            The object to pass to the attribute if it is callable.
+        default : any, optional
+            The value to return if the attribute does not exist.
+
+        Returns
+        -------
+        any
+            The retrieved attribute, the result of invoking the attribute if it is callable, or the default value if the attribute does not exist.
+
+        """
         try:
             attr = getattr(self, attname)
         except AttributeError:

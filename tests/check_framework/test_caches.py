@@ -70,6 +70,15 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_inside_media_static_setting(self):
+        """
+        Checks that the cache path is not inside the media or static files directories.
+
+        This test ensures that the cache location is not exposed by being inside the media or static files settings, which could potentially lead to cache files being served by the web server. 
+
+        It iterates over the MEDIA_ROOT, STATIC_ROOT, and STATICFILES_DIRS settings, and for each setting, it checks that the cache location is not inside the respective directory. 
+
+        If the cache path is found to be inside any of these directories, it raises a Warning with the message indicating the setting that the cache path is inside.
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root)
@@ -96,6 +105,11 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_not_conflict(self):
+        """
+        Checks that the cache path does not conflict with media, static, or static files directories.
+
+        This test ensures that the cache location is properly isolated and does not overlap with other file system paths that may be served directly by the application, which could potentially expose sensitive data. It verifies this isolation for various settings, including media root, static root, and static files directories.
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root / "other")
@@ -125,6 +139,17 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_staticfiles_dirs_prefix_not_conflict(self):
+        """
+        Tests that the staticfiles directory and cache prefix do not conflict.
+
+        Verifies that when the staticfiles directory and cache prefix are set, the cache
+        location is not exposed. This ensures that the cache directory does not overlap
+        with the staticfiles directory, preventing potential conflicts and data loss.
+
+        The test checks if the cache location is properly isolated from the staticfiles
+        directory, ensuring a safe and functional configuration for serving static files
+        and storing cache data.
+        """
         root = pathlib.Path.cwd()
         settings = self.get_settings(
             "STATICFILES_DIRS",

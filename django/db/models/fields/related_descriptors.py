@@ -87,6 +87,16 @@ from django.utils.functional import cached_property
 
 class ForeignKeyDeferredAttribute(DeferredAttribute):
     def __set__(self, instance, value):
+        """
+
+        Sets the value of a cached field on an instance.
+
+        When the provided value differs from the current value stored in the instance,
+        the existing cached value is deleted before updating the instance with the new value.
+
+        This method handles the necessary steps to ensure data consistency and proper caching.
+
+        """
         if instance.__dict__.get(self.field.attname) != value and self.field.is_cached(
             instance
         ):
@@ -387,6 +397,21 @@ class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
         return super().get_object(instance)
 
     def __set__(self, instance, value):
+        """
+
+        Set the value of the attribute on the instance.
+
+        This method is used to set the value of the attribute on the instance, and then
+        performs additional operations if the attribute is a primary key and has a parent link.
+        It ensures that the primary key value of the related model is set on the instance.
+
+        This allows for proper synchronization of primary key values between related models,
+        and is particularly useful in cases where models inherit from each other.
+
+        :param instance: The instance on which to set the attribute value.
+        :param value: The value to set for the attribute.
+
+        """
         super().__set__(instance, value)
         # If the primary key is a link to a parent model and a parent instance
         # is being set, update the value of the inherited pk(s).
@@ -448,6 +473,18 @@ class ReverseOneToOneDescriptor:
         return self.related.related_model._base_manager.db_manager(hints=hints).all()
 
     def get_prefetch_queryset(self, instances, queryset=None):
+        """
+        Return the queryset used for prefetching related objects, 
+        given a set of instances and an optional queryset.
+
+        This method is deprecated since it only supports a single queryset. 
+        For new code, use :meth:`get_prefetch_querysets` instead, which 
+        accepts multiple querysets.
+
+        :param instances: The instances for which to retrieve the prefetch queryset
+        :param queryset: An optional queryset to use for prefetching
+        :returns: A queryset used for prefetching related objects
+        """
         warnings.warn(
             "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
             "instead.",
@@ -687,6 +724,14 @@ def create_reverse_many_to_one_manager(superclass, rel):
             self.core_filters = {self.field.name: instance}
 
         def __call__(self, *, manager):
+            """
+
+            Returns a reverse many-to-one manager instance associated with the specified manager.
+
+            :param manager: The name of the manager to access. The manager is retrieved from the model instance.
+            :return: An instance of the reverse many-to-one manager class, bound to the instance of the current object.
+
+            """
             manager = getattr(self.model, manager)
             manager_class = create_reverse_many_to_one_manager(manager.__class__, rel)
             return manager_class(self.instance)
@@ -807,6 +852,13 @@ def create_reverse_many_to_one_manager(superclass, rel):
             db = router.db_for_write(self.model, instance=self.instance)
 
             def check_and_update_obj(obj):
+                """
+                Validate an object and update its attribute with a specific instance.
+
+                This function checks if the provided object is an instance of a specific model. 
+                If the object is valid, it updates the object's attribute with the given instance. 
+                If the object is not an instance of the expected model, it raises a TypeError with a descriptive error message.
+                """
                 if not isinstance(obj, self.model):
                     raise TypeError(
                         "'%s' instance expected, got %r"
@@ -932,6 +984,18 @@ def create_reverse_many_to_one_manager(superclass, rel):
             aclear.alters_data = True
 
             def _clear(self, queryset, bulk):
+                """
+
+                Clear the specified field from a queryset of objects.
+
+                This method takes a queryset and a boolean indicating whether to perform the operation in bulk.
+                If bulk is True, it updates all objects in the queryset in a single database operation.
+                If bulk is False, it iterates over each object, clears the field, and saves the object individually.
+
+                The method ensures that the operation is performed on the correct database, as determined by the router,
+                and that any prefetched objects are removed before proceeding.
+
+                """
                 self._remove_prefetched_objects()
                 db = router.db_for_write(self.model, instance=self.instance)
                 queryset = queryset.using(db)
@@ -1276,6 +1340,17 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         aadd.alters_data = True
 
         def remove(self, *objs):
+            """
+
+            Remove the specified objects from the relation.
+
+            This function takes one or more objects as arguments and removes them from the 
+            relationship defined by this object's source and target fields. The removal 
+            process first clears any prefetched objects, then removes the specified items.
+
+            :param objs: The objects to be removed from the relation
+
+            """
             self._remove_prefetched_objects()
             self._remove_items(self.source_field_name, self.target_field_name, *objs)
 
@@ -1322,6 +1397,25 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         def set(self, objs, *, clear=False, through_defaults=None):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
+            """
+
+            Sets the related objects for this relationship.
+
+            This method updates the relationship by either replacing the existing related objects 
+            or updating the existing objects with new ones. It can also clear the existing objects 
+            before setting the new ones.
+
+             Args:
+                objs: An iterable of objects to be set as related to the current instance.
+                clear (bool): If True, the existing related objects are cleared before setting the new ones.
+                through_defaults (dict): Default values to be used when creating intermediate model instances.
+
+             Note:
+                The objects that are already related to the current instance and are present in the new 
+                list of objects are left unchanged, while objects that are no longer in the new list are removed. 
+                New objects in the list are added to the relationship.
+
+            """
             objs = tuple(objs)
 
             db = router.db_for_write(self.through, instance=self.instance)
@@ -1506,6 +1600,16 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys
             # of object instances.
+            """
+            Adds one or more items to a many-to-many relationship, creating the necessary intermediate through instances.
+
+            :param source_field_name: The name of the source field in the relationship.
+            :param target_field_name: The name of the target field in the relationship.
+            :param objs: Variable number of objects to add to the relationship.
+            :param through_defaults: Optional dictionary of default values for the through model. May contain callable values that are resolved at runtime.
+
+            The function determines the most efficient way to add the items, either using bulk creation with conflict ignoring or sending signals before and after the addition. If no objects are provided, the function does nothing.
+            """
             if not objs:
                 return
 

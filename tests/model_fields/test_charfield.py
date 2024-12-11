@@ -42,6 +42,11 @@ class TestCharField(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of a CharField instance, verifying that it correctly separates its keyword arguments. The test checks two scenarios: 
+            one with default keyword arguments and another with a custom database collation specified. 
+            It asserts that the deconstructed keyword arguments match the expected output for both cases.
+        """
         field = models.CharField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})
@@ -65,6 +70,12 @@ class ValidationTests(SimpleTestCase):
         self.assertEqual("", f.clean("", None))
 
     def test_charfield_with_choices_cleans_valid_choice(self):
+        """
+        Verifies that a CharField with explicit choices correctly cleans a valid input choice.
+
+        The function checks that when a valid choice is provided to the CharField's clean method, 
+        it returns the cleaned value as expected, confirming that the choice validation works as intended.
+        """
         f = models.CharField(max_length=1, choices=[("a", "A"), ("b", "B")])
         self.assertEqual("a", f.clean("a", None))
 
@@ -85,6 +96,15 @@ class ValidationTests(SimpleTestCase):
             f.clean("a", None)
 
     def test_charfield_raises_error_on_empty_input(self):
+        """
+        Tests that CharField raises a ValidationError when given empty input and null is set to False.
+
+        Verifies that attempting to clean a CharField with a null value, when null is explicitly
+        set to False, results in a validation error with a meaningful error message.
+
+        The test ensures that the model field correctly enforces its null constraint and provides
+        a user-friendly error message in case of invalid input.
+        """
         f = models.CharField(null=False)
         msg = "This field cannot be null."
         with self.assertRaisesMessage(ValidationError, msg):

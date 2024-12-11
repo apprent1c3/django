@@ -484,6 +484,18 @@ def receiver(signal, **kwargs):
     """
 
     def _decorator(func):
+        """
+        .. function:: _decorator(func)
+           :param func: The function to be decorated.
+
+           Decorates a given function to connect it to one or multiple signals.
+
+           If multiple signals are provided, the function will be connected to each of them.
+           The connection is established using the :meth:`connect` method of the signal,
+           passing in the function and any additional keyword arguments.
+
+           The decorated function is then returned, allowing for further use or chaining of decorators.
+        """
         if isinstance(signal, (list, tuple)):
             for s in signal:
                 s.connect(func, **kwargs)

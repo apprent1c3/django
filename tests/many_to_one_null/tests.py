@@ -33,6 +33,13 @@ class ManyToOneNullTests(TestCase):
 
     def test_related_set(self):
         # Reporter objects have access to their related Article objects.
+        """
+        Tests the related set of articles associated with a specific object.
+
+        Verifies that the correct articles are retrieved when accessing the related set directly, 
+        using a filter, and counting the total number of articles. 
+        This ensures the accuracy and integrity of the object's relationships with articles.
+        """
         self.assertSequenceEqual(self.r.article_set.all(), [self.a, self.a2])
         self.assertSequenceEqual(
             self.r.article_set.filter(headline__startswith="Fir"), [self.a]
@@ -40,6 +47,19 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(self.r.article_set.count(), 2)
 
     def test_created_without_related(self):
+        """
+        Tests that an article is correctly created without a related reporter.
+
+        This test case verifies that when an article is created without a reporter,
+        its reporter attribute is set to None. It also checks that the article can
+        be correctly filtered from the database using both 'isnull=True' and 'None'
+        query parameters.
+
+        Additionally, it tests the article-reporter relationship by adding the article
+        to a reporter's set of articles, and then removing it, ensuring that the
+        article's reporter attribute and the reporter's set of articles are updated
+        correctly throughout these operations.
+        """
         self.assertIsNone(self.a3.reporter)
         # Need to reget a3 to refresh the cache
         a3 = Article.objects.get(pk=self.a3.pk)
@@ -101,6 +121,20 @@ class ManyToOneNullTests(TestCase):
         # Use descriptor assignment to allocate ForeignKey. Null is legal, so
         # existing members of the set that are not in the assignment set are
         # set to null.
+        """
+
+        Tests the assignment and clearing of related objects in a Many-To-Many relationship.
+
+        This test case covers two primary scenarios: assigning a new set of related objects 
+        and clearing all related objects from a given instance.
+
+        The test first assigns a new set of articles to a reporter, verifying that the 
+        assignment was successful. Then, it clears the related articles from another 
+        reporter, confirming that the articles are properly disassociated and that 
+        the cleared reporter has no related articles. Finally, it checks that the 
+        disassociated articles are correctly marked as not belonging to any reporter.
+
+        """
         self.r2.article_set.set([self.a2, self.a3])
         self.assertSequenceEqual(self.r2.article_set.all(), [self.a2, self.a3])
         # Clear the rest of the set
@@ -133,6 +167,13 @@ class ManyToOneNullTests(TestCase):
         self.assertEqual(r.article_set.count(), 3)
 
     def test_clear_efficiency(self):
+        """
+        Tests the efficiency of clearing a reporter's article set.
+
+        Verifies that the article set associated with a reporter can be cleared in a single database query.
+        The test creates a reporter and populates its article set with multiple articles, then checks that
+        clearing the set only requires one database query and results in the set being empty.
+        """
         r = Reporter.objects.create()
         for _ in range(3):
             r.article_set.create()

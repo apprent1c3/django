@@ -155,6 +155,17 @@ class NamedURL(models.Model):
 
 class Mixin:
     def __init__(self):
+        """
+        Initializes the object.
+
+        This constructor sets up the object's internal state by initializing its 
+        attributes. Specifically, it sets the value of 'other_attr' to 1 and 
+        then calls the parent class's constructor using 'super().__init__()' to 
+        perform any additional initialization required by the parent class.
+
+        Note: This is a special method that is automatically called when an object 
+        of this class is instantiated. It should not be called directly.
+        """
         self.other_attr = 1
         super().__init__()
 

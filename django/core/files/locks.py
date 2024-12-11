@@ -124,5 +124,13 @@ else:
                 return False
 
         def unlock(f):
+            """
+            Unlock a file descriptor.
+
+            Release a previously acquired lock on a file descriptor, allowing other processes to access the file.
+
+            :returns: True to indicate successful unlock operation.
+            :rtype: bool
+            """
             fcntl.flock(_fd(f), fcntl.LOCK_UN)
             return True

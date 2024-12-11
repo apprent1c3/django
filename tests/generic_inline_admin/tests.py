@@ -203,6 +203,19 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.initial_form_count(), 1)
 
     def test_get_extra(self):
+        """
+
+        Tests the :meth:`get_extra` method of a :class:`~django.contrib.admin.TabularInline` subclass.
+
+        This method checks that the :meth:`get_extra` method is used to determine the number of extra forms
+        displayed in the inline formset when editing an object in the admin interface.
+        It verifies that the :meth:`get_extra` method takes precedence over the ``extra`` attribute set on the
+        inline class.
+
+        The test case covers the scenario where the :meth:`get_extra` method returns a different value than
+        the ``extra`` attribute, ensuring that the correct number of extra forms is displayed.
+
+        """
         class GetExtraInline(GenericTabularInline):
             model = Media
             extra = 4
@@ -223,6 +236,17 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.extra, 2)
 
     def test_get_min_num(self):
+        """
+
+        Tests that the get_min_num method in a GenericTabularInline returns the correct minimum number of forms.
+
+        This test case creates a model admin with an inline formset that has a minimum number of forms set to 5.
+        However, the get_min_num method is overridden to return 2, regardless of the default setting.
+        The test verifies that the minimum number of forms in the formset is indeed 2, as determined by the get_min_num method.
+
+        Arguably, this check ensures that the get_min_num method is called and its return value is used to determine the minimum number of forms in the formset.
+
+        """
         class GetMinNumInline(GenericTabularInline):
             model = Media
             min_num = 5
@@ -333,6 +357,21 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_get_formset_kwargs(self):
+        """
+
+        Tests the get_formset method of the MediaInline class.
+
+        This test verifies that the get_formset method returns a formset with the correct 
+        maximum number of forms and ordering capabilities. It checks the default values 
+        and ensures that custom values can be applied when calling the method with 
+        optional parameters.
+
+        The test case covers the following scenarios:
+
+        * Retrieving a formset with default settings
+        * Retrieving a formset with custom maximum number of forms and ordering enabled
+
+        """
         media_inline = MediaInline(Media, AdminSite())
 
         # Create a formset with default arguments
@@ -419,6 +458,20 @@ class GenericInlineModelAdminTest(SimpleTestCase):
     def test_get_fieldsets(self):
         # get_fieldsets is called when figuring out form fields.
         # Refs #18681.
+        """
+
+        Tests the get_fieldsets method of a GenericTabularInline subclass.
+
+        This test case verifies that the get_fieldsets method correctly limits the fields
+        included in the inline formset to those specified in the method's return value.
+        In this specific test, it checks that only the 'url' and 'description' fields are
+        included in the formset for the Media model.
+
+        The test creates a custom MediaInline class with a get_fieldsets method that
+        returns a fieldset containing only 'url' and 'description', and then checks that
+        the resulting formset has the expected fields.
+
+        """
         class MediaForm(ModelForm):
             class Meta:
                 model = Media

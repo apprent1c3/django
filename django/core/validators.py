@@ -97,6 +97,11 @@ class DomainNameValidator(RegexValidator):
     max_length = 255
 
     def __init__(self, **kwargs):
+        """
+        Initializes an instance of the class, configuring its domain name validation behavior.
+
+        The constructor accepts various keyword arguments (`**kwargs`), which are passed to the superclass initializer after processing the `accept_idna` parameter. If `accept_idna` is `True` (default), the instance will validate domain names using a regular expression that supports internationalized domain names (IDNA). Otherwise, it will use a regular expression that only matches ASCII domain names. The instance's regular expression pattern is compiled lazily and in a case-insensitive manner.
+        """
         self.accept_idna = kwargs.pop("accept_idna", True)
 
         if self.accept_idna:
@@ -414,6 +419,16 @@ class BaseValidator:
             raise ValidationError(self.message, code=self.code, params=params)
 
     def __eq__(self, other):
+        """
+        Checks if two objects are equal based on their attributes.
+
+        This method compares the current object with another object of the same class.
+        It returns True if both objects have the same limit value, message, and code.
+        Otherwise, it returns NotImplemented if the compared object is not of the same class.
+
+        :param other: The object to compare with the current object.
+        :return: True if the objects are equal, NotImplemented otherwise.
+        """
         if not isinstance(other, self.__class__):
             return NotImplemented
         return (
@@ -629,6 +644,15 @@ class FileExtensionValidator:
             self.code = code
 
     def __call__(self, value):
+        """
+        Validate the file extension of a given value.
+
+        This function checks if the file extension of the provided value is in the list of allowed extensions.
+        If the extension is not allowed, it raises a ValidationError with a corresponding error message.
+
+        :param value: The value to be validated, expected to have a 'name' attribute with a file path
+        :raises ValidationError: If the file extension is not in the list of allowed extensions
+        """
         extension = Path(value.name).suffix[1:].lower()
         if (
             self.allowed_extensions is not None

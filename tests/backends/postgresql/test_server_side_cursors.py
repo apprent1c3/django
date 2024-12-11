@@ -26,6 +26,13 @@ class ServerSideCursorsPostgres(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class.
+
+        This method is used to create initial data that can be shared across all tests in the class.
+        It creates two Person objects, p0 and p1, with predefined first and last names for use in subsequent tests.
+        The created objects are stored as class attributes, allowing easy access and reuse throughout the test class.
+        """
         cls.p0 = Person.objects.create(first_name="a", last_name="a")
         cls.p1 = Person.objects.create(first_name="b", last_name="b")
 
@@ -39,6 +46,25 @@ class ServerSideCursorsPostgres(TestCase):
 
     @contextmanager
     def override_db_setting(self, **kwargs):
+        """
+
+        A context manager that temporarily overrides Django database settings.
+
+        This function allows you to override specific database settings for a controlled scope,
+        ensuring that the original settings are restored when the context is exited.
+
+        It accepts keyword arguments where the keys are the setting names and the values are
+        the new settings to apply.
+
+        For example, you can use it to temporarily change the database engine or timeout.
+
+        The original values of the overridden settings are automatically restored when the
+        context is exited, regardless of whether an exception is thrown or not.
+
+        Use this context manager when you need to test or run code with different database
+        settings, without affecting the rest of the application.
+
+        """
         for setting in kwargs:
             original_value = connection.settings_dict.get(setting)
             if setting in connection.settings_dict:
@@ -105,6 +131,14 @@ class ServerSideCursorsPostgres(TestCase):
         reason="Cursor not closed properly due to differences in garbage collection.",
     )
     def test_server_side_cursors_setting(self):
+        """
+
+        Tests the behavior of server-side cursors when DISABLE_SERVER_SIDE_CURSORS setting is enabled or disabled.
+
+        This test case ensures that the server-side cursors are properly used or not used when the setting is toggled.
+        It checks the usage of cursors by iterating over a query set of Person objects and verifies the expected behavior.
+
+        """
         with self.override_db_setting(DISABLE_SERVER_SIDE_CURSORS=False):
             persons = Person.objects.iterator()
             self.assertUsesCursor(persons)

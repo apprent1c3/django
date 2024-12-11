@@ -123,6 +123,19 @@ class Geo3DLoadingHelper:
             )
 
     def _load_polygon_data(self):
+        """
+        Load and store 2D and 3D polygon bounding box data.
+
+        This method takes bounding box data, converts it into a 2D and 3D geometric representation, 
+        and then saves these representations as Polygon2D and Polygon3D database objects respectively.
+
+        The stored objects are named '2D BBox' and '3D BBox', and can be used for spatial queries and operations.
+
+        SeeAlso:
+            Polygon2D
+            Polygon3D
+            GEOSGeometry
+        """
         bbox_wkt, bbox_z = bbox_data
         bbox_2d = GEOSGeometry(bbox_wkt, srid=32140)
         bbox_3d = Polygon(

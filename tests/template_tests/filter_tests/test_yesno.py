@@ -36,6 +36,19 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(yesno(None, "certainly,get out of town,perhaps"), "perhaps")
 
     def test_invalid_value(self):
+        """
+
+        Tests the behavior of the yesno function with invalid values.
+
+        This test case checks how the function handles inputs that do not match the expected 'yes' or 'no' values, 
+        including boolean true and false, and null input.
+
+        It verifies that the function correctly handles these edge cases and returns the expected results:
+        - Returns True when the input matches 'yes'
+        - Returns False when the input does not match 'yes'
+        - Returns None for a null input.
+
+        """
         self.assertIs(yesno(True, "yes"), True)
         self.assertIs(yesno(False, "yes"), False)
         self.assertIsNone(yesno(None, "yes"))

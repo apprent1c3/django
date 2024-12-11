@@ -50,6 +50,18 @@ class StaticTests(SimpleTestCase):
         self.assertEqual(len(second_chunk.strip()), 1449)
 
     def test_unknown_mime_type(self):
+        """
+
+        Tests the response for a file with an unknown MIME type.
+
+        This test case checks if the server correctly identifies a file with an unknown MIME type
+        and returns the 'application/octet-stream' Content-Type header, indicating that the file
+        is binary data of an unknown type.
+
+        The test retrieves a file with a '.unknown' extension from the server and verifies the
+        response headers to ensure the correct Content-Type is returned.
+
+        """
         response = self.client.get("/%s/file.unknown" % self.prefix)
         self.assertEqual("application/octet-stream", response.headers["Content-Type"])
         response.close()
@@ -62,6 +74,17 @@ class StaticTests(SimpleTestCase):
             self.assertEqual(fp.read(), response_content)
 
     def test_is_modified_since(self):
+        """
+        Tests that the server correctly handles the 'If-Modified-Since' header.
+
+        This test checks that when the client requests a file with a 'If-Modified-Since'
+        header set to a date earlier than the file's modification date, the server returns
+        the full file contents.
+
+        The test verifies that the response content matches the contents of the requested
+        file, ensuring that the server does not return a 304 Not Modified status code
+        when the client has an outdated version of the file.
+        """
         file_name = "file.txt"
         response = self.client.get(
             "/%s/%s" % (self.prefix, file_name),
@@ -122,12 +145,26 @@ class StaticTests(SimpleTestCase):
         self.assertEqual(404, response.status_code)
 
     def test_index(self):
+        """
+        Tests the index view by sending a GET request to the index URL and verifying that the response contains the expected index page content and lists the 'subdir/' directory.
+        """
         response = self.client.get("/%s/" % self.prefix)
         self.assertContains(response, "Index of ./")
         # Directories have a trailing slash.
         self.assertIn("subdir/", response.context["file_list"])
 
     def test_index_subdir(self):
+        """
+
+        Tests the index view of a subdirectory.
+
+        Verifies that a GET request to the subdirectory URL returns a successful response
+        containing the expected index content, including the subdirectory name and a list
+        of visible files. Specifically, this test checks for the presence of the string
+        'Index of subdir/' in the response and confirms that the response context includes
+        a 'file_list' variable with the expected contents.
+
+        """
         response = self.client.get("/%s/subdir/" % self.prefix)
         self.assertContains(response, "Index of subdir/")
         # File with a leading dot (e.g. .hidden) aren't displayed.
@@ -190,6 +227,13 @@ class StaticHelperTest(StaticTests):
         self.assertEqual(static("test"), [])
 
     def test_empty_prefix(self):
+        """
+
+        Tests that an empty static prefix raises an ImproperlyConfigured exception.
+
+        Checks that passing an empty string as the static prefix results in an error with a specific message.
+
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Empty static prefix not permitted"
         ):

@@ -323,6 +323,13 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     def test_content_length_header_added(self):
         def get_response(req):
+            """
+            Returns an HTTP response with predefined content.
+
+            The returned response object does not contain the 'Content-Length' header.
+
+            This function is useful for testing or generating responses where the content length is not explicitly specified or is handled automatically.
+            """
             response = HttpResponse("content")
             self.assertNotIn("Content-Length", response)
             return response
@@ -332,6 +339,19 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     def test_content_length_header_not_added_for_streaming_response(self):
         def get_response(req):
+            """
+
+            Return a StreamingHttpResponse object with the specified content.
+
+            This function generates a response that does not include a 'Content-Length' header,
+            indicating that the response body size is unknown or will be sent in chunks.
+            The returned response can be used to handle large data transmissions or streaming data,
+            where the total content length may not be known in advance.
+
+            :param req: The request object associated with the response.
+            :returns: A StreamingHttpResponse object containing the specified content.
+
+            """
             response = StreamingHttpResponse("content")
             self.assertNotIn("Content-Length", response)
             return response
@@ -343,6 +363,22 @@ class CommonMiddlewareTest(SimpleTestCase):
         bad_content_length = 500
 
         def get_response(req):
+            """
+
+            Returns an HTTP response object with a predefined Content-Length header.
+
+            The response object returned by this function contains a Content-Length header 
+            with a value set to bad_content_length. This function is designed to handle 
+            requests and generate a response with a specific header value, 
+            which can be useful for testing or specialized use cases.
+
+            Args:
+                req: The request object that triggers the response generation.
+
+            Returns:
+                An HttpResponse object with the specified Content-Length header.
+
+            """
             response = HttpResponse()
             response.headers["Content-Length"] = bad_content_length
             return response
@@ -370,6 +406,17 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertEqual(r.status_code, 301)
 
     def test_response_redirect_class(self):
+        """
+
+        Tests that the middleware correctly handles requests for URLs without trailing slashes.
+
+        When a request is made to a URL that does not have a trailing slash and should have one,
+        the middleware should return a permanent redirect (301) to the URL with the trailing slash.
+
+        This test case verifies that the middleware correctly handles such requests by checking
+        the status code, the redirect URL, and the type of the response.
+
+        """
         request = self.rf.get("/slash")
         r = CommonMiddleware(get_response_404)(request)
         self.assertEqual(r.status_code, 301)
@@ -377,6 +424,11 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertIsInstance(r, HttpResponsePermanentRedirect)
 
     def test_response_redirect_class_subclass(self):
+        """
+        Tests the response redirect behavior when using a custom subclass of CommonMiddleware, 
+        verifying that it correctly redirects to the desired URL with the expected HTTP status code 
+        and response type, in this case, HttpResponseRedirect.
+        """
         class MyCommonMiddleware(CommonMiddleware):
             response_redirect_class = HttpResponseRedirect
 
@@ -401,6 +453,16 @@ class BrokenLinkEmailsMiddlewareTest(SimpleTestCase):
         return self.client.get(req.path)
 
     def test_404_error_reporting(self):
+        """
+
+        Tests the 404 error reporting functionality of the BrokenLinkEmailsMiddleware.
+
+        Verifies that when a request is made to a non-existent URL, an email notification is sent.
+        The test checks that the email is successfully added to the outbox and that its subject contains the expected 'Broken' keyword.
+
+        This test case ensures that the BrokenLinkEmailsMiddleware is functioning correctly and
+        sends email notifications as intended when a 404 error occurs.
+        """
         self.req.META["HTTP_REFERER"] = "/another/url/"
         BrokenLinkEmailsMiddleware(self.get_response)(self.req)
         self.assertEqual(len(mail.outbox), 1)
@@ -471,6 +533,11 @@ class BrokenLinkEmailsMiddlewareTest(SimpleTestCase):
     def test_referer_equal_to_requested_url_without_trailing_slash_with_append_slash(
         self,
     ):
+        """
+        Tests that the Broken Link Emails middleware does not send an email when the referer URL is equal to the requested URL without a trailing slash, and the APPEND_SLASH setting is enabled.
+
+        This test case simulates a situation where the user is referred from a URL that is similar to the requested URL but without a trailing slash. It verifies that no email is sent in this scenario, ensuring that the middleware correctly handles URL comparisons when APPEND_SLASH is enabled.
+        """
         self.req.path = self.req.path_info = "/regular_url/that/does/not/exist/"
         self.req.META["HTTP_REFERER"] = self.req.path_info[:-1]
         BrokenLinkEmailsMiddleware(self.get_response)(self.req)
@@ -491,6 +558,9 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+        Sets up the environment for testing by initializing a request object and an empty dictionary to store response headers. The request object is created by fetching the root URL ('/') using the request factory. The response headers dictionary is initially empty, allowing for headers to be added or updated as needed during testing.
+        """
         self.req = self.request_factory.get("/")
         self.resp_headers = {}
 
@@ -503,6 +573,14 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
     # Tests for the ETag header
 
     def test_middleware_calculates_etag(self):
+        """
+
+        Tests the ConditionalGetMiddleware to ensure it correctly calculates the ETag.
+
+        This test verifies that the middleware returns a successful response (200 status code)
+        and includes a non-empty ETag header, indicating that the ETag calculation was performed.
+
+        """
         resp = ConditionalGetMiddleware(self.get_response)(self.req)
         self.assertEqual(resp.status_code, 200)
         self.assertNotEqual("", resp["ETag"])
@@ -514,6 +592,14 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual("eggs", resp["ETag"])
 
     def test_no_etag_streaming_response(self):
+        """
+
+        Tests that the ConditionalGetMiddleware does not add an ETag header to a streaming response.
+
+        The ETag header is used for caching and conditional requests, but it is not applicable to streaming responses.
+        This test ensures that the middleware correctly handles this case and does not attempt to generate an ETag.
+
+        """
         def get_response(req):
             return StreamingHttpResponse(["content"])
 
@@ -542,6 +628,10 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         )
 
     def test_if_none_match_and_no_etag(self):
+        """
+        Tests the behavior of the ConditionalGetMiddleware when the If-None-Match header is present in the request but no ETag is available. 
+        Verifies that the response status code is 200 (OK) in this scenario, indicating that the middleware handles this case correctly.
+        """
         self.req.META["HTTP_IF_NONE_MATCH"] = "spam"
         resp = ConditionalGetMiddleware(self.get_response)(self.req)
         self.assertEqual(resp.status_code, 200)
@@ -576,6 +666,15 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 301)
 
     def test_if_none_match_and_client_error(self):
+        """
+        Tests the ConditionalGetMiddleware when the If-None-Match header matches the ETag of the response,
+        but the server returns a client error.
+
+        Checks that the middleware correctly handles this scenario by forwarding the server's error response
+        instead of attempting to return a 304 Not Modified response, ensuring that the client is informed of the error.
+
+        Verifies that the middleware's behavior aligns with HTTP standards and client expectations in such cases.
+        """
         def get_response(req):
             resp = self.client.get(req.path_info)
             resp["ETag"] = "spam"
@@ -599,6 +698,14 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_if_modified_since_and_same_last_modified(self):
+        """
+
+        Tests the behavior of the ConditionalGetMiddleware when the 'If-Modified-Since' request header matches the 'Last-Modified' response header.
+
+        The test verifies that the middleware returns a 304 status code (Not Modified) when the client has a cached version of the resource that is up-to-date, 
+        ensuring that the server does not resend the full response body unnecessarily.
+
+        """
         self.req.META["HTTP_IF_MODIFIED_SINCE"] = "Sat, 12 Feb 2011 17:38:44 GMT"
         self.resp_headers["Last-Modified"] = "Sat, 12 Feb 2011 17:38:44 GMT"
         self.resp = ConditionalGetMiddleware(self.get_response)(self.req)
@@ -617,6 +724,15 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(self.resp.status_code, 200)
 
     def test_if_modified_since_and_redirect(self):
+        """
+        Tests the ConditionalGetMiddleware under the condition where the request 
+        includes an If-Modified-Since header and the response includes a redirect.
+
+        Verifies that when the request's If-Modified-Since header indicates the 
+        client has a more recent version than the Last-Modified date, and the 
+        response redirects, the middleware correctly returns a 301 status code.
+
+        """
         def get_response(req):
             resp = self.client.get(req.path_info)
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"
@@ -786,6 +902,13 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
         """
 
         def xframe_exempt_response(request):
+            """
+            Returns an HTTP response that is exempt from X-Frame-Options restrictions, 
+            allowing it to be framed by external sites. This is useful for pages that need 
+            to be embedded in other websites, such as widgets or iframes. 
+
+            :returns: HttpResponse object with X-Frame-Options set to exempt
+            """
             response = HttpResponse()
             response.xframe_options_exempt = True
             return response
@@ -819,6 +942,17 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
                 return "DENY"
 
         def same_origin_response(request):
+            """
+
+            Returns an HTTP response with a same-origin flag set.
+
+            This function generates a response that can be used to handle requests in the same origin, 
+            allowing the browser to access the response data without any CORS restrictions.
+
+            The returned response object has the same-origin flag explicitly set to True, 
+            indicating that it is a response to a same-origin request.
+
+            """
             response = HttpResponse()
             response.sameorigin = True
             return response
@@ -852,6 +986,18 @@ class GZipMiddlewareTest(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+
+        Sets up a test request and response for testing purposes.
+
+        This method initializes a test HTTP request with a specific user agent and
+        accept encoding, and creates a corresponding HTTP response with a status code
+        of 200, a compressible content string, and a content type of text/html.
+
+        The resulting request and response objects are stored as instance variables,
+        allowing for further testing and manipulation in subsequent methods.
+
+        """
         self.req = self.request_factory.get("/")
         self.req.META["HTTP_ACCEPT_ENCODING"] = "gzip, deflate"
         self.req.META["HTTP_USER_AGENT"] = (
@@ -867,11 +1013,49 @@ class GZipMiddlewareTest(SimpleTestCase):
 
     @staticmethod
     def decompress(gzipped_string):
+        """
+
+        Decompress a string that has been compressed using gzip.
+
+        This function takes a gzipped string as input and returns the decompressed string.
+        It uses the gzip library to handle the decompression process, allowing for
+        efficient and accurate decompression of gzipped data.
+
+        The input string is expected to be a valid gzip-compressed bytes object.
+        The return value is the decompressed string as bytes.
+
+        Args:
+            gzipped_string (bytes): The gzip-compressed string to be decompressed.
+
+        Returns:
+            bytes: The decompressed string.
+
+        Note:
+            This function does not perform any error checking on the input string.
+            If the input string is not a valid gzip-compressed bytes object, an error may occur.
+
+        """
         with gzip.GzipFile(mode="rb", fileobj=BytesIO(gzipped_string)) as f:
             return f.read()
 
     @staticmethod
     def get_mtime(gzipped_string):
+        """
+        Extracts the last modification time (mtime) from a gzip-compressed string.
+
+        This function takes a string containing gzip-compressed data as input and returns
+        the last modification time of the corresponding gzip file. The input string is
+        treated as if it were a file being read from, allowing the function to extract
+        the mtime attribute from the gzip file headers.
+
+        Returns:
+            float: The last modification time of the gzip file in seconds since the Unix epoch.
+
+        Note:
+            This function assumes that the input string contains a valid gzip file.
+            If the input is invalid, the behavior is undefined.
+
+        """
         with gzip.GzipFile(mode="rb", fileobj=BytesIO(gzipped_string)) as f:
             f.read()  # must read the data before accessing the header
             return f.mtime
@@ -906,7 +1090,32 @@ class GZipMiddlewareTest(SimpleTestCase):
         """
 
         async def get_stream_response(request):
+            """
+            Return a StreamingHttpResponse that yields a sequence of chunks as an HTML response.
+
+            The response is generated asynchronously, allowing for efficient handling of large or dynamic content.
+            The HTTP response is set with a Content-Type header of 'text/html; charset=UTF-8', indicating that the
+            response body contains HTML content encoded in UTF-8.
+
+            This function is suitable for use cases where a large amount of data needs to be streamed to the client,
+            such as when generating dynamic web pages or serving large files.
+
+            :returns: A StreamingHttpResponse object that yields the sequence of chunks as an HTML response.
+            """
             async def iterator():
+                """
+
+                Asynchronously iterates over a sequence of chunks.
+
+                This function allows for efficient, non-blocking iteration over a collection of data,
+                returning each chunk as it is processed. It is particularly useful when working with
+                large datasets or streams of data, as it enables the asynchronous handling of each
+                chunk without having to load the entire sequence into memory.
+
+                Yields:
+                    Each chunk in the sequence, allowing for asynchronous processing and handling.
+
+                """
                 for chunk in self.sequence:
                     yield chunk
 
@@ -1058,6 +1267,9 @@ class ETagGZipMiddlewareTest(SimpleTestCase):
         """
 
         def get_response(req):
+            """
+            Returns an HTTP response object containing a compressed string, with an ETag header set to a fixed value, suitable for caching and reducing network bandwidth. The response is generated based on the provided request, but its actual content is predefined.
+            """
             response = HttpResponse(self.compressible_string)
             response.headers["ETag"] = '"eggs"'
             return response

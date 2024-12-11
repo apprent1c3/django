@@ -41,6 +41,28 @@ class Command(BaseCommand):
         )
 
     def handle(self, *tablenames, **options):
+        """
+
+        Handle the creation of database tables.
+
+        This function takes in a variable number of table names and optional keyword arguments.
+        It iterates over the specified table names and creates the corresponding database tables
+        using the specified database connection.
+
+        If no table names are provided, it automatically detects and creates tables for all
+        configured database caches.
+
+        The function supports the following optional keyword arguments:
+
+        * database: the database connection to use for creating tables
+        * verbosity: the level of detail to display during the creation process
+        * dry_run: a flag indicating whether to simulate the creation process without actually
+          modifying the database
+
+        The function is typically used to initialize or update the database schema to match
+        the requirements of the application.
+
+        """
         db = options["database"]
         self.verbosity = options["verbosity"]
         dry_run = options["dry_run"]
@@ -55,6 +77,23 @@ class Command(BaseCommand):
                     self.create_table(db, cache._table, dry_run)
 
     def create_table(self, database, tablename, dry_run):
+        """
+        Create a cache table in the specified database with the given table name.
+
+        The table is created with three fields: cache_key (a unique primary key), value (a text field), and expires (a date/time field with a database index).
+        The function checks if the table already exists in the database before attempting to create it.
+        If the `dry_run` parameter is True, the function will print the SQL statements that would be used to create the table instead of executing them.
+        If the creation is successful, a message will be printed to the standard output with the verbosity level set to 1 or higher.
+        If the creation fails, a CommandError will be raised with the error message.
+
+        Args:
+            database (str): The name of the database to create the table in.
+            tablename (str): The name of the table to create.
+            dry_run (bool): Whether to simulate the creation of the table instead of actually creating it.
+
+        Returns:
+            None
+        """
         cache = BaseDatabaseCache(tablename, {})
         if not router.allow_migrate_model(database, cache.cache_model_class):
             return

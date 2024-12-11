@@ -28,6 +28,16 @@ class ModelFormBaseTest(TestCase):
             form.save()
 
     def test_model_multiple_choice_field_uuid_pk(self):
+        """
+        Tests that ModelMultipleChoiceField with UUIDPK model handles invalid UUID input.
+
+        Verifies that attempting to clean the field with an invalid UUID value raises a
+        ValidationError with a message indicating that the provided value is not a valid UUID.
+
+        This test ensures the correct behavior of the ModelMultipleChoiceField when used
+        with a model that has a UUID primary key, and helps prevent potential data corruption
+        or errors by rejecting invalid input.
+        """
         f = forms.ModelMultipleChoiceField(UUIDPK.objects.all())
         with self.assertRaisesMessage(
             ValidationError, "“invalid_uuid” is not a valid UUID."

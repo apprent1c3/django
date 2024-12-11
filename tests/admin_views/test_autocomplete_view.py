@@ -88,6 +88,16 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating a default user with staff privileges.
+
+         This method is used to populate the database with test data, ensuring that the 
+         tests have a consistent and reliable setup. The created user has a username of 
+         'user', password 'secret', email 'user@example.com', and is granted staff 
+         access. This allows for testing of scenarios that require administrative 
+         privileges. The method also calls the parent class's setUpTestData to ensure 
+         any additional test data is properly set up.
+        """
         cls.user = User.objects.create_user(
             username="user",
             password="secret",
@@ -223,6 +233,13 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
             AutocompleteJsonView.as_view(**self.as_view_args)(request)
 
     def test_field_no_related_field(self):
+        """
+        Tests that the AutocompleteJsonView raises a PermissionDenied exception when the request includes a field name that is not related to the current view.
+
+            This test case verifies that the view properly enforces permissions by simulating a GET request with a term and field_name parameter, 
+            and asserting that the expected PermissionDenied exception is raised when the field_name does not correspond to a related field. 
+            It utilizes a superuser to make the request, ensuring the view's permission checks are functioning as intended.
+        """
         request = self.factory.get(
             self.url, {"term": "is", **self.opts, "field_name": "answer"}
         )
@@ -398,6 +415,15 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_views"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+
+        Set up the test environment by creating a superuser and logging them in.
+
+        This method creates a new superuser with the username 'super', password 'secret', and email 'super@example.com'.
+        It then logs this superuser in, using the autocomplete admin login URL, to simulate an administrative session.
+        This allows subsequent tests to run in the context of an authenticated administrator.
+
+        """
         self.superuser = User.objects.create_superuser(
             username="super",
             password="secret",

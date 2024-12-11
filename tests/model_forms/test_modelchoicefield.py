@@ -138,6 +138,23 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_choices_freshness(self):
+        """
+        Tests the freshness of choices in a ModelChoiceField.
+
+        This test case verifies that the choices in a ModelChoiceField are updated 
+        dynamically when the underlying model instances change. Specifically, it checks 
+        that the choices reflect the creation of new model instances.
+
+        The test checks the initial length and content of the choices, then creates a 
+        new model instance and checks again that the choices have been updated 
+        correctly to include the new instance. 
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the choices are not updated correctly.
+        """
         f = forms.ModelChoiceField(Category.objects.order_by("pk"))
         self.assertEqual(len(f.choices), 4)
         self.assertEqual(
@@ -169,6 +186,13 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(bool(f.choices), False)
 
     def test_choices_bool_empty_label(self):
+        """
+
+        Checks if a ModelChoiceField with an empty label still returns choices when the query set is empty.
+
+        Verifies that the empty_label parameter does not affect the truthiness of the choices attribute.
+
+        """
         f = forms.ModelChoiceField(Category.objects.all(), empty_label="--------")
         Category.objects.all().delete()
         self.assertIs(bool(f.choices), True)
@@ -194,6 +218,15 @@ class ModelChoiceFieldTests(TestCase):
                     )
 
     def test_deepcopies_widget(self):
+        """
+        Tests that the widget of a ModelChoiceField in a form is a deep copy.
+
+        Verifies that the widget's attributes are correctly set up and are separate
+        from the original field's widget, ensuring that modifications to the widget
+        do not affect the original field. Specifically, checks that the choices 
+        field of the widget is correctly linked to the field instance, rather than 
+        the field class itself.
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(Category.objects.all())
 
@@ -216,6 +249,16 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIsNone(form2.fields["category"].queryset._result_cache)
 
     def test_queryset_none(self):
+        """
+        Tests that a ModelChoiceField's queryset is correctly updated when set to None in the field definition.
+
+        The test creates a form with a ModelChoiceField that has its queryset initially set to None.
+        The queryset is then updated in the form's __init__ method to filter a set of categories.
+        The test asserts that the queryset has been correctly updated by comparing it to the expected results.
+
+        This test case ensures that the ModelChoiceField behaves as expected when its queryset is initially set to None and then updated dynamically.
+
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(queryset=None)
 
@@ -261,6 +304,15 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_disabled_modelchoicefield_has_changed(self):
+        """
+        Tests that a disabled ModelChoiceField does not report changes.
+
+        Checks the behavior of the ModelChoiceField when it is disabled. In this state,
+        the field's has_changed method should always return False, regardless of the
+        input values. This ensures that a disabled field does not unexpectedly trigger
+        form validation or other side effects when its value appears to change.
+
+        """
         field = forms.ModelChoiceField(Author.objects.all(), disabled=True)
         self.assertIs(field.has_changed("x", "y"), False)
 
@@ -331,6 +383,24 @@ class ModelChoiceFieldTests(TestCase):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
             ):
+                """
+
+                Creates a new option element with additional attributes.
+
+                This method extends the base functionality by adding a custom attribute 'data-slug' 
+                to the option element, which is derived from the slug attribute of the instance 
+                associated with the option value.
+
+                :param name: The name of the option.
+                :param value: The value of the option.
+                :param label: The label displayed for the option.
+                :param selected: Whether the option is selected by default.
+                :param index: The index of the option.
+                :param subindex: The subindex of the option (optional).
+                :param attrs: Additional attributes for the option element (optional).
+                :returns: The created option element with the added 'data-slug' attribute.
+
+                """
                 option = super().create_option(
                     name, value, label, selected, index, subindex, attrs
                 )
@@ -369,6 +439,14 @@ class ModelChoiceFieldTests(TestCase):
 
         class CustomModelChoiceIterator(ModelChoiceIterator):
             def choice(self, obj):
+                """
+                Override the default choice behavior to return a custom choice value.
+
+                Returns a tuple containing a :class:`CustomModelChoiceValue` instance and a label.
+                The custom choice value wraps the original value, providing additional functionality.
+                This method is typically used in the context of model choice fields, allowing for 
+                more fine-grained control over the choice values being returned.
+                """
                 value, label = super().choice(obj)
                 return CustomModelChoiceValue(value, obj), label
 
@@ -407,6 +485,15 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_choice_value_hash(self):
+        """
+
+        Tests the hash value of ModelChoiceIteratorValue objects.
+
+        This test ensures that the hash of a ModelChoiceIteratorValue object is determined solely by its primary key,
+        and not by the associated model instance. It verifies that two objects with the same primary key but different
+        model instances have the same hash, while two objects with different primary keys have different hashes.
+
+        """
         value_1 = ModelChoiceIteratorValue(self.c1.pk, self.c1)
         value_2 = ModelChoiceIteratorValue(self.c2.pk, self.c2)
         self.assertEqual(

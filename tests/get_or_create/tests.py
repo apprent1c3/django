@@ -569,6 +569,13 @@ class UpdateOrCreateTests(TestCase):
         self.assertFalse(created)
 
     def test_mti_update_non_local_concrete_fields(self):
+        """
+        Tests that updating a model instance with a non-local, concrete field using the update_or_create method correctly updates the instance without creating a new one, and that the updated field values are persisted. 
+
+        This test covers the case of updating an existing model instance with a unique identifier (primary key), verifying that the instance is updated in-place and the updated fields match the expected values. 
+
+        The test asserts that the update operation does not create a new instance and that the updated field values are correctly retrieved after the update.
+        """
         journalist = Journalist.objects.create(name="Jane", specialty="Politics")
         journalist, created = Journalist.objects.update_or_create(
             pk=journalist.pk,
@@ -644,6 +651,13 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
 
         def lock_wait():
             # timeout after ~0.5 seconds
+            """
+            Attempts to acquire a lock by waiting for a short period of time and checking its status repeatedly.
+
+            The function performs a maximum of 20 checks, waiting approximately 0.025 seconds between each check, for a total wait time of around 0.5 seconds. 
+
+            It returns True as soon as the lock is acquired (lock status indicates it has been grabbed), or False if the lock is not acquired within the allotted time, indicating a potential issue with the locking mechanism.
+            """
             for i in range(20):
                 time.sleep(0.025)
                 if lock_status["has_grabbed_lock"]:

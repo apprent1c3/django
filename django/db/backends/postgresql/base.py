@@ -30,6 +30,18 @@ except ImportError:
 
 
 def psycopg_version():
+    """
+
+    Returns the version of the Psycopg library as a tuple.
+
+    This function extracts the version number from the Database class and 
+    converts it into a comparable tuple format, allowing for easy version 
+    checks and comparisons.
+
+    :return: A tuple representing the version of the Psycopg library.
+    :rtype: tuple
+
+    """
     version = Database.__version__.split(" ", 1)[0]
     return get_version_tuple(version)
 

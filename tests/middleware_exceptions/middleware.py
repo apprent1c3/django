@@ -56,6 +56,32 @@ class AsyncProcessViewMiddleware(BaseMiddleware):
 
 class ProcessViewNoneMiddleware(BaseMiddleware):
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+
+        Process a view function during the request/response cycle.
+
+        This method is called for each view function that is invoked, allowing for additional
+        processing or logging to occur. It receives information about the current request and
+        the view function being called, including its name and any arguments or keyword arguments.
+
+        Parameters
+        ----------
+        request : Request
+            The current HTTP request being processed.
+        view_func : function
+            The view function that is being invoked.
+        view_args : tuple
+            Positional arguments being passed to the view function.
+        view_kwargs : dict
+            Keyword arguments being passed to the view function.
+
+        Returns
+        -------
+        None
+            This method does not return any value, its purpose is to perform any necessary
+            logging or processing during the request cycle.
+
+        """
         log.append("processed view %s" % view_func.__name__)
         return None
 
@@ -81,6 +107,16 @@ class TemplateResponseMiddleware(BaseMiddleware):
 @async_only_middleware
 class AsyncTemplateResponseMiddleware(BaseMiddleware):
     async def process_template_response(self, request, response):
+        """
+        Process a template response by modifying its context data.
+
+        This method appends the name of the current class to the 'mw' list in the response's context data.
+        It then returns the modified response, allowing for further processing or rendering.
+
+        :param request: The incoming request object
+        :param response: The template response object to be processed
+        :return: The modified template response object
+        """
         response.context_data["mw"].append(self.__class__.__name__)
         return response
 

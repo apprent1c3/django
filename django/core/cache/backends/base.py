@@ -330,6 +330,26 @@ class BaseCache:
             self.delete(key, version=version)
 
     async def adelete_many(self, keys, version=None):
+        """
+
+        Asynchronously delete multiple keys from the data store.
+
+        Parameters
+        ----------
+        keys : list
+            A list of keys to be deleted.
+        version : int, optional
+            The version number of the keys to be deleted. If specified, only keys with the matching version will be deleted.
+
+        Notes
+        -----
+        This function performs a series of individual delete operations. If any of the delete operations fail, the function will continue to attempt to delete the remaining keys.
+
+        Returns
+        -------
+        None
+
+        """
         for key in keys:
             await self.adelete(key, version=version)
 

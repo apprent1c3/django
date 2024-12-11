@@ -38,6 +38,15 @@ class AuthTemplateTests(TestCase):
         self.assertContains(response, "<h1>Password reset</h1>")
 
     def test_password_reset_done_view(self):
+        """
+        Tests the Password Reset Done view.
+
+        Verifies that the view returns a successful response with the expected title and heading,
+        indicating that the password reset email has been sent successfully.
+
+        Checks for the presence of a specific HTML title and heading in the response content,
+        ensuring that the view is rendering the correct template with the expected content.
+        """
         response = PasswordResetDoneView.as_view()(self.request)
         self.assertContains(
             response, "<title>Password reset sent | Django site admin</title>"
@@ -46,6 +55,16 @@ class AuthTemplateTests(TestCase):
 
     def test_password_reset_confirm_view_invalid_token(self):
         # PasswordResetConfirmView invalid token
+        """
+        Tests the password reset confirm view with an invalid token.
+
+        This test case simulates a GET request to the password reset confirm view with
+        an invalid token. It verifies that the response contains the expected error
+        messages, indicating an unsuccessful password reset attempt.
+
+        The test checks for the presence of specific title and heading elements in the
+        response HTML, confirming that the view handles invalid tokens as expected.
+        """
         client = PasswordResetConfirmClient()
         url = reverse(
             "password_reset_confirm", kwargs={"uidb64": "Bad", "token": "Bad-Token"}

@@ -12,6 +12,18 @@ class SchemaIndexesTests(TransactionTestCase):
     models = [City]
 
     def get_indexes(self, table):
+        """
+        Gets the indexes for a specific database table.
+
+         Args:
+            table (str): The name of the database table for which to retrieve indexes.
+
+         Returns:
+            dict: A dictionary where the keys are the index names and the values are lists of column names that the index applies to.
+
+         Note:
+            This function uses the database connection's introspection capabilities to query the constraints of the specified table and filters the results to include only indexes.
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(cursor, table)
             return {

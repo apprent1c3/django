@@ -39,6 +39,15 @@ class RecursiveM2MTests(TestCase):
 
     def test_recursive_m2m_clear(self):
         # Clear m2m for Anne.
+        """
+        Tests the clearing of a recursive many-to-many relationship.
+
+        This test case verifies that when one side of a recursive many-to-many relationship is cleared,
+        the associated relationships on the other side remain intact, ensuring data consistency.
+
+        It checks that after clearing the 'friends' relationship for an object, the object's friends list
+        is empty, while relationships of related objects are preserved as expected.
+        """
         self.a.friends.clear()
         self.assertSequenceEqual(self.a.friends.all(), [])
         # Reverse m2m relationships should be removed.
@@ -114,6 +123,16 @@ class RecursiveSymmetricalM2MThroughTests(TestCase):
 
     def test_recursive_m2m_clear(self):
         # Clear m2m for Anne.
+        """
+        Tests the clearing of recursive many-to-many relationships.
+
+        Verifies that when one side of a recursive many-to-many relationship is cleared,
+        the corresponding objects on the other side are correctly updated.
+
+        Specifically, this test checks that clearing the colleagues of object 'a'
+        removes 'a' from the friends list, while leaving the relationships between
+        other objects (c and d) intact.
+        """
         self.a.colleagues.clear()
         self.assertSequenceEqual(self.a.friends.all(), [])
         # Reverse m2m relationships is removed.

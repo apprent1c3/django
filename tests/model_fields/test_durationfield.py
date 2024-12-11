@@ -11,6 +11,9 @@ from .models import DurationModel, NullDurationModel
 
 class TestSaveLoad(TestCase):
     def test_simple_roundtrip(self):
+        """
+        Tests a simple roundtrip operation for the DurationModel, verifying that a timedelta object can be successfully saved to and retrieved from the database without losing any information, by comparing the original duration with the loaded duration.
+        """
         duration = datetime.timedelta(microseconds=8999999999999999)
         DurationModel.objects.create(field=duration)
         loaded = DurationModel.objects.get()
@@ -57,6 +60,9 @@ class TestSerialization(SimpleTestCase):
     )
 
     def test_dumping(self):
+        """
+        Tests the serialization of a DurationModel instance to JSON format, verifying that the resulting data matches the expected output.
+        """
         instance = DurationModel(field=datetime.timedelta(days=1, hours=1))
         data = serializers.serialize("json", [instance])
         self.assertEqual(json.loads(data), json.loads(self.test_data))

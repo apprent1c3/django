@@ -35,6 +35,20 @@ def require_http_methods(request_method_list):
 
             @wraps(func)
             async def inner(request, *args, **kwargs):
+                """
+
+                Checks if the HTTP request method is allowed and calls the original function if it is.
+
+                If the request method is not in the list of allowed methods, a 405 Method Not Allowed response is returned.
+                The original function is called with the request and any additional arguments if the method is allowed.
+                The response from the original function is then returned.
+
+                :param request: The incoming HTTP request
+                :param args: Any additional positional arguments
+                :param kwargs: Any additional keyword arguments
+                :returns: The response from the original function or a 405 Method Not Allowed response
+
+                """
                 if request.method not in request_method_list:
                     response = HttpResponseNotAllowed(request_method_list)
                     log_response(

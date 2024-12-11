@@ -15,6 +15,13 @@ class RjustTests(SimpleTestCase):
         }
     )
     def test_rjust01(self):
+        """
+
+        Tests the functionality of the rjust Jinja2 filter in the template engine.
+        Ensures that the filter correctly right-justifies strings and handles HTML-escaped content.
+        The test checks that the filter works as expected with regular strings and markup-safe strings.
+
+        """
         output = self.engine.render_to_string(
             "rjust01", {"a": "a&b", "b": mark_safe("a&b")}
         )

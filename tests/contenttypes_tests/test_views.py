@@ -142,6 +142,14 @@ class ContentTypesViewsSiteRelTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This class method creates and stores test site instances, making them available for use in subsequent tests.
+        Two site objects are created, each with a unique domain and name, and are assigned to class attributes :attr:`site_2` and :attr:`site_3`.
+
+        """
         cls.site_2 = Site.objects.create(domain="example2.com", name="example2.com")
         cls.site_3 = Site.objects.create(domain="example3.com", name="example3.com")
 
@@ -224,6 +232,14 @@ class ContentTypesViewsSiteRelTests(TestCase):
 
 class ShortcutViewTests(TestCase):
     def setUp(self):
+        """
+        Sets up the environment for testing by creating a new HttpRequest object and configuring its META attributes.
+
+        The HttpRequest object is initialized with predefined server settings, including the server name ('Example.com') and server port ('80'). This setup is used as a foundation for subsequent tests, allowing for standardized testing conditions.
+
+        Returns:
+            None
+        """
         self.request = HttpRequest()
         self.request.META = {"SERVER_NAME": "Example.com", "SERVER_PORT": "80"}
 

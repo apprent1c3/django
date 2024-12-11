@@ -29,6 +29,22 @@ class JoinTests(SimpleTestCase):
     # Joining with unsafe joiners doesn't result in unsafe strings.
     @setup({"join05": "{{ a|join:var }}"})
     def test_join05(self):
+        """
+        .\"\"\"
+        Tests the join filter functionality in template rendering.
+
+        The join filter is used to concatenate a list of strings with a specified separator.
+        This test case verifies that the join filter correctly escapes special characters in the input strings, 
+        ensuring the output is safe for HTML rendering.
+
+        Args:
+            a (list): A list of strings to be joined.
+            var (str): The separator to use for joining the strings.
+
+        Returns:
+            str: The rendered template string with the joined and escaped input strings.
+
+        """
         output = self.engine.render_to_string(
             "join05", {"a": ["alpha", "beta & me"], "var": " & "}
         )
@@ -65,6 +81,19 @@ class JoinTests(SimpleTestCase):
         }
     )
     def test_join_autoescape_off(self):
+        """
+
+        Tests the join filter with autoescape turned off.
+
+        This test ensures that when the autoescape is disabled, the join filter correctly 
+        joins a list of strings with a specified joiner without escaping any HTML 
+        characters in the strings.
+
+        The test uses a list of strings containing HTML tags and special characters, 
+        and verifies that the output matches the expected result, demonstrating that 
+        the autoescape is indeed turned off during the join operation.
+
+        """
         var_list = ["<p>Hello World!</p>", "beta & me", "<script>Hi!</script>"]
         context = {"var_list": var_list, "var_joiner": "<br/>"}
         output = self.engine.render_to_string("join_autoescape_off", context)
@@ -89,9 +118,25 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_noniterable_arg(self):
+        """
+        Tests the behavior of the join function when a non-iterable argument is provided.
+
+        The function verifies that when the join function is called with an object that cannot be iterated over, 
+        it returns the original object unchanged, without raising any errors or attempting to modify the object.
+
+        This test ensures that the join function handles such edge cases correctly and provides a predictable result.
+
+        """
         obj = object()
         self.assertEqual(join(obj, "<br>"), obj)
 
     def test_noniterable_arg_autoescape_off(self):
+        """
+        Test that the join function returns the original non-iterable argument when autoescape is disabled.
+
+            This test case verifies that when a non-iterable object is passed to the join function with autoescape set to False,
+            the function returns the original object without attempting to iterate over it or apply any escaping.
+
+        """
         obj = object()
         self.assertEqual(join(obj, "<br>", autoescape=False), obj)

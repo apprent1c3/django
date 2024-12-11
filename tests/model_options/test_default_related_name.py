@@ -7,6 +7,14 @@ from .models.default_related_name import Author, Book, Editor
 class DefaultRelatedNameTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        **:meth:`setUpTestData`**
+
+            Sets up the test data for the class, creating instances of Author, Editor, and Book models.
+            The created instances include a bestselling author, an editor associated with the author, and a book 
+            associated with the editor and the author. This method is used to provide a consistent test data setup 
+            for the class, reducing the need to repeat the same setup in individual test methods.
+        """
         cls.author = Author.objects.create(first_name="Dave", last_name="Loper")
         cls.editor = Editor.objects.create(
             name="Test Editions", bestselling_author=cls.author

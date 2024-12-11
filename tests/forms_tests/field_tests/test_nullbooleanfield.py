@@ -21,6 +21,11 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_nullbooleanfield_2(self):
         # The internal value is preserved if using HiddenInput (#7753).
+        """
+        Tests the rendering of a form with hidden NullBooleanFields.
+
+         The test case verifies that the form fields are correctly rendered as HTML hidden input elements, with the expected name, value, and id attributes. The initial values of the fields are set to True and False, respectively, and the test confirms that these values are properly reflected in the rendered HTML.
+        """
         class HiddenNullBooleanForm(Form):
             hidden_nullbool1 = NullBooleanField(widget=HiddenInput, initial=True)
             hidden_nullbool2 = NullBooleanField(widget=HiddenInput, initial=False)
@@ -63,6 +68,15 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.cleaned_data["nullbool2"])
 
     def test_nullbooleanfield_changed(self):
+        """
+        Tests the functionality of the NullBooleanField's has_changed method.
+
+        This method checks if the value of a NullBooleanField has been modified.
+        The test cases cover various scenarios, including changes from None to a boolean value, 
+        from a boolean value to None, and between different boolean values.
+        It also checks for changes when the input values are not valid boolean values.
+        The test ensures that the has_changed method correctly identifies when the field's value has been updated.
+        """
         f = NullBooleanField()
         self.assertTrue(f.has_changed(False, None))
         self.assertTrue(f.has_changed(None, False))

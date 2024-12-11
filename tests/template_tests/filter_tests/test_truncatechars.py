@@ -6,6 +6,12 @@ from ..utils import setup
 class TruncatecharsTests(SimpleTestCase):
     @setup({"truncatechars01": "{{ a|truncatechars:3 }}"})
     def test_truncatechars01(self):
+        """
+
+        Tests the truncatechars filter by rendering a template with a string 'Testing, testing' 
+        and verifying the output is truncated to 3 characters and appended with an ellipsis ('Te…').
+
+        """
         output = self.engine.render_to_string(
             "truncatechars01", {"a": "Testing, testing"}
         )

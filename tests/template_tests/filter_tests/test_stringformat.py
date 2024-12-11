@@ -29,6 +29,18 @@ class StringformatTests(SimpleTestCase):
         {"stringformat02": '.{{ a|stringformat:"5s" }}. .{{ b|stringformat:"5s" }}.'}
     )
     def test_stringformat02(self):
+        """
+
+        Tests string formatting in templates.
+
+        This test case checks how the engine handles string formatting when rendering templates.
+        It verifies that the string format filter correctly escapes HTML special characters,
+        while also ensuring that marked safe strings are not escaped.
+
+        The test renders a template with string format filter applied to two variables,
+        one regular string and one marked as safe, and asserts that the output is as expected.
+
+        """
         output = self.engine.render_to_string(
             "stringformat02", {"a": "a<b", "b": mark_safe("a<b")}
         )

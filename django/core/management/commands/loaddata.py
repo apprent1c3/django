@@ -90,6 +90,26 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+
+        Handle fixture loading for a database with provided options.
+
+        This function loads data from fixtures specified by the given labels into a database,
+        while taking into account various options such as the database to use, application label,
+        verbosity level, and excluded models or applications.
+
+        The function supports the following options:
+            - ignore: whether to ignore certain constraints
+            - database: the database to load the fixtures into
+            - app_label: the label of the application
+            - verbosity: the level of verbosity for the operation
+            - exclude: a specification of models or applications to exclude
+            - format: the format of the fixtures
+
+        The loading process is performed within a single, atomic database transaction to ensure data consistency.
+        After the operation is complete, the database connection is closed if it is not in autocommit mode.
+
+        """
         self.ignore = options["ignore"]
         self.using = options["database"]
         self.app_label = options["app_label"]

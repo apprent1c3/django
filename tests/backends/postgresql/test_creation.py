@@ -38,6 +38,15 @@ class DatabaseCreationTests(SimpleTestCase):
                     del settings[name]
 
     def check_sql_table_creation_suffix(self, settings, expected):
+        """
+
+        Checks if the SQL table creation suffix is generated correctly based on the given settings.
+
+        :arg settings: Dictionary of test settings to temporarily override the defaults.
+        :arg expected: The expected SQL table creation suffix to compare with the generated one.
+        :returns: None, asserts that the generated suffix matches the expected one.
+
+        """
         with self.changed_test_settings(**settings):
             creation = DatabaseCreation(connection)
             suffix = creation.sql_table_creation_suffix()
@@ -48,6 +57,15 @@ class DatabaseCreationTests(SimpleTestCase):
         self.check_sql_table_creation_suffix(settings, "")
 
     def test_sql_table_creation_suffix_with_encoding(self):
+        """
+        Tests that a SQL table creation suffix includes the encoding when the CHARSET setting is specified.
+
+        Verifies that the SQL table creation suffix is correctly generated with the 'WITH ENCODING' clause when the CHARSET setting is provided. In this case, the test checks for the 'UTF8' encoding.
+
+        :param none:
+        :raises none:
+        :return: none
+        """
         settings = {"CHARSET": "UTF8"}
         self.check_sql_table_creation_suffix(settings, "WITH ENCODING 'UTF8'")
 

@@ -430,6 +430,20 @@ class NoURLPatternsTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
 class URLPatternReverse(SimpleTestCase):
     def test_urlpattern_reverse(self):
+        """
+
+        Tests the reversal of URL patterns.
+
+        This function iterates over a set of test data, which includes the name of the URL pattern, 
+        the expected reversed URL, and any positional and keyword arguments to be passed to the reversal function.
+
+        For each test case, it attempts to reverse the URL pattern using the provided arguments and 
+        compares the result to the expected output. If the reversal fails, it checks that a NoReverseMatch 
+        exception is raised. If the reversal is successful, it verifies that the resulting URL matches the expected URL.
+
+        The test data is executed in separate sub-tests, allowing for detailed reporting of any failures.
+
+        """
         for name, expected, args, kwargs in test_data:
             with self.subTest(name=name, args=args, kwargs=kwargs):
                 try:
@@ -507,6 +521,13 @@ class URLPatternReverse(SimpleTestCase):
             reverse("places")
 
     def test_illegal_args_message(self):
+        """
+        Tests that reversing URL 'places' with illegal arguments raises a NoReverseMatch exception with a descriptive error message.
+
+        The test case verifies that when attempting to reverse the 'places' URL with invalid arguments (in this case, a tuple of integers), the expected exception is raised with a message indicating that no matching URL pattern was found.
+
+        This check helps ensure that the application correctly handles invalid URL reversals and provides useful error messages for debugging purposes.
+        """
         msg = (
             "Reverse for 'places' with arguments '(1, 2)' not found. 1 pattern(s) "
             "tried:"
@@ -515,6 +536,11 @@ class URLPatternReverse(SimpleTestCase):
             reverse("places", args=(1, 2))
 
     def test_illegal_kwargs_message(self):
+        """
+        Tests that an informative error message is raised when reverse URL resolution fails due to illegal keyword arguments.
+
+        The test checks that a NoReverseMatch exception is raised with a specific error message when attempting to reverse a URL with an invalid keyword argument, in this case 'arg1' with value 2, for the 'places' URL pattern. This ensures that the error message accurately reflects the incorrect keyword argument and the number of URL patterns that were tried.
+        """
         msg = (
             "Reverse for 'places' with keyword arguments '{'arg1': 2}' not found. 1 "
             "pattern(s) tried:"
@@ -642,6 +668,17 @@ class ResolverTests(SimpleTestCase):
                             )
 
     def test_namespaced_view_detail(self):
+        """
+        Tests whether the view functions in a namespaced URL configuration are correctly identified.
+
+        This test case verifies that the resolver can distinguish between valid view functions and non-view functions within a nested URL structure.
+        It checks the resolver's ability to identify callbacks for specific views, confirming that it returns True for valid view functions and False for non-view functions.
+
+        The test covers the following scenarios:
+            * Validation of view functions with lower-case names
+            * Validation of view functions with upper-case names
+            * Rejection of non-view functions
+        """
         resolver = get_resolver("urlpatterns_reverse.nested_urls")
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view1"))
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view2"))
@@ -682,6 +719,13 @@ class ReverseLazyTest(TestCase):
         self.assertRedirects(response, "/redirected_to/", status_code=302)
 
     def test_user_permission_with_lazy_reverse(self):
+        """
+
+        Tests the permission granted to a user when accessing a login required view.
+        This test ensures that an unauthenticated user is redirected to the login page,
+        while an authenticated user can access the view successfully.
+
+        """
         alfred = User.objects.create_user(
             "alfred", "alfred@example.com", password="testpw"
         )
@@ -714,6 +758,15 @@ class ReverseLazySettingsTest(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up the test environment by calling the parent class's setUp method and 
+         Configuring additional settings required for testing, specifically setting 
+        the LOGIN_URL to point to the 'login' view using reverse_lazy from Django's 
+        url resolver. This ensures that login functionality can be properly tested 
+        in the test suite.
+
+        """
         super().setUp()
         self.write_settings(
             "settings.py",
@@ -781,6 +834,16 @@ class ReverseShortcutTests(SimpleTestCase):
         self.assertEqual(reverse(nested_view), "/includes/nested_path/")
 
     def test_redirect_view_object(self):
+        """
+
+        Tests the url generation for a view object in a redirect response.
+
+        Verifies that the correct URL is generated when redirecting to a view object
+        with absolute keyword arguments. Also checks that an error is raised when
+        attempting to redirect to the view with incorrect keyword arguments.
+
+
+        """
         from .views import absolute_kwargs_view
 
         res = redirect(absolute_kwargs_view)
@@ -1174,6 +1237,26 @@ class NamespaceTests(SimpleTestCase):
                 )
 
     def test_special_chars_namespace(self):
+        """
+
+        Tests whether special characters are properly handled in namespace URLs.
+
+        This function checks the behavior of the reverse function in different scenarios, 
+        including passing arguments, keyword arguments, and URL paths with special characters.
+        It verifies that the resulting URLs are correctly formatted and that special characters
+        are properly escaped. 
+
+        The test cases cover various scenarios, including:
+        - passing no arguments
+        - passing positional arguments
+        - passing keyword arguments
+        - handling URLs with special characters
+
+        The purpose of this test is to ensure that the reverse function works as expected 
+        when dealing with namespace URLs that contain special characters, and that it 
+        correctly formats the resulting URLs.
+
+        """
         test_urls = [
             (
                 "special:included_namespace_urls:inc-normal-view",
@@ -1353,6 +1436,14 @@ class RequestURLconfTests(SimpleTestCase):
         ]
     )
     def test_urlconf_overridden(self):
+        """
+
+        Tests that the URL configuration is correctly overridden when using the ChangeURLconfMiddleware.
+
+        Verifies that the overridden URL configuration resolves URLs as expected, including cases where the URL is not found.
+        The test checks the status code and response content for various URLs to ensure the override is applied correctly.
+
+        """
         response = self.client.get("/test/me/")
         self.assertEqual(response.status_code, 404)
         response = self.client.get("/inner_urlconf/second_test/")
@@ -1459,6 +1550,14 @@ class ErrorHandlerResolutionTests(SimpleTestCase):
     """Tests for handler400, handler403, handler404 and handler500"""
 
     def setUp(self):
+        """
+
+        Set up URL resolvers for error handling tests.
+
+        This method initializes two URL resolvers: one for standard error handlers and one for callable error handlers.
+        The resolvers are configured with specific URL configurations to facilitate testing of error handling scenarios.
+
+        """
         urlconf = "urlpatterns_reverse.urls_error_handlers"
         urlconf_callables = "urlpatterns_reverse.urls_error_handlers_callables"
         self.resolver = URLResolver(RegexPattern(r"^$"), urlconf)
@@ -1470,6 +1569,15 @@ class ErrorHandlerResolutionTests(SimpleTestCase):
                 self.assertEqual(self.resolver.resolve_error_handler(code), empty_view)
 
     def test_callable_handlers(self):
+        """
+
+        Tests the resolution of callable error handlers for various HTTP status codes.
+
+        Verifies that the callable resolver correctly maps error codes to the 
+        empty view handler for the following status codes: 400 (Bad Request), 
+        403 (Forbidden), 404 (Not Found), and 500 (Internal Server Error).
+
+        """
         for code in [400, 403, 404, 500]:
             with self.subTest(code=code):
                 self.assertEqual(
@@ -1494,6 +1602,15 @@ class NoRootUrlConfTests(SimpleTestCase):
     """Tests for handler404 and handler500 if ROOT_URLCONF is None"""
 
     def test_no_handler_exception(self):
+        """
+
+        Tests that a ImproperlyConfigured exception is raised when the URLconf does not contain any patterns.
+
+        This test case checks if a specific error message is displayed when the URL configuration 
+        does not have any valid patterns. It verifies that the exception is raised with the correct message 
+        when trying to access a URL, indicating a problem with the URL configuration, possibly due to a circular import.
+
+        """
         msg = (
             "The included URLconf 'None' does not appear to have any patterns "
             "in it. If you see the 'urlpatterns' variable with valid patterns "
@@ -1576,6 +1693,19 @@ class ResolverMatchTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
     def test_repr_functools_partial(self):
+        """
+
+        Tests the representation of ResolverMatch object for functools.partial functions.
+
+        This test checks whether the repr() method of ResolverMatch returns the expected string 
+        for different functools.partial functions. The test cases cover various scenarios, 
+        including a simple partial function, a nested partial function, and a wrapped partial function.
+
+        The test verifies that the repr() method correctly constructs the ResolverMatch object 
+        with the specified function, arguments, and URL pattern, ensuring that the representation 
+        is accurate and consistent for different types of functools.partial functions.
+
+        """
         tests = [
             ("partial", "template.html"),
             ("partial_nested", "nested_partial.html"),
@@ -1652,6 +1782,11 @@ class ViewLoadingTests(SimpleTestCase):
             get_callable("urlpatterns_reverse.foo.bar")
 
     def test_not_callable(self):
+        """
+        Tests that attempting to retrieve a callable view raises a ViewDoesNotExist exception when the view is not a callable object. 
+
+        This test case ensures the get_callable function behaves correctly when presented with a non-callable view object, specifically by checking that the expected error message is raised.
+        """
         msg = (
             "Could not import 'urlpatterns_reverse.tests.resolve_test_data'. "
             "View is not callable."
@@ -1689,6 +1824,10 @@ class IncludeTests(SimpleTestCase):
             include((self.url_patterns, "app_name", "namespace", "blah"))
 
     def test_include_3_tuple(self):
+        """
+        Tests that passing a 3-tuple to the include() function raises an ImproperlyConfigured exception.
+        This checks for the unsupported case where a 3-tuple is passed, ensuring that the function behaves as expected and reports the correct error message.
+        """
         msg = "Passing a 3-tuple to include() is not supported."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             include((self.url_patterns, "app_name", "namespace"))
@@ -1748,6 +1887,23 @@ class LookaheadTests(SimpleTestCase):
                     resolve(test_url)
 
     def test_valid_reverse(self):
+        """
+
+        Verify that the reverse function correctly generates URLs for various test cases.
+
+        This test checks the functionality of the reverse function by providing a set of 
+        test URLs with their corresponding names and keyword arguments. It ensures that 
+        the generated URLs match the expected output for each test case.
+
+        The test cases cover different scenarios, including lookahead and lookbehind 
+        positive and negative cases, with varying keyword arguments. The test function 
+        utilizes sub-tests to run each test case independently, allowing for more 
+        detailed error reporting and diagnosis.
+
+        The expected outcome is that the reverse function generates the correct URL for 
+        each test case, as specified in the expected output.
+
+        """
         test_urls = [
             ("lookahead-positive", {"city": "a-city"}, "/lookahead+/a-city/"),
             ("lookahead-negative", {"city": "a-city"}, "/lookahead-/a-city/"),

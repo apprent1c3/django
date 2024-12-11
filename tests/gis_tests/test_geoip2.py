@@ -114,6 +114,17 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_country_using_city_database(self):
+        """
+
+        Test the country lookup functionality using the City database.
+
+        This function verifies that the GeoIP2 object, initialized with an invalid country,
+        correctly uses the City database. It then tests the country, country_code, and country_name
+        methods with various query values, expecting them to return the correct data for the United Kingdom.
+
+        The expected result includes the continent code and name, country code, country name, and EU membership status.
+
+        """
         g = GeoIP2(country="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("City"), True)
         for query in self.query_values:
@@ -199,6 +210,18 @@ class GeoLite2Test(SimpleTestCase):
         self.assertIs(reader._db_reader.closed, True)
 
     def test_repr(self):
+        """
+        Tests the string representation of a GeoIP2 object.
+
+        Verifies that the repr function returns a string in the expected format,
+        including the version number of the binary data format and the path to the
+        GeoIP2 data file. The version number is constructed from the major and minor
+        version numbers of the binary data format.
+
+        This test ensures that the GeoIP2 object can be represented as a string in a
+        useful and informative way, which can be helpful for debugging and logging
+        purposes.
+        """
         g = GeoIP2()
         m = g._metadata
         version = f"{m.binary_format_major_version}.{m.binary_format_minor_version}"

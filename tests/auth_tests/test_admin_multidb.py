@@ -34,6 +34,18 @@ class MultiDatabaseTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for a test case.
+
+        This method creates a superuser for each database configured in the test setup,
+        assigning them a default username, password, and email. The resulting superusers
+        are stored in the :attr:`superusers` class attribute, keyed by database name.
+
+        Returns:
+            None
+
+        """
         cls.superusers = {}
         for db in cls.databases:
             Router.target_db = db

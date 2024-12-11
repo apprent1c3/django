@@ -125,6 +125,15 @@ class MeasureBase:
             )
 
     def __sub__(self, other):
+        """
+        Subtracts another instance of the same class from the current instance.
+
+        The result is a new instance of the same class, with the value of the standard unit calculated as the difference between the standard units of the current instance and the other instance. 
+
+        The default unit of the resulting instance is preserved from the current instance.
+
+        Raises a TypeError if the subtraction operation is attempted with an instance of a different class.
+        """
         if isinstance(other, self.__class__):
             return self.__class__(
                 default_unit=self._default_unit,
@@ -159,6 +168,17 @@ class MeasureBase:
             )
 
     def __imul__(self, other):
+        """
+        \".. note::
+           This method is invoked when using the ``*=`` operator.
+
+           Multiplies this instance by a numeric value, scaling its properties.
+
+           :param other: The numeric value to multiply with.
+           :type other: int or float
+           :return: The scaled instance.
+           :raises TypeError: If the ``other`` operand is not a number\"
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard *= float(other)
             return self

@@ -49,6 +49,23 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(bytes(t), b"\xc3\x8e am \xc4\x81 binary \xc7\xa8l\xc3\xa2zz.")
 
     def assertCachedPropertyWorks(self, attr, Class):
+        """
+        Tests the correctness of the cached property in the given class.
+
+        Checks if the cached property behaves as expected in the following scenarios:
+        - It has the correct docstring.
+        - It returns the same value for the same object.
+        - It returns different values for different objects of the same class.
+        - The same behavior applies to subclasses.
+        - The property is an instance of cached_property.
+        - Other instance methods are callable.
+
+        Args:
+            attr (str): The name of the cached property attribute to be tested.
+            Class (class): The class containing the cached property to be tested.
+
+        Ensures the cached property functions correctly and consistently across the class and its subclasses.
+        """
         with self.subTest(attr=attr):
 
             def get(source):
@@ -191,6 +208,14 @@ class FunctionalTests(SimpleTestCase):
             Foo().cp
 
     def test_lazy_add_int(self):
+        """
+
+        Tests the addition of lazy integers with each other and regular integers.
+
+        This test ensures that lazy integers can be added to regular integers and other lazy integers,
+        producing the correct result when the lazy integer's value is evaluated at the time of addition.
+
+        """
         lazy_4 = lazy(lambda: 4, int)
         lazy_5 = lazy(lambda: 5, int)
         self.assertEqual(4 + lazy_5(), 9)
@@ -219,6 +244,14 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(lazy_4() % lazy_5(), 4)
 
     def test_lazy_mod_str(self):
+        """
+
+        Tests the functionality of the lazy string modulo operation.
+
+        This test case verifies that the lazy string can be used as both the left and right operand in a modulo operation.
+        It checks that the expected results are obtained when combining lazy strings with both string literals and other lazy strings.
+
+        """
         lazy_a = lazy(lambda: "a%s", str)
         lazy_b = lazy(lambda: "b", str)
         self.assertEqual("a%s" % lazy_b(), "ab")
@@ -233,6 +266,21 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(lazy_4() * lazy_5(), 20)
 
     def test_lazy_mul_list(self):
+        """
+        Tests the lazy multiplication of lists.
+
+        This function checks that the lazy wrapper correctly handles the multiplication 
+        of lists with both integer values and other lazy instances. It verifies that the 
+        lazy evaluation is properly deferred until the wrapped value is actually needed.
+
+        The tests cover the following scenarios:
+        - Multiplication of a list wrapped in a lazy instance with an integer value
+        - Multiplication of a list wrapped in a lazy instance with another lazy instance
+        - Multiplication of an integer value with a list wrapped in a lazy instance
+
+        These checks ensure that the lazy wrapper correctly implements the list 
+        multiplication operation and behaves as expected in different scenarios.
+        """
         lazy_4 = lazy(lambda: [4], list)
         lazy_5 = lazy(lambda: 5, int)
         self.assertEqual([4] * lazy_5(), [4, 4, 4, 4, 4])
@@ -240,6 +288,16 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(lazy_4() * lazy_5(), [4, 4, 4, 4, 4])
 
     def test_lazy_mul_str(self):
+        """
+
+        Tests the functionality of lazy multiplication operations involving strings.
+
+        Verifies that the lazy multiplication of a string with an integer, 
+        as well as the multiplication of a lazy string with an integer or another lazy integer, 
+        yields the expected results. This ensures that the lazy objects behave correctly 
+        when used in string multiplication operations.
+
+        """
         lazy_a = lazy(lambda: "a", str)
         lazy_5 = lazy(lambda: 5, int)
         self.assertEqual("a" * lazy_5(), "aaaaa")
@@ -247,6 +305,13 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(lazy_a() * lazy_5(), "aaaaa")
 
     def test_lazy_format(self):
+        """
+        ..: 
+            Tests the lazy_format functionality, ensuring that a QuotedString object 
+            created within a lazy function is properly formatted when invoked. 
+            Verifies that the string is formatted with quotation marks as expected, 
+            both when directly formatted and when used within a larger string.
+        """
         class QuotedString(str):
             def __format__(self, format_spec):
                 value = super().__format__(format_spec)
@@ -274,6 +339,13 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(repr(original_object), repr(lazy_obj()))
 
     def test_lazy_repr_int(self):
+        """
+        Tests that the lazy representation of an integer object matches the standard representation.
+
+        Verifies that when an integer is wrapped in a lazy object and evaluated, its string representation is identical to the original object's representation, ensuring that lazy evaluation does not alter the result's appearance in debug output or other contexts where object representations are used.
+
+        The test case checks this equivalence by comparing the repr() of the original integer object with the repr() of the lazy object after it has been evaluated, confirming that they are equal.
+        """
         original_object = 15
         lazy_obj = lazy(lambda: original_object, int)
         self.assertEqual(repr(original_object), repr(lazy_obj()))
@@ -289,14 +361,31 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(original_object.bit_length(), lazy_obj().bit_length())
 
     def test_lazy_bytes_and_str_result_classes(self):
+        """
+        Tests the functionality of lazy objects that return both bytes and str results.
+
+        This test case verifies that a lazy object initialized with a lambda function 
+        returning a string value can be successfully evaluated and converted to both 
+        string and bytes, with the correct string representation being returned when 
+        explicitly cast to a string. The primary goal is to ensure seamless operation 
+        of lazy objects in scenarios where the return type may vary between strings and 
+        bytes, providing a robust handling mechanism for different data types in the 
+        application.
+        """
         lazy_obj = lazy(lambda: "test", str, bytes)
         self.assertEqual(str(lazy_obj()), "test")
 
     def test_lazy_str_cast_mixed_result_types(self):
+        """
+        Tests the lazy string casting functionality when dealing with mixed result types, verifying that it correctly converts a lazy object to a string representation. Specifically, this test checks that an object containing a list is properly cast to a string, resulting in the expected output format.
+        """
         lazy_value = lazy(lambda: [1], str, list)()
         self.assertEqual(str(lazy_value), "[1]")
 
     def test_lazy_str_cast_mixed_bytes_result_types(self):
+        """
+        Tests the conversion of a lazy value containing mixed bytes result types to a string, verifying that the resulting string representation is correct.
+        """
         lazy_value = lazy(lambda: [1], bytes, list)()
         self.assertEqual(str(lazy_value), "[1]")
 
@@ -324,6 +413,18 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(Bar().bar, 123)
 
     def test_classproperty_override_getter(self):
+        """
+
+        Tests overriding the getter of a class property.
+
+        This test case verifies that when a class property's getter is overridden,
+        the new getter is used to retrieve the property's value, both when accessed
+        through the class and through an instance of the class.
+
+        The test demonstrates that the overridden getter takes precedence over the
+        original class property implementation.
+
+        """
         class Foo:
             @classproperty
             def foo(cls):

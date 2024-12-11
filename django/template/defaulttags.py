@@ -99,6 +99,13 @@ class CycleNode(Node):
         self.silent = silent
 
     def render(self, context):
+        """
+        Renders the current object within the given context, handling cyclic variable resolution and upward variable setting.
+
+        The rendering process involves resolving the next value in the cycle of variables associated with this object, based on the current context. If a variable name is specified, the resolved value is set as an upward variable in the context.
+
+        The function returns the rendered value, unless the silent mode is enabled, in which case an empty string is returned. The actual rendering of the value is performed by a separate mechanism, which formats the value according to the context's rendering rules.
+        """
         if self not in context.render_context:
             # First time the node is rendered in template
             context.render_context[self] = itertools_cycle(self.cyclevars)
@@ -119,6 +126,19 @@ class CycleNode(Node):
 
 class DebugNode(Node):
     def render(self, context):
+        """
+
+        Render the current context for debugging purposes.
+
+        This function returns a string representation of the current context, 
+        which can be used for debugging when the application is running in debug mode.
+        It includes the values in the context and a list of currently loaded modules.
+
+        If the application is not in debug mode, this function returns an empty string.
+
+        :returns: A string representation of the context, or an empty string if not in debug mode.
+
+        """
         if not settings.DEBUG:
             return ""
 
@@ -136,6 +156,16 @@ class FilterNode(Node):
         self.nodelist = nodelist
 
     def render(self, context):
+        """
+        Renders the template node list and filters the output based on the given expression.
+
+        The function first evaluates the template node list using the provided context, 
+        then makes the rendered output available as a variable within the context. 
+        It then resolves the filter expression using this updated context and returns the result.
+
+        :param context: The template context used for rendering the node list and resolving the filter expression.
+        :return: The result of the filter expression applied to the rendered output.
+        """
         output = self.nodelist.render(context)
         # Apply filters.
         with context.push(var=output):
@@ -144,6 +174,13 @@ class FilterNode(Node):
 
 class FirstOfNode(Node):
     def __init__(self, variables, asvar=None):
+        """
+        Initializes the object with a set of variables and an optional alias variable.
+
+        :param variables: The set of variables to be stored in the object.
+        :param asvar: An optional alias variable name for referencing the stored variables.
+
+        """
         self.vars = variables
         self.asvar = asvar
 
@@ -166,6 +203,17 @@ class ForNode(Node):
     def __init__(
         self, loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty=None
     ):
+        """
+        Initializes a loop object with the necessary variables and node lists.
+
+        :param loopvars: The variables used in the loop.
+        :param sequence: The sequence to be iterated over.
+        :param is_reversed: A flag indicating whether the sequence should be iterated over in reverse order.
+        :param nodelist_loop: The node list to be executed for each iteration of the loop.
+        :param nodelist_empty: The node list to be executed when the sequence is empty (defaults to an empty NodeList if not provided).
+
+        This constructor sets up the loop object with the given parameters, allowing for the iteration over a sequence and the execution of specific node lists based on the loop's state.
+        """
         self.loopvars = loopvars
         self.sequence = sequence
         self.is_reversed = is_reversed
@@ -260,6 +308,16 @@ class IfChangedNode(Node):
 
     def render(self, context):
         # Init state storage
+        """
+
+        Render the node list based on the state of the given context.
+
+        This function checks if the comparison values have changed since the last render.
+        If they have changed, it updates the state and returns the rendered output of the true node list.
+        If the comparison values have not changed, it returns the rendered output of the false node list,
+        or an empty string if no false node list is defined.
+
+        """
         state_frame = self._get_context_stack_frame(context)
         state_frame.setdefault(self)
 
@@ -331,6 +389,18 @@ class IfNode(Node):
 
 class LoremNode(Node):
     def __init__(self, count, method, common):
+        """
+        Initializes an instance of the class.
+
+        :param count: The number of items to be processed.
+        :param method: The method to be used for processing.
+        :param common: Shared parameters or settings for the processing.
+
+        Initializes the object's attributes with the provided parameters, 
+        setting the stage for further operations. The count, method, and 
+        common parameters are stored as instance variables, making them 
+        accessible throughout the object's lifecycle.
+        """
         self.count = count
         self.method = method
         self.common = common
@@ -534,6 +604,16 @@ class WidthRatioNode(Node):
 
 class WithNode(Node):
     def __init__(self, var, name, nodelist, extra_context=None):
+        """
+        Initializes an instance of the class, setting up the necessary parameters for further processing.
+
+        :param var: The primary variable to be used in the instance.
+        :param name: An optional name to associate with the variable in the context.
+        :param nodelist: A list of nodes to be used in the instance.
+        :param extra_context: Optional additional context to be applied, defaults to an empty dictionary if not provided.
+
+        The instance's nodelist and extra context are set based on the provided parameters. If a name is specified, it is used as a key in the extra context to reference the provided variable.
+        """
         self.nodelist = nodelist
         # var and name are legacy attributes, being left in case they are used
         # by third-party subclasses of this Node.
@@ -876,6 +956,16 @@ def do_for(parser, token):
 
 class TemplateLiteral(Literal):
     def __init__(self, value, text):
+        """
+        Initializes an object with a value and a corresponding text representation.
+
+        :param value: The value to be stored in the object.
+        :param text: The text description associated with the value.
+
+        This constructor sets up the fundamental properties of the object, allowing for 
+        the creation of an instance with a specific value and its corresponding text 
+        description, which can be used for further processing or representation.
+        """
         self.value = value
         self.text = text  # for better error messages
 

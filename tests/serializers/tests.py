@@ -36,6 +36,9 @@ from .models import (
 )
 class SerializerRegistrationTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the testing environment by storing the original serializers and replacing them with an empty dictionary, effectively resetting the serializers for the duration of the test. This is a setup method intended to be used in a testing context, allowing for isolation of serializer tests.
+        """
         self.old_serializers = serializers._serializers
         serializers._serializers = {}
 
@@ -158,6 +161,12 @@ class SerializersTestBase:
                 self.assertEqual(string_data, stream.content.decode())
 
     def test_serialize_specific_fields(self):
+        """
+        Tests the serialization of specific fields from a ComplexModel instance using the provided serializer.
+
+        This test case verifies that only the specified fields (field1 and field3) are successfully serialized and deserialized, 
+        while the non-specified fields (field2) are reset to their default values upon deserialization.
+        """
         obj = ComplexModel(field1="first", field2="second", field3="third")
         obj.save_base(raw=True)
 
@@ -248,6 +257,18 @@ class SerializersTestBase:
         self.assertEqual(objs[0].object.name, unicode_name)
 
     def test_serialize_progressbar(self):
+        """
+
+        Tests the serialization of a progress bar to the output.
+
+        This test verifies that the :func:`~serializers.serialize` function correctly outputs a progress bar
+        during the serialization of model objects. It checks if the output ends with a completed progress bar
+        indicator, ensuring that the progress bar is displayed accurately.
+
+        The test uses a fake stdout to capture the output of the progress bar and asserts that it matches the
+        expected format.
+
+        """
         fake_stdout = StringIO()
         serializers.serialize(
             self.serializer_name,
@@ -277,6 +298,22 @@ class SerializersTestBase:
     def test_serialize_prefetch_related_m2m(self):
         # One query for the Article table and one for each prefetched m2m
         # field.
+        """
+
+        Tests the serialization of a model instance with prefetch related many-to-many fields.
+
+        This test case verifies that the serialization process fetches the required number of queries 
+        when using prefetch related for many-to-many fields, comparing it to a scenario without prefetching.
+        The goal is to ensure that the serialization process performs efficiently with and without 
+        prefetching related objects.
+
+        The test covers two scenarios:
+        - Serialization with prefetch related fields, where the number of queries is expected to be lower.
+        - Serialization without prefetch related fields, where the number of queries is expected to be higher.
+
+        Both scenarios are tested using the provided serializer name and Article model instances.
+
+        """
         with self.assertNumQueries(4):
             serializers.serialize(
                 self.serializer_name,
@@ -390,6 +427,20 @@ class SerializersTestBase:
 
     @skipUnlessDBFeature("can_defer_constraint_checks")
     def test_serialize_proxy_model(self):
+        """
+
+        Tests the serialization of proxy models to ensure that they can be correctly
+        serialized and compared to their base model counterparts.
+
+        This test case creates instances of a base model and its proxy models, 
+        serializes them into JSON format, and then verifies that the serialized data 
+        is equivalent, with the only difference being the model name.
+
+        The test covers the serialization of models with multiple levels of proxying, 
+        ensuring that the serialization process works correctly regardless of the 
+        level of proxying.
+
+        """
         BaseModel.objects.create(parent_data=1)
         base_objects = BaseModel.objects.all()
         proxy_objects = ProxyBaseModel.objects.all()
@@ -409,6 +460,21 @@ class SerializersTestBase:
         self.assertEqual(self._get_field_values(child_data, "parent_data"), [])
 
     def test_serialize_only_pk(self):
+        """
+
+        Test the serialization of models with specific foreign key handling.
+
+        Verifies that the serialization process does not include unnecessary foreign key fields.
+        In particular, this test checks that the SQL queries generated for serialization do not contain references to certain fields:
+        - 'meta_data_id' in the categories query
+        - 'kind' in the meta data query
+        - 'category_id' in the topics data query
+
+        The test exercises the serialization of a set of Article objects using a specified serializer, and verifies the generated SQL queries to ensure that they comply with the expected foreign key handling behavior. 
+
+        This test requires exactly 7 database queries to execute.
+
+        """
         with self.assertNumQueries(7) as ctx:
             serializers.serialize(
                 self.serializer_name,
@@ -442,6 +508,13 @@ class SerializersTestBase:
 
 class SerializerAPITests(SimpleTestCase):
     def test_stream_class(self):
+        """
+        Test the behavior of a custom serializer when a custom stream class is provided.
+        This test ensures that the custom stream class is correctly instantiated and used by the serializer,
+        and that the serialized data is output in the expected format.
+        The test verifies that the serializer's stream is an instance of the custom stream class,
+        and that the serialized data matches the expected JSON string.
+        """
         class File:
             def __init__(self):
                 self.lines = []

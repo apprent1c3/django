@@ -39,6 +39,21 @@ class ChrTests(TestCase):
             )
 
     def test_annotate(self):
+        """
+
+        Tests the ability to annotate model instances with additional attributes.
+
+        This test case verifies that the `annotate` method can be used to add computed
+        attributes to a queryset, and that these attributes can be used in subsequent
+        query operations. Specifically, it checks that the `annotate` method can be used
+        to extract the first initial of an author's name, and that this initial can be
+        compared to a specific character.
+
+        The test ensures that the annotating expression is correctly applied to each
+        instance in the queryset and that the resulting annotated instances can be
+        properly filtered using the annotated attributes.
+
+        """
         authors = Author.objects.annotate(
             first_initial=Left("name", 1),
             initial_chr=Chr(ord("J")),

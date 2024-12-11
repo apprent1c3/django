@@ -7,6 +7,18 @@ from django.test import TestCase
 @skipUnless(connection.vendor == "mysql", "MySQL tests")
 class ParsingTests(TestCase):
     def test_parse_constraint_columns(self):
+        """
+
+        Test the parsing of constraint columns in a SQL query.
+
+        This function verifies that the _parse_constraint_columns function correctly identifies the column names involved in a given constraint check clause.
+        It covers various test cases, including simple comparisons, NULL checks, JSON validation, string length checks, and LIKE operators.
+        The tests check that the function returns the expected list of column names for each input check clause and set of table columns.
+
+        :param None
+        :returns: None
+
+        """
         _parse_constraint_columns = connection.introspection._parse_constraint_columns
         tests = (
             ("`height` >= 0", ["height"], ["height"]),
@@ -68,6 +80,18 @@ class TestCrossDatabaseRelations(TestCase):
     databases = {"default", "other"}
 
     def test_omit_cross_database_relations(self):
+        """
+        Tests the omission of cross-database relations.
+
+        This test case creates two tables, one in the default schema and one in a different schema, with a foreign key constraint between them.
+        It then checks if the introspection mechanism correctly omits the cross-database relation, by verifying that the relations dictionary is empty
+        and that there are no foreign key constraints for the related column.
+
+        The test covers the scenario where the foreign key references a table in a different database, ensuring that such relations are not included
+        in the results of the introspection process.
+
+        The setup and teardown for this test involves creating and dropping the tables used in the test, to ensure a clean state before and after the test execution.
+        """
         default_connection = connections["default"]
         other_connection = connections["other"]
         main_table = "cross_schema_get_relations_main_table"

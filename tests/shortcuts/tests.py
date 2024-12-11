@@ -17,6 +17,11 @@ class RenderTests(SimpleTestCase):
         self.assertEqual(response.content, b"FOO.BAR../render/multiple_templates/\n")
 
     def test_render_with_content_type(self):
+        """
+        Tests rendering a resource with a specific content type.
+
+        This test verifies that a GET request to the '/render/content_type/' endpoint returns a successful response (200 status code) with the expected content and a 'Content-Type' header set to 'application/x-rendertest'. The response body is expected to match the provided content.
+        """
         response = self.client.get("/render/content_type/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"FOO.BAR../render/content_type/\n")

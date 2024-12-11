@@ -23,6 +23,21 @@ class FieldCacheMixin:
     def cache_name(self):
         # RemovedInDjango60Warning: when the deprecation ends, replace with:
         # raise NotImplementedError
+        """
+
+        Returns the cache name for the current instance.
+
+        .. warning::
+           This property is deprecated and will be removed in Django 6.0. To achieve the same functionality,
+           override the :meth:`cache_name` method instead of relying on the legacy :meth:`get_cache_name` method.
+
+        .. note::
+           The result is cached to avoid repeated computation.
+
+        Returns:
+            str: The cache name for the instance.
+
+        """
         cache_name = self.get_cache_name()
         warnings.warn(
             f"Override {self.__class__.__qualname__}.cache_name instead of "

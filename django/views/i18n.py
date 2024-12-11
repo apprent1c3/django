@@ -176,6 +176,24 @@ class JavaScriptCatalog(View):
         return plural
 
     def get_catalog(self):
+        """
+
+        Returns a translation catalog as a dictionary.
+
+        The catalog is constructed by iterating over the translation catalog of the
+        current translation object and its fallback translations. The catalog contains
+        both singular and plural translations. Singular translations are stored directly
+        in the catalog dictionary, while plural translations are stored as a list of
+        translations for each plural form.
+
+        The function handles translation keys of different types, including strings and
+        tuples (for plural translations). It raises an error if an unsupported key type
+        is encountered.
+
+        The resulting catalog dictionary can be used to access translations for a given
+        message ID in the application's current language.
+
+        """
         pdict = {}
         catalog = {}
         translation = self.translation

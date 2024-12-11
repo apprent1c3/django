@@ -55,6 +55,18 @@ class BaseIterable:
         # Generators don't actually start running until the first time you call
         # next() on them, so make the generator object in the async thread and
         # then repeatedly dispatch to it in a sync thread.
+        """
+
+        Asynchronously yields items from the generator in chunks.
+
+        This asynchronous generator allows for efficient iteration over large datasets
+        by returning items in batches of a specified size (chunk_size). It achieves this
+        by wrapping a synchronous generator and using asynchronous iteration to yield
+        each item in the chunk. The iteration continues until all items have been yielded,
+        at which point the generator stops once a chunk is returned that is smaller than
+        the specified chunk size, indicating the end of the dataset.
+
+        """
         sync_generator = self.__iter__()
 
         def next_slice(gen):
@@ -306,6 +318,17 @@ class QuerySet(AltersData):
 
     def as_manager(cls):
         # Address the circular dependency between `Queryset` and `Manager`.
+        """
+
+        Returns a manager instance for the given model or queryset class.
+
+        This function allows you to create a custom manager instance for a specific model or queryset class.
+        The returned manager provides the same interface as a default Django model manager, but is created
+        on-demand for the specified class. The manager instance is flagged as being built with as_manager,
+        indicating its custom creation. This can be useful for creating reusable managers or testing model
+        queries in isolation.
+
+        """
         from django.db.models.manager import Manager
 
         manager = Manager.from_queryset(cls)()
@@ -1329,6 +1352,23 @@ class QuerySet(AltersData):
         return qs
 
     def _values(self, *fields, **expressions):
+        """
+
+        Sets the values to be retrieved for a query.
+
+        This method allows you to specify the fields to include in the query result.
+        It also provides an option to include additional expressions as annotations.
+
+        The fields parameter is a variable number of arguments specifying the fields to include.
+        The expressions parameter is a dictionary of keyword arguments where the keys are the alias names
+        and the values are the expressions to be evaluated.
+
+        The method returns a new query clone with the specified fields and annotations. This allows for 
+        further modification of the query without affecting the original query.
+
+        Note that this method does not execute the query, it only builds the query object.
+
+        """
         clone = self._chain()
         if expressions:
             clone = clone.annotate(**expressions)
@@ -1465,6 +1505,25 @@ class QuerySet(AltersData):
         return self._filter_or_exclude(True, args, kwargs)
 
     def _filter_or_exclude(self, negate, args, kwargs):
+        """
+        Applies a filter to the current query, either including or excluding results.
+
+        Args:
+            negate (bool): Whether to exclude (True) or include (False) the filtered results.
+            args: Positional arguments to pass to the filter.
+            kwargs: Keyword arguments to pass to the filter.
+
+        Returns:
+            A cloned query object with the filter applied.
+
+        Raises:
+            TypeError: If a filter is attempted on a query that has already been sliced.
+
+        Note:
+            If the next filter operation is deferred, this method will store the filter
+            parameters for later application. Otherwise, it applies the filter immediately.
+
+        """
         if (args or kwargs) and self.query.is_sliced:
             raise TypeError("Cannot filter a query once a slice has been taken.")
         clone = self._chain()
@@ -1984,6 +2043,14 @@ class QuerySet(AltersData):
             )
 
     def _not_support_combined_queries(self, operation_name):
+        """
+        Prevents calling certain QuerySet operations after a combined query has been applied.
+
+        Raises a NotSupportedError if the QuerySet has a combinator (i.e., a previous call to union(), intersection(), or difference()) and attempts to call the specified operation.
+
+        :param operation_name: The name of the QuerySet operation being attempted.
+        :raises NotSupportedError: If a combined query has already been applied to the QuerySet.
+        """
         if self.query.combinator:
             raise NotSupportedError(
                 "Calling QuerySet.%s() after %s() is not supported."
@@ -2112,6 +2179,20 @@ class RawQuerySet:
         # Remember, __aiter__ itself is synchronous, it's the thing it returns
         # that is async!
         async def generator():
+            """
+            Asynchronously generates items from the result cache.
+
+            This generator function fetches all items asynchronously and then yields each item one by one, allowing for efficient iteration over the cached results.
+
+            .. note::
+                The fetching of items is done in a synchronous manner using an asynchronous wrapper, ensuring that the operation does not block the event loop.
+
+            .. warning::
+                This function will only yield items that are already present in the result cache. If the cache is empty, no items will be generated.
+
+            :returns: An asynchronous generator that yields items from the result cache
+            :rtype: AsyncGenerator
+            """
             await sync_to_async(self._fetch_all)()
             for item in self._result_cache:
                 yield item
@@ -2219,6 +2300,18 @@ class Prefetch:
         return to_attr, as_attr
 
     def get_current_queryset(self, level):
+        """
+
+        Get the current queryset at a specified level.
+
+        This method is deprecated and will be removed in Django 6.0. It is recommended to use :meth:`get_current_querysets` instead.
+
+        It returns a single queryset object, or None if no queryset is found at the specified level.
+
+        :param level: The level at which to retrieve the queryset.
+        :returns: The queryset at the specified level, or None if not found.
+
+        """
         warnings.warn(
             "Prefetch.get_current_queryset() is deprecated. Use "
             "get_current_querysets() instead.",
@@ -2433,6 +2526,24 @@ def get_prefetcher(instance, through_attr, to_attr):
     def is_to_attr_fetched(model, to_attr):
         # Special case cached_property instances because hasattr() triggers
         # attribute computation and assignment.
+        """
+        Determines whether a specific attribute has been fetched for a given model.
+
+        Checks if the specified attribute is a cached property of the model. If so, 
+        returns a function that checks if the attribute has been cached for a model instance.
+        Otherwise, returns a function that checks if the attribute exists for a model instance.
+
+        The returned function takes a model instance as an argument and returns True if the 
+        attribute has been fetched or exists, and False otherwise.
+
+        Args:
+            model: The model to check.
+            to_attr: The name of the attribute to check for.
+
+        Returns:
+            A function that takes a model instance and returns a boolean indicating whether 
+            the attribute has been fetched or exists for that instance.
+        """
         if isinstance(getattr(model, to_attr, None), cached_property):
 
             def has_cached_property(instance):
@@ -2705,6 +2816,22 @@ class RelatedPopulator:
 
 
 def get_related_populators(klass_info, select, db):
+    """
+
+    Return a list of iterators for related populator classes.
+
+    This function takes in information about a class, a select query, and a database connection.
+    It uses this information to create iterators for related classes, which are stored in the
+    'related_klass_infos' attribute of the provided class information.
+    Each iterator is an instance of RelatedPopulator, configured to operate on the related class,
+    the provided select query, and the database connection.
+
+    :param klass_info: Information about the class
+    :param select: A select query
+    :param db: A database connection
+    :rtype: list[RelatedPopulator]
+
+    """
     iterators = []
     related_klass_infos = klass_info.get("related_klass_infos", [])
     for rel_klass_info in related_klass_infos:

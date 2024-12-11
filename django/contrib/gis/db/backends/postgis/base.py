@@ -146,6 +146,18 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
             return info.oid if info else None
 
         def register_geometry_adapters(self, pg_connection, clear_caches=False):
+            """
+            Registers PostGIS geometry adapters with a PostgreSQL database connection.
+
+            This function connects PostGIS types (geometry, geography, and raster) with their respective
+            data adapters, enabling data exchange between Python and the database. If :obj:`clear_caches` 
+            is :obj:`True`, any existing type caches for the current dialect are cleared before 
+            registration. The function returns no value but modifies the database connection's adapters.
+
+            :param pg_connection: The PostgreSQL database connection to register adapters with.
+            :param clear_caches: Whether to clear existing type caches before registration (default: False).
+
+            """
             if clear_caches:
                 for typename in self._type_infos:
                     self._type_infos[typename].pop(self.alias, None)

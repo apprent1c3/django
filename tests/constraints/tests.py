@@ -45,12 +45,32 @@ class BaseConstraintTests(SimpleTestCase):
             c.create_sql(None, None)
 
     def test_remove_sql(self):
+        """
+
+        Tests that the remove_sql method of a BaseConstraint object raises a NotImplementedError.
+
+        The purpose of this test is to ensure that any subclasses of BaseConstraint
+        implement the remove_sql method, as it is not implemented in the base class.
+        The test verifies that calling remove_sql on a BaseConstraint instance results
+        in a NotImplementedError being raised with a specific error message.
+
+        """
         c = BaseConstraint(name="name")
         msg = "This method must be implemented by a subclass."
         with self.assertRaisesMessage(NotImplementedError, msg):
             c.remove_sql(None, None)
 
     def test_validate(self):
+        """
+        Tests that the validate method raises a NotImplementedError.
+
+            Verifies that calling the validate method on a BaseConstraint instance
+            results in a NotImplementedError being raised, indicating that this method
+            must be implemented by any subclass of BaseConstraint. This ensures that
+            subclasses provide their own validation logic.
+
+            The expected error message is 'This method must be implemented by a subclass.'.
+        """
         c = BaseConstraint(name="name")
         msg = "This method must be implemented by a subclass."
         with self.assertRaisesMessage(NotImplementedError, msg):
@@ -63,6 +83,16 @@ class BaseConstraintTests(SimpleTestCase):
         )
 
     def test_custom_violation_error_message(self):
+        """
+
+        Tests the functionality of the BaseConstraint class to handle custom violation error messages.
+
+        Verifies that the get_violation_error_message method correctly substitutes the placeholders
+        in the violation error message with the actual values, in this case the name of the constraint.
+
+        The test case checks for the proper replacement of the %(name)s placeholder with the constraint name.
+
+        """
         c = BaseConstraint(
             name="base_name", violation_error_message="custom %(name)s message"
         )
@@ -79,10 +109,26 @@ class BaseConstraintTests(SimpleTestCase):
         )
 
     def test_custom_violation_code_message(self):
+        """
+        Tests that a BaseConstraint instance correctly stores a custom violation error code.
+
+        Verifies that the violation_error_code attribute of a BaseConstraint object is set to the provided custom code, 
+        allowing for tailored error handling and messaging in constraint validation scenarios.
+        """
         c = BaseConstraint(name="base_name", violation_error_code="custom_code")
         self.assertEqual(c.violation_error_code, "custom_code")
 
     def test_deconstruction(self):
+        """
+
+        Tests the deconstruction of a BaseConstraint instance into its constituent parts.
+
+        This method verifies that the deconstruct method correctly breaks down the constraint
+        into a path, positional arguments, and keyword arguments. The path should match the
+        fully qualified name of the BaseConstraint class, and the keyword arguments should
+        contain the constraint's name, violation error message, and violation error code.
+
+        """
         constraint = BaseConstraint(
             name="base_name",
             violation_error_message="custom %(name)s message",
@@ -106,6 +152,13 @@ class BaseConstraintTests(SimpleTestCase):
             BaseConstraint("name", "violation error message")
 
     def test_name_required(self):
+        """
+
+        Checks that the 'name' parameter is required when initializing a BaseConstraint.
+
+        Verifies that a TypeError is raised with a specific error message when attempting to create a BaseConstraint instance without providing the 'name' argument.
+
+        """
         msg = (
             "BaseConstraint.__init__() missing 1 required keyword-only argument: 'name'"
         )
@@ -178,6 +231,14 @@ class CheckConstraintTests(TestCase):
         )
 
     def test_repr(self):
+        """
+        Tests the string representation of a CheckConstraint instance.
+
+        Verifies that the repr function generates a human-readable string that accurately
+        reflects the constraint's condition and name, in the format \"<CheckConstraint: condition=(AND: ('field__operator', F('related_field'))) name='constraint_name'>\".
+        The condition is represented as an AND operation, where the field and operator are
+        clearly specified, along with the related field when using F() expressions.
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(price__gt=models.F("discounted_price")),
             name="price_gt_discounted_price",
@@ -201,6 +262,9 @@ class CheckConstraintTests(TestCase):
         )
 
     def test_repr_with_violation_error_code(self):
+        """
+        Tests the representation of a CheckConstraint instance when it includes a violation error code, ensuring that the repr function accurately reflects the condition, name, and violation error code of the constraint.
+        """
         constraint = models.CheckConstraint(
             condition=models.Q(price__lt=1),
             name="price_lt_one",
@@ -384,6 +448,19 @@ class CheckConstraintTests(TestCase):
             json_exact_constraint.validate(JSONFieldModel, JSONFieldModel(data=data))
 
     def test_check_deprecation(self):
+        """
+        Tests the deprecation of the `check` attribute in CheckConstraint.
+
+        Verifies that using the `check` attribute to set or get a condition raises a 
+        RemovedInDjango60Warning, and that the condition is set or retrieved correctly. 
+
+        The `check` attribute is deprecated in favor of using the `condition` attribute, 
+        and this test ensures that the deprecation warning is triggered as expected.
+
+        The test covers the scenarios of creating a CheckConstraint with a condition, 
+        accessing the condition through the `check` attribute, and modifying the condition 
+        using the `check` attribute, all of which should raise the deprecation warning.
+        """
         msg = "CheckConstraint.check is deprecated in favor of `.condition`."
         condition = models.Q(foo="bar")
         with self.assertWarnsRegex(RemovedInDjango60Warning, msg):
@@ -400,6 +477,15 @@ class CheckConstraintTests(TestCase):
 class UniqueConstraintTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the class.
+
+        This method creates and saves two UniqueConstraintProduct instances, 
+        p1 and p2, which can be used for testing purposes. p1 has a name 'p1' 
+        and color 'red', while p2 has a name 'p2' with a default color.
+
+        """
         cls.p1 = UniqueConstraintProduct.objects.create(name="p1", color="red")
         cls.p2 = UniqueConstraintProduct.objects.create(name="p2")
 
@@ -549,6 +635,16 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint_1, constraint_2)
 
     def test_eq_with_expressions(self):
+        """
+
+        Tests the equality of UniqueConstraint instances when they contain model expressions.
+
+        The tests verify that equality is determined by the constraint's name and the
+        expressions it contains, regardless of whether the expressions are wrapped in model
+        functions or passed as strings. It also checks that the equality comparison
+        distinguishes between constraints with different expressions.
+
+        """
         constraint = models.UniqueConstraint(
             Lower("title"),
             F("author"),
@@ -568,6 +664,14 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint, another_constraint)
 
     def test_eq_with_nulls_distinct(self):
+        """
+        Tests the equality of unique constraints with different nulls_distinct settings.
+
+        This test case verifies that unique constraints are compared correctly based on their properties, including the nulls_distinct parameter.
+        It checks that constraints with the same properties are considered equal, while those with different properties are not.
+        Specifically, it evaluates the equality of unique constraints with nulls_distinct set to False, True, and the default (implied) value.
+        The test ensures that the equality checks are performed accurately and consistently, considering all relevant factors that define a unique constraint.
+        """
         constraint_1 = models.UniqueConstraint(
             Lower("title"),
             nulls_distinct=False,
@@ -589,6 +693,13 @@ class UniqueConstraintTests(TestCase):
         self.assertNotEqual(constraint_2, constraint_3)
 
     def test_repr(self):
+        """
+        Tests the string representation of a UniqueConstraint instance.
+
+        Verifies that the repr() method of a UniqueConstraint object returns a string that accurately reflects the constraint's fields and name.
+
+        The test checks that the representation string is formatted as expected, containing the constraint's fields as a tuple and its name as a string, ensuring that the output can be easily understood and used for debugging or logging purposes.
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         constraint = models.UniqueConstraint(fields=fields, name=name)
@@ -684,6 +795,13 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_repr_with_violation_error_code(self):
+        """
+        Tests the string representation of a UniqueConstraint with a custom violation error code.
+
+        This test ensures that the repr() function correctly displays the details of a UniqueConstraint, including its expressions, name, and violation error code. The constraint in question is uniquely identifying based on the lower case value of 'baz', with a custom error code 'baz' specified in case of a violation.
+
+        The function verifies that the output of repr() matches the expected format, confirming that all key components of the constraint are accurately represented as a string.
+        """
         constraint = models.UniqueConstraint(
             models.F("baz__lower"),
             name="unique_lower_baz",
@@ -698,6 +816,14 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction(self):
+        """
+        Tests the deconstruction process of a UniqueConstraint model instance.
+
+        This function verifies that the deconstruct method correctly disassembles a UniqueConstraint instance into its constituent parts, 
+        including the path to the constraint class and the keyword arguments required to recreate the instance. 
+        The test checks the resulting path, positional arguments, and keyword arguments against expected values, 
+        ensuring the deconstruction process produces the correct output.
+        """
         fields = ["foo", "bar"]
         name = "unique_fields"
         constraint = models.UniqueConstraint(fields=fields, name=name)
@@ -721,6 +847,19 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_deconstruction_with_deferrable(self):
+        """
+
+        Tests the deconstruction of a UniqueConstraint with deferrable option.
+
+        This function verifies that a UniqueConstraint instance can be properly deconstructed
+        into its constituent parts, including the constraint's path, arguments, and keyword arguments.
+        The deconstruction process is crucial for serializing and deserializing the constraint,
+        especially when working with deferred constraints.
+
+        The test case checks if the deconstructed UniqueConstraint instance matches the expected
+        path, arguments, and keyword arguments, ensuring that the deconstruction logic is correct.
+
+        """
         fields = ["foo"]
         name = "unique_fields"
         constraint = models.UniqueConstraint(
@@ -810,6 +949,22 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_database_constraint_with_condition(self):
+        """
+        Tests the enforcement of a unique database constraint with a condition.
+
+        This test case verifies that a uniqueness constraint is correctly applied to
+        a model instance when a specific condition is met. It checks that attempting
+        to create duplicate entries that match the condition raises an IntegrityError.
+
+        The test scenario involves creating multiple instances of a product model,
+        where the constraint is defined to enforce uniqueness based on a given condition.
+        By confirming that an IntegrityError is raised when attempting to create a
+        duplicate entry, this test ensures that the database properly enforces the
+        constraint as defined, maintaining data integrity for the specified condition.
+
+        Note: This test requires the database to support partial indexes.
+
+        """
         UniqueConstraintConditionProduct.objects.create(name="p1")
         UniqueConstraintConditionProduct.objects.create(name="p2")
         with self.assertRaises(IntegrityError):
@@ -838,6 +993,17 @@ class UniqueConstraintTests(TestCase):
             UniqueConstraintConditionProduct(name=obj2.name).validate_constraints()
 
     def test_model_validation_constraint_no_code_error(self):
+        """
+        Tests that a model validation constraint correctly raises a ValidationError 
+        when the constraint is not met.
+
+        This test case creates a custom model with a unique constraint that always 
+        raises a validation error, and verifies that the error is properly raised 
+        and contains the expected error message.
+
+        The test ensures that the constraint is applied and the validation error is 
+        correctly propagated when the model's validate_constraints method is called.
+        """
         class ValidateNoCodeErrorConstraint(UniqueConstraint):
             def validate(self, model, instance, **kwargs):
                 raise ValidationError({"name": ValidationError("Already exists.")})
@@ -858,6 +1024,21 @@ class UniqueConstraintTests(TestCase):
             NoCodeErrorConstraintModel(name="test").validate_constraints()
 
     def test_validate(self):
+        """
+
+        Tests the unique constraint validation on the UniqueConstraintProduct model.
+
+        This test case ensures that the unique constraint on the 'Name' and 'Color' fields
+        is enforced correctly. It verifies that attempting to validate a product with a
+        duplicate 'Name' and 'Color' combination raises a ValidationError with the
+        expected error message.
+
+        The test also covers various scenarios, including validating products with null
+        values, products with unique combinations, and products with excluded fields.
+        Additionally, it checks that the constraint validation works correctly for child
+        models that inherit from UniqueConstraintProduct.
+
+        """
         constraint = UniqueConstraintProduct._meta.constraints[0]
         msg = "Unique constraint product with this Name and Color already exists."
         non_unique_product = UniqueConstraintProduct(
@@ -898,6 +1079,16 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_validate_fields_unattached(self):
+        """
+
+        Tests the validation of unattached models against a unique constraint on the 'price' field.
+
+        This test case verifies that when a model instance with a duplicate 'price' value is validated,
+        it raises a ValidationError with an appropriate error message.
+        The test covers the scenario where the validation is triggered by a unique constraint
+        defined on the 'price' field, ensuring data integrity and uniqueness in the model instances.
+
+        """
         Product.objects.create(price=42)
         constraint = models.UniqueConstraint(fields=["price"], name="uniq_prices")
         msg = "Product with this Price already exists."
@@ -930,6 +1121,24 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_validate_condition_custom_error(self):
+        """
+
+        Tests the validation of a unique constraint with a custom error message and code.
+
+        This test case checks if a unique constraint with a condition is properly validated and 
+        raises a ValidationError with the specified error message and code when the condition is met.
+        The test covers the scenario where a duplicate entry is attempted with a custom error handling.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: If the unique constraint is violated.
+
+        """
         p1 = UniqueConstraintConditionProduct.objects.create(name="p1")
         constraint = models.UniqueConstraint(
             fields=["name"],
@@ -991,6 +1200,21 @@ class UniqueConstraintTests(TestCase):
         )
 
     def test_validate_expression_condition(self):
+        """
+
+        Tests the validation of a unique constraint expression condition.
+
+        This test case verifies the behavior of a unique constraint with a conditional 
+        expression. The constraint requires that the 'name' field in lowercase must be 
+        unique among products without a color. The test checks that the constraint raises 
+        a ValidationError when a product with a duplicate name and no color is validated, 
+        and that it passes validation for products with unique names or when the 
+        constraint is excluded.
+
+        The test uses various scenarios to cover different validation paths, including 
+        products with and without colors, and validation with excluded fields.
+
+        """
         constraint = models.UniqueConstraint(
             Lower("name"),
             name="name_lower_without_color_uniq",
@@ -1073,6 +1297,15 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_validate_nulls_distinct_fields(self):
+        """
+        Tests the validation of null values in unique constraints with nulls_distinct=False.
+
+        Verifies that a unique constraint with nulls_distinct=False raises a ValidationError when attempting to create multiple instances with null values for the constrained field. This ensures that the constraint correctly enforces uniqueness, treating null values as identical.
+
+        The test covers the creation of a model instance with a unique constraint, the validation of the constraint, and the expected behavior when attempting to create duplicate instances with null values.
+
+        Requires a database backend that supports table check constraints.
+        """
         Product.objects.create(price=42)
         constraint = models.UniqueConstraint(
             fields=["price"],
@@ -1100,6 +1333,10 @@ class UniqueConstraintTests(TestCase):
             constraint.validate(Product, Product(price=None))
 
     def test_name(self):
+        """
+        <Test the presence of a unique constraint on the 'name' and 'color' fields>
+        Verifies that a unique constraint with the specified name exists on the 'name' and 'color' columns in the database table. This ensures data integrity by preventing duplicate combinations of 'name' and 'color' values from being inserted.
+        """
         constraints = get_constraints(UniqueConstraintProduct._meta.db_table)
         expected_name = "name_color_uniq"
         self.assertIn(expected_name, constraints)
@@ -1130,6 +1367,17 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_deferrable_unique_constraints")
     def test_initially_immediate_database_constraint(self):
+        """
+
+        Tests a database's support for deferrable unique constraints by attempting to save
+        two objects that would normally violate a unique constraint, but are allowed when
+        the constraint is deferred.
+
+        This test creates two objects with unique constraint violations and checks that
+        attempting to save them immediately raises an IntegrityError. It then defers the
+        constraint and confirms that the objects can be saved without errors.
+
+        """
         obj_1 = UniqueConstraintDeferrable.objects.create(name="p1", shelf="front")
         obj_2 = UniqueConstraintDeferrable.objects.create(name="p2", shelf="back")
         obj_1.shelf, obj_2.shelf = obj_2.shelf, obj_1.shelf
@@ -1143,6 +1391,20 @@ class UniqueConstraintTests(TestCase):
             obj_2.save()
 
     def test_deferrable_with_condition(self):
+        """
+        Tests whether a UniqueConstraint with a condition can be deferred.
+
+        Verifies that attempting to create a UniqueConstraint with a condition and
+        deferrable set to DEFERRED raises a ValueError, as conditions cannot be used
+        with deferred constraints.
+
+        Checks that the correct error message is raised, which indicates that
+        UniqueConstraints with conditions are not compatible with deferrable behavior.
+
+        Ensures that the database integrity mechanism correctly reports an error
+        when trying to create such a constraint, preventing a potentially inconsistent
+        state in the database schema.
+        """
         message = "UniqueConstraint with conditions cannot be deferred."
         with self.assertRaisesMessage(ValueError, message):
             models.UniqueConstraint(
@@ -1163,6 +1425,11 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_deferrable_with_opclasses(self):
+        """
+        Tests that a UniqueConstraint with opclasses cannot be deferred, as this is not supported by the database. 
+
+        Verifies that a ValueError is raised with a specific error message when attempting to create a UniqueConstraint with opclasses and deferrable set to DEFERRED.
+        """
         message = "UniqueConstraint with opclasses cannot be deferred."
         with self.assertRaisesMessage(ValueError, message):
             models.UniqueConstraint(
@@ -1182,6 +1449,16 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_invalid_defer_argument(self):
+        """
+
+        Tests that providing an invalid argument to the deferrable parameter of a UniqueConstraint instance raises a TypeError.
+
+        The function checks that an error is raised when a string is passed as the deferrable argument, instead of a Deferrable instance, ensuring that the correct data type is enforced for this parameter.
+
+        Raises:
+            TypeError: If the deferrable argument is not a Deferrable instance.
+
+        """
         message = "UniqueConstraint.deferrable must be a Deferrable instance."
         with self.assertRaisesMessage(TypeError, message):
             models.UniqueConstraint(
@@ -1195,6 +1472,9 @@ class UniqueConstraintTests(TestCase):
         "supports_covering_indexes",
     )
     def test_include_database_constraint(self):
+        """
+        Tests the database constraint inclusion functionality by attempting to create duplicate unique constraint entries, verifying that an IntegrityError is raised when trying to insert a duplicate value. This ensures that the database correctly enforces unique constraints defined on model fields.
+        """
         UniqueConstraintInclude.objects.create(name="p1", color="red")
         with self.assertRaises(IntegrityError):
             UniqueConstraintInclude.objects.create(name="p1", color="blue")
@@ -1237,6 +1517,17 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_requires_field_or_expression(self):
+        """
+
+        Tests that a UniqueConstraint instance requires at least one field or expression to be defined.
+
+        Raises:
+            ValueError: If no fields or expressions are provided when creating a UniqueConstraint instance.
+
+        Checks that the UniqueConstraint constructor validation correctly enforces the presence of a field or expression, 
+        ensuring that a meaningful unique constraint can be established.
+
+        """
         msg = (
             "At least one field or expression is required to define a unique "
             "constraint."
@@ -1250,6 +1541,19 @@ class UniqueConstraintTests(TestCase):
             models.UniqueConstraint(Lower("field_1"), fields=["field_2"], name="name")
 
     def test_expressions_with_opclasses(self):
+        """
+        Tests that UniqueConstraint opclasses cannot be used with expressions.
+
+        Checks that using opclasses with expressions in a UniqueConstraint raises a
+        ValueError, and provides guidance on the correct alternative approach using
+        OpClass from django.contrib.postgres.indexes.
+
+        The test case ensures that the correct error message is provided when attempting
+        to use opclasses with expressions, helping to prevent common mistakes in index
+        configuration.
+
+        :raises ValueError: If opclasses are used with expressions in a UniqueConstraint
+        """
         msg = (
             "UniqueConstraint.opclasses cannot be used with expressions. Use "
             "django.contrib.postgres.indexes.OpClass() instead."
@@ -1262,6 +1566,11 @@ class UniqueConstraintTests(TestCase):
             )
 
     def test_requires_name(self):
+        """
+        Tests that a unique constraint must have a name.
+
+        This test checks that attempting to create a unique constraint without specifying a name will raise a ValueError with a descriptive error message. The constraint in question has one or more fields defined but lacks the required 'name' attribute. The error message indicates that the name is required for enforcing uniqueness within the model. 
+        """
         msg = "A unique constraint must be named."
         with self.assertRaisesMessage(ValueError, msg):
             models.UniqueConstraint(fields=["field"])

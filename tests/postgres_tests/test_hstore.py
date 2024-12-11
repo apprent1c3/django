@@ -34,6 +34,13 @@ class SimpleTests(PostgreSQLTestCase):
         self.assertIsNone(reloaded.field)
 
     def test_value_null(self):
+        """
+        Tests that a null value in a HStore field is saved and reloaded correctly.
+
+        Checks that when a null value is assigned to a HStore field, it is properly persisted to the database and then retrieved when the instance is reloaded, ensuring data integrity and consistency.
+
+        Verifies the correctness of the HStore field's behavior when handling null values, providing confidence in the model's ability to accurately store and retrieve data.
+        """
         value = {"a": None}
         instance = HStoreModel(field=value)
         instance.save()
@@ -130,6 +137,16 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_key_transform_raw_expression(self):
+        """
+
+        Tests the key transform functionality using a raw SQL expression.
+
+        This function verifies that the KeyTransform lookup type works correctly
+        when used with a raw SQL expression to filter HStoreModel objects.
+        It checks if the filter correctly matches the objects based on the
+        specified key 'x' and its corresponding value in the hstore field 'field'.
+
+        """
         expr = RawSQL("%s::hstore", ["x => b, y => c"])
         self.assertSequenceEqual(
             HStoreModel.objects.filter(field__a=KeyTransform("x", expr)), self.objs[:2]
@@ -206,6 +223,15 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_order_by_field(self):
+        """
+        Tests ordering of HStoreModel objects by a specific field 'g' within the 'field' hstore attribute.
+
+        This test verifies that the order_by method correctly sorts objects based on the values of the 'g' key in the 'field' hstore attribute. 
+
+        The test creates multiple HStoreModel objects with different values for the 'g' key and checks that the objects are returned in the expected order after applying the order_by filter. 
+
+        This ensures that the order_by method is working as expected for hstore fields, allowing for correct sorting and retrieval of objects based on specific keys within the hstore attribute.
+        """
         more_objs = (
             HStoreModel.objects.create(field={"g": "637"}),
             HStoreModel.objects.create(field={"g": "002"}),
@@ -258,6 +284,9 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_obj_subquery_lookup(self):
+        """
+        Tests a subquery lookup on objects, specifically annotating each object with a value from a related query and then filtering the results to only include objects where the annotated value matches a specific condition. The test verifies that the resulting query set matches the expected sequence of objects.
+        """
         qs = HStoreModel.objects.annotate(
             value=Subquery(
                 HStoreModel.objects.filter(pk=OuterRef("pk")).values("field")
@@ -316,6 +345,16 @@ class TestSerialization(PostgreSQLSimpleTestCase):
     )
 
     def test_dumping(self):
+        """
+
+        Test case to verify the serialization of HStoreModel instances into JSON format.
+
+        This function creates an instance of the HStoreModel class with sample data, 
+        serializes it into JSON, and then compares the result with the expected test data.
+        The goal is to ensure that the serialization process correctly dumps the model's 
+        fields, including both simple fields and array fields containing nested objects.
+
+        """
         instance = HStoreModel(field={"a": "b"}, array_field=[{"a": "b"}, {"b": "a"}])
         data = serializers.serialize("json", [instance])
         self.assertEqual(json.loads(data), json.loads(self.test_data))
@@ -355,6 +394,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, {"a": "b"})
 
     def test_invalid_json(self):
+        """
+        Tests the validation of an HStoreField with invalid JSON input, verifying that a ValidationError is raised with the expected error message and code.
+        """
         field = forms.HStoreField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean('{"a": "b"')
@@ -369,6 +411,14 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "invalid_format")
 
     def test_not_string_values(self):
+        """
+
+        Tests that HStoreField properly cleans input values where the values are not strings.
+
+        This test case verifies that the field correctly converts non-string values to strings, 
+        ensuring that the resulting dictionary contains only string values.
+
+        """
         field = forms.HStoreField()
         value = field.clean('{"a": 1}')
         self.assertEqual(value, {"a": "1"})
@@ -384,6 +434,12 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, {})
 
     def test_model_field_formfield(self):
+        """
+        Tests that the form field generated by an HStoreField model field is of the correct type.
+
+        Verifies that the formfield method of an HStoreField model field returns an instance of forms.HStoreField, 
+        ensuring compatibility between the model field and its corresponding form field representation.
+        """
         model_field = HStoreField()
         form_field = model_field.formfield()
         self.assertIsInstance(form_field, forms.HStoreField)
@@ -435,6 +491,9 @@ class TestValidator(PostgreSQLSimpleTestCase):
         validator({"a": "foo", "b": "bar"})
 
     def test_extra_keys(self):
+        """
+        Tests that the KeysValidator raises a ValidationError when extra keys are provided beyond those specified in the validator, and that the error message and code are correctly set.
+        """
         validator = KeysValidator(keys=["a", "b"], strict=True)
         with self.assertRaises(exceptions.ValidationError) as cm:
             validator({"a": "foo", "b": "bar", "c": "baz"})
@@ -456,6 +515,13 @@ class TestValidator(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "extra_keys")
 
     def test_deconstruct(self):
+        """
+        Deconstructs the KeysValidator instance into its constituent parts.
+
+        This method is used to decompose the validator into its path, positional arguments, and keyword arguments. The path represents the full module path to the KeysValidator class, the positional arguments are empty as the class does not accept any positional arguments in its constructor, and the keyword arguments include the keys to validate, strictness, and custom error messages.
+
+        The returned values can be used to reconstruct the validator instance or to serialize it for storage or transmission. The deconstructed parts can be used in various contexts such as database migration or serialization.
+        """
         messages = {
             "missing_keys": "Foobar",
         }

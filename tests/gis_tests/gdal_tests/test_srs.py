@@ -11,6 +11,15 @@ from django.test import SimpleTestCase
 
 class TestSRS:
     def __init__(self, wkt, **kwargs):
+        """
+        Initializes an object representing a geographic geometry based on a Well-Known Text (WKT) string.
+
+        :param wkt: The WKT string defining the geometry.
+        :param **kwargs: Additional keyword arguments to be set as instance attributes. 
+                         These can include any additional metadata or properties associated with the geometry. 
+
+        The initialized object stores the WKT string and additional keyword arguments as instance attributes, allowing for easy access and manipulation of the geometry's properties.
+        """
         self.wkt = wkt
         for key, value in kwargs.items():
             setattr(self, key, value)
@@ -356,6 +365,21 @@ class SpatialRefTest(SimpleTestCase):
             self.assertIn("Langschoß", srs.xml)
 
     def test_axis_order(self):
+        """
+        Tests the transformation of a point from one spatial reference system to WGS84 
+        using both traditional and authority axis orders.
+
+        Verifies that the x and y coordinates of the transformed point match the 
+        expected values for both axis orders. 
+
+        The test uses a point defined in the British National Grid (EPSG:2774) and 
+        transforms it to WGS84 (EPSG:4326) with traditional and authority axis orders.
+        The transformed point's coordinates are then compared against the expected 
+        values to ensure correct transformation.
+
+        The test also exercises the cloning of the spatial reference system to ensure 
+        it does not affect the transformation result.
+        """
         wgs84_trad = SpatialReference(4326, axis_order=AxisOrder.TRADITIONAL)
         wgs84_auth = SpatialReference(4326, axis_order=AxisOrder.AUTHORITY)
         # Coordinate interpretation may depend on the srs axis predicate.

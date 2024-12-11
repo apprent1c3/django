@@ -46,6 +46,13 @@ class DataUploadMaxMemorySizeFormPostTests(SimpleTestCase):
 
 class DataUploadMaxMemorySizeMultipartPostTests(SimpleTestCase):
     def setUp(self):
+        """
+        Setup a WSGI request object with a multipart/form-data payload for testing purposes.
+
+        This method creates a fake HTTP request with a POST method, a content type of multipart/form-data, and a specific payload that contains a form field named \"name\" with a value of \"value\". The resulting request object is stored as an instance attribute.
+
+        The purpose of this setup is to simulate a typical file or form upload request, allowing for testing of code that handles such requests. The specific details of the request, such as the content type and payload, are designed to mimic a real-world request as closely as possible.
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -125,16 +132,41 @@ class DataUploadMaxMemorySizeGetTests(SimpleTestCase):
             self.request.body
 
     def test_no_limit(self):
+        """
+
+        Tests the behavior when there is no limit imposed on the maximum memory size for data uploads.
+
+        This test case verifies the functionality of the system when the DATA_UPLOAD_MAX_MEMORY_SIZE setting is set to None,
+         effectively removing any restrictions on the size of uploaded data. It checks how the system handles requests with large
+         or unlimited data payloads, providing insight into the handling of memory-intensive uploads.
+
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=None):
             self.request.body
 
     def test_empty_content_length(self):
+        """
+        Tests the handling of an empty Content-Length header in the request.
+
+        This test case verifies the behavior of the system when a request contains an empty Content-Length header.
+        The expected outcome is described in the assertions within the test, ensuring that the system correctly handles this edge case.
+
+        :raises: Any exceptions raised by the test case will be documented here when known.
+        :returns: None
+        """
         self.request.environ["CONTENT_LENGTH"] = ""
         self.request.body
 
 
 class DataUploadMaxNumberOfFieldsGet(SimpleTestCase):
     def test_get_max_fields_exceeded(self):
+        """
+
+        Tests that an error is raised when the number of fields in a GET request exceeds the maximum allowed.
+
+        The test simulates a GET request with multiple fields and verifies that a TooManyFieldsSent exception is raised with the expected error message when the DATA_UPLOAD_MAX_NUMBER_FIELDS setting is set to a value that is lower than the number of fields in the request.
+
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=1):
             with self.assertRaisesMessage(TooManyFieldsSent, TOO_MANY_FIELDS_MSG):
                 request = WSGIRequest(
@@ -190,6 +222,14 @@ class DataUploadMaxNumberOfFieldsMultipartPost(SimpleTestCase):
                 self.request._load_post_and_files()
 
     def test_number_not_exceeded(self):
+        """
+        Tests that the number of fields in a request does not exceed the maximum allowed.
+
+        This test case verifies the enforcement of the DATA_UPLOAD_MAX_NUMBER_FIELDS setting,
+        ensuring that the number of fields in a request is limited to the specified maximum.
+        The test checks for the correct handling of requests when the field count is at the limit.
+
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=2):
             self.request._load_post_and_files()
 
@@ -236,6 +276,12 @@ class DataUploadMaxNumberOfFilesMultipartPost(SimpleTestCase):
                 self.request._load_post_and_files()
 
     def test_number_not_exceeded(self):
+        """
+        Tests that the number of uploaded files does not exceed the maximum allowed.
+
+        This test case sets the DATA_UPLOAD_MAX_NUMBER_FILES setting to 2 and then attempts to load post and file data from the request. 
+        The purpose of this test is to ensure that the application correctly enforces the maximum number of file uploads.
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FILES=2):
             self.request._load_post_and_files()
 
@@ -246,6 +292,17 @@ class DataUploadMaxNumberOfFilesMultipartPost(SimpleTestCase):
 
 class DataUploadMaxNumberOfFieldsFormPost(SimpleTestCase):
     def setUp(self):
+        """
+
+        Set up a test request object with a sample payload.
+
+        This method creates a fake payload containing URL-encoded data, with multiple
+        values for the same key. It then uses this payload to construct a WSGIRequest
+        object, simulating a POST request with the payload as its body. The resulting
+        request object is stored as an instance attribute, allowing it to be used in
+        subsequent test cases.
+
+        """
         payload = FakePayload("\r\n".join(["a=1&a=2&a=3", ""]))
         self.request = WSGIRequest(
             {
@@ -262,6 +319,16 @@ class DataUploadMaxNumberOfFieldsFormPost(SimpleTestCase):
                 self.request._load_post_and_files()
 
     def test_number_not_exceeded(self):
+        """
+
+        Tests that the number of fields in a request does not exceed the maximum allowed limit.
+
+        This test case verifies that the system correctly handles requests with a large number of fields.
+        It checks that the request processing is stopped when the number of fields reaches the maximum limit defined in the settings.
+
+        The test specifically checks the behavior when the maximum allowed number of fields is set to 3.
+
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=3):
             self.request._load_post_and_files()
 

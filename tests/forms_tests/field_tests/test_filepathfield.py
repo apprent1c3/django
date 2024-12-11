@@ -61,6 +61,17 @@ class FilePathFieldTest(SimpleTestCase):
         )
 
     def test_match(self):
+        """
+
+        Tests whether the FilePathField correctly filters files based on the provided regular expression match pattern.
+
+        The function creates a FilePathField instance with a specific path and match pattern, then asserts that the field's choices match the expected set of choices.
+
+        :param none:
+        :raises AssertionError: if the field's choices do not match the expected choices
+        :return: none
+
+        """
         f = FilePathField(path=self.path, match=r"^.*?\.py$")
         self.assertChoices(f, self.expected_choices[:4])
 
@@ -99,6 +110,11 @@ class FilePathFieldTest(SimpleTestCase):
         self.assertChoices(f, [])
 
     def test_recursive_folders_without_files(self):
+        """
+        Tests the FilePathField functionality when configured to traverse directories recursively,
+        allowing folders but not files. Verifies the field provides the correct choices, 
+        including subdirectories found within the specified path.
+        """
         f = FilePathField(
             path=self.path, recursive=True, allow_folders=True, allow_files=False
         )

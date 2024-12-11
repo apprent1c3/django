@@ -7,6 +7,18 @@ from .models import Article
 
 class MethodsTests(TestCase):
     def test_custom_methods(self):
+        """
+
+        Tests the custom methods of the Article model.
+
+        This test case covers the functionality of the `was_published_today` method 
+        and the `articles_from_same_day_1` and `articles_from_same_day_2` methods. 
+        It creates two article objects with the same publication date, then checks 
+        that the `was_published_today` method returns False, and that the 
+        `articles_from_same_day_1` and `articles_from_same_day_2` methods return 
+        the other article object created on the same day.
+
+        """
         a = Article.objects.create(
             headline="Parrot programs in Python", pub_date=date(2005, 7, 27)
         )

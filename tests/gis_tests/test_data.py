@@ -74,6 +74,16 @@ class TestGeomSet:
     """
 
     def __init__(self, **kwargs):
+        """
+
+        Initializes the object with keyword arguments, dynamically setting attributes with the provided names.
+
+        The keyword arguments should have values that are lists of dictionaries, where each dictionary represents a geometric test input.
+        These dictionaries are converted to :class:`TestGeom` objects and stored as lists in the corresponding attributes of the object.
+
+        For example, passing ``geo1=[{'param1': 'value1'}, {'param2': 'value2'}]`` and ``geo2=[{'param3': 'value3'}]`` would result in the object having attributes ``geo1`` and ``geo2`` with the respective lists of :class:`TestGeom` objects.
+
+        """
         for key, value in kwargs.items():
             setattr(self, key, [TestGeom(**strconvert(kw)) for kw in value])
 
@@ -87,6 +97,17 @@ class TestDataMixin:
     @cached_property
     def geometries(self):
         # Load up the test geometry data from fixture into global.
+        """
+        Returns a set of test geometries loaded from a predefined JSON file.
+
+        This property provides access to a collection of geometric data, which is
+        initialized only once and then cached for subsequent access. The geometries
+        are represented as a :class:`TestGeomSet` instance, allowing for easy
+        manipulation and querying of the data.
+
+        :return: A :class:`TestGeomSet` object containing the test geometries.
+
+        """
         with open(os.path.join(TEST_DATA, "geometries.json")) as f:
             geometries = json.load(f)
         return TestGeomSet(**strconvert(geometries))

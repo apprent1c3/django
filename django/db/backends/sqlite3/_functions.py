@@ -126,6 +126,28 @@ def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
 
 
 def _sqlite_date_trunc(lookup_type, dt, tzname, conn_tzname):
+    """
+
+    Truncates a given date down to the specified lookup type (year, quarter, month, week, day).
+
+    The function first converts the input date string (dt) from the specified time zone (tzname)
+    to the connection time zone (conn_tzname). It then truncates the date to the beginning of the
+    specified period (e.g. the start of the year, quarter, month, week, or day).
+
+    Args:
+        lookup_type (str): The type of period to truncate to. Supported values are 'year',
+            'quarter', 'month', 'week', and 'day'.
+        dt (str): The date to be truncated, in a string format.
+        tzname (str): The time zone of the input date string.
+        conn_tzname (str): The time zone of the database connection.
+
+    Returns:
+        str: The truncated date in 'YYYY-MM-DD' format, or None if the input date string is invalid.
+
+    Raises:
+        ValueError: If the lookup type is not one of the supported values.
+
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -238,6 +260,19 @@ def _sqlite_time_extract(lookup_type, dt):
 
 
 def _sqlite_prepare_dtdelta_param(conn, param):
+    """
+
+    Prepares a delta parameter for SQLite operations.
+
+    This function takes a connection indicator and a parameter value as input.
+    It checks if the connection indicator is either '+' or '-' and if the parameter is an integer.
+    If so, it returns a timedelta object representing the parameter value as microseconds.
+    If the parameter is not an integer, it returns the result of typecasting the parameter to a timestamp.
+    If the connection indicator is neither '+' nor '-', the function returns the original parameter value unchanged.
+
+    The purpose of this function is to normalize and convert the delta parameter into a format suitable for SQLite operations.
+
+    """
     if conn in ["+", "-"]:
         if isinstance(param, int):
             return timedelta(0, 0, param)
@@ -472,6 +507,16 @@ def _sqlite_sha512(text):
 
 
 def _sqlite_sign(x):
+    """
+    Determines the sign of a given number.
+
+    Returns an integer indicating the sign of the input value:
+    - 1 if the input is positive
+    - -1 if the input is negative
+    - None if the input is None
+
+    This function provides a convenient way to determine the sign of a value in a numeric context, useful for conditional logic and decision-making based on numeric input. 
+    """
     if x is None:
         return None
     return (x > 0) - (x < 0)

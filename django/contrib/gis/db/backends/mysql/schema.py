@@ -46,6 +46,16 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
         return column_sql
 
     def create_model(self, model):
+        """
+        Creates a new model instance and sets up the necessary spatial indexes.
+
+        This method extends the base model creation functionality by adding spatial indexes
+        to the model. This is useful for models that include geographic or spatial data,
+        enabling efficient querying and analysis of this data.
+
+        :param model: The model to be created
+
+        """
         super().create_model(model)
         self.create_spatial_indexes()
 

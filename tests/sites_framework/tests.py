@@ -12,6 +12,14 @@ from .models import CustomArticle, ExclusiveArticle, SyndicatedArticle
 class SitesFrameworkTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, including the creation of sites.
+
+        This method creates two sites in the database: the primary site with the id specified
+        in the settings and a secondary site with an incremented id. The primary site has a
+        domain and name of 'example.com', while the secondary site has a domain and name of
+        'example2.com'. This data is used as a foundation for subsequent tests.
+        """
         Site.objects.get_or_create(
             id=settings.SITE_ID, domain="example.com", name="example.com"
         )
@@ -44,6 +52,13 @@ class SitesFrameworkTestCase(TestCase):
 @isolate_apps("sites_framework")
 class CurrentSiteManagerChecksTests(SimpleTestCase):
     def test_invalid_name(self):
+        """
+        Tests that an error is raised when the CurrentSiteManager is initialized with an invalid field name.
+
+        Checks that the model validation correctly identifies and reports the error when the specified field does not exist on the model. The expected error message includes the missing field name and the model object that triggered the error.
+
+        The test case verifies that the error message matches the expected output, ensuring that the validation mechanism is working correctly and providing informative error messages for invalid configurations.
+        """
         class InvalidArticle(models.Model):
             on_site = CurrentSiteManager("places_this_article_should_appear")
 
@@ -59,6 +74,13 @@ class CurrentSiteManagerChecksTests(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_invalid_field_type(self):
+        """
+        Tests that CurrentSiteManager raises an error when used with a non-foreign-key or non-many-to-many field.
+
+        This test case verifies that a model using CurrentSiteManager with an invalid field type (in this case, an IntegerField) correctly reports the error.
+        The expected error message indicates that CurrentSiteManager cannot use the specified field because it does not represent a relationship between models.
+        The test confirms that the check method of the model returns the expected error when the CurrentSiteManager is misconfigured in this way.
+        """
         class ConfusedArticle(models.Model):
             site = models.IntegerField()
             on_site = CurrentSiteManager()

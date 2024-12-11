@@ -25,6 +25,11 @@ class TestSimpleTestCase(SimpleTestCase):
         self.assertEqual(self, pickle.loads(pickle.dumps(self)))
 
     def test_is_picklable_with_non_picklable_object(self):
+        """
+        Tests whether the is_pickable function correctly identifies an object as non-picklable when it contains a non-picklable component. 
+
+        This test utilizes an UnpicklableObject instance, which intentionally lacks the necessary properties for successful pickling, to verify the is_pickable function's capability to handle such cases. The function's expected output, in this case, is False, indicating that the object is indeed non-picklable.
+        """
         unpicklable_obj = UnpicklableObject()
         self.assertEqual(is_pickable(unpicklable_obj), False)
 
@@ -44,6 +49,19 @@ class TestTestCase(TestCase):
             self._rollback_atomics = rollback_atomics
 
     def test_disallowed_database_connection(self):
+        """
+        Tests that connecting to a disallowed database raises a DatabaseOperationForbidden exception.
+
+        This test ensures that attempting to establish a connection to a database not
+        included in the test case's allowed databases results in a failure. The test
+        verifies that both a regular connection and a temporary connection to the
+        disallowed database raise the expected exception with a specific error message.
+
+        The test is designed to enforce proper test isolation by preventing unauthorized
+        database connections. To silence this failure, the disallowed database must be
+        added to the list of allowed databases in test_utils.test_testcase.TestTestCase.databases.
+
+        """
         message = (
             "Database connections to 'other' are not allowed in this test. "
             "Add 'other' to test_utils.test_testcase.TestTestCase.databases to "
@@ -77,7 +95,28 @@ class TestTestCase(TestCase):
 
 def assert_no_queries(test):
     @wraps(test)
+    """
+
+    Decorator to assert that a test function does not execute any database queries.
+
+    This decorator is used to validate that a test method does not interact with the database.
+    It uses the :meth:`assertNumQueries` method to verify that no database queries are executed
+    during the test. If any queries are executed, the test will fail.
+
+    :arg test: The test function to be decorated.
+
+    :raises AssertionError: If any database queries are executed during the test.
+
+    """
     def inner(self):
+        """
+
+        Decorator inner function that temporarily disables database query assertions.
+
+        This function wraps another test function, ensuring that no database queries are executed during its execution.
+        It achieves this by utilizing a context manager that suppresses query assertions, allowing the wrapped test to run without interfering with database query checks.
+
+        """
         with self.assertNumQueries(0):
             test(self)
 
@@ -94,6 +133,17 @@ class TestDataTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the test class.
+
+        This method creates a set of test objects, including a person named 'Jim Douglas', 
+        a car named '1963 Volkswagen Beetle', and an ownership relationship between them. 
+        It also creates a person with binary data and retrieves this person by their primary key.
+
+        These objects are stored as class attributes, allowing them to be reused across tests.
+
+        """
         cls.jim_douglas = Person.objects.create(name="Jim Douglas")
         cls.car = Car.objects.create(name="1963 Volkswagen Beetle")
         cls.herbie = cls.jim_douglas.possessed_cars.create(
@@ -122,6 +172,17 @@ class TestDataTests(TestCase):
 
     @assert_no_queries
     def test_binaryfield_data_type(self):
+        """
+        Tests the data type of BinaryField instances.
+
+        Verifies that BinaryField data is correctly stored and retrieved as bytes, 
+        and that the data type of the retrieved data matches the expected type.
+
+        The test checks if the data stored in BinaryField instances is equal to the 
+        expected binary data, and also ensures that the types of the data stored 
+        in the instance and class variables are consistent.
+
+        """
         self.assertEqual(bytes(self.person_binary.data), b"binary data")
         self.assertEqual(bytes(self.person_binary_get.data), b"binary data")
         self.assertEqual(
@@ -167,6 +228,12 @@ class SetupTestDataIsolationTests(TestCase):
         self.car.save()
 
     def test_book_name_french(self):
+        """
+        Tests that the car's name in French ('Coccinelle') is correctly set and saved.
+
+        This test case verifies that a car object's name can be updated to its French
+        equivalent and that the change is properly persisted when saved.
+        """
         self.assertEqual(self.car.name, "Volkswagen Beetle")
         self.car.name = "Volkswagen Coccinelle"
         self.car.save()

@@ -19,6 +19,12 @@ class BashCompletionTests(unittest.TestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by configuring the DJANGO_AUTO_COMPLETE environment variable.
+
+        This method saves the current value of DJANGO_AUTO_COMPLETE and then sets it to '1', 
+        enabling auto-complete functionality for the duration of the test.
+        """
         self.old_DJANGO_AUTO_COMPLETE = os.environ.get("DJANGO_AUTO_COMPLETE")
         os.environ["DJANGO_AUTO_COMPLETE"] = "1"
 

@@ -106,6 +106,14 @@ class Element:
                 child.finalize()
 
     def __eq__(self, element):
+        """
+        Compares the current object with another element for equality.
+
+        Two elements are considered equal if they have the same name, attributes, and children.
+        This comparison is used to determine if two elements are identical in terms of their structure and content.
+
+        :returns: True if the elements are equal, False otherwise
+        """
         if not hasattr(element, "name") or self.name != element.name:
             return False
         if self.attributes != element.attributes:
@@ -212,6 +220,18 @@ class Parser(HTMLParser):
         raise HTMLParseError(msg, self.getpos())
 
     def format_position(self, position=None, element=None):
+        """
+
+        _formats a given position to a human-readable string.
+
+        Args:
+            position (optional): The position to format. If None, the current position will be used.
+            element (optional): The element for which to get the position. If provided and position is None, the position of the element will be used.
+
+        Returns:
+            A string representing the position in the format 'Line X, Column Y'.
+
+        """
         if not position and element:
             position = self.element_positions[element]
         if position is None:

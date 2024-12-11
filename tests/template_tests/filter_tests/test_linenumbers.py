@@ -30,6 +30,22 @@ class LinenumbersTests(SimpleTestCase):
         }
     )
     def test_linenumbers02(self):
+        """
+        Tests the linenumbers template filter with both escaped and safe HTML input.
+
+        This test case verifies that the linenumbers filter correctly numbers lines of text,
+        handling both HTML-escaped and safe input. It checks that the output is as expected,
+        with correct line numbering and preservation of HTML entities.
+
+         Args:
+             None
+
+         Returns:
+             None
+
+         Raises:
+             AssertionError: If the rendered output does not match the expected output.
+        """
         output = self.engine.render_to_string(
             "linenumbers02",
             {"a": "one\n<two>\nthree", "b": mark_safe("one\n&lt;two&gt;\nthree")},

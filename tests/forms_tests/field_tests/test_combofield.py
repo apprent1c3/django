@@ -22,6 +22,20 @@ class ComboFieldTest(SimpleTestCase):
             f.clean(None)
 
     def test_combofield_2(self):
+        """
+
+        Tests the ComboField with a combination of CharField and EmailField.
+
+        This test case verifies the following scenarios:
+            * Successful cleaning of an email address.
+            * Validation error for an email address exceeding the maximum character limit.
+            * Validation error for an invalid email address.
+            * Successful cleaning of empty and None values.
+
+        The test ensures the ComboField correctly applies the validation rules of its constituent fields, 
+        providing robust data validation for the form field.
+
+        """
         f = ComboField(fields=[CharField(max_length=20), EmailField()], required=False)
         self.assertEqual("test@example.com", f.clean("test@example.com"))
         with self.assertRaisesMessage(

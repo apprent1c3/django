@@ -41,6 +41,16 @@ class BulkUpdateNoteTests(TestCase):
         self.tags = [Tag.objects.create(name=str(i)) for i in range(10)]
 
     def test_simple(self):
+        """
+
+        Test bulk update of note objects.
+
+        This test case verifies that the bulk update operation is successful by updating the 'note' attribute of all note objects
+        in the test set and then checking that the database reflects these changes with a single database query.
+
+        The test ensures data integrity by asserting that the updated notes in the database match the expected values.
+
+        """
         for note in self.notes:
             note.note = "test-%s" % note.id
         with self.assertNumQueries(1):
@@ -70,6 +80,11 @@ class BulkUpdateNoteTests(TestCase):
             Note.objects.bulk_update(self.notes, fields=["note"], batch_size=1)
 
     def test_unsaved_models(self):
+        """
+        Tests that attempting to bulk update a list of model instances that includes unsaved objects raises a ValueError.
+
+        The test ensures that the `bulk_update()` method enforces its requirement that all objects being updated must have a primary key set, which is a characteristic of saved model instances. If an unsaved object is present in the list, a ValueError is expected to be raised with a specific error message.
+        """
         objs = self.notes + [Note(note="test", misc="test")]
         msg = "All bulk_update() objects must have a primary key set."
         with self.assertRaisesMessage(ValueError, msg):
@@ -84,6 +99,16 @@ class BulkUpdateNoteTests(TestCase):
         self.assertSequenceEqual(Note.objects.filter(tag__isnull=False), self.notes)
 
     def test_set_field_to_null(self):
+        """
+        Tests the functionality of setting a field to null in bulk.
+
+            This test case verifies that the tag field of multiple notes can be successfully set to null.
+            It first creates a set of tags and associates them with notes, then resets the tag field of the notes to null in bulk, 
+            and finally checks if the updated notes have the tag field set to null as expected.
+
+            The test covers the bulk update operation and its impact on the notes in the database, ensuring data consistency and integrity.
+
+        """
         self.create_tags()
         Note.objects.update(tag=self.tags[0])
         for note in self.notes:
@@ -141,6 +166,13 @@ class BulkUpdateTests(TestCase):
             Note.objects.bulk_update([], ["id"])
 
     def test_update_custom_primary_key(self):
+        """
+        Tests that updating a CustomPk object using a non-primary key field raises a ValueError.
+
+        Checks that an attempt to perform a bulk update of CustomPk objects using a custom
+        primary key field ('name' in this case) results in the expected error message being raised.
+        This ensures that the CustomPk model enforces its primary key constraints during bulk updates.
+        """
         with self.assertRaisesMessage(ValueError, self.pk_fields_error):
             CustomPk.objects.bulk_update([], ["name"])
 
@@ -186,6 +218,9 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(model.custom_column, 2)
 
     def test_custom_pk(self):
+        """
+        Tests the bulk update functionality of the CustomPk model by creating multiple custom primary key instances, modifying their 'extra' attribute, and then verifying that the changes are correctly persisted to the database.
+        """
         custom_pks = [
             CustomPk.objects.create(name="pk-%s" % i, extra="") for i in range(10)
         ]
@@ -205,6 +240,20 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(order.name, "updated")
 
     def test_inherited_fields(self):
+        """
+        Tests that inherited fields are properly updated and retrieved from the database.
+
+        This function creates a set of SpecialCategory objects, modifies their name and special_name attributes, and then uses bulk update to persist these changes.
+        It then verifies that the updated values are correctly stored in the database by comparing the retrieved values with the expected values.
+
+        The test covers the following scenarios:
+        - Creation of multiple SpecialCategory objects with unique names and special names.
+        - Modification of the name and special_name attributes of these objects.
+        - Bulk update of the modified objects in the database.
+        - Verification of the updated values through database queries.
+
+        The goal of this test is to ensure that the inheritance and updating of fields in the SpecialCategory model work as expected, and that the data is correctly persisted and retrieved from the database.
+        """
         special_categories = [
             SpecialCategory.objects.create(name=str(i), special_name=str(i))
             for i in range(10)
@@ -225,6 +274,18 @@ class BulkUpdateTests(TestCase):
         )
 
     def test_field_references(self):
+        """
+
+        Tests the functionality of referencing fields in model instances.
+
+        This test case verifies that when using Django's F expressions to update field values,
+        the changes are correctly applied to the model instances and persisted to the database.
+
+        It creates a list of Number objects, increments their 'num' field using an F expression,
+        and then uses bulk_update to save the changes. The test then asserts that all Number objects
+        with 'num' equal to 1 are the same as the original list of objects.
+
+        """
         numbers = [Number.objects.create(num=0) for _ in range(10)]
         for number in numbers:
             number.num = F("num") + 1
@@ -286,6 +347,14 @@ class BulkUpdateTests(TestCase):
         )
 
     def test_nullable_fk_after_related_save(self):
+        """
+
+        Tests the behavior of a nullable foreign key after saving a related object.
+
+        Verifies that the foreign key is correctly updated when the related object is saved,
+        and that the relationship is maintained after a bulk update and subsequent database refresh.
+
+        """
         parent = RelatedObject.objects.create()
         child = SingleObject()
         parent.single = child
@@ -306,6 +375,13 @@ class BulkUpdateTests(TestCase):
             RelatedObject.objects.bulk_update([parent], fields=["single"])
 
     def test_unspecified_unsaved_parent(self):
+        """
+        Tests if bulk updating a model instance does not affect unrelated, unsaved fields. 
+
+        This test covers a scenario where a model instance has a related object that is not saved to the database and an unrelated field that is saved using bulk update. 
+
+        It verifies that after performing a bulk update on the model instance, the value of the unrelated field is correctly updated, while the unsaved related object remains unchanged.
+        """
         parent = RelatedObject.objects.create()
         parent.single = SingleObject()
         parent.f = 42

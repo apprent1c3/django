@@ -307,6 +307,17 @@ class FormsetTests(TestCase):
             self.assertIsInstance(form.non_field_errors(), ErrorList)
 
     def test_initial_data(self):
+        """
+
+        Tests the initial data of a formset, ensuring it correctly handles both initial data specified 
+        in the formset and data from the database. Verifies that the initial data from the database 
+        is used for the first form in the formset, and that the extra forms are populated with the 
+        initial data provided to the formset. 
+
+        This test case checks the formset's ability to combine both database-driven and manually 
+        specified initial data correctly, ensuring the correct fields and values are displayed in the forms.
+
+        """
         User.objects.create(username="bibi", serial=1)
         Formset = modelformset_factory(User, fields="__all__", extra=2)
         formset = Formset(initial=[{"username": "apollo11"}, {"username": "apollo12"}])
@@ -359,6 +370,15 @@ class FormfieldCallbackTests(TestCase):
     """
 
     def test_inlineformset_factory_default(self):
+        """
+
+        Verifies the creation of an inline formset for UserSite instances associated with a User, 
+        using the UserSiteForm and checking the correctness of its fields.
+
+        The test checks that the id and data fields in the form use the CustomWidget, 
+        and that the id field does not use localization, while the data field does.
+
+        """
         Formset = inlineformset_factory(
             User, UserSite, form=UserSiteForm, fields="__all__"
         )
@@ -369,6 +389,13 @@ class FormfieldCallbackTests(TestCase):
         self.assertTrue(form.fields["data"].localize)
 
     def test_modelformset_factory_default(self):
+        """
+        Tests the modelformset_factory using default parameters to verify the correct instantiation of forms.
+
+        The test checks that the form widget for 'id' and 'data' fields is an instance of CustomWidget.
+
+        Additionally, it verifies that the 'id' field is not localized and the 'data' field is localized as expected.
+        """
         Formset = modelformset_factory(UserSite, form=UserSiteForm)
         form = Formset().forms[0]
         self.assertIsInstance(form["id"].field.widget, CustomWidget)

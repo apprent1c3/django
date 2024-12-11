@@ -24,6 +24,12 @@ class IriencodeTests(SimpleTestCase):
 
     @setup({"iriencode03": "{{ url|iriencode }}"})
     def test_iriencode03(self):
+        """
+        Tests the rendering of iriencode template filter with a query string.
+        The function verifies that the filter does not encode the query string when the input URL contains query parameters. 
+        This ensures that URLs with query parameters are rendered correctly without modification.
+        The test case covers a specific scenario where the input URL has a query string and checks that the output matches the expected result.
+        """
         output = self.engine.render_to_string(
             "iriencode03", {"url": mark_safe("?test=1&me=2")}
         )
@@ -33,6 +39,9 @@ class IriencodeTests(SimpleTestCase):
         {"iriencode04": "{% autoescape off %}{{ url|iriencode }}{% endautoescape %}"}
     )
     def test_iriencode04(self):
+        """
+        Tests that the iriencode filter correctly handles URLs with query parameters when autoescaping is disabled, ensuring that the output matches the expected URL string without any unintended character encoding.
+        """
         output = self.engine.render_to_string(
             "iriencode04", {"url": mark_safe("?test=1&me=2")}
         )

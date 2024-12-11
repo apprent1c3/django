@@ -37,6 +37,10 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_bookmarklets(self):
+        """
+        Tests if the bookmarklets page contains a link to the views documentation, 
+        verifying that admindocs bookmarklets are correctly generated and displayed.
+        """
         response = self.client.get(reverse("django-admindocs-bookmarklets"))
         self.assertContains(response, "/admindocs/views/")
 
@@ -81,6 +85,22 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_view_detail(self):
+        """
+        čast|\Tests a view detail page to ensure it displays the expected information.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Notes:
+            This test sends a GET request to the view detail page for the specified view, 
+            and verifies that the response contains the expected text.
+
+        Raises:
+            AssertionError: If the expected text is not found in the response.
+        """
         url = reverse(
             "django-admindocs-views-detail",
             args=["django.contrib.admindocs.views.BaseAdminDocsView"],
@@ -145,6 +165,17 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, "view_for_loader_test.html</code></li>")
 
     def test_missing_docutils(self):
+        """
+
+        Tests the admin documentation system when the docutils library is missing.
+
+        Checks that the system correctly renders an error message when the docutils library is not available,
+        informing users that the library needs to be installed by administrators.
+
+        Verifies that the error message includes links to the docutils library documentation and installation page,
+        as well as the site name and link to the Django administration page.
+
+        """
         utils.docutils_is_available = False
         try:
             response = self.client.get(reverse("django-admindocs-docroot"))
@@ -316,6 +347,21 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertContains(self.response, "<td>a_cached_property</td>")
 
     def test_method_data_types(self):
+        """
+        Tests the data types of return values from specific methods in the Person class.
+
+        This test case verifies that the return types of the get_status_count and get_groups_list 
+        methods match the expected data types, which are Integer and List respectively. 
+
+        The test creates a company and a person associated with that company, 
+        and then checks the return data types of the methods to ensure consistency.
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the return data types do not match the expected types.
+        """
         company = Company.objects.create(name="Django")
         person = Person.objects.create(
             first_name="Human", last_name="User", company=company
@@ -380,6 +426,13 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertIn('"include" directive disabled', out)
 
     def test_model_with_many_to_one(self):
+        """
+
+        Tests the admin documentation view for a model with a many-to-one relationship.
+
+        Verifies that the view correctly displays information about the number of related objects and provides a link to view all related objects.
+
+        """
         link = '<a class="reference external" href="/admindocs/models/%s/">%s</a>'
         response = self.client.get(
             reverse("django-admindocs-models-detail", args=["admin_docs", "company"])
@@ -407,6 +460,25 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertEqual(len(fields), 2)
 
     def test_model_docstring_renders_correctly(self):
+        """
+        Tests that the documentation for a model renders correctly in the Sphinx documentation.
+
+        This test case checks that the model's summary, subheading, body and model body
+        are correctly rendered in the HTML response. The model body includes information
+        about the model's fields, such as the company field, and its relationship to 
+        other models, like myapp.Company.
+
+        The test verifies that the response contains the expected HTML elements,
+        including headings, paragraphs, and links, to ensure that the documentation 
+        is correctly formatted and accessible.
+
+        It also checks for specific instructions, like the use of save_changes() when 
+        saving the object, to ensure that important notes are properly displayed.
+
+        The purpose of this test is to ensure that the documentation for the model 
+        is accurate, complete, and easy to understand, making it a valuable resource 
+        for developers working with the model.
+        """
         summary = (
             '<h2 class="subhead"><p>Stores information about a person, related to '
             '<a class="reference external" href="/admindocs/models/myapp.company/">'
@@ -433,6 +505,13 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertContains(self.response, "<h1>admin_docs.Person</h1>", html=True)
 
     def test_app_not_found(self):
+        """
+        Tests that a 404 error is correctly raised when trying to access a model detail page for a non-existent application. 
+
+        The test simulates a GET request to the model detail page for a model named 'Person' in an application named 'doesnotexist'. 
+
+        It then verifies that the response status code is 404, indicating that the requested application was not found, and that the response context contains the expected exception message.
+        """
         response = self.client.get(
             reverse("django-admindocs-models-detail", args=["doesnotexist", "Person"])
         )
@@ -472,6 +551,14 @@ class TestFieldType(unittest.TestCase):
         )
 
     def test_char_fields(self):
+        """
+        Tests the get_readable_field_data_type function for character fields.
+
+        This test case checks the function's output for CharField instances, 
+        verifying that it correctly returns a human-readable data type string. 
+        The test covers both cases where a maximum length is specified and where it is not, 
+        ensuring the function behaves as expected in different scenarios.
+        """
         self.assertEqual(
             views.get_readable_field_data_type(fields.CharField(max_length=255)),
             "String (up to 255)",

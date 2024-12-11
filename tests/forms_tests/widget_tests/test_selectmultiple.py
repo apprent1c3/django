@@ -121,6 +121,23 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_compare_string(self):
+        """
+
+        Test the comparison of a string in the widget with multiple choices.
+
+        This test case verifies that the widget generates the correct HTML for a
+        select multiple input field with the provided choices and selected value.
+        It checks that the output remains consistent whether the selected value is
+        passed as an integer or a string.
+
+        The test covers the following scenarios:
+        - The selected value is passed as an integer.
+        - The selected value is passed as a string.
+
+        The expected output is a select multiple input field with the correct
+        options and the specified option selected.
+
+        """
         choices = [("1", "1"), ("2", "2"), ("3", "3")]
 
         self.check_html(
@@ -163,6 +180,20 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_optgroup_select_multiple(self):
+        """
+
+        Tests the rendering of a SelectMultiple widget with nested optgroup choices.
+
+        Checks that the widget correctly renders an HTML select element with multiple
+        selection enabled, containing an optgroup with a label and nested options.
+        Verifies that the selected options are properly marked as selected in the HTML output.
+
+        The test covers the following scenarios:
+        - A single top-level option
+        - An optgroup with multiple nested options
+        - Selecting options from both top-level and nested groups
+
+        """
         widget = SelectMultiple(
             choices=(
                 ("outer1", "Outer 1"),
@@ -192,6 +223,15 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Test that a form fieldset is correctly rendered.
+
+        This test case checks that a form field is properly displayed without using a fieldset,
+        when the widget's use_fieldset attribute is set to False. The test creates a sample form 
+        with a choice field, and verifies that the rendered HTML matches the expected output.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

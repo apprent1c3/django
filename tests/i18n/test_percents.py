@@ -19,6 +19,16 @@ class FrenchTestCase(SimpleTestCase):
     PO_FILE = os.path.join(SAMPLEPROJECT_LOCALE, "fr", "LC_MESSAGES", "django.po")
 
     def setUp(self):
+        """
+        Sets up the environment for testing by retrieving the current language and 
+        available translations, then activates French as the default language for the test suite.
+
+        This method is used to establish a consistent language context for tests, ensuring 
+        that language-related functionality is properly exercised and verified.
+
+        :returns: None
+        :rtype: None
+        """
         self._language = get_language()
         self._translations = trans_real._translations
         activate("fr")
@@ -114,6 +124,23 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
         self.assertEqual(block_tpl.render(Context({})), expected)
 
     def test_translates_with_percent_symbol_using_context(self):
+        """
+        Tests translation functionality with percent symbol using context.
+
+        This function verifies that strings containing percent symbols can be properly translated
+        using both the 'translate' and 'blocktranslate' template tags, with and without context.
+        The context is used to determine the correct translation for phrases that may have different
+        translations based on the context, such as male or female subjects.
+
+        The test cases cover the following scenarios:
+        - Translation of a string with a percent symbol using the default context
+        - Translation of a string with a percent symbol using a specified context
+        - Translation of a string with a percent symbol using the 'blocktranslate' tag and default context
+        - Translation of a string with a percent symbol using the 'blocktranslate' tag and a specified context
+
+        The expected translations are compared to the actual output of the template rendering to ensure
+        that the translation functionality is working correctly.
+        """
         trans_tpl = Template('{% load i18n %}{% translate "It is 100%" %}')
         self.assertEqual(trans_tpl.render(Context({})), "Il est de 100%")
         trans_tpl = Template(

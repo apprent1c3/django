@@ -37,6 +37,17 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged03(self):
+        """
+
+        Tests the ifchanged template tag with a list of identical values.
+
+        This test case verifies that the ifchanged tag correctly handles a sequence of
+        identical values and only outputs the value once. The test uses a template that
+        iterates over a list of numbers using a for loop and applies the ifchanged tag
+        to conditionally output the numbers. The expected output is a single instance of
+        the number, confirming that the ifchanged tag suppresses duplicate values.
+
+        """
         output = self.engine.render_to_string("ifchanged03", {"num": (1, 1, 1)})
         self.assertEqual(output, "1")
 
@@ -48,6 +59,19 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged04(self):
+        """
+
+        Tests the ifchanged template tag with nested for loops.
+
+        This test case evaluates the rendering of a template that uses the ifchanged tag
+        inside two nested for loops. The ifchanged tag is used to only output a value
+        if it has changed since the last iteration of the loop. The test checks that
+        the output of the template is correct when the input values are provided as tuples.
+
+        The expected output is a string containing the rendered values, with repeated
+        values omitted due to the ifchanged tag.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged04", {"num": (1, 2, 3), "numx": (2, 2, 2)}
         )
@@ -287,6 +311,17 @@ class IfChangedTests(SimpleTestCase):
         # The generator is not passed to the 'for' loop, because it does a list(values)
         # instead, call gen.next() in the template to control the generator.
         def gen():
+            """
+
+            Generate a sequence of numbers.
+
+            This generator function produces a series of numbers, with a side effect of 
+            rendering a template using a specific context and asserting its output.
+
+            Yields:
+                int: The next number in the sequence.
+
+            """
             yield 1
             yield 2
             # Simulate that another thread is now rendering.

@@ -41,6 +41,20 @@ class M2MDeserializationError(Exception):
     """Something bad happened during deserialization of a ManyToManyField."""
 
     def __init__(self, original_exc, pk):
+        """
+        Initializes an exception object.
+
+        Parameters
+        ----------
+        original_exc : Exception
+            The original exception that occurred.
+        pk : object
+            The primary key associated with the exception.
+
+        This initializer sets the stage for storing and handling exceptions, allowing for 
+        further processing and analysis of the error that occurred, linked to a specific 
+        identifier (pk).
+        """
         self.original_exc = original_exc
         self.pk = pk
 

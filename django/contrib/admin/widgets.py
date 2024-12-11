@@ -178,6 +178,11 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return context
 
     def base_url_parameters(self):
+        """
+        Returns URL parameters derived from the limit choices configuration of the related field.
+        The function processes the `limit_choices_to` parameter, which can be either a static value or a callable that returns the value.
+        It then transforms the processed `limit_choices_to` value into URL parameters, providing a way to encode query constraints in the URL.
+        """
         limit_choices_to = self.rel.limit_choices_to
         if callable(limit_choices_to):
             limit_choices_to = limit_choices_to()
@@ -261,6 +266,25 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         can_delete_related=False,
         can_view_related=False,
     ):
+        """
+
+        Initialize a related object widget for the Django admin interface.
+
+        This widget is used to render a related object field in the admin interface.
+        It determines the capabilities of the widget, such as whether the user can add, change, delete, or view related objects.
+
+        The widget's behavior is influenced by the provided admin site, the related object's model, and the widget's own properties.
+        The capabilities are automatically determined based on the model's registration status and the widget's configuration.
+
+        :param widget: The widget used to render the related object field.
+        :param rel: The related object field.
+        :param admin_site: The admin site where the widget is being used.
+        :param can_add_related: Whether the user can add new related objects. Defaults to whether the related model is registered on the admin site.
+        :param can_change_related: Whether the user can change existing related objects. Defaults to False.
+        :param can_delete_related: Whether the user can delete related objects. Defaults to False.
+        :param can_view_related: Whether the user can view related objects. Defaults to False.
+
+        """
         self.needs_multipart_form = widget.needs_multipart_form
         self.attrs = widget.attrs
         self.widget = widget

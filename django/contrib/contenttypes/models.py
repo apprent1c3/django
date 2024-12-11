@@ -147,6 +147,13 @@ class ContentType(models.Model):
 
     @property
     def name(self):
+        """
+        Gets the name of the model.
+
+        Returns the verbose name of the model class if it exists, otherwise returns the model attribute. The verbose name is a human-readable name of the model, which can be used in user interfaces or documentation.
+
+        :rtype: str
+        """
         model = self.model_class()
         if not model:
             return self.model

@@ -153,6 +153,20 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_array_agg_charfield_ordering(self):
+        """
+
+        Tests the ArrayAgg aggregation function with various ordering options for a CharField.
+
+        Verifies that the ArrayAgg function correctly aggregates and orders the results based on the provided ordering arguments.
+        The test covers a range of scenarios, including ascending and descending ordering, multiple fields, 
+        and using database functions such as Concat and Substr.
+
+        :param ordering: The ordering arguments to test, including field names, F expressions, and database functions.
+        :param expected_output: The expected aggregated and ordered results for each test case.
+
+        :raises AssertionError: If the actual aggregated and ordered results do not match the expected output.
+
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -186,6 +200,13 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(values, {"arrayagg": expected_output})
 
     def test_array_agg_integerfield(self):
+        """
+        Tests the use of the ArrayAgg aggregation function on an IntegerField to collect values from a queryset into an array.
+
+        The function verifies that the ArrayAgg function correctly aggregates values from the 'integer_field' of a model instance, returning them as a list. 
+
+        It checks that the resulting array matches the expected output, ensuring the aggregation is accurate and in the correct order.
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("integer_field")
         )
@@ -217,6 +238,13 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(values, {"arrayagg": expected_output})
 
     def test_array_agg_jsonfield(self):
+        """
+        Aggregate an array of 'lang' values from 'json_field' for objects with non-null 'lang' in their 'json_field', testing the functionality of ArrayAgg with KeyTransform in the context of a JSONField. 
+
+        This test case checks that the aggregation produces the expected output, verifying the correctness of the array aggregation operation. 
+
+        It ensures the arrayagg function can correctly extract specific values from a JSON field, filter out objects with null values, and return the resulting list of 'lang' values.
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg(
                 KeyTransform("lang", "json_field"),
@@ -226,6 +254,18 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": ["pl", "en"]})
 
     def test_array_agg_jsonfield_ordering(self):
+        """
+        Tests the ArrayAgg aggregation function with a JSONField to ensure correct ordering.
+
+        This test verifies that the ArrayAgg function can properly aggregate JSON field values based on a specific key,
+         filters out null values, and maintains the correct order of the aggregated values.
+
+        The test case checks if the aggregated values are returned in the expected order, 
+        which in this case is ['en', 'pl'], to validate the correctness of the ArrayAgg function 
+        when used with JSONField and KeyTransform ordering. 
+
+        :raises AssertionError: if the aggregated values do not match the expected output. 
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg(
                 KeyTransform("lang", "json_field"),
@@ -252,6 +292,20 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": [1, 2]})
 
     def test_array_agg_lookups(self):
+        """
+
+        Tests the usage of array aggregation lookup for filtering.
+
+        This test checks that the ArrayAgg lookup is correctly applied when used with the 
+        overlap lookup type, to find related objects where the aggregated array of values 
+        overlaps with the specified value.
+
+        The test creates related objects with different integer values, applies array 
+        aggregation to group these values by a foreign key, filters the aggregated arrays 
+        for overlap with a specific value, and then verifies that the resulting array 
+        matches the expected values.
+
+        """
         aggr1 = AggregateTestModel.objects.create()
         aggr2 = AggregateTestModel.objects.create()
         StatTestModel.objects.create(related_field=aggr1, int1=1, int2=0)
@@ -310,6 +364,11 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs, [[], [5]])
 
     def test_bit_and_general(self):
+        """
+        Tests the general functionality of the BitAnd aggregation function.
+
+        Verifies that when applied to a set of values containing 0 and 1, the result of a bitwise AND operation is correctly calculated as 0, ensuring the function behaves as expected in a typical use case.
+        """
         values = AggregateTestModel.objects.filter(integer_field__in=[0, 1]).aggregate(
             bitand=BitAnd("integer_field")
         )
@@ -353,18 +412,43 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"bitxor": 2})
 
     def test_bit_xor_on_only_true_values(self):
+        """
+        Tests that the bitwise XOR aggregation function correctly handles a set of values where all values are true (i.e., equal to 1). 
+        Verifies that the result of the XOR operation on these values is 1, as expected due to the properties of bitwise XOR, 
+        where 1 XOR 1 equals 0, but since XOR is commutative and associative, and 1 XOR 1 XOR 1 equals 1, the result here confirms the function's correctness 
+        when dealing with a specific aggregate query on the `integer_field` of `AggregateTestModel` instances.
+        """
         values = AggregateTestModel.objects.filter(
             integer_field=1,
         ).aggregate(bitxor=BitXor("integer_field"))
         self.assertEqual(values, {"bitxor": 1})
 
     def test_bit_xor_on_only_false_values(self):
+        """
+        Tests the bit xor aggregation function on a set of values where all integer_field values are 0.
+
+        This test case ensures that the bit xor operation returns the expected result when all input values are false (i.e., 0).
+
+        The test verifies that the aggregated result is 0, as expected when performing a bit xor operation on a set of identical false values.
+        """
         values = AggregateTestModel.objects.filter(
             integer_field=0,
         ).aggregate(bitxor=BitXor("integer_field"))
         self.assertEqual(values, {"bitxor": 0})
 
     def test_bool_and_general(self):
+        """
+        Tests the BoolAnd aggregation function on a queryset.
+
+        This test case verifies that the BoolAnd function correctly aggregates boolean values 
+        from a model's field and returns the expected result. The test checks if the aggregated 
+        result is False, which indicates that at least one of the boolean values in the field is False.
+
+        The test is useful for ensuring the correct behavior of the aggregation function, 
+        especially when dealing with large datasets or complex queries. 
+
+        :raises AssertionError: If the aggregated result does not match the expected value.
+        """
         values = AggregateTestModel.objects.aggregate(booland=BoolAnd("boolean_field"))
         self.assertEqual(values, {"booland": False})
 
@@ -401,6 +485,20 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"stringagg": "Foo1;Foo2;Foo4;Foo3"})
 
     def test_string_agg_default_output_field(self):
+        """
+        Tests the default output field of the string aggregation function.
+
+        Verifies that the StringAgg function aggregates text fields from a queryset 
+        and returns the result as a single string with a specified delimiter. The 
+        function checks if the aggregated string matches the expected output, 
+        ensuring the correct functionality of the StringAgg function.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the aggregated string does not match the expected output.
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg("text_field", delimiter=";"),
         )
@@ -445,6 +543,11 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"stringagg": "Foo1;Foo3"})
 
     def test_orderable_agg_alternative_fields(self):
+        """
+        Tests the use of an alternative field in an orderable aggregate operation.
+
+        This test case verifies that the ArrayAgg aggregation function can be used with a field other than the one being aggregated to determine the order of the resulting array. The test checks if the arrayagg function, when applied to 'integer_field', returns the correct ordered array when ordered by 'char_field' in ascending order.
+        """
         values = AggregateTestModel.objects.aggregate(
             arrayagg=ArrayAgg("integer_field", ordering=F("char_field").asc())
         )
@@ -455,6 +558,22 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_jsonb_agg_charfield_ordering(self):
+        """
+
+        Tests the ordering functionality of the JSONBAgg aggregation function on a character field.
+
+        This function verifies that the JSONBAgg aggregation function correctly orders the aggregated values
+        according to the specified ordering, whether it be ascending, descending, or a custom ordering.
+
+        It checks the ordering of the aggregated values for various test cases, including:
+        - Ascending and descending ordering using a model field
+        - Ascending and descending ordering using a string representation of a model field
+        - Ordering using a database function (e.g., Concat)
+        - Ordering using a database function with a descending modifier
+
+        Each test case compares the resulting aggregated values with an expected output to ensure the correct ordering.
+
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -501,6 +620,18 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["en", "pl"]})
 
     def test_jsonb_agg_key_index_transforms(self):
+        """
+
+        Tests that the JSONB aggregation of hotel reservation requirements transforms the requirements in the correct order.
+
+        This test creates multiple hotel reservations for different rooms with varying requirements, 
+        and checks that the aggregation of these requirements for each room, ordered by start date in descending order, 
+        produces the expected output. It specifically verifies that the most recent requirements are returned first.
+
+        The requirements are aggregated as a list of dictionaries, where each dictionary contains the requirements for a specific reservation.
+        The test checks that the aggregated requirements are correctly filtered based on a specific condition (in this case, sea view).
+
+        """
         room101 = Room.objects.create(number=101)
         room102 = Room.objects.create(number=102)
         datetimes = [
@@ -553,6 +684,26 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_string_agg_array_agg_ordering_in_subquery(self):
+        """
+        Tests the ordering of aggregate functions ArrayAgg and StringAgg when used in a subquery.
+
+        This function creates sample data, comprising AggregateTestModel instances and their related StatTestModel instances.
+        It then verifies that the results of ArrayAgg and StringAgg aggregate functions, applied to the sample data, 
+        match the expected output when ordered by a specific field in a subquery. The test covers both ascending and descending ordering scenarios.
+
+        The function checks that the aggregate functions return the correct values for each AggregateTestModel instance,
+        and that these values are ordered correctly according to the specified ordering criteria.
+
+        Parameters:
+        None
+
+        Returns:
+        None
+
+        Raises:
+        AssertionError: If the results of the aggregate functions do not match the expected output.
+
+        """
         stats = []
         for i, agg in enumerate(AggregateTestModel.objects.order_by("char_field")):
             stats.append(StatTestModel(related_field=agg, int1=i, int2=i + 1))
@@ -709,6 +860,17 @@ class TestAggregateDistinct(PostgreSQLTestCase):
         self.assertEqual(values["stringagg"].count("Bar"), 1)
 
     def test_string_agg_distinct_true(self):
+        """
+        Tests the string aggregation function with distinct values set to True.
+
+        This test case verifies that the StringAgg function correctly aggregates
+        distinct string values from a set of objects, separated by a specified delimiter.
+
+        The test expects the aggregated string to contain each distinct value only once,
+        regardless of how many times it appears in the original data. The test checks
+        for the presence of specific values ('Foo' and 'Bar') in the aggregated string,
+        confirming that they appear exactly once.
+        """
         values = AggregateTestModel.objects.aggregate(
             stringagg=StringAgg("char_field", delimiter=" ", distinct=True)
         )
@@ -743,6 +905,20 @@ class TestAggregateDistinct(PostgreSQLTestCase):
 class TestStatisticsAggregate(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This method creates a set of StatTestModel instances with predefined values, 
+        each related to an AggregateTestModel instance. The test data is used as 
+        a fixture to support testing of the class's functionality.
+
+        The created StatTestModel instances have the following attribute values:
+        - int1: integer values (1, 2, 3)
+        - int2: integer values (3, 2, 1)
+        - related_field: related AggregateTestModel instances with integer_field values (0, 1, 2)
+
+        """
         StatTestModel.objects.create(
             int1=1,
             int2=3,
@@ -766,11 +942,19 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
             StatAggregate(x=None, y=None)
 
     def test_correct_source_expressions(self):
+        """
+        Tests that the source expressions for a StatAggregate function are correctly identified and typed.
+
+        The function verifies that the source expressions in a StatAggregate instance contain a Value and a Field (represented by F), which are essential for specifying the data to be aggregated and analyzed.
+        """
         func = StatAggregate(x="test", y=13)
         self.assertIsInstance(func.source_expressions[0], Value)
         self.assertIsInstance(func.source_expressions[1], F)
 
     def test_alias_is_required(self):
+        """
+        Tests that using a complex aggregate function without specifying an alias raises a TypeError. The test case verifies that the error message correctly indicates the requirement of an alias for complex aggregates.
+        """
         class SomeFunc(StatAggregate):
             function = "TEST"
 
@@ -850,6 +1034,13 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"covarpop": Approximate(-0.66, places=1)})
 
     def test_covar_pop_sample(self):
+        """
+        Tests the calculation of population covariance for a sample dataset using the CovarPop aggregation function.
+
+        The function aggregates data from the StatTestModel, computing the covariance between 'int1' and 'int2' with the specification that this is a sample of the population.
+
+        It then asserts that the calculated covariance matches the expected value of -1.0.
+        """
         values = StatTestModel.objects.aggregate(
             covarpop=CovarPop(y="int2", x="int1", sample=True)
         )
@@ -860,16 +1051,36 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"regravgx": 2.0})
 
     def test_regr_avgy_general(self):
+        """
+        Tests the regression average y (RegrAvgY) functionality for general cases.
+
+        Verifies that the calculated average y value from a linear regression 
+        analysis is correctly computed and matches the expected result.
+
+        The test checks the average y value based on the 'int2' and 'int1' fields 
+        in the StatTestModel, ensuring the output is as anticipated.
+        """
         values = StatTestModel.objects.aggregate(regravgy=RegrAvgY(y="int2", x="int1"))
         self.assertEqual(values, {"regravgy": 2.0})
 
     def test_regr_count_general(self):
+        """
+        Tests the regression count functionality.
+
+        Verifies that the function correctly calculates the count of regression values 
+        based on the provided y and x values. The test checks that the output matches 
+        the expected count of 3. This is done by aggregating data from the StatTestModel 
+        using the RegrCount method and comparing the result with the known expected value.
+        """
         values = StatTestModel.objects.aggregate(
             regrcount=RegrCount(y="int2", x="int1")
         )
         self.assertEqual(values, {"regrcount": 3})
 
     def test_regr_count_default(self):
+        """
+        Tests that creating a RegrCount object with a default value raises a TypeError, as default values are not permitted for this object type.
+        """
         msg = "RegrCount does not allow default."
         with self.assertRaisesMessage(TypeError, msg):
             RegrCount(y="int2", x="int1", default=0)
@@ -899,6 +1110,11 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"regrsxy": -2.0})
 
     def test_regr_syy_general(self):
+        """
+        Tests the calculation of the regression sum of squared errors (SYY) for a general case.
+
+        This test case verifies that the RegrSYY aggregation function correctly computes the sum of squared errors between the predicted and actual values, using 'int1' as the independent variable (x) and 'int2' as the dependent variable (y), and checks that the result matches the expected value of 2.0.
+        """
         values = StatTestModel.objects.aggregate(regrsyy=RegrSYY(y="int2", x="int1"))
         self.assertEqual(values, {"regrsyy": 2.0})
 

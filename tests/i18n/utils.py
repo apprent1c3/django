@@ -12,6 +12,20 @@ def copytree(src, dst):
 
 class POFileAssertionMixin:
     def _assertPoKeyword(self, keyword, expected_value, haystack, use_quotes=True):
+        """
+        Asserts that a specific keyword with an expected value exists in a PO file haystack.
+
+        This function searches for the presence of a keyword-value pair within the provided haystack.
+        It optionally encloses the expected value in single quotes if use_quotes is False, otherwise it defaults to double quotes.
+        The search is performed across multiple lines in the haystack.
+
+        :arg keyword: The keyword to be searched in the haystack
+        :arg expected_value: The expected value associated with the keyword
+        :arg haystack: The PO file content to be searched
+        :arg use_quotes: Optional flag to determine whether double or single quotes should be used. Defaults to True.
+        :returns: True if the keyword with the expected value is found, False otherwise
+        :raises AssertionError: If the keyword with the expected value is not found in the haystack
+        """
         q = '"'
         if use_quotes:
             expected_value = '"%s"' % expected_value
@@ -43,6 +57,17 @@ class RunInTmpDirMixin:
     """
 
     def setUp(self):
+        """
+
+        Setup a temporary working directory for testing purposes.
+
+        This function creates a temporary directory with a unique prefix, copies the contents of a specified work directory into it, and changes the current working directory to the newly created test directory.
+
+        The temporary directory is set to be removed after the test is completed, along with a return to the original working directory. This ensures a clean and isolated test environment.
+
+        :raises: No exceptions are explicitly raised, but any errors during directory creation or copying may propagate up.
+
+        """
         self._cwd = os.getcwd()
         self.work_dir = tempfile.mkdtemp(prefix="i18n_")
         # Resolve symlinks, if any, in test directory paths.
@@ -56,6 +81,15 @@ class RunInTmpDirMixin:
         os.chdir(self.test_dir)
 
     def _rmrf(self, dname):
+        """
+
+        Removes a directory and its contents if it is a subdirectory of the test directory.
+
+        This function checks if the provided directory :param:`dname` is within the test directory.
+        If it is, the function deletes the directory and all its contents.
+        If the directory is not within the test directory, the function takes no action.
+
+        """
         if (
             os.path.commonprefix([self.test_dir, os.path.abspath(dname)])
             != self.test_dir

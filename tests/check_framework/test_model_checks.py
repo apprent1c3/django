@@ -20,6 +20,15 @@ class EmptyRouter:
 @override_system_checks([checks.model_checks.check_all_models])
 class DuplicateDBTableTests(SimpleTestCase):
     def test_collision_in_same_app(self):
+        """
+
+        Tests the detection of database table name collisions between multiple models within the same application.
+
+        The function verifies that the checks system correctly identifies and reports an error when two or more models are configured to use the same database table. 
+
+        It expects the checks system to raise an error indicating that the database table is used by multiple models, providing the names of the conflicting models and the table name.
+
+        """
         class Model1(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -72,6 +81,19 @@ class DuplicateDBTableTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+
+        Tests database table name collisions across multiple Django applications.
+
+        This test case checks if the framework correctly identifies and reports
+        conflicts when the same database table name is used by models from different
+        Django apps.
+
+        The test simulates a collision by defining two models, each from a separate
+        app, that attempt to use the same database table name. It then verifies that
+        the framework's checks correctly detect and report this conflict as an error.
+
+        """
         class Model1(models.Model):
             class Meta:
                 app_label = "basic"
@@ -173,6 +195,17 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_collision_in_different_models(self):
+        """
+
+        Tests that creating indexes with the same name in different models results in a check error.
+
+        This test verifies that the system correctly identifies and reports duplicate index names across multiple models, 
+        ensuring data integrity and consistency in database schema design.
+
+        The check raises an error with code 'models.E030' when an index name is not unique among models, 
+        providing information about the conflicting models.
+
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model1(models.Model):
@@ -195,6 +228,11 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_collision_abstract_model(self):
+        """
+        Test that the system correctly identifies non-unique index names among models inheriting from an abstract model.
+
+        This test case verifies that the checks system can detect duplicate index names across different models that inherit from the same abstract base class. It ensures that the system raises an error when it encounters models with non-unique index names, providing a clear message indicating the conflicting models and the index name causing the issue.
+        """
         class AbstractModel(models.Model):
             class Meta:
                 indexes = [models.Index(fields=["id"], name="foo")]
@@ -218,6 +256,11 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+        Checks that having multiple abstract models with the same index name does not lead to any database integrity errors or collisions during model interpolation.
+
+        This test verifies that the index names generated for the abstract model are properly prefixed with the app label and class name, ensuring uniqueness and preventing any potential conflicts between similar models in different applications.
+        """
         class AbstractModel(models.Model):
             name = models.CharField(max_length=20)
 
@@ -539,6 +582,16 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
 
     @isolate_apps("check_framework.apps.CheckPKConfig", kwarg_name="apps")
     def test_app_default_auto_field(self, apps):
+        """
+
+        Verifies that the default auto field setting is applied correctly in an app.
+
+        This test case uses a custom model, :class:`~ModelWithPkViaAppConfig`, to verify that
+        the default auto field setting, as specified in the app configuration, is applied as expected.
+        It checks for any errors or warnings raised during the validation of the app's models.
+        If no issues are found, the test passes; otherwise, it fails and reports the encountered errors.
+
+        """
         class ModelWithPkViaAppConfig(models.Model):
             class Meta:
                 app_label = "check_framework.apps.CheckPKConfig"

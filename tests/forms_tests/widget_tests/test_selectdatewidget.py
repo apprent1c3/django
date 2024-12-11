@@ -271,6 +271,11 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_custom_months(self):
+        """
+        Tests the rendering of a custom date selection widget with non-standard month names. 
+        The test creates a SelectDateWidget with custom months and a single year, 
+        and then checks that the generated HTML matches the expected output.
+        """
         widget = SelectDateWidget(months=MONTHS_AP, years=("2013",))
         self.check_html(
             widget,
@@ -338,6 +343,18 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_selectdate_required(self):
+        """
+
+        Tests the behavior of the SelectDateWidget inrelation to the required field attribute.
+
+        This test case ensures that the SelectDateWidget correctly reflects the required
+        status of a DateField in a form, when the required attribute is set to True or False.
+        It verifies that the widget is aware of its required status and behaves accordingly.
+
+        The test covers two scenarios: one where the DateField is not required and another
+        where it is, to validate the widget's behavior in both cases.
+
+        """
         class GetNotRequiredDate(Form):
             mydate = DateField(widget=SelectDateWidget, required=False)
 

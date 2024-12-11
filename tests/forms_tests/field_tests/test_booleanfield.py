@@ -42,6 +42,17 @@ class BooleanFieldTest(SimpleTestCase):
         self.assertIsInstance(pickle.loads(pickle.dumps(BooleanField())), BooleanField)
 
     def test_booleanfield_changed(self):
+        """
+        Tests the has_changed method of a BooleanField.
+
+        This method checks whether the value of a boolean field has changed between 
+        two states. It handles both boolean and string representations of boolean 
+        values, and returns True if the value has changed and False otherwise. 
+
+        This is useful for tracking changes to boolean fields in forms and models, 
+        where a field's value may be represented as a boolean, or as a string such 
+        as 'on' or 'off'.
+        """
         f = BooleanField()
         self.assertFalse(f.has_changed(None, None))
         self.assertFalse(f.has_changed(None, ""))
@@ -60,5 +71,13 @@ class BooleanFieldTest(SimpleTestCase):
         self.assertTrue(f.has_changed(True, "False"))
 
     def test_disabled_has_changed(self):
+        """
+        Tests that the has_changed method returns False for a disabled BooleanField.
+
+        When a BooleanField is disabled, its value should not be considered as changed, 
+        even if the new value is different from the initial value. This test ensures 
+        that the has_changed method behaves as expected in such scenarios, 
+        by verifying that it returns False when called with different values for a disabled field.
+        """
         f = BooleanField(disabled=True)
         self.assertIs(f.has_changed("True", "False"), False)

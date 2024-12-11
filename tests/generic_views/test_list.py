@@ -34,6 +34,15 @@ class ListViewTests(TestCase):
         )
 
     def test_items(self):
+        """
+
+        Tests the retrieval of items from the '/list/dict/' endpoint.
+
+        Verifies that the HTTP request returns a successful status code (200),
+        that the 'generic_views/list.html' template is used for rendering, and
+        that the first item in the result list has the expected 'first' attribute value.
+
+        """
         res = self.client.get("/list/dict/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/list.html")
@@ -104,6 +113,14 @@ class ListViewTests(TestCase):
         self.assertEqual(res.context["page_obj"].number, 3)
 
     def test_paginated_page_out_of_range(self):
+        """
+        Tests that a paginated page with an out-of-range page number returns a 404 status code.
+
+        This test case verifies the behavior of the paginated author list endpoint when
+        attempting to access a page that exceeds the total number of available pages.
+        It ensures that the API correctly handles such requests and returns a \"Not Found\"
+        response instead of attempting to process the invalid page number.
+        """
         self._make_authors(100)
         res = self.client.get("/list/authors/paginated/42/")
         self.assertEqual(res.status_code, 404)
@@ -114,6 +131,15 @@ class ListViewTests(TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_paginated_custom_paginator_class(self):
+        """
+        Tests the paginated view with a custom paginator class.
+
+        This test case creates a set of authors and then sends a GET request to the 
+        paginated authors endpoint. It verifies that the response status code is 200, 
+        indicating a successful request. Additionally, it checks that the paginator 
+        instance in the response context has the correct number of pages and that the 
+        number of authors in the object list matches the expected count.
+        """
         self._make_authors(7)
         res = self.client.get("/list/authors/paginated/custom_class/")
         self.assertEqual(res.status_code, 200)
@@ -122,6 +148,13 @@ class ListViewTests(TestCase):
         self.assertEqual(len(res.context["object_list"]), 7)
 
     def test_paginated_custom_page_kwarg(self):
+        """
+        Tests the paginated view for authors with a custom page keyword.
+
+        This test ensures that the paginated view functions correctly when using a custom page keyword ('pagina') instead of the default 'page' parameter.
+        It verifies that the view returns a successful response, uses the correct template, and correctly paginates the author list.
+        The test also checks that the paginated list is correctly populated with authors and that the page object is correctly set to the requested page number.
+        """
         self._make_authors(100)
         res = self.client.get(
             "/list/authors/paginated/custom_page_kwarg/", {"pagina": "2"}
@@ -141,6 +174,17 @@ class ListViewTests(TestCase):
         self.assertEqual(len(res.context["object_list"]), 7)
 
     def test_paginated_orphaned_queryset(self):
+        """
+        ::
+
+            Tests the paginated orphaned queryset view by making a series of requests and 
+            verifying the correctness of the pagination. 
+
+            The test creates a set of authors, then checks the response status code and 
+            pagination context for the first page, the last page, a specific page, and 
+            an invalid page number, ensuring proper handling of pagination and 
+            edge cases.
+        """
         self._make_authors(92)
         res = self.client.get("/list/authors/paginated-orphaned/")
         self.assertEqual(res.status_code, 200)
@@ -192,6 +236,17 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_objects.html")
 
     def test_context_object_name(self):
+        """
+
+         Tests the context object name in the author list view.
+
+         Verifies that the view returns a successful response (200 status code) and 
+         renders the correct template. Additionally, checks that the context contains 
+         the expected 'object_list' and 'author_list' variables, which should be 
+         equivalent, and does not contain an 'authors' variable. This ensures that the 
+         view is correctly populating the context with the list of authors.
+
+        """
         res = self.client.get("/list/authors/context_object_name/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(list(res.context["object_list"]), list(Author.objects.all()))
@@ -225,6 +280,12 @@ class ListViewTests(TestCase):
 
     def test_paginated_list_view_does_not_load_entire_table(self):
         # Regression test for #17535
+        """
+        Checks that the paginated list view for authors does not load the entire table in a single query.
+
+        It tests that a request to the paginated list view results in an expected number of database queries, 
+        assuring efficient data retrieval by only fetching the data for the current page.
+        """
         self._make_authors(3)
         # 1 query for authors
         with self.assertNumQueries(1):

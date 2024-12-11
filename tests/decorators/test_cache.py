@@ -65,6 +65,20 @@ class CacheControlDecoratorTest(SimpleTestCase):
             await MyClass().async_view(HttpRequestProxy(request))
 
     def test_cache_control_decorator_http_request_proxy(self):
+        """
+
+        Tests the cache control decorator on an HTTP request when using a proxy.
+
+        This test case verifies that the cache control decorator correctly sets the Cache-Control
+        header in the HTTP response when the request is passed through a proxy. The test creates a
+        view function with the cache control decorator and then sends an HTTP request to the view
+        using a proxy. It then checks that the Cache-Control header in the response matches the
+        expected value.
+
+        The test ensures that the cache control decorator works correctly in scenarios where the
+        request is proxied, which is an important use case for caching and proxying in web applications.
+
+        """
         class MyClass:
             @method_decorator(cache_control(a="b"))
             def a_view(self, request):
@@ -172,6 +186,13 @@ class NeverCacheDecoratorTest(SimpleTestCase):
 
     def test_never_cache_decorator_expires_not_overridden(self):
         @never_cache
+        """
+
+        Tests the behavior of the never_cache decorator when it is applied to a view function.
+        Specifically, verifies that the 'Expires' header set by the view is not overridden by the decorator.
+        Ensures that the original 'Expires' header value is preserved in the response, even when the never_cache decorator is used.
+
+        """
         def a_view(request):
             return HttpResponse(headers={"Expires": "tomorrow"})
 
@@ -187,6 +208,12 @@ class NeverCacheDecoratorTest(SimpleTestCase):
         self.assertEqual(response.headers["Expires"], "tomorrow")
 
     def test_never_cache_decorator_http_request(self):
+        """
+        ..: 
+            Tests the behavior of the never_cache decorator when applied to a view function 
+            that is an instance method of a class, ensuring it correctly rejects non-HttpRequest 
+            objects and raises the expected TypeError with a helpful error message.
+        """
         class MyClass:
             @never_cache
             def a_view(self, request):
@@ -203,6 +230,15 @@ class NeverCacheDecoratorTest(SimpleTestCase):
             MyClass().a_view(HttpRequestProxy(request))
 
     async def test_never_cache_decorator_http_request_async_view(self):
+        """
+
+        Tests the behavior of the never_cache decorator when applied to an asynchronous view.
+
+        The test verifies that the never_cache decorator raises a TypeError when an HttpRequest object is not properly passed to the decorated view.
+        This ensures that the decorator is correctly handling asynchronous HTTP requests and detecting when an HttpRequest object is missing or incorrectly wrapped.
+        The test covers both direct HttpRequest objects and proxied requests to ensure the decorator behaves as expected in various scenarios.
+
+        """
         class MyClass:
             @never_cache
             async def async_view(self, request):

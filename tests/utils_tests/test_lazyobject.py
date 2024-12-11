@@ -100,6 +100,18 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertNotEqual(obj1, "bar")
 
     def test_lt(self):
+        """
+        Tests the less-than operator functionality.
+
+        This method verifies that the wrapped object comparison works correctly by
+        checking if an object with a value of 1 is considered less than an object
+        with a value of 2.
+
+        The comparison is performed using the assertLess method, ensuring that the
+        expected order is maintained.
+
+        :raises AssertionError: If the comparison does not yield the expected result.
+        """
         obj1 = self.lazy_wrap(1)
         obj2 = self.lazy_wrap(2)
         self.assertLess(obj1, obj2)
@@ -125,6 +137,13 @@ class LazyObjectTestCase(unittest.TestCase):
             self.assertTrue(t)
 
     def test_dir(self):
+        """
+
+        Checks if the lazy wrapper correctly exposes the same attributes as the wrapped object.
+
+        Verifies that the directory of the lazy wrapped object is identical to the directory of the original object.
+
+        """
         obj = self.lazy_wrap("foo")
         self.assertEqual(dir(obj), dir("foo"))
 
@@ -164,6 +183,20 @@ class LazyObjectTestCase(unittest.TestCase):
             self.assertIn(self.lazy_wrap(needle), self.lazy_wrap(haystack))
 
     def test_getitem(self):
+        """
+        Tests the functionality of getting items from lazily wrapped objects.
+
+        This test case checks that items can be retrieved from lists and dictionaries 
+        using indexing and key-based access. It also verifies that appropriate errors 
+        are raised when attempting to access items that are out of range or do not exist.
+
+        Validations include:
+
+        - Index-based access for lists
+        - Key-based access for dictionaries
+        - Slice notation for lists
+        - Error handling for index out of range and missing keys
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -211,6 +244,15 @@ class LazyObjectTestCase(unittest.TestCase):
         # Tests whether an object's custom `__iter__` method is being
         # used when iterating over it.
 
+        """
+        Tests the lazy_wrap functionality with an iterable object.
+
+        This test case verifies that the lazy_wrap method correctly handles an object that implements the iterator protocol.
+        It checks if the wrapped object can be iterated over and its contents match the original data.
+
+        The test utilizes a custom IterObject class, which allows for straightforward verification of the lazy_wrap behavior with an iterable object.
+        It ensures that the resulting list from the lazy_wrap function is equal to the original list of values, confirming the correct functionality of the method.
+        """
         class IterObject:
             def __init__(self, values):
                 self.values = values
@@ -250,6 +292,12 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_list_no_evaluation(self):
         # Copying a list doesn't force evaluation.
+        """
+        Tests that copying a lazily wrapped list does not evaluate the wrapped object.
+
+        Verifies that the original and copied objects are distinct instances, 
+        and that both objects' internal wrapped values remain unevaluated after copying.
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -349,6 +397,19 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
         self.assertEqual(repr(obj), "<SimpleLazyObject: 42>")
 
     def test_add(self):
+        """
+
+        Tests the addition operation on lazy wrapped objects.
+
+        This test ensures that lazy wrapped objects can be added to integers and other lazy wrapped objects,
+        resulting in the correct sum. It verifies the commutative property of addition by checking that the order
+        of the operands does not affect the result.
+
+        The test covers the following scenarios:
+        - Adding an integer to a lazy wrapped object
+        - Adding two lazy wrapped objects
+
+        """
         obj1 = self.lazy_wrap(1)
         self.assertEqual(obj1 + 1, 2)
         obj2 = self.lazy_wrap(2)
@@ -378,6 +439,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
         i = [0]
 
         def f():
+            """
+            Increments the first element of a predefined list `i` by 1 and returns None. Note that this function relies on an externally defined list `i` and modifies it in-place. This modification is a side-effect of the function, as the return value is always None.
+            """
             i[0] += 1
             return None
 
@@ -389,6 +453,15 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
 
     def test_dict(self):
         # See ticket #18447
+        """
+        Tests the functionality of a SimpleLazyObject instance that wraps a dictionary.
+
+        This test case verifies that the lazy object behaves like a regular dictionary, 
+        including retrieving values by key, assigning new values, checking key presence, 
+        getting the number of items, and deleting items. It also checks that attempting 
+        to access a non-existent key after deletion raises a KeyError, as expected from 
+        standard dictionary behavior.
+        """
         lazydict = SimpleLazyObject(lambda: {"one": 1})
         self.assertEqual(lazydict["one"], 1)
         lazydict["one"] = -1
@@ -425,6 +498,14 @@ class BaseBaz:
         return super().__reduce__()
 
     def __eq__(self, other):
+        """
+        Checks if the current object is equal to another object.
+
+        This method compares the current object with the provided object to determine if they are equal.
+        It first checks if both objects belong to the same class. If they do not, it immediately returns False.
+        Then, it checks if both objects have the same set of attributes ('bar', 'baz', 'quux') and if the values of these attributes are equal.
+        If all conditions are met, it returns True, indicating that the objects are equal. Otherwise, it returns False.
+        """
         if self.__class__ != other.__class__:
             return False
         for attr in ["bar", "baz", "quux"]:

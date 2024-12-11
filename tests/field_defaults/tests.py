@@ -41,6 +41,20 @@ class DefaultTests(TestCase):
         "can_return_columns_from_insert", "supports_expression_defaults"
     )
     def test_field_db_defaults_returning(self):
+        """
+
+        Tests the functionality of model fields with default database values.
+
+        This test ensures that a model instance is correctly populated with default values
+        returned from the database after insertion. It verifies that the model's fields
+        are populated with the expected data types and values, which are set by the
+        database defaults.
+
+        Specifically, it checks that the model's primary key is set to an integer, 
+        the headline is set to a default string, the publication date is a datetime object,
+        and the cost is a decimal value. 
+
+        """
         a = DBArticle()
         a.save()
         self.assertIsInstance(a.id, int)
@@ -127,12 +141,31 @@ class DefaultTests(TestCase):
     @skipIfDBFeature("can_return_columns_from_insert")
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_case_when_db_default_no_returning(self):
+        """
+
+        Tests the behavior of the database when using a CASE WHEN expression as a default value 
+        and the database does not support returning columns from an insert operation.
+
+        Verifies that the correct value is retrieved from the database after creating a 
+        DBDefaultsFunction object and refreshing it from the database.
+
+        """
         m = DBDefaultsFunction.objects.create()
         m.refresh_from_db()
         self.assertEqual(m.case_when, 3)
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_all_db_defaults(self):
+        """
+        Tests the bulk creation of DBArticle objects with database-defined default values.
+
+        This test verifies that when creating multiple DBArticle objects using bulk_create,
+        database-defined default values are correctly applied to the created objects.
+        Specifically, it checks that the 'headline' field of each created article is set to its default value.
+
+        The test case covers the scenario where the database supports expression defaults,
+        ensuring that the bulk creation operation behaves as expected in such environments.
+        """
         articles = [DBArticle(), DBArticle()]
         DBArticle.objects.bulk_create(articles)
 
@@ -141,6 +174,9 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_all_db_defaults_one_field(self):
+        """
+        Tests the bulk creation of database articles, ensuring that database default values are applied when fields are not explicitly set. This test checks that the 'headline' and 'cost' fields receive their default values when the 'bulk_create' method is used to create new articles in the database. The test verifies that both the headline and cost defaults are correctly applied to all created articles.
+        """
         pub_date = datetime.now()
         articles = [DBArticle(pub_date=pub_date), DBArticle(pub_date=pub_date)]
         DBArticle.objects.bulk_create(articles)
@@ -156,6 +192,17 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_mixed_db_defaults(self):
+        """
+        Tests the bulk creation of objects with mixed database defaults.
+
+        Verifies that when creating multiple objects in bulk, any missing default values
+        are automatically applied by the database, while explicitly provided values
+        are used instead.
+
+        The test ensures that objects with and without predefined default values can
+        be created together, and that the resulting objects have the expected values.
+
+        """
         articles = [DBArticle(), DBArticle(headline="Something else")]
         DBArticle.objects.bulk_create(articles)
 

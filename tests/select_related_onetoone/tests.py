@@ -51,6 +51,21 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(u.userprofile.state, "KS")
 
     def test_follow_next_level(self):
+        """
+
+        Tests that the next level of related objects is correctly followed and retrieved.
+
+        This test ensures that when a user object is queried, its related user statistics 
+        and results are properly fetched in a single database query. It verifies that the 
+        correct number of posts and result descriptions are associated with the user's 
+        statistics.
+
+        The test checks the following conditions:
+        - A user object with the username 'test' can be retrieved.
+        - The user's statistics contain the expected number of posts.
+        - The user's results contain the expected description.
+
+        """
         with self.assertNumQueries(1):
             u = User.objects.select_related("userstat__results").get(username="test")
             self.assertEqual(u.userstat.posts, 150)
@@ -73,6 +88,15 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(u.userstat.statdetails.comments, 259)
 
     def test_forward_and_back(self):
+        """
+        Tests the forward and backward relationships in the UserStat model.
+
+        Verifies that a UserStat object can be retrieved with a single database query, 
+        and that the related UserProfile and UserStat objects are correctly populated.
+
+        Checks that the UserProfile's state attribute and the UserStat's posts attribute 
+        match the expected values for a user with the username 'test'.
+        """
         with self.assertNumQueries(1):
             stat = UserStat.objects.select_related("user__userprofile").get(
                 user__username="test"
@@ -86,6 +110,14 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(u.userstat.user.username, "test")
 
     def test_not_followed_by_default(self):
+        """
+
+        Tests that a user's stat is correctly retrieved and that the posts count is not followed by the default query.
+
+        This test case verifies that the user's statistics are fetched along with the user object
+        in a single database query, and then asserts that the posts count in the user's stat is 150.
+
+        """
         with self.assertNumQueries(2):
             u = User.objects.select_related().get(username="test")
             self.assertEqual(u.userstat.posts, 150)
@@ -209,6 +241,19 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.value4, 4)
 
     def test_inheritance_deferred(self):
+        """
+
+        Tests that the inheritance is properly deferred when using select_related and only methods.
+
+        This test case checks that the database queries are optimized when retrieving a Parent2 object
+        and its related Child1 object. It verifies that only one database query is executed when
+        accessing certain attributes of the Parent2 object and its Child1 object, ensuring that the
+        inheritance is properly deferred.
+
+        It covers scenarios where the Parent2 object is accessed directly and where its Child1 object
+        is accessed, demonstrating that the optimization works in both cases.
+
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         with self.assertNumQueries(1):
             p = (

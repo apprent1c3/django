@@ -13,6 +13,13 @@ from django.utils.crypto import (
 class TestUtilsCryptoMisc(SimpleTestCase):
     def test_constant_time_compare(self):
         # It's hard to test for constant time, just test the result.
+        """
+
+        Tests the constant_time_compare function to ensure it correctly compares two strings in a time-constant manner, 
+        preventing timing attacks. It checks both byte string and regular string comparisons, verifying that the function 
+        returns True for matching strings and False for non-matching strings.
+
+        """
         self.assertTrue(constant_time_compare(b"spam", b"spam"))
         self.assertFalse(constant_time_compare(b"spam", b"eggs"))
         self.assertTrue(constant_time_compare("spam", "spam"))
@@ -174,11 +181,34 @@ class TestUtilsCryptoPBKDF2(unittest.TestCase):
     ]
 
     def test_public_vectors(self):
+        """
+        Tests the PBKDF2 function using public test vectors from the RFC.
+
+        This test iterates over a set of predefined test vectors, applying the PBKDF2
+        function to each one and verifying that the result matches the expected output.
+        The test vectors are taken from the relevant RFC and cover a range of input
+        parameters and edge cases.
+
+        The purpose of this test is to ensure that the implementation of the PBKdf2
+        function conforms to the standard and produces the correct output for a given
+        set of inputs. This provides a high degree of confidence in the correctness and
+        reliability of the function.
+
+        :raises AssertionError: If any of the test vectors produce an incorrect result
+        """
         for vector in self.rfc_vectors:
             result = pbkdf2(**vector["args"])
             self.assertEqual(result.hex(), vector["result"])
 
     def test_regression_vectors(self):
+        """
+
+        Test that the PBKDF2 function produces expected results for a set of predefined regression test vectors.
+
+        Each vector in the test set defines a set of input arguments for the PBKDF2 function, along with the expected output result.
+        This test checks that the actual output of PBKDF2 matches the expected result for each vector, ensuring the function's correctness.
+
+        """
         for vector in self.regression_vectors:
             result = pbkdf2(**vector["args"])
             self.assertEqual(result.hex(), vector["result"])

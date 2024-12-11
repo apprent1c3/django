@@ -416,6 +416,15 @@ class CaseExpressionTests(TestCase):
         self.assertTrue(all(obj.selected == "not selected" for obj in objects))
 
     def test_annotate_with_full_when(self):
+        """
+
+        Tests the annotation of a queryset with a Case statement using When and default values.
+
+        This test verifies that a queryset can be annotated with a 'selected' field based on a condition.
+        The condition checks if the primary key is not in an empty list, and if true, annotates the object as 'selected', otherwise 'not selected'.
+        The test asserts that the length of the annotated queryset matches the total count of objects and that all objects are annotated as 'selected'.
+
+        """
         objects = CaseTestModel.objects.annotate(
             selected=Case(
                 When(~Q(pk__in=[]), then=Value("selected")),
@@ -758,6 +767,17 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_with_expression_as_value(self):
+        """
+
+        Updates model instances based on conditional expressions.
+
+        This function demonstrates how to use database functions to update a model's field
+        with dynamic values calculated from the current field value. It applies a conditional
+        update to the 'integer' field of the CaseTestModel instances, where the new value
+        depends on the current 'integer' value. If the 'integer' value is 1, it increments by 1;
+        if it's 2, it increments by 3; otherwise, the original value is preserved.
+
+        """
         CaseTestModel.objects.update(
             integer=Case(
                 When(integer=1, then=F("integer") + 1),
@@ -772,6 +792,24 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_with_expression_as_condition(self):
+        """
+
+        Updates a set of model instances with an expression as a condition using a Case statement.
+
+        The function verifies that the update is applied correctly by checking the resulting
+        query set against an expected outcome. It ensures that the string field of each
+        model instance is updated based on the value of its integer2 field, with specific
+        values assigned when certain conditions are met.
+
+        The conditions checked are:
+
+        * When the integer2 field is equal to the integer field, the string field is set to 'equal'.
+        * When the integer2 field is equal to the integer field plus one, the string field is set to '+1'.
+
+        The function then validates that the updated model instances match the expected
+        outcome, which includes a specific ordering and assignment of string values.
+
+        """
         CaseTestModel.objects.update(
             string=Case(
                 When(integer2=F("integer"), then=Value("equal")),
@@ -817,6 +855,13 @@ class CaseExpressionTests(TestCase):
             )
 
     def test_update_big_integer(self):
+        """
+
+        Tests the update functionality of the big integer field using Django's Case expression.
+        It updates the big integer field based on specific conditions applied to the integer field,
+        then verifies that the resulting query set matches the expected values.
+
+        """
         CaseTestModel.objects.update(
             big_integer=Case(
                 When(integer=1, then=1),
@@ -916,6 +961,21 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_decimal(self):
+        """
+
+        Tests the update functionality of decimal fields using a conditional case statement.
+
+        This test case updates the decimal field of a model instance based on the value of its integer field.
+        It checks if the decimal field is updated correctly for specific integer values and verifies that the changes are saved to the database.
+
+        The test case covers the following scenarios:
+        - Updating the decimal field to a specific decimal value when the integer field equals 1.
+        - Updating the decimal field to another specific decimal value when the integer field equals 2.
+        - Leaving the decimal field unchanged when the integer field does not match any of the specified conditions.
+
+        The test asserts that the updated values are correctly retrieved from the database and match the expected results.
+
+        """
         CaseTestModel.objects.update(
             decimal=Case(
                 When(integer=1, then=Decimal("1.1")),
@@ -960,6 +1020,17 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_email(self):
+        """
+
+        Tests the update functionality of CaseTestModel instances based on integer values.
+
+        This test case checks if the email field in the database is correctly updated
+        using a case statement. It verifies that the email is updated to '1@example.com'
+        when the integer value is 1, '2@example.com' when the integer value is 2, and
+        an empty string for all other integer values. The test asserts that the updated
+        queryset matches the expected output after ordering by primary key.
+
+        """
         CaseTestModel.objects.update(
             email=Case(
                 When(integer=1, then=Value("1@example.com")),
@@ -982,6 +1053,13 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_file(self):
+        """
+        Tests the update of a file field in the CaseTestModel using conditional expressions.
+
+        This test case verifies that the file field is updated correctly based on specific conditions. It checks if the update operation sets the file path to '~/1' when the integer field is 1, and to '~/2' when the integer field is 2, leaving other values unchanged.
+
+        The test asserts that the resulting queryset, ordered by primary key, matches the expected output after the update operation. The test case ensures that the database reflects the correct changes after applying the conditional update expression. 
+        """
         CaseTestModel.objects.update(
             file=Case(
                 When(integer=1, then=Value("~/1")),
@@ -995,6 +1073,18 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_file_path(self):
+        """
+
+         Tests updating the file path of CaseTestModel objects using a case statement.
+
+         The function updates the file path based on the value of the integer field:
+         - If integer is 1, the file path is set to '~/1'.
+         - If integer is 2, the file path is set to '~/2'.
+         - For all other values, the file path is set to an empty string.
+
+         The updated query set is then compared to the expected results to ensure the update was successful.
+
+        """
         CaseTestModel.objects.update(
             file_path=Case(
                 When(integer=1, then=Value("~/1")),
@@ -1023,6 +1113,21 @@ class CaseExpressionTests(TestCase):
 
     @unittest.skipUnless(Image, "Pillow not installed")
     def test_update_image(self):
+        """
+
+        Tests the update of image fields in CaseTestModel objects using a Case-When statement.
+
+        This test updates the image fields of CaseTestModel objects based on the value of the integer field.
+        The test then verifies that the image fields have been updated correctly by comparing the expected output with the actual result.
+
+        The test case checks the following scenarios:
+        - If the integer field is 1, the image field is updated to '~/1'.
+        - If the integer field is 2, the image field is updated to '~/2'.
+        - For all other integer field values, the image field is left unchanged.
+
+        Note: This test requires the Pillow library to be installed.
+
+        """
         CaseTestModel.objects.update(
             image=Case(
                 When(integer=1, then=Value("~/1")),
@@ -1058,6 +1163,13 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_null_boolean(self):
+        """
+        Updates a null boolean field in the database using a conditional case statement and then asserts that the updated values match the expected output.
+
+        The function uses Django's ORM to update the null boolean field of all objects in the CaseTestModel based on the value of the integer field.
+        The updated values are then compared to the expected output to verify that the update was successful.
+        The expected output includes null boolean values for certain integer values, demonstrating the function's ability to handle null cases.
+        """
         CaseTestModel.objects.update(
             null_boolean=Case(
                 When(integer=1, then=True),
@@ -1172,6 +1284,15 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_time(self):
+        """
+
+        Tests the functionality of updating the time attribute in CaseTestModel objects based on the integer value.
+
+        This test case verifies that the time attribute is correctly updated for objects with integer values of 1 and 2, and remains unchanged for objects with other integer values.
+
+        The test checks the update operation by comparing the resulting query set with an expected list of tuples, where each tuple contains the integer and time values for a CaseTestModel object.
+
+        """
         CaseTestModel.objects.update(
             time=Case(
                 When(integer=1, then=time(1)),
@@ -1612,6 +1733,19 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_filter_example(self):
+        """
+
+         Tests the filter functionality for clients based on their registered date and account type.
+
+         The test case verifies that clients are filtered correctly using a conditional date 
+         threshold, where gold account holders are considered if they registered within the 
+         last month, and platinum account holders are considered if they registered within 
+         the last year.
+
+         The test asserts that the filtered queryset matches the expected result, which is 
+         a list of clients with their name and account type.
+
+        """
         a_month_ago = date.today() - timedelta(days=30)
         a_year_ago = date.today() - timedelta(days=365)
         self.assertQuerySetEqual(
@@ -1650,6 +1784,13 @@ class CaseDocumentationExamples(TestCase):
 
 class CaseWhenTests(SimpleTestCase):
     def test_only_when_arguments(self):
+        """
+        Tests that a Case instance can only be created with When objects as positional arguments.
+
+        Raises a TypeError with a specific message if any positional argument is not a When object, ensuring correct usage of the Case class.
+
+        This test helps maintain the integrity of the Case class by preventing it from being instantiated with invalid arguments, which could lead to unexpected behavior or errors down the line.
+        """
         msg = "Positional arguments must all be When objects."
         with self.assertRaisesMessage(TypeError, msg):
             Case(When(Q(pk__in=[])), object())

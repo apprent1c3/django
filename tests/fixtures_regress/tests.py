@@ -198,6 +198,13 @@ class TestFixtures(TestCase):
         self.test_relative_path(path=["inner", "absolute.json"])
 
     def test_path_containing_dots(self):
+        """
+        Test that loading data from a file path containing dots works as expected.
+
+        This test case verifies that data can be successfully loaded from a JSON file
+        located at a path that contains dots, and that the loaded data results in the
+        creation of the correct number of objects in the database.
+        """
         management.call_command(
             "loaddata",
             "path.containing.dots.json",
@@ -722,6 +729,16 @@ class NaturalKeyFixtureTests(TestCase):
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_dangling(self):
+        """
+
+        Tests the dependency sorting functionality to ensure it correctly handles dependencies that have dangling references.
+
+        This test case verifies that the sorting algorithm is able to resolve dependencies and return them in a valid order, 
+        even when there are complex relationships between the dependencies.
+
+        The expected output is a sorted list of dependencies in the order: Circle1, Store, Person, Book.
+
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Person, Circle1, Store, Book])]
         )

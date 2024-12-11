@@ -746,6 +746,26 @@ class BaseDatabaseOperations:
         return start_, end_
 
     def window_frame_range_start_end(self, start=None, end=None):
+        """
+        Return the start and end of a window frame range.
+
+        This method takes optional start and end arguments to specify the bounds of the window frame.
+        The start argument can be a negative integer, zero, or None, representing the UNBOUNDEDPRECEDING or a preceding row offset.
+        The end argument can be a positive integer, zero, or None, representing the UNBOUNDED FOLLOWING or a following row offset.
+
+        It validates the provided start and end arguments, raising a ValueError if they do not meet the required criteria.
+        Additionally, it checks the connection features to ensure that the specified window frame range is supported, raising a NotSupportedError if necessary.
+
+        The method returns a tuple containing the resolved start and end of the window frame range.
+        These values can be used to define a window frame in a database query.
+
+        :arg start: The start of the window frame range (negative integer, zero, or None).
+        :arg end: The end of the window frame range (positive integer, zero, or None).
+        :returns: A tuple containing the resolved start and end of the window frame range.
+        :raises ValueError: If the start or end argument is invalid.
+        :raises NotSupportedError: If the connection does not support the specified window frame range.
+
+        """
         if (start is not None and not isinstance(start, int)) or (
             isinstance(start, int) and start > 0
         ):

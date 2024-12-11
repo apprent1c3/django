@@ -51,6 +51,21 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_3(self):
+        """
+
+        Verifies the functionality of IntegerField.
+
+        Tests the rendering of the IntegerField widget, ensuring it is created with the correct
+        attributes, including the maximum value and required status.
+
+        Validates the cleaning process of the field, checking that:
+        - An empty value raises a \"This field is required.\" error
+        - Values within the allowed range (1 to 10) are cleaned and returned correctly
+        - Values exceeding the maximum allowed value (10) raise a validation error
+        - String representations of integers are properly cleaned and converted
+        - The maximum and minimum values of the field are correctly set
+
+        """
         f = IntegerField(max_value=10)
         self.assertWidgetRendersTo(
             f, '<input max="10" type="number" name="f" id="id_f" required>'
@@ -72,6 +87,22 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_4(self):
+        """
+
+        Tests the functionality of the IntegerField.
+
+        This tests checks the rendering of the IntegerField as an HTML input field with a minimum value constraint.
+        It then checks for proper validation, including the requirement for input, the minimum value constraint, and 
+        correct conversion of string inputs to integers. The test covers the following scenarios:
+
+        - Successful validation of values that meet the minimum requirement
+        - Error handling for values that do not meet the minimum requirement
+        - Error handling when no value is provided
+        - Handling of string inputs that can be converted to integers
+
+        It also verifies that the field's minimum value is correctly set and that the maximum value is not set by default.
+
+        """
         f = IntegerField(min_value=10)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" type="number" name="f" min="10" required>'

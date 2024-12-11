@@ -49,6 +49,19 @@ class SignTests(TestCase):
         self.assertEqual(obj.big_sign, 1)
 
     def test_transform(self):
+        """
+
+        Test transformation of DecimalField values to determine their sign.
+
+        This test creates instances of DecimalModel with n1 and n2 values, then
+        verifies that the sign transformation correctly identifies and retrieves
+        objects with negative n1 values and zero n2 values.
+
+        The test case covers the functionality of applying the Sign lookup to
+        DecimalField instances, ensuring accurate filtering and retrieval of
+        records based on the sign of the decimal values.
+
+        """
         with register_lookup(DecimalField, Sign):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.1"), n2=Decimal("0"))

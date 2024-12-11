@@ -20,6 +20,25 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_render_value(self):
+        """
+        Tests the rendering of date values using the widget.
+
+        This test case verifies that the widget correctly renders date values in HTML format.
+        It checks the output for dates with varying levels of precision, including dates with 
+        microseconds, seconds, and minutes. The expected output is a pair of hidden input 
+        fields, one for the date and one for the time, with the date and time values formatted 
+        according to the widget's rendering rules.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            This test method relies on the `check_html` method to verify the rendered HTML output.
+
+        """
         d = datetime(2007, 9, 17, 12, 51, 34, 482548)
         self.check_html(
             self.widget,
@@ -51,6 +70,14 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
 
     @translation.override("de-at")
     def test_l10n(self):
+        """
+
+        Tests the localization of a date widget in the 'de-at' locale.
+
+        Verifies that the date is correctly formatted and rendered as two hidden input fields,
+        one for the date and one for the time, using the locale-specific formatting.
+
+        """
         d = datetime(2007, 9, 17, 12, 51)
         self.check_html(
             self.widget,
@@ -96,6 +123,13 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_fieldset_with_unhidden_field(self):
+        """
+        Tests the rendering of a form with a fieldset that contains an unhidden field when the widget is configured to use a fieldset.
+
+        Verifies that the form is correctly rendered with the unhidden field wrapped in a fieldset and the hidden field outside of it, while ensuring the widget's use_fieldset attribute is properly set to True.
+
+        The test case checks the expected HTML output of the form against a predefined markup, ensuring that the fieldset is correctly applied to the unhidden field and the hidden field is properly excluded from it.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             hidden_field = SplitDateTimeField(widget=self.widget)

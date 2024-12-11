@@ -34,6 +34,18 @@ def remote_user_auth_view(request):
 
 
 def auth_processor_no_attr_access(request):
+    """
+
+    Processes authentication attributes without attribute access.
+
+    This function handles the rendering of templates related to authentication attribute access.
+    It first renders a template indicating no attribute access, then renders another template
+    with additional session access information.
+
+    :param request: The current HTTP request object.
+    :return: An HttpResponse object with the rendered template.
+
+    """
     render(request, "context_processors/auth_attrs_no_access.html")
     # *After* rendering, we check whether the session was accessed
     return render(

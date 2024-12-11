@@ -113,6 +113,21 @@ def return_undecodable_binary(request):
 
 
 def return_json_response(request):
+    """
+
+    Return a JSON response based on the provided request.
+
+    This function takes an HTTP request as input and returns a JSON response.
+    The response content type is determined by the 'content_type' parameter in the request's query string.
+    If the 'content_type' parameter is specified, it is used to set the content type of the response;
+    otherwise, the default content type is used.
+
+    The function returns a JSON object containing a single key-value pair, {'key': 'value'}.
+
+    :param request: The HTTP request object.
+    :returns: A JSON response object.
+
+    """
     content_type = request.GET.get("content_type")
     kwargs = {"content_type": content_type} if content_type else {}
     return JsonResponse({"key": "value"}, **kwargs)
@@ -171,12 +186,24 @@ def render_template_multiple_times(request):
 
 
 def redirect_based_on_extra_headers_1_view(request):
+    """
+    Redirects the request based on the presence of a specific HTTP header.
+
+    This view checks if the 'HTTP_REDIRECT' header is present in the request. If the header is found, the view redirects the user to the '/redirect_based_on_extra_headers_2/' URL. Otherwise, it returns a standard HTTP response with no redirection. The purpose of this view is to handle custom redirect logic based on extra headers included in the request.
+    """
     if "HTTP_REDIRECT" in request.META:
         return HttpResponseRedirect("/redirect_based_on_extra_headers_2/")
     return HttpResponse()
 
 
 def redirect_based_on_extra_headers_2_view(request):
+    """
+    Redirects the request based on the presence of specific extra HTTP headers.
+
+    This view checks for the presence of the 'HTTP_REDIRECT' header in the request.
+    If the header is present, it redirects the client to a further redirect page.
+    Otherwise, it returns a standard HTTP response.
+    """
     if "HTTP_REDIRECT" in request.META:
         return HttpResponseRedirect("/redirects/further/more/")
     return HttpResponse()

@@ -300,6 +300,16 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_annotate(self):
+        """
+
+         Tests the Django ORM's ability to correctly annotate and delete objects in a single database query.
+
+         Specifically, it verifies that an object can be successfully annotated with a count of its own description field,
+         filtered to only include objects with a non-null orgunit name and a count of 1, and then deleted in a single query.
+
+         The test case ensures that the deletion only affects the intended object and does not impact other objects in the database.
+
+        """
         with self.assertNumQueries(1):
             Login.objects.order_by("description").filter(
                 orgunit__name__isnull=False
@@ -395,6 +405,17 @@ class DeleteTests(TestCase):
 
 class DeleteDistinct(SimpleTestCase):
     def test_disallowed_delete_distinct_on(self):
+        """
+        Tests that calling delete() on a QuerySet that has used distinct(*fields) raises a TypeError.
+
+        This test case ensures that the ORM correctly enforces the rule that delete() cannot be called
+        after using distinct(*fields) on a QuerySet, providing a specific error message in this case.
+
+        The expected error message is: Cannot call delete() after.distinct(*fields).
+
+        Verifies that the correct exception is raised with the correct error message when attempting
+        to delete distinct objects from the database using the Book model as an example.
+        """
         msg = "Cannot call delete() after .distinct(*fields)."
         with self.assertRaisesMessage(TypeError, msg):
             Book.objects.distinct("id").delete()
@@ -402,6 +423,13 @@ class DeleteDistinct(SimpleTestCase):
 
 class SetQueryCountTests(TestCase):
     def test_set_querycount(self):
+        """
+
+        Tests the deletion of a Location object and verifies that it results in the expected number of database queries.
+
+        The function creates a Policy, Version, Location, and Item, and then deletes the Location, confirming that this operation is executed within the expected number of queries.
+
+        """
         policy = Policy.objects.create()
         version = Version.objects.create(policy=policy)
         location = Location.objects.create(version=version)

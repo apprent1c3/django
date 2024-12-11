@@ -260,6 +260,21 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _create_test_user(self, cursor, parameters, verbosity, keepdb=False):
+        """
+        ..: 
+            Creates a database test user with necessary privileges.
+
+            This function executes SQL statements to create a test user and grants 
+            required permissions, such as CREATE SESSION, CREATE TABLE, and others.
+            It handles exceptions for acceptable Oracle errors and retries the 
+            operation if the password is not set.
+
+            :param cursor: Database cursor object
+            :param parameters: Dictionary containing user credentials and database settings
+            :param verbosity: Level of logging verbosity
+            :param keepdb: Optional flag to keep the database, defaults to False
+            :return: None
+        """
         if verbosity >= 2:
             self.log("_create_test_user(): username = %s" % parameters["user"])
         statements = [

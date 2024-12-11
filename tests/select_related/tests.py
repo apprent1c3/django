@@ -184,6 +184,20 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(obj.parent_2, parent_2)
 
     def test_reverse_relation_caching(self):
+        """
+
+        Tests the caching of reverse relations in the Species and Genus models.
+
+        This test case verifies that the related objects are cached correctly when
+        using select_related, and that subsequent access to the related objects
+        does not result in additional database queries. It also checks that the
+        fields cache of the related object is empty, as expected.
+
+        The test covers the following scenarios:
+        - Selecting a species with its genus and verifying the genus name.
+        - Accessing the species set of the genus and verifying the name of the first species.
+
+        """
         species = (
             Species.objects.select_related("genus").filter(name="melanogaster").first()
         )

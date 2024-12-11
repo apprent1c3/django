@@ -41,6 +41,21 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         )
 
     def test_proxy_model_permissions_contenttype(self):
+        """
+
+        Tests the updating of model permissions' content types for a proxy model.
+
+        This test case verifies that the content types of permissions associated with a proxy model 
+        are correctly updated. It checks the initial content type of default and custom permissions, 
+        updates the proxy model permissions, and then asserts that the content types have been 
+        successfully updated to the proxy model's content type.
+
+        The test covers the following scenarios:
+        - Initial content type consistency for default and custom permissions
+        - Successful update of content types for both default and custom permissions
+        - Verification of updated content types after the update operation
+
+        """
         proxy_model_content_type = ContentType.objects.get_for_model(
             UserProxy, for_concrete_model=False
         )

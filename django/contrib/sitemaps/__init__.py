@@ -49,6 +49,15 @@ class Sitemap:
         return [lang_code for lang_code, _ in settings.LANGUAGES]
 
     def _items(self):
+        """
+        Returns a list of items, optionally including language codes if internationalization (i18n) is enabled.
+
+        If i18n is enabled, each item is paired with its corresponding language codes.
+        Otherwise, the function returns a simple list of items.
+
+        :rtype: list
+        :returns: List of items, potentially including language codes
+        """
         if self.i18n:
             # Create (item, lang_code) tuples for all items and languages.
             # This is necessary to paginate with all languages already considered.

@@ -34,6 +34,15 @@ class AsyncAuthTest(TestCase):
         self.assertEqual(user.username, self.test_user.username)
 
     async def test_alogin_without_user(self):
+        """
+
+        Tests the async login functionality without providing a user.
+
+        This test case simulates an asynchronous login scenario where no user is explicitly provided.
+        It verifies that the login mechanism correctly retrieves the user from the request session.
+        The test asserts that the retrieved user is an instance of the User class and that its username matches the expected value.
+
+        """
         request = HttpRequest()
         request.user = self.test_user
         request.session = await self.client.asession()
@@ -59,6 +68,13 @@ class AsyncAuthTest(TestCase):
         self.assertIsInstance(user, AnonymousUser)
 
     async def test_change_password(self):
+        """
+        Tests the change password functionality by simulating a user login and verifying the user's authentication session.
+
+        The test logs in with a test user, creates a mock HTTP request with the test user's session, and updates the session's authentication hash.
+
+        It then retrieves the user from the request and checks if the retrieved user is an instance of the User class, ensuring a successful login and authentication.
+        """
         await self.client.alogin(username="testuser", password="testpw")
         request = HttpRequest()
         request.session = await self.client.asession()
