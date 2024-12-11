@@ -103,6 +103,19 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
         func.restype = c_char_p
 
     def _check_const(result, func, cargs):
+        """
+        Checks if a given function result matches a constant string pattern.
+
+            This function verifies if the provided result string is constant based on 
+            the given function and its arguments. It also provides an option to decode 
+            the result if decoding is enabled.
+
+            :param result: The result string to be checked
+            :param func: The function that generated the result
+            :param cargs: The arguments passed to the function
+            :return: The result string if it is constant, or None otherwise. 
+                     If decoding is enabled, the result is decoded before being returned
+        """
         res = check_const_string(result, func, cargs, offset=offset, cpl=cpl)
         if res and decoding:
             res = res.decode(decoding)

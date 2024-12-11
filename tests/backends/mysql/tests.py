@@ -25,6 +25,23 @@ class IsolationLevelTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Setup the isolation levels for the class.
+
+        This method is a class setup hook that configures the isolation levels 
+        for the class. It determines the configured isolation level, either 
+        from the connection or the class's default repeatable read value, 
+        and sets it as an instance variable. It also sets the other isolation 
+        level as a contrast to the configured one, either read committed or 
+        repeatable read.
+
+        The purpose of this method is to provide a consistent setup for test 
+        cases, allowing for reliable testing of database operations under 
+        different isolation levels.
+
+        Returns:
+            None
+        """
         super().setUpClass()
         configured_isolation_level = (
             connection.isolation_level or cls.isolation_values[cls.repeatable_read]
@@ -38,6 +55,18 @@ class IsolationLevelTests(TestCase):
 
     @staticmethod
     def get_isolation_level(connection):
+        """
+        Get the current isolation level of a database connection.
+
+        This function queries the database to retrieve the current transaction isolation level,
+        which determines the degree to which transactions are isolated from each other.
+
+        The isolation level returned is a string that describes the current level of isolation,
+        such as 'READ UNCOMMITTED', 'READ COMMITTED', 'REPEATABLE READ', or 'SERIALIZABLE'.
+
+        :param connection: A database connection object.
+        :return: The current isolation level of the database connection as a string.
+        """
         with connection.cursor() as cursor:
             cursor.execute(
                 "SHOW VARIABLES "

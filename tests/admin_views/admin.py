@@ -561,6 +561,11 @@ class SubPostInline(admin.TabularInline):
         return self.readonly_fields
 
     def get_prepopulated_fields(self, request, obj=None):
+        """
+        Returns a dictionary of fields that can be prepopulated based on the current request and object state.
+
+        If an object is provided and it has already been published, an empty dictionary is returned, indicating that no prepopulation is necessary. Otherwise, the prepopulated fields defined for this model are returned, allowing for dynamic population of certain fields based on user input or other data.
+        """
         if obj and obj.published:
             return {}
         return self.prepopulated_fields

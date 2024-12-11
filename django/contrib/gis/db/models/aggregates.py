@@ -30,6 +30,21 @@ class GeoAggregate(Aggregate):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        Returns the SQL representation of this object, optimized for use with Oracle's Spatial option.
+
+        If this object represents a spatial extent, it returns the SQL directly. Otherwise, it creates a modified copy
+        of this object with an aggregated spatial type, using the specified tolerance value (defaulting to 0.05 if not provided).
+        This modified copy is then used to generate the SQL representation.
+
+        The generated SQL incorporates the original source expressions and filter, wrapped in a call to the SDOAGGRTYPE function.
+
+        :param compiler: The compiler object used to generate the SQL.
+        :param connection: The database connection object.
+        :param **extra_context: Additional context to be used during SQL generation.
+        :return: The SQL representation of this object, as a string.
+
+        """
         if not self.is_extent:
             tolerance = self.extra.get("tolerance") or getattr(self, "tolerance", 0.05)
             clone = self.copy()

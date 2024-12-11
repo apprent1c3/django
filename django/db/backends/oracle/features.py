@@ -94,6 +94,13 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        Returns a dictionary of database tests to skip for Oracle database backend due to known limitations or incompatibilities.
+
+        The dictionary keys provide a brief explanation for each set of skipped tests, while the values are sets of test names that should be excluded from the test suite.
+
+        The function dynamically updates the dictionary based on the Oracle database version and the version of the oracledb library, if applicable. This ensures that tests are skipped only when necessary, depending on the specific database environment.
+        """
         skips = {
             "Oracle doesn't support SHA224.": {
                 "db_functions.text.test_sha224.SHA224Tests.test_basic",

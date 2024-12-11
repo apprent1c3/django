@@ -16,6 +16,16 @@ class ContentTypeManager(models.Manager):
         self._cache = {}
 
     def get_by_natural_key(self, app_label, model):
+        """
+        Retrieve a model's content type instance, either from the cache or by querying the database.
+
+        :param app_label: The application label of the content type to retrieve
+        :param model: The model name of the content type to retrieve
+        :return: The content type instance
+        :raises: Raises an exception if the content type does not exist for the given app_label and model
+
+        Note: This function utilizes caching to improve performance for repeated lookups. If the content type is not found in the cache, it will be queried from the database and then stored in the cache for future use.
+        """
         try:
             ct = self._cache[self.db][(app_label, model)]
         except KeyError:
@@ -29,6 +39,13 @@ class ContentTypeManager(models.Manager):
         return model._meta
 
     def _get_from_cache(self, opts):
+        """
+        Retrieves a cached object based on the provided application label and model name.
+
+        :param opts: An options object containing the application label and model name.
+        :returns: The cached object associated with the specified key, or None if not found.
+        :rtype: object
+        """
         key = (opts.app_label, opts.model_name)
         return self._cache[self.db][key]
 

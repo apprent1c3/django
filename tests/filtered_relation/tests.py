@@ -991,6 +991,19 @@ class FilteredRelationAggregationTests(TestCase):
 class FilteredRelationAnalyticalAggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, including authors, editors, books, sellers, currencies, exchange rates, and daily book sales.
+
+        This method creates a basic set of objects in the database, which can be used as a foundation for subsequent tests.
+
+        The created data includes:
+        - Authors and editors
+        - Multiple books with different titles
+        - Sellers with different names
+        - Currencies (USD and EUR)
+        - Exchange rates between currencies for specific dates
+        - Daily sales data for the created books, including sales amount, date, and seller information.
+        """
         author = Author.objects.create(name="Author")
         editor = Editor.objects.create(name="Editor")
         cls.book1 = Book.objects.create(

@@ -79,6 +79,11 @@ class GenericForeignKey(FieldCacheMixin, Field):
         ]
 
     def _check_object_id_field(self):
+        """
+        检查一个底层模型中是否存在一个指定的外键字段。
+
+        此函数验证 `_meta` 中的指定外键字段是否存在。返回一个包含错误消息的列表，说明该字段是否不存在，或者一个空列表如果验证成功。错误信息的 ID 为 'contenttypes.E001'。
+        """
         try:
             self.model._meta.get_field(self.fk_field)
         except FieldDoesNotExist:
@@ -620,6 +625,13 @@ def create_generic_related_manager(superclass, rel):
                 pass  # nothing to clear from cache
 
         def get_queryset(self):
+            """
+            Returns a filtered queryset for the current instance.
+
+            This method attempts to retrieve a prefetched queryset from the instance's cache.
+            If the cache is unavailable, it falls back to calling the superclass's get_queryset method and applies any relevant relationship filters to the result.
+            The filtered queryset is then returned for further use.
+            """
             try:
                 return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
             except (AttributeError, KeyError):

@@ -63,6 +63,13 @@ class SessionBase:
         self.modified = True
 
     def __delitem__(self, key):
+        """
+        Deletes an item from the session data.
+
+        Removes the item associated with the given key from the internal session storage.
+        Following the deletion, the session is marked as modified to track changes.
+
+        """
         del self._session[key]
         self.modified = True
 

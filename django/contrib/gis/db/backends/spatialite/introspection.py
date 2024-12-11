@@ -63,6 +63,20 @@ class SpatiaLiteIntrospection(DatabaseIntrospection):
         return field_type, field_params
 
     def get_constraints(self, cursor, table_name):
+        """
+        Retrieves a dictionary of constraints for a specified database table, including any spatial indexes.
+
+        The function builds upon the default constraint retrieval mechanism by also considering spatial indexes. It queries the geometry_columns table to identify columns with spatial indexes enabled and adds these to the constraints dictionary.
+
+        The returned dictionary contains information about each constraint, including the columns it applies to, whether it's a primary key, unique, foreign key, check, or index. Spatial indexes are specifically marked with an 'index' key set to True.
+
+        Parameters:
+            cursor (object): A database cursor object used for executing queries.
+            table_name (str): The name of the database table for which to retrieve constraints.
+
+        Returns:
+            dict: A dictionary containing constraint information for the specified table.
+        """
         constraints = super().get_constraints(cursor, table_name)
         cursor.execute(
             "SELECT f_geometry_column "

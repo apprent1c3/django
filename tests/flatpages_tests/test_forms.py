@@ -135,6 +135,11 @@ class FlatpageAdminFormTests(TestCase):
         self.assertEqual(updated.title, "A test page")
 
     def test_flatpage_nosites(self):
+        """
+        Tests the validation of a FlatpageForm when no sites are selected.
+
+        The test case verifies that the form is invalid when the 'sites' field is empty and checks that the correct error message is displayed, specifically that the 'This field is required' message is raised for the 'sites' field.
+        """
         data = dict(url="/myflatpage1/", **self.form_data)
         data.update({"sites": ""})
 

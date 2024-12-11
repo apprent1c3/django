@@ -163,6 +163,14 @@ class TruncateCharsHTMLParser(TruncateHTMLParser):
         )
 
     def process(self, data):
+        """
+        Process input data and update the internal state accordingly.
+
+        Processes the provided data, tracking the total number of characters processed.
+        The data is partially escaped and returned along with the original data.
+        If the total processed characters match the expected length and the combined length of the output and current data equals the length of the raw data, the function raises a TruncationCompleted exception after updating the output.
+        The function also calculates the remaining characters that need to be processed and escapes them accordingly.
+        """
         self.processed_chars += len(data)
         if (self.processed_chars == self.length) and (
             len(self.output) + len(data) == len(self.rawdata)

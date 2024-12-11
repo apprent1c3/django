@@ -74,6 +74,13 @@ class GreatestTests(TestCase):
         self.assertIsNone(articles.first().last_updated)
 
     def test_one_expressions(self):
+        """
+        Tests that the Greatest function correctly raises a ValueError when given less than two expressions.
+
+        This test case verifies that the function enforces its requirement for multiple input expressions, 
+        providing a descriptive error message when this condition is not met. The error message 'Greatest must take at least two expressions' 
+        is expected to be raised as a ValueError, indicating that the function has detected and responded to this invalid input scenario.
+        """
         with self.assertRaisesMessage(
             ValueError, "Greatest must take at least two expressions"
         ):

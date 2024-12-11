@@ -228,6 +228,11 @@ class CommonPasswordValidatorTest(SimpleTestCase):
         self.assertEqual(cm.exception.error_list[0].code, "password_too_common")
 
     def test_validate_django_supplied_file(self):
+        """
+        Validate that all passwords supplied by Django for the CommonPasswordValidator are in lowercase.
+
+        This test case checks each password in the list to ensure it matches its lowercase equivalent, effectively verifying that all passwords are stored in a case-insensitive format.
+        """
         validator = CommonPasswordValidator()
         for password in validator.passwords:
             self.assertEqual(password, password.lower())

@@ -265,6 +265,20 @@ class MigrationExecutor:
 
     def record_migration(self, migration):
         # For replacement migrations, record individual statuses
+        """
+        :meth:`record_migration` function records the application of a migration.
+
+        It checks if the migration replaces any previous migrations. If it does, 
+        the function records the application of each replaced migration individually. 
+        Otherwise, it simply records the application of the given migration.
+
+        This function is used to keep track of which migrations have been applied 
+        to the database, allowing for proper dependency management and rollback 
+        functionality in the migration process.
+
+        :param migration: The migration to be recorded
+
+        """
         if migration.replaces:
             for app_label, name in migration.replaces:
                 self.recorder.record_applied(app_label, name)

@@ -137,6 +137,14 @@ class BaseMemcachedCache(BaseCache):
         self._cache.flush_all()
 
     def validate_key(self, key):
+        """
+
+        Validates a cache key to ensure it meets the required formatting and content standards.
+
+        Raises:
+            InvalidCacheKey: If the provided key triggers any warnings as defined by the memcache key validation rules.
+
+        """
         for warning in memcache_key_warnings(key):
             raise InvalidCacheKey(warning)
 

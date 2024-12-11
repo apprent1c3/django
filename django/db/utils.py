@@ -189,6 +189,21 @@ class ConnectionHandler(BaseConnectionHandler):
         return self.settings
 
     def create_connection(self, alias):
+        """
+
+            Creates a database connection based on the provided alias.
+
+            :param alias: The alias of the database connection to create.
+            :return: A database wrapper object representing the created connection.
+            :raises: Exception if the alias is not found in the settings.
+
+            The function uses the database settings stored in the 'settings' attribute
+            to create a connection to the specified database. It loads the database
+            backend based on the 'ENGINE' parameter in the database settings and
+            returns a DatabaseWrapper object that can be used to interact with the
+            database.
+
+        """
         db = self.settings[alias]
         backend = load_backend(db["ENGINE"])
         return backend.DatabaseWrapper(db, alias)
@@ -215,6 +230,26 @@ class ConnectionRouter:
         return routers
 
     def _router_func(action):
+        """
+
+        Determines the database to use for a given model based on the provided action.
+
+        This function returns a nested function that implements the database routing
+        logic. The inner function iterates through a list of routers and calls the
+        method corresponding to the specified action on each router. If a router
+        returns a non-empty database alias, it is used as the chosen database. If no
+        router returns a database alias, the function falls back to the database
+        alias specified by the instance being operated on, if available, or the default
+        database alias.
+
+        The purpose of this function is to provide a flexible way to route database
+        operations to different databases based on the type of operation being
+        performed and the model involved.
+
+        :param action: The action to perform (e.g., 'db_for_read', 'db_for_write')
+        :return: A function that implements database routing logic
+
+        """
         def _route_db(self, model, **hints):
             chosen_db = None
             for router in self.routers:
@@ -238,6 +273,18 @@ class ConnectionRouter:
     db_for_write = _router_func("db_for_write")
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        Determines if a relation between two objects is allowed.
+
+        This function iterates through a list of routers to check if any of them allow a relation between the provided objects.
+        Each router is checked in sequence, and the first router that returns an explicit decision (True or False) will determine the outcome.
+        If no router returns an explicit decision, the relation is allowed if both objects are connected to the same database.
+
+        :param obj1: The first object in the potential relation.
+        :param obj2: The second object in the potential relation.
+        :param **hints: Additional context that may influence the router's decision.
+        :returns: True if the relation is allowed, False otherwise.
+        """
         for router in self.routers:
             try:
                 method = router.allow_relation

@@ -233,6 +233,15 @@ class Parser(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+        Handle the start tag of an HTML or XML element.
+
+        This method processes the tag and its attributes, creates a new element, and appends it to the current list of elements. If the tag is not a void element (i.e., it requires a closing tag), it is also added to the list of open tags. Additionally, the position of the element in the document is tracked. 
+
+        :param tag: The name of the HTML or XML tag.
+        :param attrs: A list of tuples containing the attribute name and value for the tag.
+        :returns: None
+        """
         attrs = normalize_attributes(attrs)
         element = Element(tag, attrs)
         self.current.append(element)
@@ -241,6 +250,18 @@ class Parser(HTMLParser):
         self.element_positions[element] = self.getpos()
 
     def handle_endtag(self, tag):
+        """
+        Handles the end tag of an HTML element.
+
+        This function is responsible for closing an open HTML element by matching the
+        provided end tag with the topmost open element on the stack. If the end tag does
+        not match the name of the topmost element, the function continues to pop elements
+        from the stack until a match is found or the stack is empty, in which case an error
+        is raised.
+
+        :param tag: The name of the end tag to handle.
+        :raises Exception: If the end tag is unexpected or does not match the topmost open element.
+        """
         if not self.open_tags:
             self.error("Unexpected end tag `%s` (%s)" % (tag, self.format_position()))
         element = self.open_tags.pop()

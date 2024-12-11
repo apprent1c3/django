@@ -147,6 +147,19 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
 
     def get_connection_params(self):
+        """
+
+        Obtain the connection parameters for a database connection.
+
+        This method retrieves and validates the settings for a database connection from the settings dictionary. It constructs a dictionary of keyword arguments that can be used to establish the connection. The method checks for required values, applies default settings, and validates any provided options.
+
+        The connection parameters include the database name, detection of column types and names, and other optional settings. The method also determines the transaction mode and any initialization commands to be executed upon connection.
+
+        Any invalid or missing settings are identified and raise an ImproperlyConfigured exception. The method returns a dictionary of validated connection parameters that can be used to establish a database connection.
+
+        Note: This method modifies the object's state by setting the transaction mode and initialization commands.
+
+        """
         settings_dict = self.settings_dict
         if not settings_dict["NAME"]:
             raise ImproperlyConfigured(
@@ -214,6 +227,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def close(self):
+        """
+
+        Closes the database connection.
+
+        This method ensures the database connection is properly terminated. It first validates
+        that the thread sharing is correct, then checks if the database is not an in-memory one.
+        If it's not in-memory, it delegates the closing operation to the base database wrapper.
+
+        Note: This method must be used within a thread-safe context.
+
+        """
         self.validate_thread_sharing()
         # If database is in memory, closing the connection destroys the
         # database. To prevent accidental data loss, ignore close requests on

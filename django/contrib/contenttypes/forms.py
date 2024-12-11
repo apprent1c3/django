@@ -19,6 +19,24 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         queryset=None,
         **kwargs,
     ):
+        """
+
+        Initializes a form for creating or editing generic foreign key relationships.
+
+        This form takes several parameters to determine its behavior:
+
+        * `data`: The initial form data.
+        * `files`: Any files to be included in the form data.
+        * `instance`: The instance to which the generic foreign key relationship belongs.
+        * `save_as_new`: A flag indicating whether to save the form data as a new instance.
+        * `prefix`: A prefix to be used in the form's HTML.
+        * `queryset`: A queryset to filter the available generic foreign key relationships.
+
+        The form will dynamically load the available relationships based on the provided instance and queryset. If no instance is provided, the form will not load any relationships.
+
+        The form is designed to work with Django's generic foreign key framework, and can be used to create or edit relationships between models.
+
+        """
         opts = self.model._meta
         self.instance = instance
         self.rel_name = (
@@ -65,6 +83,18 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         )
 
     def save_new(self, form, commit=True):
+        """
+        Saves a new instance of a related object.
+
+        Associates the given form instance with the current object and saves it to the database.
+        The instance is linked by setting the content type and foreign key fields on the form instance.
+        The saving process can be customizable by specifying whether the save operation should be committed immediately.
+
+        :param form: The form instance to save, containing the related object data.
+        :param commit: Optional flag to control whether the save operation should be committed immediately (default is True).
+        :return: The saved form instance.
+
+        """
         setattr(
             form.instance,
             self.ct_field.attname,

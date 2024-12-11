@@ -37,6 +37,16 @@ class AsyncDummyCacheTests(SimpleTestCase):
         self.assertEqual(await cache.aget_many(["a", "b", "e"]), {})
 
     async def test_aget_many_invalid_key(self):
+        """
+        Tests the behavior of the aget_many method when an invalid key is provided.
+
+        This test case verifies that the function raises a CacheKeyWarning when attempting to
+        retrieve multiple values with a key that contains spaces. The expected warning message
+        is checked to ensure it matches the predefined format.
+
+        The test covers the scenario where the input key is invalid, helping to ensure the 
+        robustness and reliability of the cache retrieval functionality.
+        """
         msg = KEY_ERRORS_WITH_MEMCACHED_MSG % ":1:key with spaces"
         with self.assertWarnsMessage(CacheKeyWarning, msg):
             await cache.aget_many(["key with spaces"])

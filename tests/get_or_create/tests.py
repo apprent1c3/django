@@ -578,6 +578,16 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(journalist.name, "John")
 
     def test_update_only_defaults_and_pre_save_fields_when_local_fields(self):
+        """
+
+        Tests that the update_or_create method of the ORM's Manager class only updates 
+        the model's fields that have been specified in the defaults dictionary or are 
+        designated as pre-save fields, leaving other fields unchanged. 
+
+        This ensures that only the intended fields are modified when updating an 
+        existing object, preventing unintended changes to other fields.
+
+        """
         publisher = Publisher.objects.create(name="Acme Publishing")
         book = Book.objects.create(publisher=publisher, name="The Book of Ed & Fred")
 
@@ -695,6 +705,13 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
             return date(1940, 10, 10)
 
         def update_birthday_slowly():
+            """
+            Updates the birthday of a person named 'John' in the database using a slow update method.
+
+             The function attempts to retrieve or create a person with the first name 'John' and updates their birthday to a predefined value, simulated with a sleep period to represent a slow update process.
+
+             Upon completion, the database connection is guaranteed to be closed, ensuring proper resource management.
+            """
             try:
                 Person.objects.update_or_create(
                     first_name="John", defaults={"birthday": birthday_sleep}

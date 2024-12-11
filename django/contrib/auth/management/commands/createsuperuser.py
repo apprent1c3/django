@@ -90,6 +90,25 @@ class Command(BaseCommand):
         return super().execute(*args, **options)
 
     def handle(self, *args, **options):
+        """
+        Handle the creation of a superuser.
+
+        This function is responsible for creating a superuser by collecting the required
+        information, such as username and password, and then using it to create the
+        superuser. It supports both interactive and non-interactive modes.
+
+        In interactive mode, the function will prompt the user for the required
+        information, such as username and password, and handle validation and errors.
+        In non-interactive mode, the function will use environment variables to get
+        the required information and create the superuser accordingly.
+
+        Once the superuser is created, the function will print a success message to
+        the console if verbosity is set to 1 or higher.
+
+        Raises:
+            CommandError: If there is an error creating the superuser.
+
+        """
         username = options[self.UserModel.USERNAME_FIELD]
         database = options["database"]
         user_data = {}

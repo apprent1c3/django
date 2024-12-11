@@ -1673,6 +1673,16 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(player1.name, "Bobby")
 
     def test_inlineformset_with_arrayfield(self):
+        """
+
+        Tests the behavior of an inline formset with a field that expects an array of values.
+
+        This test case creates a formset for the Book model, which includes a SimpleArrayField
+        for the title. The formset is then populated with data that includes duplicate values
+        for the title field. The test verifies that the formset correctly identifies and reports
+        the duplicate values as an error.
+
+        """
         class SimpleArrayField(forms.CharField):
             """A proxy for django.contrib.postgres.forms.SimpleArrayField."""
 
@@ -2126,6 +2136,15 @@ class ModelFormsetTest(TestCase):
 
 class TestModelFormsetOverridesTroughFormMeta(TestCase):
     def test_modelformset_factory_widgets(self):
+        """
+        Tests that the modelformset_factory correctly applies custom widgets to form fields.
+
+        Verifies that a ModelFormSet generated with a custom widget for a specific field renders 
+        the expected HTML, including the specified CSS class and other field attributes.
+
+        This test ensures that custom widget definitions are properly integrated into the form set,
+        allowing for fine-grained control over the appearance and behavior of individual form fields.
+        """
         widgets = {"name": forms.TextInput(attrs={"class": "poet"})}
         PoetFormSet = modelformset_factory(Poet, fields="__all__", widgets=widgets)
         form = PoetFormSet.form()
@@ -2255,6 +2274,16 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_modelformset_factory_absolute_max_with_max_num(self):
+        """
+
+        Tests the behavior of a ModelFormSet factory when the absolute maximum number of forms is exceeded.
+
+        This test verifies that when the total number of forms submitted exceeds the absolute maximum,
+        the formset is invalid and only the maximum number of forms allowed is processed.
+        In this case, it checks that the formset with a max_num of 20 and an absolute_max of 100,
+        correctly handles an attempt to submit 101 forms and returns the expected error message.
+
+        """
         AuthorFormSet = modelformset_factory(
             Author,
             fields="__all__",
@@ -2296,6 +2325,17 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_inlineformset_factory_absolute_max_with_max_num(self):
+        """
+
+        Tests the behavior of an inline formset factory when both max_num and absolute_max are specified.
+
+        This test case verifies that the formset validation fails and the correct error message is displayed when the number of forms submitted exceeds the max_num threshold, even if it's below the absolute_max threshold.
+
+        The test also checks that the formset only accepts up to the absolute_max number of forms, even if the submission exceeds this limit.
+
+        It ensures that the formset validation and error handling behave as expected in this scenario, providing a reliable way to enforce form submission limits.
+
+        """
         author = Author.objects.create(name="Charles Baudelaire")
         BookFormSet = inlineformset_factory(
             Author,
@@ -2412,6 +2452,15 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertIsInstance(formset.renderer, DjangoTemplates)
 
     def test_inlineformset_factory_default_renderer(self):
+        """
+        Tests the default renderer used by inline formsets created with the inlineformset_factory function.
+
+         Verifies that a custom renderer defined at the form level is correctly applied to both regular and empty forms within the formset.
+
+         Also checks that the default renderer for the formset itself is an instance of the DjangoTemplates class, as expected when no custom renderer is specified at the formset level.
+
+         This test case ensures that the rendering of forms within an inline formset behaves as expected when default renderers are defined at different levels of the formset hierarchy.
+        """
         class CustomRenderer(DjangoTemplates):
             pass
 

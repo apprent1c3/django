@@ -380,6 +380,13 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertIn('"include" directive disabled', out)
 
     def test_model_with_many_to_one(self):
+        """
+        Tests a model's many-to-one relationship functionality.
+
+        This test case verifies that the model detail page correctly displays information about related objects in a many-to-one relationship.
+        It checks for the presence of links to related objects and the correct display of related object counts.
+        The test ensures that the model's documentation accurately reflects its relationships with other models.
+        """
         link = '<a class="reference external" href="/admindocs/models/%s/">%s</a>'
         response = self.client.get(
             reverse("django-admindocs-models-detail", args=["admin_docs", "company"])

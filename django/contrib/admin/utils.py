@@ -78,6 +78,17 @@ def prepare_lookup_value(key, value, separator=","):
 
 
 def build_q_object_from_lookup_parameters(parameters):
+    """
+    Builds a Django Q object from a dictionary of lookup parameters.
+
+    This function takes a dictionary where keys are field names and values are lists of lookup values.
+    It constructs a Q object that matches any of the provided values for each field, and combines these
+    conditions using logical AND. The resulting Q object can be used in Django ORM queries to filter
+    models based on the provided lookup parameters.
+
+    :param parameters: A dictionary of field names to lists of lookup values
+    :return: A Django Q object representing the combined lookup conditions
+    """
     q_object = models.Q()
     for param, param_item_list in parameters.items():
         q_object &= reduce(or_, (models.Q((param, item)) for item in param_item_list))
@@ -191,6 +202,25 @@ class NestedObjects(Collector):
         self.edges.setdefault(source, []).append(target)
 
     def collect(self, objs, source=None, source_attr=None, **kwargs):
+        """
+        Collects a list of objects and establishes relationships between them, 
+        adding them to the model object collection and creating edges as necessary.
+
+        The collection process uses an optional source object to determine related names 
+        for establishing edges between objects. If a source attribute is provided, 
+        it is used to create an edge between the related object and the current object.
+        If no source attribute is provided or it does not end with '+', a default 
+        related name is generated based on the source object's metadata.
+
+        In case of errors during the collection process, protected or restricted objects 
+        are caught and added to the protected object collection.
+
+        :param objs: The list of objects to collect
+        :param source: The optional source object for determining related names
+        :param source_attr: The optional attribute of the source object for creating edges
+        :param kwargs: Additional keyword arguments for the collection process
+        :return: The result of the collection process, if applicable.
+        """
         for obj in objs:
             if source_attr and not source_attr.endswith("+"):
                 related_name = source_attr % {

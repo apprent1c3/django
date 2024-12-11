@@ -159,6 +159,17 @@ class ClsDec:
         self.myattr = myattr
 
     def __call__(self, f):
+        """
+        A decorator that wraps the given function, ensuring its result is used in conjunction with the instance's attribute.
+
+        The wrapped function must return a truthy value, which is then logically ANDed with the instance's :attr:`myattr`. This allows for conditional control over the combined result.
+
+        This decorator preserves the metadata of the original function, ensuring a seamless wrapping experience.
+
+        Returns:
+            A decorated version of the input function :param f:, modified to return a combined result.
+
+        """
         def wrapper():
             return f() and self.myattr
 
@@ -171,6 +182,13 @@ class MethodDecoratorTests(SimpleTestCase):
     """
 
     def test_preserve_signature(self):
+        """
+
+        Tests that the simple decorator modifies the return value of a function while preserving its original signature.
+
+        This test case verifies that the function being decorated still accepts the same arguments and returns the modified result as expected.
+
+        """
         class Test:
             @simple_dec_m
             def say(self, arg):

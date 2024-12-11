@@ -135,6 +135,19 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             super().remove_field(model, field)
 
     def alter_db_table(self, model, old_db_table, new_db_table):
+        """
+        Alters the database table associated with the given model by renaming it from the old table name to the new table name.
+
+            This function takes care of updating the geometry metadata and spatial indexes for any geometry fields in the model. 
+            It removes the geometry metadata for the old table, performs the actual table renaming, updates the geometry columns 
+            to reference the new table, and then recovers the geometry metadata for the new table. If any spatial indexes are defined 
+            on geometry fields, they are renamed to reference the new table name.
+
+            :param model: The Django model whose database table is to be renamed
+            :param old_db_table: The current name of the table in the database
+            :param new_db_table: The new name for the table in the database
+            :return: None
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if old_db_table == new_db_table or (

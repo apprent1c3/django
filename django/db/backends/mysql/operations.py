@@ -103,6 +103,23 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"DATE({sql})", params
 
     def datetime_cast_time_sql(self, sql, params, tzname):
+        """
+
+        Casts a SQL query to a time type.
+
+        This function takes a SQL query, its parameters, and a timezone name, and returns 
+        a modified SQL query that casts the result to a time type. It first converts the 
+        SQL query to the specified timezone, and then wraps the query in a TIME() function.
+
+        Args:
+            sql (str): The SQL query to be casted to time type.
+            params (list): Parameters of the SQL query.
+            tzname (str): The name of the timezone to convert the query to.
+
+        Returns:
+            tuple: A tuple containing the modified SQL query as a string, and its parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"TIME({sql})", params
 

@@ -93,6 +93,22 @@ def get_candidate_relations_to_delete(opts):
 
 class Collector:
     def __init__(self, using, origin=None):
+        """
+
+        Initializes a database model instance.
+
+        This constructor sets up the basic structure for the model, including the database
+        connection (using), the origin, and data storage. It also establishes placeholder
+        data structures to manage updates, restricted objects, and dependencies.
+
+        The model configuration is defined by the following parameters:
+        - using: specifies the database connection to be used.
+        - origin: optionally defines the origin of the data (defaults to None if not provided).
+
+        After initialization, the instance is prepared to store and manage data, 
+        including tracking updates, dependencies, and restricted objects. 
+
+        """
         self.using = using
         # A Model or QuerySet object.
         self.origin = origin

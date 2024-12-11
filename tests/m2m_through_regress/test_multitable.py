@@ -52,6 +52,13 @@ class MultiTableTests(TestCase):
             )
 
     def test_m2m_prefetch_reverse_proxied(self):
+        """
+        ```
+        Tests the performance of many-to-many relationship prefetching when accessing the reverse side of a proxied relationship.
+
+        This test case checks if the related objects are correctly prefetched when using the :meth:`prefetch_related` method, resulting in a reduced number of database queries. It verifies that the prefetched objects are correctly associated with the primary objects and that the data is accurately retrieved.
+        ```
+        """
         result = Person.objects.filter(name="Dan").prefetch_related("special_event_set")
         with self.assertNumQueries(2):
             self.assertCountEqual(result, [self.dan])

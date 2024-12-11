@@ -11,6 +11,18 @@ logger = logging.getLogger("django.dispatch")
 
 
 def _make_id(target):
+    """
+    Generates a unique identifier for the given target object.
+
+    The identifier is created based on the type of the target object. If the target
+    is a bound method, the identifier is a tuple containing the ids of the instance
+    and the method itself. Otherwise, the identifier is simply the id of the target
+    object.
+
+    Returns:
+        tuple or int: A unique identifier for the target object.
+
+    """
     if hasattr(target, "__func__"):
         return (id(target.__self__), id(target.__func__))
     return id(target)

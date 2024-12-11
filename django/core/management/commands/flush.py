@@ -30,6 +30,35 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handle a database flush command.
+
+        This function takes various options to control the flushing behavior, including 
+        the database to flush, the level of verbosity, and whether to reset sequences 
+        or allow cascades. It first checks if the flush operation should be confirmed 
+        interactively and, if confirmed, executes the necessary SQL commands to flush 
+        the database. If the flush operation is successful and post-migration signals 
+        are not inhibited, it emits a post-migrate signal. 
+
+        The function raises a CommandError if the flush operation fails due to various 
+        reasons such as the database not running or being misconfigured, missing tables, 
+        or invalid SQL.
+
+        Parameters
+        ----------
+        **options : dict
+            A dictionary of options controlling the flush behavior.
+            - database (str): the database to flush.
+            - verbosity (int): the level of verbosity.
+            - interactive (bool): whether to confirm the flush operation interactively.
+            - reset_sequences (bool): whether to reset sequences (default: True).
+            - allow_cascade (bool): whether to allow cascades (default: False).
+            - inhibit_post_migrate (bool): whether to inhibit post-migration signals (default: False).
+
+        Raises
+        ------
+        CommandError: if the flush operation fails.
+        """
         database = options["database"]
         connection = connections[database]
         verbosity = options["verbosity"]

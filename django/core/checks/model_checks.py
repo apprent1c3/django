@@ -133,6 +133,13 @@ def _check_lazy_references(apps, ignore=None):
         return operation, args, keywords
 
     def app_model_error(model_key):
+        """
+        Returns an error message if a specified model is not found or its corresponding app is not installed.
+
+        :param model_key: A tuple containing the app name and model name to be checked
+        :return: A string describing the error encountered while looking up the model
+        :raises: None, but handles LookupError internally and returns a corresponding error message
+        """
         try:
             apps.get_app_config(model_key[0])
             model_error = "app '%s' doesn't provide model '%s'" % model_key

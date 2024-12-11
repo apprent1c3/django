@@ -430,6 +430,25 @@ class NoURLPatternsTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
 class URLPatternReverse(SimpleTestCase):
     def test_urlpattern_reverse(self):
+        """
+
+        Tests the reversing of URL patterns.
+
+        This function iterates over a set of test data, attempting to reverse URL patterns
+        using the provided name, arguments, and keyword arguments. It verifies that the
+        reversed URL matches the expected result, or that a NoReverseMatch exception is
+        raised as expected.
+
+        The test data is composed of tuples containing the URL pattern name, the expected
+        reversed URL, and the arguments and keyword arguments to use during the reversal
+        process. Each test case is run as a sub-test, allowing for detailed reporting of
+        any failures that may occur.
+
+        The function ensures that the URL reversal process behaves as expected, providing
+        confidence in the correctness of the URL patterns and their usage within the
+        application.
+
+        """
         for name, expected, args, kwargs in test_data:
             with self.subTest(name=name, args=args, kwargs=kwargs):
                 try:
@@ -755,6 +774,22 @@ class ReverseShortcutTests(SimpleTestCase):
             redirect("not-a-view")
 
     def test_redirect_to_url(self):
+        """
+        Tests the redirect function to ensure it correctly processes and returns URLs.
+
+        The function is tested with various URL types, including relative URLs, absolute URLs,
+        and URLs containing special characters. The test cases verify that the redirect function
+        properly handles URL encoding, preserving the original URL's structure and content.
+
+        Validates the redirect function's behavior with different input scenarios, covering:
+        - Relative URLs (e.g., '/foo/')
+        - Absolute URLs (e.g., 'http://example.com/')
+        - URLs with special characters (e.g., '/æøå/abc/', '/æøå.abc/')
+        - URLs with module paths (e.g., 'os.path')
+
+        Ensures the redirect function returns the expected URL in each case, confirming its
+        correct functionality and URL handling capabilities.
+        """
         res = redirect("/foo/")
         self.assertEqual(res.url, "/foo/")
         res = redirect("http://example.com/")
@@ -1465,6 +1500,13 @@ class ErrorHandlerResolutionTests(SimpleTestCase):
         self.callable_resolver = URLResolver(RegexPattern(r"^$"), urlconf_callables)
 
     def test_named_handlers(self):
+        """
+        Tests the resolver's named handlers for various HTTP error codes.
+
+        It checks that the resolver correctly maps HTTP error codes to their corresponding error handlers.
+        The following error codes are tested: 400 (Bad Request), 403 (Forbidden), 404 (Not Found), and 500 (Internal Server Error).
+        For each error code, it verifies that the resolver returns the expected empty view handler.
+        """
         for code in [400, 403, 404, 500]:
             with self.subTest(code=code):
                 self.assertEqual(self.resolver.resolve_error_handler(code), empty_view)
@@ -1576,6 +1618,16 @@ class ResolverMatchTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
     def test_repr_functools_partial(self):
+        """
+
+        Tests the representation of a functools.partial object when used as a view function in a URL resolver.
+
+        The test covers different scenarios, including a simple partial view, a partial view with nested templates, 
+        and a partial view wrapped around another function. It verifies that the representation of the resolver 
+        match is correctly generated, including the partial function and its arguments, as well as the URL path 
+        and namespace information.
+
+        """
         tests = [
             ("partial", "template.html"),
             ("partial_nested", "nested_partial.html"),

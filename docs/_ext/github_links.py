@@ -76,6 +76,28 @@ def module_name_to_file_path(module_name):
 
 
 def get_path_and_line(module, fullname):
+    """
+
+    Resolve the path and line number of a specific code element within a module.
+
+    Given a module name and a fully qualified name of a code element (e.g., a function, class, or variable),
+    this function returns a tuple containing the file path and line number where the element is defined.
+
+    The function performs the following steps:
+
+    * Resolves the file path of the given module
+    * Attempts to find the line number of the code element in the module
+    * If the element is not found, it searches for the element in imported modules
+    * Recursively searches in imported modules until the element is found or all possibilities are exhausted
+
+    Raises:
+        CodeNotFound: If the code element is not found in the module or any of its imports
+        ImportError: If an import error occurs while searching for the code element
+
+    Returns:
+        tuple: A tuple containing the file path and line number of the code element
+
+    """
     path = module_name_to_file_path(module_name=module)
 
     locator = get_locator(path)

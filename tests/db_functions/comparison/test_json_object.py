@@ -70,6 +70,13 @@ class JSONObjectTests(TestCase):
         )
 
     def test_nested_empty_json_object(self):
+        """
+        Tests the annotation of a database object with a nested empty JSON object.
+
+         Verifies that a nested JSONObject with no properties is correctly annotated and 
+         retrieved from the database as an empty dictionary, while still including 
+         other properties from the parent JSON object.
+        """
         obj = Author.objects.annotate(
             json_object=JSONObject(
                 name="name",

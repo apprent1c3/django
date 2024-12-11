@@ -48,6 +48,19 @@ class BulkCreateTests(TestCase):
         ]
 
     def test_simple(self):
+        """
+
+        Tests the functionality of bulk creating Country objects.
+
+        This test checks the following scenarios:
+        - Bulk creation of multiple Country objects and verifies that the created objects match the input data.
+        - Bulk creation of an empty list and checks that the result is an empty list.
+        - Verifies that the created Country objects are correctly stored in the database and can be retrieved in the correct order.
+        - Confirms that the total count of Country objects in the database is as expected after bulk creation.
+
+        Ensures the integrity and functionality of the Country model's bulk creation method.
+
+        """
         created = Country.objects.bulk_create(self.data)
         self.assertEqual(created, self.data)
         self.assertQuerySetEqual(
@@ -269,6 +282,16 @@ class BulkCreateTests(TestCase):
         self.assertEqual(TwoFields.objects.count(), num_objs)
 
     def test_empty_model(self):
+        """
+        Tests that creating multiple instances of a model with no fields succeeds.
+
+        This test case verifies that the bulk creation of model instances without fields
+        is properly persisted to the database, and that the subsequent model query returns
+        the correct count of objects.
+
+        Note: This test is specifically designed for models that do not contain any fields,
+               ensuring that the core model functionality remains intact in such scenarios.
+        """
         NoFields.objects.bulk_create([NoFields() for i in range(2)])
         self.assertEqual(NoFields.objects.count(), 2)
 
@@ -421,6 +444,16 @@ class BulkCreateTests(TestCase):
 
     @skipUnlessDBFeature("can_return_rows_from_bulk_insert")
     def test_nullable_fk_after_parent_bulk_create(self):
+        """
+        Tests the ability to set nullable foreign keys after bulk creation of parent objects.
+
+        This test case verifies that a child object with a nullable foreign key can be correctly
+        associated with its parent after both objects are created using bulk creation operations.
+        It ensures that the foreign key relationship is properly established and can be retrieved
+        from the database. The test covers a scenario where the parent object is created first,
+        followed by the creation of the child object, and then verifies the integrity of the
+        relationship by checking if the child object's foreign key matches the expected parent object.
+        """
         parent = NoFields()
         child = NullableFields(auto_field=parent, integer_field=88)
         NoFields.objects.bulk_create([parent])
@@ -514,6 +547,20 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts_with_target",
     )
     def test_update_conflicts_invalid_update_fields(self):
+        """
+
+        Tests the behavior of bulk_create() when update_conflicts is enabled and invalid fields are specified in update_fields.
+
+        The test checks that a ValueError is raised when attempting to bulk create objects with update_conflicts=True and update_fields set to non-concrete fields, such as related model fields or abstract fields.
+
+        Specifically, it verifies that the error message 'bulk_create() can only be used with concrete fields in update_fields.' is raised in the following scenarios:
+
+        - When trying to bulk create Country objects with update_fields set to a related model field.
+        - When trying to bulk create RelatedModel objects with update_fields set to an abstract field (big_auto_fields).
+
+        This test requires the database to support update conflicts and update conflicts with target.
+
+        """
         msg = "bulk_create() can only be used with concrete fields in update_fields."
         # Reverse one-to-one relationship.
         with self.assertRaisesMessage(ValueError, msg):

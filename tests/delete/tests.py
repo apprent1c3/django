@@ -59,6 +59,17 @@ class OnDeleteTests(TestCase):
             models.OneToOneField("self", on_delete=None)
 
     def test_auto_nullable(self):
+        """
+        Tests that an object with auto nullable field is properly deleted.
+
+        This test case verifies that when an object is deleted, its associated auto
+        nullable field is correctly updated, resulting in the object's record being
+        removed from the database.
+
+        The test creates an object with a name 'auto_nullable', then deletes it and
+        checks that the object no longer exists in the database, confirming the
+        correct functionality of the auto nullable field's deletion logic.
+        """
         a = create_a("auto_nullable")
         a.auto_nullable.delete()
         self.assertFalse(A.objects.filter(name="auto_nullable").exists())
@@ -170,6 +181,15 @@ class OnDeleteTests(TestCase):
         self.assertFalse(RChild.objects.filter(pk=child.pk).exists())
 
     def test_cascade_from_child(self):
+        """
+
+        Tests the cascading deletion of a parent object when its child is deleted.
+
+        Verifies that when a child object is removed, the parent object is also deleted 
+        from the database, maintaining referential integrity. This ensures that 
+        orphaned parent objects are not left behind after the deletion of their children.
+
+        """
         a = create_a("child")
         a.child.delete()
         self.assertFalse(A.objects.filter(name="child").exists())
@@ -782,6 +802,18 @@ class FastDeleteTests(TestCase):
     def test_fast_delete_aggregation(self):
         # Fast-deleting when filtering against an aggregation result in
         # a single query containing a subquery.
+        """
+
+            Tests the efficiency of deleting objects from the database when using aggregation.
+
+            This test case creates a single instance of the Base model, then uses an annotated
+            query to filter and delete instances with no related objects. The test asserts that
+            the deletion operation is performed in a single database query.
+
+            The test also verifies that after the deletion, no instances of the Base model
+            remain in the database.
+
+        """
         Base.objects.create()
         with self.assertNumQueries(1):
             self.assertEqual(

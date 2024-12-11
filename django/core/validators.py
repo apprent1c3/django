@@ -244,6 +244,14 @@ class EmailValidator:
     domain_allowlist = ["localhost"]
 
     def __init__(self, message=None, code=None, allowlist=None):
+        """
+        Initializes an instance of the class, optionally setting an error message, code, and domain allowlist.
+
+        :param message: The error message to be set, defaults to None
+        :param code: The error code to be set, defaults to None
+        :param allowlist: The domain allowlist to be set, defaults to None
+        :note: Any of the provided parameters that are None will retain their default values.
+        """
         if message is not None:
             self.message = message
         if code is not None:
@@ -481,6 +489,22 @@ class StepValueValidator(BaseValidator):
                 raise ValidationError(self.message, code=self.code, params=params)
 
     def compare(self, a, b):
+        """
+        Compares two numbers to determine if 'a' minus an optional offset is not exactly divisible by 'b'.
+
+        The comparison is performed with a high degree of precision using the math.isclose function, 
+        which checks if the absolute difference between the remainder of the division of 'a - offset' by 'b' and 0 is strictly greater than a very small tolerance (1e-09).
+
+        Args:
+            a (float): The dividend number to be compared.
+            b (float): The divisor number against which the comparison is made.
+
+        Returns:
+            bool: True if 'a - offset' is not exactly divisible by 'b', False otherwise.
+
+        Note:
+            The 'offset' is an attribute of the instance and defaults to 0 if not set. It is subtracted from 'a' before performing the comparison.
+        """
         offset = 0 if self.offset is None else self.offset
         return not math.isclose(math.remainder(a - offset, b), 0, abs_tol=1e-9)
 

@@ -175,6 +175,14 @@ def _ogrinspect(
 
     # Gets the `null` and `blank` keywords for the given field name.
     def get_kwargs_str(field_name):
+        """
+        Returns a string containing keyword arguments for a field based on its name.
+
+        The function checks if the field name (case-insensitive) is in the list of null or blank fields.
+        If it is, the corresponding keyword argument ('null=True' or 'blank=True') is added to the output string.
+        The returned string is formatted as a comma-separated list of keyword arguments, preceded by a comma and a space.
+        If no keyword arguments are applicable, an empty string is returned.
+        """
         kwlist = []
         if field_name.lower() in null_fields:
             kwlist.append("null=True")

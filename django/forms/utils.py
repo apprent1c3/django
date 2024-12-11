@@ -192,6 +192,18 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         return list(self) == other
 
     def __getitem__(self, i):
+        """
+        Returns the validation error or error message at the specified index.
+
+        This method allows for indexing into the list of validation errors or error messages.
+        If the error at the specified index is a ValidationError, it returns the first 
+        validation error message. Otherwise, it returns the error or error message at the 
+        specified index.
+
+        :arg int i: The index of the error or error message to retrieve.
+        :rtype: str or object
+        :return: The validation error message or error at the specified index.
+        """
         error = self.data[i]
         if isinstance(error, ValidationError):
             return next(iter(error))

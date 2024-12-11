@@ -45,6 +45,16 @@ class AbsTests(TestCase):
         self.assertEqual(obj.big, -obj.big_abs)
 
     def test_transform(self):
+        """
+
+        Tests the transformation of a model field using the absolute value lookup.
+
+        This test verifies that the absolute value lookup can correctly filter objects
+        based on the absolute value of a decimal field. It creates test objects with
+        negative decimal values, applies the absolute value transformation, and checks
+        that the correct object is returned by the filter.
+
+        """
         with register_lookup(DecimalField, Abs):
             DecimalModel.objects.create(n1=Decimal("-1.5"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.5"), n2=Decimal("0"))

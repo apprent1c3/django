@@ -49,6 +49,27 @@ class TestDbSignatureTests(SimpleTestCase):
 
     def test_custom_test_name_with_test_prefix(self):
         # A test db name prefixed with TEST_DATABASE_PREFIX is set.
+        """
+        Tests that the database creation process correctly assigns a custom test name 
+        that begins with the expected prefix.
+
+        Verifies that the test database signature includes the custom test name, 
+        ensuring the database creation process uses the specified name for test databases.
+
+        The test checks if the generated test database signature matches the 
+        expected database name, confirming correct behavior of the database creation logic.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the generated test database signature does not match the 
+            expected custom test database name.
+
+        """
         test_name = TEST_DATABASE_PREFIX + "hodor"
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"] = {"NAME": test_name}
@@ -220,6 +241,17 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_circular_reference_with_natural_key(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # circular references for models with natural keys.
+        """
+        Tests the ability of the natural key serialization system to handle circular references between two objects.
+
+        This test case creates two objects, A and B, where A references B and B references A, 
+        then serializes the database, deletes the objects, deserializes the database, 
+        and verifies that the references between the objects are correctly restored.
+
+        The test demonstrates the correctness of the serialization and deserialization process 
+        in the presence of circular object references, ensuring that the relationships 
+        between the objects are preserved across serialization and deserialization operations.
+        """
         obj_a = CircularA.objects.create(key="A")
         obj_b = CircularB.objects.create(key="B", obj=obj_a)
         obj_a.obj = obj_b
@@ -252,6 +284,15 @@ class TestDeserializeDbFromString(TransactionTestCase):
         self.assertIn('"year": 1000', data)
 
     def test_serialize_db_to_string_base_manager_with_prefetch_related(self):
+        """
+        Tests the serialize_db_to_string method of the base database manager, specifically when using prefetch related objects.
+
+        The test creates a SchoolClass and a SchoolBus instance, and associates them with each other. It then tests the serialization of the database to a string, verifying that the resulting data includes the expected models (SchoolBus and SchoolClass) and their relationships.
+
+        The test also checks that the serialized data includes the primary key of the SchoolClass instance, ensuring that the relationships between models are correctly represented.
+
+        This test case ensures that the database can be successfully serialized to a string, including prefetched related objects, and that the resulting data accurately represents the model instances and their relationships.
+        """
         sclass = SchoolClass.objects.create(
             year=2000, last_updated=datetime.datetime.now()
         )

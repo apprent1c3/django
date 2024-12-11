@@ -543,6 +543,19 @@ class Scale(SQLiteDecimalToFloatMixin, GeomOutputGeoFunc):
 
 class SnapToGrid(SQLiteDecimalToFloatMixin, GeomOutputGeoFunc):
     def __init__(self, expression, *args, **extra):
+        """
+        Initializes a SnapToGrid object with an expression and optional additional arguments.
+
+        The object accepts a main expression and up to four additional arguments.
+        The additional arguments can be provided in two forms:
+        - one or two additional numeric arguments, which are appended to the main expression
+        - four additional numeric arguments, with the first two and last two arguments treated separately
+
+        If an invalid number of arguments is provided, a ValueError is raised.
+
+        The resulting object can be used to generate a grid-based snapping effect.
+
+        """
         nargs = len(args)
         expressions = [expression]
         if nargs in (1, 2):

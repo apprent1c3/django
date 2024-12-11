@@ -45,6 +45,9 @@ class Tests(TestCase):
                 )
 
     def test_distinct_aggregation(self):
+        """
+        Tests that an exception is raised when attempting to use the DISTINCT keyword with an aggregate function that accepts multiple arguments in SQLite, which does not support this operation.
+        """
         class DistinctAggregate(Aggregate):
             allow_distinct = True
 

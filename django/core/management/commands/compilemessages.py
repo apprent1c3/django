@@ -9,6 +9,19 @@ from django.core.management.utils import find_command, is_ignored_path, popen_wr
 
 
 def has_bom(fn):
+    """
+    Checks if a file contains a byte order mark (BOM) at its beginning.
+
+    This function opens the specified file in binary mode, reads the first few bytes, 
+    and checks if they match any of the known BOM signatures for UTF-8, UTF-16 little-endian, 
+    or UTF-16 big-endian encodings. If a match is found, the function returns True; 
+    otherwise, it returns False.
+
+    :param fn: A file object to check for a BOM.
+    :rtype: bool
+    :returns: Whether the file starts with a byte order mark.
+
+    """
     with fn.open("rb") as f:
         sample = f.read(4)
     return sample.startswith(
@@ -70,6 +83,36 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        .. method:: handle(**options)
+           :noindex:
+
+           Handles the compilation of Django translation messages.
+
+           This method compiles translation messages for the specified locale(s), 
+           excluding any locales that are specified to be ignored. It searches for 
+           translation directories in the Django project or app tree, and compiles 
+           messages for the specified locale(s).
+
+           The method takes the following options:
+
+           * `locale`: The locale(s) to compile messages for. If not specified, 
+             all available locales will be compiled.
+           * `exclude`: A list of locales to exclude from compilation.
+           * `ignore_patterns`: A list of directory patterns to ignore during 
+             compilation.
+           * `verbosity`: The level of verbosity to use during compilation.
+           * `fuzzy`: A flag indicating whether to use fuzzy matching during 
+             compilation.
+
+           The method checks if the required ``gettext`` tools are installed and 
+           available, and raises an error if they are not found. It also checks 
+           if the script is being run from a valid Django project or app tree, 
+           and raises an error if not. 
+
+           If any errors occur during compilation, the method raises a 
+           :class:`CommandError` exception.
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         ignore_patterns = set(options["ignore_patterns"])

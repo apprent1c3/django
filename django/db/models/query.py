@@ -83,6 +83,22 @@ class ModelIterable(BaseIterable):
     """Iterable that yields a model instance for each row."""
 
     def __iter__(self):
+        """
+
+        Returns an iterator over the model instances resulting from the execution of the queryset's SQL query.
+
+        The iteration process involves the following steps:
+
+        * Execution of the SQL query using the database's compiler
+        * Reconstruction of model instances from the query results
+        * Population of related objects for the model instances
+        * Annotation of model instances with additional attributes, if specified
+        * Caching of related objects to avoid redundant lookups
+
+        Yields:
+            model_cls: An instance of the model class resulting from the queryset's SQL query
+
+        """
         queryset = self.queryset
         db = queryset.db
         compiler = queryset.query.get_compiler(using=db)
@@ -436,6 +452,24 @@ class QuerySet(AltersData):
         return cls
 
     def __and__(self, other):
+        """
+
+        Performs a logical AND operation between the current query set and another query set.
+
+        This method combines two query sets using the logical AND operator, effectively 
+        filtering the results to include only items that match both query sets. 
+
+        It first checks if either of the query sets is empty, in which case it returns 
+        the empty query set. If both query sets are valid, it merges their known related 
+        objects and combines their SQL queries using the AND operator.
+
+        The result is a new query set that includes only the items that satisfy both 
+        conditions.
+
+        :param other: The query set to combine with the current query set using AND.
+        :returns: A new query set resulting from the AND operation.
+
+        """
         self._check_operator_queryset(other, "&")
         self._merge_sanity_check(other)
         if isinstance(other, EmptyQuerySet):
@@ -448,6 +482,15 @@ class QuerySet(AltersData):
         return combined
 
     def __or__(self, other):
+        """
+        Performs a union operation between the current queryset and another queryset using the bitwise OR operator.
+
+        This function combines the results of two querysets, removing any duplicates. It returns a new queryset that contains all unique objects from both querysets.
+
+        If either of the querysets is empty, the function returns the non-empty queryset. This allows for chaining of operations without worrying about empty sets.
+
+        The function performs sanity checks and ensures that the resulting queryset is a combination of the two input querysets, using the `OR` SQL operator to combine the queries.
+        """
         self._check_operator_queryset(other, "|")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -2105,6 +2148,11 @@ class RawQuerySet:
         return bool(self._result_cache)
 
     def __iter__(self):
+        """
+        Returns an iterator over the cached results, allowing for iteration over the entire collection of data. 
+
+        This method initiates a fetch of all data if it has not been retrieved already, ensuring that the entire dataset is available for iteration. The iteration yields each item in the cached result set, providing a convenient way to access and process the data.
+        """
         self._fetch_all()
         return iter(self._result_cache)
 
@@ -2635,6 +2683,30 @@ class RelatedPopulator:
     """
 
     def __init__(self, klass_info, select, db):
+        """
+
+        Initializes the object with the provided class information, selection criteria, and database connection.
+
+        The initialization process involves setting up the object's properties, such as the database connection, 
+        selected columns, and model class. It also determines the order of columns for initialization and 
+        identify the primary key index. If the class has a parent, it reorders the columns based on the parent's 
+        structure. Additionally, it retrieves related populators and setters for local and remote operations.
+
+        Parameters:
+            klass_info (dict): A dictionary containing class information, including select fields, model, 
+                and setter functions.
+            select (list): A list of selected fields.
+            db (object): The database connection object.
+
+        Attributes:
+            db (object): The database connection object.
+            model_cls (class): The model class.
+            pk_idx (int): The index of the primary key.
+            related_populators (list): A list of related populators.
+            local_setter (function): A function for setting local attributes.
+            remote_setter (function): A function for setting remote attributes.
+
+        """
         self.db = db
         # Pre-compute needed attributes. The attributes are:
         #  - model_cls: the possibly deferred model class to instantiate
@@ -2705,6 +2777,29 @@ class RelatedPopulator:
 
 
 def get_related_populators(klass_info, select, db):
+    """
+
+    Get a list of iterators for related populators based on the provided class information.
+
+    This function retrieves related class information and creates an iterator for each related class.
+    The iterators are then returned as a list, allowing for further population or processing of related data.
+    The function takes into account the database connection and selection criteria provided.
+
+    Parameters
+    ----------
+    klass_info : dict
+        The class information containing related class details.
+    select : 
+        The selection criteria for populating related data.
+    db : 
+        The database connection.
+
+    Returns
+    -------
+    list
+        A list of iterators for the related populators.
+
+    """
     iterators = []
     related_klass_infos = klass_info.get("related_klass_infos", [])
     for rel_klass_info in related_klass_infos:

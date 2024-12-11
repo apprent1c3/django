@@ -260,6 +260,13 @@ class BandList(list):
         super().__init__()
 
     def __iter__(self):
+        """
+        Returns an iterator over the bands in the dataset.
+
+        Yields:
+            GDALBand: A GDALBand object representing each band in the dataset, 
+                      allowing for sequential access to the bands by their index.
+        """
         for idx in range(1, len(self) + 1):
             yield GDALBand(self.source, idx)
 

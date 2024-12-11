@@ -159,6 +159,19 @@ class MeasureBase:
             )
 
     def __imul__(self, other):
+        """
+
+        Multiplies the object by a numerical value in place.
+
+        This operation scales the object's standard value by the given factor. It only 
+        supports multiplication with numeric types. If the multiplier is not a number, 
+        a TypeError is raised.
+
+        :param other: The numerical value to multiply with
+        :raises TypeError: If the multiplier is not a number
+        :return: The object itself, modified in place
+
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard *= float(other)
             return self
@@ -325,6 +338,13 @@ class Distance(MeasureBase):
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
     def __mul__(self, other):
+        """
+        Multiply an area by either another area or a numeric value.
+
+        This operation allows you to scale or combine areas in a meaningful way. If you multiply by another area, the two areas are combined by multiplying their standard units. If you multiply by a numeric value, the area's standard unit is scaled by that value.
+
+        The result is a new instance of the class, with the calculated area. If the operation is invalid (i.e., attempting to multiply by a non-numeric, non-area value), a TypeError is raised.
+        """
         if isinstance(other, self.__class__):
             return Area(
                 default_unit=AREA_PREFIX + self._default_unit,

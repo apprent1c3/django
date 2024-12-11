@@ -1147,6 +1147,22 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
                 return self._apply_rel_filters(queryset)
 
         def get_prefetch_queryset(self, instances, queryset=None):
+            """
+
+            Retrieve a queryset for prefetching related objects.
+
+            This method is deprecated in favor of :meth:`get_prefetch_querysets`. 
+            Please use :meth:`get_prefetch_querysets` instead for new code.
+
+            Returns a queryset for prefetching related objects for the given instances.
+            If no queryset is provided, it will return a queryset for all related objects.
+            Otherwise, it will return a queryset for the provided queryset.
+
+            :param instances: The instances for which to retrieve the prefetch queryset.
+            :param queryset: Optional queryset to filter the related objects.
+            :rtype: The retrieved prefetch queryset.
+
+            """
             warnings.warn(
                 "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
                 "instead.",
@@ -1287,6 +1303,25 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         aremove.alters_data = True
 
         def clear(self):
+            """
+            Clears all many-to-many relationships between the instance and the related model.
+
+            This method removes all existing relationships by deleting the corresponding
+            records from the through table. The removal process is atomic, ensuring
+            database consistency.
+
+            The following events are triggered during the clearing process:
+            - A 'pre_clear' signal is sent before removing the relationships.
+            - A 'post_clear' signal is sent after the relationships have been removed.
+
+            The clear operation is typically used to reset the many-to-many relationship
+            between an instance and a related model, allowing for new relationships to be
+            established afterwards.
+
+            Note that this method does not affect the instance itself, but rather the
+            relationships it has with other models.
+
+            """
             db = router.db_for_write(self.through, instance=self.instance)
             with transaction.atomic(using=db, savepoint=False):
                 signals.m2m_changed.send(

@@ -193,6 +193,13 @@ class ModelInheritanceTest(TestCase):
     def test_issue_7105(self):
         # Regressions tests for #7105: dates() queries should be able to use
         # fields from the parent model as easily as the child.
+        """
+        Tests the correct functionality of the `datetimes` method in the `Child` model when retrieving dates by month.
+
+        The purpose of this test is to ensure that when a `Child` object is created with a specific creation date, the `datetimes` method correctly truncates the date to the first day of the month.
+
+        The test verifies that the `datetimes` method returns the expected datetime object, which corresponds to the first day of the month in which the `Child` object was created. The test case checks for equality between the returned datetime and the expected result.
+        """
         Child.objects.create(
             name="child", created=datetime.datetime(2008, 6, 26, 17, 0, 0)
         )

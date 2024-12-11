@@ -53,6 +53,22 @@ class M2MRegressionTests(TestCase):
         # Test to ensure that the relationship between two inherited models
         # with a self-referential m2m field maintains symmetry
 
+        """
+
+        Tests the symmetry of many-to-many relationships in the context of model inheritance.
+
+        Verifies that when a relationship is established between two instances of different models
+        that inherit from a common base model, the relationship is correctly reflected in both
+        directions. This ensures that the many-to-many relationship is symmetrical, meaning that
+        if instance A is related to instance B, then instance B is also related to instance A.
+
+        The test covers the specific scenario where two sibling models, each inheriting from a 
+        common base model, have a many-to-many relationship with each other. It checks that 
+        after establishing a relationship between instances of these sibling models, the 
+        relationship is correctly represented in both instances, confirming the symmetry of 
+        the many-to-many relationship.
+
+        """
         sr_child = SelfReferChild(name="Hanna")
         sr_child.save()
 

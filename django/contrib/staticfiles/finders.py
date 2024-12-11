@@ -206,6 +206,18 @@ class AppDirectoriesFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # The list of apps that are handled
+        """
+
+        Initializes the instance with the specified application names.
+
+        This initializer sets up the storage locations for the specified applications.
+        If no application names are provided, it defaults to all applications in the project.
+        For each application, it checks if the storage directory exists and sets up the storage instance if it does.
+        The initialized instance will have a list of application names and a dictionary of storage instances, keyed by application name.
+
+        :param app_names: Optional list of application names to initialize storage for.
+
+        """
         self.apps = []
         # Mapping of app names to storage instances
         self.storages = {}

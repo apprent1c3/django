@@ -33,6 +33,16 @@ class Corr(StatAggregate):
 
 class CovarPop(StatAggregate):
     def __init__(self, y, x, sample=False, filter=None, default=None):
+        """
+        Initializes a covariance calculation object.
+
+        :param y: The dependent variable.
+        :param x: The independent variable.
+        :param sample: If True, calculates the sample covariance; otherwise, calculates the population covariance.
+        :param filter: Optional filter to apply to the data before calculation.
+        :param default: Default value to use when data is missing or filtered out.
+        :note: The function used for calculation is determined by the `sample` parameter, defaulting to population covariance ('COVAR_POP') if False, and sample covariance ('COVAR_SAMP') if True.
+        """
         self.function = "COVAR_SAMP" if sample else "COVAR_POP"
         super().__init__(y, x, filter=filter, default=default)
 

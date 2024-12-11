@@ -132,6 +132,17 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a tuple of four values: name, path, args, and kwargs.
+
+        This method is used to serialize the object into a format that can be used to recreate it.
+        It builds upon the deconstruction provided by its parent class, modifying the path if necessary
+        to ensure compatibility with different versions of Django.
+
+        The kwargs dictionary is updated with the cloned base field and the size parameter, 
+        which are essential for reconstructing the object with the same properties.
+        The returned tuple can be used to reconstruct the object, making it useful for tasks like database migrations.
+        """
         name, path, args, kwargs = super().deconstruct()
         if path == "django.contrib.postgres.fields.array.ArrayField":
             path = "django.contrib.postgres.fields.ArrayField"
@@ -260,6 +271,13 @@ class ArrayRHSMixin:
         super().__init__(lhs, rhs)
 
     def process_rhs(self, compiler, connection):
+        """
+        Processes the right-hand side of a database operation, applying a type cast if necessary.
+
+        :param compiler: The database compiler in use.
+        :param connection: The database connection.
+        :return: A tuple containing the processed right-hand side as a string and the associated parameters. The right-hand side is modified to include a type cast to the type of the left-hand side, ensuring consistent data types during the operation.
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         cast_type = self.lhs.output_field.cast_db_type(connection)
         return "%s::%s" % (rhs, cast_type), rhs_params

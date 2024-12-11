@@ -26,6 +26,21 @@ async def auser(request):
 
 class AuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
+        """
+        GameController process_request
+
+         Process the current HTTP request, setting up the user object and other authentication-related attributes.
+
+         This method first checks if the request object has a 'session' attribute, raising an ImproperlyConfigured exception if not.
+         It then lazily sets the 'user' attribute of the request object, allowing deferment of user object retrieval until it is actually needed.
+         Additionally, it sets the 'auser' attribute of the request object to a partial function that, when called, returns the authenticated user object for the given request.
+
+         Args:
+             request: The current HTTP request object.
+
+         Raises:
+             ImproperlyConfigured: If the request object does not have a 'session' attribute.
+        """
         if not hasattr(request, "session"):
             raise ImproperlyConfigured(
                 "The Django authentication middleware requires session "

@@ -131,6 +131,17 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            Converts a geometric value from a binary format to a GEOSGeometry object.
+
+            :param value: The binary geometric value to be converted.
+            :param expression: The geometric expression associated with the value.
+            :param connection: The database connection used to perform the conversion.
+
+            :returns: A GEOSGeometry object representing the converted geometric value, or None if the input value is None.
+
+            :note: The resulting GEOSGeometry object has its SRID set to the specified value if provided.
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value)), geom_class)
                 if srid:

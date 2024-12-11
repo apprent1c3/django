@@ -22,6 +22,16 @@ class StaticFilesStorage(FileSystemStorage):
     """
 
     def __init__(self, location=None, base_url=None, *args, **kwargs):
+        """
+        Initializes a new instance of the class, setting up the location and base URL for static files.
+
+         :param location: The path to the directory containing static files. Defaults to the value of `STATIC_ROOT` setting if not provided.
+         :param base_url: The base URL to use when serving static files. Defaults to the value of `STATIC_URL` setting if not provided.
+         :param args: Additional positional arguments to pass to the parent class.
+         :param kwargs: Additional keyword arguments to pass to the parent class.
+
+         The provided location and base URL are validated to ensure correct settings. If no location is provided, the instance's location attributes are set to None.
+        """
         if location is None:
             location = settings.STATIC_ROOT
         if base_url is None:
@@ -463,6 +473,15 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.hashed_files, self.manifest_hash = self.load_manifest()
 
     def read_manifest(self):
+        """
+        Returns the contents of the manifest file as a string.
+
+        The manifest file is read from the storage location specified by :attr:`manifest_storage`.
+        If the manifest file does not exist, the function returns None.
+
+        :raises None
+        :rtype: str or None
+        """
         try:
             with self.manifest_storage.open(self.manifest_name) as manifest:
                 return manifest.read().decode()

@@ -142,6 +142,17 @@ class LoginNotRequiredTestCase(TestCase):
 
     def test_decorator_marks_view_as_login_not_required(self):
         @login_not_required
+        """
+
+        Tests that the login_not_required decorator correctly marks a view as not requiring login.
+
+        The test verifies that when the login_not_required decorator is applied to a view function,
+        the view's login_required attribute is set to False, indicating that authentication is not necessary to access the view.
+
+        This ensures that views decorated with login_not_required can be accessed without authentication,
+        while still allowing other views to enforce login requirements as needed.
+
+        """
         def view(request):
             return HttpResponse()
 
@@ -241,6 +252,16 @@ class PermissionsRequiredDecoratorTest(TestCase):
             ],
             raise_exception=True,
         )
+        """
+
+        Tests that a PermissionDenied exception is raised when a view requires a permission that the user does not have.
+
+        This test case checks the behavior of the permission_required decorator when the raise_exception parameter is set to True.
+        It simulates a view that requires multiple permissions, including a non-existent one, and verifies that the expected exception is raised.
+
+        The test covers the scenario where a user attempts to access a view without having all the required permissions, ensuring that the permission system correctly denies access and raises an exception.
+
+        """
         def a_view(request):
             return HttpResponse()
 

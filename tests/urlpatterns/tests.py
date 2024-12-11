@@ -66,6 +66,17 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters_and_extra_kwarg(self):
+        """
+
+        Tests the path lookup functionality with multiple URL parameters and an extra keyword argument.
+
+        Verifies that the resolver correctly matches the URL path with the expected route,
+        extracts the URL parameters, and handles any additional keyword arguments.
+
+        The test case confirms that the resolver returns the correct URL name, arguments, 
+        keyword arguments, route, and captured as well as extra keyword arguments.
+
+        """
         match = resolve("/books/2015/04/12/")
         self.assertEqual(match.url_name, "books-year-month-day")
         self.assertEqual(match.args, ())
@@ -177,6 +188,16 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_reverse_with_second_layer_instance_namespace(self):
+        """
+
+        Tests the converter's ability to reverse URLs with Base64 encoding and namespace resolution.
+
+        Verifies that the reverse function can correctly generate a URL given a namespace,
+        view name, and keyword arguments, including a Base64 encoded value. The test checks
+        that the resulting URL matches the expected pattern, which includes a second layer
+        instance namespace and Base64 encoded path components.
+
+        """
         kwargs = included_kwargs.copy()
         kwargs["last_value"] = b"world"
         url = reverse("instance-ns-base64:subsubpattern-base64", kwargs=kwargs)

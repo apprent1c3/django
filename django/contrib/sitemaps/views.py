@@ -96,6 +96,20 @@ def sitemap(
     template_name="sitemap.xml",
     content_type="application/xml",
 ):
+    """
+    Generates a sitemap XML response.
+
+    This view takes a request, a dictionary of sitemaps, and an optional section parameter.
+    If a section is specified, it returns a sitemap for that section; otherwise, it returns a combined sitemap for all sections.
+
+    The sitemap is paginated, with the current page number determined by the 'p' query parameter in the request.
+    The view also determines the last modification date for the sitemap, if available, and includes it in the response headers.
+
+    Returns a TemplateResponse with a 'urlset' variable containing the sitemap URLs.
+    The response content type is set to 'application/xml' by default, and the response may include a 'Last-Modified' header if the last modification date is known.
+
+    Raises an Http404 exception if the requested section does not exist, or if the requested page is empty or not an integer.
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 

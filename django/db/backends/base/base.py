@@ -367,6 +367,15 @@ class BaseDatabaseWrapper:
             cursor.execute(self.ops.savepoint_create_sql(sid))
 
     def _savepoint_rollback(self, sid):
+        """
+        Reverts the database to a previously established savepoint.
+
+        This function rolls back all changes made after a specific savepoint was set.
+        The savepoint to roll back to is identified by its unique identifier (sid).
+
+        :arg int sid: The identifier of the savepoint to roll back to
+        :returns: None
+        """
         with self.cursor() as cursor:
             cursor.execute(self.ops.savepoint_rollback_sql(sid))
 
@@ -627,6 +636,14 @@ class BaseDatabaseWrapper:
             self._thread_sharing_count += 1
 
     def dec_thread_sharing(self):
+        """
+        Decrements the thread sharing count, indicating that a thread has stopped sharing a resource.
+
+        This method is used to track the number of threads that are currently sharing a resource. It ensures that the thread sharing count is not decremented below zero, preventing potential errors or inconsistencies.
+
+        Raises:
+            RuntimeError: If the thread sharing count is already zero or less, indicating that there are no threads sharing the resource.
+        """
         with self._thread_sharing_lock:
             if self._thread_sharing_count <= 0:
                 raise RuntimeError(

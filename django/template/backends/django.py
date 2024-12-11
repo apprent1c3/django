@@ -17,6 +17,20 @@ class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
     def __init__(self, params):
+        """
+        Initializes the template engine with the provided parameters and options.
+
+        The parameters dictionary is processed to extract and validate the options, 
+        including autoescape, debug mode, and file character encoding. The 
+        libraries option is also processed to include the available template tags.
+
+        The function ultimately sets up the template engine with the configured 
+        options and directories, enabling templating functionality for the application.
+
+        :param params: A dictionary containing the engine parameters and options.
+
+        :ivar engine: The initialized template engine instance.
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         options.setdefault("autoescape", True)

@@ -275,6 +275,15 @@ failure and get a correct traceback.
         self.events.append(("startTestRun",))
 
     def stopTestRun(self):
+        """
+        Stops the current test run, performing any necessary cleanup and bookkeeping.
+
+        Notifies the system that the test run has ended, triggering any post-run event handling.
+        The event is recorded in the internal events log for future reference or auditing purposes.
+
+        This method is typically called automatically when a test run is completed, but can also be invoked manually if required.
+
+        """
         super().stopTestRun()
         self.events.append(("stopTestRun",))
 
@@ -312,6 +321,16 @@ failure and get a correct traceback.
         super().addSubTest(test, subtest, err)
 
     def addSuccess(self, test):
+        """
+        Records a successful test result.
+
+        Notifies the event system that the current test has passed and then delegates the
+        notification of the success to the parent class, ensuring that the test's success
+        is properly tracked and reported.
+
+        :param test: The test that has been successfully completed
+
+        """
         self.events.append(("addSuccess", self.test_index))
         super().addSuccess(test)
 
@@ -589,6 +608,15 @@ class Shuffler:
 
     @classmethod
     def _hash_text(cls, text):
+        """
+        Generate a hash for the given text using the class-defined hashing algorithm.
+
+        :param text: The text to be hashed
+        :rtype: str
+        :return: A hexadecimal digest of the hashed text
+        :note: The text is encoded in UTF-8 before hashing, and the hash algorithm used is defined by the class.
+
+        """
         h = hashlib.new(cls.hash_algorithm, usedforsecurity=False)
         h.update(text.encode("utf-8"))
         return h.hexdigest()
@@ -819,6 +847,16 @@ class DiscoverRunner:
 
     @property
     def shuffle_seed(self):
+        """
+
+        Returns the seed used for shuffling, if shuffling is enabled.
+
+        This property provides access to the seed value that controls the randomness of the shuffling process.
+        If no shuffling is configured, this property returns None.
+
+        :rtype: int or None
+
+        """
         if self._shuffler is None:
             return None
         return self._shuffler.seed

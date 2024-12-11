@@ -171,6 +171,9 @@ class CustomPKTests(TestCase):
     def test_unique_pk(self):
         # The primary key must also be unique, so trying to create a new object
         # with the same primary key will fail.
+        """
+        Tests that creating two Employee instances with the same employee code results in an IntegrityError, ensuring that employee code is a unique primary key.
+        """
         Employee.objects.create(
             employee_code=123, first_name="Frank", last_name="Jones"
         )
@@ -210,6 +213,13 @@ class CustomPKTests(TestCase):
                 Employee.objects.create(first_name="Tom", last_name="Smith")
 
     def test_auto_field_subclass_create(self):
+        """
+        Tests that creating an instance of a model with a custom AutoField subclass 
+        successfully generates an ID wrapped in the expected class.
+
+        Verifies that the ID of the created object is an instance of MyWrapper, 
+        ensuring that the custom AutoField subclass is correctly applied during object creation.
+        """
         obj = CustomAutoFieldModel.objects.create()
         self.assertIsInstance(obj.id, MyWrapper)
 

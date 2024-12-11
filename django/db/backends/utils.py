@@ -218,6 +218,17 @@ def typecast_date(s):
 
 
 def typecast_time(s):  # does NOT store time zone information
+    """
+
+     Parses a time string in the format 'HH:MM:SS[.ffffff]' and returns a datetime.time object.
+
+     The input string is expected to be in 24-hour format, with hours, minutes, and seconds separated by colons.
+     Optional microsecond precision can be provided after a decimal point in the seconds component.
+     If the input string is empty or None, the function returns None.
+
+     :returns: datetime.time object representing the parsed time, or None if the input string is empty
+
+    """
     if not s:
         return None
     hour, minutes, seconds = s.split(":")

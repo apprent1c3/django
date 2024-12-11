@@ -505,6 +505,20 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk(self):
+        """
+
+        Tests the createsuperuser command with foreign key fields.
+
+        This function creates a superuser with a foreign key to an email instance and a group instance.
+        It verifies that the superuser is created successfully and that its foreign key fields are set correctly.
+        Additionally, it tests that an error is raised when trying to create a superuser with a non-existent email foreign key.
+
+        The test case covers the following scenarios:
+        - Successful creation of a superuser with foreign key fields
+        - Verification of foreign key fields after superuser creation
+        - Error handling for non-existent foreign key values
+
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -565,6 +579,15 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_via_option_interactive(self):
+        """
+        Tests the creation of a custom superuser with foreign key fields via the 'createsuperuser' command in interactive mode.
+
+        This test case verifies the successful creation of a superuser with a custom user model containing foreign key fields, 
+        including a username that is linked to an email object and a group object. The test creates the necessary email and group objects,
+        then simulates the creation of the superuser by calling the 'createsuperuser' command with the required options and input.
+        Finally, it checks the output of the command to ensure the superuser was created successfully, and verifies that the created user's 
+        properties match the provided email and group objects.
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -955,6 +978,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_blank_username_non_interactive(self):
+        """
+
+        Tests that creating a superuser with a blank username in non-interactive mode raises a CommandError.
+
+        This test case verifies that the createsuperuser command correctly handles the case where a blank username is provided when interactive mode is disabled.
+
+        """
         new_io = StringIO()
         with self.assertRaisesMessage(CommandError, "Username cannot be blank."):
             call_command(
@@ -967,6 +997,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_blank_email_allowed_non_interactive(self):
+        """
+        Tests the creation of a superuser with a blank email address in a non-interactive environment.
+
+        This test case verifies that it is possible to create a superuser with an empty email address when running in a non-interactive mode, where user input is not prompted.
+
+        The expected outcome of this test is that a superuser is successfully created with the specified username and an empty email address.
+        """
         new_io = StringIO()
 
         call_command(
@@ -1247,6 +1284,17 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            Tests the creation of a superuser using the createsuperuser command.
+
+            This test simulates user input, including blank passwords, to verify that the command correctly handles invalid input and eventually creates a superuser when valid input is provided.
+
+            The test expects the command to output an error message for blank passwords and a success message after the superuser is created. The test validates that the expected output is generated, including the exact error and success messages.
+
+            The test case uses mock inputs for username, email, and password, with the password input being initially blank and then valid, to exercise the command's input validation and error handling. The test result is considered successful if the expected output matches the actual output from the command.
+
+            This test covers a key aspect of the createsuperuser command, ensuring that it behaves correctly and robustly handles user input, including edge cases like blank passwords.
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1403,6 +1451,19 @@ class MultiDBCreatesuperuserTestCase(TestCase):
         self.assertEqual(user.email, "joe@somewhere.org")
 
     def test_createsuperuser_command_suggested_username_with_database_option(self):
+        """
+
+        Tests the createsuperuser command's functionality when used with the database option.
+
+        This function verifies that when the createsuperuser command is called interactively with the database option,
+        it suggests a default username and creates a superuser with that username if not provided by the user.
+        It also tests that the created superuser's details are correctly stored in the specified database.
+
+        The function covers two test scenarios:
+        - The first scenario tests that a superuser is created with the suggested default username when no username is provided.
+        - The second scenario tests that a superuser is created with a custom username when provided by the user.
+
+        """
         default_username = get_default_username(database="other")
         qs = User.objects.using("other")
 
@@ -1421,6 +1482,13 @@ class MultiDBCreatesuperuserTestCase(TestCase):
 
         @mock_inputs({"password": "nopasswd", "Username: ": "other", "email": ""})
         def test_other_no_suggestion(self):
+            """
+            Tests the creation of a superuser when no password suggestion is provided, 
+            using alternative credentials. 
+
+            Verifies that a new superuser account is successfully created with the 
+            provided username, and confirms its existence in the database.
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1445,6 +1513,21 @@ class CreatePermissionsTests(TestCase):
         ContentType.objects.clear_cache()
 
     def test_default_permissions(self):
+        """
+
+        Tests that default permissions are correctly created and handled.
+
+        This test case verifies the expected default permissions are generated for a 
+        given content type, and also checks that custom permissions can be added and 
+        handled. It ensures that the creation of permissions respects the default 
+        permissions configuration.
+
+        The test covers two main scenarios: 
+
+        1. Creation of default permissions with a custom permission added.
+        2. Creation of permissions with default permissions disabled.
+
+        """
         permission_content_type = ContentType.objects.get_by_natural_key(
             "auth", "permission"
         )

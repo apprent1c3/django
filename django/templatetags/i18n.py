@@ -15,6 +15,19 @@ class GetAvailableLanguagesNode(Node):
         self.variable = variable
 
     def render(self, context):
+        """
+
+        Renders language options for display, storing the translated options in the given context.
+
+        The function populates the context with a list of language codes and their corresponding translations,
+        retrieved from the LANGUAGES setting. The translations are obtained using gettext.
+
+        The rendered output is empty, as the function's primary purpose is to prepare the context for further processing.
+
+        :param context: The context in which to store the language options.
+        :return: An empty string.
+
+        """
         context[self.variable] = [
             (k, translation.gettext(v)) for k, v in settings.LANGUAGES
         ]
@@ -146,6 +159,23 @@ class BlockTranslateNode(Node):
         return msg, vars
 
     def render(self, context, nested=False):
+        """
+        Render the translation of a string, optionally with pluralization, using the provided context.
+
+        This method resolves the message context, if any, and any additional context variables. It then renders the singular and plural forms of the string, if applicable, and applies the translations. The result is then formatted using the provided variables.
+
+        The following parameters are used from the context:
+
+        * `message_context`: the context for the message (e.g., domain, category)
+        * `count`: the counter value to use for pluralization
+        * `extra_context`: additional variables to use in the translation
+
+        If `count` is not a number, a `TemplateSyntaxError` is raised.
+
+        If an error occurs during formatting, and `nested` is `True`, the error is re-raised. Otherwise, the rendering is retried without using the provided context.
+
+        The result is optionally assigned to a variable using the `asvar` attribute. If `asvar` is `None`, the result is returned directly.
+        """
         if self.message_context:
             message_context = self.message_context.resolve(context)
         else:

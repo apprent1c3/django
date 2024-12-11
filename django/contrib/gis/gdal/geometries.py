@@ -577,6 +577,15 @@ class OGRGeometry(GDALBase):
 # The subclasses for OGR Geometry.
 class Point(OGRGeometry):
     def _geos_ptr(self):
+        """
+        Returns a pointer to a GEOS geometry object.
+
+        If the geometry is empty, creates an empty Point geometry; otherwise, 
+        delegates the operation to the superclass to obtain the GEOS pointer.
+
+        :return: A pointer to the GEOS geometry object.
+        :rtype: GEOS pointer object
+        """
         from django.contrib.gis import geos
 
         return geos.Point._create_empty() if self.empty else super()._geos_ptr()

@@ -39,6 +39,15 @@ class OneTimeReceiver:
     """
 
     def __init__(self, signal):
+        """
+        Initializes a signal handler instance.
+
+        This constructor sets up the instance to handle a specific signal.
+        It records the signal to be handled and initializes counters and storage for tracking the number of calls and call arguments.
+
+        :param signal: The signal to be handled by this instance.
+
+        """
         self.signal = signal
         self.call_counter = 0
         self.call_args = None

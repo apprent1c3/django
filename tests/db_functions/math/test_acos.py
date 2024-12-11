@@ -26,6 +26,15 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.n2_acos, Decimal(math.acos(obj.n2)))
 
     def test_float(self):
+        """
+
+        Tests the usage of the ACos database function to calculate the inverse cosine of float fields.
+
+        Checks that the function returns the correct result for both negative and positive float values,
+        and verifies that the output is a float. The test also compares the results with the equivalent
+        math.acos function to ensure accuracy.
+
+        """
         FloatModel.objects.create(f1=-0.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_acos=ACos("f1"), f2_acos=ACos("f2")

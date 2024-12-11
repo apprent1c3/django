@@ -104,6 +104,16 @@ def get_warning_for_invalid_pattern(pattern):
 
 @register(Tags.urls)
 def check_url_settings(app_configs, **kwargs):
+    """
+    Checks the URL settings in the application configuration.
+
+    This function verifies that the 'STATIC_URL' and 'MEDIA_URL' settings are properly configured.
+    It ensures that if these settings are defined, they end with a forward slash ('/').
+    If a setting does not end with a slash, an error is reported.
+
+    :returns: A list of errors encountered during the check, where each error is an instance of E006.
+    :rtype: list
+    """
     errors = []
     for name in ("STATIC_URL", "MEDIA_URL"):
         value = getattr(settings, name)
@@ -121,6 +131,15 @@ def E006(name):
 
 @register(Tags.urls)
 def check_custom_error_handlers(app_configs, **kwargs):
+    """
+    Checks for custom error handlers in the Django URL resolver, ensuring they are properly defined and can be imported.
+
+     The function verifies the existence and correctness of custom error handlers for HTTP status codes 400, 403, 404, and 500. 
+     It checks if the handlers can be imported and if they have the correct signature, i.e., they accept the expected number of arguments.
+
+     :raises: Errors are returned as a list, with each error containing a message, a hint, and an ID.
+     :return: A list of errors encountered during the check. If all handlers are correctly defined, an empty list is returned.
+    """
     if not getattr(settings, "ROOT_URLCONF", None):
         return []
 

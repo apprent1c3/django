@@ -77,6 +77,12 @@ class TranslationCatalog:
     """
 
     def __init__(self, trans=None):
+        """
+        Initializes a translation object, optionally inheriting catalogs and plural rules from another translation object.
+
+        :param trans: An optional translation object from which to inherit catalogs and plural rules.
+        :note: If trans is not provided, an empty catalog and a default plural rule (which returns True for singular and False for plural) will be used.
+        """
         self._catalogs = [trans._catalog.copy()] if trans else [{}]
         self._plurals = [trans.plural] if trans else [lambda n: int(n != 1)]
 
@@ -113,6 +119,16 @@ class TranslationCatalog:
             self._plurals.insert(0, trans.plural)
 
     def get(self, key, default=None):
+        """
+        Retrieve a value from the catalog by its key.
+
+        The function searches for the key in each catalog in the collection and returns the first matching value found.
+        If the key is not found in any catalog, it returns the default value provided.
+
+        :param key: The key to search for in the catalogs
+        :param default: The value to return if the key is not found in any catalog
+        :return: The value associated with the key, or the default value if not found
+        """
         missing = object()
         for cat in self._catalogs:
             result = cat.get(key, missing)
@@ -273,6 +289,19 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         return self.__to_language
 
     def ngettext(self, msgid1, msgid2, n):
+        """
+        Return the pluralized translation of a message based on the given count.
+
+        :param msgid1: The singular form of the message.
+        :param msgid2: The plural form of the message.
+        :param n: The count that determines whether to use the singular or plural form.
+
+        :raises KeyError: If the message is not found in the translation catalog.
+
+        :returns: The translated message, either in singular or plural form, depending on the count. If the message is not found in the translation catalog and a fallback is configured, the fallback translation is used. Otherwise, the msgid1 or msgid2 is returned based on the count.
+
+        :note: If the count is 1, the singular form is used; otherwise, the plural form is used. 
+        """
         try:
             tmsg = self._catalog.plural(msgid1, n)
         except KeyError:
@@ -394,6 +423,17 @@ def gettext(message):
 
 
 def pgettext(context, message):
+    """
+
+    Translates a message within a specific context.
+
+    The context is used to disambiguate messages that are identical but have different meanings.
+    It prepends the context to the message and looks up the translation. If the translation
+    contains the context separator, it falls back to the original message. If the original
+    message is safe (i.e., it does not contain any HTML tags that could be used for an
+    XSS attack), the translated message is marked as safe.
+
+    """
     msg_with_ctxt = "%s%s%s" % (context, CONTEXT_SEPARATOR, message)
     result = gettext(msg_with_ctxt)
     if CONTEXT_SEPARATOR in result:

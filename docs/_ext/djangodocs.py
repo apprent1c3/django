@@ -233,6 +233,22 @@ class ConsoleNode(nodes.literal_block):
         self.wrapped = litblk_obj
 
     def __getattr__(self, attr):
+        """
+        Delegate attribute access to the wrapped object.
+
+        This method implements dynamic attribute access, allowing attributes to be accessed 
+        on the current object. If the attribute 'wrapped' is requested, it returns the 
+        wrapped object stored in the instance's dictionary. For all other attributes, it 
+        delegates the access to the wrapped object, returning the attribute value from 
+        the wrapped object if it exists.
+
+        This enables a flexible and transparent way to access attributes of the wrapped 
+        object through the current object, while still allowing direct access to the 
+        wrapped object itself via the 'wrapped' attribute. 
+
+        :param attr: The name of the attribute to access.
+        :return: The value of the requested attribute, either from the instance or the wrapped object.
+        """
         if attr == "wrapped":
             return self.__dict__.wrapped
         return getattr(self.wrapped, attr)

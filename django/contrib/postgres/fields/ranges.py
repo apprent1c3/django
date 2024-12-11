@@ -30,6 +30,17 @@ class RangeBoundary(models.Expression):
     """A class that represents range boundaries."""
 
     def __init__(self, inclusive_lower=True, inclusive_upper=False):
+        """
+        Initializes the interval notation settings.
+
+            This method configures the notation used to represent intervals, specifically
+            whether the lower and upper bounds are inclusive or exclusive. The notation
+            is controlled by two parameters, which determine whether the interval is
+            open or closed at the lower and upper ends.
+
+            :param bool inclusive_lower: Whether the lower bound is inclusive (default: True)
+            :param bool inclusive_upper: Whether the upper bound is inclusive (default: False)
+        """
         self.lower = "[" if inclusive_lower else "("
         self.upper = "]" if inclusive_upper else ")"
 
@@ -149,6 +160,16 @@ class ContinuousRangeField(RangeField):
         super().__init__(*args, **kwargs)
 
     def get_prep_value(self, value):
+        """
+        Prepares a value for database storage, handling range types specially.
+
+        If the provided value is a list or tuple, it is interpreted as a range and 
+        converted to the format required by the database using the :meth:`range_type` 
+        method. For all other types, the default preparation behavior is used. 
+
+        :param value: The value to prepare for database storage
+        :return: The prepared value
+        """
         if isinstance(value, (list, tuple)):
             return self.range_type(value[0], value[1], self.default_bounds)
         return super().get_prep_value(value)
@@ -158,6 +179,13 @@ class ContinuousRangeField(RangeField):
         return super().formfield(**kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts for serialization or other purposes.
+
+        Returns a tuple containing the name, path, arguments, and keyword arguments that can be used to reconstruct the object.
+
+        The deconstruction process also includes any custom default bounds that may have been set, allowing for the preservation of this state during the deconstruction and subsequent reconstruction process.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.default_bounds and self.default_bounds != CANONICAL_RANGE_BOUNDS:
             kwargs["default_bounds"] = self.default_bounds

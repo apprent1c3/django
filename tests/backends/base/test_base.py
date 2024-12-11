@@ -44,6 +44,13 @@ class DatabaseWrapperTests(SimpleTestCase):
             self.assertIsInstance(instance_attr_value, class_attr_value)
 
     def test_initialization_display_name(self):
+        """
+        Tests the display name of the database wrapper during initialization.
+
+        Verifies that the display name of the base database wrapper is 'unknown' by default, 
+        and that a specific database connection has a unique and non-default display name.
+
+        """
         self.assertEqual(BaseDatabaseWrapper.display_name, "unknown")
         self.assertNotEqual(connection.display_name, "unknown")
 

@@ -171,6 +171,14 @@ class ConditionalPageTests(SimpleTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        Tests that a wrapped asynchronous function remains a coroutine function.
+
+        This test ensures that the :func:`conditional_page` decorator does not alter the
+        asynchronous nature of the original view function. It verifies that the wrapped
+        view function is still recognized as a coroutine function, allowing it to be
+        used in asynchronous contexts.
+        """
         async def async_view(request):
             return HttpResponse()
 

@@ -210,6 +210,20 @@ class MigrationWriter:
 
     @property
     def basedir(self):
+        """
+
+        The base directory where Django migrations for the given app are or should be located.
+
+        This property determines the migrations directory by first attempting to import the migrations module
+        and retrieve its directory path. If this fails, it falls back to the app configuration to determine the
+        directory. If the migrations package is nested within the app, it locates the outermost package that
+        can be imported and constructs the full path to the migrations package from there. If the directory does
+        not exist, it creates it along with any necessary parent directories.
+
+        :raises ValueError: If the migrations package cannot be located or created.
+        :returns: The base directory for Django migrations.
+
+        """
         migrations_package_name, _ = MigrationLoader.migrations_module(
             self.migration.app_label
         )

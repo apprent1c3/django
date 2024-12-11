@@ -130,6 +130,22 @@ class UserAdmin(admin.ModelAdmin):
         # the permission to change users. To avoid the problem entirely, we
         # disallow users from adding users if they don't have change
         # permission.
+        """
+
+        Adds a new model instance view with the given request and optional form URL.
+
+        This method ensures that the user has the necessary permissions to add a new instance.
+        If the user lacks the required \"Change user\" permission, it will either raise a
+        PermissionDenied exception or an Http404 exception with a helpful error message
+        if the user has the \"Add user\" permission and the application is running in debug mode.
+
+        Additional context can be provided to the view through the extra_context parameter.
+        The method also updates the context with default values for auto-populated fields
+        and the username help text.
+
+        Returns the result of the parent class's add_view method.
+
+        """
         if not self.has_change_permission(request):
             if self.has_add_permission(request) and settings.DEBUG:
                 # Raise Http404 in debug mode so that the user gets a helpful

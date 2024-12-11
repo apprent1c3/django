@@ -61,6 +61,20 @@ class Trans:
     """
 
     def __getattr__(self, real_name):
+        """
+
+        Get the attribute from the translation module, handling internationalization (i18n) settings.
+
+        If the project is set to use internationalization (i18n), this function will connect translation
+        reloading signals to watch for translation file changes. It then sets the requested attribute on
+        the object to the corresponding attribute from the translation module.
+
+        The attribute is retrieved from either the :mod:`django.utils.translation.trans_real` or
+        :mod:`django.utils.translation.trans_null` module, depending on the i18n project settings.
+
+        Returns the attribute value from the translation module.
+
+        """
         from django.conf import settings
 
         if settings.USE_I18N:
@@ -138,6 +152,22 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                 return func(**kwargs)
 
             def format(self, *args, **kwargs):
+                """
+
+                Format a number according to the object's translation rules.
+
+                This method takes a variable number of arguments and keyword arguments.
+                If keyword arguments are provided, the method attempts to extract a number
+                value from them. Otherwise, it uses the first positional argument as the
+                number value.
+
+                The method then applies the object's translation rules to the number value
+                and returns the formatted result.
+
+                The additional arguments and keyword arguments are passed to the translation
+                method, allowing for further customization of the formatting process.
+
+                """
                 number_value = (
                     self._get_number_value(kwargs) if kwargs and number else args[0]
                 )

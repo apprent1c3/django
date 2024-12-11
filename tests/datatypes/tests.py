@@ -35,6 +35,13 @@ class DataTypesTestCase(TestCase):
 
     def test_time_field(self):
         # Test for ticket #12059: TimeField wrongly handling datetime.datetime object.
+        """
+        Tests the time field of a Donut object to ensure it is correctly stored and retrieved.
+
+        Verifies that when a Donut object is saved with a datetime, the time component is accurately preserved when the object is later retrieved from the database.
+
+        The test covers the following scenario: a Donut object is created, its baked time is set to a specific datetime, the object is saved, and then retrieved from the database. The test asserts that the time component of the baked_time attribute remains consistent throughout this process.
+        """
         d = Donut(name="Apple Fritter")
         d.baked_time = datetime.datetime(
             year=2007, month=4, day=20, hour=16, minute=19, second=59

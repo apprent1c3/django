@@ -126,6 +126,16 @@ class SimpleDatabaseOperationTests(SimpleTestCase):
             self.ops.date_trunc_sql(None, None, None)
 
     def test_time_trunc_sql(self):
+        """
+
+        Tests that an NotImplementedError is raised when time_trunc_sql is called.
+
+        This test case checks the database operations to ensure they correctly handle 
+        the time_trunc_sql method by verifying that it raises a NotImplementedError 
+        as expected. The error message should include the string 'time_trunc_sql' 
+        indicating that the time_trunc_sql method requires implementation.
+
+        """
         with self.assertRaisesMessage(
             NotImplementedError, self.may_require_msg % "time_trunc_sql"
         ):

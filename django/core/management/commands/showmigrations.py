@@ -158,6 +158,16 @@ class Command(BaseCommand):
 
         # Output
         def print_deps(node):
+            """
+
+            Returns a string representing the dependencies of a given node.
+
+            The string includes a comma-separated list of parent node keys, formatted as 'module.class',
+            enclosed in parentheses. If the node has no parents, an empty string is returned.
+
+            This is useful for displaying the dependencies of a node in a human-readable format.
+
+            """
             out = []
             for parent in sorted(node.parents):
                 out.append("%s.%s" % parent.key)

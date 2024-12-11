@@ -269,6 +269,19 @@ class WhereNode(tree.Node):
 
     @staticmethod
     def _resolve_leaf(expr, query, *args, **kwargs):
+        """
+        Resolve a leaf expression by optionally invoking its resolve_expression method if available.
+
+        This method takes an expression, a query, and arbitrary positional and keyword arguments.
+        It checks if the expression has a resolve_expression method and calls it with the provided query and arguments if it does.
+        The resolved expression is then returned, or the original expression if no resolution was performed.
+
+        :param expr: The expression to resolve
+        :param query: The query context for resolution
+        :param args: Additional positional arguments for resolution
+        :param kwargs: Additional keyword arguments for resolution
+        :return: The resolved expression or the original expression if no resolution was performed
+        """
         if hasattr(expr, "resolve_expression"):
             expr = expr.resolve_expression(query, *args, **kwargs)
         return expr
@@ -284,6 +297,14 @@ class WhereNode(tree.Node):
             node.rhs = cls._resolve_leaf(node.rhs, query, *args, **kwargs)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        Resolve an expression by creating a clone of the current object and resolving it based on the provided arguments.
+
+        :param args: Variable number of positional arguments to be used in the resolution process
+        :param kwargs: Keyword arguments to be used in the resolution process
+        :return: A cloned object with the expression resolved
+        :note: The original object remains unchanged, and the returned clone is marked as resolved
+        """
         clone = self.clone()
         clone._resolve_node(clone, *args, **kwargs)
         clone.resolved = True

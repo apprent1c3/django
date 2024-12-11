@@ -101,6 +101,15 @@ class ShellCommandTestCase(SimpleTestCase):
     @mock.patch("django.core.management.commands.shell.select.select")  # [1]
     @mock.patch.dict("sys.modules", {"bpython": None})
     def test_shell_with_bpython_not_installed(self, select):
+        """
+
+        Tests the 'shell' command when the 'bpython' interface is specified but the 'bpython' library is not installed.
+
+        This test case verifies that the command correctly handles the absence of the 'bpython' library and raises a CommandError with a corresponding error message.
+
+        The test simulates the selection process and verifies that the command fails as expected when 'bpython' is not available.
+
+        """
         select.return_value = ([], [], [])
         with self.assertRaisesMessage(
             CommandError, "Couldn't import bpython interface."

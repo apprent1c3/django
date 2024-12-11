@@ -231,6 +231,20 @@ class ImmutableList(tuple):
     """
 
     def __new__(cls, *args, warning="ImmutableList object is immutable.", **kwargs):
+        """
+        Creates a new instance of an immutable list.
+
+        This class is designed to represent a collection of objects that cannot be modified after creation.
+        Unlike regular lists, attempting to modify an instance of this class will result in an error.
+
+        :param args: Variable number of arguments to be used as elements in the list.
+        :param warning: A custom warning message to be displayed when attempting to modify the list. Defaults to 'ImmutableList object is immutable.'.
+        :param kwargs: Additional keyword arguments to be passed to the underlying tuple constructor.
+
+        :returns: A new instance of the immutable list class.
+        :note: Due to its immutable nature, this class does not support operations that modify the list in-place, such as append, insert, or remove.
+
+        """
         self = tuple.__new__(cls, *args, **kwargs)
         self.warning = warning
         return self

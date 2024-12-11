@@ -51,6 +51,13 @@ class RedirectURLMixinTests(TestCase):
         self.assertEqual(RedirectURLView().get_default_redirect_url(), "/custom/")
 
     def test_get_default_redirect_url_no_next_page(self):
+        """
+
+        Tests that :meth:`get_default_redirect_url` raises an ImproperlyConfigured exception when no next page is provided.
+
+        The test verifies that when :meth:`get_default_redirect_url` is called without specifying a next page, it correctly raises an exception with a meaningful error message, indicating that a redirect URL must be provided.
+
+        """
         msg = "No URL to redirect to. Provide a next_page."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             RedirectURLMixin().get_default_redirect_url()
@@ -77,6 +84,17 @@ class AuthViewsTestCase(TestCase):
         )
 
     def login(self, username="testclient", password="password", url="/login/"):
+        """
+
+        Submits a login request to the specified URL.
+
+        :param str username: The username to use for login, defaults to 'testclient'
+        :param str password: The password to use for login, defaults to 'password'
+        :param str url: The URL of the login endpoint, defaults to '/login/'
+        :return: The response object from the login request
+        :note: Verifies that a session key is present in the client session after a successful login
+
+        """
         response = self.client.post(
             url,
             {
@@ -88,6 +106,15 @@ class AuthViewsTestCase(TestCase):
         return response
 
     def logout(self):
+        """
+        Terminate the current user session by sending a POST request to the logout endpoint.
+
+        Checks if the logout operation is successful by verifying the response status code is 200 (OK) and 
+        that the session key is removed from the client session after logout.
+
+        This method is used to simulate a user logging out of the application, allowing for testing of 
+        post-logout behavior and session management. 
+        """
         response = self.client.post("/admin/logout/")
         self.assertEqual(response.status_code, 200)
         self.assertNotIn(SESSION_KEY, self.client.session)
@@ -963,6 +990,17 @@ class LoginTest(AuthViewsTestCase):
         MIDDLEWARE={"append": "django.contrib.auth.middleware.LoginRequiredMiddleware"}
     )
     def test_access_under_login_required_middleware(self):
+        """
+        Tests access to the login page when the LoginRequiredMiddleware is enabled.
+
+        This test case verfies that the login page can be accessed successfully with a 200 status code when the LoginRequiredMiddleware is applied.
+
+        It simulates a GET request to the login page and checks if the response status code is 200 (OK), indicating a successful request. 
+
+        The test is decorated with the LoginRequiredMiddleware to mimic the behavior of requiring authentication for the page.
+
+        :returns: None
+        """
         response = self.client.get(reverse("login"))
         self.assertEqual(response.status_code, 200)
 
@@ -971,6 +1009,15 @@ class LoginURLSettings(AuthViewsTestCase):
     """Tests for settings.LOGIN_URL."""
 
     def assertLoginURLEquals(self, url):
+        """
+        Asserts that the URL redirects to the expected login URL.
+
+        This function tests that a specific URL redirects to the login page when a user
+        is not authenticated. It checks the redirect target matches the provided URL.
+
+        :param url: The expected login URL.
+
+        """
         response = self.client.get("/login_required/")
         self.assertRedirects(response, url, fetch_redirect_response=False)
 
@@ -1187,6 +1234,9 @@ class LoginRedirectAuthenticatedUser(AuthViewsTestCase):
 
 class LoginSuccessURLAllowedHostsTest(AuthViewsTestCase):
     def test_success_url_allowed_hosts_same_host(self):
+        """
+        Tests that a successful login redirects the user to the next URL when it matches the allowed hosts, specifically when the next URL has the same host as the login request.
+        """
         response = self.client.post(
             "/login/allowed_hosts/",
             {

@@ -1289,6 +1289,16 @@ class LookupTests(TestCase):
         self.assertTrue(Season.objects.filter(pk=season.pk, nulled_text_field=""))
 
     def test_pattern_lookups_with_substr(self):
+        """
+
+        Tests pattern lookups on the name field of Author instances using a substring of the alias field.
+
+        This test case covers the following lookups: startswith, istartswith, contains, icontains, endswith, and iendswith.
+        It verifies that the correct Author instances are returned when using these lookups with a substring of the alias field.
+
+        The test creates two Author instances with different names and aliases, and then checks that the lookups return the expected results.
+
+        """
         a = Author.objects.create(name="John Smith", alias="Johx")
         b = Author.objects.create(name="Rhonda Simpson", alias="sonx")
         tests = (
@@ -1557,6 +1567,11 @@ class LookupQueryingTests(TestCase):
         self.assertSequenceEqual(qs, [self.s2])
 
     def test_lookup_in_order_by(self):
+        """
+        Tests the lookup in order by functionality. 
+
+        The function creates a queryset of Season objects, ordered by a less-than condition where the year is less than 1910, followed by the year itself. It then asserts that the resulting sequence of objects matches the expected order, which is based on the lesser-than condition first and then the year in ascending order.
+        """
         qs = Season.objects.order_by(LessThan(F("year"), 1910), F("year"))
         self.assertSequenceEqual(qs, [self.s1, self.s3, self.s2])
 

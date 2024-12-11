@@ -424,6 +424,20 @@ def _sqlite_radians(x):
 
 
 def _sqlite_repeat(text, count):
+    """
+    Repeats a given text a specified number of times in the context of SQLite operations.
+
+    Args:
+        text (str): The text to be repeated.
+        count (int): The number of times the text should be repeated.
+
+    Returns:
+        str or None: The repeated text if both text and count are valid, otherwise None.
+
+    Note:
+        This function is used internally and its name is prefixed with an underscore to indicate it is intended for private use within the module.
+
+    """
     if text is None or count is None:
         return None
     return text * count
@@ -448,6 +462,13 @@ def _sqlite_sha1(text):
 
 
 def _sqlite_sha224(text):
+    """
+    Compute the SHA-224 hash of the given text and return it as a hexadecimal string.
+
+    This function takes a string input, encodes it, and then applies the SHA-224 hashing algorithm to produce a fixed-size hash. If the input is None, the function returns None. The resulting hash is typically used for data integrity and authenticity verification purposes.
+
+    :returns: A hexadecimal string representing the SHA-224 hash of the input text, or None if the input is None.
+    """
     if text is None:
         return None
     return sha224(text.encode()).hexdigest()

@@ -138,6 +138,14 @@ class TestGetUser(TestCase):
         self.assertIsInstance(user, AnonymousUser)
 
     def test_get_user(self):
+        """
+        Tests the retrieval of a user from an HTTP request.
+
+        This test case creates a new user, logs them in, sets up an HTTP request with their session, 
+        and then checks that the get_user function correctly returns the user instance associated 
+        with the request. The test verifies both the type and identity of the returned user, 
+        ensuring they match the originally created user.
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )

@@ -132,6 +132,15 @@ class ForeignKeyNameTests(IndexNameTests):
         self.assertIs(self.reference.references_table("to_table"), False)
 
     def test_rename_column_references(self):
+        """
+
+        Tests the functionality of renaming column references.
+
+        This test case checks that column references are correctly updated when a column is renamed.
+        It verifies that the old column reference is removed and the new column reference is added.
+        The test covers renaming a column with existing references and renaming a column without any references.
+
+        """
         super().test_rename_column_references()
         self.reference.rename_column_references(
             "to_table", "second_column", "third_column"
@@ -277,6 +286,17 @@ class ExpressionsTests(TransactionTestCase):
         self.assertIs(self.expressions.references_table("other"), False)
 
     def test_references_column(self):
+        """
+        Tests whether the given column exists in the specified table.
+
+        This method checks if a column is referenced within the table, 
+        returning True if the column exists and False otherwise. 
+
+        :raises: AssertionError if the column does not match the expected result.
+
+        :note: This test uses the Person database table for its checks.
+
+        """
         table = Person._meta.db_table
         self.assertIs(self.expressions.references_column(table, "first_name"), True)
         self.assertIs(self.expressions.references_column(table, "last_name"), True)

@@ -97,6 +97,21 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return "JSONField"
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+
+        Returns a database-ready value for the given input value, taking into account the current connection and preparation status.
+
+        This method prepares the value for storage in the database by applying any necessary transformations, such as serializing JSON data using the specified encoder. If the value is already prepared or contains a JSON field, it will be handled accordingly. The method also checks if the value has an `as_sql` method, in which case it will be returned directly.
+
+        Args:
+            value: The input value to be prepared for database storage.
+            connection: The database connection being used.
+            prepared (bool): A flag indicating whether the value is already prepared (default: False).
+
+        Returns:
+            The prepared value, ready for storage in the database.
+
+        """
         if not prepared:
             value = self.get_prep_value(value)
         if isinstance(value, expressions.Value) and isinstance(

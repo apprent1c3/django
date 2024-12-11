@@ -29,6 +29,14 @@ class WSGITest(SimpleTestCase):
         response_data = {}
 
         def start_response(status, headers):
+            """
+
+            Initializes the response data with the provided status and headers.
+
+            :param status: The HTTP status code for the response.
+            :param headers: A collection of HTTP headers to include in the response.
+
+            """
             response_data["status"] = status
             response_data["headers"] = headers
 
@@ -116,12 +124,20 @@ class GetInternalWSGIApplicationTest(SimpleTestCase):
 
     @override_settings(WSGI_APPLICATION="wsgi.noexist.app")
     def test_bad_module(self):
+        """
+        Tests that the application correctly raises an ImproperlyConfigured exception when the specified WSGI application module does not exist. 
+
+        The test simulates a scenario where the WSGI_APPLICATION setting points to a non-existent module, verifying that the application handles this situation by raising the expected exception with a descriptive error message.
+        """
         msg = "WSGI application 'wsgi.noexist.app' could not be loaded; Error importing"
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             get_internal_wsgi_application()
 
     @override_settings(WSGI_APPLICATION="wsgi.wsgi.noexist")
     def test_bad_name(self):
+        """
+        Tests that attempting to load a non-existent WSGI application raises an ImproperlyConfigured exception with a descriptive error message, ensuring that the get_internal_wsgi_application function handles invalid WSGI application configurations correctly.
+        """
         msg = (
             "WSGI application 'wsgi.wsgi.noexist' could not be loaded; Error importing"
         )

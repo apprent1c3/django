@@ -33,6 +33,9 @@ class ConcatTests(TestCase):
         )
 
     def test_gt_two_expressions(self):
+        """
+        Tests that attempting to use the Concat aggregation function with fewer than two expressions raises a ValueError with a suitable error message, specifically checking for the case where only one expression is provided.
+        """
         with self.assertRaisesMessage(
             ValueError, "Concat must take at least two expressions"
         ):

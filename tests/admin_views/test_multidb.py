@@ -152,6 +152,21 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_delete_view(self, mock):
+        """
+
+        Tests that read-only methods in the delete view do not execute database transactions.
+
+        This test covers the delete view's behavior under various conditions by simulating
+        requests from an authenticated superuser to the delete view for a test book.
+        It verifies that read-only HTTP methods do not trigger database transactions.
+        The test iterates over different databases and read-only methods, ensuring the expected
+        behavior is consistent across these variables.
+
+        The expected outcome is a successful response (status code 200) without any database
+        transactions being executed. This ensures that the delete view remains read-only for
+        the specified HTTP methods, aligning with the expected functionality.
+
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):

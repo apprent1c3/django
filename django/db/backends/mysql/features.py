@@ -258,6 +258,18 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     def supported_explain_formats(self):
         # Alias MySQL's TRADITIONAL to TEXT for consistency with other
         # backends.
+        """
+        Returns the set of supported EXPLAIN formats for the current database connection.
+
+        The supported formats depend on the database management system and its version.
+        The basic formats 'JSON', 'TEXT', and 'TRADITIONAL' are always supported.
+        Additionally, 'TREE' format is supported for MySQL version 8.0.16 and later,
+        but only if the connection is not to a MariaDB database.
+
+        The returned formats can be used to specify the format of the output when
+        running EXPLAIN queries on the database connection.
+
+        """
         formats = {"JSON", "TEXT", "TRADITIONAL"}
         if not self.connection.mysql_is_mariadb and self.connection.mysql_version >= (
             8,

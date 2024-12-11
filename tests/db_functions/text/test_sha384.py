@@ -21,6 +21,18 @@ class SHA384Tests(TestCase):
         )
 
     def test_basic(self):
+        """
+
+        Tests the SHA384 annotation functionality on the Author model.
+
+        Verifies that the SHA384 hash of the author's alias is correctly calculated and returned 
+        in the expected order, and that the resulting sequence of hashes matches the pre-computed 
+        values for the test data.
+
+        The test takes into account database-specific behavior regarding empty strings, 
+        which may be interpreted as NULL in some cases, and adjusts the expected result accordingly.
+
+        """
         authors = (
             Author.objects.annotate(
                 sha384_alias=SHA384("alias"),

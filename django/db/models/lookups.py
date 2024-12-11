@@ -45,6 +45,16 @@ class Lookup(Expression):
         self.bilateral_transforms = bilateral_transforms
 
     def apply_bilateral_transforms(self, value):
+        """
+        Apply a series of bilateral transformations to a given value.
+
+        This method takes an input value and applies each transformation in the 
+        collection of bilateral transforms, passing the output of one transformation 
+        as the input to the next. The final transformed value is then returned.
+
+        :param value: The input value to be transformed
+        :return: The transformed value after applying all bilateral transforms
+        """
         for transform in self.bilateral_transforms:
             value = transform(value)
         return value
@@ -184,6 +194,21 @@ class Lookup(Expression):
         # Wrap filters with a CASE WHEN expression if a database backend
         # (e.g. Oracle) doesn't support boolean expression in SELECT or GROUP
         # BY list.
+        """
+
+        Adapts a given SQL expression for use in a SELECT clause, 
+        taking into account the capabilities of the database backend.
+
+        If the database does not support boolean expressions in the SELECT clause, 
+        it wraps the expression in a CASE statement to ensure compatibility.
+
+        :param compiler: The database compiler in use.
+        :param sql: The SQL expression to be adapted.
+        :param params: Parameters associated with the SQL expression.
+
+        :return: A tuple containing the adapted SQL expression and its associated parameters.
+
+        """
         if not compiler.connection.features.supports_boolean_expr_in_select_clause:
             sql = f"CASE WHEN {sql} THEN 1 ELSE 0 END"
         return sql, params
@@ -354,6 +379,20 @@ class Exact(FieldGetDbPrepValueMixin, BuiltinLookup):
     lookup_name = "exact"
 
     def get_prep_lookup(self):
+        """
+
+        Prepare the lookup for a database query.
+
+        This method extends the default lookup preparation by adding specific handling
+        for QuerySet values on the right-hand side of the lookup. If the QuerySet is
+        limited to a single result, it ensures that only the primary key field is
+        selected from the database. If the QuerySet has more than one result, a
+        ValueError is raised, as exact lookups can only be performed on single values.
+
+        The method returns the prepared lookup value, which can be used to construct the
+        final database query.
+
+        """
         from django.db.models.sql.query import Query  # avoid circular import
 
         if isinstance(self.rhs, Query):
@@ -422,6 +461,18 @@ class IntegerFieldOverflow:
     overflow_exception = EmptyResultSet
 
     def process_rhs(self, compiler, connection):
+        """
+
+        Process the right-hand side of a database operation, validating integer values.
+
+        Validates the right-hand side value of the operation against the internal type of
+        the left-hand side field, checking for integer underflow and overflow conditions
+        when the value is an integer. If the value is outside the valid range for the
+        field's internal type, raises an Underflow or Overflow exception.
+
+        After validation, delegates further processing to the superclass's implementation.
+
+        """
         rhs = self.rhs
         if isinstance(rhs, int):
             field_internal_type = self.lhs.output_field.get_internal_type()
@@ -497,6 +548,14 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
         return super().get_prep_lookup()
 
     def process_rhs(self, compiler, connection):
+        """
+        Process the right-hand side of a query, handling direct values and subqueries.
+
+        This method evaluates the right-hand side (`rhs`) of a query, checking if it's a direct value or a subquery.
+        If `rhs` is a direct value, it's processed in batches, replacing `None` values, and producing a SQL placeholder and parameters.
+        If `rhs` is a subquery, it raises an error if the subquery is from a different database, as subqueries across databases are not allowed.
+        For subqueries from the same database, or non-direct values, it defers processing to the parent class.
+        """
         db_rhs = getattr(self.rhs, "_db", None)
         if db_rhs is not None and db_rhs != connection.alias:
             raise ValueError(
@@ -538,6 +597,18 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
     def split_parameter_list_as_sql(self, compiler, connection):
         # This is a special case for databases which limit the number of
         # elements which can appear in an 'IN' clause.
+        """
+        Constructs an SQL IN clause by splitting a list of right-hand side parameters into chunks.
+
+        This function is used to prevent SQL errors caused by exceeding the maximum allowed number of items in an IN clause.
+        It takes into account the maximum allowed list size for the given database connection.
+        The result is a tuple containing the constructed SQL string and a list of parameters to be used with the SQL string.
+
+        The function processes the left-hand side and right-hand side of the IN clause separately, handling parameter substitution and chunking of the right-hand side parameters into groups of a maximum size.
+        The resulting SQL string is a concatenation of these parameter groups, connected by OR operators.
+
+        The returned tuple can be used directly with a database cursor to execute the SQL query with the given parameters.
+        """
         max_in_list_size = connection.ops.max_in_list_size()
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.batch_process_rhs(compiler, connection)
@@ -661,6 +732,16 @@ class Regex(BuiltinLookup):
     prepare_rhs = False
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a lookup operation.
+
+        This method takes into account the capabilities of the database connection being used.
+        If the database supports the lookup operation natively, it delegates to the parent class to generate the SQL.
+        Otherwise, it processes both the left-hand side (LHS) and right-hand side (RHS) of the lookup operation separately,
+        then combines the results using a database-specific SQL template for regular expression lookups.
+
+        The return value is a tuple containing the generated SQL string and the parameters to be used with the SQL query.
+        """
         if self.lookup_name in connection.operators:
             return super().as_sql(compiler, connection)
         else:

@@ -83,6 +83,15 @@ def prefix(bp, func):
             return self
 
         def eval(self, context):
+            """
+            .. method:: eval(context)
+
+               Evaluate the given operation within the provided context.
+
+               :param context: The context in which the operation will be evaluated.
+               :return: The result of the operation if successful, otherwise False.
+               :raises: No explicit exceptions are raised; any exceptions occurring during evaluation are caught and handled internally, resulting in a False return value.
+            """
             try:
                 return func(context, self.first)
             except Exception:
@@ -157,6 +166,16 @@ class IfParser:
 
     def __init__(self, tokens):
         # Turn 'is','not' and 'not','in' into single tokens.
+        """
+
+        Initializes the object with a list of tokens, processes and maps them into a usable format.
+
+        It checks for specific keyword combinations ('is not' and 'not in') and translates each token accordingly.
+        The processed tokens are then stored for future use, with an initial position and current token set.
+
+        :param tokens: A list of tokens to be processed and mapped
+
+        """
         num_tokens = len(tokens)
         mapped_tokens = []
         i = 0

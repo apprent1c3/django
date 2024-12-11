@@ -58,6 +58,20 @@ class BaseCache:
     _missing_key = object()
 
     def __init__(self, params):
+        """
+        Initializes the object with the provided parameters.
+
+        The parameters include configuration options such as:
+
+        * timeout: the default timeout in seconds (default: 300)
+        * max_entries: the maximum number of entries (default: 300)
+        * cull_frequency: the frequency at which entries are culled (default: 3)
+        * key_prefix: a prefix to be added to keys (default: empty string)
+        * version: the version number (default: 1)
+        * key_function: a function used to generate keys (default: determined by the get_key_func function)
+
+        These parameters can be provided in the input dictionary `params` or as part of the `OPTIONS` dictionary within `params`. If a parameter is not provided or cannot be converted to the expected type, a default value is used.
+        """
         timeout = params.get("timeout", params.get("TIMEOUT", 300))
         if timeout is not None:
             try:

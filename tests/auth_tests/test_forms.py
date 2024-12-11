@@ -436,6 +436,16 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
 
 class UserCreationFormTest(TestDataMixin, TestCase):
     def test_case_insensitive_username(self):
+        """
+        Tests that the username field in the user creation form is case insensitive.
+
+        Verifies that attempting to create a user with a username that already exists, 
+        albeit with different casing, results in a validation error indicating that 
+        the specified username is already in use.
+
+        The test provides a user creation data set with a case-varied username and 
+        checks that the form is invalid, with the correct error message being returned.
+        """
         data = {
             "username": "TeStClIeNt",
             "password1": "test123",
@@ -487,6 +497,12 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
     def test_invalid_username(self):
         # The user submits an invalid username.
 
+        """
+        Validate that an authentication form correctly handles an invalid username. 
+
+        This test case verifies that the form returns an error when attempting to authenticate with a non-existent username. 
+        It checks that the form is deemed invalid and that the correct error message is displayed, specifically indicating that the login credentials are invalid.
+        """
         data = {
             "username": "jsmith_does_not_exist",
             "password": "test123",
@@ -555,6 +571,12 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
             user_login_failed.disconnect(signal_handler)
 
     def test_inactive_user_i18n(self):
+        """
+
+        Tests the authentication form for an inactive user with i18n support enabled and pt-br translation.
+        Verifies that the form is invalid for inactive users and contains the correct error message.
+
+        """
         with (
             self.settings(USE_I18N=True),
             translation.override("pt-br", deactivate=True),
@@ -681,6 +703,12 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         )
 
     def test_username_field_label_empty_string(self):
+        """
+        Tests that an empty string label is correctly set on the username field of a custom authentication form.
+
+        Verifies that when the label for the username field is explicitly set to an empty string,
+        the resulting form field retains this empty string label, ensuring correct display of the form field in the UI.
+        """
         class CustomAuthenticationForm(AuthenticationForm):
             username = CharField(label="")
 
@@ -1171,6 +1199,14 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         return (user, username, email)
 
     def test_invalid_email(self):
+        """
+        Tests the validation of an email address in the password reset form.
+
+        Verifies that an email address with an invalid format is correctly identified as such,
+        and that a corresponding error message is raised. The test ensures that the form's
+        validation mechanism works as expected, preventing invalid email addresses from
+        being accepted during the password reset process.
+        """
         data = {"email": "not valid"}
         form = PasswordResetForm(data)
         self.assertFalse(form.is_valid())
@@ -1243,6 +1279,18 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(mail.outbox[0].subject, "Custom password reset on example.com")
 
     def test_custom_email_constructor(self):
+        """
+        Tests the functionality of a custom email password reset form.
+
+        This test case verifies that the form is valid and can successfully send a password reset email.
+        It checks that the email sent contains the correct subject, BCC recipient, and content type.
+        The test case utilizes a custom implementation of the PasswordResetForm, which overrides the
+        send_mail method to define the structure and content of the email sent to the user.
+        The test ensures that the email is sent to the correct address and that it includes the expected
+        subject, body, and headers. The test also checks that the email is successfully added to the
+        outbox, which is used to store sent emails for testing purposes.
+
+        """
         data = {"email": "testclient@example.com"}
 
         class CustomEmailPasswordResetForm(PasswordResetForm):
@@ -1509,6 +1557,15 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, ["password"])
 
     def test_password_extra_validations(self):
+        """
+        Tests the extra validation functionality for password fields in a password change form.
+
+        This test case checks that when extra validation is applied to one or both password fields,
+        the form is correctly marked as invalid and the corresponding error messages are displayed.
+
+        The test covers different scenarios where extra validation fails for either the first password field,
+        the second password field, or both, ensuring that the form validation behaves as expected in each case.
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, AdminPasswordChangeForm):
             def clean_password1(self):
                 return self.failing_helper("password1")
@@ -1569,6 +1626,14 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
                 )
 
     def test_enable_password_authentication(self):
+        """
+
+        Tests the enabling of password authentication for a user with an unusable password.
+
+        This test case creates a user with an unusable password and attempts to change their password using the AdminPasswordChangeForm.
+        It verifies that the form does not contain a 'usable_password' field, that the form is valid, and that the user's password is successfully changed to a usable one.
+
+        """
         user = User.objects.get(username="unusable_password")
         form = AdminPasswordChangeForm(
             user,

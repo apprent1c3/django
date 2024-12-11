@@ -66,6 +66,13 @@ if os.name == "nt":
             self.close()
 
         def __enter__(self):
+            """
+            Context manager entry point.
+
+            Enters the runtime context for this object, preparing it for use within a 'with' statement.
+            Ensures that the underlying file is also properly opened and set up.
+            Returns this object to allow for assignment or chaining within the 'with' block.
+            """
             self.file.__enter__()
             return self
 

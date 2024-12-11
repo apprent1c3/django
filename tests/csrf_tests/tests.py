@@ -839,6 +839,18 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertIsNone(response)
 
     def _test_https_good_referer_matches_cookie_domain_with_different_port(self):
+        """
+
+        Checks that a view protected by CSRF middleware allows a request when the
+        referer's domain matches the cookie domain, even if the ports are different.
+
+        This test case verifies that the CSRF protection does not block requests with
+        a valid token when the referer URL has a different port than the request URL,
+        as long as the domain remains the same. The test simulates an HTTPS request
+        with a secure cookie, ensuring the CSRF middleware permits the request to
+        proceed without interruption.
+
+        """
         req = self._get_POST_request_with_token()
         req._is_secure_override = True
         req.META["HTTP_HOST"] = "www.example.com"

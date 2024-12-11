@@ -62,6 +62,16 @@ class BaseBackendTest(TestCase):
         self.assertEqual(self.user.get_all_permissions(), {"user_perm", "group_perm"})
 
     def test_has_perm(self):
+        """
+        Tests that the user has the required permissions.
+
+        This test case checks if a user has specific permissions, including those 
+        inherited from groups. The test verifies that the user has 'user_perm' and 
+        'group_perm', and does not have 'other_perm' when applied to a TestObj.
+
+        Validates the correct functionality of the has_perm method for different 
+        permission types and objects.
+        """
         self.assertIs(self.user.has_perm("user_perm"), True)
         self.assertIs(self.user.has_perm("group_perm"), True)
         self.assertIs(self.user.has_perm("other_perm", TestObj()), False)
@@ -354,6 +364,18 @@ class ExtensionUserModelBackendTest(BaseModelBackendTest, TestCase):
     UserModel = ExtensionUser
 
     def create_users(self):
+        """
+
+        Create a set of test users.
+
+        This method generates two users: a regular user and a superuser. The regular user
+        has a username, email, and password set to 'test', and a date of birth of April 25, 2006.
+        The superuser has a username and email set to 'test2', a password set to 'test', and a
+        date of birth of November 8, 1976.
+
+        The created users are stored in the `user` and `superuser` attributes of the instance.
+
+        """
         self.user = ExtensionUser._default_manager.create_user(
             username="test",
             email="test@example.com",
@@ -637,6 +659,18 @@ class PermissionDeniedBackendTest(TestCase):
 
     @modify_settings(AUTHENTICATION_BACKENDS={"prepend": backend})
     def test_has_perm_denied(self):
+        """
+
+        Tests that a user does not have a specific permission when the permission is granted but the permission check fails.
+
+        Verifies the :meth:`~django.contrib.auth.models.User.has_perm` and 
+        :meth:`~django.contrib.auth.models.User.has_module_perms` methods return False 
+        for a user who has been explicitly granted a permission but is still denied access.
+
+        This test case covers scenarios where a user's permission is revoked or restricted 
+        despite having the necessary permission object assigned to their account.
+
+        """
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(
             name="test", content_type=content_type, codename="test"
@@ -842,6 +876,13 @@ class ImproperlyConfiguredUserModelTest(TestCase):
     @override_settings(AUTH_USER_MODEL="thismodel.doesntexist")
     def test_does_not_shadow_exception(self):
         # Prepare a request object
+        """
+
+        Tests that an ImproperlyConfigured exception is raised when the AUTH_USER_MODEL setting refers to a non-existent model.
+
+        This test case verifies that the get_user function correctly handles the situation where the AUTH_USER_MODEL setting is configured to reference a model that has not been installed, and that it raises an exception with a meaningful error message.
+
+        """
         request = HttpRequest()
         request.session = self.client.session
 
@@ -875,6 +916,25 @@ class ImportedBackendTests(TestCase):
 
     @override_settings(AUTHENTICATION_BACKENDS=[backend])
     def test_backend_path(self):
+        """
+
+        Tests the authentication backend path by simulating a user login.
+
+        This test case verifies that a user can successfully log in using the provided
+        authentication backend. It creates a new user, attempts to log in with the
+        given credentials, and checks that the session is properly updated with the
+        backend information.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Notes:
+            This test overrides the authentication backends to use the specified backend.
+
+        """
         username = "username"
         password = "password"
         User.objects.create_user(username, "email", password)
@@ -891,6 +951,17 @@ class SelectingBackendTests(TestCase):
     password = "password"
 
     def assertBackendInSession(self, backend):
+        """
+        Asserts that the specified backend is stored in the session.
+
+        This function checks if the provided backend matches the one stored in the session.
+        It creates an instance of HttpRequest, assigns the client's session to it, and
+        then verifies that the backend stored in the session under the backend session key
+        matches the expected backend. 
+
+        :param backend: The expected backend to be found in the session.
+        :raises AssertionError: If the session's backend does not match the expected backend.
+        """
         request = HttpRequest()
         request.session = self.client.session
         self.assertEqual(request.session[BACKEND_SESSION_KEY], backend)

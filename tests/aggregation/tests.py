@@ -231,6 +231,14 @@ class AggregateTestCase(TestCase):
         self.assertEqual(vals, {"book__publisher__num_awards__min": 1})
 
     def test_aggregate_alias(self):
+        """
+
+        Test the aggregate function to calculate the average book rating for a specific store alias.
+
+        This function verifies that the average book rating for the store with the name 'Amazon.com' is correctly calculated.
+        The test checks if the result matches the expected value of approximately 4.08.
+
+        """
         vals = Store.objects.filter(name="Amazon.com").aggregate(
             amazon_mean=Avg("books__rating")
         )
@@ -646,6 +654,11 @@ class AggregateTestCase(TestCase):
 
     def test_avg_duration_field(self):
         # Explicit `output_field`.
+        """
+        Tests that the average duration field of Publisher objects is calculated correctly.
+
+        The function verifies that the average duration of all publishers is 1 day and 12 hours, as expected. It performs this validation using two separate aggregation operations: one with an explicit output field specified, and another without. In both cases, the result is compared to the expected average duration value to ensure accuracy.
+        """
         self.assertEqual(
             Publisher.objects.aggregate(Avg("duration", output_field=DurationField())),
             {"duration__avg": datetime.timedelta(days=1, hours=12)},
@@ -1400,6 +1413,13 @@ class AggregateTestCase(TestCase):
         self.assertQuerySetEqual(qs2, [1, 3], lambda v: v.num_awards)
 
     def test_arguments_must_be_expressions(self):
+        """
+        Tests that invalid arguments passed to QuerySet.aggregate() raise TypeError.
+
+        Verifies that passing non-expression arguments, such as Field instances or boolean values, 
+        either individually or in combination with valid expressions, results in a TypeError 
+        with a message indicating the invalid arguments received by QuerySet.aggregate().
+        """
         msg = "QuerySet.aggregate() received non-expression(s): %s."
         with self.assertRaisesMessage(TypeError, msg % FloatField()):
             Book.objects.aggregate(FloatField())

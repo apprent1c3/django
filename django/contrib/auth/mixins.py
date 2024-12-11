@@ -44,6 +44,16 @@ class AccessMixin:
         return self.redirect_field_name
 
     def handle_no_permission(self):
+        """
+
+        Handles the situation when the user lacks the required permission to access a view.
+
+        If the user is authenticated or an exception should be raised, it raises a :exc:`PermissionDenied` exception with a custom message.
+        Otherwise, it redirects the user to the login page, preserving the original URL as the next page to visit after a successful login.
+
+        The redirect URL is determined based on the current request path and the login URL, ensuring that the user is redirected back to the same domain and scheme.
+
+        """
         if self.raise_exception or self.request.user.is_authenticated:
             raise PermissionDenied(self.get_permission_denied_message())
 

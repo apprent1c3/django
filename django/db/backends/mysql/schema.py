@@ -138,6 +138,22 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         super().remove_constraint(model, constraint)
 
     def remove_index(self, model, index):
+        """
+        Removes an index from the given model while ensuring that any missing foreign key indexes are created beforehand.
+
+        This method is an extension of the standard index removal functionality. Before removing the specified index, it checks for and creates any foreign key indexes that are required but do not currently exist. This helps maintain data integrity and avoids potential issues that could arise from lacking foreign key indexes.
+
+        Parameters
+        ----------
+        model : Model
+            The model from which the index should be removed.
+        index : Index
+            The index to be removed from the model.
+
+        Note
+        ----
+        This method calls the superclass's remove_index method to actually perform the index removal after any necessary foreign key indexes have been created.
+        """
         self._create_missing_fk_index(
             model,
             fields=[field_name for field_name, _ in index.fields_orders],

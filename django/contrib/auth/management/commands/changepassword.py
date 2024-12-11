@@ -15,6 +15,22 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def _get_pass(self, prompt="Password: "):
+        """
+        Retrieve a password from the user, prompting them to enter it securely.
+
+        Args:
+            prompt (str): The prompt to display to the user, defaults to 'Password: '.
+
+        Returns:
+            str: The password entered by the user.
+
+        Raises:
+            CommandError: If the user enters an empty password, indicating an aborted operation.
+
+        Note:
+            This function uses the getpass module to securely prompt the user for their password,
+            without echoing the input to the console.
+        """
         p = getpass.getpass(prompt=prompt)
         if not p:
             raise CommandError("aborted")

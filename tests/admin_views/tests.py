@@ -711,6 +711,19 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         )
 
     def test_change_list_sorting_multiple(self):
+        """
+
+        Tests the sorting functionality on the changelist page for persons in the admin interface.
+
+        This test verifies that the changelist page correctly sorts the list of persons based on the
+        provided sorting parameters. It creates multiple persons with different names and genders,
+        then checks the ordering of these persons in the changelist page when different sorting options are applied.
+
+        The test covers two sorting scenarios: sorting by name and gender in ascending order, and
+        sorting by gender and name in descending order. It asserts that the links to the change pages
+        for each person appear in the correct order on the changelist page.
+
+        """
         p1 = Person.objects.create(name="Chris", gender=1, alive=True)
         p2 = Person.objects.create(name="Chris", gender=2, alive=True)
         p3 = Person.objects.create(name="Bob", gender=1, alive=True)
@@ -1392,6 +1405,17 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
     @override_settings(TIME_ZONE="America/Sao_Paulo", USE_TZ=True)
     def test_date_hierarchy_timezone_dst(self):
         # This datetime doesn't exist in this timezone due to DST.
+        """
+        Tests the date hierarchy in the admin interface to ensure it handles timezones with daylight saving time (DST) correctly.
+
+        This test case creates a question with a specific expiration date in the America/Sao_Paulo timezone and verifies that the date hierarchy filter in the admin changelist view correctly interprets the date, including day, month, and year, considering the DST settings for the given timezone. The test is run for different times on the same date to cover both standard and daylight saving time scenarios.
+
+        Parameters: None
+
+        Returns: None
+
+        Raises: AssertionError if the date hierarchy filter does not correctly handle the timezone with DST
+        """
         for date in make_aware_datetimes(
             datetime.datetime(2016, 10, 16, 15), "America/Sao_Paulo"
         ):
@@ -1422,6 +1446,17 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
                 self.assertContains(response, "question__expires__year=2016")
 
     def test_sortable_by_columns_subset(self):
+        """
+        Tests that specific columns in the article changelist view are sortable.
+
+        This test case verifies that the expected fields are sortable by checking for the presence of
+        a 'sortable' class in the table header cells. It also checks that the fields that are not
+        expected to be sortable are still present in the table, but without the 'sortable' class.
+
+        The test covers the following columns:
+            * Sortable fields: date, callable_year
+            * Non-sortable fields: content, model_year, modeladmin_year, model_year_reversed, section
+        """
         expected_sortable_fields = ("date", "callable_year")
         expected_not_sortable_fields = (
             "content",
@@ -1455,6 +1490,10 @@ class AdminViewBasicTest(AdminViewBasicTestCase):
         self.assertNotContains(response, '<th scope="col" class="sortable column')
 
     def test_get_sortable_by_no_column(self):
+        """
+        Tests that the changelist view for colors in the admin interface does not display any sortable columns, 
+        but still displays column headers as non-sortable.
+        """
         response = self.client.get(reverse("admin6:admin_views_color_changelist"))
         self.assertContains(response, '<th scope="col" class="column-value">')
         self.assertNotContains(response, '<th scope="col" class="sortable column')
@@ -3618,6 +3657,14 @@ class AdminViewDeletedObjectsTest(TestCase):
         self.assertContains(response, "<li>plot details</li>")
 
     def test_protected(self):
+        """
+
+        Tests the deletion of a Question object that has protected related Answer objects.
+        This test ensures that when attempting to delete a Question that has associated Answers,
+        the system correctly identifies the protected related objects and displays a warning message.
+        The warning message should list the related Answer objects that would be deleted as a result of deleting the Question.
+
+        """
         q = Question.objects.create(question="Why?")
         a1 = Answer.objects.create(question=q, answer="Because.")
         a2 = Answer.objects.create(question=q, answer="Yes.")
@@ -4075,6 +4122,18 @@ class SecureViewTests(TestCase):
 class AdminViewUnicodeTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up initial test data for the application.
+
+        This class method creates a superuser, a book, a promo, multiple chapters, and additional chapter content (xtra) 
+        to serve as a foundation for testing. It includes multiple chapters with different content and extra information, 
+        enabling comprehensive testing of various scenarios.
+
+        Note: This method is typically used in the context of Django's testing framework to establish a consistent baseline 
+        for tests to run against.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -4706,6 +4765,18 @@ class AdminSearchTest(TestCase):
         self.assertNotContains(response, "Guido")
 
     def test_pluggable_search(self):
+        """
+
+        Tests the pluggable search functionality in the admin interface.
+
+        Verifies that searching for a specific name or age in the admin changelist view
+        returns the correct results, including the count of matching objects and the
+        expected object details.
+
+        The test covers searching by both exact name and exact age, ensuring that the
+        pluggable search correctly indexes and queries the model's fields.
+
+        """
         PluggableSearchPerson.objects.create(name="Bob", age=10)
         PluggableSearchPerson.objects.create(name="Amy", age=20)
 
@@ -5222,6 +5293,19 @@ class AdminCustomQuerysetTest(TestCase):
 class AdminInlineFileUploadTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the model tests.
+
+        This class method creates a superuser and test data for the gallery and picture models.
+        It initializes a superuser with default credentials, a test gallery, and a test picture 
+        with a large image file. The generated test data can be used as a foundation for 
+        testing various scenarios and edge cases in the models.
+
+        Note: The image file is a large temporary file, which is closed after creation. 
+        The filename is stored in the test picture instance.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -6566,6 +6650,22 @@ class SeleniumTests(AdminSeleniumTestCase):
             self.assertIs(field_title.is_displayed(), False)
 
     def test_updating_related_objects_updates_fk_selects_except_autocompletes(self):
+        """
+        Tests the updating of related objects in the admin interface, specifically foreign key selects, 
+        ensuring they are updated except for autocomplete fields. 
+
+        This test case checks the behavior of the foreign key selects for born country, 
+        living country, and favorite country to vacation. It simulates adding and changing 
+        countries for these fields and verifies that the changes are correctly reflected 
+        in the autocomplete fields and the model instances.
+
+        The test covers the following scenarios:
+        - Adding a new country for the born country field
+        - Adding a new country for the living country field
+        - Changing the country for the living country field
+        - Adding a new country for the favorite country to vacation field
+        - Verifying the correct foreign key relationships are established in the model instances
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -8341,6 +8441,13 @@ class TestLabelVisibility(TestCase):
         self.assert_field_visible(response, "second")
 
     def test_all_fields_hidden(self):
+        """
+        Tests that all fields are hidden in the admin view for adding an empty model instance.
+
+        Checks that the entire field line and individual fields ('first' and 'second') are not visible in the admin interface when adding a new instance of a model with hidden fields.
+
+        Verifies the expected behavior of the admin view for empty models with hidden fields, ensuring that sensitive or unnecessary information is not displayed to the user.
+        """
         response = self.client.get(reverse("admin:admin_views_emptymodelhidden_add"))
         self.assert_fieldline_hidden(response)
         self.assert_field_hidden(response, "first")
@@ -8637,6 +8744,24 @@ class GetFormsetsWithInlinesArgumentTest(TestCase):
         self.client.force_login(self.superuser)
 
     def test_explicitly_provided_pk(self):
+        """
+
+        Test the explicit provision of primary keys in the admin views.
+
+        This test case verifies that the admin views for adding and changing objects
+        with explicitly provided primary keys function correctly. It checks that
+        the views redirect successfully after a valid POST request, indicating that
+        the object was created or updated.
+
+        The test covers the following scenarios:
+
+        * Creating a new object with an explicitly provided primary key
+        * Changing an existing object with an explicitly provided primary key
+
+        It ensures that the views return a 302 status code, indicating a successful
+        redirect, after processing the requests.
+
+        """
         post_data = {"name": "1"}
         response = self.client.post(
             reverse("admin:admin_views_explicitlyprovidedpk_add"), post_data
@@ -8713,6 +8838,13 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
         )
 
     def test_known_url_missing_slash_redirects_login_if_not_authenticated(self):
+        """
+        Tests that a known URL without a trailing slash redirects to the login page if the user is not authenticated.
+
+        The test case constructs a known URL without a trailing slash, sends a GET request to this URL, and verifies that the response is a redirect to the login page with the original URL as the 'next' parameter.
+
+        The purpose of this test is to ensure that the application handles missing slashes in URLs correctly and that unauthenticated users are redirected to the login page when attempting to access protected URLs.
+        """
         known_url = reverse("admin:admin_views_article_changelist")[:-1]
         response = self.client.get(known_url)
         # Redirects with the next URL also missing the slash.
@@ -8778,6 +8910,14 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
 
     @override_settings(APPEND_SLASH=True)
     def test_missing_slash_append_slash_true_script_name_query_string(self):
+        """
+        Tests that when APPEND_SLASH is True, a 301 redirect is performed when a URL 
+        without a trailing slash is requested and specifying a query string, 
+        resulting in the correct URL with a trailing slash and query string. 
+        The test case simulates a user logged in as staff, attempting to access 
+        the article changelist page in the admin interface via a URL without 
+        a trailing slash, from a prefixed SCRIPT_NAME.
+        """
         self.client.force_login(self.staff_user)
         known_url = reverse("admin:admin_views_article_changelist")
         response = self.client.get("%s?id=1" % known_url[:-1], SCRIPT_NAME="/prefix/")
@@ -8899,6 +9039,14 @@ class AdminSiteFinalCatchAllPatternTests(TestCase):
 
     @override_settings(APPEND_SLASH=True)
     def test_missing_slash_append_slash_true_without_final_catch_all_view(self):
+        """
+        Tests that a URL without a trailing slash is correctly redirected to its counterpart with a trailing slash when APPEND_SLASH is True.
+
+        The test verifies that when a user attempts to access a URL without a final slash, they are redirected to the correct URL with a trailing slash.
+        The test case also checks that the target view, which requires authentication, returns the expected 403 status code when the user does not have the required permissions.
+
+        This test covers the interaction between URL redirection and view permissions in the application.
+        """
         self.client.force_login(self.staff_user)
         known_url = reverse("admin10:admin_views_article_changelist")
         response = self.client.get(known_url[:-1])

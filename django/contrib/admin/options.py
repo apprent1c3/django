@@ -450,6 +450,22 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
     # RemovedInDjango60Warning: when the deprecation ends, replace with:
     # def lookup_allowed(self, lookup, value, request):
     def lookup_allowed(self, lookup, value, request=None):
+        """
+        Determines whether a given lookup is allowed for a model.
+
+        The lookup is considered allowed if it meets certain conditions, such as:
+        - Being directly related to the model's fields
+        - Being part of a valid list filter
+        - Being related to the model's date hierarchy
+
+        Returns:
+            bool: True if the lookup is allowed, False otherwise.
+
+        Args:
+            lookup (str): The lookup to check
+            value: The value associated with the lookup
+            request (Request, optional): The current request object. Defaults to None.
+        """
         from django.contrib.admin.filters import SimpleListFilter
 
         model = self.model
@@ -714,6 +730,19 @@ class ModelAdmin(BaseModelAdmin):
         from django.urls import path
 
         def wrap(view):
+            """
+
+            Wraps a view function to provide administrative functionality.
+
+            This decorator updates the wrapped view function to pass through the
+            admin site's view processing, allowing for administrative features such
+            as authentication, authorization, and logging. The original view function
+            remains unchanged, but is now executed within the context of the admin site.
+
+            The result is a wrapper function that behaves similarly to the original view,
+            but with the added benefits of admin site functionality.
+
+            """
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
 
@@ -1581,6 +1610,14 @@ class ModelAdmin(BaseModelAdmin):
             return self.response_post_save_change(request, obj)
 
     def _response_post_save(self, request, obj):
+        """
+        Redirects the user after a successful save operation.
+
+        Determines the URL to redirect the user to after saving an object. If the user has view or change permission, redirects to the changelist view for the current model, preserving any filters that were applied. Otherwise, redirects to the admin index page.
+
+        Returns:
+            HttpResponse: A redirect response to the determined URL
+        """
         if self.has_view_or_change_permission(request):
             post_url = reverse(
                 "admin:%s_%s_changelist" % (self.opts.app_label, self.opts.model_name),
@@ -2387,6 +2424,18 @@ class InlineModelAdmin(BaseModelAdmin):
     classes = None
 
     def __init__(self, parent_model, admin_site):
+        """
+        Initializes an instance of the class, setting up its relationship with a parent model and an admin site.
+
+            :param parent_model: The model that this instance is related to.
+            :param admin_site: The administration site where this instance will be used.
+            :attr admin_site: A reference to the administration site.
+            :attr parent_model: A reference to the parent model.
+            :attr opts: Metadata about the model, such as its verbose name.
+            :attr has_registered_model: A flag indicating whether the model is registered with the admin site.
+
+            During initialization, the class also sets its verbose name and verbose name plural based on the model's metadata or provided values, following a default convention if no values are provided.
+        """
         self.admin_site = admin_site
         self.parent_model = parent_model
         self.opts = self.model._meta

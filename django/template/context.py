@@ -57,6 +57,15 @@ class BaseContext:
         return ContextDict(self, *dicts, **kwargs)
 
     def pop(self):
+        """
+        Removes the last added dictionary from the stack of dictionaries.
+
+        This operation is used to revert the current context to its previous state. 
+        If there is only one dictionary in the stack, an attempt to pop it will result in a ContextPopException being raised, 
+        indicating that there are no more contexts to pop. Otherwise, the last added dictionary is removed and returned.
+
+        :raises ContextPopException: if there is only one dictionary in the stack.
+        """
         if len(self.dicts) == 1:
             raise ContextPopException
         return self.dicts.pop()
@@ -136,6 +145,19 @@ class Context(BaseContext):
     "A stack container for variable context"
 
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
+        """
+        Initializes a template rendering context.
+
+        :param dict_: A dictionary to serve as the context for the template (optional)
+        :param autoescape: A boolean indicating whether to automatically escape HTML characters in template variables (default: True)
+        :param use_l10n: A flag to enable or disable localization (optional)
+        :param use_tz: A flag to enable or disable timezone support (optional)
+
+        This constructor sets up the rendering context for a template, including configuration options for
+        auto-escaping, localization, and timezone support. The rendering context is initialized with a default
+        template name and an empty render context. If a dictionary is provided, it is used to populate the
+        rendering context.
+        """
         self.autoescape = autoescape
         self.use_l10n = use_l10n
         self.use_tz = use_tz

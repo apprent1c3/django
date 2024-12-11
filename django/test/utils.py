@@ -440,6 +440,17 @@ class TestContextDecorator:
 
             @wraps(func)
             def inner(*args, **kwargs):
+                """
+                ..:param func: The function being wrapped
+                    :param args: Variable number of positional arguments to pass to the wrapped function
+                    :param kwargs: Variable number of keyword arguments to pass to the wrapped function
+                    :return: The result of calling the wrapped function
+
+                    This function wraps another function, allowing it to be executed within a specified context.
+                    The context is established when entering the 'with' block and is automatically torn down when exiting.
+                    If a keyword argument name is specified, the established context is passed to the wrapped function under that name.
+                    The result of the wrapped function call is then returned.
+                """
                 with self as context:
                     if self.kwarg_name:
                         kwargs[self.kwarg_name] = context
@@ -871,6 +882,12 @@ class override_script_prefix(TestContextDecorator):
     """Decorator or context manager to temporary override the script prefix."""
 
     def __init__(self, prefix):
+        """
+        Initializes the object with a given prefix string.
+
+        The prefix is stored as an instance attribute and is intended to be used as a identifier or namespace for subsequent operations.
+        The parent class is also initialized via a call to super().__init__().
+        """
         self.prefix = prefix
         super().__init__()
 
@@ -916,6 +933,14 @@ class isolate_apps(TestContextDecorator):
     """
 
     def __init__(self, *installed_apps, **kwargs):
+        """
+        Initializes the object with a variable number of installed applications and additional keyword arguments.
+
+        :param installed_apps: A variable number of applications to be installed
+        :param kwargs: Additional keyword arguments passed to the parent class initializer
+        :note: Installed applications are stored as an attribute for later access
+        :returns: None
+        """
         self.installed_apps = installed_apps
         super().__init__(**kwargs)
 

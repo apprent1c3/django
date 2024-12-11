@@ -12,6 +12,19 @@ class CustomLookup(Lookup):
 
 class LookupTests(SimpleTestCase):
     def test_equality(self):
+        """
+
+        Tests the equality of the Lookup object.
+
+        This function checks if the Lookup object is equal to itself, 
+        a new Lookup object with the same left and right values, 
+        and any value (represented by mock.ANY). 
+
+        It also verifies that the Lookup object is not equal to 
+        a new Lookup object with different left or right values, 
+        or an object of a different class (CustomLookup) even if it has the same values.
+
+        """
         lookup = Lookup(Value(1), Value(2))
         self.assertEqual(lookup, lookup)
         self.assertEqual(lookup, Lookup(lookup.lhs, lookup.rhs))

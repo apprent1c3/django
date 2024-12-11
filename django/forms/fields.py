@@ -135,6 +135,24 @@ class Field:
         #             is its widget is shown in the form but not editable.
         # label_suffix -- Suffix to be added to the label. Overrides
         #                 form's label_suffix.
+        """
+        Initializes a form field with various options and attributes.
+
+        :keyword bool required: Whether the field is required. Defaults to True.
+        :keyword widget: The widget to use for the field.
+        :keyword str label: The label for the field.
+        :keyword initial: The initial value for the field.
+        :keyword str help_text: Help text to display for the field.
+        :keyword dict error_messages: Custom error messages for the field.
+        :keyword bool show_hidden_initial: Whether to show the initial value as a hidden field.
+        :keyword validators: Validators to apply to the field.
+        :keyword bool localize: Whether to localize the field's value.
+        :keyword bool disabled: Whether the field is disabled.
+        :keyword str label_suffix: The suffix to append to the field's label.
+        :keyword str template_name: The template to use for rendering the field.
+
+        Sets up the field's attributes and properties, including the widget, validators, and error messages, and applies any specified localization or validation rules.
+        """
         self.required, self.label, self.initial = required, label, initial
         self.show_hidden_initial = show_hidden_initial
         self.help_text = help_text
@@ -270,6 +288,26 @@ class CharField(Field):
     def __init__(
         self, *, max_length=None, min_length=None, strip=True, empty_value="", **kwargs
     ):
+        """
+        Initializes a validator for string fields.
+
+        This validator allows customization of string length constraints. It can enforce a minimum and/or maximum length for the string.
+        Additionally, it provides options for stripping whitespace characters and specifying a value to use when the input string is empty.
+
+        The following parameters can be used to customize the validator's behavior:
+
+        * max_length: The maximum allowed length of the string.
+        * min_length: The minimum allowed length of the string.
+        * strip: Whether to remove leading and trailing whitespace characters from the string.
+        * empty_value: The value to use when the input string is empty.
+
+        The validator also automatically prohibits null characters in the string. 
+
+        :keyword max_length: Maximum allowed length of the string.
+        :keyword min_length: Minimum allowed length of the string.
+        :keyword strip: Whether to strip whitespace characters from the string. Defaults to True.
+        :keyword empty_value: Value to use when the input string is empty. Defaults to an empty string.
+        """
         self.max_length = max_length
         self.min_length = min_length
         self.strip = strip
@@ -310,6 +348,23 @@ class IntegerField(Field):
     re_decimal = _lazy_re_compile(r"\.0*\s*$")
 
     def __init__(self, *, max_value=None, min_value=None, step_size=None, **kwargs):
+        """
+
+        Initialize a numeric input field with optional constraints.
+
+        This initializer sets up a numeric input field with a specified range and step size.
+        It allows for setting a maximum value, minimum value, and step size, which are used
+        to validate user input. The field can also be localized.
+
+        The following constraints can be applied:
+
+        * max_value: The maximum allowed value.
+        * min_value: The minimum allowed value.
+        * step_size: The increment between allowed values.
+
+        Additional keyword arguments are passed to the parent class initializer.
+
+        """
         self.max_value, self.min_value, self.step_size = max_value, min_value, step_size
         if kwargs.get("localize") and self.widget == NumberInput:
             # Localized number input is not well supported on most browsers
@@ -383,6 +438,13 @@ class FloatField(IntegerField):
             raise ValidationError(self.error_messages["invalid"], code="invalid")
 
     def widget_attrs(self, widget):
+        """
+        Override the default widget attributes to include a step size for NumberInput widgets.
+
+        If the widget is a NumberInput and does not have a step attribute defined, this method adds a step attribute based on the.step_size property. If.step_size is defined, its value is used; otherwise, the step attribute is set to 'any'.
+
+        Returns a dictionary of attributes for the given widget, including any additional attributes added by this method.
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput) and "step" not in widget.attrs:
             if self.step_size is not None:
@@ -840,6 +902,21 @@ class BooleanField(Field):
             raise ValidationError(self.error_messages["required"], code="required")
 
     def has_changed(self, initial, data):
+        """
+        Checks if the data has changed since the initial state.
+
+        This method compares the initial and current data after applying any necessary
+        conversions using :meth:`to_python`. It returns False if the field is disabled,
+        indicating that changes should not be tracked.
+
+        Args:
+            initial: The initial state of the data.
+            data: The current state of the data.
+
+        Returns:
+            bool: True if the data has changed, False otherwise.
+
+        """
         if self.disabled:
             return False
         # Sometimes data or initial may be a string equivalent of a boolean
@@ -1210,6 +1287,34 @@ class FilePathField(ChoiceField):
         allow_folders=False,
         **kwargs,
     ):
+        """
+
+        Initialize a path-based option list.
+
+        This initializer sets up the path and filtering criteria for a list of options.
+        The options can be files, folders, or both, within the specified path.
+        The options can be filtered using a regular expression match.
+
+        The initializer also controls whether the option list is recursive, allowing
+        options to be collected from subdirectories.
+
+        Parameters
+        ----------
+        path : str
+            The path to collect options from.
+        match : str, optional
+            A regular expression to filter options.
+        recursive : bool, optional
+            Whether to collect options recursively from subdirectories.
+        allow_files : bool, optional
+            Whether to include files in the options.
+        allow_folders : bool, optional
+            Whether to include folders in the options.
+
+        The initializer populates a list of options, which can be used in a user interface.
+        Each option is a tuple containing the full path and a display name for the option.
+
+        """
         self.path, self.match, self.recursive = path, match, recursive
         self.allow_files, self.allow_folders = allow_files, allow_folders
         super().__init__(choices=(), **kwargs)
@@ -1299,6 +1404,20 @@ class SplitDateTimeField(MultiValueField):
 
 class GenericIPAddressField(CharField):
     def __init__(self, *, protocol="both", unpack_ipv4=False, **kwargs):
+        """
+
+        Initializes the object with specific parameters for IP address handling.
+
+        The function sets up the object's configuration for processing IP addresses, 
+        allowing for customization of the protocol and IPv4 unpacking behavior. 
+        It specifies the protocol to use and whether to unpack IPv4 addresses. 
+        The function also configures default validators for IP addresses based on the chosen protocol and unpacking settings.
+
+        :param protocol: The protocol to use, defaults to 'both'.
+        :param unpack_ipv4: Whether to unpack IPv4 addresses, defaults to False.
+        :param kwargs: Additional keyword arguments passed to the parent class's initializer.
+
+        """
         self.unpack_ipv4 = unpack_ipv4
         self.default_validators = validators.ip_address_validators(
             protocol, unpack_ipv4
@@ -1366,6 +1485,24 @@ class JSONField(CharField):
         super().__init__(**kwargs)
 
     def to_python(self, value):
+        """
+
+        Converts a value to a Python object.
+
+        This function takes a value and checks if it needs conversion. If the conversion
+        is disabled, the original value is returned. If the value is considered empty,
+        it is converted to None.
+
+        The function supports conversion of the following types: lists, dictionaries,
+        integers, floats, and JSON strings. If the value is already one of these types,
+        it is returned as is.
+
+        For other types of values, the function attempts to parse them as JSON using
+        a custom decoder. If the parsing fails, a ValidationError is raised. If the
+        parsing is successful, the converted value is returned, wrapped in a JSONString
+        if it is a string, otherwise returned as is.
+
+        """
         if self.disabled:
             return value
         if value in self.empty_values:

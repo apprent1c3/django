@@ -30,6 +30,14 @@ class SessionStore(SessionBase):
         return self.get_model_class()
 
     def _get_session_from_db(self):
+        """
+        Retrieves a session object from the database based on the provided session key, 
+        validating that the session has not expired. 
+
+        If a valid session is found, it is returned; otherwise, the session key is reset.
+        In cases where a `SuspiciousOperation` occurs, a warning is logged to the security log.
+        The function handles exceptions related to the session's existence and potential security issues.
+        """
         try:
             return self.model.objects.get(
                 session_key=self.session_key, expire_date__gt=timezone.now()
@@ -66,6 +74,17 @@ class SessionStore(SessionBase):
         return await self.model.objects.filter(session_key=session_key).aexists()
 
     def create(self):
+        """
+        Creates a new session key for the object and saves it to the database.
+
+        This method repeatedly generates a new session key until it can be successfully saved.
+        If the save operation fails due to a key collision, it will retry with a new key.
+
+        Once a unique key is found and saved, the object's modified status is updated to reflect the change.
+
+        :raises CreateError: If a key collision occurs during the save operation.
+        :returns: None
+        """
         while True:
             self._session_key = self._get_new_session_key()
             try:
@@ -149,6 +168,16 @@ class SessionStore(SessionBase):
             # async.
             @sync_to_async
             def sync_transaction():
+                """
+
+                Preserves database consistency by wrapping an object save operation within a transaction.
+
+                This ensures that either all changes are committed to the database or none are, in case of an error.
+                The operation is done asynchronously to prevent blocking other tasks.
+
+                :returns: None
+
+                """
                 with transaction.atomic(using=using):
                     obj.save(
                         force_insert=must_create,

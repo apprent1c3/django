@@ -534,6 +534,20 @@ class WidthRatioNode(Node):
 
 class WithNode(Node):
     def __init__(self, var, name, nodelist, extra_context=None):
+        """
+
+        Initializes the object with the given variable, name, and list of nodes, 
+        optionally providing extra context.
+
+        :param var: The variable to be used for initialization
+        :param name: The name associated with the variable (optional)
+        :param nodelist: A list of nodes to be stored in the object
+        :param extra_context: Additional context to be stored in the object (default: None)
+
+        The object stores the provided nodelist and extra context. If a name is provided, 
+        it is used to populate the extra context with the given variable.
+
+        """
         self.nodelist = nodelist
         # var and name are legacy attributes, being left in case they are used
         # by third-party subclasses of this Node.

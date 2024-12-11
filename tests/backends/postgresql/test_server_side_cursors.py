@@ -79,6 +79,18 @@ class ServerSideCursorsPostgres(TestCase):
         )
 
     def test_values_list_fields_not_equal_to_names(self):
+        """
+        Tests that the fields in a values_list query are not equal to the annotations when using an iterator.\"\"\"
+
+        \"\"\" 
+            This test validates the correct usage of the values_list method when paired with annotating a queryset.
+
+            It checks whether the fields returned by values_list are correctly matched with their corresponding annotations.
+
+            In this case, it verifies that the annotated count of 'id' field and the 'id__count' field are correctly distinguished 
+            and do not overwrite each other when using the iterator method on the resulting queryset.
+
+        """
         expr = models.Count("id")
         self.assertUsesCursor(
             Person.objects.annotate(id__count=expr)
@@ -93,6 +105,14 @@ class ServerSideCursorsPostgres(TestCase):
         self.assertUsesCursor(persons2, num_expected=2)
 
     def test_closed_server_side_cursor(self):
+        """
+        Tests that a server-side cursor is properly closed after it is deleted and garbage collected.
+
+        This test ensures that after iterating over a query set using an iterator, deleting the iterator object, 
+        and forcing garbage collection, no cursors remain open on the database server.
+
+        It verifies the expected behavior by checking that the number of open cursors is zero after these steps.
+        """
         persons = Person.objects.iterator()
         next(persons)  # Open a server-side cursor
         del persons

@@ -80,6 +80,19 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
         return getattr(DesiredCapabilities, browser.upper())
 
     def create_options(self):
+        """
+        Return a set of browser options for the specified browser.
+
+        This function configures the browser options based on the current state of the object, 
+        including whether the browser is running in headless mode. If headless mode is enabled, 
+        the function adds the necessary command-line arguments to the options for the specified browser.
+
+        The returned options object can be used to initialize a browser instance with the 
+        configured settings.
+
+        :rtype: object
+        :returns: A set of browser options for the specified browser
+        """
         options = self.import_options(self.browser)()
         if self.headless:
             match self.browser:
@@ -178,6 +191,15 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @contextmanager
     def rtl(self):
+        """
+
+        A context manager that sets up a right-to-left (RTL) environment for testing purposes.
+
+        This context manager temporarily overrides the language code to a right-to-left language and sets the desktop size to a default value, allowing you to test your application's layout and functionality in an RTL setting.
+
+        When used in a test case, this context manager ensures that all code executed within its scope is evaluated under RTL conditions, providing a convenient way to verify the correctness of your application's RTL support.
+
+        """
         with self.desktop_size():
             with override_settings(LANGUAGE_CODE=settings.LANGUAGES_BIDI[-1]):
                 yield

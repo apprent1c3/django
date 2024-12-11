@@ -28,6 +28,16 @@ class GEOSGeometryBase(GEOSBase):
     has_cs = False  # Only Point, LineString, LinearRing have coordinate sequences
 
     def __init__(self, ptr, cls):
+        """
+        Initializes a GEOS geometry object.
+
+         Args:
+            ptr: A pointer to the underlying GEOS geometry.
+            cls (class, optional): The class to instantiate the geometry as. If not provided, the class will be determined based on the geometry type.
+
+         Notes:
+            The class of the geometry object may be updated dynamically based on the geometry type, ensuring that the object is instantiated with the correct class. This process uses a lookup table to map geometry types to their corresponding classes.
+        """
         self._ptr = ptr
 
         # Setting the class type (e.g., Point, Polygon, etc.)
@@ -688,6 +698,19 @@ class LinearGeometryMixin:
         return self._topology(capi.geos_interpolate_normalized(self.ptr, distance))
 
     def project(self, point):
+        """
+
+        Projects a given point onto the geometry.
+
+        This function calculates the projection of a point onto the current geometric object.
+        The result is the point on the geometry that is closest to the specified point.
+
+        :arg point: The point to project onto the geometry
+        :type point: Point
+        :returns: The projected point
+        :raises TypeError: If the provided point is not a Point instance
+
+        """
         from .point import Point
 
         if not isinstance(point, Point):

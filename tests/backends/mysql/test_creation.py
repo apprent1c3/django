@@ -28,6 +28,30 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db_database_exists(self, *mocked_objects):
         # Simulate test database creation raising "database exists"
+        """
+        Tests the creation of a test database when it already exists.
+
+            This test case verifies the behavior of the DatabaseCreation class when 
+            attempting to create a test database that already exists. It checks that 
+            the correct error handling is performed and that the program exits as 
+            expected when the database exists and the user chooses not to overwrite it.
+
+            The test covers two scenarios: one where the user chooses not to overwrite 
+            the existing database and one where the user chooses to keep the database 
+            after the test is run. In both cases, it verifies that the program behaves 
+            as expected and that the correct exceptions are raised.
+
+            Parameters:
+                mocked_objects (list): List of mocked objects used for testing, 
+                    including sys.stdout and sys.stderr, which are used to capture 
+                    output and error messages.
+
+            Raises:
+                SystemExit: When the user chooses not to overwrite the existing database.
+
+            Returns:
+                None
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_database_exists):
             with mock.patch("builtins.input", return_value="no"):

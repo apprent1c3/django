@@ -262,6 +262,22 @@ class AppConfig:
     def import_models(self):
         # Dictionary of models for this app, primarily maintained in the
         # 'all_models' attribute of the Apps this AppConfig is attached to.
+        """
+        Retrieves and loads models for the current label.
+
+        This function populates the `models` attribute with model instances from the 
+        applications' all_models dictionary, based on the current label. It also checks 
+        if a models submodule exists within the module, and if so, imports it, making 
+        its contents available for further use.
+
+        The loaded models and models submodule are stored as instance attributes, 
+        enabling access to the models and their subclasses for the current label. 
+
+        :raises: No exceptions are explicitly raised by this function, but it may 
+            propagate exceptions related to module import failures if the models submodule 
+            cannot be imported.
+
+        """
         self.models = self.apps.all_models[self.label]
 
         if module_has_submodule(self.module, MODELS_MODULE_NAME):

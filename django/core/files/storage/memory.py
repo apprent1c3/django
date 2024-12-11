@@ -172,6 +172,20 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         file_permissions_mode=None,
         directory_permissions_mode=None,
     ):
+        """
+        Initializes a new instance of the class.
+
+        This method sets up the initial configuration for the object, including the location, base URL, file permissions mode, and directory permissions mode. It also creates a root node in memory and resolves the base location, creating it if necessary.
+
+        The following configuration options are supported:
+
+        * :location: The location of the object.
+        * :base_url: The base URL associated with the object.
+        * :file_permissions_mode: The permissions mode for files.
+        * :directory_permissions_mode: The permissions mode for directories.
+
+        The initialization process also establishes a connection to listen for setting changes, which triggers a clearing of cached properties when a setting is modified.
+        """
         self._location = location
         self._base_url = base_url
         self._file_permissions_mode = file_permissions_mode
