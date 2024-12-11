@@ -215,6 +215,19 @@ class NestedObjects(Collector):
         )
 
     def _nested(self, obj, seen, format_callback):
+        """
+        Recursively traverses a nested object structure and returns a representation of the object and its children.
+
+        This method keeps track of visited objects to avoid infinite loops in case of circular references. 
+        The result is a list containing the current object, optionally formatted by a provided callback function, 
+        and its children, if any. The children are also traversed recursively and represented as a nested list.
+
+        :param obj: The object to traverse
+        :param seen: A set of objects that have already been visited
+        :param format_callback: An optional function to format the object before returning it
+
+        :return: A list containing the object and its children, or an empty list if the object has already been visited.
+        """
         if obj in seen:
             return []
         seen.add(obj)

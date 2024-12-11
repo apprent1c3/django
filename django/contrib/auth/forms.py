@@ -219,6 +219,9 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
         return super().clean()
 
     def _post_clean(self):
+        """
+        Extends the post cleaning process for the current instance by calling the superclass's post cleaning method and then validating the password for the associated user.
+        """
         super()._post_clean()
         # Validate the password after self.instance is updated with form data
         # by super().

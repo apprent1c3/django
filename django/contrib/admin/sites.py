@@ -448,6 +448,21 @@ class AdminSite:
 
     @no_append_slash
     def catch_all_view(self, request, url):
+        """
+
+        Catch-all view to handle URLs that do not have a trailing slash.
+
+        This view checks if the settings require the appending of a slash and if the current URL does not already have one.
+        If both conditions are met, it attempts to resolve the URL with a trailing slash.
+        If a matching view is found and it allows the appending of a slash, the view redirects the request to the URL with the trailing slash.
+        If no matching view is found or the view does not allow the appending of a slash, a 404 error is raised.
+
+        :param request: The current HTTP request object
+        :param url: The URL being requested
+        :raises Http404: If no matching view is found
+        :return: HttpResponsePermanentRedirect if a matching view is found and allows appending a slash
+
+        """
         if settings.APPEND_SLASH and not url.endswith("/"):
             urlconf = getattr(request, "urlconf", None)
             try:

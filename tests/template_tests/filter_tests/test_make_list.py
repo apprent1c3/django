@@ -30,6 +30,17 @@ class MakeListTests(SimpleTestCase):
         }
     )
     def test_make_list03(self):
+        """
+
+        Render a template with a string that requires HTML escaping, testing the make_list filter.
+
+        This test checks that the make_list filter correctly handles input strings that contain special characters,
+        ensuring the output is properly formatted as a list and any HTML special characters are properly escaped.
+
+        The test passes a string containing an ampersand (&) character, which has special meaning in HTML, through the make_list filter.
+        It then verifies that the output is as expected, with the string correctly wrapped in a list and the ampersand properly handled.
+
+        """
         output = self.engine.render_to_string("make_list03", {"a": mark_safe("&")})
         self.assertEqual(output, "['&']")
 

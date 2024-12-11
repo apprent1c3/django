@@ -186,6 +186,13 @@ class CsrfExemptTests(SimpleTestCase):
 
     async def test_csrf_exempt_decorator_async_view(self):
         @csrf_exempt
+        """
+        Tests that the csrf_exempt decorator correctly sets the csrf_exempt attribute on an async view function.
+
+        Verifies that an async view function decorated with csrf_exempt has its csrf_exempt attribute set to True and returns an HttpResponse when called with an HttpRequest.
+
+        The test ensures the csrf_exempt decorator functions as expected in asynchronous views, allowing for CSRF exemption when needed.
+        """
         async def async_view(request):
             return HttpResponse()
 

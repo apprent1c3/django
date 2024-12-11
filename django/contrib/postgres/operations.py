@@ -110,6 +110,13 @@ class UnaccentExtension(CreateExtension):
 
 class NotInTransactionMixin:
     def _ensure_not_in_transaction(self, schema_editor):
+        """
+        Ensures that the operation is not being executed within a database transaction.
+
+        This function checks the current state of the database connection and raises a :class:`NotSupportedError` if the operation is attempted inside a transaction. This is to prevent potential database inconsistencies or errors.
+
+        The error message suggests setting ``atomic = False`` on the migration to bypass transactional behavior. This allows the operation to proceed, but beware that this may have implications for data integrity and consistency in the event of failures or errors.
+        """
         if schema_editor.connection.in_atomic_block:
             raise NotSupportedError(
                 "The %s operation cannot be executed inside a transaction "
@@ -137,6 +144,19 @@ class AddIndexConcurrently(NotInTransactionMixin, AddIndex):
             schema_editor.add_index(model, self.index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the addition of an index to a database table.
+
+        This method is used during the database migration process to remove an index 
+        that was previously applied. It takes into account the application label, 
+        schema editor, and the states before and after the migration.
+
+        The index is removed concurrently, allowing the database to remain accessible 
+        during the operation. The removal is only performed if the model is allowed 
+        to be migrated based on the current schema editor connection.
+
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -305,6 +325,13 @@ class ValidateConstraint(Operation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, model_name, name):
+        """
+        Initializes a class instance, setting the name of the model and a unique identifier.
+
+        :param model_name: The name of the model associated with this instance.
+        :param name: A unique name or identifier for this instance.
+        :returns: None
+        """
         self.model_name = model_name
         self.name = name
 

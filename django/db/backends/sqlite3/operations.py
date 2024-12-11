@@ -173,6 +173,22 @@ class DatabaseOperations(BaseDatabaseOperations):
         # bind_parameters(state, self->statement, parameters);
         # Unfortunately there is no way to reach self->statement from Python,
         # so we quote and substitute parameters manually.
+        """
+
+        Return the last executed SQL query as a string.
+
+        This method takes a SQL query string and optional parameters, 
+        and returns the query with the parameters inserted.
+
+        The parameters can be provided as a list or tuple of values, 
+        or as a dictionary mapping parameter names to values. 
+        The method formats the query string by replacing parameter placeholders 
+        with the actual parameter values.
+
+        The returned query string is the last executed query, 
+        with all parameter values properly quoted and formatted.
+
+        """
         if params:
             if isinstance(params, (list, tuple)):
                 params = self._quote_params_for_last_executed_query(params)
@@ -187,6 +203,19 @@ class DatabaseOperations(BaseDatabaseOperations):
             return sql
 
     def quote_name(self, name):
+        """
+        Ensures a name is properly quoted by surrounding it with double quotes if necessary.
+
+        Args:
+            name (str): The name to be quoted.
+
+        Returns:
+            str: The quoted name. If the input name is already quoted, it is returned unchanged.
+
+        Note:
+            This function assumes that a name is properly quoted if it starts and ends with double quotes.
+
+        """
         if name.startswith('"') and name.endswith('"'):
             return name  # Quoting once is enough.
         return '"%s"' % name
@@ -241,6 +270,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql
 
     def sequence_reset_by_name_sql(self, style, sequences):
+        """
+        :param style: The SQL style to use when generating the SQL command
+        :param sequences: A list of sequence information, where each sequence is a dictionary containing the table name
+        :return: A list of SQL commands to reset sequences by name
+        :rtype: list
+        :description: Generates an SQL command to reset sequence values to 0 for the specified tables.
+                      The command is returned as a list, which will be empty if no sequences are provided.
+                      The generated SQL command will update the sqlite_sequence table, setting seq to 0 where the name matches one of the provided table names.
+        """
         if not sequences:
             return []
         return [

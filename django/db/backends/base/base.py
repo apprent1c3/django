@@ -363,6 +363,17 @@ class BaseDatabaseWrapper:
     # ##### Backend-specific savepoint management methods #####
 
     def _savepoint(self, sid):
+        """
+        Create a database savepoint.
+
+        This method generates and executes SQL to create a database savepoint, 
+        which allows for partial transaction rollbacks. The savepoint is identified 
+        by the provided savepoint identifier `sid`. The database will record the 
+        current state, allowing for potential future rollbacks to this point.
+
+        :param sid: The identifier for the savepoint.
+
+        """
         with self.cursor() as cursor:
             cursor.execute(self.ops.savepoint_create_sql(sid))
 

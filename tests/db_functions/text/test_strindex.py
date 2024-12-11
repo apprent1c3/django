@@ -33,6 +33,14 @@ class StrIndexTests(TestCase):
         )
 
     def test_order_by(self):
+        """
+
+        Test the functionality of ordering query sets based on the index of a specific substring within a string field.
+
+        This test creates a set of authors and then checks that the query set can be ordered
+        correctly in both ascending and descending order based on the position of the substring 'R.' within the author's name.
+
+        """
         Author.objects.create(name="Terry Pratchett")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="George. R. R. Martin")

@@ -287,6 +287,14 @@ class MethodDecoratorTests(SimpleTestCase):
 
     def test_descriptors(self):
         def original_dec(wrapped):
+            """
+            .. function:: original_dec(wrapped)
+               :return: A function wrapper around the input wrapped function.
+
+               Creates a simple decorator that takes a function as input and returns a new function.
+               The returned function takes one argument and calls the original function with this argument.
+               This allows for basic function wrapping capabilities without modifying the original function's behavior.
+            """
             def _wrapped(arg):
                 return wrapped(arg)
 
@@ -345,6 +353,33 @@ class MethodDecoratorTests(SimpleTestCase):
         """
 
         def add_question_mark(func):
+            """
+            .: 
+                Adds a question mark to the end of a function's output string.
+
+                This decorator function is used to modify the output of a given function by appending a question mark to the result.
+                It is particularly useful for functions that return strings and need to be converted into interrogative form.
+
+                Parameters
+                ----------
+                func : function
+                    The function to be decorated.
+
+                Returns
+                -------
+                function
+                    A wrapper function that includes a question mark at the end of the output string.
+
+                Examples
+                --------
+                >>> @add_question_mark
+               ... def hello(name):
+               ...     return 'Hello ' + name
+                >>> hello('World')
+                'Hello World?'
+
+            ```
+            """
             def _wrapper(*args, **kwargs):
                 return func(*args, **kwargs) + "?"
 

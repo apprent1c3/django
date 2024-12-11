@@ -16,6 +16,17 @@ class ACosTests(TestCase):
         self.assertIsNone(obj.null_acos)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the inverse cosine (acos) of decimal values in the database.
+
+        This test creates a DecimalModel instance with decimal values, annotates the model
+        with the inverse cosine of these values using the ACos database function, and then
+        verifies that the results are Decimal instances and match the expected values calculated
+        using the math library's acos function.
+
+        The test covers the cases where the input values are negative and positive, ensuring
+        that the ACos database function behaves as expected in different scenarios.
+        """
         DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_acos=ACos("n1"), n2_acos=ACos("n2")

@@ -91,6 +91,11 @@ class MultipleLocaleCompilationTests(MessageCompilationTests):
         self.MO_FILE_FR = os.path.join(localedir, "fr/LC_MESSAGES/django.mo")
 
     def test_one_locale(self):
+        """
+        Tests the compilation of translation messages for a single locale.
+
+        This function overrides the locale paths to use a test directory, compiles the messages for the Croatian locale, and verifies that the compiled message file exists.
+        """
         with override_settings(LOCALE_PATHS=[os.path.join(self.test_dir, "locale")]):
             call_command("compilemessages", locale=["hr"], verbosity=0)
 

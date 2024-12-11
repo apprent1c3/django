@@ -18,6 +18,16 @@ class AsyncAuthTest(TestCase):
         )
 
     async def test_aauthenticate(self):
+        """
+
+        Tests the asynchronous authentication function to verify its correctness.
+
+        This test case checks the authentication function's behavior with valid credentials, 
+        ensuring it returns a User object with the correct attributes. It also tests the 
+        case when the user's account is inactive, verifying that authentication fails and 
+        returns None in this scenario.
+
+        """
         user = await aauthenticate(username="testuser", password="testpw")
         self.assertIsInstance(user, User)
         self.assertEqual(user.username, self.test_user.username)

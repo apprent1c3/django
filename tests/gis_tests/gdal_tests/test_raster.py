@@ -44,6 +44,13 @@ class GDALRasterTests(SimpleTestCase):
         self.assertEqual(self.rs.height, 174)
 
     def test_rs_srs(self):
+        """
+
+        Tests the Spatial Reference System (SRS) of a rendition set (RS).
+
+        Verifies that the SRS has a Specific Spatial Reference System Identifier (SRID) of 3086 and that the units are in metres.
+
+        """
         self.assertEqual(self.rs.srs.srid, 3086)
         self.assertEqual(self.rs.srs.units, (1.0, "metre"))
 

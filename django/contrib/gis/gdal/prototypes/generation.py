@@ -96,6 +96,31 @@ def srs_output(func, argtypes):
 
 
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
+    """
+    Configures a function to output a constant string.
+
+    This function modifies the provided function to have the specified argument types and checks its return value to ensure it's a constant string.
+    If an offset is provided, it checks the return value as an integer instead, assuming it's a pointer to a string.
+    Optionally, it decodes the string using a specified decoding method and checks for memory leaks if CPL (caller-provided-length) is enabled.
+
+    Parameters
+    ----------
+    func : callable
+        The function to configure
+    argtypes : list
+        A list of argument types for the function
+    offset : int, optional
+        An offset to the string pointer (default is None)
+    decoding : str, optional
+        The decoding method to use for the string (default is None)
+    cpl : bool, optional
+        Whether to check for memory leaks if the caller provides the length (default is False)
+
+    Returns
+    -------
+    callable
+        The configured function with the specified argument types and error checking
+    """
     func.argtypes = argtypes
     if offset:
         func.restype = c_int
@@ -103,6 +128,16 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
         func.restype = c_char_p
 
     def _check_const(result, func, cargs):
+        """
+        Checks if a constant string has been identified in the given result.
+
+        This function inspects the provided result to determine if it contains a constant string 
+        related to the specified function and arguments. The function also considers additional 
+        parameters such as offset and CPL (character per line) to fine-tune the checking process. 
+        If decoding is enabled, the identified constant is decoded accordingly. The function 
+        returns the identified constant string, or a decoded version if applicable, and returns 
+        it in the desired format for further processing.
+        """
         res = check_const_string(result, func, cargs, offset=offset, cpl=cpl)
         if res and decoding:
             res = res.decode(decoding)

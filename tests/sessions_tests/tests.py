@@ -398,6 +398,13 @@ class SessionTestsMixin:
         )
 
     def test_custom_expiry_seconds(self):
+        """
+        Tests the custom expiry seconds functionality of the session.
+
+        This test checks that setting a custom expiry time for the session works as expected.
+        It verifies that the calculated expiry date and age are correct based on the provided modification time and expiry seconds.
+        The test ensures that the session expires after the specified number of seconds, which in this case is 10 seconds after the modification time.
+        """
         modification = timezone.now()
 
         self.session.set_expiry(10)
@@ -1356,6 +1363,21 @@ class SessionBaseTests(SimpleTestCase):
             await self.session.asave()
 
     def test_test_cookie(self):
+        """
+        Tests the functionality of setting and deleting a test cookie in a session.
+
+        This test case ensures that a test cookie can be successfully set and deleted,
+        verifying the integrity of the session's cookie management. It checks for the
+        absence of the test cookie before setting it, verifies its presence after setting,
+        and confirms its removal after deletion.
+
+        The test method covers the following scenarios:
+        - Initial absence of the test cookie
+        - Successful setting of the test cookie
+        - Verification of the test cookie's presence
+        - Successful deletion of the test cookie
+        - Final absence of the test cookie after deletion
+        """
         self.assertIs(self.session.has_key(self.session.TEST_COOKIE_NAME), False)
         self.session.set_test_cookie()
         self.assertIs(self.session.test_cookie_worked(), True)

@@ -76,6 +76,17 @@ class NthValue(Func):
     window_compatible = True
 
     def __init__(self, expression, nth=1, **extra):
+        """
+
+        Initialize an object of the class.
+
+        :param expression: The source expression that this object operates on. It must be a non-null value.
+        :param nth: The position of the item to be processed. It must be a positive integer.
+        :keyword extra: Additional keyword arguments.
+
+        :raises ValueError: If the expression is null or if nth is not a positive integer.
+
+        """
         if expression is None:
             raise ValueError(
                 "%s requires a non-null source expression." % self.__class__.__name__

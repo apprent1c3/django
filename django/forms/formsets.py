@@ -518,6 +518,16 @@ class BaseFormSet(RenderableFormMixin):
     def media(self):
         # All the forms on a FormSet are the same, so you only need to
         # interrogate the first form for media.
+        """
+        Returns the media required by the first form in the collection, 
+        or the media of an empty form if the collection is empty. 
+
+        This property is a shortcut to access the media (such as CSS and JavaScript files) 
+        required by the forms in the collection, without having to directly access the forms themselves. 
+
+        :rtype: Media
+        :return: The media required by the first form or an empty form
+        """
         if self.forms:
             return self.forms[0].media
         else:

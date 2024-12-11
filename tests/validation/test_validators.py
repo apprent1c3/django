@@ -29,6 +29,15 @@ class TestModelsWithValidators(ValidationAssertions, SimpleTestCase):
         )
 
     def test_field_validators_can_be_any_iterable(self):
+        """
+        Tests that field validators can be any type of iterable.
+
+        This test case validates a ModelToValidate instance with a field that uses an iterable of custom validators.
+        It verifies that the validation fails as expected when the field's value does not meet the validation criteria.
+        The test also checks that the correct error message is raised during the validation process, confirming that the iterable validators are properly executed and their messages are displayed.
+
+        The purpose of this test is to ensure that the validation framework can handle and execute any type of iterable, providing flexibility in defining custom validation rules for model fields.
+        """
         mtv = ModelToValidate(
             number=10,
             name="Some Name",

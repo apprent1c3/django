@@ -269,6 +269,25 @@ class CsrfViewMiddleware(MiddlewareMixin):
             patch_vary_headers(response, ("Cookie",))
 
     def _origin_verified(self, request):
+        """
+
+        Verifies the origin of an incoming request.
+
+        This function checks if the request's origin is one of the allowed origins by comparing
+        it to the current host of the request, and against a predefined list of exact and 
+        subdomain origins. The function returns True if the origin is verified and False otherwise.
+
+        The verification process considers the following:
+
+        - Exact matches between the request origin and the current host of the request
+        - Exact matches between the request origin and a predefined list of allowed origins
+        - Subdomain matches between the request origin and a predefined list of allowed subdomains
+
+        This function is used to enforce security policies and protect against unauthorized
+        access to the system. It ensures that only requests from trusted and allowed origins
+        are processed.
+
+        """
         request_origin = request.META["HTTP_ORIGIN"]
         try:
             good_host = request.get_host()

@@ -1323,6 +1323,21 @@ class MigrationAutodetector:
                     self._generate_added_field(app_label, model_name, field_name)
 
     def create_altered_indexes(self):
+        """
+        ..: 
+            Determine the changes made to the indexes of a model by comparing the old and new model states.
+
+            This function identifies the indexes that were added, removed, or renamed in the new model state.
+            It also accounts for index together operations that have been altered.
+
+            The results of this comparison are stored in the :attr:`altered_indexes` and :attr:`renamed_index_together_values` dictionaries.
+
+            :return: None
+            :rtype: None
+            :attr altered_indexes: A dictionary mapping model names to their respective index alterations.
+            :type altered_indexes: dict
+            :note: This function is an internal method and should not be called directly. It is used as part of the model alteration process.
+        """
         option_name = operations.AddIndex.option_name
         self.renamed_index_together_values = defaultdict(list)
 

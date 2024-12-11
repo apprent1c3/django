@@ -534,6 +534,14 @@ class ModelFormBaseTest(TestCase):
         self.assertEqual(list(ExcludeFields.base_fields), ["name", "slug"])
 
     def test_exclude_nonexistent_field(self):
+        """
+
+        Tests that excluding a nonexistent field in a ModelForm does not affect the remaining fields.
+        The function verifies that a ModelForm with an excluded field that does not exist in the model
+        still includes all the actual fields from the model. This ensures that the form is generated correctly
+        even if the excluded field is not present in the model.
+
+        """
         class ExcludeFields(forms.ModelForm):
             class Meta:
                 model = Category
@@ -1420,6 +1428,18 @@ class UniqueTest(TestCase):
         self.assertEqual(form.errors["slug"], ["Product's Slug not unique."])
 
     def test_override_unique_together_message(self):
+        """
+        Tests the override of the unique together message for a form.
+
+        Verifies that when a form is created with data that violates a unique together constraint,
+        the correct custom error message is displayed.
+
+        The test checks that the custom error message is correctly set and returned when the form
+        is validated, and that the error message is in the expected format.
+
+        This ensures that the error message can be customized for unique together constraints,
+        providing a more user-friendly experience when forms are submitted with duplicate data.
+        """
         class CustomPriceForm(PriceForm):
             class Meta(PriceForm.Meta):
                 error_messages = {
@@ -3024,6 +3044,12 @@ class OtherModelFormTests(TestCase):
 
     def test_choices_type(self):
         # Choices on CharField and IntegerField
+        """
+        Tests that the status field in ArticleForm and ArticleStatusForm raises a ValidationError 
+        when an invalid choice is provided. The test checks that the field's clean method correctly 
+        identifies and rejects both a numeric string that does not correspond to any valid status 
+        and a non-numeric string, ensuring that only valid status choices are accepted by the form.
+        """
         f = ArticleForm()
         with self.assertRaises(ValidationError):
             f.fields["status"].clean("42")

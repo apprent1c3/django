@@ -47,6 +47,20 @@ class SessionStorage(BaseStorage):
         return encoder.encode(messages)
 
     def deserialize_messages(self, data):
+        """
+
+        Deserialize JSON encoded messages into native Python objects.
+
+        This method takes in a JSON encoded string and converts it into a Python object.
+        If the input data is not a string, it is returned as-is without any deserialization.
+
+        The deserialization process uses a custom decoder (MessageDecoder) to handle the
+        conversion of specific message types.
+
+        :param data: The JSON encoded string to be deserialized
+        :rtype: The deserialized Python object, or the original data if it's not a string
+
+        """
         if data and isinstance(data, str):
             return json.loads(data, cls=MessageDecoder)
         return data

@@ -96,6 +96,24 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        Truncates a SQL date to a specified level of precision.
+
+        This function takes a lookup type, a SQL string, parameters, and an optional timezone name.
+        It first converts the SQL string to the specified timezone if provided, then applies the DATE_TRUNC function,
+        which truncates the date to the specified level of precision (e.g., year, month, day).
+
+        The function returns a tuple containing the modified SQL string and a tuple of parameters,
+        including the lookup type.
+
+        :param lookup_type: The level of precision to truncate the date to (e.g., 'year', 'month', 'day')
+        :param sql: The SQL string to be truncated
+        :param params: The parameters for the SQL string
+        :param tzname: The optional timezone name to convert the SQL string to
+        :returns: A tuple containing the modified SQL string and a tuple of parameters
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
@@ -118,6 +136,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"({sql})::date", params
 
     def datetime_cast_time_sql(self, sql, params, tzname):
+        """
+        Converts a given SQL query to a specific time zone and casts it to a time type.
+
+        :param sql: The SQL query to be converted.
+        :param params: The parameters associated with the SQL query.
+        :param tzname: The name of the time zone to convert to.
+        :return: A tuple containing the modified SQL query with a time cast and the updated parameters.
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"({sql})::time", params
 
@@ -140,6 +166,27 @@ class DatabaseOperations(BaseDatabaseOperations):
         return self.date_extract_sql(lookup_type, sql, params)
 
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        Truncates a SQL date/time expression to the specified time precision.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The time precision to truncate to (e.g. 'second', 'minute', 'hour').
+        sql : str
+            The SQL date/time expression to be truncated.
+        params : tuple
+            Parameters to be used in the SQL expression.
+        tzname : str, optional
+            The time zone name to use for the date/time expression. If not provided, the default time zone will be used.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the modified SQL expression and the required parameters. The modified SQL expression is in the format 'DATE_TRUNC(lookup_type, sql)::time'.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"DATE_TRUNC(%s, {sql})::time", (lookup_type, *params)
 
@@ -154,6 +201,19 @@ class DatabaseOperations(BaseDatabaseOperations):
         return cursor.fetchall()
 
     def lookup_cast(self, lookup_type, internal_type=None):
+        """
+        .. argname:: lookup_cast
+
+           Returns a SQL lookup string based on the given lookup type and internal type.
+
+           :param lookup_type: The type of lookup to perform. This can be one of the following: 
+                               'iexact', 'contains', 'icontains', 'startswith', 'istartswith', 
+                               'endswith', 'iendswith', 'regex', 'iregex'.
+           :param internal_type: The type of internal field. This can influence the format of the lookup string.
+           :return: A SQL lookup string that can be used to perform the specified lookup operation.
+           :note: The lookup string may be modified to handle case-insensitive comparisons or to convert 
+                  the field to a text type, depending on the lookup type and internal type.
+        """
         lookup = "%s"
         # Cast text lookups to text to allow things like filter(x__contains=4)
         if lookup_type in (
@@ -316,6 +376,15 @@ class DatabaseOperations(BaseDatabaseOperations):
             return None
 
     def return_insert_columns(self, fields):
+        """
+        @return_insert_columns
+        Helper function to construct a SQL RETURNING statement for the given fields.
+
+        :param fields: A list of field objects to include in the RETURNING statement.
+        :returns: A tuple containing the constructed RETURNING statement as a string and an empty tuple.
+        :rtype: tuple[str, tuple]
+        :description: The function generates a string that specifies which columns to return after an insert operation, handling the quoting of table and column names. If no fields are provided, it returns an empty string and an empty tuple.
+        """
         if not fields:
             return "", ()
         columns = [

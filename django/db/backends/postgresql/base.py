@@ -326,6 +326,21 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         #   default when no value is explicitly specified in options.
         # - before calling _set_autocommit() because if autocommit is on, that
         #   will set connection.isolation_level to ISOLATION_LEVEL_AUTOCOMMIT.
+        """
+
+        Get a new database connection.
+
+        This method establishes a new database connection using the provided connection parameters.
+        It also sets the isolation level of the connection based on the options specified in the settings.
+        If the isolation level is not explicitly set, it defaults to read committed.
+        The connection is retrieved from a pool if available, otherwise a new connection is created.
+
+        The connection is configured with default jsonb handling if using psycopg2.
+
+        Returns:
+            A new database connection object.
+
+        """
         options = self.settings_dict["OPTIONS"]
         set_isolation_level = False
         try:

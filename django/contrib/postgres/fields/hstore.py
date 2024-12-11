@@ -82,6 +82,14 @@ class KeyTransform(Transform):
     output_field = TextField()
 
     def __init__(self, key_name, *args, **kwargs):
+        """
+        Initializes a new instance of the class, setting the key name and passing any additional arguments to the superclass initializer.
+
+        :param key_name: The name of the key to be associated with this instance.
+        :param args: Variable length argument list to be passed to the superclass initializer.
+        :param kwargs: Arbitrary keyword arguments to be passed to the superclass initializer.
+        :raises: No exceptions are explicitly raised by this method, but may be propagated from the superclass initializer.
+        """
         super().__init__(*args, **kwargs)
         self.key_name = key_name
 

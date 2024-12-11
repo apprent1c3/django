@@ -85,6 +85,13 @@ class WSGIRequest(HttpRequest):
     @cached_property
     def GET(self):
         # The WSGI spec says 'QUERY_STRING' may be absent.
+        """
+        Returns a QueryDict object containing the parsed query string from the current request.
+
+        The query string is retrieved from the WSGI environment and parsed into a dictionary-like object, using the encoding specified by the instance's configuration.
+
+        This allows easy access to the query parameters and values, such as those passed in a URL (e.g., `?key=value&foo=bar`). The returned QueryDict object provides a flexible and convenient way to work with the query parameters.
+        """
         raw_query_string = get_bytes_from_wsgi(self.environ, "QUERY_STRING", "")
         return QueryDict(raw_query_string, encoding=self._encoding)
 
@@ -114,6 +121,9 @@ class WSGIHandler(base.BaseHandler):
     request_class = WSGIRequest
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, calling the parent class's constructor and then loading the necessary middleware components.
+        """
         super().__init__(*args, **kwargs)
         self.load_middleware()
 

@@ -450,6 +450,19 @@ class PasswordResetTest(AuthViewsTestCase):
         self.assertEqual(client.session["_password_reset_token"], token)
 
     def test_confirm_custom_reset_url_token_link_redirects_to_set_password_page(self):
+        """
+        Tests that a custom reset URL token link redirects to the set password page.
+
+        This test confirms that when a custom password reset URL is provided with a valid token,
+        it properly redirects to the set password page, storing the token in the session.
+
+        The test simulates a GET request to the custom reset URL and verifies the redirect
+        to the set password page, ensuring that the token and user identifier (uidb64) are
+        correctly passed and stored in the session.
+
+        It validates the redirect URL and session storage to ensure correct functionality
+        of the custom password reset process.
+        """
         url, path = self._test_confirm_start()
         path = path.replace("/reset/", "/reset/custom/token/")
         client = Client()
@@ -564,6 +577,15 @@ class UUIDUserPasswordResetTest(CustomUserPasswordResetTest):
 
 class ChangePasswordTest(AuthViewsTestCase):
     def fail_login(self):
+        """
+
+        Verifies that an invalid login attempt results in the correct error message.
+
+        This function simulates a failed login by submitting a username and password 
+        combination that is expected to fail authentication. It then checks that the 
+        response contains the expected error message for an invalid login.
+
+        """
         response = self.client.post(
             "/login/",
             {
@@ -609,6 +631,14 @@ class ChangePasswordTest(AuthViewsTestCase):
         )
 
     def test_password_change_succeeds(self):
+        """
+
+        Tests the successful change of a user's password.
+
+        This test case verifies that a user can change their password by submitting a valid old password and matching new passwords.
+        It then checks that the old password is no longer valid and that the new password can be used for login.
+
+        """
         self.login()
         self.client.post(
             "/password_change/",
@@ -1673,6 +1703,20 @@ class ChangelistTests(MessagesTestMixin, AuthViewsTestCase):
     def test_user_change_password_passes_user_to_has_change_permission(
         self, has_change_permission
     ):
+        """
+
+        Tests that the user change password view calls the has_change_permission method 
+        with the correct user instance.
+
+        Verifies that when a password change request is made for a user, the 
+        has_change_permission method of the UserAdmin class is called with the 
+        correct user object. This ensures that the proper permissions are checked 
+        before allowing the password change operation to proceed.
+
+        This test is crucial in ensuring that the password change functionality 
+        is properly secured and that only authorized users can modify passwords.
+
+        """
         url = reverse(
             "auth_test_admin:auth_user_password_change", args=(self.admin.pk,)
         )

@@ -136,6 +136,30 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql, params
 
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        Truncates a SQL query to a specified time precision.
+
+        This method takes a SQL query, modifies it to fit the specified time lookup type (hour, minute, second),
+        and returns the modified SQL string along with the necessary parameters.
+
+        The lookup type determines the precision of the time truncation. For example, 'hour' will truncate
+        the time to the hour, 'minute' will truncate the time to the minute, and 'second' will truncate the
+        time to the second.
+
+        The resulting SQL string can be used directly in a database query. The method also handles time zone
+        conversions if a time zone name is provided.
+
+        Args:
+            lookup_type (str): The type of time lookup (hour, minute, second).
+            sql (str): The SQL query to be truncated.
+            params (tuple): The parameters for the SQL query.
+            tzname (str, optional): The time zone name. Defaults to None.
+
+        Returns:
+            tuple: A tuple containing the modified SQL string and the parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = {
             "hour": "%H:00:00",
@@ -245,6 +269,15 @@ class DatabaseOperations(BaseDatabaseOperations):
     def validate_autopk_value(self, value):
         # Zero in AUTO_INCREMENT field does not work without the
         # NO_AUTO_VALUE_ON_ZERO SQL mode.
+        """
+        Validate an AutoField value to ensure it is compatible with the database backend.
+
+        Checks if the provided value is 0 and if the database backend supports it as a valid value for an AutoField.
+        If the value is 0 and the backend does not support it, raises a ValueError with a descriptive error message.
+        Otherwise, returns the validated value.
+
+        This validation is necessary to prevent potential errors when working with AutoFields in different database environments.
+        """
         if value == 0 and not self.connection.features.allows_auto_pk_0:
             raise ValueError(
                 "The database backend does not accept 0 as a value for AutoField."
@@ -336,6 +369,20 @@ class DatabaseOperations(BaseDatabaseOperations):
         )
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Subtract two temporal values.
+
+        Perform a subtraction operation between two temporal values `lhs` and `rhs` of type `internal_type`.
+        The function returns a SQL query string and a tuple of query parameters.
+
+        The `internal_type` parameter determines the type of subtraction to perform:
+        - If `internal_type` is `'TimeField'`, the function calculates the difference in microseconds.
+        - For other `internal_type` values, the function calculates the difference in microseconds using the `TIMESTAMPDIFF` SQL function.
+
+        The `lhs` and `rhs` parameters are tuples containing the SQL query strings and parameters for the left-hand side and right-hand side of the subtraction operation, respectively.
+
+        The returned SQL query string and parameters can be used directly in a database query to perform the subtraction operation.
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         if internal_type == "TimeField":

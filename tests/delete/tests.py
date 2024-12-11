@@ -182,6 +182,16 @@ class OnDeleteTests(TestCase):
         self.assertFalse(RChild.objects.filter(pk=a.child_id).exists())
 
     def test_setnull_from_child(self):
+        """
+
+        Tests the behavior when a child object is deleted from its parent.
+
+        This test case verifies that when a child object is deleted, the parent object's
+        foreign key reference to the child is set to null. It checks that the child object
+        is no longer present in the database after deletion, and that reloading the parent
+        object from the database results in the foreign key reference being None.
+
+        """
         a = create_a("child_setnull")
         a.child_setnull.delete()
         self.assertFalse(R.objects.filter(pk=a.child_setnull_id).exists())

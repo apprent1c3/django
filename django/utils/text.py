@@ -108,6 +108,11 @@ class TruncateHTMLParser(HTMLParser):
 
     @cached_property
     def void_elements(self):
+        """
+        Returns a list of void elements as defined by the HTML specification.
+        These are elements that do not have a closing tag and are typically used for embedding content.
+        The list of void elements is based on the Django framework's definition.
+        """
         from django.utils.html import VOID_ELEMENTS
 
         return VOID_ELEMENTS

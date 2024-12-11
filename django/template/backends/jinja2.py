@@ -15,6 +15,25 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+
+        Initialize the class with the provided parameters.
+
+        The parameters dictionary is expected to contain an 'OPTIONS' key, which holds the configuration options for the Jinja2 environment. 
+
+        The following options are supported:
+            - 'context_processors': a list of context processors to use with the Jinja2 environment.
+            - 'environment': the name of the Jinja2 environment class to use (defaults to 'jinja2.Environment').
+
+        Additional options can be passed to customize the behavior of the Jinja2 environment, such as:
+            - 'loader': the template loader to use (defaults to a FileSystemLoader if not specified).
+            - 'autoescape': whether to enable autoescaping of templates (defaults to True).
+            - 'auto_reload': whether to enable auto-reloading of templates (defaults to the value of settings.DEBUG).
+            - 'undefined': the undefined type to use (defaults to jinja2.DebugUndefined if settings.DEBUG, otherwise jinja2.Undefined).
+
+        The class will initialize the Jinja2 environment with the provided options and store it in the 'env' attribute.
+
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)

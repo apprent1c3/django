@@ -561,6 +561,9 @@ class AnonymousUserTests(SimpleTestCase):
         self.assertEqual(hash(self.user), 1)
 
     def test_int(self):
+        """
+        Checks that attempting to cast an AnonymousUser object to an integer raises a TypeError with a descriptive error message, ensuring that AnonymousUser is not mistakenly used in place of a User object.
+        """
         msg = (
             "Cannot cast AnonymousUser to int. Are you trying to use it in "
             "place of User?"

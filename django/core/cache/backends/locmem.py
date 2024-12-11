@@ -112,6 +112,11 @@ class LocMemCache(BaseCache):
             return self._delete(key)
 
     def clear(self):
+        """
+        Clears the cache and associated expiration information.
+
+        Removes all items from the cache and resets the expiration data. This operation is thread-safe, ensuring that cache clearing does not interfere with concurrent access or modifications. The cache is restored to its initial empty state after this method is called.
+        """
         with self._lock:
             self._cache.clear()
             self._expire_info.clear()

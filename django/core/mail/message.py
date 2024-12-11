@@ -183,6 +183,20 @@ class SafeMIMEMultipart(MIMEMixin, MIMEMultipart):
     def __init__(
         self, _subtype="mixed", boundary=None, _subparts=None, encoding=None, **_params
     ):
+        """
+        Initializes a MIMEMultipart object, allowing for the creation of complex email messages with multiple parts.
+
+        The initialization process can be customized with various parameters, including the subtype of the message, boundary, subparts, and encoding.
+
+        :param str _subtype: The subtype of the message (default: 'mixed')
+        :param str boundary: The boundary to use for the message
+        :param _subparts: The subparts of the message
+        :param str encoding: The encoding to use for the message
+
+        This initializer also handles additional keyword parameters (**_params), providing flexibility in the creation of the MIMEMultipart object.
+
+        By setting the encoding, you can ensure that the message is properly formatted and sent in the desired encoding, facilitating cross-platform and cross-email-client compatibility. Overall, this initializer provides a foundation for constructing complex, multi-part email messages with ease.
+        """
         self.encoding = encoding
         MIMEMultipart.__init__(self, _subtype, boundary, _subparts, **_params)
 

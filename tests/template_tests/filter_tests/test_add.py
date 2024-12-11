@@ -29,6 +29,26 @@ class AddTests(SimpleTestCase):
 
     @setup({"add04": '{{ i|add:"16" }}'})
     def test_add04(self):
+        """
+        Tests the add filter with a non-integer input string.
+
+        The function verifies that when the add filter is applied to a string that cannot be converted to an integer,
+        it simply appends the specified value to the end of the string, without attempting any type conversion.
+
+        The expected output is the original input string with the specified value appended to the end.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AssertionError : If the output of the add filter does not match the expected result.
+        """
         output = self.engine.render_to_string("add04", {"i": "not_an_int"})
         self.assertEqual(output, "not_an_int16")
 

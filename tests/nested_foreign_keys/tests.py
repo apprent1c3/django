@@ -33,6 +33,15 @@ from .models import (
 class NestedForeignKeysTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This method creates a set of predefined test data, including a Person object representing the director and a Movie object.
+        The director is set to 'Terry Gilliam / Terry Jones' and the movie is set to 'Monty Python and the Holy Grail', with the director assigned accordingly.
+        This data is stored in the class attributes `director` and `movie`, making it available for use in subsequent tests.
+
+        """
         cls.director = Person.objects.create(name="Terry Gilliam / Terry Jones")
         cls.movie = Movie.objects.create(
             title="Monty Python and the Holy Grail", director=cls.director

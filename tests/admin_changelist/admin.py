@@ -87,6 +87,16 @@ class NrOfMembersFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, queryset):
+        """
+        Filters a queryset based on the number of members.
+
+        This function takes a queryset and filters it according to a predefined condition.
+        The condition is determined by the value of :meth:`value`, which can be either '5' or 'more'.
+        If the value is '5', the queryset is filtered to include only objects with 5 or fewer members.
+        If the value is 'more', the queryset is filtered to include only objects with more than 5 members.
+
+        :returns: The filtered queryset
+        """
         value = self.value()
         if value == "5":
             return queryset.filter(nr_of_members__lte=5)

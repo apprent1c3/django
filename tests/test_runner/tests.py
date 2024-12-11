@@ -657,6 +657,11 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_no_testrunner(self):
+        """
+        Checks the behavior of the test command when --testrunner option is used without specifying a test runner.
+
+        Verifies that the command correctly displays usage information and does not result in an error or traceback, while also ensuring no output is generated.
+        """
         args = ["test", "--testrunner"]
         out, err = self.run_django_admin(args, "test_project.settings")
         self.assertIn("usage", err)
@@ -907,6 +912,16 @@ class SetupDatabasesTests(unittest.TestCase):
             )
 
     def test_destroy_test_db_restores_db_name(self):
+        """
+
+        Tests that the destroy_test_db method correctly restores the original database name.
+
+        This test verifies that after the test database is destroyed, the original database name is restored.
+        The function checks that the database name is properly reset to its original value after the test database has been destroyed.
+
+        :raises: AssertionError if the database name is not restored to its original value.
+
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {

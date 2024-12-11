@@ -138,6 +138,14 @@ class TestValidation(SimpleTestCase):
             models.JSONField(decoder=CustomJSONDecoder())
 
     def test_validation_error(self):
+        """
+
+        Tests that a ValidationError is raised when a JSONField is given a value that cannot be serialized to JSON.
+
+        The test verifies that the validation error message is correctly set to indicate that the value must be valid JSON, 
+        ensuring that invalid JSON values are properly handled and reported.
+
+        """
         field = models.JSONField()
         msg = "Value must be valid JSON."
         value = uuid.UUID("{d85e2076-b67c-4ee7-8c3a-2bf5a2cc2475}")

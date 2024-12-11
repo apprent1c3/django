@@ -78,6 +78,24 @@ class BaseConstraint:
         return []
 
     def _check_references(self, model, references):
+        """
+
+        Checks foreign key references in a model for constraints.
+
+        Verifies that the fields referenced by the given references exist in the model
+        and that the lookups used are valid for those fields. If any invalid references
+        are found, they are reported as errors. The function also checks for any local
+        field constraints that may be applicable.
+
+        Args:
+            model: The model being checked.
+            references: An iterable of tuples, where each tuple contains a field name and
+                one or more lookup values.
+
+        Returns:
+            A list of errors found during the check.
+
+        """
         errors = []
         fields = set()
         for field_name, *lookups in references:
@@ -129,6 +147,15 @@ class BaseConstraint:
         return (path, (), kwargs)
 
     def clone(self):
+        """
+
+        Creates a clone of the current object, duplicating its state and properties.
+
+        The clone is created by reconstructing the object with the same arguments and keyword arguments used in its original creation.
+
+        :returns: A new instance of the same class, with the same attributes and values as the current object.
+
+        """
         _, args, kwargs = self.deconstruct()
         return self.__class__(*args, **kwargs)
 

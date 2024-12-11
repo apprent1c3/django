@@ -1435,6 +1435,13 @@ class SimpleExpressionTests(SimpleTestCase):
         )
 
     def test_get_expression_for_validation_only_one_source_expression(self):
+        """
+
+        Tests that get_expression_for_validation raises a ValueError when constraint_validation_compatible is False and there are multiple source expressions.
+
+        The function verifies that expressions with constraint validation compatibility disabled will not allow more than one source expression to be validated.
+
+        """
         expression = Expression()
         expression.constraint_validation_compatible = False
         msg = (
@@ -1873,6 +1880,20 @@ class FTimeDeltaTests(TestCase):
             self.assertEqual(test_set, self.expnames[: i + 1])
 
     def test_exclude(self):
+        """
+
+        Tests the functionality of excluding experiments based on their end date.
+
+        This test case verifies that experiments with an end date less than a 
+        certain time delta after their start date can be correctly excluded from 
+        the experiment set.
+
+        Specifically, it checks that experiments are excluded when their end date 
+        is less than the specified time delta after their start date, and when 
+        their end date is less than or equal to the specified time delta after 
+        their start date, in two separate test scenarios.
+
+        """
         for i, delta in enumerate(self.deltas):
             test_set = [
                 e.name for e in Experiment.objects.exclude(end__lt=F("start") + delta)
@@ -2353,6 +2374,11 @@ class ValueTests(TestCase):
                 self.assertIsInstance(expr.output_field, output_field_type)
 
     def test_resolve_output_field_failure(self):
+        """
+        Tests that an error is raised when the output field of a value expression cannot be resolved.
+
+        Specifically, this test case checks that a FieldError is raised with a descriptive message when the output_field of a Value instance is unknown. This ensures that the system properly handles and reports invalid or unrecognized field types.
+        """
         msg = "Cannot resolve expression type, unknown output_field"
         with self.assertRaisesMessage(FieldError, msg):
             Value(object()).output_field

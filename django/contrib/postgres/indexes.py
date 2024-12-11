@@ -117,6 +117,20 @@ class BTreeIndex(PostgresIndex):
     suffix = "btree"
 
     def __init__(self, *expressions, fillfactor=None, deduplicate_items=None, **kwargs):
+        """
+
+        Initializes an instance of the class.
+
+        This method sets up the object with the given expressions and optional parameters.
+        The expressions are passed to the parent class's initializer.
+        The fillfactor and deduplicate_items parameters control how the expressions are processed.
+
+        :param expressions: Variable number of expressions to be used in the object.
+        :param fillfactor: Optional parameter to specify the fill factor.
+        :param deduplicate_items: Optional parameter to control item deduplication.
+        :param kwargs: Additional keyword arguments passed to the parent class's initializer.
+
+        """
         self.fillfactor = fillfactor
         self.deduplicate_items = deduplicate_items
         super().__init__(*expressions, **kwargs)
@@ -130,6 +144,13 @@ class BTreeIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of parameter strings to be used with the 'WITH' clause, 
+        based on the object's properties. The returned parameters can include 
+        'fillfactor' and 'deduplicate_items' settings, depending on whether 
+        they have been defined for the instance. The parameters are formatted 
+        as key-value pairs, suitable for direct inclusion in a query.
+        """
         with_params = []
         if self.fillfactor is not None:
             with_params.append("fillfactor = %d" % self.fillfactor)
@@ -178,6 +199,13 @@ class GistIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, returning a tuple containing the path, arguments, and keyword arguments.
+
+        This method extends the deconstruction behavior of the parent class, adding additional keyword arguments for buffering and fill factor if they are specified.
+
+        The returned values can be used to reconstruct or serialize the object. The path represents the object's location or identifier, the arguments are the positional parameters, and the keyword arguments are the additional parameters that configure the object's behavior.
+        """
         path, args, kwargs = super().deconstruct()
         if self.buffering is not None:
             kwargs["buffering"] = self.buffering
@@ -186,6 +214,15 @@ class GistIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of WITH clause parameters for a database object.
+
+        The returned list includes parameters for buffering and fillfactor, if they have been specified.
+        These parameters can be used to customize the behavior of the database object.
+
+        :returns: A list of strings representing the WITH clause parameters.
+        :rtype: list[str]
+        """
         with_params = []
         if self.buffering is not None:
             with_params.append("buffering = %s" % ("on" if self.buffering else "off"))

@@ -31,6 +31,12 @@ class SitesFrameworkTests(TestCase):
 
     def test_site_manager(self):
         # Make sure that get_current() does not return a deleted Site object.
+        """
+        Tests the site manager functionality to ensure correct site retrieval and deletion.
+
+        Verifies that the current site can be retrieved successfully and is an instance of the Site class.
+        Then, it tests the deletion of the site and checks that attempting to retrieve the current site after deletion raises an ObjectDoesNotExist exception, indicating that the site was successfully removed.
+        """
         s = Site.objects.get_current()
         self.assertIsInstance(s, Site)
         s.delete()

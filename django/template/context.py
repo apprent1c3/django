@@ -29,6 +29,13 @@ class BaseContext:
         self._reset_dicts(dict_)
 
     def _reset_dicts(self, value=None):
+        """
+        INITIALIZE Reset the dictionary stack.
+
+            Resets the dictionary stack to its initial state, which includes a built-in dictionary with boolean and None values. 
+            If a BaseContext object is provided, its dictionaries (excluding the built-ins) are appended to the stack.
+            If a non-BaseContext object is provided, it is appended directly to the dictionary stack.
+        """
         builtins = {"True": True, "False": False, "None": None}
         self.dicts = [builtins]
         if isinstance(value, BaseContext):
@@ -231,6 +238,17 @@ class RequestContext(Context):
         use_tz=None,
         autoescape=True,
     ):
+        """
+        ..:param request: The current request object associated with this context.
+        :param dict_: An optional dictionary to populate the context with initial data.
+        :param processors: An optional list of processor functions to apply to the context.
+        :param use_l10n: A flag indicating whether to use localization in the context.
+        :param use_tz: A flag indicating whether to use time zones in the context.
+        :param autoescape: A flag indicating whether to automatically escape variables in the context (default: True)
+
+        Initializes a new context instance, setting up the request object, processors, and basic data structures.
+        It also populates the context with initial data from the provided dictionary and applies any specified processors.
+        """
         super().__init__(dict_, use_l10n=use_l10n, use_tz=use_tz, autoescape=autoescape)
         self.request = request
         self._processors = () if processors is None else tuple(processors)

@@ -835,6 +835,21 @@ class WriterTests(SimpleTestCase):
             self.serialize_round_trip(TestModel2.thing)
 
     def test_serialize_managers(self):
+        """
+        Tests the serialization of manager instances.
+
+        This function verifies that different types of managers can be properly 
+        serialized, including default managers, query set managers, and custom 
+        managers with various arguments. The serialization process is checked 
+        for correctness to ensure that the managers can be successfully 
+        reconstructed from their serialized forms.
+
+        The tests cover a range of scenarios, from simple manager serialization 
+        to more complex cases involving custom managers with multiple arguments. 
+        By validating the serialization of these different manager types, this 
+        function helps to ensure the reliability and consistency of the 
+        serialization process in various use cases.
+        """
         self.assertSerializedEqual(models.Manager())
         self.assertSerializedResultEqual(
             FoodQuerySet.as_manager(),

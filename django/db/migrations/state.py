@@ -179,6 +179,17 @@ class ProjectState:
         self.reload_model(app_label, new_name_lower, delay=True)
 
     def alter_model_options(self, app_label, model_name, options, option_keys=None):
+        """
+        Alters the options for a specific model in the application.
+
+        Args:
+            app_label (str): The label of the application to which the model belongs.
+            model_name (str): The name of the model whose options are to be altered.
+            options (dict): A dictionary containing the new options to be applied to the model.
+            option_keys (list, optional): A list of option keys to be removed from the model's options if they are not present in the provided options. Defaults to None.
+
+        This function updates the model's options by merging the new options with the existing ones. If option_keys are provided, it also removes any options not present in the new options from the model's options. Finally, it triggers a reload of the model to reflect the updated options.
+        """
         model_state = self.models[app_label, model_name]
         model_state.options = {**model_state.options, **options}
         if option_keys:
@@ -557,6 +568,14 @@ class ProjectState:
         return new_state
 
     def clear_delayed_apps_cache(self):
+        """
+        Clears the cached list of applications for delayed objects.
+
+        Removes the 'apps' attribute from the object's dictionary if it is marked as delayed.
+        This ensures that the list of applications is recalculated on the next access, rather than using a potentially outdated cached version.
+
+        Note: This method has no effect if the object is not delayed or does not have an 'apps' attribute.
+        """
         if self.is_delayed and "apps" in self.__dict__:
             del self.__dict__["apps"]
 

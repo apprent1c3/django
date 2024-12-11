@@ -159,6 +159,17 @@ class MeasureBase:
             )
 
     def __imul__(self, other):
+        """
+        Multiply the object's standard value by a numeric value.
+
+        This method modifies the object in-place and returns the modified object.
+        The numeric value can be of any type that can be converted to a float, 
+        including integers and floating-point numbers.
+
+        Raises:
+            TypeError: If the object is multiplied by a non-numeric value.
+
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard *= float(other)
             return self

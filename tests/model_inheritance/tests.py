@@ -244,6 +244,15 @@ class ModelInheritanceTests(TestCase):
 
     def test_eq(self):
         # Equality doesn't transfer in multitable inheritance.
+        """
+
+        Checks for inequality between Place and Restaurant objects with the same id.
+
+        Verifies that two distinct types, Place and Restaurant, are not considered equal 
+        even when they have the same identifier. This ensures that type differences are 
+        taken into account during equality comparisons.
+
+        """
         self.assertNotEqual(Place(id=1), Restaurant(id=1))
         self.assertNotEqual(Restaurant(id=1), Place(id=1))
 

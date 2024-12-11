@@ -44,6 +44,17 @@ def auth_processor_no_attr_access(request):
 
 
 def auth_processor_attr_access(request):
+    """
+
+    Handles authentication processor attribute access for the given request.
+
+    Renders two templates: one for authentication attributes access and another for testing 
+    authentication attributes access. The latter template is rendered with an additional 
+    context variable 'session_accessed' indicating whether the session has been accessed.
+
+    Returns an HTTP response with the rendered template.
+
+    """
     render(request, "context_processors/auth_attrs_access.html")
     return render(
         request,

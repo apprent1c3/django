@@ -1221,6 +1221,14 @@ class Queries1Tests(TestCase):
 
     def test_ticket_10790_7(self):
         # Reverse querying with isnull should not strip the join
+        """
+        Tests the query generation for Author objects with and without associated items. 
+
+        Ensures that filtering authors with a null item (i.e., no associated item) results 
+        in a query using a LEFT OUTER JOIN, while filtering authors with a non-null item 
+        (i.e., at least one associated item) results in a query using an INNER JOIN. 
+        Also verifies that the correct authors are returned in each case.
+        """
         q = Author.objects.filter(item__isnull=True)
         self.assertSequenceEqual(q, [self.a3])
         self.assertEqual(str(q.query).count("LEFT OUTER JOIN"), 1)
@@ -1719,6 +1727,16 @@ class Queries4Tests(TestCase):
         self.assertCountEqual(qs, [ci2, ci3])
 
     def test_ticket15316_exclude_false(self):
+        """
+
+        Tests that the exclude method correctly filters out objects based on a related model's existence.
+
+        This test case ensures that when using the exclude method with a related model lookup,
+        objects are properly filtered out if the related object exists. In this scenario, it checks
+        that CategoryItem instances are excluded if their category has a corresponding SpecialCategory.
+        The test verifies that only the CategoryItem without a SpecialCategory relation is returned.
+
+        """
         c1 = SimpleCategory.objects.create(name="category1")
         c2 = SpecialCategory.objects.create(
             name="named category1", special_name="special1"
@@ -3974,6 +3992,19 @@ class DisjunctionPromotionTests(TestCase):
         self.assertEqual(str(qs.query).count("LEFT OUTER JOIN"), 1)
 
     def test_disjunction_promotion4_demote(self):
+        """
+
+        Tests the promotion and demotion of disjunctions in database queries.
+
+        This test case verifies that a disjunction (OR operation) in a query does not
+        trigger a join operation initially. It then checks that adding a filter on a
+        related field (via a foreign key) promotes the disjunction, resulting in an
+        INNER JOIN operation being executed.
+
+        The test ensures that database queries are optimized correctly, avoiding
+        unnecessary join operations when possible.
+
+        """
         qs = BaseA.objects.filter(Q(a=1) | Q(a=2))
         self.assertEqual(str(qs.query).count("JOIN"), 0)
         # Demote needed for the "a" join. It is marked as outer join by
@@ -4095,6 +4126,20 @@ class ManyToManyExcludeTest(TestCase):
 
 class RelabelCloneTest(TestCase):
     def test_ticket_19964(self):
+        """
+
+        Tests that an object can be correctly identified as a parent and that its children can be retrieved.
+
+        This test creates a self-referential object and a child object, then verifies that the correct objects
+        are returned when querying for parents and children.
+
+        It validates the following:
+
+        * An object can be set as its own parent
+        * A parent object can be correctly identified
+        * The children of a parent object can be correctly retrieved, excluding the parent itself
+
+        """
         my1 = MyObject.objects.create(data="foo")
         my1.parent = my1
         my1.save()
@@ -4138,6 +4183,15 @@ class ValuesSubqueryTests(TestCase):
     def test_values_in_subquery(self):
         # If a values() queryset is used, then the given values
         # will be used instead of forcing use of the relation's field.
+        """
+
+        Tests that Orders are correctly filtered by values in a subquery of their associated OrderItems.
+
+        Specifically, it verifies that Orders are returned when their OrderItems' status matches the status value in the subquery.
+        The function creates test Orders and OrderItems, updates their statuses, and then asserts that the correct Order is returned
+        by the filter operation. This ensures the correctness of the filtering logic when using a subquery of related objects.
+
+        """
         o1 = Order.objects.create(id=-2)
         o2 = Order.objects.create(id=-1)
         oi1 = OrderItem.objects.create(order=o1, status=0)
@@ -4379,6 +4433,21 @@ class Ticket20955Tests(TestCase):
 
 class Ticket21203Tests(TestCase):
     def test_ticket_21203(self):
+        """
+
+        Tests proper functioning of deferred fields in conjunction with select_related.
+
+        This test case verifies that when a model is queried with select_related,
+        deferred fields are properly handled, and ensured that the deferred field 
+        is not retrieved from the database, while related objects are still fetched.
+
+        The test scenario involves creating a parent and child object, then querying 
+        the child object with select_related to fetch the parent, while deferring 
+        a specific field of the parent. It asserts that the query result is correct 
+        and that the deferred field is not retrieved, while the parent object is 
+        properly retrieved along with its non-deferred fields.
+
+        """
         p = Ticket21203Parent.objects.create(parent_bool=True)
         c = Ticket21203Child.objects.create(parent=p)
         qs = Ticket21203Child.objects.select_related("parent").defer("parent__created")

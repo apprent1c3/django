@@ -164,6 +164,25 @@ END;
         )
 
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
+        """
+        Extracts a datetime component from a SQL query.
+
+        This function converts a given SQL query to a specified timezone and then 
+        extracts a component of the datetime value, such as the year, month, day, 
+        or hour. For lookups of type 'second', it uses the EXTRACT function to 
+        get the seconds component. For other lookup types, it delegates to the 
+        date_extract_sql method.
+
+        Args:
+            lookup_type (str): The type of datetime component to extract, e.g. 'year', 'month', 'day', 'second'.
+            sql (str): The SQL query to extract the datetime component from.
+            params (list): Parameters to be used in the SQL query.
+            tzname (str): The name of the timezone to convert the datetime to.
+
+        Returns:
+            tuple: A tuple containing the modified SQL query and the updated parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         if lookup_type == "second":
             # Truncate fractional seconds.
@@ -192,6 +211,15 @@ END;
         return f"TRUNC({sql}, %s)", (*params, trunc_param)
 
     def time_extract_sql(self, lookup_type, sql, params):
+        """
+        Extracts a specific component of time from a given SQL expression.
+
+        :param lookup_type: Type of time component to extract (e.g. 'second')
+        :param sql: SQL expression to extract time from
+        :param params: Parameters associated with the SQL expression
+        :returns: A tuple containing the modified SQL expression and the associated parameters
+        :note: For 'second' lookup type, extracts the second component from the given SQL expression. For other lookup types, delegates to :meth:`date_extract_sql` method.
+        """
         if lookup_type == "second":
             # Truncate fractional seconds.
             return f"FLOOR(EXTRACT(SECOND FROM {sql}))", params
@@ -369,6 +397,11 @@ END;
         return x
 
     def process_clob(self, value):
+        """
+        Returns the contents of a CLOB (Character Large OBject) as a string.
+
+        If the input CLOB is None, an empty string is returned. Otherwise, the contents of the CLOB are read and returned as a string. This allows for easy processing or manipulation of the CLOB data.
+        """
         if value is None:
             return ""
         return value.read()
@@ -378,6 +411,18 @@ END;
         # not quoted, Oracle has case-insensitive behavior for identifiers, but
         # always defaults to uppercase.
         # We simplify things by making Oracle identifiers always uppercase.
+        """
+        Quotes and formats a given name to ensure compatibility and consistency.
+
+        This function checks if the provided name is already quoted and truncates it if necessary to meet the maximum allowed length.
+        It then escapes any percentage signs and converts the result to uppercase, returning the formatted name.
+
+        The formatted name can be safely used in contexts where quoting and escaping are required, such as in SQL identifiers or other specific syntaxes.
+
+        :param name: The name to be quoted and formatted.
+        :return: The formatted name with quotes, escapes, and uppercase conversion applied.
+
+        """
         if not name.startswith('"') and not name.endswith('"'):
             name = '"%s"' % truncate_name(name, self.max_name_length())
         # Oracle puts the query text into a (query % args) construct, so % signs
@@ -526,6 +571,23 @@ END;
         return sql
 
     def sequence_reset_by_name_sql(self, style, sequences):
+        """
+        Generate SQL queries to reset sequences by name.
+
+        This function takes in a style and a list of sequence information, and generates a list of SQL queries to reset the sequences.
+
+        The sequence information should include the table and column names associated with each sequence.
+
+        The function returns a list of SQL queries, with each query specific to a particular sequence.
+
+        The queries take into account the database connection features, such as the bare select suffix.
+
+        :param style: The style of the sequence reset.
+        :param sequences: A list of dictionaries containing sequence information, including table and column names.
+        :rtype: list
+        :return: A list of SQL queries to reset the sequences.
+
+        """
         sql = []
         for sequence_info in sequences:
             no_autofield_sequence_name = self._get_no_autofield_sequence_name(

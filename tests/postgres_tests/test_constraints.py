@@ -945,6 +945,19 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         RangesModel.objects.create(ints=(51, 60))
 
     def test_range_adjacent_initially_deferred_with_condition(self):
+        """
+
+        Tests the behavior of an exclusion constraint with a deferred adjacent range condition.
+
+        The test validates the following:
+
+        * The initial absence of a specific constraint in the database table.
+        * The successful creation of the exclusion constraint with a deferred adjacent range condition.
+        * The enforcement of the constraint when attempting to create overlapping ranges within the condition.
+        * The ability to create non-overlapping ranges within and outside the condition.
+        * The correct application of the constraint after it is set to immediate.
+
+        """
         constraint_name = "ints_adjacent_deferred_with_condition"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1050,6 +1063,15 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_gist_include_deferrable(self):
+        """
+        Tests the creation of an exclusion constraint with a GIST index type that includes 
+        deferrable option and adjacent range operator on the 'ints' field, including 'decimals' field.
+        The constraint is added to the database schema and then verified to ensure it exists.
+        This test covers the scenario where the exclusion constraint is deferred, meaning it will 
+        be checked at the end of the transaction rather than at each statement.
+        The test also checks that the adjacent range operator is correctly applied and that 
+        the 'decimals' field is included in the constraint as specified.
+        """
         constraint_name = "ints_adjacent_gist_include_deferrable"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)

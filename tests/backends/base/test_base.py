@@ -228,6 +228,11 @@ class ConnectionHealthChecksTests(SimpleTestCase):
     def setUp(self):
         # All test cases here need newly configured and created connections.
         # Use the default db connection for convenience.
+        """
+        Sets up the test environment by closing the database connection and ensuring it is also closed after the test has finished.
+
+        This method is called before each test, allowing for a clean start with no residual connections from previous tests. The connection is also scheduled to be closed after the test, regardless of its outcome, to prevent resource leaks and ensure a consistent state for subsequent tests.
+        """
         connection.close()
         self.addCleanup(connection.close)
 

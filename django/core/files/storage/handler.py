@@ -17,6 +17,11 @@ class StorageHandler:
 
     @cached_property
     def backends(self):
+        """
+        Returns a dictionary of available backends, caching the result to avoid repeated computation.
+        The backends are initialized from the settings defined in STORAGES.
+        This property allows for convenient access to the list of supported storage backends.
+        """
         if self._backends is None:
             self._backends = settings.STORAGES.copy()
         return self._backends

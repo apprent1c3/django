@@ -142,6 +142,22 @@ class GetDefaultUsernameTestCase(TestCase):
         self.assertEqual(management.get_default_username(), "julia")
 
     def test_with_database(self):
+        """
+        Tests the functionality of the management module for retrieving default usernames 
+        from the database.
+
+        This test case covers different scenarios, including creating a user in the 
+        default database, setting the system username, and retrieving the default 
+        username from both the default and a non-default database. It ensures that 
+        the management module behaves as expected in these situations, returning 
+        either an empty string or the username of the created user, depending on 
+        the specified database and the presence of a user with the system username.
+
+        The test verifies that the get_default_username function returns the 
+        expected result when called with and without specifying a database, and 
+        when a user with the system username exists in the specified database 
+        or not.
+        """
         User.objects.create(username="joe")
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "")
@@ -1264,6 +1280,18 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.NoPasswordUser")
     def test_usermodel_without_password(self):
+        """
+
+        Tests the creation of a superuser when the user model does not require a password.
+
+        This test case verifies that the createsuperuser command can successfully create a superuser
+        without prompting for a password, when the AUTH_USER_MODEL setting is configured to use a
+        custom user model that does not require a password.
+
+        The test checks that the command outputs a success message indicating that the superuser was
+        created successfully.
+
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -1435,6 +1463,11 @@ class MultiDBCreatesuperuserTestCase(TestCase):
 
 class CreatePermissionsTests(TestCase):
     def setUp(self):
+        """
+        Sets up the test environment by preserving the original permissions and default permissions of the Permission model, 
+        and retrieves the application configuration for the 'auth' app. This ensures that any changes made during testing 
+        can be reverted to their original state, maintaining a clean and consistent test environment.
+        """
         self._original_permissions = Permission._meta.permissions[:]
         self._original_default_permissions = Permission._meta.default_permissions
         self.app_config = apps.get_app_config("auth")

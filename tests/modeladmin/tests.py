@@ -52,6 +52,14 @@ class ModelAdminTests(TestCase):
         self.site = AdminSite()
 
     def test_modeladmin_str(self):
+        """
+
+        Tests that the string representation of a ModelAdmin instance returns the expected value.
+
+        This test case verifies that the __str__ method of ModelAdmin correctly identifies the model and admin class.
+        It checks if the string representation matches the 'modeladmin.ModelAdmin' format, ensuring that the ModelAdmin instance is properly represented as a string.
+
+        """
         ma = ModelAdmin(Band, self.site)
         self.assertEqual(str(ma), "modeladmin.ModelAdmin")
 

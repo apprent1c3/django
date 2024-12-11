@@ -36,6 +36,28 @@ class RedisCacheClient:
         parser_class=None,
         **options,
     ):
+        """
+
+        Initializes a Redis connection manager.
+
+        This constructor sets up the connection to one or more Redis servers. It accepts
+        a list of server addresses and optional configuration parameters for the
+        connection pool, data serialization, and parsing.
+
+        The following configuration options are supported:
+        - servers: a list of Redis server addresses
+        - serializer: an object responsible for serializing and deserializing data
+          (can be a string referencing a class or an instance of a serializer class)
+        - pool_class: a class for managing Redis connections (can be a string referencing
+          a class or an instance of a pool class)
+        - parser_class: a class for parsing Redis responses (can be a string referencing
+          a class or an instance of a parser class)
+        - **options: additional keyword arguments for customizing the connection pool
+
+        By default, the connection manager uses the Redis default connection pool and
+        serializer if no custom classes are provided.
+
+        """
         import redis
 
         self._lib = redis

@@ -696,6 +696,18 @@ class QuerySetSetOperationTests(TestCase):
                     getattr(qs, combinator)(qs).get(num=2)
 
     def test_operator_on_combined_qs_error(self):
+        """
+
+        Tests that using the bitwise operators (`|`, `&`, `^`) with combined querysets raises a TypeError.
+
+        The function attempts to apply the bitwise operators to querysets combined using
+        `union`, `difference`, and `intersection` methods and verifies that a TypeError
+        is raised with a message indicating that the operator cannot be used with a combined queryset.
+
+        This test case covers various combinations of querysets and operators to ensure
+        that the error handling is consistent across different use cases.
+
+        """
         qs = Number.objects.all()
         msg = "Cannot use %s operator with combined queryset."
         combinators = ["union"]

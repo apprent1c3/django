@@ -354,6 +354,19 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     @override_settings(DISALLOWED_USER_AGENTS=[re.compile(r"foo")])
     def test_disallowed_user_agents(self):
+        """
+
+        Tests the handling of disallowed user agents by the CommonMiddleware.
+
+        This tests checks that when a request with a forbidden user agent is made,
+        the middleware correctly raises a PermissionDenied exception with a
+        meaningful error message.
+
+        The test simulates a request to the '/slash' endpoint with a user agent
+        that matches a disallowed pattern, and verifies that the expected
+        exception is raised.
+
+        """
         request = self.rf.get("/slash")
         request.META["HTTP_USER_AGENT"] = "foo"
         with self.assertRaisesMessage(PermissionDenied, "Forbidden user agent"):

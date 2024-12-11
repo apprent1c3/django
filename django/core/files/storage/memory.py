@@ -226,6 +226,16 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
             raise FileExistsError(f"{absolute_path} exists and is not a directory.")
 
     def _open(self, name, mode="rb"):
+        """
+
+        Opens a file with the specified name and mode.
+
+        The file is resolved within the current context, and if it does not exist and the mode includes 'w', it is created.
+        The mode parameter should be a valid file mode string, such as 'rb', 'wb', 'r', or 'w'.
+
+        Returns a file object that can be used to read or write to the file, depending on the specified mode.
+
+        """
         create_if_missing = "w" in mode
         file_node = self._resolve(
             name, create_if_missing=create_if_missing, leaf_cls=InMemoryFileNode
@@ -233,6 +243,23 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return file_node.open(mode)
 
     def _save(self, name, content):
+        """
+
+        Saves content to a file node with the specified name.
+
+        This method saves the provided content to a file node, creating the node if it does not already exist.
+        The content is written in chunks, and the file mode is determined based on whether the content is bytes or a string.
+        If the content has a temporary file path, it is removed after saving.
+        The file node's modified time is updated to the current time, and the relative path to the file node is returned.
+
+        Args:
+            name (str): The name of the file node to save the content to.
+            content: The content to be saved, which must support the chunks() method and may have a temporary_file_path attribute.
+
+        Returns:
+            str: The relative path to the saved file node, with backslashes replaced by forward slashes.
+
+        """
         file_node = self._resolve(
             name, create_if_missing=True, leaf_cls=InMemoryFileNode
         )

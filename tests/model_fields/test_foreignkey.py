@@ -114,6 +114,15 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_fk_to_fk_get_col_output_field(self):
+        """
+
+        Tests the output field of a foreign key to foreign key relationship.
+
+        This test case verifies that when a model has a foreign key to another model,
+        which in turn has a foreign key as its primary key, the output field of the
+        foreign key is correctly determined as the primary key of the original model.
+
+        """
         class Foo(models.Model):
             pass
 
@@ -156,6 +165,13 @@ class ForeignKeyTests(TestCase):
             Related._meta.get_field("child").related_fields
 
     def test_invalid_to_parameter(self):
+        """
+
+        Tests that an invalid 'to' parameter raises a TypeError when creating a ForeignKey field.
+
+        Verifies that passing an integer as the first parameter to ForeignKey, instead of a model, model name, or 'self', results in a TypeError with a descriptive error message.
+
+        """
         msg = (
             "ForeignKey(1) is invalid. First parameter to ForeignKey must be "
             "either a model, a model name, or the string 'self'"

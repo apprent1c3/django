@@ -104,6 +104,14 @@ class RelatedField(FieldCacheMixin, Field):
         limit_choices_to=None,
         **kwargs,
     ):
+        """
+        Initializes a relationship field, configuring how related objects are accessed and filtered.
+
+        :param related_name: The name to use for the relationship from the related object back to this one.
+        :param related_query_name: The name to use for the relationship when filtering or ordering query results.
+        :param limit_choices_to: A dictionary or Q object used to restrict the choices for the relationship.
+        :keyword kwargs: Additional keyword arguments passed to the superclass constructor.
+        """
         self._related_name = related_name
         self._related_query_name = related_query_name
         self._limit_choices_to = limit_choices_to
@@ -585,6 +593,19 @@ class ForeignObject(RelatedField):
 
     def _check_to_fields_exist(self):
         # Skip nonexistent models.
+        """
+        Checks if all 'to_fields' exist on the related model.
+
+        This method verifies that each 'to_field' specified in the relationship is a valid field
+        on the related model. If a 'to_field' is found to be missing, an error is raised.
+
+        Returns:
+            list: A list of errors encountered during the validation process. If all 'to_fields' are valid, an empty list is returned.
+
+        Notes:
+            The related model is determined by the 'remote_field.model' attribute. If this attribute is a string, the validation is skipped.
+            The 'to_fields' attribute is expected to be a list of field names to be validated on the related model.
+        """
         if isinstance(self.remote_field.model, str):
             return []
 
@@ -949,6 +970,21 @@ class ForeignKey(ForeignObject):
         db_constraint=True,
         **kwargs,
     ):
+        """
+        Initializes a foreign key relationship in a model.
+
+        This relationship is used to establish a link between the current model and another model, allowing for efficient querying and referencing of related objects.
+
+        The relationship is defined by its target model (`to`), the action to take when the related object is deleted (`on_delete`), and an optional name for the relationship (`related_name`).
+
+        Additional options allow for specifying a custom field on the target model to use as the relationship key (`to_field`), limiting the choices available for the relationship (`limit_choices_to`), and controlling whether the relationship is represented as a parent link (`parent_link`).
+
+        The `db_constraint` parameter determines whether the relationship is enforced at the database level.
+
+        Raises:
+            TypeError: If the target model is invalid or if the `on_delete` action is not callable.
+
+        """
         try:
             to._meta.model_name
         except AttributeError:

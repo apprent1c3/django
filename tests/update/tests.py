@@ -250,6 +250,18 @@ class AdvancedTests(TestCase):
         self.assertEqual(Bar.objects.get().x, 3)
 
     def test_update_ordered_by_m2m_annotation_desc(self):
+        """
+        Tests that an update operation is correctly ordered by a many-to-many field annotated with a descending absolute value.
+
+        This test case verifies that an update query can be ordered by a many-to-many relationship 
+        using an annotation that calculates the absolute value of the related field, and that the 
+        update is applied correctly to the ordered results.
+
+        The test scenario involves creating a Foo object and a related Bar object, then updating 
+        the Bar object based on the ordering of the absolute value of the many-to-many relationship.
+        The expected outcome is that the update is successfully applied to the Bar object that has 
+        the highest absolute value of the related field in descending order.
+        """
         foo = Foo.objects.create(target="test")
         Bar.objects.create(foo=foo)
 

@@ -170,6 +170,14 @@ class ChoicesTests(SimpleTestCase):
                     self.assertEqual(str(test[member.name]), str(member.value))
 
     def test_templates(self):
+        """
+        Tests the rendering of a template that includes a Suit enum value.
+
+         Verifies that the output of the template contains the expected label and value for a diamond suit.
+
+         The test case ensures the template can correctly access and format enum values within a context, 
+         resulting in the expected string output 'Diamond|1'.
+        """
         template = Template("{{ Suit.DIAMOND.label }}|{{ Suit.DIAMOND.value }}")
         output = template.render(Context({"Suit": Suit}))
         self.assertEqual(output, "Diamond|1")

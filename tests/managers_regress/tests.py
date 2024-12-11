@@ -21,6 +21,13 @@ from .models import (
 
 class ManagersRegressionTests(TestCase):
     def test_managers(self):
+        """
+        Tests multiple custom managers defined on various child model classes, verifying that each manager returns the expected instances of its model. 
+
+        The test creates several instances of different models and then uses various managers to retrieve these instances, checking that the results match the expected values. 
+
+        It tests the default manager, as well as custom managers with different names, ensuring that each one correctly filters or orders the model instances according to its definition.
+        """
         a1 = Child1.objects.create(name="fred", data="a1")
         a2 = Child1.objects.create(name="barney", data="a2")
         b1 = Child2.objects.create(name="fred", data="b1", value=1)

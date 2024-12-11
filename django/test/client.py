@@ -338,6 +338,17 @@ def encode_multipart(boundary, data):
 
 
 def encode_file(boundary, key, file):
+    """
+    Encode a file into a format suitable for HTTP multipart/form-data requests.
+
+    :param boundary: The boundary string used to separate different parts of the multipart message.
+    :param key: The name of the form field that the file is being uploaded as.
+    :param file: The file object to be encoded, which can be either a file-like object or an object with a 'name' attribute and a 'content_type' attribute or a 'read' method.
+
+    :return: A list of bytes representing the encoded file, including the boundary, Content-Disposition, Content-Type, and the file contents themselves.
+
+    The function automatically determines the Content-Type of the file based on the filename if it is provided, and defaults to 'application/octet-stream' if it cannot be determined. The filename used in the Content-Disposition header is either the original filename of the file, or the provided key if no filename is available.
+    """
     def to_bytes(s):
         return force_bytes(s, settings.DEFAULT_CHARSET)
 

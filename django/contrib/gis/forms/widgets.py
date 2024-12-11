@@ -118,6 +118,13 @@ class OSMWidget(OpenLayersWidget):
     default_zoom = 12
 
     def __init__(self, attrs=None):
+        """
+
+        Initializes a new instance, setting default geographical attributes and optionally updating them with provided attributes.
+
+        The instance's default longitude, latitude, and zoom level are automatically populated. Additional attributes can be passed in to customize the instance's settings.
+
+        """
         super().__init__()
         for key in ("default_lon", "default_lat", "default_zoom"):
             self.attrs[key] = getattr(self, key)

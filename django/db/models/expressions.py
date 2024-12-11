@@ -121,6 +121,15 @@ class Combinable:
         return self._combine(other, self.BITXOR, False)
 
     def __or__(self, other):
+        """
+        Special method to overload the bitwise OR operator.
+
+        Attempts to perform a logical OR operation between two objects, but raises an error
+        as bitwise logical operations should be performed using the.bitand(),.bitor(), and.bitxor() methods instead.
+
+        In certain conditional cases, returns the bitwise OR of the two objects wrapped in a Q object, 
+        but this behavior should not be relied upon and the aforementioned methods should be used instead. 
+        """
         if getattr(self, "conditional", False) and getattr(other, "conditional", False):
             return Q(self) | Q(other)
         raise NotImplementedError(
@@ -188,6 +197,9 @@ class BaseExpression:
             self.output_field = output_field
 
     def __getstate__(self):
+        """
+        Returns a dictionary representation of the object's state, excluding the 'convert_value' attribute, for serialization purposes.
+        """
         state = self.__dict__.copy()
         state.pop("convert_value", None)
         return state
@@ -403,6 +415,18 @@ class BaseExpression:
         return clone
 
     def replace_expressions(self, replacements):
+        """
+        Performs replacements of sub-expressions within the current object based on a given dictionary of replacements.
+
+        The function takes a dictionary of replacements where keys are expressions to be replaced and values are their corresponding replacements.
+        It recursively traverses the object's source expressions, replacing any matching expressions with their specified replacements.
+        If no replacements are applicable, the function returns the original object.
+        Otherwise, it returns a new object with the replacements applied, leaving the original object unchanged.
+
+        :arg replacements: A dictionary mapping expressions to be replaced with their corresponding replacements.
+        :return: The object with replacements applied, or the original object if no replacements were applicable.
+
+        """
         if not replacements:
             return self
         if replacement := replacements.get(self):
@@ -719,6 +743,21 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
     def _resolve_output_field(self):
         # We avoid using super() here for reasons given in
         # Expression._resolve_output_field()
+        """
+
+        Resolve the output field for a database expression.
+
+        This method determines the combined type of two input fields based on the
+        connector used between them. It attempts to infer the resulting field type,
+        raising a FieldError if the type cannot be determined. In such cases, the
+        output_field must be explicitly set.
+
+        If the type can be inferred, it returns an instance of the combined field type.
+
+        :raises FieldError: If the output field type cannot be inferred.
+        :returns: The combined output field instance.
+
+        """
         combined_type = _resolve_combined_type(
             self.connector,
             type(self.lhs._output_field_or_none),
@@ -1030,6 +1069,17 @@ class Func(SQLiteNumericMixin, Expression):
     arity = None  # The number of arguments the function accepts.
 
     def __init__(self, *expressions, output_field=None, **extra):
+        """
+        Initializes a new instance of the class, accepting one or more expressions to operate on.
+
+        :param expressions: Variable number of expressions to be processed by the class.
+        :param output_field: Optional field to specify the output type of the operation.
+        :param extra: Additional keyword arguments for further configuration.
+
+        :raises TypeError: If the number of provided expressions does not match the required arity of the class.
+
+        The class instance is then set up with the parsed expressions and any extra configuration, ready for further use.
+        """
         if self.arity is not None and len(expressions) != self.arity:
             raise TypeError(
                 "'%s' takes exactly %s %s (%s given)"
@@ -1524,6 +1574,32 @@ class When(Expression):
         return c
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        Generate the SQL representation of this object.
+
+        This method compiles the condition and result expressions and combines them into a single SQL string using a provided template or the object's default template.
+
+        Parameters
+        ----------
+        compiler : object
+            The compiler object used to compile the condition and result expressions.
+        connection : object
+            The database connection object used to check expression support.
+        template : str, optional
+            The template string used to combine the condition and result expressions. If not provided, the object's default template is used.
+        **extra_context : dict
+            Additional context parameters used to render the template.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the generated SQL string and a list of SQL parameters.
+
+        Notes
+        -----
+        This method checks the database connection for expression support before generating the SQL. The generated SQL string is formatted using the provided template or the object's default template, and the condition and result expressions are compiled using the provided compiler.
+
+        """
         connection.ops.check_expression_support(self)
         template_params = extra_context
         sql_params = []
@@ -1813,6 +1889,13 @@ class OrderBy(Expression):
         return cols
 
     def reverse_ordering(self):
+        """
+        Reverses the ordering of the current sort operation.
+
+        Toggles the ascending/descending order of the sort. Additionally, if nulls are currently sorted first, they will be sorted last, and vice versa.
+
+        Returns the modified instance to allow method chaining.
+        """
         self.descending = not self.descending
         if self.nulls_first:
             self.nulls_last = True

@@ -262,6 +262,27 @@ class DeserializedObject:
         # Call save on the Model baseclass directly. This bypasses any
         # model-defined save. The save is also forced to be raw.
         # raw=True is passed to any pre/post_save signals.
+        """
+
+        Saves the current object instance to the database.
+
+        This method provides an extension to the standard model save functionality, 
+        supporting the saving of many-to-many relationships. 
+
+        It accepts an optional flag `save_m2m` to control whether many-to-many fields 
+        are saved. If `save_m2m` is `True`, the method will update the many-to-many 
+        relationships for the object being saved, using the data stored in `m2m_data`.
+
+        The `using` parameter allows specification of the database to use for the save 
+        operation, providing flexibility in cases where multiple databases are in use.
+
+        Additional keyword arguments (`kwargs`) can be provided to customize the save 
+        operation according to the underlying model's requirements.
+
+        After a successful save, the `m2m_data` attribute is reset to `None`, 
+        indicating that the many-to-many data has been persisted to the database.
+
+        """
         models.Model.save_base(self.object, using=using, raw=True, **kwargs)
         if self.m2m_data and save_m2m:
             for accessor_name, object_list in self.m2m_data.items():

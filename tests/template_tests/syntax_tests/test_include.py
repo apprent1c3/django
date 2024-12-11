@@ -214,6 +214,15 @@ class IncludeTagTests(SimpleTestCase):
 
     @setup({"include-error10": "{% include failed_include %}"}, include_fail_templates)
     def test_include_error10(self):
+        """
+
+        Tests the scenario where a failed include directive in a template results in a TemplateSyntaxError.
+
+        This test case checks that when an include statement in a template references a non-existent template, 
+        the rendering of the template raises a TemplateSyntaxError exception. The test ensures that the 
+        template engine correctly handles/include failures and provides the expected error behavior.
+
+        """
         context = Context({"failed_include": "include-fail2"})
         template = self.engine.get_template("include-error10")
         with self.assertRaises(TemplateSyntaxError):
@@ -252,6 +261,11 @@ class IncludeTests(SimpleTestCase):
             template.render(Context())
 
     def test_extends_include_missing_cachedloader(self):
+        """
+        Tests the behavior of the template engine when extending templates that include a missing template and using a cached loader.
+
+        The test checks if the engine correctly raises a TemplateDoesNotExist exception when rendering a template that extends another template which includes a missing template. This test is performed twice to verify the cached loader's behavior, ensuring it does not incorrectly return a cached result for a missing template.
+        """
         engine = Engine(
             debug=True,
             loaders=[

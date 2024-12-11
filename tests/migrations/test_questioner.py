@@ -18,6 +18,17 @@ class QuestionerTests(SimpleTestCase):
         MIGRATION_MODULES={"migrations": None},
     )
     def test_ask_initial_with_disabled_migrations(self):
+        """
+
+        Tests the behavior of the MigrationQuestioner when migrations are disabled.
+
+        This test case verifies that the ask_initial method of the MigrationQuestioner returns False 
+        when migrations are disabled, as indicated by the absence of migration modules for the 'migrations' app.
+
+        :raises: None
+        :returns: None
+
+        """
         questioner = MigrationQuestioner()
         self.assertIs(False, questioner.ask_initial("migrations"))
 

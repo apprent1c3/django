@@ -52,6 +52,11 @@ def raises500(request):
 
 class Raises500View(View):
     def get(self, request):
+        """
+        Raise an exception and return a technical 500 response to the client, providing error details for debugging purposes. 
+
+        This method is designed to intentionally cause an error, then handle it by returning a standard technical 500 response, which typically includes information about the exception that occurred. The response is constructed using the provided request object and exception details.
+        """
         try:
             raise Exception
         except Exception:

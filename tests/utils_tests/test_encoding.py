@@ -153,6 +153,19 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
         self.assertEqual(filepath_to_uri(Path("upload\\test.png")), "upload/test.png")
 
     def test_iri_to_uri(self):
+        """
+
+        Tests the conversion of Internationalized Resource Identifiers (IRIs) to Uniform Resource Identifiers (URIs).
+
+        This test case covers various scenarios to ensure the `iri_to_uri` function correctly handles different types of input, including:
+        - IRIs with special characters and non-ASCII characters
+        - IRIs with URL-encoded characters
+        - IRIs with Unicode characters
+        - IRIs with leading or trailing special characters
+
+        The test verifies that the `iri_to_uri` function returns the expected URI for each IRI input and also checks idempotence, ensuring that applying the conversion twice produces the same result as applying it once.
+
+        """
         cases = [
             # Valid UTF-8 sequences are encoded.
             ("red%09rosé#red", "red%09ros%C3%A9#red"),

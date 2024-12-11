@@ -126,6 +126,16 @@ class Fieldset:
         return "collapse" in self.classes
 
     def __iter__(self):
+        """
+        Returns an iterator over the fields in the form, yielding Fieldline instances.
+
+        Each Fieldline represents a single field in the form, encapsulating information about the 
+        field, its parent form, and its readonly status. The model admin associated with the form 
+        is also provided for each field, allowing for dynamic customization and advanced functionality.
+
+        This iterator allows for easy traversal and inspection of the form's fields, making it 
+        a useful tool for generating lists, tables, or other representations of the form's data.
+        """
         for field in self.fields:
             yield Fieldline(
                 self.form, field, self.readonly_fields, model_admin=self.model_admin

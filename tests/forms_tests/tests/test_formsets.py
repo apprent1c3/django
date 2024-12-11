@@ -1818,6 +1818,13 @@ class TestIsBoundBehavior(SimpleTestCase):
         )
 
     def test_customize_management_form_error(self):
+        """
+
+        Tests that a customized error message is displayed when a management form is missing from an ArticleFormSet.
+
+        This test verifies that the formset returns an invalid state and includes the customized error message in the non-form errors list.
+
+        """
         formset = ArticleFormSet(
             {}, error_messages={"missing_management_form": "customized"}
         )

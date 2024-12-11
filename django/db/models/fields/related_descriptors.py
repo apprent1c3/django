@@ -687,6 +687,18 @@ def create_reverse_many_to_one_manager(superclass, rel):
             self.core_filters = {self.field.name: instance}
 
         def __call__(self, *, manager):
+            """
+            Creates and returns a reverse many-to-one manager instance for the specified manager.
+
+            This method allows for dynamic creation of a reverse many-to-one manager, 
+            providing an interface to interact with related objects. It takes a manager name 
+            as an argument, looks up the corresponding manager on the model instance, 
+            and returns a new manager instance of the appropriate class.
+
+            :param manager: The name of the manager to create a reverse many-to-one instance for
+            :return: A reverse many-to-one manager instance
+
+            """
             manager = getattr(self.model, manager)
             manager_class = create_reverse_many_to_one_manager(manager.__class__, rel)
             return manager_class(self.instance)
@@ -1287,6 +1299,20 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         aremove.alters_data = True
 
         def clear(self):
+            """
+            Clears all many-to-many relationships between the instance and the related objects.
+
+            Removes all associations between the instance and the objects in the related model,
+             effectively clearing the relationship. This operation is atomic and sends signals
+             before and after the clearance to notify other parts of the application.
+
+            The clearance process involves removing all prefetched objects and then deleting
+             the corresponding entries from the database table that manages the many-to-many relationship.
+
+            :param None
+            :returns: None
+
+            """
             db = router.db_for_write(self.through, instance=self.instance)
             with transaction.atomic(using=db, savepoint=False):
                 signals.m2m_changed.send(

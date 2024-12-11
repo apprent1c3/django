@@ -103,6 +103,11 @@ class CacheControlDecoratorTest(SimpleTestCase):
 
     async def test_cache_control_full_decorator_async_view(self):
         @cache_control(max_age=123, private=True, public=True, custom=456)
+        """
+        Tests the application of the cache control decorator to an asynchronous view.
+        The test verifies that the Cache-Control header in the HTTP response includes all specified directives, including max-age, private, public, and custom values.
+        The test case checks for the correct rendering of these directives in the response header, ensuring proper cache control behavior for the decorated view.
+        """
         async def async_view(request):
             return HttpResponse()
 

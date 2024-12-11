@@ -26,6 +26,18 @@ def _subclass_index(class_path, candidate_paths):
 
 
 def check_user_model(app_configs=None, **kwargs):
+    """
+    Checks a custom user model for potential issues.
+
+    Checks include:
+        - Ensuring 'REQUIRED_FIELDS' is a list or tuple.
+        - Verifying the field named as the 'USERNAME_FIELD' is not included in 'REQUIRED_FIELDS'.
+        - Checking the uniqueness of the 'USERNAME_FIELD' when used with the 'django.contrib.auth.backends.ModelBackend' authentication backend.
+        - Ensuring 'is_anonymous' and 'is_authenticated' are attributes or properties rather than methods.
+
+    :returns: A list of errors encountered during the check.
+    :rtype: list[checks.Error] or list[checks.Warning] or list[checks.Critical] or empty list []
+    """
     if app_configs is None:
         cls = apps.get_model(settings.AUTH_USER_MODEL)
     else:
@@ -122,6 +134,19 @@ def check_user_model(app_configs=None, **kwargs):
 
 
 def check_models_permissions(app_configs=None, **kwargs):
+    """
+    Checks the permission names and codenames of all models for potential issues.
+
+    The function iterates over all models in the project (or a specified subset of app configurations) and verifies the following:
+
+    * The length of permission names and codenames does not exceed the maximum allowed length.
+    * The verbose name of a model does not cause its built-in permission names to exceed the maximum allowed length.
+    * The model name does not cause its built-in permission codenames to exceed the maximum allowed length.
+    * Permission codenames do not clash with built-in permissions or other custom permissions for the same model.
+    * Permission codenames are not duplicated for the same model.
+
+    Returns a list of errors encountered during the check, where each error is an instance of `checks.Error` containing a descriptive message, the model that triggered the error, and a unique error identifier.
+    """
     if app_configs is None:
         models = apps.get_models()
     else:

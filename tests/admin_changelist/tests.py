@@ -181,6 +181,19 @@ class ChangeListTests(TestCase):
         self.assertIs(cl.queryset.query.select_related, False)
 
     def test_get_select_related_custom_method(self):
+        """
+
+        Tests the custom implementation of the get_list_select_related method in the ModelAdmin class.
+
+        This test case verifies that when a custom get_list_select_related method is defined, 
+        it correctly returns the select_related fields as a tuple, which are then used to 
+        optimize the database query by reducing the number of queries made.
+
+        The test sets up a ModelAdmin instance with the custom method and checks that the 
+        queryset uses the correct select_related fields, in this case 'band' and 'player', 
+        to fetch the related data in a single database query.
+
+        """
         class GetListSelectRelatedAdmin(admin.ModelAdmin):
             list_display = ("band", "player")
 
@@ -1063,6 +1076,15 @@ class ChangeListTests(TestCase):
                 self.assertContains(response, link % href)
 
     def test_no_clear_all_filters_link(self):
+        """
+
+         Tests the absence of the \"Clear all filters\" link in the admin user changelist view under various conditions.
+
+        This test forces a superuser login and navigates to the admin user changelist page, then checks that the \"Clear all filters\" link is not present when different query parameters are applied, such as search, ordering, pagination, and filtering.
+
+        The test covers various scenarios, including searching, ordering, and filtering by specific fields, to ensure that the \"Clear all filters\" link is not displayed when it should not be.
+
+        """
         self.client.force_login(self.superuser)
         url = reverse("admin:auth_user_changelist")
         link = ">&#10006; Clear all filters</a>"

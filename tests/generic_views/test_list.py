@@ -161,6 +161,14 @@ class ListViewTests(TestCase):
         self.assertEqual(len(res.context["object_list"]), 1)
 
     def test_verbose_name(self):
+        """
+        Tests the list view for artists, ensuring a successful response and correct template usage.
+
+        Verifies that the response status code is 200, the generic list template is used, and the object list 
+        contains all artists. Additionally, checks that the artist list and object list are the same, 
+        and pagination is not used in this view, resulting in 'paginator', 'page_obj' being None, 
+        and 'is_paginated' being False. 
+        """
         res = self.client.get("/list/artists/")
         self.assertEqual(res.status_code, 200)
         self.assertTemplateUsed(res, "generic_views/list.html")
@@ -208,6 +216,14 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_list.html")
 
     def test_missing_items(self):
+        """
+        Tests that an ImproperlyConfigured exception is raised when a QuerySet is missing.
+
+            Verifies that an error occurs when AuthorList does not have a defined model, queryset, 
+            or a custom get_queryset method, by attempting to access an invalid author list URL.
+
+            :raises: ImproperlyConfigured if AuthorList is not properly configured
+        """
         msg = (
             "AuthorList is missing a QuerySet. Define AuthorList.model, "
             "AuthorList.queryset, or override AuthorList.get_queryset()."
@@ -261,6 +277,14 @@ class ListViewTests(TestCase):
         )
 
     def _make_authors(self, n):
+        """
+        Creates a specified number of author instances in the database, replacing any existing authors.
+
+        :param int n: The number of authors to create.
+        :returns: None
+
+        This method first removes all existing authors from the database. It then creates 'n' new authors, each with a name and slug in a specific format. The name of each author is 'Author xx' where 'xx' is a zero-padded two-digit number, and the slug is 'axx' where 'xx' is the same two-digit number. This method is typically used for testing or seeding the database with sample data.
+        """
         Author.objects.all().delete()
         for i in range(n):
             Author.objects.create(name="Author %02i" % i, slug="a%s" % i)

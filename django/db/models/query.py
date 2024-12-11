@@ -263,6 +263,13 @@ class FlatValuesListIterable(BaseIterable):
     """
 
     def __iter__(self):
+        """
+        Returns an iterator over the results of the queryset, allowing for efficient retrieval of data in chunks. 
+
+        This iterator yields each object in the query results one at a time, enabling memory-friendly processing of large datasets. 
+
+        The iteration process is influenced by two parameters: `chunked_fetch`, which determines whether to fetch results in chunks, and `chunk_size`, which specifies the size of each chunk.
+        """
         queryset = self.queryset
         compiler = queryset.query.get_compiler(queryset.db)
         for row in compiler.results_iter(
@@ -300,6 +307,17 @@ class QuerySet(AltersData):
 
     @query.setter
     def query(self, value):
+        """
+        Sets the query for the current object.
+
+        The provided query value is stored and used to determine the iterable class.
+        If the query includes values to select, it sets the iterable class to ValuesIterable.
+        This allows for flexible querying and iteration over the selected values.
+
+        :param value: The query to be set
+        :type value: object with values_select attribute
+
+        """
         if value.values_select:
             self._iterable_class = ValuesIterable
         self._query = value
@@ -2111,6 +2129,19 @@ class RawQuerySet:
     def __aiter__(self):
         # Remember, __aiter__ itself is synchronous, it's the thing it returns
         # that is async!
+        """
+        Asynchronous iterator for retrieving a sequence of items.
+
+        This asynchronous iterator allows for efficient and non-blocking retrieval of items.
+        It fetches all items asynchronously and then yields each item one at a time,
+        enabling the use of async for loops to iterate over the sequence.
+
+        The iterator first ensures that all items are fetched from the underlying data source,
+        and then yields each item from the cached results. 
+
+        :yield: The next item in the sequence.
+        :rtype: AsyncGenerator
+        """
         async def generator():
             await sync_to_async(self._fetch_all)()
             for item in self._result_cache:

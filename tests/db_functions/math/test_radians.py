@@ -11,6 +11,17 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class RadiansTests(TestCase):
     def test_null(self):
+        """
+        Tests that the Radians annotation correctly handles null values.
+
+        This test creates an instance of IntegerModel and annotates it with the Radians
+        annotation, applied to a field that is expected to be null. It then asserts
+        that the result of the annotation is None, as expected when the input is null.
+
+        The purpose of this test is to ensure that the Radians annotation behaves
+        correctly in the presence of null or missing data, and returns the expected
+        result rather than raising an error or returning an incorrect value.
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_radians=Radians("normal")).first()
         self.assertIsNone(obj.null_radians)

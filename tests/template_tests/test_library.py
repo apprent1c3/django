@@ -25,6 +25,14 @@ class FilterRegistrationTests(SimpleTestCase):
 
     def test_filter_name_arg(self):
         @self.library.filter("name")
+        """
+
+        Tests that a filter function is correctly registered with a given name.
+
+        The function verifies that when a filter is added to the library with a specific name,
+        it is correctly stored and retrievable from the library's filters dictionary.
+
+        """
         def func():
             return ""
 
@@ -133,6 +141,15 @@ class TagRegistrationTests(SimpleTestCase):
 
     def test_tag_parens(self):
         @self.library.tag()
+        """
+        Tests the registration of a function as a tag with parentheses.
+
+        This test case verifies that a function decorated with the library's tag
+        decorator is correctly registered in the library's tags dictionary.
+
+        The test checks if the registered function matches the expected function,
+        ensuring that the tagging mechanism is working as intended.
+        """
         def func(parser, token):
             return Node()
 

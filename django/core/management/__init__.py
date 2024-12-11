@@ -135,6 +135,17 @@ def call_command(command_name, *args, **options):
 
     def get_actions(parser):
         # Parser actions and actions from sub-parser choices.
+        """
+        Yield all actions, including sub-commands, from a given command line parser.
+
+        This function recursively traverses the parser's actions to retrieve all valid
+        options and sub-commands. It is particularly useful for examining the structure
+        of a command line interface and its available options.
+
+        Yields:
+            argparse.Action: An action object representing a command line option or sub-command.
+
+        """
         for opt in parser._actions:
             if isinstance(opt, _SubParsersAction):
                 for sub_opt in opt.choices.values():

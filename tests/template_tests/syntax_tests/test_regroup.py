@@ -128,6 +128,13 @@ class RegroupTagTests(SimpleTestCase):
 
     @setup({"regroup08": "{% regroup data by bar as grouped toomanyargs %}"})
     def test_regroup08(self):
+        """
+        Tests that using more than the supported number of arguments in the regroup template tag raises a TemplateSyntaxError.
+
+        This test case verifies that the template engine correctly handles invalid syntax when using the regroup tag, ensuring that it raises an exception when too many arguments are provided.
+
+        :raises: TemplateSyntaxError
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup08")
 

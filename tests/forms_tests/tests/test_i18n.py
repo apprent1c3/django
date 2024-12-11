@@ -70,6 +70,15 @@ class FormsI18nTests(SimpleTestCase):
         )
 
     def test_non_ascii_choices(self):
+        """
+
+        Tests the rendering of a form with non-ASCII character choices.
+
+        Verifies that the form is correctly displayed in its original language,
+        and that the non-ASCII characters are handled properly in the HTML output.
+        Additionally, it checks the form's behavior when translated to a different language.
+
+        """
         class SomeForm(Form):
             somechoice = ChoiceField(
                 choices=(("\xc5", "En tied\xe4"), ("\xf8", "Mies"), ("\xdf", "Nainen")),

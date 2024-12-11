@@ -112,6 +112,15 @@ def get_serializer_formats():
 
 
 def get_public_serializer_formats():
+    """
+    Returns a list of public serializer formats supported by the system.
+
+    This function retrieves the available serializer formats that are not marked for internal use only.
+    It ensures that the serializer registry is loaded before returning the list of public formats.
+
+    :returns: List of public serializer format names
+    :rtype: list[str]
+    """
     if not _serializers:
         _load_serializers()
     return [k for k, v in _serializers.items() if not v.Serializer.internal_use_only]

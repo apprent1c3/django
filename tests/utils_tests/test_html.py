@@ -189,6 +189,23 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(escapejs, lazystr(value), output)
 
     def test_json_script(self):
+        """
+
+        Tests the functionality of the json_script function.
+
+        The json_script function is expected to properly escape and format input data into a JSON script tag.
+        This test case checks the function's behavior with various input types, including strings and dictionaries,
+        and verifies that it correctly escapes special characters and handles lazy strings.
+
+        The test covers different scenarios, such as:
+        - Escaping of special characters like '&', '<', and '>'
+        - Handling of string and dictionary inputs
+        - Proper formatting of the JSON script tag
+        - Escaping of JSON string values when they contain special characters
+
+        The test uses multiple sub-tests to verify the function's behavior with different input arguments.
+
+        """
         tests = (
             # "<", ">" and "&" are quoted inside JSON strings
             (

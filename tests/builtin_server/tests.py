@@ -40,6 +40,22 @@ class ServerHandler(simple_server.ServerHandler):
             self._flush()
 
     def error_output(self, environ, start_response):
+        """
+        Outputs error information to the response.
+
+        Extends the base error output functionality by including a formatted 
+        traceback of the current exception. This provides additional 
+        debugging information when an error occurs, allowing for easier 
+        identification and resolution of issues.
+
+        Args:
+            environ: The WSGI environment.
+            start_response: The WSGI start response function.
+
+        Returns:
+            A list containing a single string, which is a formatted 
+            traceback of the current exception.
+        """
         super().error_output(environ, start_response)
         return ["\n".join(traceback.format_exception(*sys.exc_info()))]
 

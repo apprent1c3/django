@@ -82,6 +82,18 @@ class SessionBase:
         return self._session.pop(key, *args)
 
     async def apop(self, key, default=__not_given):
+        """
+
+        Remove and return the value of the item with the given key from the session.
+
+        :param key: The key of the item to be removed.
+        :param default: The value to return if the key is not found in the session. If not provided, `None` is returned.
+
+        :returns: The value of the removed item, or the default value if the key is not found.
+
+        :note: This method marks the session as modified if the key is present in the session.
+
+        """
         self.modified = self.modified or key in (await self._aget_session())
         args = () if default is self.__not_given else (default,)
         return (await self._aget_session()).pop(key, *args)

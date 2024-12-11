@@ -61,6 +61,15 @@ class MediaOrderConflictWarning(RuntimeWarning):
 @html_safe
 class Media:
     def __init__(self, media=None, css=None, js=None):
+        """
+        Initializes a media object with optional CSS and JavaScript assets.
+
+        By default, it accepts a `media` object that may contain predefined CSS and JavaScript assets.
+        If `media` is not provided, it falls back to using the `css` and `js` parameters directly.
+        The `css` parameter should be a dictionary of CSS assets, and the `js` parameter should be a list of JavaScript assets.
+        If either `css` or `js` is not provided, it defaults to an empty dictionary or list respectively.
+        The provided CSS and JavaScript assets are stored internally for future reference.
+        """
         if media is not None:
             css = getattr(media, "css", {})
             js = getattr(media, "js", [])
@@ -80,6 +89,15 @@ class Media:
 
     @property
     def _css(self):
+        """
+        A private property that returns a dictionary of merged CSS styles for different media types.
+
+        The dictionary keys represent the media types (e.g. 'screen', 'print') and the values are the corresponding CSS styles.
+
+        This property consolidates CSS styles from multiple sources, combining them into a single, unified dictionary. It is intended for internal use within the class and should not be accessed directly from outside the class.
+
+        The returned CSS styles are merged using the :meth:`merge` method, which combines multiple CSS lists into a single list. The resulting dictionary provides a convenient way to access the consolidated CSS styles for different media types.
+        """
         css = defaultdict(list)
         for css_list in self._css_lists:
             for medium, sublist in css_list.items():
@@ -174,6 +192,21 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+
+        Add two Media instances together, combining their CSS and JavaScript resources.
+
+        Returns a new Media instance that contains all the CSS and JavaScript files from
+        both instances, without duplicates. This allows multiple Media instances to be
+        merged into a single instance, making it easier to manage and consolidate media
+        resources.
+
+        The resulting Media instance will have the same properties as the original
+        instances, but with the combined resources. This is particularly useful when
+        working with multiple components or templates that require different media
+        resources.
+
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -187,6 +220,25 @@ class Media:
 
 
 def media_property(cls):
+    """
+
+    A class decorator that adds a `media` property to a class.
+
+    This property allows you to define media assets (such as CSS and JavaScript files) 
+    that are automatically combined with media assets from parent classes. 
+
+    The media assets are defined using a `Media` class, which can be customized with 
+    different types of media (e.g., CSS, JavaScript). If a `Media` class is defined 
+    in the class being decorated, it will be combined with the media assets from the 
+    parent class. 
+
+    You can control how the media assets are combined by setting the `extend` attribute 
+    on the `Media` class. If `extend` is `True`, the media assets from the parent class 
+    will be included; if `extend` is a list of media types, only those media types will 
+    be included from the parent class. If `extend` is `False`, the media assets from the 
+    parent class will be ignored.
+
+    """
     def _media(self):
         # Get the media property of the superclass, if it exists
         sup_cls = super(cls, self)
@@ -238,6 +290,16 @@ class Widget(metaclass=MediaDefiningClass):
         self.attrs = {} if attrs is None else attrs.copy()
 
     def __deepcopy__(self, memo):
+        """
+
+        Creates a deep copy of the current object.
+
+        This method ensures that all the attributes of the original object are recursively copied to the new object,
+        allowing for independent modification without affecting the original.
+
+        The resulting copy will have the same attributes and their values as the original object.
+
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         memo[id(self)] = obj
@@ -248,6 +310,20 @@ class Widget(metaclass=MediaDefiningClass):
         return self.input_type == "hidden" if hasattr(self, "input_type") else False
 
     def subwidgets(self, name, value, attrs=None):
+        """
+
+        Returns a subwidget for the given field name and value.
+
+        The subwidget is generated based on the provided context, which can be customized
+        using the optional attrs dictionary. This method yields the resulting widget,
+        allowing for easy iteration over the generated subwidgets.
+
+        :param name: The name of the field for which the subwidget is generated
+        :param value: The value of the field
+        :param attrs: Optional dictionary of attributes to customize the subwidget
+        :yield: The generated subwidget
+
+        """
         context = self.get_context(name, value, attrs)
         yield context["widget"]
 
@@ -328,6 +404,14 @@ class Input(Widget):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        \\":param str name: The name of the widget
+        :param object value: The value of the widget
+        :param dict attrs: Additional attributes for the widget
+        :return: Dictionary containing the widget's context, updated with the input type
+        :rtype: dict
+        This method retrieves the context for a widget, updating its type to match the input type defined by the class instance, and returns the updated context. It builds upon the context provided by its parent class, providing a customized context for the specific widget.
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["type"] = self.input_type
         return context
@@ -381,6 +465,20 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+        Return the widget context for a form field, breaking down the input into multiple hidden sub-widgets.
+
+        Args:
+            name (str): The name of the form field.
+            value (list): A list of values to be rendered as hidden sub-widgets.
+            attrs (dict): A dictionary of HTML attributes to be applied to the widget.
+
+        Returns:
+            dict: A dictionary containing the widget context, including the sub-widgets.
+
+        Note:
+            This function overrides the default implementation to handle multiple values by creating a separate hidden input widget for each value. Each sub-widget is assigned a unique 'id' attribute based on the original 'id' attribute, if provided. The resulting context includes a 'subwidgets' list containing the context for each sub-widget.
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -417,6 +515,15 @@ class FileInput(Input):
     template_name = "django/forms/widgets/file.html"
 
     def __init__(self, attrs=None):
+        """
+
+        Initialize a file upload field.
+
+        :param attrs: Optional dictionary of HTML attributes for the field.
+        :raises ValueError: If the field does not support multiple file uploads but the 'multiple' attribute is set to True.
+        :note: If the field allows multiple file uploads, the 'multiple' attribute will be automatically set to True if not provided.
+
+        """
         if (
             attrs is not None
             and not self.allow_multiple_selected
@@ -491,6 +598,26 @@ class ClearableFileInput(FileInput):
             return value
 
     def get_context(self, name, value, attrs):
+        """
+
+        Returns the context dictionary for rendering a widget.
+
+        This method extends the context provided by the parent class and adds
+        additional information specific to the current widget, such as the
+        name and ID of the clear checkbox, and whether the input is initial.
+        It also sets the disabled and checked attributes of the widget.
+
+        The returned context includes the following additional keys:
+        - checkbox_name: The name of the clear checkbox
+        - checkbox_id: The ID of the clear checkbox
+        - is_initial: Whether the input value is initial
+        - input_text: The text to display for the input field
+        - initial_text: The text to display for the initial value
+        - clear_checkbox_label: The label for the clear checkbox
+
+        The context dictionary can be used to render the widget in a template.
+
+        """
         context = super().get_context(name, value, attrs)
         checkbox_name = self.clear_checkbox_name(name)
         checkbox_id = self.clear_checkbox_id(checkbox_name)
@@ -509,6 +636,19 @@ class ClearableFileInput(FileInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        Process a file upload and associated checkbox value from a data dictionary.
+
+        This method retrieves a file upload value and then checks if a clear checkbox is present in the provided data.
+        If the field is not required and the clear checkbox is checked, it returns False, indicating that the file should be cleared.
+        If a file upload is present along with the clear checkbox, it returns a contradiction error.
+        Otherwise, it returns the result of the file upload processing.
+
+        :param data: The data dictionary to retrieve values from
+        :param files: The files dictionary to retrieve file uploads from
+        :param name: The name of the field
+        :rtype: The processed file upload value or False if the file should be cleared
+        """
         upload = super().value_from_datadict(data, files, name)
         self.checked = self.clear_checkbox_name(name) in data
         if not self.is_required and CheckboxInput().value_from_datadict(
@@ -535,6 +675,22 @@ class Textarea(Widget):
 
     def __init__(self, attrs=None):
         # Use slightly better defaults than HTML's 20x2 box
+        """
+        Initializes a new instance with default attributes and optionally overrides them with provided custom attributes.
+
+        The default attributes are:
+            cols (str): The number of columns, defaults to '40'.
+            rows (str): The number of rows, defaults to '10'.
+
+        If custom attributes are provided, they will override the default attributes.
+
+        Args:
+            attrs (dict, optional): A dictionary of custom attributes to override the defaults. Defaults to None.
+
+        Note:
+            This method must be called by the subclass to properly initialize the instance.
+
+        """
         default_attrs = {"cols": "40", "rows": "10"}
         if attrs:
             default_attrs.update(attrs)
@@ -546,6 +702,13 @@ class DateTimeBaseInput(TextInput):
     supports_microseconds = False
 
     def __init__(self, attrs=None, format=None):
+        """
+        Initializes the object, optionally setting attributes and format.
+
+        :param attrs: Dictionary of attributes to be set on the object
+        :param format: Format to be used, defaults to None if not provided
+
+        """
         super().__init__(attrs)
         self.format = format or None
 
@@ -580,6 +743,16 @@ class CheckboxInput(Input):
     template_name = "django/forms/widgets/checkbox.html"
 
     def __init__(self, attrs=None, check_test=None):
+        """
+
+        Initializes the object with optional attribute settings and a test checking function.
+
+        The attributes to be set can be passed as a dictionary via the :param:`attrs` parameter.
+        The :param:`check_test` parameter specifies a function to perform test checking, defaulting to :data:`boolean_check` if not provided.
+
+        This method is used to set up the object's initial state and configure its behavior for test checking.
+
+        """
         super().__init__(attrs)
         # check_test is a callable that takes a value and returns True
         # if the checkbox should be checked for that value.
@@ -597,6 +770,15 @@ class CheckboxInput(Input):
         return super().get_context(name, value, attrs)
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a boolean value from a data dictionary.
+
+        The function looks up the value associated with the given `name` in the `data` dictionary.
+        If the `name` is not found, it returns `False`. If the value is a string, it attempts to
+        interpret it as a boolean by mapping 'true' and 'false' (case-insensitive) to their
+        corresponding boolean values. Otherwise, it returns the boolean representation of the value.
+        The function also accepts a `files` parameter, although it is not used in the value retrieval process.
+        """
         if name not in data:
             # A missing value means False because HTML form submission does not
             # send results for unselected checkboxes.
@@ -628,6 +810,13 @@ class ChoiceWidget(Widget):
         self.choices = choices
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the current object, ensuring that all attributes are properly duplicated to prevent unintended modifications of the original object.
+
+        This method is used by the :func:`copy.deepcopy` function to create a complete copy of the object, including all mutable attributes.
+
+        The resulting copy is a new, independent object with the same attributes and values as the original, but with its own separate instance of each mutable attribute. This ensures that changes made to the copy do not affect the original object.
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         obj.choices = copy.copy(self.choices)
@@ -690,6 +879,30 @@ class ChoiceWidget(Widget):
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
+        """
+        Create an option data dictionary for rendering.
+
+        This method generates a dictionary containing the necessary information for rendering an option, 
+        including its name, value, label, selection status, and attributes.
+
+        The option's index is constructed from the provided index and subindex parameters. 
+        If a subindex is specified, it is appended to the index with an underscore separator.
+
+        Attributes can be inherited from the parent element or overridden with custom attributes.
+        If the option is selected, the corresponding checked attribute is added to the option's attributes.
+        The generated option data dictionary also includes the input type and template name for rendering.
+
+        :param name: The name of the option.
+        :param value: The value of the option.
+        :param label: The label of the option.
+        :param selected: Whether the option is selected.
+        :param index: The index of the option.
+        :param subindex: The subindex of the option.
+        :param attrs: Additional attributes for the option.
+
+        :return: A dictionary containing the option data.
+
+        """
         index = str(index) if subindex is None else "%s_%s" % (index, subindex)
         option_attrs = (
             self.build_attrs(self.attrs, attrs) if self.option_inherits_attrs else {}
@@ -727,6 +940,28 @@ class ChoiceWidget(Widget):
         return id_
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieve a value from a data dictionary.
+
+        This function fetches a value from the provided data dictionary, allowing for 
+        either single or multiple values to be retrieved. If the 'allow_multiple_selected' 
+        flag is set, it attempts to return a list of values; otherwise, it returns a single 
+        value. 
+
+        Parameters
+        ----------
+        data : dict
+            The dictionary containing the data to retrieve from.
+        files : 
+            Not used in this function.
+        name : str
+            The key to look up in the data dictionary.
+
+        Returns
+        -------
+        The value(s) associated with the given name in the data dictionary.
+
+        """
         getter = data.get
         if self.allow_multiple_selected:
             try:
@@ -761,6 +996,19 @@ class Select(ChoiceWidget):
     option_inherits_attrs = False
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context for rendering this widget.
+
+        The context is initialized by calling the parent class's get_context method.
+        If this widget allows multiple selections, adds a 'multiple' attribute to the
+        widget's attributes in the context.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget.
+        :param attrs: Additional attributes for the widget.
+        :return: The rendering context for the widget.
+
+        """
         context = super().get_context(name, value, attrs)
         if self.allow_multiple_selected:
             context["widget"]["attrs"]["multiple"] = True
@@ -796,6 +1044,16 @@ class NullBooleanSelect(Select):
     """
 
     def __init__(self, attrs=None):
+        """
+        Initializes a choice field for boolean values.
+
+        The field provides three predefined choices for representing boolean values:
+            - Unknown: an undefined or unspecified state
+            - Yes (true): an affirmative state
+            - No (false): a negative state
+
+        Optional attributes can be passed to customize the field's behavior.
+        """
         choices = (
             ("unknown", _("Unknown")),
             ("true", _("Yes")),
@@ -804,6 +1062,16 @@ class NullBooleanSelect(Select):
         super().__init__(attrs, choices)
 
     def format_value(self, value):
+        """
+        Maps a specific set of input values to standardized boolean representations.
+
+        This function takes in a value and returns a string representing its boolean equivalent, 
+        where 'true' and 'false' are the expected outputs for certain input values. 
+        If the input value does not match any of the predefined mappings, it returns 'unknown'.
+
+        The function supports the following mappings: 
+        boolean values (True, False), string representations ('true', 'false'), and specific numeric values ('2' for True, '3' for False).
+        """
         try:
             return {
                 True: "true",
@@ -818,6 +1086,24 @@ class NullBooleanSelect(Select):
             return "unknown"
 
     def value_from_datadict(self, data, files, name):
+        """
+
+        Retrieves and interprets a value from the provided data dictionary.
+
+        The function takes in a data dictionary, a files object, and a name to look up in the dictionary. 
+        It attempts to retrieve the value associated with the provided name and then maps it to a boolean value 
+        based on a predefined set of mappings. This allows for flexible interpretation of values that may be 
+        represented as strings, such as 'True' or 'true', in addition to native boolean values. 
+
+        The function returns True for values that indicate a positive or affirmative response, and False otherwise. 
+        If the value is not found in the predefined mapping, it will return None.
+
+        :param data: The dictionary to retrieve the value from.
+        :param files: A files object (currently not utilized by this function).
+        :param name: The key to look up in the data dictionary.
+        :return: The interpreted boolean value, or None if the value is not recognized.
+
+        """
         value = data.get(name)
         return {
             True: True,
@@ -1039,6 +1325,17 @@ class SplitHiddenDateTimeWidget(SplitDateTimeWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+        Initializes a form widget with optional format settings and attribute customizations.
+
+        :param attrs: A dictionary of HTML attributes to apply to the widget.
+        :param date_format: The format to use for date fields.
+        :param time_format: The format to use for time fields.
+        :param date_attrs: A dictionary of HTML attributes to apply to date fields.
+        :param time_attrs: A dictionary of HTML attributes to apply to time fields.
+
+        This constructor sets up the widget with the provided settings and configures all child widgets to be of type 'hidden', meaning they will not be visible to the user.
+        """
         super().__init__(attrs, date_format, time_format, date_attrs, time_attrs)
         for widget in self.widgets:
             widget.input_type = "hidden"

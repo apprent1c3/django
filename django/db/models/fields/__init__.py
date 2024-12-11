@@ -1182,6 +1182,19 @@ class BooleanField(Field):
         )
 
     def get_prep_value(self, value):
+        """
+
+        Prepares the given value for use in the database.
+
+        This method first delegates to the superclass's implementation to perform any
+        initial value preparation. If the prepared value is None, it is returned as is.
+        Otherwise, the value is converted to a Python representation using the
+        :meth:`to_python` method.
+
+        Returns:
+            The prepared value, or None if the input value is None.
+
+        """
         value = super().get_prep_value(value)
         if value is None:
             return None
@@ -1541,6 +1554,15 @@ class DateField(DateTimeCheckMixin, Field):
         return connection.ops.adapt_datefield_value(value)
 
     def value_to_string(self, obj):
+        """
+        Returns a string representation of the value associated with the given object.
+
+        The value is first retrieved from the object, and if it is not None, it is formatted 
+        as an ISO-formatted string. If the value is None, an empty string is returned.
+
+        :returns: A string representation of the value, or an empty string if the value is None
+        :rtype: str
+        """
         val = self.value_from_object(obj)
         return "" if val is None else val.isoformat()
 
@@ -1835,6 +1857,11 @@ class DecimalField(Field):
         )
 
     def get_prep_value(self, value):
+        """
+        Get the prepared value for this field and then convert it to a Python object.
+
+        This method extends the base field's preparation logic with an additional conversion step to ensure the value is properly formatted as a Python object. It first prepares the value by calling the parent class's preparation method, and then converts the prepared value to a Python object using the :meth:`to_python` method.
+        """
         value = super().get_prep_value(value)
         return self.to_python(value)
 
@@ -2535,6 +2562,19 @@ class TimeField(DateTimeCheckMixin, Field):
     def __init__(
         self, verbose_name=None, name=None, auto_now=False, auto_now_add=False, **kwargs
     ):
+        """
+        Initializes a field with optional parameters for display and behavior.
+
+        :param verbose_name: A human-readable name for the field.
+        :param name: The internal name of the field.
+        :param auto_now: Automatically sets the field to the current date/time every time the instance is saved.
+        :param auto_now_add: Automatically sets the field to the current date/time when the instance is first created.
+        :keyword **kwargs: Additional keyword arguments to pass to the parent class.
+
+        When either `auto_now` or `auto_now_add` is True, the field will be non-editable and allowed to be blank.
+
+        This initializer is typically used to create a new field with customized display and behavior, and is not intended to be called directly by users.
+        """
         self.auto_now, self.auto_now_add = auto_now, auto_now_add
         if auto_now or auto_now_add:
             kwargs["editable"] = False
@@ -2821,6 +2861,21 @@ class AutoFieldMixin:
         return value
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contributes this field to the given model class, enabling auto-generated field functionality.
+
+         Args:
+            cls: The model class to which this field will be added.
+            name: The name of this field on the model class.
+            **kwargs: Additional keyword arguments.
+
+         Raises:
+            ValueError: If the model already has an auto-generated field.
+
+         Notes:
+            Once this field is contributed, the model class will be marked as having an auto-generated field, preventing the addition of further auto-generated fields.
+
+        """
         if cls._meta.auto_field:
             raise ValueError(
                 "Model %s can't have more than one auto-generated field."

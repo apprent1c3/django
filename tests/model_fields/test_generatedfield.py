@@ -255,6 +255,12 @@ class GeneratedFieldTestMixin:
         self.assertEqual(m.field, 3)
 
     def test_save_model_with_foreign_key(self):
+        """
+        Tests that a model instance can be saved successfully when it contains a foreign key relationship.
+
+        The test creates a foreign key object, uses it to instantiate the base model, and then saves the model instance.
+        After saving, the instance is refreshed and its attributes are verified to ensure that the save operation was successful and that the model's fields have been updated correctly.
+        """
         fk_object = Foo.objects.create(a="abc", d=Decimal("12.34"))
         m = self.base_model(a=1, b=2, fk=fk_object)
         m.save()

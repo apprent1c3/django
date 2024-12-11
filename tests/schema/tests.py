@@ -2040,6 +2040,18 @@ class SchemaTests(TransactionTestCase):
         Author.objects.create(name="Bar")
 
     def test_alter_autofield_pk_to_bigautofield_pk(self):
+        """
+
+        Tests altering an AutoField primary key to a BigAutoField primary key.
+
+        This test creates a model with an AutoField primary key, then alters it to use a BigAutoField
+        primary key. It verifies that the alteration is successful by creating new objects using both
+        the old primary key value and automatically generated values.
+
+        The test exercises the migration of the primary key field, ensuring that the database schema
+        is updated correctly and that new objects can be created with the updated primary key type.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         old_field = Author._meta.get_field("id")
@@ -3650,6 +3662,19 @@ class SchemaTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_nondeterministic(self):
+        """
+
+        Tests the addition of a unique constraint that uses a non-deterministic function.
+
+        This test case checks that an error is raised when trying to create a unique constraint
+        on a model using a function that produces different results on each invocation, such as
+        Random(). The test ensures that the database does not allow the creation of such a
+        constraint, as it would lead to inconsistent data.
+
+        The test case creates an Author model, attempts to add a unique constraint using the
+        Random() function, and verifies that a DatabaseError is raised as expected.
+
+        """
         with connection.schema_editor() as editor:
             editor.create_model(Author)
         constraint = UniqueConstraint(Random(), name="func_random_uq")

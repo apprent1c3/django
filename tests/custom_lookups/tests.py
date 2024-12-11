@@ -358,6 +358,14 @@ class BilateralTransformTests(TestCase):
             )
 
     def test_bilateral_inner_qs(self):
+        """
+
+        Tests that attempting to apply bilateral transformations to inner querysets raises a NotImplementedError.
+
+        Checks that the expected error message is raised when using a bilateral transformation 
+        (such as the 'upper' lookup) inside an 'in' lookup on a queryset.
+
+        """
         with register_lookup(models.CharField, UpperBilateralTransform):
             msg = "Bilateral transformations on nested querysets are not implemented."
             with self.assertRaisesMessage(NotImplementedError, msg):
@@ -633,6 +641,15 @@ class LookupTransformCallOrderTests(SimpleTestCase):
 
 class CustomisedMethodsTests(SimpleTestCase):
     def test_overridden_get_lookup(self):
+        """
+        Tests that the overridden get_lookup method is correctly utilized in database queries.
+
+        Verifies that the custom lookup function is successfully integrated into the ORM query, 
+        ensuring the expected lookup method is applied when filtering model instances.
+
+        This test case ensures the lookup function 'monkeys' is correctly invoked when 
+        the 'lookupfunc_monkeys' lookup is applied to a model field in a query.
+        """
         q = CustomModel.objects.filter(field__lookupfunc_monkeys=3)
         self.assertIn("monkeys()", str(q.query))
 

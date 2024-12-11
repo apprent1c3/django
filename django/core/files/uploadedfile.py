@@ -50,6 +50,17 @@ class UploadedFile(File):
 
     def _set_name(self, name):
         # Sanitize the file name so that it can't be dangerous.
+        """
+        Sets the name attribute of the object.
+
+        The provided name is cleaned and validated to ensure it is suitable for use as a file name.
+        If the name is not None, it is converted to a base name and truncated if necessary to
+        ensure it does not exceed the maximum allowed length of 255 characters.
+        The name is then validated to conform to standard file naming conventions.
+        The validated name is then stored as the object's name attribute.
+
+        :param name: The name to be set, or None to clear the name
+        """
         if name is not None:
             # Just use the basename of the file -- anything else is dangerous.
             name = os.path.basename(name)

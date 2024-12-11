@@ -99,6 +99,15 @@ class GeoRSSFeed(Rss201rev2Feed, GeoFeedMixin):
         self.add_georss_element(handler, item)
 
     def add_root_elements(self, handler):
+        """
+        Extends the base implementation to add GeoRSS elements to the feed.
+
+        This method builds upon the existing functionality of adding root elements by 
+        also incorporating GeoRSS elements, specifically tailored to the provided feed.
+
+        :param handler: The handler object responsible for processing the feed elements
+        :param self.feed: The feed object from which GeoRSS elements are derived
+        """
         super().add_root_elements(handler)
         self.add_georss_element(handler, self.feed)
 

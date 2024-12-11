@@ -755,6 +755,23 @@ class ReverseShortcutTests(SimpleTestCase):
             redirect("not-a-view")
 
     def test_redirect_to_url(self):
+        """
+        Tests the redirect function to ensure it correctly redirects to specified URLs.
+
+        The function is tested with various URL inputs, including relative paths, absolute URLs,
+        and URLs containing non-ASCII characters. The tests verify that the redirect function
+        properly handles these different cases, including URL encoding of special characters.
+
+        The test cases cover the following scenarios:
+        - Redirecting to a relative path
+        - Redirecting to an absolute URL
+        - Redirecting to a URL with non-ASCII characters in the path
+        - Redirecting to a URL with non-ASCII characters and a file extension
+        - Redirecting to a string that does not resemble a URL
+
+        Note that this test function does not simulate an actual redirect, but rather checks
+        the properties of the redirect object to ensure it has been correctly configured.
+        """
         res = redirect("/foo/")
         self.assertEqual(res.url, "/foo/")
         res = redirect("http://example.com/")

@@ -25,6 +25,16 @@ class LowerTests(TestCase):
         )
 
     def test_num_args(self):
+        """
+        Tests that the Lower database function raises a TypeError when given more than one argument.
+
+        Verifies that attempting to call Author.objects.update with the Lower function
+        and multiple arguments results in a TypeError with a descriptive error message.
+
+        The test checks that the function correctly enforces its single-argument constraint,
+        preventing potential misuse and promoting data consistency.
+
+        """
         with self.assertRaisesMessage(
             TypeError, "'Lower' takes exactly 1 argument (2 given)"
         ):

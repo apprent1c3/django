@@ -145,6 +145,15 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url-fail03": '{% url "client" %}'})
     def test_url_fail03(self):
+        """
+        Tests that a NoReverseMatch exception is raised when rendering a template with an invalid URL pattern.
+
+        The test simulates a scenario where the 'client' URL is not properly defined, 
+        expecting the render_to_string method to correctly identify and raise an exception 
+        for the undefined URL pattern.
+
+        :raises: NoReverseMatch
+        """
         with self.assertRaises(NoReverseMatch):
             self.engine.render_to_string("url-fail03")
 

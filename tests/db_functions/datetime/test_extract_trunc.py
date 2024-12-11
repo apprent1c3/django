@@ -230,6 +230,22 @@ class DateFunctionTests(TestCase):
             ).exists()
 
     def test_extract_func(self):
+        """
+        Tests the extraction of date/time components from Django model fields using the Extract function.
+
+        The Extract function is used to extract a specific component (such as year, month, day, hour, minute, second) from a DateField, DateTimeField, TimeField, or DurationField in a Django model.
+
+        This test case covers the following scenarios:
+
+        * Extraction of various date/time components (year, quarter, month, day, week, week day, iso week day, hour, minute, second) from DateTimeField and DateField.
+        * Validation of errors when:
+        	+ No lookup name is provided.
+        	+ The input expression is not a DateField, DateTimeField, TimeField, or DurationField.
+        	+ Time component extraction is attempted from a DateField.
+        * Verification that the extracted values can be used in filtering queries.
+
+        The test uses two datetime objects, `start_datetime` and `end_datetime`, to create instances of a Django model, and then applies the Extract function to these instances to extract various date/time components. The extracted values are then compared to the expected values to ensure correctness.
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:

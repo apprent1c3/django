@@ -662,6 +662,18 @@ class CheckCrossOriginOpenerPolicyTest(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=["django.middleware.security.SecurityMiddleware"])
     def test_with_coop(self):
+        """
+        Tests the functionality of the check_cross_origin_opener_policy function across different 
+        Secure Cross-Origin Opener Policy settings.
+
+        This test evaluates the policy against several known test cases, including 'same-origin', 
+        'same-origin-allow-popups', and 'unsafe-none', to ensure correct functionality under various 
+        cross-origin opener policy settings. 
+
+        Each test case is run independently, allowing for detailed diagnosis of any failures that occur. 
+
+        The outcome is compared against an empty list, verifying that no unexpected policy violations are reported.
+        """
         tests = ["same-origin", "same-origin-allow-popups", "unsafe-none"]
         for value in tests:
             with (

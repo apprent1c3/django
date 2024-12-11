@@ -325,6 +325,21 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Envelope_function")
     def test_envelope(self):
+        """
+
+        Test the database's geometric Envelope function.
+
+        This test case verifies that the Envelope function, which calculates the bounding box 
+        of a geometric object, produces the same result as the envelope attribute of the 
+        object's multipolygon (mpoly) field.
+
+        The test iterates over all Country objects, annotating each with its envelope 
+        calculated using the Envelope function. It then asserts that the annotated envelope 
+        equals the mpoly envelope for each country.
+
+        This test requires the database to support the Envelope function.
+
+        """
         countries = Country.objects.annotate(envelope=functions.Envelope("mpoly"))
         for country in countries:
             self.assertTrue(country.envelope.equals(country.mpoly.envelope))
@@ -446,6 +461,22 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function")
     def test_area_with_regular_aggregate(self):
         # Create projected country objects, for this test to work on all backends.
+        """
+        Tests the calculation of area for CountryWebMercator objects using the database's Area function.
+
+        This test checks the accuracy of the area calculation by comparing the area 
+        calculated using the database's Area function with the area calculated using 
+        the geometry library. It ensures that the difference between the two 
+        calculations is negligible, providing confidence in the accuracy of the 
+        database's Area function.
+
+        The test creates CountryWebMercator objects for each country in the database, 
+        transforming the country's geometry to the Web Mercator projection. It then 
+        annotates the queryset with the area of each country's geometry and verifies 
+        that the calculated area is correct.
+
+        Note: This test requires a database that supports the Area function.
+        """
         for c in Country.objects.all():
             CountryWebMercator.objects.create(
                 name=c.name, mpoly=c.mpoly.transform(3857, clone=True)

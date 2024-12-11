@@ -78,6 +78,13 @@ class TestTestCase(TestCase):
 def assert_no_queries(test):
     @wraps(test)
     def inner(self):
+        """
+        Decorator inner function that wraps the original test function.
+
+        This function ensures that the test function runs without executing any database queries.
+        It utilizes a context manager to assert that no queries are executed within the test scope.
+
+        """
         with self.assertNumQueries(0):
             test(self)
 

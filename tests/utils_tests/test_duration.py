@@ -41,6 +41,15 @@ class TestParseDurationRoundtrip(unittest.TestCase):
         self.assertEqual(parse_duration(duration_string(duration)), duration)
 
     def test_negative(self):
+        """
+        Test the parsing of a negative duration.
+
+        This test case checks that the parse_duration function can correctly handle a duration string that represents a negative time interval.
+
+        The duration string is generated from a datetime.timedelta object with negative days and positive hours, minutes, and seconds. The test then asserts that the parsed duration is equal to the original timedelta object.
+
+        This ensures that the parse_duration function can handle negative durations correctly and returns the expected result.
+        """
         duration = datetime.timedelta(days=-1, hours=1, minutes=3, seconds=5)
         self.assertEqual(parse_duration(duration_string(duration)), duration)
 

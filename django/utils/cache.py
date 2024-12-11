@@ -438,6 +438,13 @@ def learn_cache_key(request, response, cache_timeout=None, key_prefix=None, cach
 
 
 def _to_tuple(s):
+    """
+    Converts a given string into a tuple, splitting it at the first occurrence of the '=' character.
+
+    The resulting tuple contains two elements: the first part of the string (converted to lowercase) and the second part (if the '=' character is present) or a boolean True (if the '=' character is not present).
+
+    This function is useful for parsing strings that may or may not contain a key-value pair separated by an '=' character.
+    """
     t = s.split("=", 1)
     if len(t) == 2:
         return t[0].lower(), t[1]

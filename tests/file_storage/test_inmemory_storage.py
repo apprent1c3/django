@@ -89,6 +89,17 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.assertEqual(dirs, ["dir"])
 
     def test_list_relative_path(self):
+        """
+        Tests the ability to list files using a relative path.
+
+        This test verifies that the storage system correctly handles relative paths
+        with redundant directory separators, and returns the expected list of files.
+
+        The test case confirms that listdir method ignores redundant directory separators
+        ('.' and './') in the provided path, and returns only the names of files in the 
+        target directory, excluding subdirectories. In this instance, it checks that the 
+        file 'file.txt' is correctly identified in the './a/./.' directory.
+        """
         self.storage.save("a/file.txt", ContentFile("test"))
 
         _dirs, files = self.storage.listdir("./a/./.")

@@ -248,6 +248,17 @@ class Expressions(TableColumns):
         super().__init__(table, columns)
 
     def rename_table_references(self, old_table, new_table):
+        """
+        Renames references to a specific table in the current object.
+
+        This function updates the expressions and propagates the rename operation to the parent class.
+        It checks if the current table matches the old table name, and if so, replaces all occurrences of the old table name with the new one.
+        The renamed expressions are then updated accordingly.
+
+        :param old_table: The original name of the table to be renamed.
+        :param new_table: The new name for the table.
+
+        """
         if self.table != old_table:
             return
         self.expressions = self.expressions.relabeled_clone({old_table: new_table})

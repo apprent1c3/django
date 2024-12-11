@@ -176,6 +176,16 @@ class TestingSessionStore(SessionStore):
         self._cookies_set = []
 
     def __setitem__(self, key, value):
+        """
+        Sets an item in the object, saving the value as a cookie.
+
+        Args:
+            key: The key to be associated with the value.
+            value: The value to be assigned to the key.
+
+        Note:
+            This method extends the standard item setting behavior by tracking the values that have been set as cookies.
+        """
         super().__setitem__(key, value)
         self._cookies_set.append(value)
 
@@ -237,6 +247,18 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         raise NotImplementedError("This method must be implemented by a subclass.")
 
     def _get_request(self, method=None, cookie=None, request_class=None):
+        """
+        Constructs a request object for testing purposes.
+
+        This method returns an instance of the specified request class (defaults to TestingHttpRequest) 
+        with the given HTTP method (defaults to 'GET') and optional cookie. The cookie is set 
+        with a valid CSRF token if provided.
+
+        :param method: The HTTP method to set on the request (e.g., 'GET', 'POST', 'PUT', etc.)
+        :param cookie: The cookie to set on the request, including a valid CSRF token
+        :param request_class: The class of the request object to instantiate (defaults to TestingHttpRequest)
+        :returns: A request object with the specified method and optional cookie
+        """
         if method is None:
             method = "GET"
         if request_class is None:

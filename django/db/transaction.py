@@ -324,6 +324,16 @@ def atomic(using=None, savepoint=True, durable=False):
 
 
 def _non_atomic_requests(view, using):
+    """
+    Marks a view as using non-atomic requests for a specific database connection.
+
+    This function modifies the given view to track non-atomic requests for the specified database connection. 
+    If the view does not already track non-atomic requests, it initializes the tracking mechanism. 
+
+    :param view: The view to be modified.
+    :param using: The database connection to be tracked.
+    :return: The modified view object.
+    """
     try:
         view._non_atomic_requests.add(using)
     except AttributeError:

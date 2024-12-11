@@ -118,6 +118,21 @@ class Collate(Func):
         super().__init__(expression)
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL representation of this query component.
+
+        This method takes into account the compiler, database connection, and any extra context.
+        It specifically includes the collation setting in the query, ensuring that the database
+        uses the correct collation when executing the query.
+
+        The resulting SQL string is then returned, taking into account any additional context
+        provided. This allows for customizing the SQL generation based on specific requirements.
+
+        :param compiler: The compiler instance used to generate the SQL.
+        :param connection: The database connection object.
+        :param extra_context: Additional context used to customize the SQL generation.
+        :return: The generated SQL string representation of this query component.
+        """
         extra_context.setdefault("collation", connection.ops.quote_name(self.collation))
         return super().as_sql(compiler, connection, **extra_context)
 
@@ -148,6 +163,12 @@ class JSONObject(Func):
     output_field = JSONField()
 
     def __init__(self, **fields):
+        """
+        Initializes an object by mapping keyword arguments to field names and their corresponding values, 
+        which are then passed to the base class constructor to create a collection of field-value pairs. 
+        The keyword arguments are used as field names, and their corresponding values are the values 
+        associated with those fields, allowing for flexible and dynamic field creation.
+        """
         expressions = []
         for key, value in fields.items():
             expressions.extend((Value(key), value))

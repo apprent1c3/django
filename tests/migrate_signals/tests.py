@@ -39,6 +39,13 @@ class OneTimeReceiver:
     """
 
     def __init__(self, signal):
+        """
+        ..:param signal: The signal to connect to
+            :type signal: Signal
+            Initializes a new instance of the class, connecting to the given signal 
+            and preparing to track calls made to it, with the connection being made 
+            through the APP_CONFIG sender.
+        """
         self.signal = signal
         self.call_counter = 0
         self.call_args = None

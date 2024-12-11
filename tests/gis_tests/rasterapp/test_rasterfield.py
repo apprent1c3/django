@@ -447,6 +447,21 @@ class RasterFieldTest(TransactionTestCase):
             ).count()
 
     def test_lhs_with_index_rhs_without_index(self):
+        """
+        Tests the Left Hand Side (LHS) of a spatial query with an index, 
+        while the Right Hand Side (RHS) does not have an index.
+
+        This function verifies that the database query uses the correct spatial function, 
+        ST_Contains, when filtering raster data and checks for the presence of 
+        'ras__0__contains' in the generated SQL query.
+
+        The function uses the RasterModel to perform an exists query, filtering 
+        by the presence of a specific raster value contained within another raster.
+
+        It then asserts that the generated SQL query contains the expected spatial 
+        function and the correct index values, ensuring proper use of spatial indexing.\"\"\"
+        ```
+        """
         with CaptureQueriesContext(connection) as queries:
             RasterModel.objects.filter(
                 rast__0__contains=json.loads(JSON_RASTER)

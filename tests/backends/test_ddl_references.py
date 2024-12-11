@@ -46,6 +46,20 @@ class ColumnsTests(TableTests):
         )
 
     def test_references_column(self):
+        """
+        Checks if a certain column is referenced by a specific table or alias.
+
+        This method determines if a given column name is being referenced by a specific 
+        table or alias within a larger data structure. It returns True if the column 
+        is referenced and False otherwise.
+
+         Args:
+            other (str): The name of the table or alias to check.
+            column_name (str): The name of the column to look for.
+
+         Returns:
+            bool: Whether the column is referenced by the given table or alias.
+        """
         self.assertIs(self.reference.references_column("other", "first_column"), False)
         self.assertIs(self.reference.references_column("table", "third_column"), False)
         self.assertIs(self.reference.references_column("table", "first_column"), True)
@@ -259,6 +273,15 @@ class ExpressionsTests(TransactionTestCase):
     available_apps = []
 
     def setUp(self):
+        """
+        Initializes the test setup for database operations on the Person model.
+
+        This method sets up the necessary components for creating and managing database expressions, 
+        including a query compiler for the Person model and a schema editor.
+        It initializes the editor and expressions for further database operations, 
+        specifically creating indexes on the 'first_name' and 'last_name' fields, 
+        with the 'last_name' field having a descending order and an uppercase expression.
+        """
         compiler = Person.objects.all().query.get_compiler(connection.alias)
         self.editor = connection.schema_editor()
         self.expressions = Expressions(

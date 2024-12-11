@@ -140,6 +140,24 @@ class AbstractBaseUser(models.Model):
             yield self._get_session_auth_hash(secret=fallback_secret)
 
     def _get_session_auth_hash(self, secret=None):
+        """
+        Generate a secure hash for the current session authentication.
+
+        This method returns a hashed value of the user's password, salted with a fixed key
+        and optionally a provided secret. The hash is generated using the SHA-256 algorithm.
+
+        Args:
+            secret (str, optional): An optional secret to include in the hash generation.
+
+        Returns:
+            str: A hexadecimal representation of the session authentication hash.
+
+        Notes:
+            The generated hash is used for session authentication and should be stored
+            securely. The secret parameter can be used to add an additional layer of
+            security by including a unique value in the hash generation.
+
+        """
         key_salt = "django.contrib.auth.models.AbstractBaseUser.get_session_auth_hash"
         return salted_hmac(
             key_salt,

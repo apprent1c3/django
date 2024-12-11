@@ -410,6 +410,17 @@ class DebugLexer(Lexer):
 
     # This parallels the use of tag_re.split() in Lexer.tokenize().
     def _tag_re_split(self):
+        """
+        Yields a sequence of template string segments and their corresponding positions.
+
+        This generator splits the template string into parts at predefined positions, 
+        returning each segment along with its position in the original string. The split 
+        positions are determined by the :meth:`_tag_re_split_positions` method.
+
+        Yields:
+            tuple: A segment of the template string and its position.
+
+        """
         for position in self._tag_re_split_positions():
             yield self.template_string[slice(*position)], position
 

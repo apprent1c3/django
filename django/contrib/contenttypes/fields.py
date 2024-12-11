@@ -171,6 +171,26 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+
+        Returns a tuple containing the prefetch querysets for the given instances and a key function to identify the objects in these querysets.
+
+        This function takes a list of instances and an optional list of querysets as input. It returns a tuple containing the prefetch querysets and several key functions used for identifying the objects in these querysets.
+
+        The prefetch querysets are constructed based on the foreign key relationships between the instances and their related objects. If a custom queryset is provided for a particular content type, it is used to fetch the related objects. Otherwise, the default queryset for the content type is used.
+
+        The returned tuple contains the following elements:
+
+        *   The prefetch querysets
+        *   A key function to identify the objects in the prefetch querysets based on their primary key
+        *   A key function to identify the generic foreign key objects based on their content type and primary key
+        *   A boolean indicating whether the prefetch querysets are for a content type
+        *   The name of the generic foreign key field
+        *   A boolean indicating whether the objects in the prefetch querysets should be deduplicated
+
+        This function can be used to optimize the performance of queries that involve generic foreign keys by prefetching the related objects in a single database query.
+
+        """
         custom_queryset_dict = {}
         if querysets is not None:
             for queryset in querysets:
@@ -375,6 +395,16 @@ class GenericRelation(ForeignObject):
         )
 
     def _check_generic_foreign_key_existence(self):
+        """
+        Checks if a GenericRelation's target model contains a GenericForeignKey.
+
+        This function verifies that the model referenced by the GenericRelation
+        contains a GenericForeignKey, ensuring that the generic relationship can be established.
+        If the target model does not have a GenericForeignKey, an error is returned.
+        Otherwise, an empty list is returned, indicating that the check was successful.
+        The function is part of the model's validation process and is used to prevent
+        invalid generic relationships from being defined.
+        """
         target = self.remote_field.model
         if isinstance(target, ModelBase):
             fields = target._meta.private_fields
@@ -681,6 +711,18 @@ def create_generic_related_manager(superclass, rel):
             db = router.db_for_write(self.model, instance=self.instance)
 
             def check_and_update_obj(obj):
+                """
+                Checks if the provided object is an instance of the expected model and updates its attributes.
+
+                Args:
+                    obj: The object to be checked and updated.
+
+                Raises:
+                    TypeError: If the object is not an instance of the expected model.
+
+                Notes:
+                    The function ensures the object's content type and object ID fields are set to the associated content type and primary key value respectively.
+                """
                 if not isinstance(obj, self.model):
                     raise TypeError(
                         "'%s' instance expected, got %r"

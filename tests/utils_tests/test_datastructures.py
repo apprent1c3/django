@@ -291,6 +291,16 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         )
 
     def test_create_with_invalid_values(self):
+        """
+        /**
+            Tests the creation of a CaseInsensitiveMapping object with invalid input values.
+
+            Verifies that a ValueError is raised when attempting to initialize the object
+            with a sequence containing elements of incorrect length, specifically a mix of 
+            tuples and non-tuple values. The expected error message is also checked to 
+            ensure it matches the defined exception message.
+        **/
+        """
         msg = "dictionary update sequence element #1 has length 4; 2 is required"
         with self.assertRaisesMessage(ValueError, msg):
             CaseInsensitiveMapping([("Key1", "Val1"), "Key2"])

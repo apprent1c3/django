@@ -38,6 +38,31 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         super().__init__(*args, **kwargs)
 
     def get_new_connection(self, conn_params):
+        """
+
+        Obtain a new database connection and enable SpatiaLite extension.
+
+        This method initiates a connection using the provided connection parameters,
+        then attempts to load the SpatiaLite library extension. The extension is
+        loaded from a list of predefined paths, and the first successful load
+        is used. If all paths fail to load the extension, an error is raised.
+
+        The method checks if the underlying database connection allows extension
+        loading. If not, it raises an error indicating that SQLite needs to be
+        configured to allow extension loading.
+
+        Additionally, if the SPATIALITE_LIBRARY_PATH setting is specified in the
+        project settings, the method will raise an error if it is unable to load
+        the extension from the specified path.
+
+        The method returns a connection object with the SpatiaLite extension loaded.
+
+        Raises:
+            ImproperlyConfigured: If SQLite is not configured to allow extension loading,
+                or if the SpatiaLite library extension cannot be loaded from any of the
+                predefined paths or the specified SPATIALITE_LIBRARY_PATH.
+
+        """
         conn = super().get_new_connection(conn_params)
         # Enabling extension loading on the SQLite connection.
         try:

@@ -3292,6 +3292,19 @@ class OperationTests(OperationTestBase):
         )
 
     def test_rename_field_unique_together(self):
+        """
+
+        Tests the rename field operation when the model has a unique_together constraint.
+
+        Verifies that renaming a field with a unique_together constraint correctly updates the
+        constraint to reference the new field name, and that the database schema is updated
+        accordingly. Also checks that the operation is reversible, and that the original state
+        is restored when the operation is reversed.
+
+        The test covers both forwards and backwards migrations, ensuring that the rename field
+        operation behaves correctly in both scenarios.
+
+        """
         project_state = self.set_up_test_model("test_rnflut", unique_together=True)
         operation = migrations.RenameField("Pony", "pink", "blue")
         new_state = project_state.clone()

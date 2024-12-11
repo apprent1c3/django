@@ -50,6 +50,19 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.big_degrees, math.degrees(obj.big))
 
     def test_transform(self):
+        """
+
+        Test the transformation of decimal fields to degrees.
+
+        This test creates two DecimalModel objects with decimal values and then filters
+        them using a degrees lookup. It verifies that the object with a decimal value 
+        greater than 0 when converted to degrees is correctly retrieved.
+
+        The test covers the registration of the Degrees lookup with the DecimalField,
+        the creation of DecimalModel objects, and the filtering of objects using the 
+        degrees lookup.
+
+        """
         with register_lookup(DecimalField, Degrees):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-30"), n2=Decimal("0"))

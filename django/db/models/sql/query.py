@@ -434,6 +434,14 @@ class Query(BaseExpression):
         return obj
 
     def relabeled_clone(self, change_map):
+        """
+
+        Creates a new clone of the current object with relabeled aliases.
+
+        :param change_map: A mapping of original aliases to their new labels.
+        :returns: A new instance with the updated aliases.
+
+        """
         clone = self.clone()
         clone.change_aliases(change_map)
         return clone
@@ -2673,6 +2681,19 @@ class JoinPromoter:
     """
 
     def __init__(self, connector, num_children, negated):
+        """
+
+        Initializes a new instance of a logical condition.
+
+        :param connector: The logical connector to use (e.g. AND, OR)
+        :param num_children: The number of child conditions
+        :param negated: Whether the condition is negated
+
+        Initializes the effective connector based on the provided connector and negation status.
+        The effective connector is the actual connector used in the condition, taking into account the negation.
+        Also initializes a counter to store votes.
+
+        """
         self.connector = connector
         self.negated = negated
         if self.negated:

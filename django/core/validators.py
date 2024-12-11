@@ -481,6 +481,21 @@ class StepValueValidator(BaseValidator):
                 raise ValidationError(self.message, code=self.code, params=params)
 
     def compare(self, a, b):
+        """
+
+        Compares two values `a` and `b` with an optional offset.
+
+        This function checks if the difference between `a` and the offset, modulo `b`, is not close to zero.
+        The offset defaults to 0 if not explicitly provided.
+
+        Args:
+            a (float): The first value to compare.
+            b (float): The second value to compare, used as the divisor in the modulo operation.
+
+        Returns:
+            bool: True if the difference between `a` and the offset, modulo `b`, is not close to zero; False otherwise.
+
+        """
         offset = 0 if self.offset is None else self.offset
         return not math.isclose(math.remainder(a - offset, b), 0, abs_tol=1e-9)
 
@@ -684,6 +699,20 @@ class ProhibitNullCharactersValidator:
             self.code = code
 
     def __call__(self, value):
+        """
+
+        Validate the presence of a null character in a given value.
+
+        This function checks if the provided value contains a null character ('\x00') when converted to a string.
+        If the null character is found, it raises a ValidationError with a specified message and code.
+
+        Args:
+            value: The value to be validated.
+
+        Raises:
+            ValidationError: If the value contains a null character.
+
+        """
         if "\x00" in str(value):
             raise ValidationError(self.message, code=self.code, params={"value": value})
 

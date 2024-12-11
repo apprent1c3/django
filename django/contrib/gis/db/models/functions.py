@@ -439,6 +439,15 @@ class IsValid(OracleToleranceMixin, GeoFuncMixin, Transform):
 
 class Length(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
     def __init__(self, expr1, spheroid=True, **extra):
+        """
+        Initializes a new instance of the class with an expression and optional extra parameters.
+
+        :param expr1: The primary expression to be used.
+        :param spheroid: A flag indicating whether to use a spheroid model (default: True).
+        :param extra: Additional keyword arguments to be passed to the superclass constructor.
+
+        The spheroid flag determines the type of geometric model used, with True indicating a spheroid model. The extra parameters are passed to the superclass constructor to support additional configuration options.
+        """
         self.spheroid = spheroid
         super().__init__(expr1, **extra)
 
@@ -567,6 +576,20 @@ class SymDifference(OracleToleranceMixin, GeomOutputGeoFunc):
 
 class Transform(GeomOutputGeoFunc):
     def __init__(self, expression, srid, **extra):
+        """
+
+        Initialize a geometric expression with a given spatial reference system identifier (SRID).
+
+        The expression is used to create a geometric object, such as a point, line, or polygon, 
+        with the specified SRID, which defines the coordinate system used to interpret the geometry.
+
+        Additional keyword arguments can be provided to customize the output field of the expression.
+
+        :param expression: The geometric expression to be initialized
+        :param srid: The spatial reference system identifier (SRID) of the geometry
+        :param extra: Additional keyword arguments to customize the output field
+
+        """
         expressions = [
             expression,
             self._handle_param(srid, "srid", int),

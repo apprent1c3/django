@@ -29,6 +29,15 @@ class TimezoneMixin:
         # applying a function. 2015-12-31 23:00:00 -02:00 is stored in the
         # database as 2016-01-01 01:00:00 +00:00. Any results should be
         # based on the input datetime not the stored datetime.
+        """
+        Returns the time zone name associated with the current object.
+
+        If the :attr:`settings.USE_TZ` setting is enabled, this method returns the name of the time zone in which the object is located. 
+        If the object has no associated time zone information, the name of the current default time zone is returned instead. 
+
+        :returns: Time zone name or None if the :attr:`settings.USE_TZ` setting is disabled.
+        :rtype: str
+        """
         tzname = None
         if settings.USE_TZ:
             if self.tzinfo is None:

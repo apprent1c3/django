@@ -560,6 +560,10 @@ class WatchmanReloader(BaseReloader):
             )
 
     def update_watches(self):
+        """
+        Updates the list of watched items, handling potential exceptions that may occur during the update process. 
+         If an exception is raised, it checks the server status to determine if the issue is server-related before re-raising the exception.
+        """
         try:
             self._update_watches()
         except Exception as ex:

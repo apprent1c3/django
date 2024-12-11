@@ -75,6 +75,19 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertIs(check_password(b"bytes_password", encoded), True)
 
     def test_invalid_password(self):
+        """
+        Tests that making a password with an invalid type raises a TypeError.
+
+        Verifies that attempting to create a password with an integer value results in 
+        a TypeError exception being raised, as passwords must be either strings or bytes.
+
+        Args are not applicable in this test scenario, as it specifically tests the 
+        case where an invalid type (int) is provided to the make_password function.
+
+        Raises:
+            TypeError: If the provided password is neither a string nor bytes.
+
+        """
         msg = "Password must be a string or bytes, got int."
         with self.assertRaisesMessage(TypeError, msg):
             make_password(1)
@@ -536,6 +549,14 @@ class BasePasswordHasherTests(SimpleTestCase):
             PlainHasher()._load_library()
 
     def test_attributes(self):
+        """
+
+        Tests that the hasher object has the expected initial attributes.
+
+        Verifies that the algorithm and library attributes of the hasher are set to None,
+        indicating that no specific hashing algorithm or library has been selected.
+
+        """
         self.assertIsNone(self.hasher.algorithm)
         self.assertIsNone(self.hasher.library)
 

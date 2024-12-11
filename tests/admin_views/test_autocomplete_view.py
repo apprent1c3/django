@@ -310,6 +310,18 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         self.assertEqual(len(data["results"]), 3)
 
     def test_missing_search_fields(self):
+        """
+        Tests that an Http404 error is raised when attempting to access the autocomplete view 
+        of a model admin that does not have any search fields defined.
+
+        This test case ensures that model admins without search fields are properly handled and 
+        do not allow autocomplete views to be accessed, thus preventing potential errors or 
+        unexpected behavior.
+
+        The test uses an EmptySearchAdmin class, which inherits from QuestionAdmin but defines 
+        an empty list of search fields, to verify that the autocomplete view raises an Http404 
+        error as expected when attempting to access it with an empty search term.
+        """
         class EmptySearchAdmin(QuestionAdmin):
             search_fields = []
 

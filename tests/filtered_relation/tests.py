@@ -644,6 +644,9 @@ class FilteredRelationTests(TestCase):
         self.assertEqual(qs.count(), 4)
 
     def test_condition_with_func_and_lookup_outside_relation_name(self):
+        """
+        Tests the usage of a FilteredRelation with a condition that involves a function and a lookup outside of the relation name, verifying that the query correctly filters authors who are editors of books with titles that match a specific pattern. The test checks that exactly one author matches the condition, ensuring the correctness of the query logic.
+        """
         qs = Author.objects.annotate(
             book_editor=FilteredRelation(
                 "book__editor",

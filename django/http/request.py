@@ -555,6 +555,14 @@ class QueryDict(MultiValueDict):
         self._encoding = value
 
     def _assert_mutable(self):
+        """
+        Checks if the QueryDict instance is mutable, raising an AttributeError if it is immutable.
+
+        This method ensures that the instance can be modified, and if not, it raises an exception to prevent unintended changes.
+
+        Raises:
+            AttributeError: If the QueryDict instance is immutable
+        """
         if not self._mutable:
             raise AttributeError("This QueryDict instance is immutable")
 
@@ -592,6 +600,24 @@ class QueryDict(MultiValueDict):
         return super().setlistdefault(key, default_list)
 
     def appendlist(self, key, value):
+        """
+
+        Appends a value to the list associated with the given key.
+
+        This method converts both the key and value to text using the object's specified encoding before appending the value to the list.
+
+        Parameters
+        ----------
+        key : bytes or str
+            The key whose list will be appended to.
+        value : bytes or str
+            The value to be appended to the list.
+
+        Notes
+        -----
+        This operation is only possible if the object is in a mutable state, as checked by an internal assertion.
+
+        """
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         value = bytes_to_text(value, self.encoding)

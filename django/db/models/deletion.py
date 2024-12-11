@@ -158,6 +158,16 @@ class Collector:
             self.restricted_objects[model][field].update(objs)
 
     def clear_restricted_objects_from_set(self, model, objs):
+        """
+        Removes a set of objects from the restricted objects for a given model.
+
+        This method modifies the internal state by subtracting the provided objects 
+        from the existing restricted objects for the specified model, if it exists.
+
+        :param model: The model for which the restricted objects should be updated.
+        :param objs: The set of objects to be removed from the restricted objects.
+
+        """
         if model in self.restricted_objects:
             self.restricted_objects[model] = {
                 field: items - objs

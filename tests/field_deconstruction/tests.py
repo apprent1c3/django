@@ -131,6 +131,18 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"max_length": 100})
 
     def test_date_field(self):
+        """
+
+        Tests the deconstruction of DateField instances.
+
+        This test ensures that the deconstruct method of a DateField correctly 
+        returns its path, arguments, and keyword arguments. It covers the cases 
+        where the field is created with default arguments and with a specific 
+        keyword argument (auto_now=True). The test verifies that the path 
+        returned is the full path of the DateField class, and that the arguments 
+        and keyword arguments are correctly reflected in the deconstructed output.
+
+        """
         field = models.DateField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.DateField")

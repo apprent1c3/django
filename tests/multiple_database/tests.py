@@ -1440,6 +1440,21 @@ class RouterTestCase(TestCase):
             self.assertTrue(router.allow_migrate_model("default", Book))
 
     def test_database_routing(self):
+        """
+        Tests the database routing functionality by creating and retrieving data from multiple databases.
+
+        The test case covers the following scenarios:
+        - Creating objects in different databases using the `using` method
+        - Updating objects in the default database and verifying the changes
+        - Attempting to retrieve objects from the wrong database and expecting a `DoesNotExist` exception
+        - Retrieving objects from the correct database and verifying their attributes
+        - Updating objects in a non-default database
+        - Using `get_or_create` to retrieve or create objects in the default database
+        - Verifying the count of objects in each database
+        - Deleting objects based on a condition and verifying the updated counts
+
+        This test ensures that database routing is working correctly, allowing data to be stored and retrieved from multiple databases using Django's ORM.
+        """
         marty = Person.objects.using("default").create(name="Marty Alchin")
         pro = Book.objects.using("default").create(
             title="Pro Django",

@@ -446,6 +446,26 @@ class StateTests(SimpleTestCase):
         )
 
     def test_render_model_inheritance(self):
+        """
+        Tests the rendering of a model that inherits from another model.
+
+        This function verifies that the rendering of a model instance fails when the model 
+        inherits from another model that is not properly registered. It then checks that 
+        rendering the parent model is successful. The test covers the scenario where the 
+        model inheritance hierarchy is not correctly handled, resulting in an 
+        InvalidBasesError exception being raised. 
+
+        The purpose of this test is to ensure that the model rendering process correctly 
+        identifies and handles inheritance relationships between models, and raises an 
+        appropriate error when these relationships are not properly defined. 
+
+        Args: None
+
+        Raises: 
+            InvalidBasesError: If the model inheritance hierarchy is not correctly handled.
+
+        Returns: None
+        """
         class Book(models.Model):
             title = models.CharField(max_length=1000)
 

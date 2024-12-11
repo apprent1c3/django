@@ -288,6 +288,11 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-or03": "{% if foo or bar %}yes{% else %}no{% endif %}"})
     def test_if_tag_or03(self):
+        """
+        Tests the functionality of the 'if' tag with 'or' conditional statement in the templating engine. 
+        Verifies that the templating engine correctly renders the 'if' tag when the 'or' condition evaluates to True, 
+        even when one of the conditions is False.
+        """
         output = self.engine.render_to_string(
             "if-tag-or03", {"foo": False, "bar": True}
         )
@@ -606,6 +611,9 @@ class IfTagTests(SimpleTestCase):
         }
     )
     def test_else_if_tag_error01(self):
+        """
+        Tests that the template engine correctly raises a TemplateSyntaxError when encountering an 'else if' tag with a malformed condition, specifically when using 'is not' in the condition. The test verifies that the error message accurately describes the location and nature of the syntax error.
+        """
         error_message = 'Malformed template tag at line 1: "else if foo is not bar"'
         with self.assertRaisesMessage(TemplateSyntaxError, error_message):
             self.engine.get_template("else-if-tag-error01")

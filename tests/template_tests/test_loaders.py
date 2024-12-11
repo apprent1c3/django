@@ -197,6 +197,17 @@ class FileSystemLoaderTests(SimpleTestCase):
             list(loader.get_template_sources(b"\xc3\x85ngstr\xc3\xb6m"))
 
     def test_unicode_dir_name(self):
+        """
+        Tests the functionality of handling directory names containing Unicode characters.
+
+        This test case verifies that the source checker can correctly identify and process
+        directories with names that include non-ASCII Unicode characters, such as accents
+        and special letters. The test scenario involves checking a directory with a name
+        that contains Unicode characters, ensuring that the source checker can handle it
+        without errors or exceptions.
+
+        :returns: None
+        """
         with self.source_checker(["/Straße"]) as check_sources:
             check_sources("Ångström", ["/Straße/Ångström"])
 

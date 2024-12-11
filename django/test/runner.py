@@ -56,6 +56,11 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
         super().startTest(test)
 
     def stopTest(self, test):
+        """
+        Stop the execution of a test case, cleaning up logging and output streams.
+
+        This method stops the current test, removes the logging handler, and if configured to show all output, it writes any pending SQL debug information to the main output stream, followed by a separator line, before finishing the test.
+        """
         super().stopTest(test)
         self.logger.removeHandler(self.handler)
         if self.showAll:
@@ -608,6 +613,18 @@ class Shuffler:
         return f"{self.seed!r} ({self.seed_source})"
 
     def _hash_item(self, item, key):
+        """
+
+        Compute the hash value for a given item using a provided key function.
+
+        This method generates a unique hash by combining the object's seed value with the result of applying the key function to the item.
+        The resulting string is then hashed using the internal text hashing mechanism.
+
+        :param item: The item to be hashed
+        :param key: A function that takes the item and returns a string to be used in the hashing process
+        :return: The computed hash value
+
+        """
         text = "{}{}".format(self.seed, key(item))
         return self._hash_text(text)
 
@@ -978,6 +995,16 @@ class DiscoverRunner:
             return PDBDebugResult
 
     def get_test_runner_kwargs(self):
+        """
+        Returns keyword arguments for test runner initialization.
+
+        This method aggregates various test runner configuration options, including 
+        whether to fail fast, the result class, verbosity level, and output buffering. 
+        It also conditionally includes test durations if running on Python 3.12 or later.
+
+        :return: A dictionary of keyword arguments to be used with a test runner.
+        :rtype: dict
+        """
         kwargs = {
             "failfast": self.failfast,
             "resultclass": self.get_resultclass(),

@@ -44,12 +44,48 @@ class JSONField(CheckFieldDefaultMixin, Field):
         super().__init__(verbose_name, name, **kwargs)
 
     def check(self, **kwargs):
+        """
+
+        Checks the configuration and returns a list of errors.
+
+        This method performs a validation check on the configuration, extending the 
+        base checking functionality with database-specific validation. It accepts 
+        a keyword argument 'databases' which should be a list of database names to 
+        be checked for support.
+
+        The method returns a list of error messages, where each message represents 
+        a problem found during the validation process. If no errors are found, an 
+        empty list is returned.
+
+        :param databases: Optional list of database names to validate against
+        :return: List of error messages
+
+        """
         errors = super().check(**kwargs)
         databases = kwargs.get("databases") or []
         errors.extend(self._check_supported(databases))
         return errors
 
     def _check_supported(self, databases):
+        """
+
+        Checks if a list of databases support the required features of a model.
+
+        This method iterates over a list of database aliases, checks if the current model
+        is allowed to be migrated to the database, and verifies the database connection
+        meets the model's requirements. Specifically, it checks if the database vendor
+        matches the model's required vendor and if the database supports JSON fields.
+
+        Any databases that do not meet these requirements will result in an error being
+        added to the returned list.
+
+        The errors returned include information about the database that failed to meet
+        the requirements, the model that was being checked, and a unique error ID.
+
+        :return: A list of errors encountered while checking database support.
+        :rtype: list[checks.Error]
+
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -337,6 +373,22 @@ class KeyTransform(Transform):
     postgres_nested_operator = "#>"
 
     def __init__(self, key_name, *args, **kwargs):
+        """
+
+        Initializes a new instance of the class.
+
+        :param key_name: The name of the key to be used.
+        :type key_name: str
+
+        This constructor sets up the key name for the instance and inherits the 
+        initialization behavior from the parent class by calling its constructor with 
+        the provided positional and keyword arguments.
+
+        Note:
+            The key_name parameter is explicitly converted to a string to ensure 
+            consistency in its type.
+
+        """
         super().__init__(*args, **kwargs)
         self.key_name = str(key_name)
 
@@ -455,6 +507,17 @@ class KeyTransformIsNull(lookups.IsNull):
         return "(NOT %s OR %s IS NULL)" % (sql, lhs), tuple(params) + tuple(lhs_params)
 
     def as_sqlite(self, compiler, connection):
+        """
+        ..:param compiler: The SQL compiler instance used to generate SQL.
+        :param connection: The database connection instance used to execute SQL.
+        :return: A SQL expression to check if a JSON value is NULL or NOT NULL.
+
+        This function generates a SQL expression that checks if a JSON value at a specified key or array index is NULL or NOT NULL.
+
+        The expression type (IS NULL or IS NOT NULL) is determined by the right-hand side value of the condition. If the right-hand side value is empty, the expression checks for NOT NULL; otherwise, it checks for NULL.
+
+        The generated SQL expression uses the JSON_TYPE function, which returns the type of the JSON value. The function then checks if the returned type is NULL, effectively determining whether the JSON value is NULL or NOT NULL.
+        """
         template = "JSON_TYPE(%s, %%s) IS NULL"
         if not self.rhs:
             template = "JSON_TYPE(%s, %%s) IS NOT NULL"

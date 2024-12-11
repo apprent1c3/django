@@ -295,6 +295,13 @@ class FileField(Field):
             return []
 
     def deconstruct(self):
+        """
+        Deconstructs the current instance into its constituent parts to facilitate serialization or other forms of persistence.
+
+        This method extends the deconstruction behavior of its parent class, modifying certain keyword arguments to conform to the instance's specific requirements. Specifically, it removes the 'max_length' keyword argument if its value is 100, and it ensures that the 'upload_to' and 'storage' keyword arguments are properly set, using the instance's own upload_to method and storage.
+
+        The deconstructed instance is returned as a tuple containing the name, path, position arguments, and keyword arguments that would be required to reconstruct it.
+        """
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 100:
             del kwargs["max_length"]

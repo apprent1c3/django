@@ -758,6 +758,20 @@ class ModelAdmin(BaseModelAdmin):
 
     @property
     def media(self):
+        """
+
+        Returns media required for the admin interface, including JavaScript files.
+
+        The JavaScript files included are:
+        - jQuery and its initialization script
+        - Core and related object lookup functionality
+        - Action and URL handling scripts
+        - XRegExp library for regular expression matching
+
+        The files are served from the 'admin/js' directory. The '.min' suffix is
+        applied to the file names in production environments to enable minification.
+
+        """
         extra = "" if settings.DEBUG else ".min"
         js = [
             "vendor/jquery/jquery%s.js" % extra,

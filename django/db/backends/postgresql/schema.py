@@ -145,6 +145,35 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     ):
         # Drop indexes on varchar/text/citext columns that are changing to a
         # different type.
+        """
+        .. method:: _alter_column_type_sql(self, model, old_field, new_field, new_type, old_collation, new_collation)
+
+           Alters the type of a database column while considering factors such as 
+           index constraints and auto field changes.
+
+           This method first checks if the column type change requires the deletion 
+           of any indexes due to changes in the field's type, such as from 'varchar' 
+           to a non-'varchar' type. If necessary, it then deletes the index.
+
+           It then builds an SQL query to alter the column type by replacing the 
+           column name and type in the query string with the actual names and types 
+           from the `new_field` and `old_field` parameters.
+
+           Depending on the types of `old_field` and `new_field`, this method may 
+           need to handle changes to auto fields, including adding or dropping 
+           identity, and updating sequence types. It delegates to the superclass's 
+           method to perform the actual SQL alteration in cases where auto field 
+           handling is not required.
+
+           :param model: The model containing the field to be altered
+           :param old_field: The original field to be altered
+           :param new_field: The new field with the desired type and properties
+           :param new_type: The new type of the field
+           :param old_collation: The original collation of the field
+           :param new_collation: The new collation of the field
+           :return: A tuple containing the SQL query to alter the column and a list 
+                    of other SQL queries to be executed as part of the alteration process
+        """
         old_db_params = old_field.db_parameters(connection=self.connection)
         old_type = old_db_params["type"]
         if (old_field.db_index or old_field.unique) and (
@@ -356,6 +385,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def _is_collation_deterministic(self, collation_name):
+        """
+        Checks if a specified PostgreSQL collation is deterministic.
+
+        Deterministic collations are those that always return the same result given the same input, 
+        without regard to the system's locale or other external factors. 
+
+        :param collation_name: The name of the PostgreSQL collation to check.
+        :returns: True if the collation is deterministic, False otherwise, or None if the collation does not exist.
+        """
         with self.connection.cursor() as cursor:
             cursor.execute(
                 """

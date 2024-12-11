@@ -520,6 +520,18 @@ class RenameModel(ModelOperation):
         return "rename_%s_%s" % (self.old_name_lower, self.new_name_lower)
 
     def reduce(self, operation, app_label):
+        """
+
+        Reduces a given model operation by checking if it can be simplified or removed.
+
+        The reduction process checks if the provided operation is a RenameModel and if it
+        matches the current model's name. If a match is found, the function returns a new
+        RenameModel operation with the updated name. Otherwise, it delegates the reduction
+        to the parent class and checks if the operation references the current model's new
+        name. If no reference is found, the function returns True, indicating that the
+        operation can be removed.
+
+        """
         if (
             isinstance(operation, RenameModel)
             and self.new_name_lower == operation.old_name_lower

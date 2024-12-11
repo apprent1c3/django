@@ -53,6 +53,27 @@ class CodeLocator(ast.NodeVisitor):
 
 @functools.lru_cache(maxsize=1024)
 def get_locator(file):
+    """
+
+    Returns a CodeLocator object for a given file.
+
+    This function reads the contents of the provided file, assuming it is encoded in UTF-8, 
+    and uses this content to create a CodeLocator instance.
+
+    The function is optimized for performance using an LRU cache, which stores the results 
+    of up to 1024 recent function calls to avoid redundant computation.
+
+    Parameters
+    ----------
+    file : object
+        A file object that supports reading its contents.
+
+    Returns
+    -------
+    CodeLocator
+        A CodeLocator instance representing the provided file.
+
+    """
     file_contents = file.read_text(encoding="utf-8")
     return CodeLocator.from_code(file_contents)
 
@@ -65,6 +86,19 @@ def module_name_to_file_path(module_name):
     # Avoid importlib machinery as locating a module involves importing its
     # parent, which would trigger import side effects.
 
+    """
+    Returns the file path for a given module name.
+
+    The function searches for a Python file or an __init__.py file within a package 
+    with a name matching the provided module name. It checks for the existence of the 
+    file in the parent directory hierarchy of the current file. If a matching file 
+    is found, its path is returned; otherwise, a CodeNotFound exception is raised.
+
+    :param module_name: The name of the module to search for.
+    :raises CodeNotFound: If no matching file is found.
+    :return: The file path of the module if found.
+    :rtype: pathlib.Path
+    """
     for suffix in [".py", "/__init__.py"]:
         file_path = pathlib.Path(__file__).parents[2] / (
             module_name.replace(".", "/") + suffix

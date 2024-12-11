@@ -343,6 +343,17 @@ class IntegerField(Field):
         return value
 
     def widget_attrs(self, widget):
+        """
+        Extend the widget attributes for a given widget, adding additional properties for NumberInput widgets.
+
+        This method first retrieves the base widget attributes from the parent class. If the widget is an instance of NumberInput, it then appends the following attributes if they are defined: 
+
+        * min: the minimum allowed value
+        * max: the maximum allowed value
+        * step: the step size between allowed values
+
+        The updated attributes are then returned, allowing for customization of NumberInput widgets based on the class properties. 
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput):
             if self.min_value is not None:
@@ -440,6 +451,19 @@ class DecimalField(IntegerField):
             )
 
     def widget_attrs(self, widget):
+        """
+        Enhances the attributes of a widget with additional validation settings.
+
+        Specifically, this method ensures that NumberInput widgets have a 'step'
+        attribute, controlling the granularty of user input. If the 'step' attribute is
+        not already set on the widget, it will be automatically configured based on the
+        decimal places setting. This allows for precise control over user input, helping
+        to prevent invalid data from being entered.
+
+        Returns:
+            dict: The updated attributes of the widget.
+
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput) and "step" not in widget.attrs:
             if self.decimal_places is not None:
@@ -840,6 +864,22 @@ class BooleanField(Field):
             raise ValidationError(self.error_messages["required"], code="required")
 
     def has_changed(self, initial, data):
+        """
+
+        Checks if the provided data has changed compared to the initial value.
+
+        This method takes into account the disabled state of the object. If the object is disabled, 
+        it will always return False, indicating no change.
+
+        The comparison is performed by converting both the initial and current data to their Python 
+        representation using the :meth:`to_python` method, and then checking for equality.
+
+        :param initial: The initial value to compare against.
+        :param data: The current value to check for changes.
+        :rtype: bool
+        :return: True if the data has changed, False otherwise.
+
+        """
         if self.disabled:
             return False
         # Sometimes data or initial may be a string equivalent of a boolean
@@ -1036,6 +1076,19 @@ class TypedMultipleChoiceField(MultipleChoiceField):
         return self._coerce(value)
 
     def validate(self, value):
+        """
+        )rassandra068. 'validate(value)`,
+            Validate the input value against the validation rules defined in the parent class.
+
+            Args:
+                value: The input value to be validated.
+
+            Raises:
+                ValidationError: If the input value is empty and the field is required, or if the parent class validation fails.
+
+            Note:
+                If the input value is not empty, the validation rules from the parent class are applied. If the input value is empty and the field is required, a ValidationError is raised with a 'required' code.
+        """
         if value != self.empty_value:
             super().validate(value)
         elif self.required:
@@ -1048,6 +1101,14 @@ class ComboField(Field):
     """
 
     def __init__(self, fields, **kwargs):
+        """
+        Initializes an instance of the class with the given fields.
+
+        :param fields: A list of fields to be associated with the instance.
+        :keyword kwargs: Additional keyword arguments to be passed to the parent class.
+
+        This method sets up the instance by storing the provided fields and marking each field as not required. The fields are stored in the `fields` attribute of the instance, allowing for easy access and manipulation. Additional keyword arguments are passed to the parent class's constructor using `super().__init__()` to ensure proper initialization of the parent class's attributes and behavior.
+        """
         super().__init__(**kwargs)
         # Set 'required' to False on the individual fields, because the
         # required validation will be handled by ComboField, not by those
@@ -1366,6 +1427,19 @@ class JSONField(CharField):
         super().__init__(**kwargs)
 
     def to_python(self, value):
+        """
+        Converts a given value to its Python representation.
+
+        This function takes a value as input and returns its equivalent Python object.
+        If the input value is already a Python object (list, dict, int, float, or a custom JSONString),
+        it is returned as is. Otherwise, the function attempts to parse the value as a JSON string.
+        If parsing fails, a ValidationError is raised. If the parsed value is a string, it is wrapped in a JSONString object.
+        The function also handles empty values and disabled state, in which case the original value or None is returned respectively.
+
+        :param value: The value to be converted
+        :rtype: The Python representation of the input value
+        :raises ValidationError: If the input value cannot be parsed as JSON
+        """
         if self.disabled:
             return value
         if value in self.empty_values:
