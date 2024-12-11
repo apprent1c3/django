@@ -13,6 +13,16 @@ class GenericIPAddressFieldTest(SimpleTestCase):
     def test_generic_ipaddress_as_generic(self):
         # The edge cases of the IPv6 validation code are not deeply tested
         # here, they are covered in the tests for django.utils.ipv6
+        """
+        Tests the validation behavior of a GenericIPAddressField.
+
+        This test case ensures that the GenericIPAddressField correctly handles various input scenarios, including:
+        - Required field checks: verifies that the field raises a validation error when left blank or set to None.
+        - IP address format validation: checks that the field accepts valid IPv4 and IPv6 addresses, and raises an error for invalid addresses.
+        - Edge cases: tests the field's behavior with malformed IP addresses, such as those with too many or too few decimal points, or those with out-of-range values.
+        - IPv6 address validation: specifically tests the field's handling of IPv6 addresses, including valid and invalid formats.
+        - Input normalization: verifies that the field correctly trims whitespace from input IP addresses.
+        """
         f = GenericIPAddressField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -63,6 +73,18 @@ class GenericIPAddressFieldTest(SimpleTestCase):
             f.clean("1:2")
 
     def test_generic_ipaddress_as_ipv4_only(self):
+        """
+
+            Tests the validation of the GenericIPAddressField when restricted to IPv4 protocol.
+
+            Ensures the field requires input and correctly validates the format of IPv4 addresses.
+            Invalid input, including empty strings, None, and invalid IPv4 addresses, raises a ValidationError
+            with a descriptive error message. The function also checks for incorrect IPv4 address formats,
+            such as those containing too many or too few parts, out-of-range values, and IPv6 addresses.
+
+            The function verifies that valid IPv4 addresses are cleaned and returned in their normalized form.
+
+        """
         f = GenericIPAddressField(protocol="IPv4")
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -83,6 +105,12 @@ class GenericIPAddressFieldTest(SimpleTestCase):
             f.clean("2a02::223:6cff:fe8a:2e8a")
 
     def test_generic_ipaddress_as_ipv6_only(self):
+        """
+        This method tests the validation behavior of a GenericIPAddressField when configured to only accept IPv6 addresses.
+        It verifies that the field correctly raises a ValidationError for empty, null, or invalid values.
+        It checks that the field accepts and normalizes valid IPv6 addresses, removing any leading or trailing whitespace.
+        It also checks that the field rejects invalid IPv6 addresses, including those with incorrect syntax, invalid characters, or insufficient or excessive parts.
+        """
         f = GenericIPAddressField(protocol="IPv6")
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")

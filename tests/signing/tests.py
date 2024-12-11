@@ -28,6 +28,18 @@ class TestSigner(SimpleTestCase):
             self.assertNotEqual(signer.signature(s), signer2.signature(s))
 
     def test_signature_with_salt(self):
+        """
+
+        Test the signature generation functionality of the Signer class with a salt value.
+
+        This function verifies that the Signer class generates the correct signature for a given input string
+        when a salt value is provided. It also checks that different salt values result in distinct signatures.
+
+        The test covers the following scenarios:
+        - Verifies that the generated signature matches the expected signature calculated using the base64_hmac function.
+        - Confirms that using different salt values produces unique signatures, even when the key and input string remain the same.
+
+        """
         signer = signing.Signer(key="predictable-secret", salt="extra-salt")
         self.assertEqual(
             signer.signature("hello"),
@@ -44,6 +56,16 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_custom_algorithm(self):
+        """
+        Tests a custom signing algorithm using the SHA-512 hashing function.
+
+        Verifies that the implemented signing algorithm produces the expected signature
+        when given a predictable secret key and a specific input string.
+
+        The test case checks the correctness of the signing process by comparing the
+        generated signature with a known, pre-computed value. This ensures that the
+        custom signing algorithm is functioning as intended and producing consistent results.
+        """
         signer = signing.Signer(key="predictable-secret", algorithm="sha512")
         self.assertEqual(
             signer.signature("hello"),
@@ -52,6 +74,9 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_invalid_algorithm(self):
+        """
+        Tests that passing an invalid algorithm to the signer raises an InvalidAlgorithm exception with a descriptive error message.
+        """
         signer = signing.Signer(key="predictable-secret", algorithm="whatever")
         msg = "'whatever' is not an algorithm accepted by the hashlib module."
         with self.assertRaisesMessage(InvalidAlgorithm, msg):
@@ -74,6 +99,19 @@ class TestSigner(SimpleTestCase):
             self.assertEqual(example, signer.unsign(signed))
 
     def test_sign_unsign_non_string(self):
+        """
+        Tests the ability of the Signer class to sign and unsign non-string values.
+
+        This test case ensures that the Signer class can handle values of various data types, 
+        including integers, floats, booleans, and dates. It verifies that the signed value 
+        is a string, and that it can be successfully unsignned back to its original string 
+        representation.
+
+        The test checks the following conditions:
+        - The signed value is a string
+        - The signed value is different from the original value
+        - The unsigning process correctly restores the original value as a string
+        """
         signer = signing.Signer(key="predictable-secret")
         values = [
             123,
@@ -161,6 +199,16 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_valid_sep(self):
+        """
+
+        Test the signing functionality with various separators.
+
+        This test checks whether the Signer class correctly handles different separator values.
+        It verifies that the signature generated for a given input string matches the expected output,
+        regardless of the separator used. The test covers multiple separator values to ensure
+        the signing functionality is consistent across different scenarios.
+
+        """
         separators = ["/", "*sep*", ","]
         for sep in separators:
             signer = signing.Signer(key="predictable-secret", sep=sep)
@@ -180,6 +228,17 @@ class TestSigner(SimpleTestCase):
                 signing.Signer(sep=sep)
 
     def test_verify_with_non_default_key(self):
+        """
+
+         Tests the verification process of a signed value using a signer with a non-default key.
+
+         This test case ensures that a value signed with a key can be successfully verified by a signer 
+         configured with a new key and a list of fallback keys, including the original signing key.
+
+         The test validates the ability of the signer to handle key rotation and verification of values 
+         signed with a previous key, providing a seamless transition to a new key.
+
+        """
         old_signer = signing.Signer(key="secret")
         new_signer = signing.Signer(
             key="newsecret", fallback_keys=["othersecret", "secret"]
@@ -198,6 +257,14 @@ class TestSigner(SimpleTestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_sign_unsign_ignore_secret_key_fallbacks(self):
+        """
+        Tests the behavior of the signing system when ignoring secret key fallbacks.
+
+        This test case verifies that when a signed value is created using an old secret key, 
+        it cannot be unsigned using the current signing system when the fallback keys are explicitly ignored.
+
+        It checks that a BadSignature exception is raised in this scenario, ensuring the signing system's security and integrity.
+        """
         old_signer = signing.Signer(key="oldsecret")
         signed = old_signer.sign("abc")
         signer = signing.Signer(fallback_keys=[])
@@ -236,6 +303,12 @@ class TestTimestampSigner(SimpleTestCase):
 
 class TestBase62(SimpleTestCase):
     def test_base62(self):
+        """
+        ..: Tests the base62 encoding and decoding functionality to ensure it works correctly for a range of integers.
+
+            The test applies to both positive and negative numbers, including extremely large values and a sequence of numbers around zero.
+            It verifies that decoding a number that was previously encoded using base62 results in the original number, thus validating the correctness of the encoding and decoding process.
+        """
         tests = [-(10**10), 10**10, 1620378259, *range(-100, 100)]
         for i in tests:
             self.assertEqual(i, signing.b62_decode(signing.b62_encode(i)))

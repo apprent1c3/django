@@ -79,6 +79,20 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
         self.failures[-1] = self.failures[-1] + (self.debug_sql_stream.read(),)
 
     def addSubTest(self, test, subtest, err):
+        """
+        Adds a subtest to the current test and handles any errors that may occur.
+
+        If an error is encountered, the function updates the last error or failure
+        in the list by appending the contents of the debug SQL stream. The debug SQL
+        stream is reset to the beginning before reading its contents.
+
+        This allows for detailed debugging information to be included in test
+        results, providing valuable insights into the cause of any failures or errors.
+
+        :param test: The test to which the subtest is being added.
+        :param subtest: The subtest to be added.
+        :param err: Any error that occurred during the subtest, or None if no error occurred.
+        """
         super().addSubTest(test, subtest, err)
         if err is not None:
             self.debug_sql_stream.seek(0)
@@ -296,6 +310,17 @@ failure and get a correct traceback.
         super().addError(test, err)
 
     def addFailure(self, test, err):
+        """
+        Add a failure to the test case.
+
+        This method is invoked when a test fails, typically due to an assertion error or exception.
+        It records the failure event along with the index of the test that failed and the error message.
+        The error is also checked to ensure it can be pickled, i.e., serialized, which is necessary for certain testing frameworks.
+        Finally, it delegates the actual addition of the failure to the parent class, allowing for further processing or logging.
+
+        :param test: The test case object that failed
+        :param err: The error message or exception that caused the failure
+        """
         self.check_picklable(test, err)
         self.events.append(("addFailure", self.test_index, err))
         super().addFailure(test, err)
@@ -324,6 +349,35 @@ failure and get a correct traceback.
         # However we don't want tblib to be required for running the tests
         # when they pass or fail as expected. Drop the traceback when an
         # expected failure occurs.
+        """
+
+        Registers a test as an expected failure.
+
+        This function is used to mark a test as expected to fail. It takes in a test object and an error tuple, 
+        which typically contains information about the expected exception.
+
+        The function first checks if the test and error information are picklable, to ensure they can be 
+        properly serialized and stored. It then logs the addition of the expected failure and sends the 
+        information to the parent class for further processing.
+
+        Parameters
+        ----------
+        test : object
+            The test object being marked as an expected failure.
+        err : tuple
+            A tuple containing information about the expected exception, 
+            typically including the exception type and message.
+
+        Raises
+        ------
+        None
+
+        Notes
+        -----
+        This function is typically used in test suites where certain tests are known to fail and this failure 
+        is expected behavior.
+
+        """
         if tblib is None:
             err = err[0], err[1], None
         self.check_picklable(test, err)
@@ -854,6 +908,15 @@ class DiscoverRunner:
 
     @contextmanager
     def load_with_patterns(self):
+        """
+        A context manager that temporarily overrides the test name patterns used by the test loader.
+
+        This context manager allows you to load tests using custom patterns, while ensuring that the original patterns are restored when the context is exited.
+
+        Within the context, the test loader will use the custom patterns specified in `self.test_name_patterns` to discover and load tests. Once the context is exited, the original patterns (`self.test_loader.testNamePatterns`) are restored, regardless of whether an exception occurred or not.
+
+        Use this context manager when you need to load tests with specific patterns, while keeping the original patterns intact for other parts of your testing workflow. 
+        """
         original_test_name_patterns = self.test_loader.testNamePatterns
         self.test_loader.testNamePatterns = self.test_name_patterns
         try:

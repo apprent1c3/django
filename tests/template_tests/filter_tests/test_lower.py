@@ -14,6 +14,20 @@ class LowerTests(SimpleTestCase):
         }
     )
     def test_lower01(self):
+        """
+
+        Test the lower filter with autoescaping.
+
+        This test case verifies that the lower filter correctly converts strings to lowercase
+        and that autoescaping is properly handled for both escaped and unescaped input.
+
+        It checks if the filter can handle HTML special characters, such as ampersands (&),
+        and ensures that marked-safe strings are not modified.
+
+        The test expectation is for the output to be a string with both input values converted
+        to lowercase, with special characters preserved accordingly.
+
+        """
         output = self.engine.render_to_string(
             "lower01", {"a": "Apple & banana", "b": mark_safe("Apple &amp; banana")}
         )

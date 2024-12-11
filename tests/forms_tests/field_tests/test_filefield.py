@@ -81,6 +81,13 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_3(self):
+        """
+        Tests that the FileField allows empty files to be cleaned and validated successfully.
+
+        This test case checks if the clean method of a FileField instance returns a SimpleUploadedFile object when an empty file is passed, 
+        given that the allow_empty_file parameter is set to True. The purpose of this test is to ensure the correct behavior of the 
+        FileField when dealing with empty files, allowing for proper handling of such cases in file upload scenarios.
+        """
         f = FileField(allow_empty_file=True)
         self.assertIsInstance(
             f.clean(SimpleUploadedFile("name", b"")), SimpleUploadedFile
@@ -114,6 +121,13 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_disabled_has_changed(self):
+        """
+        Tests that a disabled FileField does not report changes.
+
+            Verifies that the has_changed method of a FileField returns False when the field is disabled,
+            regardless of the values being compared. This ensures that disabled fields do not trigger
+            unnecessary updates or actions.
+        """
         f = FileField(disabled=True)
         self.assertIs(f.has_changed("x", "y"), False)
 
@@ -127,6 +141,15 @@ class MultipleFileInput(FileInput):
 
 class MultipleFileField(FileField):
     def __init__(self, *args, **kwargs):
+        """
+
+        Initializes a new instance of the class.
+
+        This constructor allows for variable arguments and keyword arguments.
+        It sets a default widget to MultipleFileInput if not provided, allowing for the input of multiple files.
+        The initialization process then proceeds as in the parent class, passing through any arguments and keyword arguments.
+
+        """
         kwargs.setdefault("widget", MultipleFileInput())
         super().__init__(*args, **kwargs)
 
@@ -162,6 +185,21 @@ class MultipleFileFieldTest(SimpleTestCase):
 
     @unittest.skipUnless(HAS_PILLOW, "Pillow not installed")
     def test_file_multiple_validation(self):
+        """
+
+        Tests validation of multiple files using the MultipleFileField.
+
+        This test case covers two main scenarios:
+        - Successful validation of files with allowed image extensions (jpg, png, bmp).
+        - Validation failure for files with a forbidden extension, specifically a shell script (.sh), 
+          in different positions within the list of files to be validated.
+
+        The test verifies that the validation correctly identifies and rejects files with 
+        disallowed extensions, and that it allows files with permitted extensions to pass 
+        without raising any errors. The validation error message for disallowed extensions 
+        is also checked to ensure it matches the expected output.
+
+        """
         f = MultipleFileField(validators=[validate_image_file_extension])
 
         good_files = [

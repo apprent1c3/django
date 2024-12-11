@@ -4,6 +4,13 @@ from django.utils.hashable import make_hashable
 
 class TestHashable(SimpleTestCase):
     def test_equal(self):
+        """
+        Test the make_hashable function to ensure it correctly converts various types of Python objects into hashable forms.
+
+        The test cases cover a range of scenarios, including empty lists, tuples, dictionaries, sets, and frozensets, as well as more complex nested structures.
+
+        It verifies that the function produces the expected output for each test case, helping to guarantee the correctness and reliability of the make_hashable function in different contexts.
+        """
         tests = (
             ([], ()),
             (["a", 1], ("a", 1)),

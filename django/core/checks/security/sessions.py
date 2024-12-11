@@ -65,6 +65,21 @@ W015 = Warning(
 
 @register(Tags.security, deploy=True)
 def check_session_cookie_secure(app_configs, **kwargs):
+    """
+    Checks if the session cookie is set to secure mode in the application configuration.
+
+    This security check verifies the value of ``SESSION_COOKIE_SECURE`` setting to ensure 
+    it's set to ``True``, which is recommended to prevent session cookies from being 
+    transmitted over an insecure protocol (e.g., HTTP).
+
+    The check also examines the application's configuration to identify potential 
+    vulnerabilities related to session management, including the presence of certain 
+    session-related applications and middleware.
+
+    If the check finds any issues, it returns a list of error codes (``W010``, ``W011``, 
+    or ``W012``) indicating the specific problems detected. If the session cookie is 
+    correctly configured, an empty list is returned.
+    """
     if settings.SESSION_COOKIE_SECURE is True:
         return []
     errors = []

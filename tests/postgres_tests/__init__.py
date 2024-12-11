@@ -26,6 +26,14 @@ class PostgreSQLTestCase(TestCase):
             return row[0] if row else None
 
     def check_default_text_search_config(self):
+        """
+        Checks if the default text search configuration is set to 'english'.
+
+        This function verifies that the default text search configuration is 'pg_catalog.english'. 
+        If the configuration is not set to 'english', the test is skipped.
+
+        :raises: skipTest exception if the default text search configuration is not 'english'
+        """
         if self.default_text_search_config != "pg_catalog.english":
             self.skipTest("The default text search config is not 'english'.")
 

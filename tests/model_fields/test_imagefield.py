@@ -194,6 +194,23 @@ class ImageFieldTests(ImageFieldTestMixin, TestCase):
         self.assertEqual(p.mugshot.field, loaded_mugshot.field)
 
     def test_defer(self):
+        """
+
+        Tests the use of the defer method in a queryset to delay loading of specific fields.
+
+        The defer method allows for optimization of database queries by only loading the
+        necessary fields when they are actually required. This test case verifies that
+        the defer method correctly delays the loading of the 'mugshot' field and that
+        the field is loaded automatically when accessed.
+
+        It also checks that the queryset is properly evaluated and the results are
+        correctly stored, allowing for the use of deferred fields in subsequent
+        operations without requiring additional database queries. 
+
+        :raises AssertionError: If the defer method does not correctly delay the loading
+            of the 'mugshot' field or if the result of the queryset is not as expected.
+
+        """
         self.PersonModel.objects.create(name="Joe", mugshot=self.file1)
         with self.assertNumQueries(1):
             qs = list(self.PersonModel.objects.defer("mugshot"))
@@ -324,6 +341,13 @@ class ImageFieldNoDimensionsTests(ImageFieldTwoDimensionsTests):
     PersonModel = Person
 
     def test_post_init_not_connected(self):
+        """
+        Tests that the PersonModel is not connected to the post_init signal.
+
+        Verifies that after initialization, the model's ID is not present in the list of 
+        signal receivers, indicating that it has not been connected to the post_init signal.
+
+        """
         person_model_id = id(self.PersonModel)
         self.assertNotIn(
             person_model_id,
@@ -331,6 +355,14 @@ class ImageFieldNoDimensionsTests(ImageFieldTwoDimensionsTests):
         )
 
     def test_save_does_not_close_file(self):
+        """
+
+        Tests that saving a file object does not close the underlying file.
+
+        Verifies that after saving a file using the :meth:`save` method, the file remains open
+        and its current position is at the beginning, allowing for further operations.
+
+        """
         p = self.PersonModel(name="Joe")
         p.mugshot.save("mug", self.file1)
         with p.mugshot as f:
@@ -377,6 +409,11 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
     PersonModel = PersonTwoImages
 
     def test_constructor(self):
+        """
+        Tests the PersonModel constructor functionality, ensuring that it correctly 
+        initializes and saves instances with provided image files, specifically verifying 
+        the dimensions of the mugshot and headshot images before and after saving the model
+        """
         p = self.PersonModel(mugshot=self.file1, headshot=self.file2)
         self.check_dimensions(p, 4, 8, "mugshot")
         self.check_dimensions(p, 8, 4, "headshot")
@@ -385,6 +422,14 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, 8, 4, "headshot")
 
     def test_create(self):
+        """
+
+        Tests the creation of a PersonModel instance with associated images.
+
+        Creates a new PersonModel object with mugshot and headshot images, then verifies 
+        that the dimensions of the generated thumbnails match the expected sizes.
+
+        """
         p = self.PersonModel.objects.create(mugshot=self.file1, headshot=self.file2)
         self.check_dimensions(p, 4, 8)
         self.check_dimensions(p, 8, 4, "headshot")
@@ -410,6 +455,20 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, None, None, "headshot")
 
     def test_field_save_and_delete_methods(self):
+        """
+
+        Tests the save and delete functionality of the image fields in the PersonModel.
+
+        Verifies that saving an image to the model updates the corresponding field dimensions,
+        and that deleting an image removes the field dimensions. Also checks that the save 
+        parameter in the delete method affects whether the changes are persisted to the model.
+
+        The test covers the following scenarios:
+        - Saving and deleting images from the 'mugshot' and 'headshot' fields
+        - Verifying field dimensions after saving and deleting images
+        - Testing the effect of the 'save' parameter on the delete method
+
+        """
         p = self.PersonModel(name="Joe")
         p.mugshot.save("mug", self.file1)
         self.check_dimensions(p, 4, 8, "mugshot")
@@ -475,6 +534,14 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
 @skipIf(Image is None, "Pillow is required to test ImageField")
 class NoReadTests(ImageFieldTestMixin, TestCase):
     def test_width_height_correct_name_mangling_correct(self):
+        """
+        Tests the correct width and height of mugshot images for PersonNoReadImage instances.
+
+        Verifies that the width and height of the mugshot image are correctly set and persisted
+        after saving the instance. Additionally, checks that name mangling is correctly applied
+        when saving multiple instances with the same mugshot image, resulting in unique file names.
+        Ensures that the image dimensions remain consistent across instances, despite the unique file names.
+        """
         instance1 = PersonNoReadImage()
 
         instance1.mugshot.save("mug", self.file1)

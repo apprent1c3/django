@@ -47,6 +47,18 @@ class GenericRelationsTests(TestCase):
         return obj.tag, obj.content_type.model_class(), obj.object_id
 
     async def test_generic_async_acreate(self):
+        """
+
+        Tests the asynchronous creation of a new tag.
+
+        This test case verifies that the asynchronous creation operation
+        successfully adds a new tag to the existing collection and updates
+        the tag count accordingly.
+
+        The test creates a new tag with the name 'orange' and then asserts
+        that the total number of tags is incremented to 3.
+
+        """
         await self.bacon.tags.acreate(tag="orange")
         self.assertEqual(await self.bacon.tags.acount(), 3)
 
@@ -61,6 +73,16 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(count + 1, self.bacon.tags.count())
 
     def test_generic_update_or_create_when_created_with_create_defaults(self):
+        """
+
+        Tests the update_or_create method for a generic relationship when a new object is created.
+
+        The test verifies that when update_or_create is called with create defaults, a new object is created with the specified default values.
+        It also checks that the created flag is set to True and that the count of related objects is incremented by one.
+
+        This test case covers the scenario where a new object is created with default values, ensuring that the update_or_create method behaves correctly in this situation.
+
+        """
         count = self.bacon.tags.count()
         tag, created = self.bacon.tags.update_or_create(
             # Since, the "stinky" tag doesn't exist create
@@ -89,6 +111,17 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(tag.tag, "juicy")
 
     def test_generic_update_or_create_when_updated_with_defaults(self):
+        """
+
+        Tests the update_or_create method on a generic relation when default values are provided.
+
+        The test creates a new tag instance and then attempts to update it using the update_or_create method,
+        providing default values for both create and update scenarios.
+
+        It verifies that the update operation is successful by checking that the instance was not re-created,
+        the total count of tags remains the same, and the tag's attribute has been updated with the new value.
+
+        """
         count = self.bacon.tags.count()
         tag = self.bacon.tags.create(tag="stinky")
         self.assertEqual(count + 1, self.bacon.tags.count())
@@ -100,6 +133,19 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(tag.tag, "juicy")
 
     async def test_generic_async_aupdate_or_create(self):
+        """
+
+        Tests the asynchronous update or create functionality for tags.
+
+        This test case exercises the aupdate_or_create method by attempting to update an existing tag and then create a new one.
+        It verifies that the correct tag is returned, that the creation flag is set accordingly, and that the tag count is updated as expected.
+
+        The test checks the following scenarios:
+
+        * Updating an existing tag with a given id, verifying that the tag's attributes are updated correctly and that the creation flag is set to False.
+        * Creating a new tag, verifying that the creation flag is set to True and that the tag count is incremented correctly.
+
+        """
         tag, created = await self.bacon.tags.aupdate_or_create(
             id=self.fatty.id, defaults={"tag": "orange"}
         )
@@ -332,6 +378,19 @@ class GenericRelationsTests(TestCase):
         )
 
     def test_add_bulk(self):
+        """
+
+        Tests the addition of multiple tags to an object in bulk.
+
+        Verifies that the tags are correctly associated with the object and 
+        that the database operations are performed efficiently, 
+        specifically within a single query.
+
+        This test covers the scenario where multiple existing tags are 
+        added to a newly created object, ensuring data consistency and 
+        Database query optimization. 
+
+        """
         bacon = Vegetable.objects.create(name="Bacon", is_yucky=False)
         t1 = TaggedItem.objects.create(content_object=self.quartz, tag="shiny")
         t2 = TaggedItem.objects.create(content_object=self.quartz, tag="clearish")
@@ -342,6 +401,20 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(t2.content_object, bacon)
 
     def test_add_bulk_false(self):
+        """
+
+        Tests the ability to add multiple tags to an object without using bulk operations.
+
+        Verifies that when adding multiple tags to an object with `bulk=False`, the 
+        operation correctly assigns the content object of each tag to the object being 
+        tagged. This test also checks that the database queries required to perform the 
+        operation are optimized, resulting in the expected number of queries.
+
+        The test case creates a new vegetable object and two tags, then adds these tags 
+        to the vegetable object with `bulk=False`, confirming the correct assignment 
+        of the tags and the number of database queries executed.
+
+        """
         bacon = Vegetable.objects.create(name="Bacon", is_yucky=False)
         t1 = TaggedItem.objects.create(content_object=self.quartz, tag="shiny")
         t2 = TaggedItem.objects.create(content_object=self.quartz, tag="clearish")
@@ -352,6 +425,13 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(t2.content_object, bacon)
 
     def test_add_rejects_unsaved_objects(self):
+        """
+        Tests that adding an unsaved TaggedItem instance to a Taggable object's tags raises a ValueError.
+
+        The function checks that attempting to add an instance of TaggedItem that has not been saved to the database results in the expected error message, which instructs the user to either save the object first or use bulk=False.
+
+        This test ensures the integrity of the data by preventing unsaved objects from being added to the tags, thus maintaining consistency in the database.
+        """
         t1 = TaggedItem(content_object=self.quartz, tag="shiny")
         msg = (
             "<TaggedItem: shiny> instance isn't saved. Use bulk=False or save the "
@@ -361,6 +441,14 @@ class GenericRelationsTests(TestCase):
             self.bacon.tags.add(t1)
 
     def test_add_rejects_wrong_instances(self):
+        """
+
+        Tests that attempting to add an incorrect type of instance to a tag collection raises a TypeError.
+
+        The function verifies that only instances of 'TaggedItem' can be added to a tag collection, 
+        and that adding any other type of instance will result in an error with a specific message.
+
+        """
         msg = "'TaggedItem' instance expected, got <Animal: Lion>"
         with self.assertRaisesMessage(TypeError, msg):
             self.bacon.tags.add(self.lion)
@@ -373,6 +461,20 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(await bacon.tags.acount(), 2)
 
     def test_set(self):
+        """
+        Tests the functionality of setting tags for a Vegetable object.
+
+        This test creates a Vegetable instance and several associated tags, then checks 
+        that the set() method correctly updates the tags associated with the object. It 
+        covers various scenarios, including setting multiple tags, a single tag, and an 
+        empty list of tags, as well as using the bulk and clear parameters to control 
+        how the tags are updated.
+
+        The test verifies that the set() method behaves as expected in different cases, 
+        such as replacing existing tags, adding new tags, and removing all tags. It 
+        ensures that the tags are correctly updated and that the resulting set of tags 
+        matches the expected outcome.
+        """
         bacon = Vegetable.objects.create(name="Bacon", is_yucky=False)
         fatty = bacon.tags.create(tag="fatty")
         salty = bacon.tags.create(tag="salty")
@@ -396,6 +498,21 @@ class GenericRelationsTests(TestCase):
         self.assertSequenceEqual(bacon.tags.all(), [])
 
     async def test_aset(self):
+        """
+
+        Tests the functionality of setting a list of associated objects in bulk or individually.
+
+        This test case covers the following scenarios:
+
+        * Creating an object and its associated tags
+        * Setting a list of associated tags for an object
+        * Verifying the correct count of associated tags after setting
+        * Clearing all associated tags for an object
+        * Setting a single associated tag for an object with the bulk option disabled
+
+        The test ensures that the `aset` method correctly manages the associated objects and handles bulk operations as expected. 
+
+        """
         bacon = await Vegetable.objects.acreate(name="Bacon", is_yucky=False)
         fatty = await bacon.tags.acreate(tag="fatty")
         await bacon.tags.aset([fatty])
@@ -406,6 +523,14 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(await bacon.tags.acount(), 1)
 
     def test_assign(self):
+        """
+
+        Tests the assignment of tags to a vegetable object.
+
+        Checks that tags can be correctly created and assigned to a vegetable,
+        and that the vegetable's tag set can be updated, added to, or cleared.
+
+        """
         bacon = Vegetable.objects.create(name="Bacon", is_yucky=False)
         fatty = bacon.tags.create(tag="fatty")
         salty = bacon.tags.create(tag="salty")
@@ -423,6 +548,20 @@ class GenericRelationsTests(TestCase):
         # Querysets used in reverse GFK assignments are pre-evaluated so their
         # value isn't affected by the clearing operation
         # in ManyRelatedManager.set() (#19816).
+        """
+
+        Tests the assignment of a queryset to a model's many-to-many field.
+
+        This test case checks the functionality of replacing the existing many-to-many relationships 
+        of a model instance with a new set of relationships specified by a queryset. It verifies that 
+        the previously associated objects are correctly removed and the new objects are associated 
+        as expected.
+
+        The test creates a Vegetable instance with multiple tags, then replaces the tags with a 
+        queryset containing only one of the existing tags, and asserts that the Vegetable instance 
+        is correctly updated with the new set of tags.
+
+        """
         bacon = Vegetable.objects.create(name="Bacon", is_yucky=False)
         bacon.tags.create(tag="fatty")
         bacon.tags.create(tag="salty")
@@ -435,6 +574,17 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(1, qs.count())
 
     def test_clear(self):
+        """
+        Tests the clear method of the tags attribute on the Bacon object.
+
+        Verifies that the tags are correctly removed from the Bacon object and 
+        that the TaggedItem query is updated accordingly, ensuring that the 
+        correct items are returned after clearing the tags.
+
+        This test case ensures data consistency and correct behavior of the 
+        tags attribute after clearing, covering both the object's tags and the 
+        related TaggedItem objects. 
+        """
         self.assertSequenceEqual(
             TaggedItem.objects.order_by("tag"),
             [self.fatty, self.hairy, self.salty, self.yellow],
@@ -447,10 +597,23 @@ class GenericRelationsTests(TestCase):
         )
 
     async def test_aclear(self):
+        """
+
+        Tests that the asynchronous clear operation removes all tags.
+
+        This test case verifies that after calling the asynchronous clear operation,
+        there are no tags left, ensuring the tags are properly cleared.
+
+        """
         await self.bacon.tags.aclear()
         self.assertEqual(await self.bacon.tags.acount(), 0)
 
     def test_remove(self):
+        """
+        Tests the removal of a tag from a tagged item, verifying that the item's tag list is updated correctly and the overall tag ordering remains consistent.
+
+        Checks that removing a tag from a tagged item results in the expected changes to the item's tags and the overall sequence of tagged items, ensuring data integrity and correct behavior of the tagging system.
+        """
         self.assertSequenceEqual(
             TaggedItem.objects.order_by("tag"),
             [self.fatty, self.hairy, self.salty, self.yellow],
@@ -463,6 +626,13 @@ class GenericRelationsTests(TestCase):
         )
 
     async def test_aremove(self):
+        """
+        Tests the asynchronous removal of tags from an object.
+
+        This test case verifies that removing tags one by one decreases the total tag count as expected.
+        It covers the scenario where all tags are removed, ensuring the count reaches zero after the last tag is removed.
+        The test provides a basic sanity check for the aremove functionality, ensuring it behaves correctly and updates the tag count accordingly.
+        """
         await self.bacon.tags.aremove(self.fatty)
         self.assertEqual(await self.bacon.tags.acount(), 1)
         await self.bacon.tags.aremove(self.salty)
@@ -470,6 +640,15 @@ class GenericRelationsTests(TestCase):
 
     def test_generic_relation_related_name_default(self):
         # GenericRelation isn't usable from the reverse side by default.
+        """
+        ..: 
+            Tests the default behavior of the related_name attribute for generic relations.
+
+            Verifies that attempting to filter on a non-existent related name 'vegetable' 
+            raises a FieldError with a message indicating the available choices for the 
+            related field. This ensures that the default related_name for generic 
+            relations is correctly set and enforced by the ORM.
+        """
         msg = (
             "Cannot resolve keyword 'vegetable' into field. Choices are: "
             "animal, content_object, content_type, content_type_id, id, "
@@ -481,6 +660,17 @@ class GenericRelationsTests(TestCase):
     def test_multiple_gfk(self):
         # Simple tests for multiple GenericForeignKeys
         # only uses one model, since the above tests should be sufficient.
+        """
+        Tests the functionality of creating and managing multiple Generalized Foreign Key (GFK) comparisons between animal objects.
+
+        This test case covers the creation of comparisons between different animal objects, 
+        filtering comparisons based on the comparative value, and deletion of comparisons and animal objects.
+        It verifies that comparisons are correctly associated with the respective animal objects and 
+        that they are properly removed when the associated objects are deleted or when comparisons are explicitly deleted.
+
+        The test case also checks for the correct count and sequence of comparisons after various operations, 
+        ensuring the integrity and consistency of the data in the Comparison model.
+        """
         tiger = Animal.objects.create(common_name="tiger")
         cheetah = Animal.objects.create(common_name="cheetah")
         bear = Animal.objects.create(common_name="bear")
@@ -526,6 +716,11 @@ class GenericRelationsTests(TestCase):
 
     def test_generic_relation_to_inherited_child(self):
         # GenericRelations to models that use multi-table inheritance work.
+        """
+        Tests the generic relation to an inherited child model, ensuring that tags are properly assigned and deleted. 
+
+        This test case creates a ValuableRock instance and assigns a tag to it. It then checks that the tagged instance can be filtered by both the tag's value and the tag itself. Finally, it verifies that when the related object is deleted, the tag is also removed, demonstrating the proper cleanup of related objects.
+        """
         granite = ValuableRock.objects.create(name="granite", hardness=5)
         ValuableTaggedItem.objects.create(
             content_object=granite, tag="countertop", value=1
@@ -577,6 +772,20 @@ class GenericRelationsTests(TestCase):
 
     def test_update_or_create_defaults(self):
         # update_or_create should work with virtual fields (content_object)
+        """
+
+        Tests the update_or_create method for TaggedItem objects.
+
+        This test function checks the behavior of the update_or_create method when creating
+        or updating a TaggedItem object. It verifies that the method correctly creates 
+        a new object when a matching tag does not exist, and updates the existing object 
+        when a matching tag already exists.
+
+        It specifically tests the scenario where two objects (Quartz and Diamond) are 
+        associated with a tag 'shiny', ensuring that the correct object is returned and 
+        updated accordingly.
+
+        """
         quartz = Mineral.objects.create(name="Quartz", hardness=7)
         diamond = Mineral.objects.create(name="Diamond", hardness=7)
         tag, created = TaggedItem.objects.update_or_create(
@@ -612,6 +821,16 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(tag.content_object.id, diamond.id)
 
     def test_query_content_type(self):
+        """
+        Tests that querying a model instance with an invalid content object raises a FieldError.
+
+        This test case verifies that attempting to retrieve a TaggedItem instance using a content object
+        that does not generate an automatic reverse relation results in the expected error message.
+
+        The assertion ensures that a FieldError is raised with a message indicating that the 'content_object'
+        field does not generate an automatic reverse relation, providing a safeguard against incorrect usage.
+
+        """
         msg = "Field 'content_object' does not generate an automatic reverse relation"
         with self.assertRaisesMessage(FieldError, msg):
             TaggedItem.objects.get(content_object="")
@@ -628,6 +847,11 @@ class GenericRelationsTests(TestCase):
 
     @skipUnlessDBFeature("has_bulk_insert")
     def test_unsaved_generic_foreign_key_parent_bulk_create(self):
+        """
+        Tests bulk creation of objects with unsaved generic foreign key parents to ensure it raises an error and prevents data loss. 
+
+        This test checks that attempting to bulk create a :class:`TaggedItem` instance with an unsaved :class:`Mineral` instance as its content object raises a :class:`ValueError` with a descriptive error message, thus preventing potential data loss due to the unsaved related object.
+        """
         quartz = Mineral(name="Quartz", hardness=7)
         tagged_item = TaggedItem(tag="shiny", content_object=quartz)
         msg = (
@@ -639,6 +863,17 @@ class GenericRelationsTests(TestCase):
 
     def test_cache_invalidation_for_content_type_id(self):
         # Create a Vegetable and Mineral with the same id.
+        """
+        Tests cache invalidation when the content type ID of a tagged item is updated.
+
+        This test case verifies that the cache is properly invalidated when the content type ID
+        associated with a tagged item is changed, ensuring that the correct content object
+        is retrieved after the update.
+
+        It covers a scenario where a tagged item is initially associated with an instance of
+        one model (e.g. Vegetable), and then its content type ID is updated to reference an
+        instance of a different model (e.g. Mineral).
+        """
         new_id = (
             max(
                 Vegetable.objects.order_by("-id")[0].id,
@@ -653,6 +888,15 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(tag.content_object, diamond)
 
     def test_cache_invalidation_for_object_id(self):
+        """
+        ..: 
+            Tests cache invalidation for object id in a tagged item.
+
+            This test ensures that when an object id is updated in a tagged item,
+            the cache is correctly invalidated and the new content object is returned.
+            It verifies that the relationship between the tagged item and its content object
+            is updated as expected after changing the object id.
+        """
         broccoli = Vegetable.objects.create(name="Broccoli")
         cauliflower = Vegetable.objects.create(name="Cauliflower")
         tag = TaggedItem.objects.create(content_object=broccoli, tag="yummy")
@@ -660,11 +904,28 @@ class GenericRelationsTests(TestCase):
         self.assertEqual(tag.content_object, cauliflower)
 
     def test_assign_content_object_in_init(self):
+        """
+        '''Test the assignment of a content object to a TaggedItem instance during initialization.
+
+        Verify that the content object assigned to the TaggedItem instance is correctly stored
+        and retrievable as an attribute. This test ensures that the content object, in this
+        case a Vegetable instance, is properly linked to the TaggedItem instance when created.'''
+        """
         spinach = Vegetable(name="spinach")
         tag = TaggedItem(content_object=spinach)
         self.assertEqual(tag.content_object, spinach)
 
     def test_create_after_prefetch(self):
+        """
+        Tests the create functionality of a model instance's related objects after prefetching.
+
+        This function verifies that creating a new related object after prefetching the original object's relations
+        works correctly. It checks that the new object is successfully added to the original object's relation set
+        and that the updated relation set is correctly reflected.
+
+        The test case covers the scenario where a new related object is created and added to a previously prefetched
+        relation, ensuring data consistency and correct behavior of the ORM's relation management functionality.
+        """
         platypus = Animal.objects.prefetch_related("tags").get(pk=self.platypus.pk)
         self.assertSequenceEqual(platypus.tags.all(), [])
         weird_tag = platypus.tags.create(tag="weird")
@@ -678,6 +939,22 @@ class GenericRelationsTests(TestCase):
         self.assertSequenceEqual(platypus.tags.all(), [weird_tag])
 
     def test_remove_after_prefetch(self):
+        """
+
+        Tests the removal of a tag from an Animal instance after prefetching its tags.
+
+        This test case verifies that the removal of a tag is correctly reflected in the 
+        prefetched tags of an Animal instance. It checks that the tag is initially 
+        associated with the Animal instance, and then confirms that the tag is no longer 
+        associated after removal.
+
+        The test covers the following scenarios:
+        - The initial association of a tag with an Animal instance
+        - The prefetching of tags for an Animal instance
+        - The removal of a tag from an Animal instance
+        - The verification that the removed tag is no longer associated with the Animal instance
+
+        """
         weird_tag = self.platypus.tags.create(tag="weird")
         platypus = Animal.objects.prefetch_related("tags").get(pk=self.platypus.pk)
         self.assertSequenceEqual(platypus.tags.all(), [weird_tag])
@@ -685,6 +962,13 @@ class GenericRelationsTests(TestCase):
         self.assertSequenceEqual(platypus.tags.all(), [])
 
     def test_clear_after_prefetch(self):
+        """
+
+        Tests that clearing a set of prefetched many-to-many related objects effectively removes all objects from the set.
+
+        This test verifies that after prefetching related objects, clearing the set of objects has the expected effect of removing all objects from the set.
+
+        """
         weird_tag = self.platypus.tags.create(tag="weird")
         platypus = Animal.objects.prefetch_related("tags").get(pk=self.platypus.pk)
         self.assertSequenceEqual(platypus.tags.all(), [weird_tag])
@@ -702,6 +986,20 @@ class GenericRelationsTests(TestCase):
         self.assertSequenceEqual(platypus.tags.all(), [weird_tag])
 
     def test_add_then_remove_after_prefetch(self):
+        """
+
+        Test adding and removing a tag from a prefetched many-to-many relationship.
+
+        This test validates the behavior of adding and removing tags to an `Animal` object
+        after it has been prefetched. It ensures that the changes are properly reflected
+        in the prefetched relationship.
+
+        The test covers the following scenarios:
+
+        * Adding a tag to a prefetched object and verifying the updated relationship.
+        * Removing a tag from a prefetched object and verifying the updated relationship.
+
+        """
         furry_tag = self.platypus.tags.create(tag="furry")
         platypus = Animal.objects.prefetch_related("tags").get(pk=self.platypus.pk)
         self.assertSequenceEqual(platypus.tags.all(), [furry_tag])
@@ -749,6 +1047,16 @@ class GenericRelationsTests(TestCase):
             )
 
     def test_generic_prefetch(self):
+        """
+
+        Tests the GenericPrefetch functionality to prefetch related objects.
+
+        This test creates two tagged items, one related to a vegetable and one to an animal,
+        and then uses GenericPrefetch to fetch the related objects. It verifies that the
+        related objects are prefetched correctly by checking the number of database queries
+        made when accessing their attributes.
+
+        """
         tagged_vegetable = TaggedItem.objects.create(
             tag="great", content_object=self.bacon
         )
@@ -826,6 +1134,16 @@ class ProxyRelatedModelTest(TestCase):
         self.assertEqual(rel, ConcreteRelatedModel.objects.get(bases__id=base.id))
 
     def test_query_proxy(self):
+        """
+
+        Test the query functionality of the proxy model.
+
+        Checks that an instance of :class:`ProxyRelatedModel` is correctly associated 
+        with an instance of :class:`ForProxyModelModel`, and that this association can 
+        be queried. This ensures that the proxy model is correctly set up and can be 
+        used to retrieve related objects.
+
+        """
         base = ForProxyModelModel()
         base.obj = rel = ProxyRelatedModel.objects.create()
         base.save()
@@ -833,6 +1151,15 @@ class ProxyRelatedModelTest(TestCase):
         self.assertEqual(rel, ProxyRelatedModel.objects.get(bases__id=base.id))
 
     def test_generic_relation(self):
+        """
+        Tests the generic relation between ForProxyModelModel and ProxyRelatedModel instances.
+
+        Verifies that after creating a new ProxyRelatedModel instance and associating it with a ForProxyModelModel,
+        the relationship is correctly established and can be queried in both directions.
+
+        Ensures that a ForProxyModelModel instance can be retrieved through its related ProxyRelatedModel instance,
+        confirming the integrity of the generic relation.
+        """
         base = ForProxyModelModel()
         base.obj = ProxyRelatedModel.objects.create()
         base.save()
@@ -856,6 +1183,15 @@ class TestInitWithNoneArgument(SimpleTestCase):
     def test_none_allowed(self):
         # AllowsNullGFK doesn't require a content_type, so None argument should
         # also be allowed.
+        """
+
+        Test that None is allowed as a content object for generic foreign keys.
+
+        This test case verifies that certain models, specifically those utilizing 
+        generic foreign keys, can successfully handle a content object of None.
+        It checks the behavior of these models when the content object is not provided.
+
+        """
         AllowsNullGFK(content_object=None)
         # TaggedItem requires a content_type but initializing with None should
         # be allowed.

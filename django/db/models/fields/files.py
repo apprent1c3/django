@@ -60,6 +60,18 @@ class FieldFile(File, AltersData):
 
     @property
     def path(self):
+        """
+        ..: 
+            Gets the path of the stored file.
+
+            Returns the full path where the file is stored, using the storage system's
+            path resolution. This property requires that a file is associated with the
+            instance, and will ensure that file existence checks are performed before
+            returning the path.
+
+            :return: The path of the stored file as a string.
+            :rtype: str
+        """
         self._require_file()
         return self.storage.path(self.name)
 
@@ -169,6 +181,24 @@ class FileDescriptor(DeferredAttribute):
     """
 
     def __get__(self, instance, cls=None):
+        """
+
+        Descriptor for a model field that handles file-related operations.
+
+        This method is responsible for retrieving or setting the value of a file field
+        for a given model instance. It ensures that the correct type of file object is
+        returned, and that the instance's dictionary is updated accordingly.
+
+        If the instance is None, the descriptor itself is returned. Otherwise, the method
+        delegates to the superclass to retrieve the file value, and then checks the type
+        of the file value. If it's a string or None, creates a new file attribute object
+        and updates the instance's dictionary. If it's a File object, creates a copy of the
+        file object if necessary and updates the instance's dictionary.
+
+        The method also handles cases where the file value is a FieldFile object, updating
+        its instance and field attributes as necessary.
+
+        """
         if instance is None:
             return self
 

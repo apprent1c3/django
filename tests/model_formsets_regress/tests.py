@@ -315,6 +315,19 @@ class FormsetTests(TestCase):
         self.assertIn('value="apollo12"', formset.extra_forms[1].as_p())
 
     def test_extraneous_query_is_not_run(self):
+        """
+        Tests that an extraneous database query is not executed when saving a formset.
+
+        This test case verifies that the database query count remains optimal when
+        processing a formset. It creates a formset instance with sample data, saves the
+        formset, and asserts that only a single database query is performed during the
+        save operation, ensuring efficient data processing and minimal database overhead.
+
+        The test specifically checks the behavior of a formset factory-generated formset
+        for the Network model, using all available fields. If the formset save operation
+        triggers multiple unnecessary queries, this test will fail, indicating potential
+        performance issues or incorrect query handling in the formset implementation.
+        """
         Formset = modelformset_factory(Network, fields="__all__")
         data = {
             "test-TOTAL_FORMS": "1",
@@ -347,6 +360,18 @@ class Callback:
         self.log = []
 
     def __call__(self, db_field, **kwargs):
+        """
+        Override the default form field creation process for a database field.
+
+        This method is used to generate a form field for a given database field, 
+        while also keeping a record of the field and any additional keyword arguments 
+        passed during the field creation process.
+
+        :param db_field: The database field for which to create a form field.
+        :param **kwargs: Additional keyword arguments to pass to the form field creation process.
+        :return: The form field instance created for the given database field.
+
+        """
         self.log.append((db_field, kwargs))
         return db_field.formfield(**kwargs)
 
@@ -377,6 +402,15 @@ class FormfieldCallbackTests(TestCase):
         self.assertTrue(form.fields["data"].localize)
 
     def assertCallbackCalled(self, callback):
+        """
+        Asserts that the given callback function has been called with the expected logging information.
+
+        This assertion checks the logging record of the provided callback function to ensure it matches the expected log data. 
+        The expected log data includes field names from the UserSite model and their corresponding widget settings.
+
+        :arg callback: The callback function to check for expected logging information.
+        :raises AssertionError: If the callback's log does not match the expected log data.
+        """
         id_field, user_field, data_field = UserSite._meta.fields
         expected_log = [
             (id_field, {"widget": CustomWidget}),
@@ -386,6 +420,14 @@ class FormfieldCallbackTests(TestCase):
         self.assertEqual(callback.log, expected_log)
 
     def test_inlineformset_custom_callback(self):
+        """
+        Tests that a custom callback function is called when using an inline formset.
+
+        This test case verifies that a custom callback function, defined as a formfield_callback
+        in the inlineformset_factory, is invoked as expected. The test checks the callback's
+        execution by asserting that it has been called on creation of the inline formset for
+        the UserSite model, using the UserSiteForm and including all fields.
+        """
         callback = Callback()
         inlineformset_factory(
             User,
@@ -397,6 +439,17 @@ class FormfieldCallbackTests(TestCase):
         self.assertCallbackCalled(callback)
 
     def test_modelformset_custom_callback(self):
+        """
+
+        Tests the formset factory with a custom callback function.
+
+        This test case verifies that a custom callback function is correctly invoked when
+        creating a model formset factory for the UserSite model. The custom callback function
+        is provided through the formfield_callback parameter of the modelformset_factory function.
+        The test asserts that the callback function is called as expected, ensuring that custom
+        field logic is executed properly.
+
+        """
         callback = Callback()
         modelformset_factory(UserSite, form=UserSiteForm, formfield_callback=callback)
         self.assertCallbackCalled(callback)
@@ -565,6 +618,13 @@ class RedeleteTests(TestCase):
         self.assertEqual(UserSite.objects.count(), 0)
 
     def test_delete_already_deleted(self):
+        """
+
+        Tests that deleting an already deleted instance through an inline formset does not cause errors.
+
+        This test ensures that the formset validation and saving process handles the case where a related object (UserSite) is deleted before the formset is saved, while the formset still indicates that the object should be deleted. The test verifies that the formset is valid and that saving the formset results in the expected state, i.e., no UserSite objects remaining in the database.
+
+        """
         u = User.objects.create(username="foo", serial=1)
         us = UserSite.objects.create(user=u, data=7)
         formset_cls = inlineformset_factory(User, UserSite, fields="__all__")

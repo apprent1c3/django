@@ -370,6 +370,21 @@ def teardown_databases(old_config, verbosity, parallel=0, keepdb=False):
 
 
 def get_runner(settings, test_runner_class=None):
+    """
+
+    Obtain an instance of the test runner class specified in the settings or provided directly.
+
+    The test runner class can be specified either by passing it directly as the `test_runner_class` argument,
+    or by configuring the `TEST_RUNNER` setting. If neither is provided, the `TEST_RUNNER` setting will be used.
+
+    The function imports the specified test runner module and returns the test runner class.
+    This allows for dynamic test runner selection based on the application's settings or configuration.
+
+    :param settings: The application settings.
+    :param test_runner_class: The name of the test runner class to use (optional).
+    :returns: The test runner class.
+
+    """
     test_runner_class = test_runner_class or settings.TEST_RUNNER
     test_path = test_runner_class.split(".")
     # Allow for relative paths
@@ -519,6 +534,11 @@ class override_settings(TestContextDecorator):
                 raise response
 
     def save_options(self, test_func):
+        """
+        Saves the current options to the provided test function.
+
+        This method updates the `_overridden_settings` attribute of the test function with the current options. If the test function already has overridden settings, the current options are merged into the existing settings, overwriting any duplicate keys. This allows for the accumulation of settings from multiple sources, with later settings taking precedence over earlier ones.
+        """
         if test_func._overridden_settings is None:
             test_func._overridden_settings = self.options
         else:
@@ -557,6 +577,16 @@ class modify_settings(override_settings):
         super(override_settings, self).__init__()
 
     def save_options(self, test_func):
+        """
+        Saves the current options to a test function.
+
+        The current options are represented by the operations stored in the instance.
+        If the test function has not had any options saved previously, 
+        its _modified_settings attribute is initialized with the current options.
+        If the test function has had options saved previously, 
+        the current options are appended to its existing _modified_settings.
+        The updated options can then be used by the test function as needed.
+        """
         if test_func._modified_settings is None:
             test_func._modified_settings = self.operations
         else:
@@ -723,6 +753,18 @@ class CaptureQueriesContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Exit the runtime context.
+
+        This method is called when exiting the `with` statement. It ensures the connection's debug cursor setting is updated and 
+        the queries reset. If an exception occurred, the action is aborted. Otherwise, it updates the final query count.
+
+        :param exc_type: The type of exception that occurred, or None if no exception occurred.
+        :param exc_value: The value of the exception that occurred, or None if no exception occurred.
+        :param traceback: The traceback of the exception that occurred, or None if no exception occurred.
+
+        """
         self.connection.force_debug_cursor = self.force_debug_cursor
         request_started.connect(reset_queries)
         if exc_type is not None:
@@ -875,6 +917,17 @@ class override_script_prefix(TestContextDecorator):
         super().__init__()
 
     def enable(self):
+        """
+
+        Enables the current prefix by updating the script prefix.
+
+        This method saves the current script prefix and then sets the script prefix to the prefix defined by the current instance.
+
+        .. note::
+            The original prefix is stored internally to facilitate potential future restoration.
+
+
+        """
         self.old_prefix = get_script_prefix()
         set_script_prefix(self.prefix)
 
@@ -963,6 +1016,9 @@ def tag(*tags):
     """Decorator to add tags to a test class or method."""
 
     def decorator(obj):
+        """
+        Decorates an object by adding a set of tags to it. If the object already has a 'tags' attribute, the new tags are merged with the existing ones. Otherwise, a new 'tags' attribute is created with the provided tags. The function returns the decorated object.
+        """
         if hasattr(obj, "tags"):
             obj.tags = obj.tags.union(tags)
         else:

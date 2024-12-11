@@ -41,6 +41,18 @@ class BaseGeometryWidget(Widget):
         return None
 
     def get_context(self, name, value, attrs):
+        """
+        Get the context for rendering a geometrical object.
+
+        This method extends the default context generation by handling geographical data.
+        It takes the name of the object, its value, and additional attributes into account.
+        If the provided value is a string, it is deserialized into a geographical object.
+        If the object has a spatial reference system identifier (SRID) different from the map's SRID,
+        it attempts to transform the object's geometry to the map's SRID.
+        The method returns a context dictionary with the object's name, module, serialized geometry,
+        geometry type, static URL, language direction, and any additional provided attributes.
+        This context is suitable for rendering geographical objects on a map.
+        """
         context = super().get_context(name, value, attrs)
         # If a string reaches here (via a validation error on another
         # field) then just reconstruct the Geometry.

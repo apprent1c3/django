@@ -214,6 +214,15 @@ class CounterNode(template.Node):
         self.count = 0
 
     def render(self, context):
+        """
+        Render a string representation of the current count.
+
+        Increment the internal counter and return the previous count as a string. 
+        This allows the count to be used in a template or other context where a string is required.
+
+        :returns: A string representation of the count prior to incrementing.
+        :rtype: str
+        """
         count = self.count
         self.count = count + 1
         return str(count)

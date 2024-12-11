@@ -329,6 +329,20 @@ class PBKDF2PasswordHasher(BasePasswordHasher):
         return "%s$%d$%s$%s" % (self.algorithm, iterations, salt, hash)
 
     def decode(self, encoded):
+        """
+        Decodes an encoded password string into its constituent parts.
+
+        The encoded string is expected to be in the format 'algorithm$iterations$salt$hash'.
+        The function splits this string and returns a dictionary containing the 
+        algorithm used, the salt value, the number of iterations, and the hashed password.
+
+        The function verifies that the algorithm used in the encoded string matches 
+        the algorithm configured for this instance, to ensure consistency.
+
+        :param encoded: The encoded password string to be decoded
+        :return: A dictionary containing the decoded algorithm, hash, iterations, and salt
+        :raises AssertionError: If the algorithm in the encoded string does not match the instance's algorithm
+        """
         algorithm, iterations, salt, hash = encoded.split("$", 3)
         assert algorithm == self.algorithm
         return {
@@ -527,6 +541,12 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return constant_time_compare(encoded, encoded_2)
 
     def safe_summary(self, encoded):
+        """
+        Provides a summarized and redacted version of the encoded data.
+
+        :returns: A dictionary containing the algorithm, work factor, salt (masked), and checksum (masked) of the encoded data.
+        :note: The decoded salt and checksum are masked for security reasons.
+        """
         decoded = self.decode(encoded)
         return {
             _("algorithm"): decoded["algorithm"],
@@ -536,6 +556,17 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         }
 
     def must_update(self, encoded):
+        """
+
+        Determines whether an encoded value requires an update based on its work factor.
+
+        Checks if the work factor of the decoded value matches the current number of rounds.
+        If they do not match, the function returns True, indicating that an update is necessary.
+
+        :param encoded: The encoded value to check.
+        :return: True if the encoded value needs to be updated, False otherwise.
+
+        """
         decoded = self.decode(encoded)
         return decoded["work_factor"] != self.rounds
 
@@ -611,6 +642,18 @@ class ScryptPasswordHasher(BasePasswordHasher):
         }
 
     def verify(self, password, encoded):
+        """
+        Verify if the provided password matches the given encoded password.
+
+        This function decodes the provided encoded password, then re-encodes the provided password using the same parameters (salt, work factor, block size, and parallelism). 
+        It then compares the original encoded password with the re-encoded password using a constant-time comparison to prevent timing attacks. 
+
+        The function returns True if the passwords match, False otherwise.
+
+        :param password: The password to verify
+        :param encoded: The encoded password to compare against
+        :rtype: bool
+        """
         decoded = self.decode(encoded)
         encoded_2 = self.encode(
             password,

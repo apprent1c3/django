@@ -35,6 +35,15 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save"], True)
 
     def test_submit_row_save_as_new_add_permission_required(self):
+        """
+        Tests that the 'Save as new' button in the admin interface is only displayed when the user has the 'add' permission for the model.
+
+        The test checks two scenarios: one where the user has the 'change' permission but not the 'add' permission, and another where the user has both 'change' and 'add' permissions.
+
+        The test asserts that the 'show_save_as_new' template context variable is set to False when the user lacks the 'add' permission and True when the user has the 'add' permission, indicating that the 'Save as new' button should be hidden or displayed respectively.
+
+        This ensures that the 'Save as new' functionality is properly permission-gated in the admin interface, preventing users without the necessary permissions from creating new instances of the model.
+        """
         change_user = User.objects.create_user(
             username="change_user", password="secret", is_staff=True
         )
@@ -67,6 +76,20 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save_as_new"], True)
 
     def test_override_show_save_and_add_another(self):
+        """
+
+        Tests the override of the 'show_save_and_add_another' flag in the user admin change view.
+
+        This test case verifies that the 'show_save_and_add_another' flag is correctly overridden
+        when passed in the extra context. The test checks for two scenarios:
+        - When no override is provided, the flag should default to True.
+        - When the 'show_save_and_add_another' flag is explicitly set to False in the extra context,
+          the flag should be set to False.
+
+        The test ensures that the 'show_save_and_add_another' flag is correctly displayed in the
+        template context of the admin change view.
+
+        """
         request = self.request_factory.get(
             reverse("admin:auth_user_change", args=[self.superuser.pk]),
         )

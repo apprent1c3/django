@@ -8,6 +8,12 @@ from .models import Bar, Business, CustomAutoFieldModel, Employee, Foo
 class BasicCustomPKTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a standard set of employees and a business, 
+        and associating the employees with the business. This method is used to populate the 
+        database with default data for testing purposes, providing a consistent baseline for 
+        tests to run against. The test data includes two employees and one business entity.
+        """
         cls.dan = Employee.objects.create(
             employee_code=123,
             first_name="Dan",
@@ -181,12 +187,34 @@ class CustomPKTests(TestCase):
                 )
 
     def test_zero_non_autoincrement_pk(self):
+        """
+        Tests that a non-autoincrementing primary key with a value of zero can be successfully created and retrieved.
+
+            Verifies that an Employee object with a primary key of 0 can be inserted into the database and 
+            subsequently retrieved without encountering any errors, ensuring that the primary key value is 
+            preserved as expected.
+        """
         Employee.objects.create(employee_code=0, first_name="Frank", last_name="Jones")
         employee = Employee.objects.get(pk=0)
         self.assertEqual(employee.employee_code, 0)
 
     def test_custom_field_pk(self):
         # Regression for #10785 -- Custom fields can be used for primary keys.
+        """
+
+        Tests the primary key of a custom field.
+
+        This test case verifies the integrity of foreign key relationships
+        between model instances. It checks that the instance retrieved through
+        its related object's primary key matches the original instance, and
+        that the related object property matches the original related object.
+
+        Specifically, it tests the following scenarios:
+
+        * Retrieval by related object's primary key
+        * Retrieval by related object instance
+
+        """
         new_bar = Bar.objects.create()
         new_foo = Foo.objects.create(bar=new_bar)
 
@@ -210,11 +238,29 @@ class CustomPKTests(TestCase):
                 Employee.objects.create(first_name="Tom", last_name="Smith")
 
     def test_auto_field_subclass_create(self):
+        """
+        Tests the creation of a model instance with an auto field subclass.
+
+        Verifies that the automatically generated primary key is an instance of the 
+        custom wrapper class, MyWrapper, when creating an instance of CustomAutoFieldModel.
+
+        This test ensures that the custom auto field subclass is correctly integrated 
+        with the model and that the wrapper class is properly instantiated and returned 
+        as the primary key value upon object creation.
+        """
         obj = CustomAutoFieldModel.objects.create()
         self.assertIsInstance(obj.id, MyWrapper)
 
     @skipUnlessDBFeature("can_return_rows_from_bulk_insert")
     def test_auto_field_subclass_bulk_create(self):
+        """
+        Tests the behavior of auto field subclasses during bulk creation.
+
+        This test case ensures that when using a custom auto field subclass (in this case, MyWrapper),
+        the automatically assigned primary key (ID) is correctly wrapped in the subclass
+        during a bulk create operation, verifying that the object's ID is an instance of the
+        custom auto field subclass (MyWrapper) after creation.
+        """
         obj = CustomAutoFieldModel()
         CustomAutoFieldModel.objects.bulk_create([obj])
         self.assertIsInstance(obj.id, MyWrapper)

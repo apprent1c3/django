@@ -23,6 +23,13 @@ class ConnectionHandlerTests(SimpleTestCase):
                 self.assertImproperlyConfigured(DATABASES)
 
     def assertImproperlyConfigured(self, DATABASES):
+        """
+        Asserts that the DATABASES setting is improperly configured to use a dummy database engine.
+
+        When the database connection is attempted to be established with an improperly configured ENGINE setting in the DATABASES dictionary, this function checks that the expected ImproperlyConfigured exception is raised with a specific error message.
+
+        The error message indicates that the ENGINE value in the DATABASES setting is missing or invalid, and directs the user to check the settings documentation for more information on proper configuration.
+        """
         conns = ConnectionHandler(DATABASES)
         self.assertEqual(
             conns[DEFAULT_DB_ALIAS].settings_dict["ENGINE"], "django.db.backends.dummy"
@@ -35,6 +42,16 @@ class ConnectionHandlerTests(SimpleTestCase):
             conns[DEFAULT_DB_ALIAS].ensure_connection()
 
     def test_no_default_database(self):
+        """
+
+        Verifies that attempting to access a non-default database raises an error if no default database is defined.
+
+        Tests the behavior of the ConnectionHandler when no 'default' database is present in the provided DATABASES configuration.
+        The test expects an ImproperlyConfigured exception to be raised with a specific message, ensuring proper handling of invalid configurations.
+
+        Parameters are set in the test, including a DATABASES dictionary with a single non-default database ('other') and no 'default' database defined.
+
+        """
         DATABASES = {"other": {}}
         conns = ConnectionHandler(DATABASES)
         msg = "You must define a 'default' database."
@@ -50,6 +67,15 @@ class ConnectionHandlerTests(SimpleTestCase):
         self.assertEqual(conn.settings, conn.databases)
 
     def test_nonexistent_alias(self):
+        """
+
+        Tests that attempting to access a nonexistent database alias raises a ConnectionDoesNotExist exception.
+
+        The test case checks if the connection handler correctly handles the case where a requested alias does not exist in the connections configuration.
+
+        :raises: ConnectionDoesNotExist
+
+        """
         msg = "The connection 'nonexistent' doesn't exist."
         conns = ConnectionHandler(
             {
@@ -63,6 +89,13 @@ class ConnectionHandlerTests(SimpleTestCase):
 class DatabaseErrorWrapperTests(TestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
     def test_reraising_backend_specific_database_exception(self):
+        """
+        Tests that a backend-specific database exception is properly reraised when executing a PostgreSQL query.
+
+        This test ensures that when a PostgreSQL database query fails, the resulting exception is correctly wrapped and reraised as a Django database exception. Specifically, it verifies that the reraised exception contains the original backend-specific exception as its cause, and that the cause exception contains relevant error details, such as the SQL state or PostgreSQL error code and message.
+
+        The test is skipped unless the PostgreSQL database backend is being used.
+        """
         from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
         with connection.cursor() as cursor:

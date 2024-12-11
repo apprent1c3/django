@@ -370,6 +370,13 @@ class Signal:
 
             @sync_to_async
             def sync_send():
+                """
+                Send signals to all registered receivers synchronously, handling any exceptions that occur during the process.
+
+                Returns a list of tuples, where each tuple contains a receiver and either the response from the receiver or an exception that occurred when sending the signal to the receiver.
+
+                The function iterates over all registered receivers, calls each one with the signal, sender, and any additional named arguments, and logs any robust failures that occur. The result is a collection of responses and any exceptions that were encountered, providing a comprehensive overview of the signal sending process.
+                """
                 responses = []
                 for receiver in sync_receivers:
                     try:
@@ -405,6 +412,13 @@ class Signal:
 
     def _clear_dead_receivers(self):
         # Note: caller is assumed to hold self.lock.
+        """
+        Remove dead receivers from the list to prevent memory leaks and ensure the functionality of the remaining receivers. 
+
+        This maintenance method checks for and removes any receivers that are no longer valid, updating the internal state to reflect the change. 
+
+        It prunes the list of receivers by filtering out those that are weak references which have become invalid, allowing the system to focus on functioning receivers.
+        """
         if self._dead_receivers:
             self._dead_receivers = False
             self.receivers = [

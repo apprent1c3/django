@@ -124,6 +124,18 @@ class RawQueryTests(TestCase):
                 self.assertEqual(getattr(result, annotation), value)
 
     def test_rawqueryset_repr(self):
+        """
+
+        Tests that the string representation of a RawQuerySet and its query are correctly generated.
+
+        This test ensures that when a RawQuerySet instance is converted to a string,
+        it returns a human-readable representation that includes the raw SQL query.
+        The test also checks that the query attribute of the RawQuerySet has a similar string representation.
+
+        The purpose of this test is to guarantee the correctness of the string representation
+        of RawQuerySet and its query, which is essential for debugging and logging purposes.
+
+        """
         queryset = RawQuerySet(raw_query="SELECT * FROM raw_query_author")
         self.assertEqual(
             repr(queryset), "<RawQuerySet: SELECT * FROM raw_query_author>"
@@ -398,6 +410,16 @@ class RawQueryTests(TestCase):
             list(books)
 
     def test_iterator(self):
+        """
+        Tests the iterator functionality of a raw database query.
+
+        This test ensures that iterating over a raw query's result set makes the expected number of database queries.
+        It specifically checks that the iterator can be reused without making additional queries beyond the initial two,
+        which occur when the iterator is first created and when its results are fetched.
+
+        This test case targets the interaction between the database query and the iterator, verifying that the
+        underlying data is fetched efficiently and only when necessary.
+        """
         with self.assertNumQueries(2):
             books = Book.objects.raw("SELECT * FROM raw_query_book")
             list(books.iterator())

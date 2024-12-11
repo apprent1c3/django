@@ -44,11 +44,25 @@ class Sitemap:
         return self._languages()
 
     def _languages(self):
+        """
+        Retorna uma lista de códigos de idioma suportados, seja a partir do atributo `languages` do objeto ou, se não estiver definido, a partir da configuração `LANGUAGES` dos settings.
+        """
         if self.languages is not None:
             return self.languages
         return [lang_code for lang_code, _ in settings.LANGUAGES]
 
     def _items(self):
+        """
+        ..: Returns a list of items, optionally including language codes if internationalization is enabled.
+
+            If internationalization (i18n) is enabled, this function returns a list of tuples,
+            where each tuple contains an item and its corresponding language code.
+
+            If i18n is disabled, the function returns a list of items without language codes.
+
+            :return: List of items, possibly with language codes
+            :rtype: list
+        """
         if self.i18n:
             # Create (item, lang_code) tuples for all items and languages.
             # This is necessary to paginate with all languages already considered.
@@ -99,11 +113,33 @@ class Sitemap:
         return site.domain
 
     def get_urls(self, page=1, site=None, protocol=None):
+        """
+        Retrieves a list of URLs based on the provided page number, site, and protocol.
+
+        Args:
+            page (int, optional): The page number to retrieve URLs for. Defaults to 1.
+            site (str, optional): The site to filter URLs by. Defaults to None.
+            protocol (str, optional): The protocol to filter URLs by. Defaults to None.
+
+        Returns:
+            list: A list of URLs matching the provided criteria.
+
+        Note:
+            The protocol and site are resolved internally using the :meth:`get_protocol` and :meth:`get_domain` methods, respectively.
+        """
         protocol = self.get_protocol(protocol)
         domain = self.get_domain(site)
         return self._urls(page, protocol, domain)
 
     def get_latest_lastmod(self):
+        """
+        Return the latest last modification time associated with the object.
+
+        The last modification time can be either a static value or a callable that takes an item as an argument.
+        If a callable is provided, it will be applied to each item and the maximum value will be returned.
+        If no last modification time is available or if the callable fails to return a comparable value, 
+        None will be returned. If lastmod is not callable, its value will be returned directly.
+        """
         if not hasattr(self, "lastmod"):
             return None
         if callable(self.lastmod):

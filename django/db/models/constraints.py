@@ -78,6 +78,22 @@ class BaseConstraint:
         return []
 
     def _check_references(self, model, references):
+        """
+        Checks the given model for valid references.
+
+        This function inspects the provided references against the model's fields, 
+        checking for existence and compatibility. It validates that referenced fields 
+        are relations and that lookups on those fields are correctly defined. If any 
+        invalid references are found, it returns a list of errors. The function also 
+        checks local fields on the model to ensure they are valid for use in constraints. 
+
+        Args:
+            model: The model to check for valid references.
+            references: A list of tuples containing field names and lookups to check.
+
+        Returns:
+            A list of errors found during the reference check.
+        """
         errors = []
         fields = set()
         for field_name, *lookups in references:
@@ -129,6 +145,11 @@ class BaseConstraint:
         return (path, (), kwargs)
 
     def clone(self):
+        """
+        Creates a clone of the current object instance, duplicating its attributes and state.
+
+        This method returns a new instance of the same class, initialized with the same arguments that were used to construct the original object. The clone is created by deconstructing the current object and then reconstructing a new instance using the same parameters.
+        """
         _, args, kwargs = self.deconstruct()
         return self.__class__(*args, **kwargs)
 
@@ -174,6 +195,17 @@ class CheckConstraint(BaseConstraint):
         return self.condition
 
     def _set_check(self, value):
+        """
+
+        Sets the condition for a check constraint.
+
+        This method is deprecated in favor of using the `.condition` attribute directly. 
+        A warning will be issued when using this method. 
+
+        :param value: The condition to be set.
+        :raises RemovedInDjango60Warning: A warning indicating that this method will be removed in Django 6.0.
+
+        """
         warnings.warn(
             "CheckConstraint.check is deprecated in favor of `.condition`.",
             RemovedInDjango60Warning,
@@ -467,6 +499,22 @@ class UniqueConstraint(BaseConstraint):
         return errors
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+
+        Generates a SQL condition string based on the provided model and condition.
+
+        This function takes into account the condition specified in the instance and 
+        constructs a SQL query string using the model's schema. If no condition is 
+        specified, the function returns None.
+
+        The generated SQL string is properly formatted and parameterized to avoid SQL 
+        injection vulnerabilities. The function also takes care of quoting the parameter 
+        values according to the database connection's rules.
+
+        Returns:
+            str: The generated SQL condition string, or None if no condition is specified.
+
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)

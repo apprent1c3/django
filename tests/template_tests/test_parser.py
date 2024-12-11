@@ -46,6 +46,20 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_filter_parsing(self):
+        """
+
+        Tests the parsing functionality of filter expressions.
+
+        Verifies that filter expressions can correctly parse variables and attributes,
+        apply filters such as the 'upper' function, and handle string literals with
+        quoted and escaped characters. Additionally, checks that variables and attribute
+        names are validated to ensure they do not start with underscores.
+
+        The test cases cover various scenarios, including attribute navigation, filter
+        application, and string literal parsing, to ensure the parser behaves as
+        expected and raises the correct exceptions when encountering invalid input.
+
+        """
         c = {"article": {"section": "News"}}
         p = Parser("", builtins=[filter_library])
 
@@ -105,6 +119,18 @@ class ParserTests(SimpleTestCase):
             Variable({})
 
     def test_filter_args_count(self):
+        """
+        Tests the FilterExpression class to ensure that it correctly handles filter argument counts.
+
+        The test case checks for the following:
+        - Filters with no arguments do not accept any arguments.
+        - Filters with one required argument must be provided with one argument.
+        - Filters with one optional argument can be provided with zero or one arguments.
+        - Filters with two required arguments must be provided with two arguments.
+        - Filters with two arguments, one of which is optional, must be provided with one or two arguments.
+
+        The test case raises a TemplateSyntaxError when the argument count does not match the filter's definition and does not raise an error when the argument count is valid.
+        """
         parser = Parser("")
         register = Library()
 

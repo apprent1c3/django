@@ -47,6 +47,12 @@ class PathNotImplementedStorage(storage.Storage):
         return directories, files
 
     def delete(self, name):
+        """
+        #: Deletes a file by its given name.
+        #: 
+        #: :param name: The name of the file to be deleted. The name can be a relative or absolute path.
+        #: :note: If the specified file does not exist, no error is raised and the function completes silently.
+        """
         name = self._path(name)
         try:
             os.remove(name)

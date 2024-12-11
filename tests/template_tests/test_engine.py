@@ -12,6 +12,11 @@ OTHER_DIR = os.path.join(ROOT, "other_templates")
 
 class EngineTest(SimpleTestCase):
     def test_repr_empty(self):
+        """
+        Tests the representation of an Engine instance with default settings. 
+
+        Verifies that the string representation of the Engine object contains all the expected properties and their respective default values, including the application directory settings, debug mode, template loaders, invalid string handling, file character encoding, built-in tags and filters, and auto-escaping configuration.
+        """
         engine = Engine()
         self.assertEqual(
             repr(engine),
@@ -24,6 +29,17 @@ class EngineTest(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+
+        Tests the representation of the Engine class.
+
+        This test ensures that the __repr__ method of the Engine class returns a string
+        that accurately represents the engine's configuration, including template directories,
+        context processors, debug mode, template loaders, and other settings. The test verifies
+        that the repr string correctly reflects the engine's attributes, such as the directories
+        to search for templates, whether to autoescape template content, and custom libraries.
+
+        """
         engine = Engine(
             dirs=[TEMPLATE_DIR],
             context_processors=["django.template.context_processors.debug"],
@@ -58,6 +74,15 @@ class RenderToStringTest(SimpleTestCase):
         )
 
     def test_autoescape_off(self):
+        """
+
+        Tests the rendering of a template with autoescape turned off.
+
+        Checks if the engine correctly renders a template without escaping special characters, 
+        by passing a string containing HTML markup as a context variable and verifying that 
+        the output is not escaped.
+
+        """
         engine = Engine(dirs=[TEMPLATE_DIR], autoescape=False)
         self.assertEqual(
             engine.render_to_string("test_context.html", {"obj": "<script>"}),
@@ -104,6 +129,19 @@ class GetDefaultTests(SimpleTestCase):
 
 class LoaderTests(SimpleTestCase):
     def test_origin(self):
+        """
+
+        Tests that the template origin is correctly identified.
+
+        Verifies that when a template is retrieved from the engine, its origin
+        matches the expected template name. This ensures that the template
+        engine is correctly tracking the source of templates.
+
+        The test checks the template name of the retrieved template against the
+        expected name 'index.html', confirming that the engine is functioning
+        as expected.
+
+        """
         engine = Engine(dirs=[TEMPLATE_DIR], debug=True)
         template = engine.get_template("index.html")
         self.assertEqual(template.origin.template_name, "index.html")

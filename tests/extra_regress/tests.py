@@ -453,6 +453,16 @@ class ExtraRegressTests(TestCase):
         )
 
     def test_extra_values_distinct_ordering(self):
+        """
+
+        Tests the behavior of the extra select method in Django QuerySets to ensure correct ordering and distinct results.
+
+        This test case covers the scenario where extra values are selected and used for ordering,
+        with a focus on the distinct method to eliminate duplicate values from the results.
+        The test verifies that the results are ordered correctly in both ascending and descending order,
+        and that duplicate values are properly removed.
+
+        """
         t1 = TestObject.objects.create(first="a", second="a", third="a")
         t2 = TestObject.objects.create(first="a", second="b", third="b")
         qs = (

@@ -2,6 +2,18 @@ import datetime
 
 
 def _get_duration_components(duration):
+    """
+
+    Breaks down a duration into its component parts.
+
+    This function takes a duration as input and returns a tuple containing the number of days, hours, minutes, seconds, and microseconds.
+
+    The returned values are calculated from the input duration, allowing for easy access to the individual time components.
+
+    :return: A tuple of (days, hours, minutes, seconds, microseconds) representing the duration.
+    :rtype: tuple
+
+    """
     days = duration.days
     seconds = duration.seconds
     microseconds = duration.microseconds

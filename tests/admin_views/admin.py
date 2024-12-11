@@ -189,6 +189,11 @@ class ArticleForm(forms.ModelForm):
 
 class ArticleAdminWithExtraUrl(admin.ModelAdmin):
     def get_urls(self):
+        """
+        Return a list of URL patterns for the admin site, including an additional URL for retrieving extra JSON data. 
+
+        The returned URL patterns are built upon the parent class's URL patterns, ensuring that the standard admin site URLs are available, and an additional URL is included to support the retrieval of extra JSON data, accessible via the 'article_extra_json' name.
+        """
         urlpatterns = super().get_urls()
         urlpatterns.append(
             path(
@@ -261,6 +266,16 @@ class ArticleAdmin(ArticleAdminWithExtraUrl):
         return obj.date.year
 
     def delete_model(self, request, obj):
+        """
+
+        Deletes a model instance and sends a notification email to inform about the deletion.
+
+        Notifies a specific recipient via email that a model instance has been deleted, 
+        including a brief message describing the action. 
+
+        The actual deletion is then performed by calling the parent class's delete_model method.
+
+        """
         EmailMessage(
             "Greetings from a deleted object",
             "I hereby inform you that some user deleted me",
@@ -337,6 +352,18 @@ class FabricAdmin(admin.ModelAdmin):
 
 class BasePersonModelFormSet(BaseModelFormSet):
     def clean(self):
+        """
+
+        Checks and validates the cleaned data in the current object.
+
+        This function iterates through the :attr:`cleaned_data` and verifies the status of each person.
+        If a person with the name 'Grace Hopper' is found to be alive, it raises a :class:`ValidationError`
+        with a message indicating that 'Grace' is not a zombie.
+
+        Raises:
+            ValidationError: If 'Grace Hopper' is found to be alive in the cleaned data.
+
+        """
         for person_dict in self.cleaned_data:
             person = person_dict.get("id")
             alive = person_dict.get("alive")
@@ -381,6 +408,14 @@ class SubscriberAdmin(admin.ModelAdmin):
     action_form = MediaActionForm
 
     def delete_queryset(self, request, queryset):
+        """
+        Deletes a queryset of objects and sets a flag indicating that the delete operation has been overridden.
+
+        :param request: The current request object
+        :param queryset: The set of objects to be deleted
+        :returns: None
+        :note: This method also sets the `overridden` class attribute of `SubscriberAdmin` to `True` before performing the deletion.
+        """
         SubscriberAdmin.overridden = True
         super().delete_queryset(request, queryset)
 
@@ -406,6 +441,20 @@ def external_mail(modeladmin, request, selected):
 
 @admin.action(description="Redirect to (Awesome action)")
 def redirect_to(modeladmin, request, selected):
+    """
+
+    Redirects the user to a specific URL after performing an action on the selected items.
+
+    This action can be applied to multiple selected items in the admin interface. 
+    It triggers a redirect to a predefined location, rather than requiring the user to manually navigate there.
+
+    :param modeladmin: The model admin instance for the current model.
+    :param request: The current HTTP request.
+    :param selected: A queryset of selected items to which the action is applied.
+
+    :returns: An HTTP response that redirects the user to the target URL.
+
+    """
     from django.http import HttpResponseRedirect
 
     return HttpResponseRedirect("/some-where-else/")
@@ -413,6 +462,28 @@ def redirect_to(modeladmin, request, selected):
 
 @admin.action(description="Download subscription")
 def download(modeladmin, request, selected):
+    """
+
+    Download a subscription file.
+
+    This action generates a downloadable file containing the selected subscription data.
+    It returns a streaming HTTP response, allowing for efficient transfer of the file.
+
+    Parameters
+    ----------
+    modeladmin : ModelAdmin
+        The ModelAdmin instance for the subscription model.
+    request : HttpRequest
+        The current HTTP request.
+    selected : QuerySet
+        A QuerySet of selected subscription objects to be included in the file.
+
+    Returns
+    -------
+    StreamingHttpResponse
+        A streaming HTTP response containing the downloadable file.
+
+    """
     buf = StringIO("This is the content of the file")
     return StreamingHttpResponse(FileWrapper(buf))
 
@@ -456,6 +527,21 @@ class ParentAdmin(admin.ModelAdmin):
     list_editable = ("name",)
 
     def save_related(self, request, form, formsets, change):
+        """
+
+        Saves related objects and updates child names to include the parent's last name.
+
+        This method extends the default save_related behavior by iterating over the 
+        child objects associated with the current instance. If a child's name does not 
+        contain a first and last name, it appends the last name of the parent instance 
+        to the child's name before saving the changes.
+
+        :param request: The current request object
+        :param form: The form containing the parent instance data
+        :param formsets: The formsets containing related object data
+        :param change: A boolean indicating whether the parent instance is being changed
+
+        """
         super().save_related(request, form, formsets, change)
         first_name, last_name = form.instance.name.split()
         for child in form.instance.child_set.all():
@@ -561,6 +647,17 @@ class SubPostInline(admin.TabularInline):
         return self.readonly_fields
 
     def get_prepopulated_fields(self, request, obj=None):
+        """
+        Returns a dictionary of prepopulated fields for the model instance.
+
+        If the instance exists and is marked as published, an empty dictionary is returned,
+        indicating that no fields should be prepopulated. Otherwise, the prepopulated fields
+        defined for the model are returned.
+
+        :param request: The current request object.
+        :param obj: The model instance being edited, or None if creating a new instance.
+        :rtype: dict
+        """
         if obj and obj.published:
             return {}
         return self.prepopulated_fields
@@ -578,6 +675,11 @@ class PrePopulatedPostAdmin(admin.ModelAdmin):
         return self.readonly_fields
 
     def get_prepopulated_fields(self, request, obj=None):
+        """
+        Returns a dictionary of prepopulated fields for a given object, taking into account its publication status.
+
+        The function considers whether an object has been published or not, and returns an empty dictionary if it has. Otherwise, it returns the pre-defined prepopulated fields, allowing for dynamic population of certain fields based on the object's state. This enables more efficient and flexible data management, particularly when dealing with published objects that should not have their prepopulated fields updated.
+        """
         if obj and obj.published:
             return {}
         return self.prepopulated_fields
@@ -607,6 +709,16 @@ class PostAdmin(admin.ModelAdmin):
 
     @admin.display
     def coolness(self, instance):
+        """
+
+        Displays a measure of coolness for a given instance.
+
+        The coolness level is determined by the instance's primary key (pk). If the instance has a primary key, the coolness level is represented as a string indicating a specific 'amount of cool'. If the instance does not have a primary key, the coolness level is listed as 'Unknown coolness'.
+
+        Returns:
+            str: A string describing the instance's coolness level.
+
+        """
         if instance.pk:
             return "%d amount of cool." % instance.pk
         else:
@@ -774,6 +886,22 @@ class PluggableSearchPersonAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def get_search_results(self, request, queryset, search_term):
+        """
+
+        Retrieves search results based on the provided search term, extending the default search functionality.
+
+        The function takes a request, a queryset, and a search term as input. It first calls the parent class's 
+        get_search_results method to obtain the initial queryset and a flag indicating whether the results may 
+        contain duplicates.
+
+        If the search term can be converted to an integer, the function performs an additional search by 
+        filtering the model objects based on the 'age' attribute matching the integer value of the search term. 
+        The results of this additional search are combined with the initial queryset.
+
+        The function returns a tuple containing the updated queryset and the flag indicating whether the results 
+        may contain duplicates.
+
+        """
         queryset, may_have_duplicates = super().get_search_results(
             request,
             queryset,
@@ -1008,6 +1136,13 @@ class DependentChildAdminForm(forms.ModelForm):
     """
 
     def clean(self):
+        """
+        Cleanup method to validate family name consistency between a child and their parent.
+
+        Checks if the child's family name matches that of their parent, raising a 
+        :exc:`~django.core.exceptions.ValidationError` if the names do not match.
+        Returns the result of the parent class's :meth:`clean()` method if validation succeeds.
+        """
         parent = self.cleaned_data.get("parent")
         if parent.family_name and parent.family_name != self.cleaned_data.get(
             "family_name"
@@ -1083,6 +1218,13 @@ class StateAdminForm(forms.ModelForm):
 
     @property
     def changed_data(self):
+        """
+        .. property:: changed_data
+
+            A read-only property that returns the list of changed data fields, including any changed form fields from the parent class.
+            Additionally, if any changes have occurred, it indicates that a special non-form field value has been modified by including 'not_a_form_field' in the returned list.
+            If no changes have occurred, an empty list is returned.
+        """
         data = super().changed_data
         if data:
             # Add arbitrary name to changed_data to test
@@ -1152,6 +1294,18 @@ class GetFormsetsArgumentCheckingAdmin(admin.ModelAdmin):
     fields = ["name"]
 
     def add_view(self, request, *args, **kwargs):
+        """
+        Flags the current request as an add view and then proceeds with the default add view behavior.
+
+        This method is intended to be used when an add view is initiated. It sets a flag on the request object to indicate that an add operation is in progress, and then calls the parent class's add view method to handle the request.
+
+        The flag set by this method can be used by other parts of the application to customize their behavior when an add view is being processed.
+
+        :param request: The current HTTP request
+        :param args: Variable arguments
+        :param kwargs: Keyword arguments
+        :return: The result of the parent class's add view method
+        """
         request.is_add_view = True
         return super().add_view(request, *args, **kwargs)
 
@@ -1160,6 +1314,39 @@ class GetFormsetsArgumentCheckingAdmin(admin.ModelAdmin):
         return super().change_view(request, *args, **kwargs)
 
     def get_formsets_with_inlines(self, request, obj=None):
+        """
+
+        Get formsets with inlines for the given request and object.
+
+        This method is responsible for retrieving the formsets with inlines, 
+        taking into account the type of view (add or change) and the object being edited.
+
+        It first checks if the request is an add view and if an object is provided, 
+        raising an exception if both conditions are met. Similarly, it checks if the request 
+        is a change view and no object is provided, raising an exception in that case.
+
+        Once the view and object are validated, it calls the parent class's 
+        implementation of this method to retrieve the formsets with inlines.
+
+        Parameters
+        ----------
+        request : Request
+            The current request
+        obj : object, optional
+            The object being edited, defaults to None
+
+        Returns
+        -------
+        list
+            A list of formsets with inlines
+
+        Raises
+        ------
+        Exception
+            If the request is an add view and an object is provided, or if the request 
+            is a change view and no object is provided
+
+        """
         if request.is_add_view and obj is not None:
             raise Exception(
                 "'obj' passed to get_formsets_with_inlines wasn't None during add_view"

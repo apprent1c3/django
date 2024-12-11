@@ -17,6 +17,10 @@ class TestSaveLoad(TestCase):
         self.assertEqual(loaded.field, duration)
 
     def test_create_empty(self):
+        """
+        Tests the creation of a NullDurationModel instance with an empty duration field, 
+        verifying that the field is successfully stored as None when retrieved from the database.
+        """
         NullDurationModel.objects.create()
         loaded = NullDurationModel.objects.get()
         self.assertIsNone(loaded.field)
@@ -57,11 +61,22 @@ class TestSerialization(SimpleTestCase):
     )
 
     def test_dumping(self):
+        """
+        Tests the serialization of a DurationModel instance to JSON.
+
+        Verifies that the serialized data matches the expected output to ensure correct dumping of duration fields.
+
+        :raises AssertionError: If the serialized data does not match the expected output.
+
+        """
         instance = DurationModel(field=datetime.timedelta(days=1, hours=1))
         data = serializers.serialize("json", [instance])
         self.assertEqual(json.loads(data), json.loads(self.test_data))
 
     def test_loading(self):
+        """
+        Tests the loading of serialized data into a Python object, verifying that the deserialization process correctly handles datetime values. Specifically, it checks that a JSON-serialized object can be loaded into an instance with the expected datetime.timedelta value.
+        """
         instance = list(serializers.deserialize("json", self.test_data))[0].object
         self.assertEqual(instance.field, datetime.timedelta(days=1, hours=1))
 

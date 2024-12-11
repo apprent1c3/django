@@ -18,6 +18,14 @@ class FileBasedCache(BaseCache):
     pickle_protocol = pickle.HIGHEST_PROTOCOL
 
     def __init__(self, dir, params):
+        """
+        Initializes the object with a directory path and parameters.
+
+        :param dir: The path to the directory to be used by the object.
+        :param params: Additional parameters to configure the object's behavior.
+
+        The directory path is converted to an absolute path, and the directory is created if it does not exist. This method is typically used to set up the object's environment and should be called during object initialization. 
+        """
         super().__init__(params)
         self._dir = os.path.abspath(dir)
         self._createdir()

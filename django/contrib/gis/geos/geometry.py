@@ -688,6 +688,15 @@ class LinearGeometryMixin:
         return self._topology(capi.geos_interpolate_normalized(self.ptr, distance))
 
     def project(self, point):
+        """
+        Project a point onto this geometric object.
+
+        Projects a given point onto the closest point on the geometric object.
+
+        :param point: The point to project, represented as a Point object.
+        :raises TypeError: If the input point is not a valid Point object.
+        :returns: The projected point.
+        """
         from .point import Point
 
         if not isinstance(point, Point):

@@ -119,6 +119,22 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+
+        Validate the output string as YAML format.
+
+        This function takes a serialized string as input and checks if it can be loaded as a YAML document.
+        It returns True if the string is a valid YAML, False otherwise.
+
+        The validation process handles any exceptions that may occur during YAML loading, providing a safe and reliable way to verify the output format.
+
+        Args:
+            serial_str (str): The input string to be validated as YAML.
+
+        Returns:
+            bool: True if the input string is valid YAML, False otherwise.
+
+        """
         try:
             yaml.safe_load(StringIO(serial_str))
         except Exception:
@@ -128,6 +144,17 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Retrieves primary key values from a serialized YAML string.
+
+        This function takes a string representing a YAML serialization of objects, 
+        deserializes the string, and extracts the primary key ('pk') value from each object.
+        It returns a list of these primary key values.
+
+        :param serial_str: The YAML serialized string of objects
+        :return: A list of primary key values
+        :rtype: list
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):
@@ -151,6 +178,15 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
         return ret_list
 
     def test_yaml_deserializer_exception(self):
+        """
+        Tests that a DeserializationError is raised when attempting to deserialize malformed YAML data.
+
+        This test ensures that the YAML deserializer correctly handles incomplete or improperly formatted YAML input, 
+        and that it raises the expected exception when encountering such data, preventing potential crashes or 
+        undesirable behavior. The test covers a scenario where the input YAML string is incomplete, specifically 
+        containing an opening bracket without a corresponding closing bracket, thus verifying the robustness of the 
+        deserializer in handling invalid or corrupted data.
+        """
         with self.assertRaises(DeserializationError):
             for obj in serializers.deserialize("yaml", "{"):
                 pass

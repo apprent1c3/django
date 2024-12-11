@@ -20,6 +20,15 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("")
 
     def test_regexfield_2(self):
+        """
+        Tests the functionality of the RegexField with a specific regular expression pattern.
+
+        The regular expression pattern '^[0-9][A-F][0-9]$' is used to validate input strings.
+        This pattern matches strings that start with a digit, followed by a hexadecimal character (A-F),
+        and end with another digit. The test case checks the field's behavior with valid and invalid inputs,
+        ensuring that it correctly cleans valid input, raises a ValidationError for invalid input,
+        and handles empty input when the field is not required.
+        """
         f = RegexField("^[0-9][A-F][0-9]$", required=False)
         self.assertEqual("2A2", f.clean("2A2"))
         self.assertEqual("3F3", f.clean("3F3"))
@@ -39,6 +48,20 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("2A2 ")
 
     def test_regexfield_4(self):
+        """
+
+        Tests the functionality of the RegexField when given a regular expression that matches one or more digits.
+
+        The test covers various validation scenarios, including:
+
+        *   Input too short: Verifies that a ValidationError is raised when the input string has fewer characters than the minimum length specified.
+        *   Input containing invalid characters: Checks that a ValidationError is raised when the input string contains non-digit characters.
+        *   Input within valid length range: Confirms that the clean method returns the input string unchanged when it matches the regular expression and is within the specified length range.
+        *   Input too long: Tests that a ValidationError is raised when the input string exceeds the maximum length specified.
+
+        These tests ensure that the RegexField correctly validates input data according to the provided regular expression and length constraints.
+
+        """
         f = RegexField("^[0-9]+$", min_length=5, max_length=10)
         with self.assertRaisesMessage(
             ValidationError, "'Ensure this value has at least 5 characters (it has 3).'"
@@ -76,6 +99,9 @@ class RegexFieldTest(SimpleTestCase):
         self.assertEqual(f.regex, re.compile("^[a-z]+$"))
 
     def test_regexfield_strip(self):
+        """
+        Test that the RegexField with strip=True properly removes leading and trailing whitespace from input strings before validating them against the regular expression pattern.
+        """
         f = RegexField("^[a-z]+$", strip=True)
         self.assertEqual(f.clean(" a"), "a")
         self.assertEqual(f.clean("a "), "a")

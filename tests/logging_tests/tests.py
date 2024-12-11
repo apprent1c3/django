@@ -56,6 +56,14 @@ class LoggingFiltersTest(SimpleTestCase):
 class SetupDefaultLoggingMixin:
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the class for testing by configuring the logging settings.
+
+        This method is called once before running all tests in the class. It sets the logging configuration to the default settings defined in :data:`DEFAULT_LOGGING`.
+        After all tests have finished, the logging configuration is reset to the settings defined in :data:`settings.LOGGING` to ensure cleanup.
+
+        """
         super().setUpClass()
         logging.config.dictConfig(DEFAULT_LOGGING)
         cls.addClassCleanup(logging.config.dictConfig, settings.LOGGING)
@@ -77,6 +85,14 @@ class DefaultLoggingTests(
 
     @override_settings(DEBUG=True)
     def test_django_logger_warning(self):
+        """
+        Tests the Django logger to ensure it correctly outputs a warning message.
+
+        This test case verifies that when a warning is logged using the logger's warning method,
+        the expected warning message is properly written to the log output.
+
+        :raises AssertionError: if the logged warning message does not match the expected output
+        """
         self.logger.warning("warning")
         self.assertEqual(self.logger_output.getvalue(), "warning\n")
 
@@ -87,6 +103,13 @@ class DefaultLoggingTests(
 
     @override_settings(DEBUG=True)
     def test_django_logger_debug(self):
+        """
+        Tests that Django logger does not output debug messages when running in debug mode.
+
+        This test case verifies the functionality of the Django logger when the DEBUG setting is enabled.
+        It checks if a debug message is correctly logged and if it appears in the logger output as expected.
+        The test ensures that the logger behaves as intended in a debug environment, providing a basis for troubleshooting and debugging purposes.
+        """
         self.logger.debug("debug")
         self.assertEqual(self.logger_output.getvalue(), "")
 
@@ -95,6 +118,32 @@ class LoggingAssertionMixin:
     def assertLogsRequest(
         self, url, level, msg, status_code, logger="django.request", exc_class=None
     ):
+        """
+        Asserts that a GET request to the given URL logs a message at the specified level.
+
+        Parameters
+        ----------
+        url : str
+            The URL to send the GET request to.
+        level : int
+            The logging level at which the message should be logged.
+        msg : str
+            The expected log message.
+        status_code : int
+            The expected status code associated with the log record.
+        logger : str, optional
+            The name of the logger to check (default is 'django.request').
+        exc_class : type, optional
+            The expected exception class associated with the log record, if any.
+
+        This function verifies that the log message matches the expected message and that the log record contains the correct status code and exception information, if applicable.
+
+        Raises
+        ------
+        AssertionError
+            If the log message does not match the expected message, or if the log record does not contain the correct status code or exception information.
+
+        """
         with self.assertLogs(logger, level) as cm:
             try:
                 self.client.get(url)
@@ -122,6 +171,14 @@ class HandlerLoggingTests(
         self.assertEqual(self.logger_output.getvalue(), "")
 
     def test_redirect_no_warning(self):
+        """
+        Tests that a redirect occurs without triggering any warnings.
+
+        This test case checks the functionality of a redirect by sending a GET request
+        to the '/redirect/' endpoint and verifying that no warnings are logged during
+        the process. It ensures that the redirect operation does not produce any
+        unexpected warnings, providing confidence in the reliability of the system.
+        """
         self.client.get("/redirect/")
         self.assertEqual(self.logger_output.getvalue(), "")
 
@@ -197,11 +254,25 @@ class HandlerLoggingTests(
 )
 class I18nLoggingTests(SetupDefaultLoggingMixin, LoggingCaptureMixin, SimpleTestCase):
     def test_i18n_page_found_no_warning(self):
+        """
+        Tests that no warnings are emitted when an i18n page is found.
+
+        This test scenario simulates requests to existing pages with and without 
+        locale prefix, verifying that the logging output remains empty, indicating 
+        no warnings were generated during the page requests.
+        """
         self.client.get("/exists/")
         self.client.get("/en/exists/")
         self.assertEqual(self.logger_output.getvalue(), "")
 
     def test_i18n_page_not_found_warning(self):
+        """
+        Tests whether the proper warning messages are logged when an I18N page is not found.
+
+        Verifies that a 'Not Found' warning is correctly emitted for both non-translated and translated pages that do not exist.
+
+        Checks the logged output to ensure the expected warnings are present for the given non-existent page URLs.
+        """
         self.client.get("/this_does_not/")
         self.client.get("/en/nor_this/")
         self.assertEqual(
@@ -222,6 +293,16 @@ class CallbackFilterTest(SimpleTestCase):
         collector = []
 
         def _callback(record):
+            """
+            Callback function to collect log records.
+
+            This function is used to process log records, appending them to a collector for further processing.
+            It takes a log record as input and returns a boolean value indicating success.
+
+            :param record: The log record to be collected
+            :rtype: bool
+            :return: True to indicate successful collection of the log record
+            """
             collector.append(record)
             return True
 
@@ -353,6 +434,23 @@ class AdminEmailHandlerTest(SimpleTestCase):
         mail_admins_called = {"called": False}
 
         def my_mail_admins(*args, **kwargs):
+            """
+            Send a notification email to administrators.
+
+            This function facilitates sending emails to administrators using a predefined 
+            email backend. It checks if the provided connection is an instance of 
+            MyEmailBackend before proceeding.
+
+            Args:
+                *args: Variable number of arguments
+                **kwargs: Keyword arguments, including 'connection' which is required
+
+            Note:
+                The 'connection' keyword argument must be an instance of MyEmailBackend.
+
+            This function does not return any value but triggers an internal flag 
+            indicating that the mail admins functionality has been called.
+            """
             connection = kwargs["connection"]
             self.assertIsInstance(connection, MyEmailBackend)
             mail_admins_called["called"] = True
@@ -397,6 +495,19 @@ class AdminEmailHandlerTest(SimpleTestCase):
         DEBUG=False,
     )
     def test_customize_send_mail_method(self):
+        """
+
+        Tests the customization of the send mail method for sending error emails to managers.
+
+        This test case verifies that the customized email handler successfully sends an email
+        to the specified manager's email address when an error occurs. It ensures that the email
+        is sent to the correct recipient and that the email outbox is updated correctly.
+
+        The test uses a customized AdminEmailHandler that overrides the send mail method to
+        use the mail_managers function, which sends emails to the managers listed in the
+        MANAGERS setting.
+
+        """
         class ManagerEmailHandler(AdminEmailHandler):
             def send_mail(self, subject, message, *args, **kwargs):
                 mail.mail_managers(
@@ -414,6 +525,18 @@ class AdminEmailHandlerTest(SimpleTestCase):
 
     @override_settings(ALLOWED_HOSTS="example.com")
     def test_disallowed_host_doesnt_crash(self):
+        """
+        Tests that an invalid host header does not cause the application to crash.
+
+        This test checks the application's behavior when a request is made with a host header
+        that is not in the ALLOWED_HOSTS setting. It verifies that the application handles this
+        scenario without crashing, both when HTML emails are included and when they are not.
+
+        The test overrides the ALLOWED_HOSTS setting to 'example.com' and then makes a request
+        to the root URL with a host header set to 'evil.com', which is not in the allowed hosts.
+        It checks that the application behaves as expected in both cases, ensuring that the
+        admin email handler functions correctly and does not cause any crashes.
+        """
         admin_email_handler = self.get_admin_email_handler(self.logger)
         old_include_html = admin_email_handler.include_html
 
@@ -432,11 +555,38 @@ class AdminEmailHandlerTest(SimpleTestCase):
             admin_email_handler.include_html = old_include_html
 
     def test_default_exception_reporter_class(self):
+        """
+        Tests whether the default exception reporter class is correctly assigned to the admin email handler.
+
+        Verifies that the admin email handler, responsible for sending exception reports,
+        utilizes the standard exception reporting class provided by the system, ensuring
+        consistent and reliable error reporting to administrators.
+
+        Only the assignment of the exception reporter class is verified, without 
+        considering the actual functionality of the reporter or the email handler. 
+
+        Checks the default configuration, ensuring that the correct reporter class is 
+        selected and used for error reporting purposes when no specific configuration 
+        is provided.
+        """
         admin_email_handler = self.get_admin_email_handler(self.logger)
         self.assertEqual(admin_email_handler.reporter_class, ExceptionReporter)
 
     @override_settings(ADMINS=[("A.N.Admin", "admin@example.com")])
     def test_custom_exception_reporter_is_used(self):
+        """
+
+        Tests if a custom exception reporter is used when an error is logged.
+
+        This test case verifies that the custom exception reporter class is utilized when 
+        an error occurs and an email notification is sent to administrators. It checks if 
+        the email contains the expected error message and custom traceback text.
+
+        The test uses a mock request, sets up an AdminEmailHandler with the custom 
+        reporter class, and then emits a log record with an error level. It then asserts 
+        that an email is sent and that its content matches the expected output.
+
+        """
         record = self.logger.makeRecord(
             "name", logging.ERROR, "function", "lno", "message", None, None
         )
@@ -513,6 +663,19 @@ class SettingsConfigTest(AdminScriptTestCase):
 
     def test_circular_dependency(self):
         # validate is just an example command to trigger settings configuration
+        """
+        Check for circular dependencies in the system.
+
+        This test method verifies that the system configuration does not contain any circular dependencies.
+        It runs the system check command and then asserts that no errors are reported and the expected success message is displayed.
+        The test passes if no issues are identified by the system check, indicating a clean and properly configured system.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the system check reports any issues or errors.
+        """
         out, err = self.run_manage(["check"])
         self.assertNoOutput(err)
         self.assertOutput(out, "System check identified no issues (0 silenced).")
@@ -531,6 +694,15 @@ class SetupConfigureLogging(SimpleTestCase):
     """
 
     def test_configure_initializes_logging(self):
+        """
+        Tests whether the initial configuration of the application properly sets up logging.
+
+        This test case verifies that the logging configuration is initialized as expected
+        when the application is set up. It checks if the dictConfig function is called,
+        which is responsible for configuring the logging system based on a dictionary
+        configuration. The test ensures that the logging is correctly configured at the
+        start of the application.
+        """
         from django import setup
 
         try:
@@ -613,6 +785,14 @@ format=%(message)s
         )
 
     def test_custom_logging(self):
+        """
+        Tests custom logging functionality by running the system check command.
+
+        Verifies that the system check command executes successfully, producing no error output.
+        Checks that the command produces the expected output, indicating that no issues were identified during the system check.
+
+        :returns: None
+        """
         out, err = self.run_manage(["check"])
         self.assertNoOutput(err)
         self.assertOutput(out, "System check identified no issues (0 silenced).")
@@ -648,6 +828,18 @@ class LogFormattersTests(SimpleTestCase):
 
         @contextmanager
         def patch_django_server_logger():
+            """
+
+            Context manager to patch the Django server logger stream.
+
+            This function allows you to capture log messages from the Django server logger.
+            It temporarily redirects the logger's output to a StringIO object, yielding it to the caller.
+            After the context manager exits, the original logger stream is restored.
+
+            Use this context manager when you need to test or inspect log messages produced by the Django server logger.
+            The yielded StringIO object will contain the log messages produced during the execution of the code within the context manager.
+
+            """
             old_stream = logger.handlers[0].stream
             new_stream = StringIO()
             logger.handlers[0].stream = new_stream

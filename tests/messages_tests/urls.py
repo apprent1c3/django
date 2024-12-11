@@ -37,6 +37,17 @@ def add(request, message_type):
 
 @never_cache
 def add_template_response(request, message_type):
+    """
+    Adds a template response message to the system based on the provided message type.
+
+    :param request: The current HTTP request object.
+    :param message_type: The type of message to be added, such as success, warning, or error.
+
+    :returns: A redirect response to the template response show page.
+    :rtype: HttpResponseRedirect
+
+    This function processes a list of messages from the request body, applies the specified message type to each one, and then redirects the user to the template response show page. It is used to handle user input and provide feedback in the form of messages.
+    """
     for msg in request.POST.getlist("messages"):
         getattr(messages, message_type)(request, msg)
     return HttpResponseRedirect(reverse("show_template_response"))
@@ -44,12 +55,42 @@ def add_template_response(request, message_type):
 
 @never_cache
 def show(request):
+    """
+
+    Handle HTTP requests and return an HTTP response.
+
+    This view function is responsible for rendering a predefined template and returning the result as an HttpResponse object.
+    The template is rendered with the current request context, allowing it to access and display dynamic information.
+    The function does not cache its responses, ensuring that the latest data is always displayed.
+
+    Args:
+        request: The incoming HTTP request object.
+
+    Returns:
+        HttpResponse: The rendered template as an HTTP response.
+
+    """
     template = engines["django"].from_string(TEMPLATE)
     return HttpResponse(template.render(request=request))
 
 
 @never_cache
 def show_template_response(request):
+    """
+
+    Returns a rendered template response for the given request.
+
+    This function uses the Django template engine to render a predefined template 
+    and returns a TemplateResponse object. It is decorated to prevent caching of the response.
+
+    The template content is defined in the TEMPLATE variable and is rendered with the 
+    current request context. The resulting TemplateResponse object is then returned, 
+    allowing the caller to handle the response further.
+
+    :param request: The current HTTP request
+    :rtype: TemplateResponse
+
+    """
     template = engines["django"].from_string(TEMPLATE)
     return TemplateResponse(request, template)
 

@@ -48,6 +48,15 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(content, "hello world!")
 
     def test_exception_debug_info_min_context(self):
+        """
+
+        Tests that the template engine provides minimal debug information when a TemplateSyntaxError occurs.
+
+        This test case verifies that when a syntax error is encountered in a template, the engine correctly raises an exception and includes relevant debug information. The debug information is checked to ensure it includes the source code lines surrounding the error, as well as the line and column numbers where the error occurred.
+
+        The test also confirms that the provided debug information is minimal, containing only the necessary details to diagnose the issue, such as the template name, error message, and the line of code where the error occurred.
+
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error.html")
         debug = e.exception.template_debug
@@ -99,6 +108,19 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(template.render({"name": "Joe"}), "Hello Joe!")
 
     def test_template_render_nested_error(self):
+        """
+
+        Tests the rendering of a template with a nested syntax error.
+
+        This test case verifies that the template engine correctly raises a TemplateSyntaxError
+        when encountering a syntax error in a nested template include. It also checks that the
+        error message and debug information are accurate, including the line number, source lines,
+        and error message.
+
+        The test renders a template that includes another template with a syntax error, and then
+        verifies that the expected error is raised with the correct debug information.
+
+        """
         template = self.engine.get_template(
             "template_backends/syntax_error_include.html"
         )

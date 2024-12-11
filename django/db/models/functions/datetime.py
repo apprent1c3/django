@@ -406,6 +406,18 @@ class TruncDate(TruncBase):
 
     def as_sql(self, compiler, connection):
         # Cast to date rather than truncate to date.
+        """
+        Generate a SQL representation of the current object.
+
+        This method compiles the left-hand side (LHS) of the object into a SQL query and 
+        then applies a date casting operation to the result. The casting operation 
+        takes into account the specified timezone.
+
+        The generated SQL query is suitable for execution on a database connection.
+
+        :returns: A SQL query string with parameters
+        :rtype: str
+        """
         sql, params = compiler.compile(self.lhs)
         tzname = self.get_tzname()
         return connection.ops.datetime_cast_date_sql(sql, tuple(params), tzname)

@@ -19,6 +19,14 @@ class HttpResponseBaseTests(SimpleTestCase):
         self.assertIs(r.closed, True)
 
     def test_write(self):
+        """
+
+        Tests the write functionality of the HttpResponseBase instance.
+
+        Verifies that the HttpResponseBase instance is not writable and that attempting to 
+        write or write lines to it raises an OSError with an appropriate message.
+
+        """
         r = HttpResponseBase()
         self.assertIs(r.writable(), False)
 
@@ -32,6 +40,13 @@ class HttpResponseBaseTests(SimpleTestCase):
             r.writelines(["asdf\n", "qwer\n"])
 
     def test_tell(self):
+        """
+        Tests that attempting to call tell() on an HttpResponseBase instance raises an OSError.
+
+        This test case verifies the expected behavior when trying to retrieve the current position of an HttpResponseBase object, 
+        which does not support seeking or telling its position. It ensures that an OSError is raised with a descriptive error message 
+        when the tell() method is invoked on such an instance.
+        """
         r = HttpResponseBase()
         with self.assertRaisesMessage(
             OSError, "This HttpResponseBase instance cannot tell its position"
@@ -53,6 +68,21 @@ class HttpResponseBaseTests(SimpleTestCase):
         self.assertEqual(r.headers["X-Header"], "DefaultValue")
 
     def test_charset_setter(self):
+        """
+        Tests the setter method for the charset attribute of the HttpResponseBase object.
+
+        Verifies that setting the charset attribute to a specific value results in the attribute being correctly updated, ensuring proper encoding of the response.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            This test case ensures the correctness of the charset setter method, which is essential for handling character encoding in HTTP responses.
+
+        """
         r = HttpResponseBase()
         r.charset = "utf-8"
         self.assertEqual(r.charset, "utf-8")
@@ -76,6 +106,10 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(resp.reason_phrase, "Service Unavailable")
 
     def test_valid_status_code_string(self):
+        """
+        Tests whether the HttpResponse class correctly interprets a valid status code string, converting it into an integer status code. 
+        The function verifies that the status code is correctly parsed from a string input and set as the HttpResponse object's status_code attribute, covering a range of HTTP status codes.
+        """
         resp = HttpResponse(status="100")
         self.assertEqual(resp.status_code, 100)
         resp = HttpResponse(status="404")
@@ -84,6 +118,14 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(resp.status_code, 599)
 
     def test_invalid_status_code(self):
+        """
+        ).. Test that the HttpResponse constructor correctly handles invalid HTTP status codes.
+
+            This test checks that:
+                - A non-integer status code raises a TypeError.
+                - A status code that is an integer but outside the valid range of 100-599 raises a ValueError.
+            The test cases verify that the HttpResponse class raises the expected exceptions with informative error messages.
+        """
         must_be_integer = "HTTP status code must be an integer."
         must_be_integer_in_range = (
             "HTTP status code must be an integer from 100 to 599."
@@ -98,6 +140,22 @@ class HttpResponseTests(SimpleTestCase):
             HttpResponse(status=600)
 
     def test_reason_phrase(self):
+        """
+
+        Test the reason phrase attribute of an HttpResponse object.
+
+        This test case verifies that a custom reason phrase can be assigned to an HttpResponse
+        object with a specific status code and checks if the assigned reason phrase is correctly
+        retrieved.
+
+        The test includes a negative test case where the status code is set to 419, which is
+        not a standard HTTP status code, to ensure the reason phrase is still correctly handled.
+
+        It validates that the HttpResponse object's status_code and reason_phrase attributes
+        are correctly set and retrieved, ensuring proper functionality of the HttpResponse
+        object in handling custom reason phrases.
+
+        """
         reason = "I'm an anarchist coffee pot on crack."
         resp = HttpResponse(status=419, reason=reason)
         self.assertEqual(resp.status_code, 419)
@@ -152,16 +210,52 @@ class HttpResponseTests(SimpleTestCase):
         self.assertContains(response, iso_content)
 
     def test_repr(self):
+        """
+        Tests the string representation of an HttpResponse object.
+
+        Verifies that the repr function correctly generates a string that represents
+        the HttpResponse object, including its status code and content type information.
+
+        The test checks that the string representation matches the expected format,
+        which includes the status code and content type, ensuring that the repr function
+        provides a useful and accurate summary of the HttpResponse object's state.
+        """
         response = HttpResponse(content="Café :)".encode(UTF8), status=201)
         expected = '<HttpResponse status_code=201, "text/html; charset=utf-8">'
         self.assertEqual(repr(response), expected)
 
     def test_repr_no_content_type(self):
+        """
+
+        Tests that the representations of an HttpResponse object is correctly formatted 
+        when the 'Content-Type' header is absent and the status code is 204.
+
+        The function verifies that the string representation of such an HttpResponse 
+        object matches the expected format, ensuring that the status code is included 
+        in the representation.
+
+        """
         response = HttpResponse(status=204)
         del response.headers["Content-Type"]
         self.assertEqual(repr(response), "<HttpResponse status_code=204>")
 
     def test_wrap_textiowrapper(self):
+        """
+        Tests the wrapping of a TextIOWrapper around an HttpResponse object to write encoded text content.
+
+        This test verifies that writing a UTF-8 encoded string to the TextIOWrapper
+        results in the correct encoded content being stored in the HttpResponse object.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the written content does not match the expected encoded content.
+
+        """
         content = "Café :)"
         r = HttpResponse()
         with io.TextIOWrapper(r, UTF8) as buf:
@@ -169,6 +263,12 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, content.encode(UTF8))
 
     def test_generator_cache(self):
+        """
+        Tests whether the cache properly handles an HttpResponse object containing a generator, 
+        ensuring that the response content is correctly cached and retrieved. 
+        This includes checking that the generator is exhausted after being used to set the response content, 
+        and that the cached response has the expected content.
+        """
         generator = (str(i) for i in range(10))
         response = HttpResponse(content=generator)
         self.assertEqual(response.content, b"0123456789")

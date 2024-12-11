@@ -87,6 +87,20 @@ def _get_varchar_column(data):
 
 
 def ensure_timezone(connection, ops, timezone_name):
+    """
+    Sets the timezone for a given database connection if it does not already match the desired timezone.
+
+    :param connection: The database connection to configure.
+    :param ops: An object containing the necessary operations for setting the timezone.
+    :param timezone_name: The name of the desired timezone.
+
+    :returns: True if the timezone was changed, False otherwise.
+
+    This function checks the current timezone of the connection and updates it if necessary.
+    It uses the provided ops object to execute the necessary SQL command to set the timezone.
+    The function returns a boolean indicating whether a change was made, allowing the caller to
+    determine if any further actions are required.
+    """
     conn_timezone_name = connection.info.parameter_status("TimeZone")
     if timezone_name and conn_timezone_name != timezone_name:
         with connection.cursor() as cursor:
@@ -241,6 +255,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self._connection_pools[self.alias]
 
     def close_pool(self):
+        """
+        Closes the database connection pool associated with the current alias.
+
+        This method releases any system resources held by the pool, ensuring that connections are properly terminated and memory is freed. 
+
+        If a pool is currently active for the given alias, it is closed and removed from the internal pool registry.
+        """
         if self.pool:
             self.pool.close()
             del self._connection_pools[self.alias]
@@ -361,6 +382,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     def ensure_timezone(self):
         # Close the pool so new connections pick up the correct timezone.
+        """
+        Ensures the timezone is correctly set for the database connection.
+
+        This method takes care of closing any existing database connection pools before checking and setting the timezone.
+        It returns False if there is no active database connection, otherwise it invokes the timezone setup process using the specified timezone name and database operations.
+        """
         self.close_pool()
         if self.connection is None:
             return False
@@ -383,6 +410,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return commit_role or commit_tz
 
     def _close(self):
+        """
+
+        Closes the current database connection.
+
+        If a connection pool is used, this method returns the connection to the pool, 
+        otherwise it closes the connection directly.
+
+        This method is intended for internal use and should not be called directly. 
+        It handles any database-related errors that may occur during the closing process.
+
+        """
         if self.connection is not None:
             # `wrap_database_errors` only works for `putconn` as long as there
             # is no `reset` function set in the pool because it is deferred

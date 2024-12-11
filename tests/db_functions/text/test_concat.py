@@ -33,12 +33,32 @@ class ConcatTests(TestCase):
         )
 
     def test_gt_two_expressions(self):
+        """
+        Tests that attempting to use the Concat function with less than two expressions raises a ValueError.
+
+        This test case validates the minimum requirement for the Concat function, 
+        ensuring it correctly handles invalid input and provides a meaningful error message 
+        when the number of expressions is insufficient. The error message should indicate 
+        that Concat must be used with at least two expressions.
+        """
         with self.assertRaisesMessage(
             ValueError, "Concat must take at least two expressions"
         ):
             Author.objects.annotate(joined=Concat("alias"))
 
     def test_many(self):
+        """
+        Tests the concatenation of author names and aliases in a queryset.
+
+        Checks that authors are correctly ordered by their full name and that their 
+        names and aliases are concatenated as expected. The function verifies that 
+        authors without an alias are still included in the results, with an empty 
+        alias field in the concatenated string.
+
+        This test ensures that the annotate function is working correctly with 
+        conditional fields, such as 'goes_by', and that the results are as expected 
+        when ordering by the 'name' field.
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -80,6 +100,21 @@ class ConcatTests(TestCase):
         "SQLite and PostgreSQL specific implementation detail.",
     )
     def test_coalesce_idempotent(self):
+        """
+
+        Tests whether the coalesce method is idempotent when used with ConcatPair instances.
+
+        This method checks that applying the coalesce method to a ConcatPair does not 
+        alter the original pair's behavior when flattened, both before and after 
+        coalescing. The test specifically verifies that the number of elements 
+        produced by the flatten method remains consistent, before and after 
+        applying coalesce, ensuring that coalescing does not have unintended side 
+        effects on the original pair's state.
+
+        Note: This test is specific to SQLite and PostgreSQL due to implementation 
+        details of these databases.
+
+        """
         pair = ConcatPair(V("a"), V("b"))
         # Check nodes counts
         self.assertEqual(len(list(pair.flatten())), 3)
@@ -89,11 +124,27 @@ class ConcatTests(TestCase):
         self.assertEqual(len(list(pair.flatten())), 3)
 
     def test_sql_generation_idempotency(self):
+        """
+
+        Tests the idempotency of SQL generation for a query with annotations.
+
+        Verifies that generating the SQL query string for an annotated queryset is
+        equivalent to generating the SQL query string for the same queryset after
+        evaluating the entire result set, ensuring that the SQL generation process
+        is idempotent and does not produce different results due to the evaluation
+        of the queryset.
+
+        """
         qs = Article.objects.annotate(description=Concat("title", V(": "), "summary"))
         # Multiple compilations should not alter the generated query.
         self.assertEqual(str(qs.query), str(qs.all().query))
 
     def test_concat_non_str(self):
+        """
+        Tests the concatenation of non-string fields in a Django ORM query, verifying that the output is correctly formatted and the database query is optimized to use a single query. 
+
+        The function checks if the Concat database function is used to join name, alias, and age fields with a custom separator, and the result is of TextField type. It also ensures that the generated SQL query is vendor-specific, handling PostgreSQL's requirement for explicit type casting to text.
+        """
         Author.objects.create(name="The Name", age=42)
         with self.assertNumQueries(1) as ctx:
             author = Author.objects.annotate(

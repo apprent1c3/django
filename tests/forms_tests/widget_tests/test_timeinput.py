@@ -69,6 +69,20 @@ class TimeInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the fieldset functionality of a form field widget.
+
+        This test case creates a form with a single field and verifies that the widget
+        does not use a fieldset by default. It then checks the rendered HTML output of
+        the form to ensure it matches the expected format.
+
+        The test covers the basic rendering of a form field without a fieldset, which
+        is useful for understanding how form fields are displayed when not grouped
+        together. The test helps ensure that the widget behaves as expected when
+        rendered in a form, and that the HTML output is correct.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

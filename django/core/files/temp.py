@@ -51,6 +51,17 @@ if os.name == "nt":
         unlink = os.unlink
 
         def close(self):
+            """
+            Closes the current file and removes any associated temporary resources.
+
+            This method ensures that the file is properly closed, regardless of whether an exception is thrown. 
+            It also attempts to unlink the file, which can help with cleanup and resource management.
+
+            Note that this method is idempotent, meaning it can be called multiple times without causing any issues. 
+            If the close operation has already been performed, subsequent calls will have no effect.
+
+            Raises no exceptions, as any errors that occur during the close operation are silently ignored.
+            """
             if not self.close_called:
                 self.close_called = True
                 try:

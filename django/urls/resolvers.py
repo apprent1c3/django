@@ -336,6 +336,23 @@ class RoutePattern(CheckURLMixin):
         return None
 
     def check(self):
+        """
+        Check the URL pattern for potential issues and return a list of warnings.
+
+        This function verifies the URL pattern for several common mistakes, including
+        starting with a slash, having unmatched angle brackets, and using regular expression
+        syntax that is not compatible with django.urls.path(). 
+
+        The function returns a list of Warning objects, each containing a descriptive message 
+        and an error code, if any issues are found.
+
+        The checks include:
+        - patterns that start with a slash
+        - patterns with unmatched angle brackets
+        - routes that contain '(?P<', begin with a '^', or end with a '$', which may indicate 
+          a migration oversight from old-style URL routing to django.urls.path()
+
+        """
         warnings = [
             *self._check_pattern_startswith_slash(),
             *self._check_pattern_unmatched_angle_brackets(),
@@ -394,6 +411,18 @@ class LocalePrefixPattern:
             return "%s/" % language_code
 
     def match(self, path):
+        """
+        Matches a given path against a predefined language prefix.
+
+        If the path starts with the language prefix, the function returns a tuple containing
+        the path with the prefix removed, an empty tuple, and an empty dictionary.
+
+        Otherwise, it returns None.
+
+        :returns: Tuple containing the path with prefix removed, empty tuple, and empty dictionary, or None if no match is found
+        :rtype: tuple or None
+
+        """
         language_prefix = self.language_prefix
         if path.startswith(language_prefix):
             return path.removeprefix(language_prefix), (), {}
@@ -440,6 +469,20 @@ class URLPattern:
             return []
 
     def _check_callback(self):
+        """
+        Checks if the callback view in a URL pattern is valid.
+
+        This function inspects the callback view associated with the URL pattern and
+        returns an error if it is a Django View class that has not been properly
+        instantiated using the `as_view()` method.
+
+        Returns:
+            list: A list of :class:`Error` objects if the callback view is invalid,
+                  otherwise an empty list. The error message provides guidance on how
+                  to fix the issue, including the name of the view class and the URL
+                  pattern involved. The error has the ID 'urls.E009'.
+
+        """
         from django.views import View
 
         view = self.callback
@@ -707,6 +750,19 @@ class URLResolver:
 
     @cached_property
     def urlconf_module(self):
+        """
+        Returns the URL configuration module.
+
+        This property lazily imports the URL configuration module specified by
+        :attr:`urlconf_name` if it is a string, or returns the :attr:`urlconf_name`
+        directly if it is not a string.
+
+        The returned module is expected to contain URL patterns and mappings for the
+        application.
+
+        :rtype: module
+
+        """
         if isinstance(self.urlconf_name, str):
             return import_module(self.urlconf_name)
         else:
@@ -729,6 +785,11 @@ class URLResolver:
         return patterns
 
     def resolve_error_handler(self, view_type):
+        """
+        Resolve the error handler for a given view type by attempting to find a matching handler function in the URL configuration module and falling back to Django's built-in handlers if not found. 
+
+        The function takes a view type as input and returns the corresponding error handler callable, or None if no matching handler is found. This allows for flexible error handling and customization of error responses based on the type of view being handled.
+        """
         callback = getattr(self.urlconf_module, "handler%s" % view_type, None)
         if not callback:
             # No handler specified in file; use lazy import, since

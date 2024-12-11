@@ -32,6 +32,15 @@ class TestDataMixin:
 @override_settings(ROOT_URLCONF="generic_inline_admin.urls")
 class GenericAdminViewTest(TestDataMixin, TestCase):
     def setUp(self):
+        """
+
+        Set up a test environment with a superuser logged in and a test episode with associated media.
+
+        Creates a test episode, logs in as a superuser, and adds two media objects to the episode: 
+        an MP3 file and a PNG image. The primary keys of the episode and media objects are stored 
+        as instance variables for use in subsequent tests.
+
+        """
         self.client.force_login(self.superuser)
 
         e = Episode.objects.create(name="This Week in Django")
@@ -203,6 +212,20 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.initial_form_count(), 1)
 
     def test_get_extra(self):
+        """
+        Tests the get_extra method in a custom GenericTabularInline class.
+
+        This test case verifies that the get_extra method in the inline class overrides 
+        the extra attribute defined in the class, by returning a custom number of extra 
+        forms. The test sets up an admin model instance, creates an object, and then 
+        simulates an HTTP request to the admin change form view. It then checks that the 
+        number of extra forms in the formset matches the value returned by the 
+        get_extra method.
+
+        The purpose of this test is to ensure that the get_extra method can be used to 
+        dynamically control the number of extra forms displayed in the admin interface, 
+        based on custom logic defined in the inline class. 
+        """
         class GetExtraInline(GenericTabularInline):
             model = Media
             extra = 4
@@ -243,6 +266,11 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.min_num, 2)
 
     def test_get_max_num(self):
+        """
+        Tests that the get_max_num method in a GenericTabularInline class correctly limits the maximum number of inline formsets displayed on the change form page in the admin interface.
+
+        The test case checks if the get_max_num method, which is defined to return a fixed value, is properly used to restrict the number of additional inline forms that can be added to an object. In this scenario, the method is expected to return 2, meaning that no more than 2 inline forms should be available for adding new objects. The test verifies this by comparing the max_num attribute of the formset in the response context data with the expected value.
+        """
         class GetMaxNumInline(GenericTabularInline):
             model = Media
             extra = 5
@@ -289,6 +317,14 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 302)  # redirect somewhere
 
     def test_delete(self):
+        """
+
+        Deletes a contact and tests if the delete confirmation page is displayed correctly.
+
+        This test creates a new contact, associates a phone number with it, and then sends a POST request to the delete view.
+        The response from the server is then checked to ensure it contains a confirmation message before the contact is deleted.
+
+        """
         from .models import Contact
 
         c = Contact.objects.create(name="foo")
@@ -307,6 +343,14 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
 class NoInlineDeletionTest(SimpleTestCase):
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_no_deletion(self):
+        """
+        Tests that the MediaPermanentInline does not allow deletion of episodes.
+
+        Verifies that the can_delete attribute of the formset returned by the inline
+        is set to False, ensuring that delete functionality is disabled in the admin
+        interface for permanent episodes.\"\"\"
+        ```
+        """
         inline = MediaPermanentInline(EpisodePermanent, admin_site)
         fake_request = object()
         formset = inline.get_formset(fake_request)
@@ -333,6 +377,22 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_get_formset_kwargs(self):
+        """
+
+        Tests the get_formset_kwargs method of the MediaInline class.
+
+        This test case verifies that the method returns a formset with the correct 
+        maximum number of forms and ordering capability.
+
+        The test checks the default values of the formset and then tests that 
+        overriding these values with custom parameters results in the expected 
+        formset configuration.
+
+        It ensures that the get_formset_kwargs method behaves as expected under 
+        different input conditions, providing a formset with the specified maximum 
+        number of forms and ordering capability.
+
+        """
         media_inline = MediaInline(Media, AdminSite())
 
         # Create a formset with default arguments
@@ -475,6 +535,18 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             inlines = (AlternateInline, MediaInline)
 
             def get_inlines(self, request, obj):
+                """
+                Returns a list of inlines based on the request name.
+
+                The function filters the inlines based on the name attribute of the request object.
+                If the request name is 'alternate', it returns the first inline. If the request name is 'media',
+                it returns the second inline. For any other request name or if the request object does not have a name attribute,
+                it returns an empty list.
+
+                :param request: The request object containing the name attribute
+                :param obj: The object associated with the request
+                :rtype: list
+                """
                 if hasattr(request, "name"):
                     if request.name == "alternate":
                         return self.inlines[:1]

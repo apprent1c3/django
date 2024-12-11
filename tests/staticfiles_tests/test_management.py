@@ -36,12 +36,32 @@ class TestNoFilesCreated:
 class TestRunserver(StaticFilesTestCase):
     @override_settings(MIDDLEWARE=["django.middleware.common.CommonMiddleware"])
     def test_middleware_loaded_only_once(self):
+        """
+        Tests that the Django middleware is loaded only once during the execution of the runserver command.
+
+        This test case ensures that the middleware initialization process is properly optimized,
+        preventing unnecessary repeated loading of middlewares. It verifies the expected behavior
+        by mocking the CommonMiddleware and checking its call count after the command handler is retrieved.
+
+        The test covers the scenario where the static handler and insecure serving are enabled,
+        providing assurance that the middleware loading is correct even in specific configuration settings.
+        """
         command = runserver.Command()
         with mock.patch("django.middleware.common.CommonMiddleware") as mocked:
             command.get_handler(use_static_handler=True, insecure_serving=True)
             self.assertEqual(mocked.call_count, 1)
 
     def test_404_response(self):
+        """
+
+        Tests the HTTP response when a static file is not found.
+
+        Verifies that a 404 status code is returned when attempting to access a non-existent static file,
+        regardless of whether the application is running in debug mode or not.
+
+        The test covers both production and development environments by toggling the DEBUG setting.
+
+        """
         command = runserver.Command()
         handler = command.get_handler(use_static_handler=True, insecure_serving=True)
         missing_static_file = os.path.join(settings.STATIC_URL, "unknown.css")
@@ -179,6 +199,13 @@ class TestConfiguration(StaticFilesTestCase):
 
     @override_settings(STATICFILES_DIRS=("test"))
     def test_collectstatis_check(self):
+        """
+        Tests that the collectstatic command raises a SystemCheckError when the STATICFILES_DIRS setting is not a tuple or list.
+
+        This test case ensures that the command correctly checks the type of the STATICFILES_DIRS setting and raises an error if it is not a valid collection, helping to prevent potential issues during static file collection.
+
+        :raises: SystemCheckError if the STATICFILES_DIRS setting is not a tuple or list
+        """
         msg = "The STATICFILES_DIRS setting is not a tuple or list."
         with self.assertRaisesMessage(SystemCheckError, msg):
             call_command("collectstatic", skip_checks=False)
@@ -221,6 +248,21 @@ class TestCollection(TestDefaults, CollectionTestCase):
 
 class TestCollectionPathLib(TestCollection):
     def mkdtemp(self):
+        """
+
+             Creates a temporary directory and returns its path as a Path object.
+
+             This method generates a unique, non-existent directory and returns a Path
+             object representing its location. The directory is created in the most
+             secure manner possible, and its path is returned for further use.
+
+             The resulting directory is intended to be used as a temporary storage
+             location and should be cleaned up after use to prevent clutter and
+             potential security issues.
+
+             :return: A Path object representing the created temporary directory.
+
+        """
         tmp_dir = super().mkdtemp()
         return Path(tmp_dir)
 
@@ -237,6 +279,18 @@ class TestCollectionVerbosity(CollectionTestCase):
         self.assertEqual(stdout.getvalue(), "")
 
     def test_verbosity_1(self):
+        """
+
+        Tests the verbosity level 1 of the collectstatic command.
+
+        This test case verifies that when the verbosity level is set to 1, the 
+        command outputs a message indicating the number of static files copied, 
+        but does not output individual copying messages.
+
+        The test checks for the presence of the static files copied message and 
+        the absence of individual copying messages in the command output.
+
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=1, stdout=stdout)
         output = stdout.getvalue()
@@ -244,6 +298,11 @@ class TestCollectionVerbosity(CollectionTestCase):
         self.assertNotIn(self.copying_msg, output)
 
     def test_verbosity_2(self):
+        """
+        Tests that the collectstatic command displays the expected output when verbosity is set to 2.
+
+        Verifies that both the total number of static files copied and the copying progress messages are printed to the console when the verbosity level is increased to 2, providing more detailed information about the collectstatic process.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout)
         output = stdout.getvalue()
@@ -276,6 +335,20 @@ class TestCollectionVerbosity(CollectionTestCase):
         }
     )
     def test_verbosity_2_with_post_process(self):
+        """
+        Tests the collectstatic command with verbosity set to 2 and post-processing enabled.
+
+        This test case verifies that the post-processing message is correctly displayed in the output when the verbosity level is set to 2.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the post-processing message is not found in the output.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout, post_process=True)
         self.assertIn(self.post_process_msg, stdout.getvalue())
@@ -287,6 +360,15 @@ class TestCollectionClear(CollectionTestCase):
     """
 
     def run_collectstatic(self, **kwargs):
+        """
+        Runs the collectstatic management command with an additional step to clear the static files directory.
+
+        This method creates a temporary file indicating that the static files should be cleared, then proceeds to run the collectstatic command with the clear option enabled.
+
+        The command ensures that the static files directory is cleaned up before collecting new static files, which can help prevent stale or redundant files from being retained. 
+
+        (args and kwargs are passed through to the parent class's run_collectstatic method)
+        """
         clear_filepath = os.path.join(settings.STATIC_ROOT, "cleared.txt")
         with open(clear_filepath, "w") as f:
             f.write("should be cleared")
@@ -296,6 +378,13 @@ class TestCollectionClear(CollectionTestCase):
         self.assertFileNotFound("cleared.txt")
 
     def test_dir_not_exists(self, **kwargs):
+        """
+        Tests the collectstatic functionality when the directory does not exist.
+
+        This test case simulates a scenario where the static root directory has been deleted.
+        It removes the static root directory and then attempts to collect static files with the 'clear' option enabled.
+        The purpose of this test is to verify that the collectstatic functionality can handle the absence of the target directory and recreate it as needed. 
+        """
         shutil.rmtree(settings.STATIC_ROOT)
         super().run_collectstatic(clear=True)
 
@@ -319,13 +408,44 @@ class TestInteractiveMessages(CollectionTestCase):
 
     @staticmethod
     def mock_input(stdout):
+        """
+
+        Return a mock input function for testing purposes.
+
+        This function generates a mock input function that writes the input message to the provided stdout and returns a fixed response of 'yes'.
+
+        Used to simulate user input in automated tests, allowing for consistent and predictable behavior.
+
+        :param stdout: The output stream where the input message will be written.
+        :return: A mock input function that can be used in place of the built-in input function.
+
+        """
         def _input(msg):
+            """
+            Simulates a user input prompt by displaying a message and returning a default affirmative response.
+
+            :param msg: The message to be displayed to the user.
+            :rtype: str
+            :return: A default 'yes' response.
+            :note: This function does not actually wait for user input, but instead immediately returns 'yes' after displaying the message.
+            """
             stdout.write(msg)
             return "yes"
 
         return _input
 
     def test_warning_when_clearing_staticdir(self):
+        """
+
+        Tests that a warning is displayed when clearing the static directory.
+
+        This test case exercises the :func:`collectstatic` command with the ``--clear``
+        option and verifies that the expected warning messages are displayed to the user.
+        It confirms that the warning about overwriting files is not shown, but the warning
+        about deleting files is displayed as expected. The test uses a mock input to
+        simulate user interaction and captures the command's output for verification.
+
+        """
         stdout = StringIO()
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=self.mock_input(stdout)):
@@ -345,6 +465,14 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertNotIn(self.delete_warning_msg, output)
 
     def test_no_warning_when_staticdir_does_not_exist(self):
+        """
+        Tests that no warning is raised when the static directory does not exist during static file collection.
+
+        This test case simulates a scenario where the static root directory has been deleted,
+        and then attempts to collect static files using the collectstatic command.
+        It verifies that the command executes without raising any warnings related to overwriting or deleting files,
+        and instead reports that files have been successfully copied to the static directory.
+        """
         stdout = StringIO()
         shutil.rmtree(settings.STATIC_ROOT)
         call_command("collectstatic", interactive=True, stdout=stdout)
@@ -366,6 +494,13 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertIn(self.files_copied_msg, output)
 
     def test_cancelled(self):
+        """
+        Tests that the collectstatic command is cancelled when the user chooses not to collect static files interactively.
+
+        Verifies that the command raises a CommandError with the expected message when the user responds 'no' to the interactive prompt.
+
+        This test case ensures that the collectstatic command behaves as expected when run in interactive mode and the user chooses to cancel the operation.
+        """
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=lambda _: "no"):
             with self.assertRaisesMessage(
@@ -441,6 +576,20 @@ class TestCollectionFilesOverride(CollectionTestCase):
     """
 
     def setUp(self):
+        """
+        Sets up a temporary test environment for testing static file handling.
+
+        Creates a temporary directory and populates it with a test application and a static file,
+        mirroring the content and timestamp of a source file. The test environment is configured
+        to use this temporary application, and cleanup mechanisms are established to ensure that
+        the temporary directory is removed after testing.
+
+        This setup method is intended to be used as a precursor to other tests, providing a 
+        reliable and self-contained environment for testing static file functionality. 
+
+        When the test is completed, the temporary directory and its contents are automatically 
+        removed, and any modifications made to the system path are reverted.
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
 
@@ -653,6 +802,16 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
         }
     )
     def test_no_remote_link(self):
+        """
+        Tests that a CommandError is raised when attempting to collect static files to a remote destination.
+
+        This test verifies that the collect static command correctly handles cases where the 
+        destination is a remote link, and ensures that an error message is displayed to the user 
+        informing them that symlinking to remote destinations is not supported.
+
+        :raises: CommandError if the collect static command is run with a remote destination.
+
+        """
         with self.assertRaisesMessage(
             CommandError, "Can't symlink to a remote destination."
         ):

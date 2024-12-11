@@ -109,6 +109,26 @@ class Library:
         """
 
         def dec(func):
+            """
+
+            Decorator to compile a function into a node in a parser.
+
+            This decorator is used to register a function with a parser, allowing it to be used
+            in a templating or parsing context. It takes the original function as input and
+            returns a wrapped version of the function, which is then registered with the parser
+            under the function's name.
+
+            The wrapped function is responsible for parsing the arguments passed to it and
+            creating a node in the parser's abstract syntax tree. The node is created with the
+            original function, its arguments, and any keyword arguments.
+
+            The decorator also supports optional \"as\" syntax, allowing the result of the
+            function to be assigned to a variable.
+
+            The resulting node can then be used by the parser to compile the function and its
+            arguments into a executable form.
+
+            """
             (
                 params,
                 varargs,
@@ -122,6 +142,18 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                #: Compile a function with given parser and token, creating a node that represents the function call.
+                #:
+                #: :param parser: The parser object used to parse the function call.
+                #: :param token: The token that contains the function call.
+                #:
+                #: :return: A :class:`SimpleNode` object that represents the compiled function call.
+                #:
+                #: This function takes the parser and token as input, parses the function call, and returns a node object that can be used for further processing.
+                #: It handles function calls with optional target variables and supports various argument formats.
+                #: The returned node object contains the function reference, argument values, and other relevant information.
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":
@@ -164,6 +196,27 @@ class Library:
         """
 
         def dec(func):
+            """
+            (\"\"\"
+            Register a function as a template tag.
+
+            This decorator allows a given function to be used as a template tag, which can be
+            invoked within a templating system. The decorated function will be wrapped to
+            accept the parser and token as arguments, parse the provided arguments, and
+            return an InclusionNode instance.
+
+            The registered function will be named after the original function, unless a
+            custom name is provided. The function's arguments will be parsed according to
+            their specification, including positional and keyword arguments, variable
+            arguments, and default values.
+
+            The decorated function will be added to the template tag registry, making it
+            available for use within templates.
+
+            :param func: The function to be registered as a template tag
+            :returns: The wrapped function
+            \"\"\")
+            """
             (
                 params,
                 varargs,

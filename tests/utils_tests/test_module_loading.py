@@ -75,6 +75,16 @@ class EggLoader(unittest.TestCase):
         self.egg_dir = "%s/eggs" % os.path.dirname(__file__)
 
     def tearDown(self):
+        """
+        Teardown method to clean up the system module cache and remove imported modules.
+
+        This method is used to reset the state of the system after a test has been executed.
+        It clears the system path importer cache and removes specific modules that were imported during the test,
+        ensuring a clean environment for subsequent tests.
+
+        The removed modules include various sub-modules and packages within the 'egg_module' namespace,
+        preventing any potential conflicts or residual state from affecting future tests.
+        """
         sys.path_importer_cache.clear()
 
         sys.modules.pop("egg_module.sub1.sub2.bad_module", None)
@@ -165,6 +175,10 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
             autodiscover_modules("bad_module")
 
     def test_autodiscover_modules_several_one_bad_module(self):
+        """
+        Tests that autodiscover_modules function correctly handles the case where multiple modules are provided, and one of them does not exist. 
+        It verifies that an ImportError is raised with the expected message when trying to import a non-existent module.
+        """
         with self.assertRaisesMessage(
             ImportError, "No module named 'a_package_name_that_does_not_exist'"
         ):
@@ -180,6 +194,15 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
         self.assertEqual(site._registry, {"lorem": "ipsum"})
 
     def test_validate_registry_keeps_intact(self):
+        """
+        Tests that the registry remains intact when an exception occurs during autodiscovery.
+
+        Verifies that an exception is raised when attempting to autodiscover a module and 
+        that the registry is not modified as a result of the exception.
+
+        Ensures the registry's state is preserved, even in the event of an error, to 
+        prevent unintended changes or corruption of the registry's data.
+        """
         from .test_module import site
 
         with self.assertRaisesMessage(Exception, "Some random exception."):
@@ -187,6 +210,15 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
         self.assertEqual(site._registry, {})
 
     def test_validate_registry_resets_after_erroneous_module(self):
+        """
+
+        Test that the internal registry is properly reset after encountering an erroneous module during autodiscovery.
+
+        This test ensures that when an exception occurs during the registration of a module, the internal registry is restored to its original state, preventing any partial or corrupted updates.
+
+        It verifies that the registry is reset by checking its contents after the exception has been raised, confirming that it matches the expected initial state.
+
+        """
         from .test_module import site
 
         with self.assertRaisesMessage(Exception, "Some random exception."):
@@ -196,6 +228,12 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
         self.assertEqual(site._registry, {"lorem": "ipsum"})
 
     def test_validate_registry_resets_after_missing_module(self):
+        """
+        Validate that the registry resets to its default state after attempting to auto-discover non-existent modules.
+
+        This test checks that when the autodiscover_modules function is called with a mix of existing and non-existing modules, 
+        the registry returns to its expected initial state, despite encountering missing modules during the discovery process.
+        """
         from .test_module import site
 
         autodiscover_modules(
@@ -219,6 +257,21 @@ class CustomLoader(EggLoader):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by modifying the system path hooks and importer cache.
+
+        This method prepares the environment for testing by inserting a custom finder
+        at the beginning of the system path hooks and clearing the importer cache. This
+        ensures that the test setup can control the import process and provide the
+        necessary test fixtures.
+
+        The custom finder, TestFinder, is inserted at the beginning of the system path
+        hooks to allow it to take precedence over other finders. The importer cache is
+        cleared to prevent any stale imports from interfering with the test setup.
+
+        This method is intended to be called at the start of each test case to ensure a
+        clean and consistent environment for testing.
+        """
         super().setUp()
         sys.path_hooks.insert(0, TestFinder)
         sys.path_importer_cache.clear()

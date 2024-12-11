@@ -105,6 +105,13 @@ class DatabaseOperations(BaseDatabaseOperations):
         )
 
     def _convert_tznames_to_sql(self, tzname):
+        """
+        Convert timezone names to SQL compatible format.
+
+        Returns a tuple containing the converted timezone name and the database connection's timezone name if 
+        the input timezone name is valid and timezone support is enabled in the application settings. 
+        Otherwise, returns (None, None).
+        """
         if tzname and settings.USE_TZ:
             return tzname, self.connection.timezone_name
         return None, None
@@ -311,12 +318,41 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def convert_datefield_value(self, value, expression, connection):
+        """
+
+        Converts a date field value into a standardized format.
+
+        This function takes a date field value, an optional expression, and a connection as input.
+        It checks if the provided value is not None and if it's not already a datetime.date object.
+        If necessary, it parses the value into a datetime.date object using the parse_date function.
+        The function then returns the converted or original date value, depending on whether conversion was needed.
+
+        :param value: The date field value to be converted
+        :param expression: An optional expression (currently not used in conversion process)
+        :param connection: The database connection (currently not used in conversion process)
+        :return: The converted date field value as a datetime.date object, or the original value if it was already a datetime.date object.
+
+        """
         if value is not None:
             if not isinstance(value, datetime.date):
                 value = parse_date(value)
         return value
 
     def convert_timefield_value(self, value, expression, connection):
+        """
+        Converts a time field value into a standardized format.
+
+        Args:
+            value: The time value to be converted.
+            expression: Not used in this implementation.
+            connection: Not used in this implementation.
+
+        Returns:
+            The converted time value as a datetime.time object, or the original value if it was already in the correct format, or None if the input value was None.
+
+        Note:
+            If the input value is not already a datetime.time object, it will be parsed using the parse_time function to create a datetime.time object.
+        """
         if value is not None:
             if not isinstance(value, datetime.time):
                 value = parse_time(value)
@@ -363,6 +399,22 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().combine_expression(connector, sub_expressions)
 
     def combine_duration_expression(self, connector, sub_expressions):
+        """
+
+        Combine sub-expressions using a given connector to create a duration expression.
+
+        The function supports basic arithmetic operations: addition (+), subtraction (-), 
+        multiplication (*) and division (/) on timedelta objects. 
+
+        The resulting string can be used as a parameter in a database query. 
+
+        ':param connector: A string representing the operator to use for combining sub-expressions.
+        ':param sub_expressions: A list of strings representing timedelta sub-expressions.
+        ':return: A string representing the combined duration expression.
+        ':raises DatabaseError: If the connector is not one of '+', '-', '*', '/'.
+        ':raises ValueError: If more than 2 sub-expressions are provided.
+
+        """
         if connector not in ["+", "-", "*", "/"]:
             raise DatabaseError("Invalid connector for timedelta: %s." % connector)
         fn_params = ["'%s'" % connector] + sub_expressions

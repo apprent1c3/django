@@ -335,6 +335,36 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         include=None,
         expressions=None,
     ):
+        """
+
+        Creates an SQL string for generating an index on a database table.
+
+        This method generates the SQL command to create an index on the specified model.
+        It allows customization of the index creation process, including specifying the fields
+        to include in the index, the name of the index, and the database tablespace to use.
+
+        The method also supports concurrent index creation, which can help minimize the
+        impact of index creation on database performance. Additionally, it allows specifying
+        custom SQL templates, conditional expressions, and included columns to further
+        customize the index creation process.
+
+        :param model: The model for which the index is being created.
+        :param fields: The fields to include in the index.
+        :param name: The name of the index.
+        :param suffix: A suffix to append to the index name.
+        :param using: The index method to use (e.g. btree, hash).
+        :param db_tablespace: The database tablespace to use for the index.
+        :param col_suffixes: A tuple of suffixes to append to column names.
+        :param sql: A custom SQL template to use for index creation.
+        :param opclasses: A tuple of operator classes to use for the index.
+        :param condition: A conditional expression to use for partial index creation.
+        :param concurrently: A flag indicating whether to create the index concurrently.
+        :param include: A list of columns to include in the index.
+        :param expressions: A list of expressions to include in the index.
+
+        :return: The SQL string for creating the index.
+
+        """
         sql = sql or (
             self.sql_create_index
             if not concurrently

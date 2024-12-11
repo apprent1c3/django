@@ -23,11 +23,42 @@ class Tag:
 
 class TagField(models.SmallIntegerField):
     def from_db_value(self, value, expression, connection):
+        """
+
+        Reconstructs a Tag object from a database value.
+
+        Args:
+            value: The value retrieved from the database.
+            expression: The SQL expression used to retrieve the value.
+            connection: The database connection used to retrieve the value.
+
+        Returns:
+            A Tag object representing the database value, or None if the value is None.
+
+        Note:
+            The function assumes that the database value is an integer and wraps it in a Tag object.
+
+        """
         if value is None:
             return value
         return Tag(int(value))
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python representation, specifically a Tag object.
+
+        If the input value is already a Tag object, it is returned unchanged. If the value is None, it is returned as is. For all other values, it is assumed to be an integer representation and is wrapped in a Tag object.
+
+        Parameters
+        ----------
+        value : object
+            The value to be converted to a Python representation.
+
+        Returns
+        -------
+        Tag or None
+            A Tag object representing the input value, or None if the input value is None.
+        """
         if isinstance(value, Tag):
             return value
         if value is None:

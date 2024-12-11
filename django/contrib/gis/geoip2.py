@@ -115,6 +115,9 @@ class GeoIP2:
             self._reader.close()
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its class name, binary format version, and stored path. The version is formatted as 'v<major_version>.<minor_version>'. This string is useful for debugging and logging purposes, providing a concise summary of the object's key characteristics.
+        """
         m = self._metadata
         version = f"v{m.binary_format_major_version}.{m.binary_format_minor_version}"
         return f"<{self.__class__.__name__} [{version}] _path='{self._path}'>"

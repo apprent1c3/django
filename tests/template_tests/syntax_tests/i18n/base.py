@@ -18,5 +18,10 @@ class MultipleLocaleActivationTestCase(SimpleTestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by storing the current language and scheduling 
+        its reactivation after the test is completed, ensuring the original language 
+        setting is restored regardless of the test outcome.
+        """
         self._old_language = get_language()
         self.addCleanup(activate, self._old_language)

@@ -55,6 +55,17 @@ class CommandParser(ArgumentParser):
     def __init__(
         self, *, missing_args_message=None, called_from_command_line=None, **kwargs
     ):
+        """
+        Initializes the class with optional parameters for customizing error messages and command line execution.
+
+         Args:
+             missing_args_message (str, optional): The message to display when required arguments are missing. Defaults to None.
+             called_from_command_line (bool, optional): Indicates whether the class was instantiated from the command line. Defaults to None.
+
+         Additional keyword arguments are passed to the superclass initializer.
+
+         This initializer sets up the class with customizable error handling and command line execution tracking, allowing for more flexible and informative interactions with the class.
+        """
         self.missing_args_message = missing_args_message
         self.called_from_command_line = called_from_command_line
         super().__init__(**kwargs)
@@ -99,6 +110,26 @@ def no_translations(handle_func):
     """Decorator that forces a command to run with translations deactivated."""
 
     def wrapper(*args, **kwargs):
+        """
+
+        Temporarily deactivates all language translations and calls the wrapped function.
+
+        This function is a wrapper around another function, temporarily deactivating 
+        all language translations, executing the wrapped function with the provided 
+        arguments and keyword arguments, and then reactivating the previously active 
+        translation if any.
+
+        It ensures that the wrapped function is executed without any language translation 
+        activated, and restores the original language translation after execution, 
+        regardless of whether an exception occurs or not.
+
+        The result of the wrapped function call is then returned by this function.
+
+        :param args: variable number of non-keyword arguments
+        :param kwargs: variable number of keyword arguments
+        :returns: result of the wrapped function call
+
+        """
         from django.utils import translation
 
         saved_locale = translation.get_language()
@@ -167,6 +198,12 @@ class OutputWrapper(TextIOBase):
         return getattr(self._out, name)
 
     def flush(self):
+        """
+        Flush the output buffer to ensure all pending data is written.
+
+        This method checks if the output object has a flush method and calls it if available, 
+        preventing data loss by ensuring that all buffered data is written to its destination.
+        """
         if hasattr(self._out, "flush"):
             self._out.flush()
 

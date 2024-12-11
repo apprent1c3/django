@@ -33,6 +33,18 @@ class BaseTests:
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Set up the test class by configuring the necessary Django settings and entering the class context.
+
+        This method overrides the default Django settings with custom configurations for templates, URL routing, and message handling. 
+        The template engine is set to use the Django template backend, 
+        and the context processors for authentication and messages are enabled. 
+        The message tags and storage are also customized.
+
+        The test class context is then entered, allowing for the execution of tests within this customized environment.
+
+        """
         cls.enterClassContext(
             override_settings(
                 TEMPLATES=[
@@ -104,6 +116,14 @@ class BaseTests:
         self.assertEqual(storing, 1)
 
     def test_no_update(self):
+        """
+        Tests that no messages are stored in the storage when no update is expected.
+
+        Verifies the correct behavior of the storage update mechanism by checking that the
+        number of stored messages remains zero after updating the storage with a response.
+        This test case covers the scenario where no new messages are added to the storage.
+
+        """
         storage = self.get_storage()
         response = self.get_response()
         storage.update(response)
@@ -111,6 +131,18 @@ class BaseTests:
         self.assertEqual(storing, 0)
 
     def test_add_update(self):
+        """
+
+        Tests the addition and update of messages in the storage system.
+
+        This test verifies that the storage system correctly adds messages with and without extra tags, 
+        and that the update method successfully stores these messages. It then checks that the 
+        expected number of messages are stored.
+
+        The test case ensures that the storage and update functionality works as expected, 
+        covering basic message addition and extra tag support.
+
+        """
         storage = self.get_storage()
         response = self.get_response()
 
@@ -165,6 +197,17 @@ class BaseTests:
 
     @override_settings(MESSAGE_LEVEL=constants.DEBUG)
     def test_with_template_response(self):
+        """
+
+        Tests the functionality of adding and displaying messages with a template response.
+
+        This test ensures that messages are correctly added and displayed on the show template response page.
+        It covers various message levels and verifies that the messages are no longer present after they have been displayed.
+
+        The test checks for correct redirects, presence of messages in the response context, and the inclusion of messages in the response.
+        It also verifies that messages are not present in the response after they have been displayed.
+
+        """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
         }
@@ -306,6 +349,21 @@ class BaseTests:
 
     def test_default_level(self):
         # get_level works even with no storage on the request.
+        """
+        Tests the default log level and message storage functionality.
+
+        Verifies that the default log level is set to INFO and that the message storage
+        is properly initialized with the expected number of log level messages. The test
+        also simulates the addition of log level messages to the storage and checks the
+        correctness of the storage size after this operation.
+
+        Validates the following scenarios:
+
+        * The default log level is correctly set when no messages are present in the storage.
+        * The log level remains unchanged when an empty message storage is attached to a request.
+        * The addition of log level messages to the storage results in the expected number of messages being stored.
+
+        """
         request = self.get_request()
         self.assertEqual(get_level(request), constants.INFO)
 
@@ -330,6 +388,14 @@ class BaseTests:
         self.assertEqual(len(storage), 6)
 
     def test_high_level(self):
+        """
+
+        Tests the high-level functionality of setting and retrieving log levels for a given request.
+
+        This test case verifies that the log level can be successfully set to a specified value,
+        retrieved, and that error messages are correctly added to the storage.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         request._messages = storage
@@ -351,6 +417,16 @@ class BaseTests:
         self.assertEqual(len(storage), 3)
 
     def test_tags(self):
+        """
+
+        Tests the handling of tags in message storage.
+
+        Verifies that messages are correctly associated with specific tags and 
+        that these tags can be retrieved from the storage. The test covers 
+        various message levels, including info, warning, error, and success, 
+        and checks that the tags are correctly added and stored.
+
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)
@@ -377,6 +453,25 @@ class BaseTests:
         }
     )
     def test_custom_tags(self):
+        """
+        Tests the functionality of custom message tags.
+
+        This test case verifies that custom message tags are properly assigned to messages 
+        based on the MESSAGE_TAGS setting. It checks that the tags are correctly applied 
+        to messages of different levels, including info, debug, warning, error, and custom 
+        levels. The test also ensures that the tags are correctly stored and retrieved 
+        from the message storage.
+
+        The test case overrides the default MESSAGE_TAGS setting to include custom tags 
+        for specific message levels, allowing for verification of the custom tagging 
+        behavior.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the assigned tags do not match the expected tags
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)

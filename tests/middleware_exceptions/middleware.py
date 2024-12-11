@@ -110,6 +110,17 @@ class NotFoundMiddleware(BaseMiddleware):
 
 class PaymentMiddleware(BaseMiddleware):
     def __call__(self, request):
+        """
+        Handles an incoming request and returns a response with a specific status code.
+
+        This method is responsible for processing a request, obtaining a response, and then modifying the response's status code to 402, which indicates that payment is required. The modified response is then returned to the caller.
+
+        Args:
+            request: The incoming request to be processed.
+
+        Returns:
+            The response with a status code of 402.
+        """
         response = self.get_response(request)
         response.status_code = 402
         return response
@@ -118,6 +129,22 @@ class PaymentMiddleware(BaseMiddleware):
 @async_only_middleware
 def async_payment_middleware(get_response):
     async def middleware(request):
+        """
+        Middleware function to intercept and modify HTTP responses.
+
+        This function takes an incoming request, passes it to the next handler to 
+        generate a response, and then modifies the response status code to 402 
+        (Payment Required) before returning it. The purpose of this middleware 
+        is to enforce payment requirements for certain requests, indicating that 
+        payment is needed to complete the request.
+
+        Args:
+            request: The incoming HTTP request object.
+
+        Returns:
+            The modified HTTP response object with a status code of 402.
+
+        """
         response = await get_response(request)
         response.status_code = 402
         return response

@@ -46,6 +46,15 @@ class RefreshPrimaryProxy(Primary):
 
     def refresh_from_db(self, using=None, fields=None, **kwargs):
         # Reloads all deferred fields if any of the fields is deferred.
+        """
+        Refresh the current instance from the database, updating its fields.
+
+        :param using: The database alias to use for the refresh operation.
+        :param fields: A list of field names to refresh from the database. If not provided, all fields will be refreshed.
+        :param kwargs: Additional keyword arguments to pass to the superclass's refresh method.
+
+        If only specific fields are requested, any deferred fields that are related to the requested fields will also be refreshed to ensure data consistency. The instance will be updated with the latest values from the database.
+        """
         if fields is not None:
             fields = set(fields)
             deferred_fields = self.get_deferred_fields()

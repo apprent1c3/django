@@ -24,6 +24,15 @@ from .models import (
 class OneToOneTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for use in tests.
+
+        This method creates sample model instances to simplify testing, including places, 
+        restaurants, and bars, with predefined attributes. The created instances are 
+        stored as class attributes, making them accessible throughout the test suite.
+
+        """
         cls.p1 = Place.objects.create(name="Demon Dogs", address="944 W. Fullerton")
         cls.p2 = Place.objects.create(name="Ace Hardware", address="1013 N. Ashland")
         cls.r1 = Restaurant.objects.create(
@@ -33,6 +42,13 @@ class OneToOneTests(TestCase):
 
     def test_getter(self):
         # A Restaurant can access its place.
+        """
+        Tests the behavior of the getter methods for accessing related objects, specifically the :attr:`place` attribute of a :class:`Restaurant` instance and the :attr:`restaurant` attribute of a :class:`Place` instance.
+
+         Verifies that the :attr:`restaurant` attribute of a :class:`Place` instance correctly returns the associated :class:`Restaurant` instance if one exists, and raises a :class:`Restaurant.DoesNotExist` exception with a descriptive message when no such instance exists.
+
+         Also checks that the :class:`Place` instance does not have a :attr:`restaurant` attribute when no :class:`Restaurant` instance is associated with it.
+        """
         self.assertEqual(repr(self.r1.place), "<Place: Demon Dogs the place>")
         # A Place can access its restaurant, if available.
         self.assertEqual(
@@ -51,6 +67,16 @@ class OneToOneTests(TestCase):
     def test_setter(self):
         # Set the place using assignment notation. Because place is the primary
         # key on Restaurant, the save will create a new restaurant
+        """
+        Verifies the functionality of setter methods in the Restaurant model.
+
+        This test case checks if setting a restaurant's place or a place's restaurant updates the corresponding object correctly.
+        It also ensures that the primary keys of the related objects are correctly updated after saving the changes.
+
+        The test covers scenarios where a place is assigned to a restaurant and vice versa, and validates the resulting objects
+        using their string representations and primary keys. The goal is to confirm that the relationships between restaurants and
+        places are correctly established and persisted in the database.
+        """
         self.r1.place = self.p2
         self.r1.save()
         self.assertEqual(
@@ -68,12 +94,34 @@ class OneToOneTests(TestCase):
 
     def test_manager_all(self):
         # Restaurant.objects.all() just returns the Restaurants, not the Places.
+        """
+        Tests the management of all objects in the database.
+
+        Verifies that all Restaurant objects are correctly retrieved and that all Place objects are ordered by name in ascending order. 
+
+        The test checks that the Restaurant object retrieval returns the expected result and that the Place objects are sorted as expected, ensuring the data is correctly managed and ordered. 
+        """
         self.assertSequenceEqual(Restaurant.objects.all(), [self.r1])
         # Place.objects.all() returns all Places, regardless of whether they
         # have Restaurants.
         self.assertSequenceEqual(Place.objects.order_by("name"), [self.p2, self.p1])
 
     def test_manager_get(self):
+        """
+
+         Tests the functionality of the manager's get method for Restaurant and Place models.
+
+         Verifies that the get method can successfully retrieve objects from the database 
+         using various lookup parameters, including exact matches, primary key lookups, 
+         and relationships between models. 
+
+         The tests cover a range of scenarios, including lookups by place ID, primary key, 
+         and name, as well as lookups by relationships between Place and Restaurant models.
+
+         Ensures that the get method returns the expected objects and that the representation 
+         of the retrieved objects matches the expected output.
+
+        """
         def assert_get_restaurant(**params):
             self.assertEqual(
                 repr(Restaurant.objects.get(**params)),
@@ -217,6 +265,18 @@ class OneToOneTests(TestCase):
         self.assertIsNone(ug_bar.place)
 
     def test_assign_none_null_reverse_relation(self):
+        """
+
+        Test assigning None to a reverse relation field.
+
+        This function verifies the behavior of assigning None to a reverse relation field,
+        specifically the 'undergroundbar' field of a Place object. It retrieves a Place
+        instance with the name 'Demon Dogs' and then sets its undergroundbar field to None.
+
+        The purpose of this test is to ensure that the reverse relation is properly
+        updated and that no errors occur when setting the field to None.
+
+        """
         p = Place.objects.get(name="Demon Dogs")
         # Assigning None doesn't throw AttributeError if there isn't a related
         # UndergroundBar.
@@ -232,6 +292,23 @@ class OneToOneTests(TestCase):
         p.undergroundbar = None
 
     def test_assign_o2o_id_value(self):
+        """
+
+        Tests the assignment of one-to-one (o2o) ID value to an instance of UndergroundBar.
+
+        Verifies that setting the `place_id` attribute of an UndergroundBar instance and saving it
+        updates the related `place` attribute accordingly. Also checks the caching behavior of the
+        `place` attribute, ensuring that it is not cached before the `place_id` is assigned and saved,
+        and that it is cached after the assignment and save.
+
+        This test covers the following scenarios:
+
+        * Setting a new `place_id` and saving the instance updates the `place` attribute
+        * The `place` attribute is not cached before the `place_id` is assigned and saved
+        * The `place` attribute is cached after the `place_id` is assigned and saved
+        * Reassigning the same `place_id` does not affect the caching behavior
+
+        """
         b = UndergroundBar.objects.create(place=self.p1)
         b.place_id = self.p2.pk
         b.save()
@@ -244,6 +321,18 @@ class OneToOneTests(TestCase):
         self.assertTrue(UndergroundBar.place.is_cached(b))
 
     def test_assign_o2o_id_none(self):
+        """
+        Tests the assignment of a one-to-one relationship ID as None.
+
+        This test case verifies that when the ID of a one-to-one relationship is set to None, 
+        the related object is correctly set to None and the cache status is updated accordingly.
+
+        It checks the following conditions:
+        - The ID of the relationship is indeed set to None after assignment.
+        - The related object is not cached before accessing it.
+        - The related object is set to None.
+        - The related object is cached after accessing it.
+        """
         b = UndergroundBar.objects.create(place=self.p1)
         b.place_id = None
         b.save()
@@ -328,6 +417,19 @@ class OneToOneTests(TestCase):
         self.assertEqual(objs, {"one_to_one.Pointer": 1})
 
     def test_save_nullable_o2o_after_parent(self):
+        """
+        Tests saving a nullable one-to-one relationship after the parent object has been saved.
+
+        This test case verifies that an object with a nullable one-to-one relationship can be properly saved and retrieved
+        from the database after its parent object has been saved. It checks that the relationship between the two objects
+        is correctly established and can be fetched from the database.
+
+        Verifies the following:
+        - The parent object can be saved to the database.
+        - The child object with a nullable one-to-one relationship to the parent can be saved.
+        - The relationship between the child and parent objects is correctly established upon saving.
+        - The child object can be refreshed from the database and its relationship to the parent object remains intact.
+        """
         place = Place(name="Rose tattoo")
         bar = UndergroundBar(place=place)
         place.save()
@@ -458,6 +560,11 @@ class OneToOneTests(TestCase):
                 b.save()
 
     def test_nullable_o2o_delete(self):
+        """
+        Tests the behavior of a one-to-one relationship where the related object is nullable.
+        Verifies that when the related object is deleted, the relationship is properly removed and the original object remains intact.
+        More specifically, this test confirms that setting the related field to null and saving the object, then deleting the related object, results in the object still existing with the related field set to null.
+        """
         u = UndergroundBar.objects.create(place=self.p1)
         u.place_id = None
         u.save()
@@ -478,6 +585,16 @@ class OneToOneTests(TestCase):
         )
 
     def test_related_object(self):
+        """
+
+        Tests the relationship between School and Director objects, ensuring that only public schools and their corresponding directors are retrieved.
+
+        This test case covers the following scenarios:
+        - Creation of public and private schools with their respective directors.
+        - Verification that only public schools and their directors are retrieved using the default manager.
+        - Verification that accessing the school of a private director or the director of a private school raises the expected DoesNotExist exception when using the base manager.
+
+        """
         public_school = School.objects.create(is_public=True)
         public_director = Director.objects.create(school=public_school, is_temp=False)
 
@@ -524,11 +641,23 @@ class OneToOneTests(TestCase):
             Director._meta._expire_cache()
 
     def test_create_reverse_o2o_error(self):
+        """
+        Tests that creating a reverse one-to-one relationship using a non-existent field raises a ValueError.
+
+        Verifies that attempting to create a Place object with a restaurant attribute, which does not exist in the Place model, results in a ValueError being raised with a descriptive error message indicating the non-existent field name.
+        """
         msg = "The following fields do not exist in this model: restaurant"
         with self.assertRaisesMessage(ValueError, msg):
             Place.objects.create(restaurant=self.r1)
 
     def test_get_or_create_reverse_o2o_error(self):
+        """
+        Tests that attempting to use get_or_create with an invalid reverse one-to-one relationship raises a ValueError.
+
+        This test case verifies that the get_or_create method correctly identifies and reports an error when a field specified in the defaults dictionary does not exist in the model. The test expects a ValueError to be raised with a message indicating that the field does not exist in the model.
+
+        The test scenario involves creating a new Restaurant instance and then attempting to use get_or_create on the Place model, passing an invalid reverse one-to-one relationship in the defaults dictionary. The expected error message is checked to ensure it matches the expected format, confirming that the method behaves as expected in this edge case.
+        """
         msg = "The following fields do not exist in this model: restaurant"
         r2 = Restaurant.objects.create(
             place=self.p2, serves_hot_dogs=True, serves_pizza=False
@@ -554,6 +683,10 @@ class OneToOneTests(TestCase):
         self.assertFalse(hasattr(School(), "school"))
 
     def test_update_one_to_one_pk(self):
+        """
+        Tests the updating of a many-to-one relationship (Waiter-Restaurant) to verify that 
+        a single waiter can be reassigned from one restaurant to another.
+        """
         p1 = Place.objects.create()
         p2 = Place.objects.create()
         r1 = Restaurant.objects.create(place=p1)
@@ -582,6 +715,9 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(q4, [r])
 
     def test_rel_pk_exact(self):
+        """
+        Checks that retrieving a Restaurant object by its primary key using the exact lookup type returns the same object as retrieving it directly by its primary key.
+        """
         r = Restaurant.objects.first()
         r2 = Restaurant.objects.filter(pk__exact=r).first()
         self.assertEqual(r, r2)
@@ -616,6 +752,15 @@ class OneToOneTests(TestCase):
             Place.bar.get_prefetch_queryset(places)
 
     def test_get_prefetch_querysets_invalid_querysets_length(self):
+        """
+        Tests the get_prefetch_querysets method when an invalid number of querysets is provided.
+
+        Ensures that a ValueError is raised when the querysets argument has a length other than 1,
+        specifically verifying the method's behavior when two querysets are passed.
+
+        The expected error message indicates that the querysets argument should have a length of 1,
+        providing a clear indication of the expected input format.
+        """
         places = Place.objects.all()
         msg = (
             "querysets argument of get_prefetch_querysets() should have a length of 1."

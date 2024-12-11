@@ -32,6 +32,15 @@ class SongInlineNewOrdering(admin.StackedInline):
 
 class DynOrderingBandAdmin(admin.ModelAdmin):
     def get_ordering(self, request):
+        """
+        Returns the ordering criteria for a given request.
+
+        The function determines whether the requesting user is a superuser and returns
+        the relevant ordering criteria. If the user is a superuser, the ordering is
+        based on the 'rank' field, otherwise it is based on the 'name' field.
+
+        :returns: A list of field names to use for ordering
+        """
         if request.user.is_superuser:
             return ["rank"]
         else:

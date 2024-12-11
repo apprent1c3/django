@@ -13,6 +13,11 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag02": "{% autoescape off %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag02(self):
+        """
+        Tests whether the autoescape tag works correctly when set to 'off' within a template. 
+        It checks if HTML tags passed as template variables are rendered without being escaped. 
+        The test case verifies that the output contains the expected unescaped HTML content.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag02", {"first": "<b>hello</b>"}
         )
@@ -20,6 +25,17 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-tag03": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag03(self):
+        """
+        Tests the autoescape functionality in the templating engine, ensuring that HTML characters are properly escaped.
+
+        The test case verifies that when autoescape is enabled, the templating engine correctly escapes HTML tags in the input data, preventing potential security vulnerabilities such as cross-site scripting (XSS) attacks.
+
+        Args:
+            None
+
+        Returns:
+            None, but the test passes if the output of the templating engine matches the expected escaped HTML string.
+        """
         output = self.engine.render_to_string(
             "autoescape-tag03", {"first": "<b>hello</b>"}
         )
@@ -35,11 +51,32 @@ class AutoescapeTagTests(SimpleTestCase):
         }
     )
     def test_autoescape_tag04(self):
+        """
+        Tests the autoescape tag functionality in the templating engine, specifically verifying that the output of a template with autoescape toggled on and off produces the expected HTML-escaped and unescaped results. 
+
+        The test checks that when autoescape is off, HTML characters are rendered as is, and when autoescape is on, HTML characters are properly escaped to prevent potential security vulnerabilities. 
+
+        The expected output is a combination of an unescaped HTML character and its corresponding escaped representation, ensuring that the templating engine correctly handles autoescape tag directives.
+        """
         output = self.engine.render_to_string("autoescape-tag04", {"first": "<a>"})
         self.assertEqual(output, "<a> &lt;a&gt;")
 
     @setup({"autoescape-tag05": "{% autoescape on %}{{ first }}{% endautoescape %}"})
     def test_autoescape_tag05(self):
+        """
+        Tests the autoescape functionality in templates.
+
+        This test verifies that autoescape is enabled correctly when using the autoescape
+        tag. It checks that HTML special characters in template variables are properly
+        escaped, preventing potential XSS vulnerabilities.
+
+        The test case renders a template with the autoescape tag and a variable containing
+        HTML markup, then asserts that the output is escaped as expected.
+
+        :param None
+        :returns: None
+        :raises AssertionError: if the autoescape functionality is not working correctly
+        """
         output = self.engine.render_to_string(
             "autoescape-tag05", {"first": "<b>first</b>"}
         )
@@ -109,6 +146,11 @@ class AutoescapeTagTests(SimpleTestCase):
     # Arguments to filters are 'safe' and manipulate their input unescaped.
     @setup({"autoescape-filters01": '{{ var|cut:"&" }}'})
     def test_autoescape_filters01(self):
+        """
+        Test the autoescaping of template filters in the engine, specifically the cut filter.
+        The function checks if the engine correctly removes specified characters from a variable.
+        In this case, it verifies that the '&' character is removed from the string 'this & that', resulting in 'this  that'.
+        """
         output = self.engine.render_to_string(
             "autoescape-filters01", {"var": "this & that"}
         )
@@ -116,6 +158,15 @@ class AutoescapeTagTests(SimpleTestCase):
 
     @setup({"autoescape-filters02": '{{ var|join:" & " }}'})
     def test_autoescape_filters02(self):
+        """
+        Tests the autoescape filters functionality with the join filter.
+
+        This test case verifies that the join filter can be used to concatenate 
+        tuple elements with a specified separator. The test input is a tuple 
+        of names and the expected output is a string where the names are joined 
+        by ' & '. The test ensures that the engine correctly renders the template 
+        with the provided variable and filter, resulting in the expected output string.
+        """
         output = self.engine.render_to_string(
             "autoescape-filters02", {"var": ("Tom", "Dick", "Harry")}
         )
@@ -167,6 +218,15 @@ class AutoescapeTagTests(SimpleTestCase):
         {"autoescape-incorrect-arg": "{% autoescape %}{{ var.key }}{% endautoescape %}"}
     )
     def test_no_arg(self):
+        """
+        Tests that the 'autoescape' template tag raises a TemplateSyntaxError when no argument is provided.
+
+        This test case verifies that the 'autoescape' tag correctly enforces its requirement of having exactly one argument.
+        It checks that a TemplateSyntaxError is raised with a specific error message when the tag is used without any arguments.
+
+        The test uses a template string containing the 'autoescape' tag without any argument and attempts to render it to a string.
+        It then asserts that the expected error message is included in the raised exception, indicating that the 'autoescape' tag requires exactly one argument to function correctly.
+        """
         msg = "'autoescape' tag requires exactly one argument."
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string(

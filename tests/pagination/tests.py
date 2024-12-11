@@ -129,6 +129,19 @@ class PaginationTests(SimpleTestCase):
             paginator.validate_number(1.2)
 
     def test_error_messages(self):
+        """
+
+        Tests that the Paginator class correctly raises exceptions with custom error messages.
+
+        This function verifies that the Paginator class raises PageNotAnInteger and EmptyPage
+        exceptions with the provided custom error messages when invalid page numbers are passed.
+        The custom error messages are checked for the following cases: non-integer page numbers,
+        page numbers less than 1, and page numbers that are out of range.
+
+        The test also checks the behavior when not all custom error messages are provided,
+        ensuring that the default messages are used in such cases.
+
+        """
         error_messages = {
             "invalid_page": "Wrong page number",
             "min_page": "Too small",
@@ -157,15 +170,51 @@ class PaginationTests(SimpleTestCase):
             paginator.validate_number(3)
 
     def test_float_integer_page(self):
+        """
+        Tests that the Paginator class correctly handles float page numbers, truncating them to integers.
+
+        Verifies that a float page number is properly converted to its integer equivalent, ensuring that pagination works as expected in cases where a non-integer page number is provided.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the validation of the float page number fails
+        """
         paginator = Paginator([1, 2, 3], 2)
         self.assertEqual(paginator.validate_number(1.0), 1)
 
     def test_no_content_allow_empty_first_page(self):
         # With no content and allow_empty_first_page=True, 1 is a valid page number
+        """
+
+        Tests that the paginator allows an empty first page when there's no content.
+
+        Verifies that the paginator correctly handles the case where there are no items
+        to paginate, by checking that the validation of the first page number succeeds.
+
+        """
         paginator = Paginator([], 2)
         self.assertEqual(paginator.validate_number(1), 1)
 
     def test_paginate_misc_classes(self):
+        """
+        Tests pagination functionality using misc classes.
+
+        This test case verifies that the Paginator class correctly handles pagination
+        for objects that support count or length methods, but are not traditional
+        querysets. It checks the total count of items, the number of pages, and the
+        range of page numbers for two different container classes: CountContainer and
+        LenContainer. 
+
+        The test ensures that the Paginator class can work seamlessly with custom
+        objects as long as they provide a way to determine the total number of items,
+        either through a count method or the built-in len function.
+
+        """
         class CountContainer:
             def count(self):
                 return 42
@@ -195,6 +244,15 @@ class PaginationTests(SimpleTestCase):
             Paginator(AttributeErrorContainer(), 10).count
 
     def test_count_does_not_silence_type_error(self):
+        """
+
+        Tests that the Paginator class does not silence TypeError exceptions when calling the count method on the wrapped object.
+
+        This ensures that any TypeErrors raised by the wrapped object's count method are properly propagated and not suppressed by the Paginator class.
+
+         Veronica of Paginator. 
+
+        """
         class TypeErrorContainer:
             def count(self):
                 raise TypeError("abc")
@@ -342,6 +400,21 @@ class PaginationTests(SimpleTestCase):
             paginator.get_page(1)
 
     def test_paginator_iteration(self):
+        """
+        Tests the iteration functionality of the Paginator class.
+
+        This function verifies that the Paginator can be iterated over, yielding pages
+        of the expected size and content. It also checks that the page iterator
+        correctly reports the page number and total number of pages.
+
+        The test covers the basic iteration use case, where the Paginator is iterated
+        over twice: once to verify the page contents, and again to verify the page
+        string representations. The test ensures that the Paginator behaves as expected
+        when iterated over multiple times.
+
+        Use this test to ensure that the Paginator class correctly implements iteration
+        functionality, and that pages are yielded with the correct content and metadata.
+        """
         paginator = Paginator([1, 2, 3], 2)
         page_iterator = iter(paginator)
         for page, expected in enumerate(([1, 2], [3]), start=1):
@@ -493,6 +566,18 @@ class ModelPaginationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Prepare a list of objects for pagination.
+        """
+        Sets up test data for the class.
+
+        This method creates a set of Article objects with varying headlines and a fixed publication date.
+        The created articles are stored in the class attribute 'articles' for use in subsequent tests.
+
+        The publication date used is July 29, 2005, and the headlines range from 'Article 1' to 'Article 9'.
+        The total number of articles created is 9.
+
+        This method is intended to be used as a class setup method, providing a consistent set of test data for the class's tests.
+
+        """
         pub_date = datetime(2005, 7, 29)
         cls.articles = [
             Article.objects.create(headline=f"Article {x}", pub_date=pub_date)
@@ -500,6 +585,19 @@ class ModelPaginationTests(TestCase):
         ]
 
     def test_first_page(self):
+        """
+
+        Tests the functionality of the first page in a paginator.
+
+        This test case uses a paginator with a page size of 5 to verify the following:
+
+        * The string representation of the page is in the correct format.
+        * The list of objects on the page is correctly sliced from the original list.
+        * The presence of next and previous pages is correctly indicated.
+        * The ability to get the next page number and the error handling for getting the previous page number when it does not exist are correctly implemented.
+        * The start and end indices of the page are correctly calculated.
+
+        """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(1)
         self.assertEqual("<Page 1 of 2>", str(p))
@@ -514,6 +612,16 @@ class ModelPaginationTests(TestCase):
         self.assertEqual(5, p.end_index())
 
     def test_last_page(self):
+        """
+
+        Tests the behavior of a Paginator's last page.
+
+        Verifies that the page object accurately reflects its position in the pagination,
+        including the availability of previous and next pages, and the range of objects
+        it contains. Additionally, checks that attempting to access the next page raises
+        an exception and that index calculations are correct.
+
+        """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(2)
         self.assertEqual("<Page 2 of 2>", str(p))
@@ -563,6 +671,13 @@ class ModelPaginationTests(TestCase):
         self.assertEqual(cm.filename, __file__)
 
     def test_paginating_empty_queryset_does_not_warn(self):
+        """
+        Tests that paginating an empty queryset using the Paginator class does not trigger any warnings.
+
+        This test case verifies that the Paginator class handles empty querysets without raising warnings, ensuring a smooth and quiet execution of pagination operations in scenarios where no data is present.
+
+        Assesses the Paginator's ability to gracefully manage empty datasets, which is crucial for preventing unnecessary warnings and maintaining application stability in various data scenarios.
+        """
         with warnings.catch_warnings(record=True) as recorded:
             Paginator(Article.objects.none(), 5)
         self.assertEqual(len(recorded), 0)

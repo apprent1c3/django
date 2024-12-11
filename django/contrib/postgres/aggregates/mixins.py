@@ -13,6 +13,17 @@ class OrderableAggMixin:
         super().__init__(*expressions, **extra)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        Resolves an expression by delegating to the parent class's implementation, 
+        while also resolving any existing order by clause if present.
+
+        Args:
+            *args: Variable length argument list
+            **kwargs: Arbitrary keyword arguments
+
+        Returns:
+            The result of the parent class's resolve_expression method
+        """
         if self.order_by is not None:
             self.order_by = self.order_by.resolve_expression(*args, **kwargs)
         return super().resolve_expression(*args, **kwargs)

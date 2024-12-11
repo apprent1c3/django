@@ -28,6 +28,18 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
         # the SQLDeleteCompiler's default implementation when multiple tables
         # are involved since MySQL/MariaDB will generate a more efficient query
         # plan than when using a subquery.
+        """
+        Generates the SQL query string for a delete operation.
+
+        This method constructs a SQL query string based on the query's where, having, and qualify clauses.
+        It returns a tuple containing the SQL query string and a list of parameters to be used in the query.
+
+        The SQL query string is built by first specifying the initial table alias, then appending the from clause,
+        and finally adding the where clause if it exists. If the query has a having or qualify clause, or if it has a single alias,
+        it defers to the parent class's implementation.
+
+        The result is a SQL query string that can be executed to perform the delete operation, along with the necessary parameters.
+        """
         where, having, qualify = self.query.where.split_having_qualify(
             must_group_by=self.query.group_by is not None
         )

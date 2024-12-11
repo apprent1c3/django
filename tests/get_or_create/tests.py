@@ -276,6 +276,13 @@ class GetOrCreateThroughManyToMany(TestCase):
         self.assertEqual(obj.pk, tag.pk)
 
     def test_create_get_or_create(self):
+        """
+        #: Tests the creation of a new tag object via the get_or_create method.
+        #: 
+        #: Verifies that the object is successfully created, has the expected text attribute,
+        #: and is associated with the parent Thing object. The test checks the creation status
+        #: and the resulting object's properties to ensure correct functionality.
+        """
         a_thing = Thing.objects.create(name="a")
         obj, created = a_thing.tags.get_or_create(text="foo")
 
@@ -292,6 +299,15 @@ class GetOrCreateThroughManyToMany(TestCase):
 
 class UpdateOrCreateTests(TestCase):
     def test_update(self):
+        """
+
+        Tests the update functionality of the Person model.
+
+        This method checks the behavior of the update_or_create method when the object already exists in the database.
+        It verifies that the existing object is updated with the provided defaults and that the \"created\" flag is set to False.
+        The test case specifically checks that the first name, last name, and birthday of the updated person are correctly set.
+
+        """
         Person.objects.create(
             first_name="John", last_name="Lennon", birthday=date(1940, 10, 9)
         )
@@ -631,6 +647,18 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
         lock_status = {"has_grabbed_lock": False}
 
         def birthday_sleep():
+            """
+
+            Acquires a lock and pauses execution before returning a fixed birthdate.
+
+            This function is used to simulate a delay in processing and returns a hardcoded
+            birthdate of October 10, 1940. It modifies the lock status by setting 'has_grabbed_lock'
+            to True, indicating that the lock has been acquired.
+
+            Returns:
+                datetime.date: The fixed birthdate of October 10, 1940.
+
+            """
             lock_status["has_grabbed_lock"] = True
             time.sleep(0.5)
             return date(1940, 10, 10)
@@ -695,6 +723,11 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
             return date(1940, 10, 10)
 
         def update_birthday_slowly():
+            """
+            Update a person's birthday in the database, specifically for an individual named 'John', with a delay in the update process.
+
+            This function ensures that the person's record is either created if it does not exist, or updated if it does, with the provided birthday. After the update operation, the database connection is properly closed, regardless of the outcome, to maintain resource efficiency.
+            """
             try:
                 Person.objects.update_or_create(
                     first_name="John", defaults={"birthday": birthday_sleep}
@@ -755,6 +788,17 @@ class InvalidCreateArgumentsTests(TransactionTestCase):
             Thing.objects.get_or_create(name="a", nonexistent="b")
 
     def test_update_or_create_with_invalid_defaults(self):
+        """
+
+        Tests the behavior of update_or_create when invalid default values are provided.
+
+        Verifies that attempting to update or create an object with default values 
+        that reference non-existent fields raises a FieldError with the expected message.
+
+        This test ensures that the function properly handles invalid input and provides
+        informative error messages.
+
+        """
         with self.assertRaisesMessage(FieldError, self.msg):
             Thing.objects.update_or_create(name="a", defaults={"nonexistent": "b"})
 

@@ -15,6 +15,13 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged01(self):
+        """
+        Tester for ifchanged template tag behavior with numeric range.
+
+        This function checks the functionality of the ifchanged template tag when provided with a range of numbers.
+        It verifies that the tag correctly outputs only the changed values in the sequence, resulting in a concatenated string of unique consecutive numbers.
+        The test passes if the rendered output matches the expected result of '123'.
+        """
         output = self.engine.render_to_string("ifchanged01", {"num": (1, 2, 3)})
         self.assertEqual(output, "123")
 
@@ -37,6 +44,16 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged03(self):
+        """
+
+        Tests the functionality of the ifchanged template tag with identical values.
+
+        This test case evaluates the rendering of the ifchanged tag when all values in an iterable are the same.
+        It verifies that the tag correctly outputs the value only once, even if the iterable contains duplicate values.
+
+        The expected outcome is that the rendered output contains only the first occurrence of the value.
+
+        """
         output = self.engine.render_to_string("ifchanged03", {"num": (1, 1, 1)})
         self.assertEqual(output, "1")
 
@@ -48,6 +65,15 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged04(self):
+        """
+
+        Tests the ifchanged template tag in a nested loop structure.
+
+        Checks if the ifchanged tag correctly outputs the first occurrence of a repeated value 
+        in both inner and outer loops. The function verifies that unchanged values are skipped 
+        and only the first occurrence of each value in a sequence is rendered.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged04", {"num": (1, 2, 3), "numx": (2, 2, 2)}
         )
@@ -61,6 +87,16 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged05(self):
+        """
+
+        Tests the ifchanged template tag functionality with nested loops.
+
+        The test verifies that the ifchanged tag correctly detects changes in the looped 
+        variables and outputs the expected string. It specifically checks the behavior 
+        when the ifchanged tag is used within nested for loops, ensuring that the tag 
+        respects the scope of each loop and outputs the correct values.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged05", {"num": (1, 1, 1), "numx": (1, 2, 3)}
         )
@@ -88,6 +124,21 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged07(self):
+        """
+
+        Tests the ifchanged template tag with nested loops.
+
+        This function checks if the ifchanged tag correctly outputs values when used 
+        in multiple nested for loops. The test case involves rendering a template with 
+        three separate loops, each containing identical values. The ifchanged tag is 
+        expected to only output each unique value once, resulting in the correct 
+        output string.
+
+        The test verifies the functionality by comparing the rendered output with the 
+        expected string. It ensures that the ifchanged tag works as intended, even 
+        when used in a nested loop structure.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged07", {"num": (1, 1, 1), "numx": (2, 2, 2), "numy": (3, 3, 3)}
         )
@@ -101,6 +152,15 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged08(self):
+        """
+
+        Tests the ifchanged template tag with multiple nested loops and conditional statements.
+
+        The function verifies that the ifchanged tag correctly outputs a string by comparing the rendered template with the expected result.
+        It checks if the tag only outputs the changed values and ignores the unchanged ones, while also respecting the inner conditional statements.
+        The test covers scenarios where the inner loop values are filtered based on a condition and the ifchanged tag is applied to the filtered output.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged08",
             {
@@ -137,6 +197,19 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_param02(self):
+        """
+
+        Tests the 'ifchanged' parameter functionality in the templating engine.
+
+        This test case evaluates the rendering of a template with nested loops and 
+        an ifchanged condition. It verifies that the 'ifchanged' directive correctly 
+        identifies changes in the outer loop variable 'n' and outputs the expected string.
+
+        The test scenario involves two sets of numbers, 'num' and 'numx', which are 
+        used as input data for the template. The expected output is a string 
+        demonstrating the correct application of the 'ifchanged' directive.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged-param02", {"num": (1, 2, 3), "numx": (5, 6, 7)}
         )
@@ -222,6 +295,15 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else02(self):
+        """
+        Tests the ifchanged template tag with an else clause.
+
+        This test case checks the rendering of a template string that iterates over a list of IDs.
+        For each ID, it applies the ifchanged tag to alternate between different colors (\"red\" and \"blue\") when the ID changes,
+        and defaults to \"gray\" when the ID remains the same.
+        The expected output is a comma-separated string of IDs with their corresponding colors.
+        This test verifies the correct application of the ifchanged tag with an else clause in a templating engine.
+        """
         output = self.engine.render_to_string(
             "ifchanged-else02", {"ids": [1, 1, 2, 2, 2, 3]}
         )
@@ -235,6 +317,15 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged_else03(self):
+        """
+
+        Tests the ifchanged template tag with an else clause, specifically when the input list contains duplicate values.
+
+        The test case verifies that the ifchanged tag correctly changes the output when the value of the loop variable changes, and also renders the else clause when the value remains the same. The test uses a template that cycles through colors ('red' and 'blue') to differentiate between changed and unchanged values.
+
+        The expected output is a string containing the rendered list with changed values marked with a color, and unchanged values rendered without the color marker.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged-else03", {"ids": [1, 1, 2, 2, 2, 3]}
         )

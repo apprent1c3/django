@@ -100,6 +100,16 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        Initializes an HTML parser with a specified length and replacement string.
+
+        :param length: The maximum length of the output string.
+        :param replacement: The string to use as a replacement when the output exceeds the specified length.
+        :param convert_charrefs: Whether to convert character references to their corresponding Unicode characters (default: True). 
+
+
+        This initializer sets up an HTML parser for processing HTML content within a limited length, allowing for overflow handling via the specified replacement string.
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""
@@ -141,6 +151,16 @@ class TruncateHTMLParser(HTMLParser):
         self.output += output
 
     def feed(self, data):
+        """
+        Feed data into the parser and handle any truncation events.
+
+        This method processes the provided data, triggering any necessary parsing or processing steps.
+        In the event of truncation, it properly closes any open tags and resets the parser state.
+        Otherwise, the parser state is reset to its initial state, preparing it for future data inputs.
+
+        :param data: The input data to be fed into the parser.
+
+        """
         try:
             super().feed(data)
         except self.TruncationCompleted:

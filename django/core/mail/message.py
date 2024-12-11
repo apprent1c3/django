@@ -153,6 +153,9 @@ class MIMEMixin:
 class SafeMIMEMessage(MIMEMixin, MIMEMessage):
     def __setitem__(self, name, val):
         # message/rfc822 attachments must be ASCII
+        """
+        Sets a message header with the given name and value, ensuring that both are encoded in ASCII and do not span multiple lines, to prevent potential security vulnerabilities. The encoding and checks are handled by the forbid_multi_line_headers function, after which the value is set using the MIMEMessage class's setitem functionality.
+        """
         name, val = forbid_multi_line_headers(name, val, "ascii")
         MIMEMessage.__setitem__(self, name, val)
 

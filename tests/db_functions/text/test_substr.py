@@ -7,6 +7,16 @@ from ..models import Author
 
 class SubstrTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests basic database query functionality.
+
+        This function creates test author objects, performs queries using the Substr and Lower functions,
+        and verifies that the results match the expected output. It checks the ability to extract substrings
+        from author names and update author aliases accordingly. The test cases cover various scenarios,
+        including extracting substrings of different lengths and updating null alias values.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(name_part=Substr("name", 5, 3))
@@ -26,6 +36,16 @@ class SubstrTests(TestCase):
         )
 
     def test_start(self):
+        """
+
+        Tests the start position of string substrings in Django model fields.
+
+        Verifies that the substrings extracted from the 'name' field of an Author instance
+        match as expected when starting from different positions. This ensures that the
+        database backend correctly handles substrings of model field values, allowing for
+        accurate data manipulation and analysis.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         a = Author.objects.annotate(
             name_part_1=Substr("name", 1),
@@ -35,6 +55,20 @@ class SubstrTests(TestCase):
         self.assertEqual(a.name_part_1[1:], a.name_part_2)
 
     def test_pos_gt_zero(self):
+        """
+        Tests that a ValueError is raised with the correct message when the 'pos' argument passed to Substr is not greater than 0.
+
+        This test case ensures that the validation of the 'pos' parameter is correctly enforced, preventing invalid usage of the Substr function.
+
+        The expected exception message is \"'pos' must be greater than 0\", indicating that the function requires a positive position value.
+
+        Args: None
+
+        Returns: None
+
+        Raises: 
+            ValueError: If 'pos' is not greater than 0
+        """
         with self.assertRaisesMessage(ValueError, "'pos' must be greater than 0"):
             Author.objects.annotate(raises=Substr("name", 0))
 

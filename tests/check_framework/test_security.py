@@ -410,6 +410,18 @@ class CheckSSLRedirectTest(SimpleTestCase):
 class CheckSecretKeyTest(SimpleTestCase):
     @override_settings(SECRET_KEY=("abcdefghijklmnopqrstuvwx" * 2) + "ab")
     def test_okay_secret_key(self):
+        """
+        Tests that the SECRET_KEY setting is valid.
+
+        The SECRET_KEY is checked to ensure it meets the minimum length requirement and contains a sufficient number of unique characters.
+        If the SECRET_KEY is valid, the function should not return any errors.
+
+        Checks performed:
+            - Minimum length of SECRET_KEY
+            - Minimum number of unique characters in SECRET_KEY
+
+        This test is useful to ensure the SECRET_KEY is properly configured and secure, helping to prevent potential security issues in the application.
+        """
         self.assertEqual(len(settings.SECRET_KEY), base.SECRET_KEY_MIN_LENGTH)
         self.assertGreater(
             len(set(settings.SECRET_KEY)), base.SECRET_KEY_MIN_UNIQUE_CHARACTERS
@@ -437,11 +449,25 @@ class CheckSecretKeyTest(SimpleTestCase):
 
     @override_settings(SECRET_KEY=("abcdefghijklmnopqrstuvwx" * 2) + "a")
     def test_low_length_secret_key(self):
+        """
+        Tests the behavior of the application when the SECRET_KEY setting is shorter than the minimum allowed length. 
+        Verifies that the SECRET_KEY is correctly identified as being too short by the check_secret_key function. 
+        Specifically, it checks that the function returns the W009 warning message, indicating a secret key that is too short.
+        """
         self.assertEqual(len(settings.SECRET_KEY), base.SECRET_KEY_MIN_LENGTH - 1)
         self.assertEqual(base.check_secret_key(None), [base.W009])
 
     @override_settings(SECRET_KEY="abcd" * 20)
     def test_low_entropy_secret_key(self):
+        """
+
+        Tests that a secret key with low entropy triggers the corresponding warning.
+
+        This test case checks that a secret key with insufficient unique characters, 
+        although it meets the minimum length requirement, correctly raises a warning.
+        The secret key used in this test has a low entropy due to repetition of the same characters.
+
+        """
         self.assertGreater(len(settings.SECRET_KEY), base.SECRET_KEY_MIN_LENGTH)
         self.assertLess(
             len(set(settings.SECRET_KEY)), base.SECRET_KEY_MIN_UNIQUE_CHARACTERS
@@ -452,6 +478,19 @@ class CheckSecretKeyTest(SimpleTestCase):
 class CheckSecretKeyFallbacksTest(SimpleTestCase):
     @override_settings(SECRET_KEY_FALLBACKS=[("abcdefghijklmnopqrstuvwx" * 2) + "ab"])
     def test_okay_secret_key_fallbacks(self):
+        """
+        Tests the use of secret key fallbacks with a valid key.
+
+        This test case verifies that when a valid secret key fallback is provided, 
+        it meets the minimum length and uniqueness requirements. It also checks 
+        that no errors are raised when checking the secret key fallbacks.
+
+        The test confirms that the length of the secret key fallback is at least 
+        as long as the minimum required, and that it contains a minimum number 
+        of unique characters. Additionally, it ensures that the function 
+        responsible for checking secret key fallbacks returns an empty list, 
+        indicating no errors or warnings, when a valid key is used.
+        """
         self.assertEqual(
             len(settings.SECRET_KEY_FALLBACKS[0]),
             base.SECRET_KEY_MIN_LENGTH,
@@ -463,6 +502,13 @@ class CheckSecretKeyFallbacksTest(SimpleTestCase):
         self.assertEqual(base.check_secret_key_fallbacks(None), [])
 
     def test_no_secret_key_fallbacks(self):
+        """
+        Tests the behavior of the secret key fallback system when no fallbacks are configured.
+
+        This test case verifies that the system correctly handles the absence of secret key fallbacks and returns the expected warning message.
+
+        The test checks that the :func:`base.check_secret_key_fallbacks` function returns a list containing a single warning when no fallbacks are provided. The warning includes a message indicating that the 'SECRET_KEY_FALLBACKS' setting is not configured, along with a unique warning ID (:const:`base.W025.id`).
+        """
         with self.settings(SECRET_KEY_FALLBACKS=None):
             del settings.SECRET_KEY_FALLBACKS
             self.assertEqual(
@@ -485,6 +531,13 @@ class CheckSecretKeyFallbacksTest(SimpleTestCase):
 
     @override_settings(SECRET_KEY_FALLBACKS=[("abcdefghijklmnopqrstuvwx" * 2) + "a"])
     def test_low_length_secret_key_fallbacks(self):
+        """
+        Tests the functionality of secret key fallbacks when the length is less than the minimum required.
+
+         This test case checks if the provided secret key fallback has a length that is less than the minimum length allowed. 
+         It verifies that a warning is generated when the secret key fallback's length is insufficient, specifically one character less than the minimum length. 
+         The test ensures that the warning message correctly identifies the problematic setting and provides the relevant warning id.
+        """
         self.assertEqual(
             len(settings.SECRET_KEY_FALLBACKS[0]),
             base.SECRET_KEY_MIN_LENGTH - 1,
@@ -585,6 +638,19 @@ class CheckReferrerPolicyTest(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=["django.middleware.security.SecurityMiddleware"])
     def test_with_referrer_policy(self):
+        """
+
+        Test the check_referrer_policy function with various referrer policies.
+
+        The function verifies that the check_referrer_policy function returns an empty list
+        for different types of referrer policy values, including strings and iterable
+        objects. The tests cover various valid formats for the SECURE_REFERRER_POLICY setting.
+
+        The test cases include policies with single and multiple values, with and without
+        whitespace, and as strings, tuples, and lists. The function ensures that the
+        check_referrer_policy function behaves correctly under different settings.
+
+        """
         tests = (
             "strict-origin",
             "strict-origin,origin",

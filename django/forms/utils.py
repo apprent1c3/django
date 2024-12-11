@@ -148,6 +148,15 @@ class ErrorList(UserList, list, RenderableErrorMixin):
     template_name_ul = "django/forms/errors/list/ul.html"
 
     def __init__(self, initlist=None, error_class=None, renderer=None):
+        """
+        Initializes an instance of the class.
+
+        :param initlist: The initial list of items to be processed.
+        :param error_class: Optional CSS class to be used for error styling. Defaults to 'errorlist'.
+        :param renderer: Optional custom renderer to be used for rendering the instance. If not provided, the default renderer will be used.
+
+        The instance is initialized with the given list of items and configured with the specified error styling and rendering options.
+        """
         super().__init__(initlist)
 
         if error_class is None:

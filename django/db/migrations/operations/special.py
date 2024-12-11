@@ -98,6 +98,16 @@ class RunSQL(Operation):
         return self.reverse_sql is not None
 
     def state_forwards(self, app_label, state):
+        """
+        Perform the forwards state operations for the given app label and state.
+
+        This method iterates over a sequence of state operations and delegates the 
+        state_forwards call to each operation, effectively applying the state changes 
+        for the specified app label and state. 
+
+        :param app_label: The label of the application to apply state operations to
+        :param state: The state to apply the operations for
+        """
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
@@ -108,6 +118,30 @@ class RunSQL(Operation):
             self._run_sql(schema_editor, self.sql)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the database migration by applying the reverse SQL operation.
+
+        This method is responsible for undoing the changes made by a database migration.
+        It takes into account the current state of the database and the target state to 
+        which the migration should be reversed. The reversal is only performed if the 
+        migration is allowed by the database router.
+
+        Args:
+            app_label (str): The label of the application to which the migration belongs.
+            schema_editor: The schema editor used to execute the reverse SQL operation.
+            from_state: The current state of the database.
+            to_state: The target state to which the migration should be reversed.
+
+        Raises:
+            NotImplementedError: If the reverse SQL operation is not implemented.
+
+        Note:
+            The actual reversal is performed by executing the reverse SQL operation 
+            specified by the migration. This operation is only executed if the 
+            database router allows the migration to proceed.
+
+        """
         if self.reverse_sql is None:
             raise NotImplementedError("You cannot reverse this operation")
         if router.allow_migrate(
@@ -119,6 +153,17 @@ class RunSQL(Operation):
         return "Raw SQL operation"
 
     def _run_sql(self, schema_editor, sqls):
+        """
+
+        Run one or more SQL statements.
+
+        This method takes in a list or tuple of SQL statements or a single statement and executes them using the provided schema editor.
+        Each SQL statement can optionally be paired with parameters to safely pass user input and avoid SQL injection vulnerabilities.
+
+        :param schema_editor: The schema editor instance to use for executing the SQL statements.
+        :param sqls: A single SQL statement, a list or tuple of SQL statements, or a list or tuple of tuples where each inner tuple contains a SQL statement and its parameters.
+
+        """
         if isinstance(sqls, (list, tuple)):
             for sql in sqls:
                 params = None

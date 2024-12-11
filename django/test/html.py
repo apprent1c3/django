@@ -233,6 +233,15 @@ class Parser(HTMLParser):
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+        Handle the start of an HTML tag.
+
+        This method is responsible for processing the opening tag of an HTML element.
+        It creates a new Element object to represent the tag, normalizes its attributes,
+        and adds it to the current list of elements. If the tag is not a void element (i.e.,
+        it has a closing tag), it is also added to the list of open tags. The position of the
+        element is tracked for potential future use.
+        """
         attrs = normalize_attributes(attrs)
         element = Element(tag, attrs)
         self.current.append(element)

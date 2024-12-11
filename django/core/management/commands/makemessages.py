@@ -47,6 +47,14 @@ def is_valid_locale(locale):
 @total_ordering
 class TranslatableFile:
     def __init__(self, dirpath, file_name, locale_dir):
+        """
+        Initializes a new instance of the class, setting up the necessary paths for localization.
+
+        :param dirpath: The base directory path for the localization files.
+        :param file_name: The name of the file associated with this instance.
+        :param locale_dir: The directory containing locale-specific resources.
+        :returns: None
+        """
         self.file = file_name
         self.dirpath = dirpath
         self.locale_dir = locale_dir

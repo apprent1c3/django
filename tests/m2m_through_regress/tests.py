@@ -10,6 +10,16 @@ from .models import Car, CarDriver, Driver, Group, Membership, Person, UserMembe
 class M2MThroughTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Setup test data for the application.
+
+        This class method creates a set of predefined test data, including persons, groups, users, and their respective memberships.
+        The test data includes two persons (Bob and Jim), two groups (Rock and Roll), and two users (frank and jane).
+        Additionally, membership relationships are established between persons and groups, as well as between users and groups, with some memberships having an associated price.
+
+        The created test data can be used as a foundation for writing test cases, allowing for a consistent and reliable testing environment.
+        The test data is created as class attributes, making it accessible throughout the test suite.
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.jim = Person.objects.create(name="Jim")
 
@@ -121,6 +131,15 @@ class M2MThroughSerializationTestCase(TestCase):
 class ToFieldThroughTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the test class.
+
+        This method creates test instances of cars and drivers, and establishes relationships between them.
+        It creates a car with a driver, as well as additional unused cars and drivers for testing purposes.
+        The test data is stored as class attributes for use in test methods.
+
+        """
         cls.car = Car.objects.create(make="Toyota")
         cls.driver = Driver.objects.create(name="Ryan Briscoe")
         CarDriver.objects.create(car=cls.car, driver=cls.driver)
@@ -144,6 +163,14 @@ class ToFieldThroughTests(TestCase):
         self.assertSequenceEqual(self.driver.car_set.all(), [])
 
     def test_to_field_clear(self):
+        """
+
+        Tests that the to_field 'drivers' is cleared successfully.
+
+        This method verifies that after clearing the drivers attribute,
+        it returns an empty sequence of drivers, confirming the successful removal of all drivers.
+
+        """
         self.car.drivers.clear()
         self.assertSequenceEqual(self.car.drivers.all(), [])
 
@@ -153,6 +180,15 @@ class ToFieldThroughTests(TestCase):
     # sure these methods are ready if the ability to use .add or .remove with
     # to_field relations is added some day.
     def test_add(self):
+        """
+
+        Tests the addition of a driver to a car's drivers collection.
+
+        Checks that the function successfully adds a new driver to the existing list of drivers.
+        It first verifies the initial state of the drivers collection and then adds a new driver.
+        Finally, it asserts that the updated collection contains both the original and new drivers.
+
+        """
         self.assertSequenceEqual(self.car.drivers.all(), [self.driver])
         # Yikes - barney is going to drive...
         self.car.drivers._add_items("car", "driver", self.unused_driver)
@@ -171,6 +207,9 @@ class ToFieldThroughTests(TestCase):
             nullcar.drivers.all()
 
     def test_m2m_relations_unusable_on_null_pk_obj(self):
+        """
+        Tests that attempting to access a many-to-many relation on an object without a primary key value raises a ValueError, as objects must have a primary key value before their many-to-many relationships can be used.
+        """
         msg = (
             "'Car' instance needs to have a primary key value before a "
             "many-to-many relationship can be used."
@@ -179,6 +218,14 @@ class ToFieldThroughTests(TestCase):
             Car(make="Ford").drivers.all()
 
     def test_add_related_null(self):
+        """
+
+        Tests that adding a related object with a null value to a car's drivers raises a ValueError.
+
+        The test verifies that an attempt to add a driver with a null name to a car's drivers
+        results in an error message indicating that the value for the \"driver\" field is None.
+
+        """
         nulldriver = Driver.objects.create(name=None)
         msg = 'Cannot add "<Driver: None>": the value for field "driver" is None'
         with self.assertRaisesMessage(ValueError, msg):
@@ -191,12 +238,26 @@ class ToFieldThroughTests(TestCase):
         self.assertCountEqual(self.driver.car_set.all(), [self.car, car2])
 
     def test_add_null_reverse(self):
+        """
+        Tests that adding a Car object with a null 'make' field to a driver's car set raises a ValueError.
+
+        This function verifies that the _add_items method correctly handles attempts to add a Car object with a missing 'make' field, 
+        ensuring data integrity by rejecting such additions and providing a meaningful error message instead.
+        """
         nullcar = Car.objects.create(make=None)
         msg = 'Cannot add "<Car: None>": the value for field "car" is None'
         with self.assertRaisesMessage(ValueError, msg):
             self.driver.car_set._add_items("driver", "car", nullcar)
 
     def test_add_null_reverse_related(self):
+        """
+        Tests the behavior of adding a reverse related object to a many-to-many relationship 
+        when the parent object has a null field.
+
+        Verifies that attempting to add a related object to an instance of Driver that 
+        has a null 'name' field raises a ValueError with a specific error message, as 
+        the 'name' field is required before the relationship can be used.
+        """
         nulldriver = Driver.objects.create(name=None)
         msg = (
             '"<Driver: None>" needs to have a value for field "name" before '
@@ -206,11 +267,23 @@ class ToFieldThroughTests(TestCase):
             nulldriver.car_set._add_items("driver", "car", self.car)
 
     def test_remove(self):
+        """
+
+        Test removal of a driver from a car.
+
+        Verifies that the driver can be successfully removed from the car's list of drivers.
+        The test checks the initial state of the car's drivers, removes the driver, and then
+        assures that the driver is no longer in the list.
+
+        """
         self.assertSequenceEqual(self.car.drivers.all(), [self.driver])
         self.car.drivers._remove_items("car", "driver", self.driver)
         self.assertSequenceEqual(self.car.drivers.all(), [])
 
     def test_remove_reverse(self):
+        """
+        Tests the removal of a car from a driver's car set in reverse, verifying that the car is successfully removed and the resulting set is empty.
+        """
         self.assertSequenceEqual(self.driver.car_set.all(), [self.car])
         self.driver.car_set._remove_items("driver", "car", self.car)
         self.assertSequenceEqual(self.driver.car_set.all(), [])

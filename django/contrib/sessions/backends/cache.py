@@ -65,6 +65,17 @@ class SessionStore(SessionBase):
         )
 
     async def acreate(self):
+        """
+
+        Attempts to create a new session key and save it asynchronously, retrying up to 10,000 times if creation fails.
+
+        Raises:
+            RuntimeError: If unable to create a new session key after the maximum number of attempts, indicating a potential issue with the cache.
+
+        Notes:
+            This function will continue to attempt creation until a new session key is successfully saved, or the maximum number of attempts is reached.
+
+        """
         for i in range(10000):
             self._session_key = await self._aget_new_session_key()
             try:

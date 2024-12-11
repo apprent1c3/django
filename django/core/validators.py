@@ -678,12 +678,30 @@ class ProhibitNullCharactersValidator:
     code = "null_characters_not_allowed"
 
     def __init__(self, message=None, code=None):
+        """
+        Initializes an instance of the class.
+
+        :param message: The message to be stored in the instance, or None if no message is provided
+        :param code: The code to be stored in the instance, or None if no code is provided
+
+        Initializes the instance's message and code attributes based on the provided parameters. If a message or code is not provided (i.e., None), the corresponding attribute will not be set. This allows for customization of the instance's initial state.
+        """
         if message is not None:
             self.message = message
         if code is not None:
             self.code = code
 
     def __call__(self, value):
+        """
+        Invoke validation on a given value.
+
+        Raises a ValidationError if the provided value contains a null character ('\x00').
+        The error message and code are determined by the object's configuration.
+
+        :param value: The value to be validated
+        :raises ValidationError: If the value contains a null character
+        :return: None if validation is successful
+        """
         if "\x00" in str(value):
             raise ValidationError(self.message, code=self.code, params={"value": value})
 

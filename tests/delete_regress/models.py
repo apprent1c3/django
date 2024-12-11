@@ -156,6 +156,14 @@ def get_best_toy():
 
 
 def get_worst_toy():
+    """
+    Fetches or creates the 'worst' toy entity.
+
+    Returns the 'worst' toy object from the database, creating a new instance if it does not already exist. This function ensures that a single, consistent 'worst' toy entity is available for use throughout the application.
+
+    :rtype: Toy
+    :return: The 'worst' toy object
+    """
     toy, _ = Toy.objects.get_or_create(name="worst")
     return toy
 

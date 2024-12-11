@@ -46,6 +46,14 @@ class InMemoryFileNode(ContentFile, TimingMixin):
     """
 
     def __init__(self, content="", name=""):
+        """
+
+        Initializes a new instance of the class.
+
+        :param content: The initial content, defaults to an empty string if not provided.
+        :param name: The name associated with the instance, defaults to an empty string if not provided.
+
+        """
         self.file = None
         self._content_type = type(content)
         self._initialize_stream()
@@ -233,6 +241,20 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return file_node.open(mode)
 
     def _save(self, name, content):
+        """
+
+        Saves content to a file with the specified name.
+
+        This method creates a file node if it does not exist, then writes the content to it in chunks.
+        The file is opened in binary or text mode depending on the type of the first chunk.
+        If the content is a temporary file, it is deleted after uploading.
+        The file node's modified time is updated to the current time.
+
+        :param name: The name of the file to save.
+        :param content: The content to be written to the file.
+        :return: The relative path of the saved file with Unix-style path separators.
+
+        """
         file_node = self._resolve(
             name, create_if_missing=True, leaf_cls=InMemoryFileNode
         )
@@ -263,6 +285,23 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return self._resolve(name, check_exists=False) is not None
 
     def listdir(self, path):
+        """
+        Lists the contents of a directory at the specified path.
+
+        Parameters
+        ----------
+        path : str
+            The path to the directory to list.
+
+        Returns
+        -------
+        list
+            A list of files and subdirectories in the specified directory.
+
+        Notes
+        -----
+        This method provides a way to retrieve the contents of a directory. It returns a list of names of files and subdirectories in the specified directory. If the specified path does not exist or is not a directory, this method may raise an exception or return an empty list, depending on the implementation details of the underlying file system. 
+        """
         node = self._resolve(path, leaf_cls=InMemoryDirNode)
         return node.listdir()
 

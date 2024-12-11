@@ -52,6 +52,17 @@ class BaseAutodetectorTests(TestCase):
         return output
 
     def assertNumberMigrations(self, changes, app_label, number):
+        """
+        /assertNumberMigrations/
+
+        Asserts that the specified number of migrations exists for a given application.
+
+        :param changes: A dictionary of changes.
+        :param app_label: The label of the application to check.
+        :param number: The expected number of migrations.
+
+        This assertion checks if the number of migrations for the given application matches the expected number. If the numbers do not match, the test will fail and display a message indicating the actual number of migrations found and the expected number.
+        """
         if len(changes.get(app_label, [])) != number:
             self.fail(
                 "Incorrect number of migrations (%s) for %s (expected %s)\n%s"
@@ -87,6 +98,22 @@ class BaseAutodetectorTests(TestCase):
             )
 
     def assertOperationTypes(self, changes, app_label, position, types):
+        """
+
+        Asserts that the operations in a specific migration match the expected types.
+
+        This method checks if a migration with the given position exists for the specified app label,
+        and then verifies that the operation types in that migration match the provided types.
+
+        :param changes: A dictionary of migrations changes
+        :param app_label: The label of the application being checked
+        :param position: The index of the migration to check
+        :param types: A list of expected operation types
+
+        :raises AssertionError: If no migration is found for the app label, if no migration exists at the given position,
+            or if the operation types do not match the expected types
+
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -115,6 +142,28 @@ class BaseAutodetectorTests(TestCase):
     def assertOperationAttributes(
         self, changes, app_label, position, operation_position, **attrs
     ):
+        """
+        Verifies that a migration operation has the expected attributes.
+
+        This function checks for the presence of a specific migration and operation within
+        a set of migration changes, and then asserts that the operation has the specified
+        attributes with the expected values. If any of the checks fail, a test failure is
+        raised with a descriptive error message.
+
+        The function takes the following parameters:
+        - `changes`: a dictionary of migration changes
+        - `app_label`: the label of the Django app containing the migration to check
+        - `position`: the index of the migration to check within the app's migrations
+        - `operation_position`: the index of the operation to check within the migration
+        - `**attrs`: keyword arguments specifying the attributes of the operation to check,
+          with their expected values
+
+        The function will raise a test failure if:
+        - No migrations are found for the specified app
+        - No migration is found at the specified position within the app's migrations
+        - No operation is found at the specified position within the migration
+        - Any of the specified attributes do not match their expected values
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -155,6 +204,22 @@ class BaseAutodetectorTests(TestCase):
     def assertOperationFieldAttributes(
         self, changes, app_label, position, operation_position, **attrs
     ):
+        """
+        Asserts that the specified operation field attributes match the expected values.
+
+        This method takes a dictionary of changes, an application label, migration position,
+        operation position, and additional keyword arguments representing the expected
+        field attributes and their values. It checks that the specified migration and
+        operation exist, and that the operation has a field attribute. It then compares
+        the field attributes with the expected values, raising an assertion failure if
+        any mismatch is found.
+
+        :param changes: Dictionary of changes
+        :param app_label: Application label
+        :param position: Migration position
+        :param operation_position: Operation position within the migration
+        :param attrs: Keyword arguments representing the expected field attributes and their values
+        """
         if not changes.get(app_label):
             self.fail(
                 "No migrations found for %s\n%s"
@@ -1188,6 +1253,26 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     def test_arrange_for_graph_with_multiple_initial(self):
         # Make a fake graph.
+        """
+        Tests the arrange_for_graph method when dealing with a migration graph 
+        that contains multiple initial migrations.
+
+        This test case verifies that the arrange_for_graph method correctly handles 
+        a migration graph with multiple initial migrations by checking the generated 
+        migration names and dependencies for different applications.
+
+        The test starts with an empty migration history and then applies a series of 
+        changes to the project state. It then uses the MigrationAutodetector to 
+        detect the changes and arrange them into a migration graph. The resulting 
+        migration names and dependencies are then checked to ensure they match the 
+        expected outcomes.
+
+        The test covers the following scenarios:
+
+        * The migration names are correctly generated with the '_initial' suffix.
+        * The dependencies between migrations are correctly established.
+        * The dependencies between different applications are correctly handled.
+        """
         graph = MigrationGraph()
         # Use project state to make a new migration change set.
         before = self.make_project_state([])
@@ -1303,6 +1388,19 @@ class AutodetectorTests(BaseAutodetectorTests):
         side_effect=AssertionError("Should not have prompted for not null addition"),
     )
     def test_add_not_null_field_with_db_default(self, mocked_ask_method):
+        """
+        Tests the addition of a non-nullable field with a database default value.
+
+        Verifies that adding a non-nullable field with a default value directly in the database
+        does not prompt for not null addition and generates the correct migration operation.
+
+        The test case checks for the following conditions:
+        - The migration operation is of type 'AddField'.
+        - The operation does not prompt for not null addition.
+        - The field is added with the correct name and preserves the default value.
+        - The field has the correct database default value.
+
+        """
         changes = self.get_changes([self.author_empty], [self.author_name_db_default])
         self.assertNumberMigrations(changes, "testapp", 1)
         self.assertOperationTypes(changes, "testapp", 0, ["AddField"])
@@ -1320,6 +1418,16 @@ class AutodetectorTests(BaseAutodetectorTests):
     def test_add_date_fields_with_auto_now_not_asking_for_default(
         self, mocked_ask_method
     ):
+        """
+
+        Tests the addition of date fields with auto_now set to True to verify that no prompt is triggered for not null addition.
+
+        This test checks the migration changes generated when adding date fields with auto_now to an existing model. 
+        It ensures that the migration contains the expected operations (AddField) for the new date fields and 
+        that the auto_now attribute is correctly set for these fields. The test also verifies that no prompt is 
+        raised to ask for a default value when adding these fields, as they will be automatically populated.
+
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_dates_of_birth_auto_now]
         )
@@ -1339,6 +1447,9 @@ class AutodetectorTests(BaseAutodetectorTests):
     def test_add_date_fields_with_auto_now_add_not_asking_for_null_addition(
         self, mocked_ask_method
     ):
+        """
+        Tests the behavior of adding date fields with auto_now_add functionality to a model, ensuring that a prompt for not null addition is not triggered during the migration process. The function verifies that exactly one migration is generated, containing the appropriate AddField operations with the correct attributes, specifically auto_now_add set to True.
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_dates_of_birth_auto_now_add]
         )
@@ -1357,6 +1468,14 @@ class AutodetectorTests(BaseAutodetectorTests):
     def test_add_date_fields_with_auto_now_add_asking_for_default(
         self, mocked_ask_method
     ):
+        """
+        Tests the addition of date fields with auto_now_add set to True, 
+        verifying that the MigrationQuestioner is prompted to ask for default values 
+        and that the correct number and types of migrations are generated.
+
+        Checks that three date fields are added with auto_now_add set to True, 
+        and that the ask_auto_now_add_addition method is called three times.
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_dates_of_birth_auto_now_add]
         )
@@ -1402,6 +1521,17 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_fk_before_generated_field(self):
+        """
+
+        Tests adding a foreign key before a generated field.
+
+        This test case verifies the migrations generated when a foreign key is added to a model
+        before a generated field that depends on the foreign key is created.
+
+        The test checks that the resulting migration is correct and contains the expected operations,
+        including the creation of the dependent model and the addition of the foreign key and generated fields.
+
+        """
         initial_state = ModelState(
             "testapp",
             "Author",
@@ -1465,6 +1595,13 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_supports_functools_partial(self):
+        """
+        Tests that migrations properly handle functools.partial in FileField's upload_to argument.
+
+        Verifies that when the functools.partial call changes arguments or keyword arguments,
+        the migration correctly reflects these changes as AlterField operations.
+
+        """
         def _content_file_name(instance, filename, key, **kwargs):
             return "{}/{}".format(instance, filename)
 
@@ -1705,6 +1842,11 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_foreign_object_from_to_fields_list(self):
+        """
+        Test that foreign object fields do not trigger changes when their referencing and referenced objects are identical. 
+
+        This test case creates two model states, one for an Author and one for a Book with a foreign key referencing the Author. It then creates a deep copy of the Book model state and checks that no changes are detected between the original and copied model states, ensuring that the foreign object field is properly handled.
+        """
         author_state = ModelState(
             "app",
             "Author",
@@ -1736,6 +1878,17 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(changes, {})
 
     def test_rename_foreign_object_fields(self):
+        """
+
+        Tests the renaming of fields in a model's foreign object fields.
+
+        This test case covers two scenarios:
+        1. Renaming fields in the referenced model ('Foo') and updating the foreign object fields in the referencing model ('Bar') accordingly.
+        2. Renaming fields in the referencing model ('Bar') to match the fields in the referenced model ('Foo').
+
+        Verifies that the correct migrations are generated in both cases, including the necessary RenameField and AlterUniqueTogether operations.
+
+        """
         fields = ("first", "second")
         renamed_fields = ("first_renamed", "second_renamed")
         before = [
@@ -1979,6 +2132,20 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_related_field_preserved_db_column(self):
+        """
+
+        Tests that renaming a field related to another model preserves the underlying database column.
+
+        Specifically, this test checks that when a field with a foreign key relationship is renamed,
+        the migration generated properly updates the field's name while retaining the original
+        database column name.
+
+        The test scenario involves two models, Foo and Bar, where Bar has a foreign key to Foo.
+        The test renames the foreign key field in Bar from 'foo' to 'renamed_foo' and verifies
+        that the resulting migration correctly alters the field name and preserves the
+        'db_column' attribute, which references the original database column name.
+
+        """
         before = [
             ModelState(
                 "app",
@@ -2122,6 +2289,15 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertNumberMigrations(changes, "otherapp", 0)
 
     def test_renamed_referenced_m2m_model_case(self):
+        """
+
+        Tests that a Many-To-Many model referencing a renamed model does not generate migrations.
+
+        This test case ensures that when a model is renamed and another model has a Many-To-Many relationship with it,
+        no migrations are created. The test verifies that the changes detected by the migration system do not include
+        any migrations for the affected apps.
+
+        """
         publisher_renamed = ModelState(
             "testapp",
             "publisher",
@@ -2505,6 +2681,17 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_comment_add(self):
+        """
+        Tests the addition of a comment to a database table.
+
+        This test case verifies that a migration is generated when a model's table comment is added.
+        It checks that the resulting migration operation is of type 'AlterModelTableComment' and
+        contains the correct table name and comment attributes.
+
+        The test ensures that the migration process correctly alters the database table comment,
+        allowing for documentation and metadata to be associated with the table.
+
+        """
         changes = self.get_changes(
             [self.author_empty], [self.author_with_db_table_comment]
         )
@@ -2550,6 +2737,12 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_db_table_comment_no_changes(self):
+        """
+        Tests that no database migration is generated when the comment of a database table remains unchanged.
+
+        Verifies that the comparison of two schema versions containing an identical database table comment results in no proposed alterations.
+        The test checks the migration changes generated and verifies that the expected number of migrations for the 'testapp' is zero, confirming that no unnecessary changes are suggested when the table comment is unchanged.
+        """
         changes = self.get_changes(
             [self.author_with_db_table_comment],
             [self.author_with_db_table_comment],
@@ -2676,6 +2869,20 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
         def test(from_state, to_state, msg):
+            """
+
+            Tests whether a transition from one state to another creates any operations.
+
+            Args:
+                from_state: The initial state.
+                to_state: The target state.
+                msg: A descriptive message indicating the context of the transition.
+
+            This function checks if any operations are generated when moving from the 
+            from_state to the to_state. If operations are found, the test fails and 
+            reports the types of operations created and the context in which they occurred.
+
+            """
             changes = self.get_changes([from_state], [to_state])
             if changes:
                 ops = ", ".join(
@@ -2771,6 +2978,14 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_rename_indexes(self):
+        """
+
+        Tests the renaming of existing indexes on a model.
+
+        This test case validates that the framework correctly identifies and applies rename index operations when the index name is modified.
+        It checks that the migration is generated with the correct operation type (RenameIndex) and attributes (model name, new and old index names).
+
+        """
         book_renamed_indexes = ModelState(
             "otherapp",
             "Book",
@@ -2874,6 +3089,15 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_constraints_with_new_model(self):
+        """
+
+        Tests adding constraints to a model with a new unique constraint.
+
+        This test verifies that when a new model with a unique constraint on multiple fields is introduced, 
+        the resulting database migration includes the creation of the model and the addition of the unique constraint.
+        The test case checks that the correct number and type of migration operations are generated.
+
+        """
         book_with_unique_title_and_pony = ModelState(
             "otherapp",
             "Book",
@@ -2905,6 +3129,18 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_constraints_with_dict_keys(self):
+        """
+
+        Tests adding model constraints with dictionary keys.
+
+        This test case verifies that the system correctly handles model constraints
+        defined using dictionary keys. It creates two models with constraints, one where
+        the constraint condition uses the dictionary keys directly and another where
+        the constraint condition uses the resolved dictionary keys. The test then checks
+        that no changes are detected between these two models, confirming that the
+        constraints are handled correctly.
+
+        """
         book_types = {"F": "Fantasy", "M": "Mystery"}
         book_with_type = ModelState(
             "testapp",
@@ -2942,6 +3178,16 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 0)
 
     def test_add_index_with_new_model(self):
+        """
+
+        Tests the creation of a new index on a model.
+
+        This test checks if the migration system correctly handles the addition of a new index
+        to a model when the model is created. The test creates a new model state with an index
+        defined on two fields, and then verifies that the correct migration operations are 
+        generated to create the model and add the index.
+
+        """
         book_with_index_title_and_pony = ModelState(
             "otherapp",
             "Book",
@@ -3096,6 +3342,19 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_create_model_and_unique_together(self):
+        """
+        Tests the creation of a new model with unique_together constraint and relationship to an existing model.
+
+        This function verifies that the creation of a new model with a foreign key to another model
+        and a unique_together constraint is correctly translated into a set of migration operations.
+        It checks that the resulting migration contains the expected operations, including the creation of the new model,
+        the addition of the foreign key field, and the application of the unique_together constraint.
+
+        The test covers a scenario where a new model 'Book' is created with a foreign key to an existing model 'Author',
+        and a unique_together constraint on the 'title' and 'author' fields. The expected outcome is a single migration
+        with three operations: CreateModel, AddField, and AlterUniqueTogether. The function asserts that the migration
+        operations are of the correct type and that the unique_together constraint is correctly applied.
+        """
         author = ModelState(
             "otherapp",
             "Author",
@@ -3533,6 +3792,16 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_unmanaged_delete(self):
+        """
+
+        Tests the deletion of an unmanaged model.
+
+        This test case verifies that the framework correctly handles the deletion of a model
+        that is not managed by the application's database schema. It checks for the creation
+        of a single migration operation with the expected type, specifically a 'DeleteModel'
+        operation, to ensure the model is properly removed from the database schema.
+
+        """
         changes = self.get_changes(
             [self.author_empty, self.author_unmanaged], [self.author_empty]
         )
@@ -3583,6 +3852,20 @@ class AutodetectorTests(BaseAutodetectorTests):
 
     @override_settings(AUTH_USER_MODEL="thirdapp.CustomUser")
     def test_swappable(self):
+        """
+
+        Tests the functionality of swappable user models in Django migrations.
+
+        This test ensures that when a custom user model is defined, the necessary
+        migrations are generated to create the associated tables. The test verifies
+        that a single migration is created with a 'CreateModel' operation for the
+        'Author' model, and that this migration depends on the 'AUTH_USER_MODEL'
+        setting.
+
+        The test uses a custom user model defined in the 'thirdapp' application and
+        isolates the LRU cache to prevent interference from other tests.
+
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             changes = self.get_changes(
                 [self.custom_user], [self.custom_user, self.author_with_custom_user]
@@ -3648,6 +3931,18 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertEqual(len(changes), 0)
 
     def test_swappable_changed(self):
+        """
+
+        Tests that a migration is created when the swappable model for the user is changed.
+
+        This test ensures that when the AUTH_USER_MODEL setting is changed to a different
+        swappable model, Django's migration autodetector correctly identifies the change
+        and generates the necessary migration to alter the affected fields.
+
+        In this case, the test checks that a single AlterField operation is created for
+        the 'author' model to update the 'user' field to reference the new swappable model.
+
+        """
         with isolate_lru_cache(apps.get_swappable_settings_name):
             before = self.make_project_state([self.custom_user, self.author_with_user])
             with override_settings(AUTH_USER_MODEL="thirdapp.CustomUser"):
@@ -3857,6 +4152,17 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 0, name="publishers")
 
     def test_alter_many_to_many(self):
+        """
+        Tests the alteration of a many-to-many field in a model.
+
+        This function verifies that the modification of a many-to-many relationship 
+        between two models results in the correct migration operations. It checks 
+        that the changes are correctly detected and that the corresponding migration 
+        operations are generated. Specifically, it tests that an AlterField operation 
+        is created to reflect the changes to the many-to-many field. The function 
+        uses predefined test data to exercise the migration detection logic and 
+        asserts that the expected outcomes are produced.
+        """
         changes = self.get_changes(
             [self.author_with_m2m, self.publisher],
             [self.author_with_m2m_blank, self.publisher],
@@ -3895,6 +4201,18 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_create_with_through_model_separate_apps(self):
+        """
+        Tests the creation of models with many-to-many relationships through a separate Django app.
+
+        The test case covers the following scenarios:
+
+        * Creating an Author model in the 'authors' app with a many-to-many relationship to a Publisher model in the 'testapp' app through a Contract model in the 'contract' app.
+        * Verifying that the expected number of migrations are generated for each app.
+        * Checking the dependencies between the migrations.
+        * Confirming that the correct operations (e.g., CreateModel, AddField) are applied to the models.
+
+        This test ensures that the migration system correctly handles complex relationships between models across multiple Django apps.
+        """
         author_with_m2m_through = ModelState(
             "authors",
             "Author",
@@ -4200,6 +4518,18 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_model_order_with_respect_to_unique_together(self):
+        """
+        Tests the creation of a model with respect to unique_together and order_with_respect_to constraints.
+
+        Verifies that a migration is generated correctly for a model that has an order_with_respect_to constraint
+        and a unique_together constraint that includes the _order field.
+
+        Ensures that the created model has the correct options and attributes, including the specified order_with_respect_to
+        and unique_together constraints.
+
+        The test checks the number of migrations generated, the type of operations performed, and the attributes of the
+        operations to ensure that the model is created as expected.
+        """
         changes = self.get_changes(
             [],
             [
@@ -4234,6 +4564,18 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_model_order_with_respect_to_constraint(self):
+        """
+        Tests adding a model with an order constraint.
+
+        This test case verifies that a migration is properly created when adding a new model
+        that includes an 'order_with_respect_to' option and a check constraint. The model
+        'Author' is created in 'testapp' with an ordering constraint tied to the 'book' 
+        field and a check constraint ensuring the order is greater than 1.
+
+        The test checks that only one migration is created for 'testapp' and that it 
+        correctly includes the 'CreateModel' operation with the specified model options 
+        and constraints.
+        """
         after = ModelState(
             "testapp",
             "Author",
@@ -4276,6 +4618,20 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_add_model_order_with_respect_to_index(self):
+        """
+
+        Tests the addition of a model with ordering respect to an index.
+
+        This test case checks that a new model 'Author' is created with the correct
+        parameters. The model is ordered with respect to the 'book' field, which is a
+        ForeignKey referencing the 'Book' model in the 'otherapp' app. The model also
+        defines an index named 'book_order_idx' on the '_order' field.
+
+        The test verifies that the changes result in the creation of a single migration
+        for the 'testapp' app, which includes the addition of the 'Author' model with
+        the specified ordering and index options.
+
+        """
         after = ModelState(
             "testapp",
             "Author",
@@ -4305,6 +4661,24 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_set_alter_order_with_respect_to_index_constraint_unique_together(self):
+        """
+        Tests the migration of the model order when the underlying index, unique constraint or other related operations change.
+
+        This test case checks the correctness of model migrations when an existing model's order is altered 
+        with respect to a foreign key field. The test is performed for various database operations such as 
+        adding an index, adding a constraint and altering unique together constraints.
+
+        The test verifies that the correct migration operations are generated and that the number of 
+        migrations and their types are as expected for each scenario.
+
+        The test covers the following operations:
+        - Adding an index on the order field
+        - Adding a check constraint on the order field
+        - Altering the unique together constraint for the model
+
+        The test ensures that the migration process correctly handles these operations and results in the 
+        expected model changes.
+        """
         tests = [
             (
                 "AddIndex",
@@ -4445,6 +4819,15 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "testapp", 0, 1, name="Aardvark")
 
     def test_bases_first_mixed_case_app_label(self):
+        """
+        Tests that the makemigrations command correctly handles a mixed case app label with model inheritance.
+
+        This test creates a series of model states for an app with a mixed case label, including a model that inherits from another model in the same app.
+        It then checks that the resulting migrations are correctly generated, with the expected number and types of operations.
+
+        The test covers the creation of models with foreign keys and model inheritance, ensuring that the migrations are correctly formatted and contain the expected attributes.
+        The expected outcome is a single migration with three CreateModel operations, each with the correct name and attributes.
+        """
         app_label = "MiXedCaseApp"
         changes = self.get_changes(
             [],
@@ -4610,6 +4993,17 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_unique_together_fk_to_m2m(self):
+        """
+
+        Tests the migration of a unique together constraint to a many-to-many field on a model.
+
+        This function checks if the migration correctly alter the unique together constraint 
+        of a model when a foreign key field is converted to a many-to-many field. It verifies 
+        that the migration generates the correct number and types of operations, including 
+        the removal of the unique together constraint and the addition of the new many-to-many 
+        field.
+
+        """
         changes = self.get_changes(
             [self.author_name, self.book_unique_together],
             [
@@ -4640,6 +5034,15 @@ class AutodetectorTests(BaseAutodetectorTests):
         )
 
     def test_alter_field_to_fk_dependency_other_app(self):
+        """
+
+        Tests the migration of altering a field to a foreign key dependency with another application.
+
+        This test case verifies that the correct migration operations are generated when a field
+        is altered to have a foreign key dependency on a model from a different Django application.
+        It checks the number of migrations, the type of operations, and the dependencies in the migration.
+
+        """
         changes = self.get_changes(
             [self.author_empty, self.book_with_no_author_fk],
             [self.author_empty, self.book],
@@ -4912,6 +5315,21 @@ class AutodetectorTests(BaseAutodetectorTests):
         self.assertOperationAttributes(changes, "app", 0, 1, name="book")
 
     def test_parse_number(self):
+        """
+
+        Tests the parsing of numbers from migration names.
+
+        This test case checks the functionality of the MigrationAutodetector's parse_number method
+        by providing a set of migration names with expected extracted numbers. It covers various
+        scenarios, including initial migrations, auto-generated names, squashed migrations, and
+        custom names.
+
+        The tests aim to ensure the correct extraction of numbers from different migration name
+        formats, handling prefixes, and suffixes. If all test cases pass, it indicates that the
+        parse_number method correctly identifies and returns the relevant number from a given
+        migration name.
+
+        """
         tests = [
             ("no_number", None),
             ("0001_initial", 1),
@@ -4932,12 +5350,35 @@ class AutodetectorTests(BaseAutodetectorTests):
                 )
 
     def test_add_custom_fk_with_hardcoded_to(self):
+        """
+
+        Test adding a custom foreign key with a hardcoded 'to' attribute.
+
+        This test case evaluates the functionality of adding a custom foreign key 
+        to a model, specifically one where the 'to' attribute is hardcoded. The test 
+        verifies that the addition of this custom foreign key results in the 
+        expected number and type of migrations, as well as the correct model 
+        attributes.
+
+        """
         class HardcodedForeignKey(models.ForeignKey):
             def __init__(self, *args, **kwargs):
+                """
+
+                Initializes a new instance of the class, setting up a relationship with the Author model in the testapp application.
+                The constructor accepts variable arguments and keyword arguments, which are then passed to the parent class constructor.
+                It specifically targets the 'Author' model in 'testapp' for association, providing a foundation for further interactions.
+
+                """
                 kwargs["to"] = "testapp.Author"
                 super().__init__(*args, **kwargs)
 
             def deconstruct(self):
+                """
+                Deconstructs the current object into its constituent parts, removing the 'to' keyword argument from the keyword arguments dictionary.
+
+                    :return: A tuple containing the name, path, arguments, and keyword arguments of the deconstructed object.
+                """
                 name, path, args, kwargs = super().deconstruct()
                 del kwargs["to"]
                 return name, path, args, kwargs
@@ -4960,6 +5401,15 @@ class AutodetectorTests(BaseAutodetectorTests):
 
 class MigrationSuggestNameTests(SimpleTestCase):
     def test_no_operations(self):
+        """
+
+        Tests that the suggest_name method of a Migration instance returns a name 
+        starting with 'auto_' when the migration has no operations.
+
+        The purpose of this test is to verify that the naming convention for automatic 
+        migrations is applied correctly in the absence of any migration operations.
+
+        """
         class Migration(migrations.Migration):
             operations = []
 
@@ -4967,6 +5417,9 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertIs(migration.suggest_name().startswith("auto_"), True)
 
     def test_no_operations_initial(self):
+        """
+        Tests that a migration with no operations and marked as initial suggests 'initial' as its name.
+        """
         class Migration(migrations.Migration):
             initial = True
             operations = []
@@ -4988,6 +5441,17 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "delete_person")
 
     def test_single_operation_long_name(self):
+        """
+
+        Tests suggesting a name for a migration with a single operation that has a long model name.
+
+        This test case verifies that the suggested name for a migration with a single operation
+        (migration creating a new model) with a long model name is correctly generated.
+
+        The length of the model name in this test exceeds the conventional naming limitations,
+        ensuring the name suggestion functionality handles such edge cases.
+
+        """
         class Migration(migrations.Migration):
             operations = [migrations.CreateModel("A" * 53, fields=[])]
 
@@ -4995,6 +5459,16 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "a" * 53)
 
     def test_two_operations(self):
+        """
+
+        Tests that a migration with two operations (CreateModel and DeleteModel) 
+        suggests a name that combines the names of the created and deleted models.
+
+        The suggested name is expected to follow a specific convention, in this case 
+        'person_delete_animal', which reflects the creation of a 'Person' model and 
+        deletion of an 'Animal' model.
+
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.CreateModel("Person", fields=[]),
@@ -5015,6 +5489,18 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "person_animal")
 
     def test_two_create_models_with_initial_true(self):
+        """
+
+        Tests the suggestion of a migration name when two models are created with the initial flag set to True.
+
+        This test case checks if the migration name is correctly suggested when two models are created in an initial migration.
+        The expected output is 'initial', which is the default name for initial migrations.
+
+        :param None:
+        :raises AssertionError: If the suggested migration name does not match 'initial'.
+        :return: None
+
+        """
         class Migration(migrations.Migration):
             initial = True
             operations = [
@@ -5042,6 +5528,14 @@ class MigrationSuggestNameTests(SimpleTestCase):
         )
 
     def test_operation_with_no_suggested_name(self):
+        """
+
+        Tests that an auto-generated name is suggested when no name is provided for a migration operation.
+
+        This test case checks the behavior of the suggest_name method when the migration contains operations 
+        that do not provide a suggested name. It verifies that the suggested name starts with 'auto_'.
+
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.CreateModel("Person", fields=[]),
@@ -5052,6 +5546,13 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertIs(migration.suggest_name().startswith("auto_"), True)
 
     def test_operation_with_invalid_chars_in_suggested_name(self):
+        """
+        Tests that the suggest_name method can handle operations with invalid characters in the suggested name.
+
+        This method checks that the migration name suggestion functionality correctly replaces invalid characters with underscores,
+        ensuring that the generated name is a valid Python identifier. It verifies that the suggested name for a unique constraint
+        operation with a name containing special characters is correctly sanitized to produce a valid and readable name.
+        """
         class Migration(migrations.Migration):
             operations = [
                 migrations.AddConstraint(
@@ -5082,6 +5583,15 @@ class MigrationSuggestNameTests(SimpleTestCase):
         self.assertEqual(migration.suggest_name(), "initial")
 
     def test_auto(self):
+        """
+        Tests the automatic naming functionality of a migration.
+
+        Verifies that the suggested name for a migration starts with a prefix indicating
+        it was automatically generated, ensuring consistency in naming conventions for
+        auto-generated migrations.
+
+        :raises AssertionError: If the suggested name does not start with 'auto_'. 
+        """
         migration = migrations.Migration("0001_initial", "test_app")
         suggest_name = migration.suggest_name()
         self.assertIs(suggest_name.startswith("auto_"), True)

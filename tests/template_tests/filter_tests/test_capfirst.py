@@ -15,6 +15,9 @@ class CapfirstTests(SimpleTestCase):
         }
     )
     def test_capfirst01(self):
+        """
+        Tests the 'capfirst' filter in template rendering, ensuring it correctly capitalizes the first letter of each string, while also handling HTML entity escaping and safe strings.
+        """
         output = self.engine.render_to_string(
             "capfirst01", {"a": "fred>", "b": mark_safe("fred&gt;")}
         )

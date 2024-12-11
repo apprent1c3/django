@@ -95,6 +95,13 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_no_section(self):
+        """
+        Tests the case when a requested sitemap section does not exist.
+
+        Verifies that the correct error message is displayed and a 404 status code is returned when attempting to access a sitemap section that is not available.
+
+        The expected error message indicates that no sitemap is available for the specified section, providing a clear indication of the issue to the user. The 404 status code ensures that the response is properly handled by the client as a 'Not Found' error. 
+        """
         response = self.client.get("/simple/sitemap-simple2.xml")
         self.assertEqual(
             str(response.context["exception"]),
@@ -103,11 +110,24 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertEqual(response.status_code, 404)
 
     def test_empty_page(self):
+        """
+
+        Tests the case where an empty page is requested from the sitemap.
+
+        Verifies that when a page with no entries is requested, a 404 status code is returned
+        and an exception is raised indicating that the page is empty.
+
+        """
         response = self.client.get("/simple/sitemap-simple.xml?p=0")
         self.assertEqual(str(response.context["exception"]), "Page 0 empty")
         self.assertEqual(response.status_code, 404)
 
     def test_page_not_int(self):
+        """
+        Tests the handling of a non-integer value for the page parameter in the sitemap XML view.
+
+        The test checks that when a non-integer value is provided, a 404 status code is returned and an exception message indicating that no page with the specified value exists.
+        """
         response = self.client.get("/simple/sitemap-simple.xml?p=test")
         self.assertEqual(str(response.context["exception"]), "No page 'test'")
         self.assertEqual(response.status_code, 404)
@@ -259,6 +279,15 @@ class HTTPSitemapTests(SitemapTestsBase):
     def test_requestsite_sitemap(self):
         # Hitting the flatpages sitemap without the sites framework installed
         # doesn't raise an exception.
+        """
+
+        Tests the generation of a sitemap XML file for a simple page.
+
+        Verifies that a GET request to the '/simple/sitemap.xml' URL returns a valid sitemap XML file,
+        containing the expected URL, last modified date, change frequency, and priority.
+        The test ensures that the response content matches the predefined expected XML structure.
+
+        """
         response = self.client.get("/simple/sitemap.xml")
         expected_content = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -319,6 +348,18 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_x_robots_sitemap(self):
+        """
+        Tests the X-Robots-Tag header in HTTP responses for sitemap files.
+
+        Verifies that the 'X-Robots-Tag' header is correctly set to 'noindex, noodp, noarchive' 
+        for both the simple index XML and the sitemap XML files, indicating that search engines 
+        should not index these resources, use the Open Directory Project (ODP) description, 
+        or archive them in their caches.
+
+        The test covers two specific scenarios: 
+        - retrieving the simple index XML file at '/simple/index.xml'
+        - retrieving the sitemap XML file at '/simple/sitemap.xml'
+        """
         response = self.client.get("/simple/index.xml")
         self.assertEqual(response.headers["X-Robots-Tag"], "noindex, noodp, noarchive")
 
@@ -326,6 +367,13 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertEqual(response.headers["X-Robots-Tag"], "noindex, noodp, noarchive")
 
     def test_empty_sitemap(self):
+        """
+        Tests that an HTTP request to the empty sitemap URL returns a successful response.
+
+        Verifies that the server responds with a status code of 200 (OK) when the
+        /empty/sitemap.xml endpoint is accessed, indicating the sitemap is properly
+        handled even when it is empty.
+        """
         response = self.client.get("/empty/sitemap.xml")
         self.assertEqual(response.status_code, 200)
 
@@ -503,6 +551,14 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_sitemap_without_entries(self):
+        """
+
+        Tests the sitemap XML response when there are no entries.
+
+        Verifies that the sitemap.xml endpoint returns a valid XML response with the correct namespace declarations, 
+        even when there are no URLs to include in the sitemap.
+
+        """
         response = self.client.get("/sitemap-without-entries/sitemap.xml")
         expected_content = (
             '<?xml version="1.0" encoding="UTF-8"?>\n'
@@ -570,6 +626,12 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(sitemap_response.content.decode(), expected_content_sitemap)
 
     def test_callable_sitemod_no_items(self):
+        """
+        Tests the generation of a sitemap index XML file when the 'callable-lastmod' 
+        sitemap has no items. Verifies that the 'Last-Modified' header is not present in 
+        the response and the index XML content matches the expected format and structure, 
+        including the namespace and location of the sitemap URL.
+        """
         index_response = self.client.get("/callable-lastmod-no-items/index.xml")
         self.assertNotIn("Last-Modified", index_response)
         expected_content_index = """<?xml version="1.0" encoding="UTF-8"?>

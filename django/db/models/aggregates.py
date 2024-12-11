@@ -53,6 +53,15 @@ class Aggregate(Func):
         return source_expressions + [self.filter]
 
     def set_source_expressions(self, exprs):
+        """
+        Sets the source expressions for this object, splitting the last expression to be used as a filter.
+
+        Args:
+            exprs: A list of expressions, where the last expression is used for filtering.
+
+        Returns:
+            The result of the superclass's set_source_expressions method.
+        """
         *exprs, self.filter = exprs
         return super().set_source_expressions(exprs)
 

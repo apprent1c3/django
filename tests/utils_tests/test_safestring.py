@@ -20,6 +20,15 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(tpl.render(context), expected)
 
     def test_mark_safe(self):
+        """
+        Tests the behavior of the mark_safe function in a templating context.
+
+        This test case verifies that when a string marked as safe is rendered in a template,
+        it is output exactly as is, without any escaping. Additionally, it checks that 
+        if the string is explicitly escaped using the force_escape filter, it is properly 
+        HTML-escaped, replacing special characters like '&' with their corresponding 
+        HTML entities, such as '&amp;'.
+        """
         s = mark_safe("a&b")
 
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -54,6 +63,13 @@ class SafeStringTest(SimpleTestCase):
             self.assertEqual(tpl.render(Context({"s": s})), "nom")
 
     def test_mark_safe_object_implementing_dunder_str(self):
+        """
+
+        Tests the behavior of the mark_safe function when passed an object that implements the __str__ method.
+        The function verifies that mark_safe properly handles and renders objects with custom string representations.
+        It checks that the rendered output matches the expected string, ensuring the correct implementation of the mark_safe function.
+
+        """
         class Obj:
             def __str__(self):
                 return "<obj>"
@@ -69,6 +85,24 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(mark_safe(lazystr("a&b")).__html__(), "a&b")
 
     def test_add_lazy_safe_text_and_safe_text(self):
+        """
+        Tests the addition of lazy safe text and safe text.
+
+        This function checks if the correct output is rendered when combining lazy safe text
+        with safe text. It verifies that the escaped characters are handled correctly
+        in two different scenarios: HTML escaping and JavaScript escaping.
+
+        The test case ensures that the resulting string is as expected, with the special
+        characters '&b' being preserved as safe text, while the lazy safe text 'a' is
+        properly escaped in both HTML and JavaScript contexts.
+
+        The test covers two main cases:
+            - When using html.escape() for HTML escaping
+            - When using html.escapejs() for JavaScript escaping
+
+        Both cases verify that the rendered output matches the expected result 'a&b', 
+        indicating that the combination of lazy safe text and safe text is handled correctly.
+        """
         s = html.escape(lazystr("a"))
         s += mark_safe("&b")
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -111,12 +145,22 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(mark_safe(lazy_str), html_str())
 
     def test_default_additional_attrs(self):
+        """
+        Tests the default behavior of SafeString objects when attempting to assign a value to an attribute that does not exist, specifically verifying that an AttributeError is raised with the expected message when trying to assign to 'dynamic_attr'.
+        """
         s = SafeString("a&b")
         msg = "object has no attribute 'dynamic_attr'"
         with self.assertRaisesMessage(AttributeError, msg):
             s.dynamic_attr = True
 
     def test_default_safe_data_additional_attrs(self):
+        """
+
+        Tests that attempting to set a non-existent attribute on a SafeData object raises an AttributeError.
+
+        Verifies that the SafeData class does not dynamically create attributes when assigned, ensuring data integrity and safety by enforcing attribute existence checks.
+
+        """
         s = SafeData()
         msg = "object has no attribute 'dynamic_attr'"
         with self.assertRaisesMessage(AttributeError, msg):

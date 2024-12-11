@@ -94,6 +94,19 @@ class QueryTestCase(TestCase):
             Book.objects.using("default").get(title="Dive into Python")
 
     def test_refresh(self):
+        """
+        Tests the refresh_from_db method of a model instance.
+
+        This test case creates a Book instance, saves it to a non-default database, 
+        modifies the instance in the default database, and then refreshes the instance 
+        from both the non-default and default databases, verifying that the instance 
+        state is correctly updated. It also checks that the instance's database state 
+        is correctly updated after refreshing from a different database.
+
+        The purpose of this test is to ensure that the refresh_from_db method correctly 
+        retrieves the latest state of a model instance from the database, regardless of 
+        the database from which the instance was originally retrieved.
+        """
         dive = Book(title="Dive into Python", published=datetime.date(2009, 5, 4))
         dive.save(using="other")
         dive2 = Book.objects.using("other").get()
@@ -106,6 +119,21 @@ class QueryTestCase(TestCase):
         self.assertEqual(dive._state.db, "default")
 
     def test_refresh_router_instance_hint(self):
+        """
+
+        Tests the refresh functionality of a router instance hint.
+
+        This test case verifies that when a model instance is refreshed from the database,
+        the database router's :meth:`db_for_read` method is called with the correct
+        instance as a hint.
+
+        The test creates a :class:`Book` instance, sets up a mock database router to
+        return None for the database to use for reads, and then refreshes the book
+        instance from the database. It then asserts that the :meth:`db_for_read` method
+        was called once with the :class:`Book` model and the refreshed book instance as
+        arguments.
+
+        """
         router = Mock()
         router.db_for_read.return_value = None
         book = Book.objects.create(
@@ -1304,6 +1332,20 @@ class QueryTestCase(TestCase):
 
     @override_settings(DATABASE_ROUTERS=["multiple_database.tests.TestRouter"])
     def test_contenttype_in_separate_db(self):
+        """
+
+        Tests the retrieval of content types and associated objects from separate databases.
+
+        This test case ensures that the ContentType model can be used to retrieve objects
+        from the correct database, whether it's the default database or a separate one.
+        It verifies that objects can be correctly identified and retrieved using their
+        title, and that the correct database is used when specifying the 'using' parameter.
+
+        It also checks that attempting to retrieve an object from the wrong database
+        raises a DoesNotExist exception, and that the get_all_objects_for_this_type method
+        returns only objects from the default database.
+
+        """
         ContentType.objects.using("other").all().delete()
         book_other = Book.objects.using("other").create(
             title="Test title other", published=datetime.date(2009, 5, 4)
@@ -1339,6 +1381,19 @@ class ConnectionRouterTestCase(SimpleTestCase):
         ]
     )
     def test_router_init_default(self):
+        """
+        Tests the initialization of the ConnectionRouter with default settings.
+
+        Verifies that the ConnectionRouter properly loads the specified database routers,
+        in this case 'TestRouter' and 'WriteRouter', when using override settings.
+
+        The purpose of this test is to ensure that the ConnectionRouter can correctly
+        identify and load the routers as specified in the settings, which is essential
+        for routing database connections in a multi-database setup.
+
+        The test checks if the loaded routers match the expected ones by comparing their
+        class names, which indicates successful initialization of the ConnectionRouter.
+        """
         connection_router = ConnectionRouter()
         self.assertEqual(
             [r.__class__.__name__ for r in connection_router.routers],
@@ -1440,6 +1495,25 @@ class RouterTestCase(TestCase):
             self.assertTrue(router.allow_migrate_model("default", Book))
 
     def test_database_routing(self):
+        """
+
+        Test that database routing correctly handles model queries across multiple databases.
+
+        Verifies the ability to create, update, retrieve, and delete model instances 
+        in different databases. Also checks that queries such as get_or_create and 
+        filter work correctly across databases.
+
+        This test covers the following scenarios:
+        - Creating and updating model instances in specific databases
+        - Querying model instances in specific databases
+        - Using get_or_create to retrieve or create model instances
+        - Deleting model instances based on filter conditions
+        - Counting model instances in specific databases or globally
+
+        Validates the behavior of database routing by checking the expected results 
+        after performing these operations. 
+
+        """
         marty = Person.objects.using("default").create(name="Marty Alchin")
         pro = Book.objects.using("default").create(
             title="Pro Django",
@@ -1997,6 +2071,34 @@ class AntiPetRouter:
     # passing pets to the 'other' database
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
+        """
+        Determines whether a model can be migrated to a specific database.
+
+        This method checks the database and model name to decide whether the migration
+        should be allowed. It returns True if the migration is permitted and False
+        otherwise.
+
+        The decision is based on the database name and the model name. If the database
+        name is 'other', it only allows migration of the 'pet' model. For all other
+        databases, it allows migration of all models except 'pet'.
+
+        Parameters
+        ----------
+        db : str
+            The name of the database to check.
+        app_label : str
+            The label of the application that the model belongs to.
+        model_name : str, optional
+            The name of the model to check.
+        hints : dict
+            Additional hints to consider when making the decision.
+
+        Returns
+        -------
+        bool
+            Whether the model can be migrated to the specified database.
+
+        """
         if db == "other":
             return model_name == "pet"
         else:
@@ -2049,6 +2151,19 @@ class PickleQuerySetTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_pickling(self):
+        """
+
+        Tests that database queries are properly preserved during the pickling process.
+
+        This test ensures that the database associated with a QuerySet remains intact after
+        the QuerySet is pickled and then unpickled, which is crucial for maintaining data
+        consistency and integrity in distributed or serialized environments.
+
+        The test iterates over multiple databases, creates a sample Book object in each,
+        and then checks that the database alias of the original QuerySet matches that of
+        the unpickled QuerySet, thereby verifying the correctness of the pickling process.
+
+        """
         for db in self.databases:
             Book.objects.using(db).create(
                 title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -2230,6 +2345,20 @@ class ModelMetaRouter:
     "A router to ensure model arguments are real model classes"
 
     def db_for_write(self, model, **hints):
+        """
+        Determine the database to use for write operations on a given model.
+
+        This method is used to decide which database should be used when writing data
+        to the database. It takes a model instance as input and optional hints.
+
+        If the provided model does not have a _meta attribute, a ValueError is raised,
+        indicating that the model is not valid for database operations.
+
+        :param model: The model instance for which to determine the database
+        :param hints: Optional hints to influence the database selection
+        :raises ValueError: If the model does not have a _meta attribute
+        :return: The database to use for write operations
+        """
         if not hasattr(model, "_meta"):
             raise ValueError
 
@@ -2256,6 +2385,16 @@ class RouterModelArgumentTestCase(TestCase):
         b.delete()
 
     def test_foreignkey_collection(self):
+        """
+        Tests the behavior of a foreign key collection when the referenced object is deleted.
+
+        This function creates a test scenario where a Person object owns a Pet object, 
+        establishing a foreign key relationship between the two. It then deletes the Person 
+        object and implicitly tests the consequences of this deletion on the related Pet object 
+        and the foreign key collection. The goal is to verify that the deletion is handled 
+        correctly and that any expected cascading effects, such as deletion or nullification 
+        of the related Pet object, occur as expected.
+        """
         person = Person.objects.create(name="Bob")
         Pet.objects.create(owner=person, name="Wart")
         # test related FK collection
@@ -2324,6 +2463,19 @@ class RouteForWriteTestCase(TestCase):
         )
 
     def test_fk_delete(self):
+        """
+
+        Tests the deletion of a foreign key relationship to ensure proper routing.
+
+        This test verifies that when a model with a foreign key relationship is deleted,
+        the correct router mode is triggered, and the exception contains the expected
+        information about the model instance being deleted.
+
+        Specifically, it checks that deleting the owner of a pet raises a RouterUsed
+        exception with the WRITE mode, the Person model, and a hint containing the
+        instance being deleted.
+
+        """
         owner = Person.objects.create(name="Someone")
         pet = Pet.objects.create(name="fido", owner=owner)
         with self.assertRaises(RouterUsed) as cm:
@@ -2335,6 +2487,16 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_reverse_fk_delete(self):
+        """
+        Tests the behavior of deleting objects through a reverse foreign key relationship.
+
+        Specifically, this test case verifies that attempting to delete objects associated with a particular instance
+        through a reverse foreign key (e.g. a person's pets) raises a RouterUsed exception, indicating that the 
+        database router was used to handle the deletion.
+
+        The exception is checked to ensure it contains the correct mode (WRITE), model (Pet), and hints (the instance 
+        associated with the deletion attempt, in this case a Person object).
+        """
         owner = Person.objects.create(name="Someone")
         to_del_qs = owner.pet_set.all()
         with self.assertRaises(RouterUsed) as cm:
@@ -2346,6 +2508,11 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_reverse_fk_get_or_create(self):
+        """
+        Tests that attempting to create or retrieve a model instance via the reverse foreign key relationship, using the `get_or_create` method, correctly raises a `RouterUsed` exception when the router is overridden. 
+
+        The test verifies that the raised exception is properly configured, with the correct mode, model, and hints, ensuring that the correct instance and context are captured. This ensures that the router functionality is correctly enforced for reverse foreign key relationships.
+        """
         owner = Person.objects.create(name="Someone")
         with self.assertRaises(RouterUsed) as cm:
             with self.override_router():
@@ -2356,6 +2523,15 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_reverse_fk_update(self):
+        """
+
+        Tests that updating a reverse foreign key relationship raises a RouterUsed exception.
+
+        This test case covers the scenario where an update operation is performed on a reverse
+        foreign key relationship, specifically when updating the 'pet_set' of a Person instance.
+        It verifies that the RouterUsed exception is raised with the correct mode, model, and hints.
+
+        """
         owner = Person.objects.create(name="Someone")
         Pet.objects.create(name="fido", owner=owner)
         with self.assertRaises(RouterUsed) as cm:
@@ -2367,6 +2543,13 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": owner})
 
     def test_m2m_add(self):
+        """
+        Test adding an author to a book through a many-to-many relationship using a router.
+
+        This test case verifies that attempting to add an author to a book triggers a RouterUsed exception.
+        It checks that the exception is raised with the correct mode (WRITE), model (the many-to-many through model), 
+        and hints (including the instance being modified).
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2408,6 +2591,16 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_get_or_create(self):
+        """
+
+        Tests the functionality of getting or creating an instance in a many-to-many relationship.
+
+        It verifies that the get_or_create method raises a RouterUsed exception when attempting to create a new instance,
+        and checks that the exception contains the correct mode, model, and hints.
+
+        This test case ensures that the correct error handling is in place when working with many-to-many relationships.
+
+        """
         Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2421,6 +2614,19 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_remove(self):
+        """
+        Tests removing a many-to-many relationship.
+
+        This test case checks that removing an author from a book raises a RouterUsed 
+        exception when using a custom router. It verifies the exception's mode is set 
+        to WRITE, the affected model is the relationship between Book and authors, and 
+        the hint dictionary contains the book instance being modified.
+
+        The test scenario involves creating a person and a book, establishing a 
+        many-to-many relationship between them, and then attempting to remove the 
+        relationship while using a custom router. The expected outcome is an exception 
+        with specific attributes regarding the operation and affected objects.
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2435,6 +2641,16 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_m2m_update(self):
+        """
+        Tests the update operation on a many-to-many relationship.
+
+        This test case verifies that an update operation on the related objects of a many-to-many relationship raises a RouterUsed exception,
+        indicating that the operation is attempting to write to a database using a router. It checks the exception's mode, model, and hints
+        to ensure they match the expected values.
+
+        The test scenario involves creating a book and assigning an author to it, then attempting to update the author's name through the book's
+        authors relationship. The expected result is a RouterUsed exception with a WRITE mode, Person model, and hints containing the book instance.
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2449,6 +2665,22 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_reverse_m2m_add(self):
+        """
+
+        Tests the reversal of many-to-many (m2m) relationship additions.
+
+        This test case verifies that adding an object to a many-to-many relationship
+        via the reverse side raises a RouterUsed exception, which indicates that the
+        router is being used for a write operation. It checks the exception's mode,
+        model, and hints to ensure they match the expected values for a WRITE operation
+        on the Book-authors through model.
+
+        The scenario tested involves creating a Person and a Book, then attempting to
+        add the Book to the Person's book set, while overriding the router. The test
+        asserts that the RouterUsed exception is raised with the correct mode, model,
+        and hints, demonstrating the correct behavior for reversed m2m additions.
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2462,6 +2694,17 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_clear(self):
+        """
+
+        Tests that clearing a many-to-many relationship using the reverse relationship
+        results in a RouterUsed exception being raised.
+
+        The test creates a person and a book, associates the person with the book as an author,
+        and then attempts to clear the book set for the person. It verifies that the exception
+        raised has the correct mode (WRITE), model (the through model for the authors relationship),
+        and hints (the instance being modified).
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2476,6 +2719,15 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_delete(self):
+        """
+
+        Tests the behavior of reverse many-to-many relationships when deleting an object.
+
+        Verifies that deleting an object in a many-to-many relationship raises a RouterUsed exception,
+        indicating that the router is being used for the operation. Checks that the exception contains
+        the correct mode (WRITE), model (Book), and hints (the instance being deleted).
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2503,6 +2755,19 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_remove(self):
+        """
+
+        Tests the removal of a many-to-many relationship from the \"wrong\" side of the relationship, 
+        i.e., from the model instance that isn't set as the primary model for the relationship.
+
+        Verifies that attempting to remove a relationship in this manner raises a RouterUsed exception, 
+        indicating that the database router was used unexpectedly. The test checks the mode, model, 
+        and hints of the raised exception to ensure they are as expected.
+
+        Specifically, the test case covers the scenario where an author is removed from a book's authors 
+        set, which is not the primary model for the many-to-many relationship.
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2517,6 +2782,13 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": auth})
 
     def test_reverse_m2m_update(self):
+        """
+
+        Tests that updating a model through a Many-To-Many relationship with an overridden router raises a RouterUsed exception.
+
+        The test creates a Person and a Book, associates the Person as an author of the Book, then attempts to update the Book's title through the Person's book_set. This should raise a RouterUsed exception, indicating that the router was used for a write operation. The test verifies that the exception's mode is WRITE, the affected model is Book, and the instance hint is the Person that triggered the update.
+
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)
@@ -2546,6 +2818,11 @@ class RelationAssignmentTests(SimpleTestCase):
     router_prevents_msg = "the current database router prevents this relation"
 
     def test_foreign_key_relation(self):
+        """
+        Tests that attempting to establish a foreign key relation between a Pet and a Person is prevented by the router.
+
+         verifica that setting the `owner` attribute of a `Pet` instance to a `Person` instance raises a `ValueError` with a message indicating that the router prevents this relationship.
+        """
         person = Person(name="Someone")
         pet = Pet()
         with self.assertRaisesMessage(ValueError, self.router_prevents_msg):

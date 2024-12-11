@@ -27,6 +27,12 @@ class DeprecatedFieldsTests(SimpleTestCase):
         )
 
     def test_CommaSeparatedIntegerField_deprecated(self):
+        """
+        Tests the deprecated CommaSeparatedIntegerField in a model to ensure it raises the correct deprecation error.
+
+        The test checks if using CommaSeparatedIntegerField in a model field triggers a warning about its deprecation, 
+        with a suggestion to replace it with a CharField that uses a comma-separated integer list validator.
+        """
         class CommaSeparatedIntegerModel(models.Model):
             csi = models.CommaSeparatedIntegerField(max_length=64)
 
@@ -49,6 +55,15 @@ class DeprecatedFieldsTests(SimpleTestCase):
         )
 
     def test_nullbooleanfield_deprecated(self):
+        """
+        Tests the deprecation of NullBooleanField.
+
+        This test case checks that using a NullBooleanField in a model triggers a deprecation error.
+        The error suggests replacing NullBooleanField with BooleanField(null=True, blank=True) for equivalent functionality.
+
+        The test verifies that the check method returns an error with the expected message and hint,
+        indicating that NullBooleanField is no longer supported except for historical migration purposes.
+        """
         class NullBooleanFieldModel(models.Model):
             nb = models.NullBooleanField()
 
@@ -68,6 +83,15 @@ class DeprecatedFieldsTests(SimpleTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_postgres_jsonfield_deprecated(self):
+        """
+
+        Tests the deprecation of PostgreSQL's JSONField.
+
+        This test case verifies that using the deprecated JSONField from django.contrib.postgres.fields
+        triggers a warning, recommending the use of django.db.models.JSONField instead.
+        It checks the model validation and ensures that the expected error is raised.
+
+        """
         from django.contrib.postgres.fields import JSONField
 
         class PostgresJSONFieldModel(models.Model):

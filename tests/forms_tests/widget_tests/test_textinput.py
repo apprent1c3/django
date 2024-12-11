@@ -106,6 +106,13 @@ class TextInputTest(WidgetTest):
         )
 
     def test_attrs_safestring(self):
+        """
+
+        Tests that HTML attributes set on a TextInput widget are properly rendered as safe strings.
+
+        Specifically, verifies that the 'onBlur' attribute is correctly translated into an HTML attribute without introducing any XSS vulnerabilities.
+
+        """
         widget = TextInput(attrs={"onBlur": mark_safe("function('foo')")})
         self.check_html(
             widget,
@@ -116,6 +123,12 @@ class TextInputTest(WidgetTest):
 
     def test_use_required_attribute(self):
         # Text inputs can safely trigger the browser validation.
+        """
+        Tests the use_required_attribute method of the widget.
+
+        This method checks if the use_required_attribute method always returns True, 
+        regardless of the input provided, including None, an empty string, and a filename.
+        """
         self.assertIs(self.widget.use_required_attribute(None), True)
         self.assertIs(self.widget.use_required_attribute(""), True)
         self.assertIs(self.widget.use_required_attribute("resume.txt"), True)

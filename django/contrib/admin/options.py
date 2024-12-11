@@ -88,6 +88,14 @@ HORIZONTAL, VERTICAL = 1, 2
 def get_content_type_for_model(obj):
     # Since this module gets imported in the application's root package,
     # it cannot import models from other applications at the module level.
+    """
+    Gets the content type for a given model instance.
+
+    The content type represents the type of a model in a generic foreign key relation and is used by Django's content type framework.
+    It can be used to look up or create generic relations to an instance of the given model.
+
+    The returned content type is not specific to the concrete model, meaning that if the model is a proxy model, the content type of the underlying model will be returned.
+    """
     from django.contrib.contenttypes.models import ContentType
 
     return ContentType.objects.get_for_model(obj, for_concrete_model=False)
@@ -1750,6 +1758,23 @@ class ModelAdmin(BaseModelAdmin):
 
     def get_inline_formsets(self, request, formsets, inline_instances, obj=None):
         # Edit permissions on parent model are required for editable inlines.
+        """
+
+        Generates inline formsets for the given model instances and formsets.
+
+        This method takes into account the user's permissions and the model's configuration to determine which formsets to display and what actions are allowed.
+        It returns a list of :class:`~helpers.InlineAdminFormSet` instances, each representing an inline formset for a specific model instance.
+
+        The method considers the following factors when generating the formsets:
+
+        * The user's permission to edit the parent object (if applicable)
+        * The user's permission to add, change, or delete inline instances
+        * The model's field configuration, including readonly fields and prepopulated fields
+        * The inline instance's permission to view the parent object
+
+        These factors are used to customize the formsets and determine which actions are allowed for each inline instance.
+
+        """
         can_edit_parent = (
             self.has_change_permission(request, obj)
             if obj
@@ -2565,6 +2590,15 @@ class InlineModelAdmin(BaseModelAdmin):
         return super().has_delete_permission(request, obj)
 
     def has_view_permission(self, request, obj=None):
+        """
+        Determines whether a user has permission to view a particular model instance or the entire model.
+
+        This method takes into account whether the model instance is auto-created, in which case it checks for both 'view' and 'change' permissions on the target model. For non-auto-created instances, it delegates the permission check to the parent class.
+
+        :param request: The current request object.
+        :param obj: The model instance to check (optional).
+        :return: True if the user has view permission, False otherwise.
+        """
         if self.opts.auto_created:
             # Same comment as has_add_permission(). The 'change' permission
             # also implies the 'view' permission.

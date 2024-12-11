@@ -61,5 +61,16 @@ class StringAgg(OrderableAggMixin, Aggregate):
     output_field = TextField()
 
     def __init__(self, expression, delimiter, **extra):
+        """
+        Initializes a new instance of the class with an expression and a delimiter.
+
+        The expression is the primary input to be processed, while the delimiter is used to separate or tokenize the input. 
+
+        Additional keyword arguments may be passed to customize initialization, and are forwarded to the superclass. 
+
+        :param expression: The primary input expression to be processed.
+        :param delimiter: The delimiter used to separate or tokenize the input.
+        :param extra: Keyword arguments to customize initialization.
+        """
         delimiter_expr = Value(str(delimiter))
         super().__init__(expression, delimiter_expr, **extra)

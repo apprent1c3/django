@@ -193,6 +193,19 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(troy.state.name, "Western Australia")
 
     def test_null_join_promotion(self):
+        """
+
+        Tests the promotion of null joins in database queries.
+
+        This function validates the behavior of the ORM when selecting related objects 
+        that may or may not have a matching record. It covers two scenarios: 
+        1) filtering by a specific related object, and 
+        2) retrieving all objects with their related objects, including those with no match.
+
+        The test ensures that the correct number of database queries are executed and 
+        that the results are as expected, including the presence or absence of a 'LEFT OUTER' join.
+
+        """
         australia = Country.objects.create(name="Australia")
         active = ClientStatus.objects.create(name="active")
 
@@ -247,6 +260,18 @@ class SelectRelatedRegressTests(TestCase):
             self.assertEqual(qs_c.c_b.name, "b")
 
     def test_regression_22508(self):
+        """
+
+        Tests that the database query optimization for regression issue 22508 is functioning correctly.
+
+        This test case creates a building, device, and port in the database, and then fetches the port 
+        along with its device and building in a single query using select_related. It then verifies 
+        that accessing the building through the port does not result in any additional database queries. 
+
+        The purpose of this test is to ensure that the query optimization is working as expected, 
+        reducing the number of database queries and improving performance.
+
+        """
         building = Building.objects.create(name="101")
         device = Device.objects.create(name="router", building=building)
         Port.objects.create(port_number="1", device=device)

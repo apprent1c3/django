@@ -27,6 +27,17 @@ class NowTagTests(SimpleTestCase):
     # Check parsing of locale strings
     @setup({"now02": '{% now "DATE_FORMAT" %}'})
     def test_now02(self):
+        """
+        Tests the 'now' template tag used with a specific date format.
+
+        This test case checks if the 'now' template tag correctly renders the current date
+        in the specified format. It verifies that the output of the template tag matches
+        the expected date format when rendered by the template engine.
+
+        :param None:
+        :returns: None
+        :raises: AssertionError if the rendered output does not match the expected date format
+        """
         output = self.engine.render_to_string("now02")
         self.assertEqual(output, date_format(datetime.now()))
 
@@ -53,6 +64,19 @@ class NowTagTests(SimpleTestCase):
 
     @setup({"now05": "{% now 'j \"n\" Y'%}"})
     def test_now05(self):
+        """
+
+        Tests the rendering of the 'now' template tag with a custom format.
+
+        The 'now' tag is used to display the current date and time. This test case 
+        verifies that the tag correctly formats the date as 'day \"month\" year' when 
+        provided with the format string 'j \"n\" Y'.
+
+        The test compares the rendered output with the expected string, which is 
+        generated using the current date and time.
+
+
+        """
         output = self.engine.render_to_string("now05")
         self.assertEqual(
             output,

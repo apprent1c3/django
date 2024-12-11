@@ -11,6 +11,17 @@ class LocalizedTimeTests(SimpleTestCase):
     def setUpClass(cls):
         # nl/formats.py has customized TIME_INPUT_FORMATS:
         # ['%H:%M:%S', '%H.%M:%S', '%H.%M', '%H:%M']
+        """
+        Sets up the class by entering a specific translation context.
+
+        This method is called before running any tests in the class. It overrides the
+        default translation to Dutch ('nl') and then proceeds with the standard setup
+        procedure for the class, as defined by its parent class.
+
+        Use this method to ensure that all tests in the class are executed with the
+        Dutch translation enabled, allowing for language-specific test cases to be
+        written and executed seamlessly.
+        """
         cls.enterClassContext(translation.override("nl"))
         super().setUpClass()
 
@@ -321,6 +332,13 @@ class SimpleTimeFormatTests(SimpleTestCase):
 class LocalizedDateTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class for testing, overriding the translation to German.
+
+        This class method is called once before any test methods in the class are executed.
+        It ensures that all tests in this class are run with German translations, allowing for localization testing.
+
+        """
         cls.enterClassContext(translation.override("de"))
         super().setUpClass()
 
@@ -634,6 +652,9 @@ class SimpleDateFormatTests(SimpleTestCase):
 class LocalizedDateTimeTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class-level test environment, configuring the translation to German ('de') and invoking the superclass setup method to perform any additional initialization.
+        """
         cls.enterClassContext(translation.override("de"))
         super().setUpClass()
 

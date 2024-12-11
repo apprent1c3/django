@@ -22,6 +22,14 @@ class NoAppendSlashTests(SimpleTestCase):
 
     def test_no_append_slash_decorator(self):
         @no_append_slash
+        """
+        .. function:: test_no_append_slash_decorator
+
+           Tests the functionality of the :func:`no_append_slash` decorator.
+
+           The test checks if the decorator correctly sets the ``should_append_slash`` attribute of a view function to ``False``.
+           Additionally, it verifies that the decorated view function returns an instance of :class:`HttpResponse` when called with an :class:`HttpRequest` object.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -30,6 +38,21 @@ class NoAppendSlashTests(SimpleTestCase):
 
     async def test_no_append_slash_decorator_async_view(self):
         @no_append_slash
+        """
+        Test the no_append_slash decorator with an asynchronous view.
+
+        This test case checks that the no_append_slash decorator correctly sets the 
+        should_append_slash attribute of the view to False, and that the view returns 
+        an HttpResponse instance when called with an HttpRequest object.
+
+        The no_append_slash decorator is expected to prevent the view from appending a 
+        slash to the URL. This test verifies the decorator's functionality in the 
+        context of an asynchronous view.
+
+        :raises AssertionError: If the should_append_slash attribute is not False or 
+            the view does not return an HttpResponse instance.
+
+        """
         async def async_view(request):
             return HttpResponse()
 

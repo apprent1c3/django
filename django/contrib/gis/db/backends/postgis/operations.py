@@ -376,6 +376,18 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
             raise Exception("Could not determine PROJ version from PostGIS.")
 
     def spatial_aggregate_name(self, agg_name):
+        """
+
+        Returns a spatial aggregate name based on the provided aggregate name.
+
+        The function takes an aggregate name as input and returns a spatially-aware name.
+        If the aggregate name is 'Extent3D', it returns a specialized extent value.
+        For other aggregate names, it prefixes the input name with a geometric function prefix.
+
+        :param agg_name: The aggregate name to be converted
+        :rtype: str
+
+        """
         if agg_name == "Extent3D":
             return self.extent3d
         else:

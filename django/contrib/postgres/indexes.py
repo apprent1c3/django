@@ -178,6 +178,14 @@ class GistIndex(PostgresIndex):
         super().__init__(*expressions, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, which can be used to recreate it.
+
+        This method builds upon the deconstruction provided by the parent class, and adds buffering and fill factor settings to the keyword arguments if they have been set.
+
+        Returns:
+            A tuple containing the path to the object, a list of positional arguments, and a dictionary of keyword arguments that can be used to recreate the object.
+        """
         path, args, kwargs = super().deconstruct()
         if self.buffering is not None:
             kwargs["buffering"] = self.buffering
@@ -186,6 +194,13 @@ class GistIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of WITH parameter settings for a database table.
+        These parameters are used to specify storage options for the table and include 
+        buffering and fillfactor settings. The returned list contains string representations 
+        of the parameters, such as 'buffering = on' or 'fillfactor = 90', for parameters that 
+        have been set. If a parameter is not set, it is not included in the list.
+        """
         with_params = []
         if self.buffering is not None:
             with_params.append("buffering = %s" % ("on" if self.buffering else "off"))
@@ -208,6 +223,14 @@ class HashIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of WITH parameters based on the current object's properties.
+
+        The list includes the fillfactor parameter if it is specified.
+
+        :rtype: list
+
+        """
         with_params = []
         if self.fillfactor is not None:
             with_params.append("fillfactor = %d" % self.fillfactor)
@@ -218,6 +241,14 @@ class SpGistIndex(PostgresIndex):
     suffix = "spgist"
 
     def __init__(self, *expressions, fillfactor=None, **kwargs):
+        """
+        Initializes a new instance of the class.
+
+        This method sets up a new object with the provided expressions and optional keyword arguments. 
+        It also accepts a fillfactor parameter, which specifies a custom fill factor for the instance, 
+        otherwise default settings are applied. 
+        All additional keyword arguments are passed to the superclass constructor.
+        """
         self.fillfactor = fillfactor
         super().__init__(*expressions, **kwargs)
 

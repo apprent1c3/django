@@ -76,6 +76,25 @@ class LoaderTests(TestCase):
                 recorder.record_unapplied(app, name)
 
     def record_applied(self, recorder, app, name):
+        """
+        Records an application of a specific name and tracks the applied record.
+
+        This method informs the provided recorder about the application, storing
+        the applied application name and recorder instance for future reference.
+
+        Parameters
+        ----------
+        recorder : object
+            The recorder object responsible for tracking the application.
+        app : object
+            The application object being recorded.
+        name : str
+            The name of the application being recorded.
+
+        Returns
+        -------
+        None
+        """
         recorder.record_applied(app, name)
         self.applied_records.append((recorder, app, name))
 
@@ -214,6 +233,11 @@ class LoaderTests(TestCase):
             migration_loader.get_migration_by_prefix("migrations", "blarg")
 
     def test_load_import_error(self):
+        """
+        Tests that a MigrationLoader raises an ImportError when attempting to load migrations from a package that contains an import error. 
+
+         This test case validates the handling of migration loading failures due to import issues in the specified migration package, ensuring that the MigrationLoader responds correctly in such scenarios.
+        """
         with override_settings(
             MIGRATION_MODULES={"migrations": "import_error_package"}
         ):
@@ -313,6 +337,17 @@ class LoaderTests(TestCase):
         self.addCleanup(recorder.flush)
 
         def num_nodes():
+            """
+
+            Returns the number of unapplied nodes in the migration plan.
+
+            This function determines the number of migration nodes that have not yet been applied.
+            It calculates this by comparing the set of nodes in the migration plan to the set of nodes that have already been applied.
+
+            :returns: The number of unapplied migration nodes.
+            :rtype: int
+
+            """
             plan = set(loader.graph.forwards_plan(("migrations", "7_auto")))
             return len(plan - loader.applied_migrations.keys())
 
@@ -366,6 +401,17 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_complex_multi_apps(self):
+        """
+
+        Tests the loading of squashed migrations in complex multi-app scenarios.
+
+        Verifies that the migration loader correctly resolves dependencies and generates a valid migration plan.
+
+        The test case involves two apps, 'app1' and 'app2', with squashed migrations. It checks that the migration plan includes the expected squashed and non-squashed migrations in the correct order.
+
+        Ensures that the migration loader can handle complex relationships between apps and their respective migrations.
+
+        """
         loader = MigrationLoader(connection)
         loader.build_graph()
 

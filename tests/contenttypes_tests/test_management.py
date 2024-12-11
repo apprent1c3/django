@@ -22,6 +22,13 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class by removing stale content types and then creates a new content type for testing purposes.
+
+        This method first removes any stale content types using the 'remove_stale_contenttypes' command with increased verbosity for better debugging.
+        It then captures the count of content types before creating a new one and stores it in the class attribute `before_count`.
+        Finally, it creates a new content type with a specific app label and model, which is stored in the class attribute `content_type` for use in subsequent tests.
+        """
         with captured_stdout():
             call_command(
                 "remove_stale_contenttypes",
@@ -86,6 +93,16 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": ["empty_models"]})
     def test_contenttypes_removed_in_installed_apps_without_models(self):
+        """
+
+        Tests the removal of stale content types when an app is removed from INSTALLED_APPS without corresponding models.
+
+        Verifies that content types associated with removed apps are deleted, while content types of apps that do not exist in the model registry are preserved. 
+
+        The test simulates the execution of the 'remove_stale_contenttypes' command and checks the output to ensure the correct content types are removed.
+
+
+        """
         ContentType.objects.create(app_label="empty_models", model="Fake 1")
         ContentType.objects.create(app_label="no_models", model="Fake 2")
         with (

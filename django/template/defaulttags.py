@@ -94,11 +94,42 @@ class CsrfTokenNode(Node):
 
 class CycleNode(Node):
     def __init__(self, cyclevars, variable_name=None, silent=False):
+        """
+        Initializes an instance of the class.
+
+        Parameters
+        ----------
+        cyclevars : object
+            The cycle variables to be used.
+        variable_name : str, optional
+            The name of the variable, defaults to None if not provided.
+        silent : bool, optional
+            A flag indicating whether to suppress output, defaults to False.
+
+        Notes
+        -----
+        This method sets up the internal state of the instance with the provided cycle variables and other optional parameters. It does not perform any validation or processing of the input data. The instance is ready for further use after initialization.
+        """
         self.cyclevars = cyclevars
         self.variable_name = variable_name
         self.silent = silent
 
     def render(self, context):
+        """
+
+        Renders the current object within the given context.
+
+        This function manages its own rendering cycle and resolves the next value
+        in the cycle based on the provided context. If a variable name is specified,
+        the resolved value is assigned to it in the context for upward propagation.
+
+        The function can operate in silent mode, where it does not return any output,
+        or normal mode, where it renders the resolved value within the given context.
+
+        The result of the rendering process may vary depending on the silent mode and
+        the resolved value of the current object in the cycle.
+
+        """
         if self not in context.render_context:
             # First time the node is rendered in template
             context.render_context[self] = itertools_cycle(self.cyclevars)
@@ -132,6 +163,14 @@ class DebugNode(Node):
 
 class FilterNode(Node):
     def __init__(self, filter_expr, nodelist):
+        """
+        Initializes a new instance of the class.
+
+        :param filter_expr: A filter expression used to determine the inclusion criteria for nodes in the list.
+        :param nodelist: A list of nodes to be filtered based on the provided filter expression.
+
+        This constructor sets up the initial state of the object, storing the filter expression and the node list for later use.
+        """
         self.filter_expr = filter_expr
         self.nodelist = nodelist
 
@@ -144,6 +183,13 @@ class FilterNode(Node):
 
 class FirstOfNode(Node):
     def __init__(self, variables, asvar=None):
+        """
+        Initializes a new instance of the class, setting up the core variables and an optional alias variable.
+
+        :param variables: The main variables to be used by the class.
+        :param asvar: An optional alias variable, used to provide an alternative reference to the main variables.
+        :returns: None
+        """
         self.vars = variables
         self.asvar = asvar
 
@@ -287,6 +333,17 @@ class IfChangedNode(Node):
         # The Context object behaves like a stack where each template tag can
         # create a new scope. Find the place where to store the state to detect
         # changes.
+        """
+        Returns the current context stack frame.
+
+        This method determines the context stack frame to use based on whether a 'forloop'
+        context is present. If a 'forloop' context exists, it is returned; otherwise, the
+        render context is returned.
+
+        :rtype: dict
+        :returns: The current context stack frame.
+
+        """
         if "forloop" in context:
             # Ifchanged is bound to the local for loop.
             # When there is a loop-in-loop, the state is bound to the inner loop,
@@ -365,6 +422,15 @@ class RegroupNode(Node):
         return self.expression.resolve(context, ignore_failures=True)
 
     def render(self, context):
+        """
+        Render context variable by resolving target expression and grouping results.
+
+        This function takes a context and resolves the target expression to obtain a list of objects. 
+        If the resolution fails, an empty list is assigned to the variable.
+        Otherwise, the list of objects is grouped based on a key determined by the resolve expression method and the results are stored in the context variable.
+        The grouping is done using the :class:`GroupedResult` class, where each group contains a grouper key and a list of values. 
+        After updating the context variable, the function returns an empty string.
+        """
         obj_list = self.target.resolve(context, ignore_failures=True)
         if obj_list is None:
             # target variable wasn't found in context; fail silently.
@@ -446,6 +512,16 @@ class URLNode(Node):
     child_nodelists = ()
 
     def __init__(self, view_name, args, kwargs, asvar):
+        """
+        Initializes a new instance of the class, setting up the parameters necessary for its operation.
+
+        :param view_name: The name of the view to be associated with this instance.
+        :param args: A collection of positional arguments to be used by the instance.
+        :param kwargs: A dictionary of keyword arguments to be used by the instance.
+        :param asvar: A variable or identifier to be used as an alias or reference for this instance.
+
+        This constructor sets the foundational properties of the class, allowing for subsequent methods and operations to be performed. The provided parameters are stored as instance attributes, providing a basis for further customization and usage.
+        """
         self.view_name = view_name
         self.args = args
         self.kwargs = kwargs
@@ -501,6 +577,16 @@ class VerbatimNode(Node):
 
 class WidthRatioNode(Node):
     def __init__(self, val_expr, max_expr, max_width, asvar=None):
+        """
+        Initializes an object to manage expressions with width constraints.
+
+        :param val_expr: The value expression to be used.
+        :param max_expr: The maximum expression to be used.
+        :param max_width: The maximum allowed width.
+        :param asvar: Optional variable assignment for the expression.
+
+        This initializer sets up the internal state of the object with the provided expressions and width constraint, and optionally assigns a variable to the expression if specified.
+        """
         self.val_expr = val_expr
         self.max_expr = max_expr
         self.max_width = max_width

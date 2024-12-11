@@ -16,6 +16,20 @@ class ExpTests(TestCase):
         self.assertIsNone(obj.null_exp)
 
     def test_decimal(self):
+        """
+
+        Tests the exponential function on decimal fields in a database model.
+
+        This test creates a model instance with decimal values, annotates the model 
+        with exponential calculations, and verifies the results. It checks that the 
+        exponential results are instances of Decimal and that they match the expected 
+        values calculated using the math.exp function.
+
+        The test covers two decimal fields, one with a negative value and one with 
+        a positive value, to ensure the exponential function works correctly for 
+        different input ranges.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_exp=Exp("n1"), n2_exp=Exp("n2")).first()
         self.assertIsInstance(obj.n1_exp, Decimal)

@@ -56,6 +56,20 @@ class GetCurrentLanguageNode(Node):
         self.variable = variable
 
     def render(self, context):
+        """
+
+        Renders the current language code as a string.
+
+        This function adds the current language code to the given context dictionary
+        under the key specified by the instance's variable attribute, and returns an empty string.
+
+        The language code is retrieved from the translation system, allowing it to be used
+        in templates or further processed by the application.
+
+        :param context: The dictionary to which the language code will be added
+        :return: An empty string
+
+        """
         context[self.variable] = translation.get_language()
         return ""
 

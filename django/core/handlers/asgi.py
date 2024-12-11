@@ -46,6 +46,29 @@ class ASGIRequest(HttpRequest):
     body_receive_timeout = 60
 
     def __init__(self, scope, body_file):
+        """
+        Initializes a request object from the given scope and body file.
+
+        The scope is a dictionary containing information about the incoming request, such as the method, path, and headers. 
+        The body file is a file-like object that contains the request body.
+
+        The initializer sets various attributes of the request object, including the method, path, query string, and headers. 
+        It also populates the META dictionary with information about the request, such as the client's IP address and port, 
+        the server's name and port, and the content length and type. 
+
+        If the request headers contain content type parameters, they are parsed and stored in the META dictionary. 
+
+        Note that this initializer does not perform any validation on the input scope or body file. 
+        It assumes that the input is well-formed and does not contain any malicious data. 
+
+        Attributes set by this initializer include:
+        - path: the URL path of the request
+        - script_name: the script name prefix of the URL path
+        - path_info: the part of the URL path that is not part of the script name prefix
+        - method: the HTTP method of the request (e.g. GET, POST, PUT, DELETE)
+        - query_string: the query string of the request URL
+        - META: a dictionary containing metadata about the request, including headers, client and server information.
+        """
         self.scope = scope
         self._post_parse_error = False
         self._read_started = False
@@ -112,6 +135,12 @@ class ASGIRequest(HttpRequest):
         return self.scope.get("scheme") or super()._get_scheme()
 
     def _get_post(self):
+        """
+        Returns the post data associated with this object, loading it if necessary.
+
+        :rtype: object
+        :returns: The post data, which is an internal attribute that may be populated lazily.
+        """
         if not hasattr(self, "_post"):
             self._load_post_and_files()
         return self._post
@@ -182,6 +211,17 @@ class ASGIHandler(base.BaseHandler):
             return
 
         async def process_request(request, send):
+            """
+            Process an incoming request and send the corresponding response.
+
+            This function takes an incoming request and uses it to generate a response.
+            It then attempts to send this response back, handling any potential cancellations
+            that may occur during this process.
+
+            :param request: The incoming request to be processed
+            :param send: A function used to send the response
+            :returns: The generated response
+            """
             response = await self.run_get_response(request)
             try:
                 await self.send_response(response, send)

@@ -67,6 +67,14 @@ class BaseBackendTest(TestCase):
         self.assertIs(self.user.has_perm("other_perm", TestObj()), False)
 
     def test_has_perms_perm_list_invalid(self):
+        """
+
+        Verifies that the has_perms method correctly raises a ValueError when provided with an invalid perm_list.
+
+        Specifically, this test case checks that the method fails when the perm_list argument is not an iterable of permissions.
+        The expected error is raised with a message indicating that perm_list must be an iterable of permissions.
+
+        """
         msg = "perm_list must be an iterable of permissions."
         with self.assertRaisesMessage(ValueError, msg):
             self.user.has_perms("user_perm")
@@ -80,6 +88,16 @@ class CountingMD5PasswordHasher(MD5PasswordHasher):
     calls = 0
 
     def encode(self, *args, **kwargs):
+        """
+        Encodes the given data.
+
+        This method extends the base class's encoding functionality by maintaining a count of the number of encode calls made.
+
+        :param args: Positional arguments to be passed to the parent class's encode method.
+        :param kwargs: Keyword arguments to be passed to the parent class's encode method.
+        :return: The encoded result.
+
+        """
         type(self).calls += 1
         return super().encode(*args, **kwargs)
 
@@ -381,6 +399,22 @@ class CustomPermissionsUserModelBackendTest(BaseModelBackendTest, TestCase):
     UserModel = CustomPermissionsUser
 
     def create_users(self):
+        """
+
+        Creates test users for the application.
+
+        This function generates a standard user and a superuser with predefined attributes, 
+        including email, password, and date of birth. The users are created using the 
+        CustomPermissionsUser model's default manager.
+
+        The standard user has an email address of 'test@example.com' and a birthdate of 
+        April 25, 2006, while the superuser has an email address of 'test2@example.com' 
+        and a birthdate of November 8, 1976. Both users have the password 'test'.
+
+        These users can be used for testing purposes, allowing you to verify the 
+        functionality of your application with different user types.
+
+        """
         self.user = CustomPermissionsUser._default_manager.create_user(
             email="test@example.com", password="test", date_of_birth=date(2006, 4, 25)
         )
@@ -397,6 +431,18 @@ class CustomUserModelBackendAuthenticateTest(TestCase):
     """
 
     def test_authenticate(self):
+        """
+
+        Tests the authentication functionality of a user.
+
+        This function verifies that a user can be successfully authenticated with their email and password.
+        It creates a test user, attempts to authenticate the user, and checks that the authenticated user
+        matches the original test user.
+
+        Verifies the correctness of the authentication process by ensuring that the user's credentials are
+        properly validated and their authentication is successful.
+
+        """
         test_user = CustomUser._default_manager.create_user(
             email="test@example.com", password="test", date_of_birth=date(2006, 4, 25)
         )
@@ -453,6 +499,19 @@ class SimpleRowlevelBackend:
             return ["simple"]
 
     def get_group_permissions(self, user, obj=None):
+        """
+
+        Determines the permissions a user has on a given object within a specific group context.
+
+        The function takes into account the user's membership in a particular group to determine their permissions.
+        If the user is a member of the 'test_group', they are granted 'group_perm' permission on the object.
+        Otherwise, they are granted 'none' permission.
+
+        :param user: The user whose permissions are being determined
+        :param obj: The object on which the permissions are being evaluated (must be an instance of TestObj)
+        :return: A list of permissions the user has on the object, either ['group_perm'] or ['none']
+
+        """
         if not obj:
             return  # We only support row level perms
 
@@ -521,6 +580,14 @@ class AnonymousUserBackendTest(SimpleTestCase):
         self.user1 = AnonymousUser()
 
     def test_has_perm(self):
+        """
+
+        Set up test data for the class.
+
+        This class method creates a test user with the username 'test', email 'test@example.com', and password 'test'.
+        The test user is created as inactive. The method is used to prepare the test environment before running tests.
+
+        """
         self.assertIs(self.user1.has_perm("perm", TestObj()), False)
         self.assertIs(self.user1.has_perm("anon", TestObj()), True)
 
@@ -581,6 +648,15 @@ class InActiveUserBackendTest(TestCase):
         self.assertIs(self.user1.has_perm("inactive", TestObj()), True)
 
     def test_has_module_perms(self):
+        """
+        Tests that a user has the correct module permissions.
+
+        This method checks if a user has permission to access certain modules within the system.
+        It verifies that the user does not have permission to access modules 'app1' and 'app2'.
+
+        Note: This test is crucial to ensure that access control is properly implemented and enforced.
+
+        """
         self.assertIs(self.user1.has_module_perms("app1"), False)
         self.assertIs(self.user1.has_module_perms("app2"), False)
 
@@ -842,6 +918,14 @@ class ImproperlyConfiguredUserModelTest(TestCase):
     @override_settings(AUTH_USER_MODEL="thismodel.doesntexist")
     def test_does_not_shadow_exception(self):
         # Prepare a request object
+        """
+
+        Tests that an ImproperlyConfigured exception is raised when AUTH_USER_MODEL refers to a non-existent model.
+
+        This test simulates a scenario where the AUTH_USER_MODEL setting points to a model that has not been installed,
+        verifying that the get_user function correctly raises an exception with a descriptive error message.
+
+        """
         request = HttpRequest()
         request.session = self.client.session
 

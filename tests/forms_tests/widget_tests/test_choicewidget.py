@@ -10,6 +10,18 @@ class ChoiceWidgetTest(WidgetTest):
 
     @property
     def nested_widgets(self):
+        """
+
+        Retrieves examples of nested widgets, illustrating different ways to structure choices.
+
+        The returned tuple contains three variations of nested widgets:
+        1. A nested widget using tuple-based choices.
+        2. A nested widget using dictionary-based choices with inner dictionaries.
+        3. A nested widget using dictionary-based choices with inner tuples.
+
+        These examples demonstrate how to create nested options for the widget, with 'outer' and 'inner' choices.
+
+        """
         nested_widget = self.widget(
             choices=(
                 ("outer1", "Outer 1"),
@@ -72,13 +84,26 @@ class ChoiceWidgetTest(WidgetTest):
         self.assertEqual(options[0]["value"], 0)
 
     def test_renders_required_when_possible_to_select_empty_field_none(self):
+        """
+        Tests that the 'required' attribute is added when rendering a widget with an empty field that can be selected as None, ensuring validation for fields that require input.
+        """
         widget = self.widget(choices=[(None, "select please"), ("P", "Paul")])
         self.assertIs(widget.use_required_attribute(initial=None), True)
 
     def test_renders_required_when_possible_to_select_empty_field_list(self):
+        """
+        Tests that the widget renders the required attribute when it is possible to select an empty field list.
+
+        The test case covers a scenario where the widget is initialized with a list of choices, including an empty option.
+        The expected outcome is that the widget should use the required attribute, indicated by the return value of True,
+        when no initial value is provided, thus ensuring that the user must select a valid option from the list of choices.
+        """
         widget = self.widget(choices=[["", "select please"], ["P", "Paul"]])
         self.assertIs(widget.use_required_attribute(initial=None), True)
 
     def test_renders_required_when_possible_to_select_empty_field_str(self):
+        """
+        Checks if a widget is correctly set to required when it's possible to select an empty field, ensuring that the form validation behaves as expected in such scenarios, preventing the submission of forms with empty required fields.
+        """
         widget = self.widget(choices=[("", "select please"), ("P", "Paul")])
         self.assertIs(widget.use_required_attribute(initial=None), True)

@@ -6,6 +6,18 @@ from django.test import SimpleTestCase
 
 class TestTemplates(SimpleTestCase):
     def test_javascript_escaping(self):
+        """
+
+        Tests the proper escaping of JavaScript code in inline admin formsets.
+
+        Verifies that HTML entities are correctly escaped and double quotes are properly 
+        escaped within JavaScript strings, ensuring that inline admin formsets render 
+        correctly in both stacked and tabular layouts.
+
+        Checks for the presence of specific escaped strings in the rendered HTML output, 
+        confirming that the template rendering process correctly handles special characters.
+
+        """
         context = {
             "inline_admin_formset": {
                 "inline_formset_data": json.dumps(

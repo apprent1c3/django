@@ -55,6 +55,14 @@ class StaticTests(SimpleTestCase):
         response.close()
 
     def test_copes_with_empty_path_component(self):
+        """
+        Verifies the correct handling of empty path components in a URL.
+
+        Tests that the client can successfully retrieve a file even when the URL contains consecutive slashes.
+        The test checks that the response from the server matches the contents of the expected file.
+
+        :raises AssertionError: If the response from the server does not match the expected file contents.
+        """
         file_name = "file.txt"
         response = self.client.get("/%s//%s" % (self.prefix, file_name))
         response_content = b"".join(response)
@@ -72,6 +80,19 @@ class StaticTests(SimpleTestCase):
             self.assertEqual(fp.read(), response_content)
 
     def test_not_modified_since(self):
+        """
+        .. method:: test_not_modified_since(self)
+
+           Tests the handling of the \"If-Modified-Since\" HTTP header in a GET request.
+
+           This test checks that a request with a valid \"If-Modified-Since\" header returns an HTTP 304 Not Modified response, 
+           indicating that the requested resource has not been modified since the specified date and time. 
+
+           The test uses a predefined file name and a hypothetical modification date in the future to simulate a scenario 
+           where the requested resource has not been updated. 
+
+           It verifies that the response object is of type HttpResponseNotModified, which represents an HTTP 304 response.
+        """
         file_name = "file.txt"
         response = self.client.get(
             "/%s/%s" % (self.prefix, file_name),
@@ -118,6 +139,13 @@ class StaticTests(SimpleTestCase):
         self.assertEqual(len(response_content), int(response.headers["Content-Length"]))
 
     def test_404(self):
+        """
+
+        Tests the server's response to a request for a non-existent resource.
+
+        Verifies that a 404 status code is returned when attempting to access a resource that does not exist under the configured prefix.
+
+        """
         response = self.client.get("/%s/nonexistent_resource" % self.prefix)
         self.assertEqual(404, response.status_code)
 
@@ -128,6 +156,19 @@ class StaticTests(SimpleTestCase):
         self.assertIn("subdir/", response.context["file_list"])
 
     def test_index_subdir(self):
+        """
+        Tests that the index view for a subdirectory contains the expected content.
+
+            This test case verifies that a GET request to the '/{prefix}/subdir/' URL
+            returns a successful response containing the string 'Index of subdir/'.
+            Additionally, it checks that the 'file_list' context variable is correctly
+            populated with a list of visible files, in this case containing only the
+            'visible' file.
+
+            The purpose of this test is to ensure that the index view for a subdirectory
+            is properly rendered and that the file list is accurately displayed.
+
+        """
         response = self.client.get("/%s/subdir/" % self.prefix)
         self.assertContains(response, "Index of subdir/")
         # File with a leading dot (e.g. .hidden) aren't displayed.
@@ -151,6 +192,19 @@ class StaticTests(SimpleTestCase):
         ]
     )
     def test_index_custom_template(self):
+        """
+
+        Tests the index custom template for a given prefix.
+
+        This test case overrides the Django template settings to use a custom template loader
+        that loads a test index template from memory. It then makes a GET request to the index
+        page for the specified prefix and checks if the response content matches the expected
+        template content.
+
+        The purpose of this test is to verify that the custom template is correctly loaded and
+        rendered for the index page, ensuring that the expected content is displayed.
+
+        """
         response = self.client.get("/%s/" % self.prefix)
         self.assertEqual(response.content, b"Test index")
 
@@ -178,6 +232,16 @@ class StaticHelperTest(StaticTests):
         urls.urlpatterns += static("media/", document_root=media_dir)
 
     def tearDown(self):
+        """
+        Revert changes made to the URL patterns during the test setup.
+
+        This method is called after each test to clean up and restore the original state.
+        It ensures that the URL patterns are reset to their original configuration,
+        preventing any test from affecting the URL configuration of subsequent tests.
+
+        It invokes the tearDown method of the parent class to perform any additional cleanup,
+        and then resets the url patterns to their original state, as stored in _old_views_urlpatterns.
+        """
         super().tearDown()
         urls.urlpatterns = self._old_views_urlpatterns
 
@@ -190,6 +254,16 @@ class StaticHelperTest(StaticTests):
         self.assertEqual(static("test"), [])
 
     def test_empty_prefix(self):
+        """
+        Tests that providing an empty string as a static prefix raises an ImproperlyConfigured exception.
+
+        Verifies that the function correctly handles invalid configuration by checking
+        for the expected error message 'Empty static prefix not permitted' when an empty
+        string is passed as the static prefix.
+
+        Raises:
+            ImproperlyConfigured: With a specific error message when an empty string is used as the static prefix
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Empty static prefix not permitted"
         ):

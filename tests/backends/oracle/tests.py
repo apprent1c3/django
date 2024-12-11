@@ -77,6 +77,19 @@ class TransactionalTests(TransactionTestCase):
     def test_hidden_no_data_found_exception(self):
         # "ORA-1403: no data found" exception is hidden by Oracle OCI library
         # when an INSERT statement is used with a RETURNING clause (see #28859).
+        """
+
+        Tests that a 'no data found' exception is correctly handled when raised from a database trigger.
+
+        This test case verifies that the application properly handles the scenario where a trigger
+        raises a 'no data found' exception after an insert operation, and that the expected error
+        message is propagated to the caller.
+
+        The test simulates this scenario by creating a temporary database trigger that raises a
+        'no data found' exception, attempting to insert a new record, and then checking that the
+        expected error message is raised.
+
+        """
         with connection.cursor() as cursor:
             # Create trigger that raises "ORA-1403: no data found".
             cursor.execute(
@@ -104,6 +117,13 @@ class TransactionalTests(TransactionTestCase):
                 cursor.execute('DROP TRIGGER "TRG_NO_DATA_FOUND"')
 
     def test_password_with_at_sign(self):
+        """
+        Tests the handling of passwords containing special characters, specifically the at sign (@), in database connections.
+
+        Verifies that the password is correctly included in the connection string and that an error is raised when attempting to connect with a password containing an at sign, as expected due to Oracle database restrictions.
+
+        The test resets the password to its original value after the test, ensuring no side effects on subsequent tests or database connections.
+        """
         from django.db.backends.oracle.base import Database
 
         old_password = connection.settings_dict["PASSWORD"]

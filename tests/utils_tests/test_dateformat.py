@@ -15,6 +15,13 @@ class DateFormatTests(SimpleTestCase):
         super().setUpClass()
 
     def test_date(self):
+        """
+
+        Verifies that a date object can be accurately converted to a Unix timestamp and back to a date object.
+
+        This test ensures that the date.fromtimestamp function correctly interprets a Unix timestamp and returns the original date, thus validating the integrity of date conversions.
+
+        """
         d = date(2009, 5, 16)
         self.assertEqual(date.fromtimestamp(int(format(d, "U"))), d)
 
@@ -24,6 +31,17 @@ class DateFormatTests(SimpleTestCase):
 
     def test_naive_ambiguous_datetime(self):
         # dt is ambiguous in Europe/Copenhagen.
+        """
+        Tests the behavior of ambiguous date/time formatting.
+
+        This test case focuses on the edge case where the datetime object falls within the 
+        DST (Daylight Saving Time) transition window, specifically on October 25, 2015, 
+        at 2:30 AM. It verifies that various formatting directives ('I', 'O', 'T', 'Z') 
+        produce the expected output for this ambiguous date/time.
+
+        The test ensures that the formatting functions correctly handle the DST transition, 
+        and provides confidence in the accuracy of datetime formatting in such edge cases.
+        """
         dt = datetime(2015, 10, 25, 2, 30, 0)
 
         # Try all formatters that involve self.timezone.
@@ -63,6 +81,13 @@ class DateFormatTests(SimpleTestCase):
         )
 
     def test_epoch(self):
+        """
+        Tests that the epoch for a Unix timestamp is correctly parsed and formatted. 
+
+        The Unix epoch refers to January 1, 1970, 00:00:00 UTC, which is the reference point for Unix time. 
+
+        This test case verifies that formatting this date results in the expected Unix timestamp value of '0'.
+        """
         udt = datetime(1970, 1, 1, tzinfo=timezone.utc)
         self.assertEqual(format(udt, "U"), "0")
 
@@ -72,6 +97,11 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(my_birthday, ""), "")
 
     def test_am_pm(self):
+        """
+        Tests the dateformat formatting functionality for AM/PM designations.
+
+        Verifies that the 'a' and 'A' format codes correctly differentiate between morning and evening times, returning 'a.m.' and 'AM' for morning hours, and 'p.m.' and 'PM' for evening hours, respectively.
+        """
         morning = time(7, 00)
         evening = time(19, 00)
         self.assertEqual(dateformat.format(morning, "a"), "a.m.")
@@ -86,6 +116,19 @@ class DateFormatTests(SimpleTestCase):
 
     def test_date_formats(self):
         # Specifiers 'I', 'r', and 'U' are covered in test_timezones().
+        """
+
+        Tests various date formats using the dateformat module.
+
+        This function verifies that different date specifiers produce the expected output 
+        when formatting a specific date. It checks for month names, day numbers, day of 
+        the week, and year formats, ensuring that each specifier returns the correct 
+        string representation of the date.
+
+        The test uses a predefined date (July 8, 1979) and asserts that the formatted 
+        output matches the expected result for each specifier.
+
+        """
         my_birthday = datetime(1979, 7, 8, 22, 00)
         for specifier, expected in [
             ("b", "jul"),
@@ -113,6 +156,14 @@ class DateFormatTests(SimpleTestCase):
                 self.assertEqual(dateformat.format(my_birthday, specifier), expected)
 
     def test_date_formats_c_format(self):
+        """
+
+        Test the formatting of dates using the 'c' format, which represents the ISO 8601 date and time format.
+        This test ensures that a datetime object is correctly formatted into a string with the format 'YYYY-MM-DDTHH:MM:SS.mmmmmm', 
+        where 'YYYY-MM-DD' represents the date, 'T' is the separator between date and time, 'HH:MM:SS' represents the time in 24-hour format, 
+        and 'mmmmmm' represents the microsecond.
+
+        """
         timestamp = datetime(2008, 5, 19, 11, 45, 23, 123456)
         self.assertEqual(
             dateformat.format(timestamp, "c"), "2008-05-19T11:45:23.123456"
@@ -120,6 +171,16 @@ class DateFormatTests(SimpleTestCase):
 
     def test_time_formats(self):
         # Specifiers 'I', 'r', and 'U' are covered in test_timezones().
+        """
+
+        Tests the formatting of time components using various datetime format specifiers.
+
+        Verifies that the dateformat.format function correctly formats the time component
+        of a datetime object according to the provided format specifier, checking for
+        correct output in both 12-hour and 24-hour clock formats, as well as AM/PM
+        designations and other time-related formats.
+
+        """
         my_birthday = datetime(1979, 7, 8, 22, 00)
         for specifier, expected in [
             ("a", "p.m."),
@@ -138,6 +199,13 @@ class DateFormatTests(SimpleTestCase):
                 self.assertEqual(dateformat.format(my_birthday, specifier), expected)
 
     def test_dateformat(self):
+        """
+        Tests the functionality of the dateformat class by comparing the formatted output of specific dates with expected results.
+
+        This function covers various date formatting scenarios, including the use of different format codes to represent the year, day of the year, and time zone. It also tests the formatting of ordinal day suffixes and the 'of' preposition for month names.
+
+        The test cases ensure that the dateformat class correctly handles different date formatting patterns and produces the expected output for a given date and format string.
+        """
         my_birthday = datetime(1979, 7, 8, 22, 00)
 
         self.assertEqual(dateformat.format(my_birthday, r"Y z \C\E\T"), "1979 189 CET")
@@ -145,6 +213,9 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(my_birthday, r"jS \o\f F"), "8th of July")
 
     def test_futuredates(self):
+        """
+        Tests the date formatting functionality for future dates, ensuring that years far ahead in the future are correctly formatted as four-digit values.
+        """
         the_future = datetime(2100, 10, 25, 0, 00)
         self.assertEqual(dateformat.format(the_future, r"Y"), "2100")
 
@@ -213,6 +284,16 @@ class DateFormatTests(SimpleTestCase):
 
     @requires_tz_support
     def test_e_format_with_time_zone_with_unimplemented_tzname(self):
+        """
+
+        Tests the dateformat.format function's behavior when formatting a datetime object 
+        with 'e' format specifier and a time zone without a tzname attribute.
+
+        The function creates a datetime object with a custom time zone that does not 
+        implement the tzname method and verifies that the format function returns an 
+        empty string as expected.
+
+        """
         class NoNameTZ(tzinfo):
             """Time zone without .tzname() defined."""
 
@@ -236,6 +317,12 @@ class DateFormatTests(SimpleTestCase):
 
     def test_r_format_with_date(self):
         # Assume midnight in default timezone if datetime.date provided.
+        """
+        Tests the formatting of a date object using the 'r' format specifier, 
+        which corresponds to the RFC 822 standard for representing dates and times.
+        Verifies that the output matches the expected string format, including 
+        day of the week, day of the month, month abbreviation, year, time, and timezone offset.
+        """
         dt = date(2022, 7, 1)
         self.assertEqual(
             dateformat.format(dt, "r"),
@@ -252,6 +339,13 @@ class DateFormatTests(SimpleTestCase):
             )
 
     def test_S_format(self):
+        """
+        Tests the formatting of the day of the month as an ordinal suffix (st, nd, rd, th) for a given date.
+
+        The function checks the correctness of the 'S' format code in the date format function by comparing the expected ordinal suffix with the actual output for different days of the month.
+
+        It covers various cases, including days that end with 1 (except 11), 2 (except 12), and 3 (except 13), as well as all other days.
+        """
         for expected, days in [
             ("st", [1, 21, 31]),
             ("nd", [2, 22]),
@@ -264,6 +358,15 @@ class DateFormatTests(SimpleTestCase):
                     self.assertEqual(dateformat.format(dt, "S"), expected)
 
     def test_y_format_year_before_1000(self):
+        """
+
+        Tests the date formatting functionality for years before 1000.
+
+        Verifies that the 'y' format code correctly truncates years prior to 1000 to a two-digit representation.
+        For example, the year 476 is formatted as '76', and the year 42 is formatted as '42'.
+        The test covers a range of years before 1000 to ensure the formatting works as expected.
+
+        """
         tests = [
             (476, "76"),
             (42, "42"),
@@ -277,6 +380,11 @@ class DateFormatTests(SimpleTestCase):
                 )
 
     def test_Y_format_year_before_1000(self):
+        """
+        Tests the formatting of a year before 1000 using the 'Y' format specifier.
+
+        This test case ensures that years prior to 1000 are correctly padded with zeros to maintain a four-digit representation. The test covers the boundary cases of the year 1 and 999 to verify the expected output format.
+        """
         self.assertEqual(dateformat.format(datetime(1, 1, 1), "Y"), "0001")
         self.assertEqual(dateformat.format(datetime(999, 1, 1), "Y"), "0999")
 

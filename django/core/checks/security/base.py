@@ -154,6 +154,16 @@ def _xframe_middleware():
 
 @register(Tags.security, deploy=True)
 def check_security_middleware(app_configs, **kwargs):
+    """
+    Checks if a Django application has security middleware enabled.
+
+    This check verifies that the necessary security middleware is properly configured in the application.
+    If the security middleware is not enabled, the function returns a list containing a warning (W001).
+    It is intended to be used as part of a deployment process to ensure that security best practices are being followed. 
+
+    Returns:
+        list: A list of warnings if the security middleware check fails, otherwise an empty list.
+    """
     passed_check = _security_middleware()
     return [] if passed_check else [W001]
 
@@ -182,6 +192,16 @@ def check_sts_include_subdomains(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_sts_preload(app_configs, **kwargs):
+    """
+    Checks if the HTTP Strict Transport Security (HSTS) preload is properly configured.
+
+    The HSTS preload is a security feature that instructs browsers to only connect to a website over HTTPS, 
+    even if the user types in the HTTP version of the URL. This function checks if the HSTS preload setting 
+    is enabled when the SECURE_HSTS_SECONDS setting is also enabled.
+
+    Returns:
+        A list of warnings (W021) if the check fails, otherwise an empty list.
+    """
     passed_check = (
         not _security_middleware()
         or not settings.SECURE_HSTS_SECONDS

@@ -112,6 +112,15 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_checked(self):
+        """
+
+        Tests the rendering of a checked widget.
+
+        This function verifies that a widget is correctly rendered as checked, including the
+        display of the currently selected file and a checkbox to clear the file, as well as
+        a file input to change the file. The rendered HTML is compared to the expected output.
+
+        """
         self.widget.checked = True
         self.check_html(
             self.widget,
@@ -127,6 +136,13 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_no_disabled(self):
+        """
+        Tests that rendering a form with a file field does not log any debug messages when the field is not disabled.
+
+        Verifies that the rendering process of a form with a file field widget does not generate any unnecessary logging output in the 'django.template' module at the DEBUG level, confirming the field behaves as expected when it's not disabled and is initially populated with a fake file.
+
+        This test provides assurance of the field's rendering functionality without unnecessary logging output, ensuring a clean and efficient rendering process for forms containing file fields.
+        """
         class TestForm(Form):
             clearable_file = FileField(
                 widget=self.widget, initial=FakeFieldFile(), required=False
@@ -213,6 +229,14 @@ class ClearableFileInputTest(WidgetTest):
         self.assertInHTML('<a href="https://www.python.org/">value</a>', html)
 
     def test_return_false_if_url_does_not_exists(self):
+        """
+
+        Tests that the widget returns an empty input field when the associated file does not exist at the given URL.
+
+        This test case ensures that the widget handles cases where a file is not available at the specified URL, 
+        in which case it should render an input field without any pre-filled file information.
+
+        """
         class NoURLFieldFile:
             def __str__(self):
                 return "value"
@@ -227,6 +251,15 @@ class ClearableFileInputTest(WidgetTest):
         self.assertIs(self.widget.use_required_attribute("resume.txt"), False)
 
     def test_value_omitted_from_data(self):
+        """
+        ..: 
+            Checks if a value for a field has been omitted from the data submitted through a ClearableFileInput widget.
+
+            This method takes into account the 'clear' checkbox state. If the 'clear' checkbox is checked, 
+            or if the field's input value is explicitly provided, the method returns False, indicating the 
+            value has not been omitted. Otherwise, it returns True. The method is useful for determining 
+            whether a file should be cleared or retained based on user input.
+        """
         widget = ClearableFileInput()
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
@@ -237,6 +270,22 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form that uses a file fieldset.
+
+        The test verifies that the form is rendered correctly when it contains a standard
+        file field, a file field with an initial file, and a clearable file field. It
+        checks that the HTML output matches the expected structure, including labels,
+        input fields, and links to the current files.
+
+        The test case covers the following scenarios:
+
+        * A simple file field
+        * A file field with an initial file
+        * A clearable file field with an initial file
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = FileField(widget=self.widget)
@@ -262,6 +311,11 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_multiple_error(self):
+        """
+        Tests that ClearableFileInput raises a ValueError when attempting to upload multiple files.
+
+        The test verifies that the ClearableFileInput class correctly prohibits multiple file uploads by checking for a ValueError exception with a specific error message. This ensures that the class behaves as expected when the 'multiple' attribute is set to True in the input attributes.
+        """
         msg = "ClearableFileInput doesn't support uploading multiple files."
         with self.assertRaisesMessage(ValueError, msg):
             ClearableFileInput(attrs={"multiple": True})

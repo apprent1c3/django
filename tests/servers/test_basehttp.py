@@ -90,6 +90,18 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         wfile = UnclosableBytesIO()
 
         def makefile(mode, *a, **kw):
+            """
+
+            Return a file object based on the specified mode.
+
+            The function takes a mode parameter and returns either a read or write file object.
+            The mode parameter can be either 'rb' for binary read or 'wb' for binary write.
+            Additional arguments *a and **kw are accepted but not used in this implementation.
+
+            :returns: File object for reading or writing
+            :param mode: Mode of the file, can be 'rb' or 'wb'
+
+            """
             if mode == "rb":
                 return rfile
             elif mode == "wb":
@@ -123,6 +135,16 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         wfile = UnclosableBytesIO()
 
         def makefile(mode, *a, **kw):
+            """
+
+            Returns a file object based on the specified mode.
+
+            :param mode: The mode in which to open the file. Currently supports 'rb' (read binary) and 'wb' (write binary).
+            :param a: Additional positional arguments (not used).
+            :param kw: Additional keyword arguments (not used).
+            :returns: A file object for the specified mode.
+
+            """
             if mode == "rb":
                 return rfile
             elif mode == "wb":
@@ -162,6 +184,12 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertNotIn(b"Connection: close\r\n", lines)
 
     def test_non_zero_content_length_set_head_request(self):
+        """
+        Tests the handling of a HEAD request with non-zero Content-Length, 
+        verifying that the response includes the correct Content-Length header 
+        and does not include a Connection: close header, while also checking 
+        that the response body is empty.
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 

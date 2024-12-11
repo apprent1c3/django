@@ -27,6 +27,21 @@ class TestSerializedRollbackInhibitsPostMigrate(TransactionTestCase):
     @mock.patch("django.test.testcases.call_command")
     def test(self, call_command):
         # with a mocked call_command(), this doesn't have any effect.
+        """
+
+        Tests that the database command 'flush' is called with the correct parameters.
+
+        The test case verifies that the command is executed with the following settings:
+        - interactive mode disabled
+        - allow cascade disabled
+        - reset sequences disabled
+        - inhibit post migrate enabled
+        - using the default database
+        - verbosity level set to 0 (minimal output)
+
+        This ensures that the database is properly reset to a known state, while minimizing output and avoiding unnecessary post-migration operations.
+
+        """
         self._fixture_teardown()
         call_command.assert_called_with(
             "flush",
@@ -60,6 +75,15 @@ class DisallowedDatabaseQueriesTests(TransactionTestCase):
     available_apps = ["test_utils"]
 
     def test_disallowed_database_queries(self):
+        """
+
+        Tests if database queries to the 'other' database are properly disallowed.
+
+        This test case verifies that attempts to query the 'other' database are met with a DatabaseOperationForbidden exception,
+        ensuring test isolation. To allow queries to this database for testing purposes, 'other' must be added to the list of 
+        disallowed databases in test_utils.test_transactiontestcase.DisallowedDatabaseQueriesTests.databases.
+
+        """
         message = (
             "Database queries to 'other' are not allowed in this test. "
             "Add 'other' to test_utils.test_transactiontestcase."

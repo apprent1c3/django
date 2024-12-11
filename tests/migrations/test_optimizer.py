@@ -26,6 +26,34 @@ class OptimizerTests(SimpleTestCase):
     def assertOptimizesTo(
         self, operations, expected, exact=None, less_than=None, app_label=None
     ):
+        """
+
+        Asserts that a list of operations optimizes to an expected list of operations.
+
+        This method optimizes a given list of operations and checks that the result matches
+        the expected list. It also allows for optional checks on the number of iterations
+        taken during optimization.
+
+        Parameters
+        ----------
+        operations : list
+            The list of operations to be optimized.
+        expected : list
+            The expected list of operations after optimization.
+        exact : int, optional
+            The expected exact number of iterations for the optimization.
+        less_than : int, optional
+            The maximum number of iterations allowed for the optimization.
+        app_label : str, optional
+            The label of the application to use for optimization (defaults to 'migrations').
+
+        Raises
+        ------
+        failureException
+            If the optimized operations do not match the expected operations, or if the
+            number of iterations does not meet the specified constraints.
+
+        """
         result, iterations = self.optimize(operations, app_label or "migrations")
         result = [self.serialize(f) for f in result]
         expected = [self.serialize(f) for f in expected]
@@ -1123,6 +1151,18 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_rename_index(self):
+        """
+
+        Tests the optimization of a sequence of RenameIndex operations.
+
+        This function checks that redundant or intermediate RenameIndex operations
+        are correctly simplified into a single operation with the same effect.
+        It covers cases where the index is renamed through an intermediate name,
+        and where an index is renamed directly without an intermediate name.
+        Additionally, it verifies that optimization does not occur when the sequence
+        of operations cannot be reduced to a single RenameIndex operation.
+
+        """
         self.assertOptimizesTo(
             [
                 migrations.RenameIndex(
@@ -1161,6 +1201,17 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_add_rename_index(self):
+        """
+
+        Tests that adding an index and then renaming it can be optimized to a single operation.
+
+        This function checks that the migration optimizer correctly reduces a sequence of add index and rename index operations into a single add index operation with the new name.
+
+        It covers various scenarios, including indexes with different field types and conditions, and verifies that the optimizer only applies when the old and new index names match.
+
+        The test also ensures that the optimizer does not incorrectly combine operations when the old and new index names do not match.
+
+        """
         tests = [
             models.Index(fields=["weight", "pink"], name="mid_name"),
             models.Index(Abs("weight"), name="mid_name"),
@@ -1328,6 +1379,18 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_add_constraint(self):
+        """
+
+        Tests that creating a model with a constraint and adding a constraint
+        separately can be optimized into a single operation.
+
+        The test case ensures that the optimizer correctly handles the creation
+        of a model with a check constraint, specifically a greater-than-zero
+        condition on the 'weight' field of a 'Pony' model. It verifies that
+        the optimized migration is equivalent to creating the model with the
+        constraint included in the model options.
+
+        """
         gt_constraint = models.CheckConstraint(
             condition=models.Q(weight__gt=0), name="pony_weight_gt_0"
         )

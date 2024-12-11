@@ -273,6 +273,21 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         return self.__to_language
 
     def ngettext(self, msgid1, msgid2, n):
+        """
+
+        Returns a translated string based on the plural form of the given message IDs.
+        The function takes into account the quantity :param:`n` and selects the correct
+        plural form from the translation catalog. If the translation catalog does not
+        contain the necessary plural form, it falls back to the provided :param:`msgid2` 
+        for quantities other than 1, and :param:`msgid1` for quantities equal to 1. 
+        If a fallback catalog is defined, it is used instead of the default behavior.
+
+        :param msgid1: The singular form of the message
+        :param msgid2: The plural form of the message
+        :param n: The quantity that determines the plural form
+        :returns: The translated message in the correct plural form
+
+        """
         try:
             tmsg = self._catalog.plural(msgid1, n)
         except KeyError:

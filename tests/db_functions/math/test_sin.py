@@ -46,6 +46,16 @@ class SinTests(TestCase):
         self.assertAlmostEqual(obj.big_sin, math.sin(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the decimal field transformation using the sine function.
+
+        This test creates sample DecimalModel instances with different decimal values,
+        then applies a lookup to filter objects based on the sine of the 'n1' field.
+        It verifies that the resulting object has the expected value, demonstrating
+        the correct application of the sine transformation to the decimal field.
+
+        """
         with register_lookup(DecimalField, Sin):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("0.1"), n2=Decimal("0"))

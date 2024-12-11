@@ -7,6 +7,15 @@ from .models import Donut, RumBaba
 
 class DataTypesTestCase(TestCase):
     def test_boolean_type(self):
+        """
+
+        Tests the correctness of boolean type attributes for the Donut model.
+
+        Verifies that the `is_frosted` attribute is initially False and the `has_sprinkles` attribute is initially None.
+        Then, it checks that setting `has_sprinkles` to True correctly updates the attribute.
+        After saving the Donut instance, it retrieves the instance from the database and confirms that the boolean attributes are persisted correctly.
+
+        """
         d = Donut(name="Apple Fritter")
         self.assertFalse(d.is_frosted)
         self.assertIsNone(d.has_sprinkles)
@@ -35,6 +44,15 @@ class DataTypesTestCase(TestCase):
 
     def test_time_field(self):
         # Test for ticket #12059: TimeField wrongly handling datetime.datetime object.
+        """
+        Tests that the baked_time field is correctly stored and retrieved as a time object.
+
+        Verifies that when a Donut object's baked_time attribute is set to a datetime object, 
+        it is saved to the database and then retrieved as a time object, with the correct hour, minute, and second values.
+
+        The test ensures that the date components of the original datetime object are discarded, 
+        and only the time component is preserved when the object is saved and retrieved from the database.
+        """
         d = Donut(name="Apple Fritter")
         d.baked_time = datetime.datetime(
             year=2007, month=4, day=20, hour=16, minute=19, second=59

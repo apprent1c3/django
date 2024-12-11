@@ -12,6 +12,12 @@ class SafeJoinTests(unittest.TestCase):
         self.assertEqual(path, "{0}abc{0}abc".format(os.path.sep))
 
     def test_root_path(self):
+        """
+        Tests the behavior of joining paths at the root directory.
+
+        This test case splits a joined path into its drive and path components to verify the correct handling of the root path.
+        It covers scenarios where the joined path includes a trailing path component and where it does not, ensuring consistency in the resulting path format.
+        """
         drive, path = os.path.splitdrive(safe_join("/", "path"))
         self.assertEqual(
             path,
@@ -36,5 +42,16 @@ class ToPathTests(unittest.TestCase):
                 self.assertEqual(to_path(path), Path("/tmp/some_file.txt"))
 
     def test_to_path_invalid_value(self):
+        """
+
+        Tests that the to_path function correctly raises an error when passed an invalid value.
+
+        This test case checks that a TypeError is raised when a non-path-like value is provided
+        to the to_path function, ensuring that it behaves as expected and prevents incorrect
+        usage.
+
+        :raises TypeError: when a non-path-like value is passed to to_path
+
+        """
         with self.assertRaises(TypeError):
             to_path(42)

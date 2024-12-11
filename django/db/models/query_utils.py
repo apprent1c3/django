@@ -78,6 +78,13 @@ class Q(tree.Node):
         return self._combine(other, self.XOR)
 
     def __invert__(self):
+        """
+        eturns the inverse of the current object, creating a new copy with all properties negated. 
+
+        :param: None
+        :returns: A new object with the inverse properties of the original object. 
+        :rtype: Same type as the original object
+        """
         obj = self.copy()
         obj.negate()
         return obj
@@ -156,6 +163,15 @@ class Q(tree.Node):
 
     @cached_property
     def identity(self):
+        """
+        ..: Returns a unique identifier for this object, based on its path and arguments.
+
+            The identifier is a tuple that includes the path and any keyword arguments, 
+            as well as any positional arguments that are tuples of argument names and values.
+            Values that are not hashable are converted to a hashable form before being 
+            included in the identifier. This allows the identifier to be used in sets and 
+            as dictionary keys.
+        """
         path, args, kwargs = self.deconstruct()
         identity = [path, *kwargs.items()]
         for child in args:

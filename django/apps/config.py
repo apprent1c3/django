@@ -60,6 +60,11 @@ class AppConfig:
 
     @cached_property
     def default_auto_field(self):
+        """
+        Returns the default auto field type for this model as specified in the project's Django settings.
+
+        The value is retrieved from the DEFAULT_AUTO_FIELD setting defined in the project's settings module. This setting determines the default type of auto field (e.g. AutoField, BigAutoField) to use for models that do not explicitly define a primary key.
+        """
         from django.conf import settings
 
         return settings.DEFAULT_AUTO_FIELD

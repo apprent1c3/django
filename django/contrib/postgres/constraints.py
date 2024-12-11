@@ -77,6 +77,13 @@ class ExclusionConstraint(BaseConstraint):
         return ExpressionList(*expressions).resolve_expression(query)
 
     def _check(self, model, connection):
+        """
+        Checks the given model for references to expressions and returns the result of the reference check.
+
+        :param model: The model to be checked for references.
+        :param connection: The database connection used for the check.
+        :returns: The result of the reference check, obtained by calling :meth:`_check_references` on the updated references.
+        """
         references = set()
         for expr, _ in self.expressions:
             if isinstance(expr, str):
@@ -128,6 +135,20 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def deconstruct(self):
+        """
+
+        Deconstructs the current object into its constituent parts.
+
+        This method breaks down the object into its path, arguments, and keyword arguments, 
+        providing a way to reconstruct the object in a different context. The deconstruction 
+        process includes exporting the object's expressions, condition, index type, deferrable 
+        status, and include settings, which are essential for recreating the object with its 
+        original properties.
+
+        :return: A tuple containing the path, arguments, and keyword arguments required to 
+            reconstruct the object.
+
+        """
         path, args, kwargs = super().deconstruct()
         kwargs["expressions"] = self.expressions
         if self.condition is not None:

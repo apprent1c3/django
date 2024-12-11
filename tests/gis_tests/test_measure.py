@@ -144,6 +144,18 @@ class DistanceTest(SimpleTestCase):
         self.assertEqual(repr(d2), "Distance(km=3.5)")
 
     def test_furlong(self):
+        """
+        Tests the conversion of a distance in meters to furlongs.
+
+        Verifies that a distance of 201.168 meters is equivalent to 1 furlong, 
+        ensuring the correct conversion factor is applied.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the conversion is incorrect
+        """
         d = D(m=201.168)
         self.assertEqual(d.furlong, 1)
 
@@ -306,6 +318,17 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(A.unit_attname("Hectare"), "ha")
 
     def test_hash(self):
+        """
+
+        Tests the hashing functionality of class objects.
+
+        The function creates instances of class A with different areas and checks 
+        if their hash values are correctly computed based on their areas, 
+        regardless of the units used (square meters or square kilometers). 
+        It verifies that objects with the same area but different units have 
+        the same hash value, and objects with different areas have different hash values.
+
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_m=1000000)
         a3 = A(sq_km=1)

@@ -13,6 +13,15 @@ from .models import Article, Author, Book, Category, ExplicitPK, Writer
 class ModelChoiceFieldTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This method creates and stores several category objects in class attributes, 
+        which can be used by other test methods. The created categories include 
+        'Entertainment', 'A test', and 'Third', each with their respective slugs and URLs.
+
+        """
         cls.c1 = Category.objects.create(
             name="Entertainment", slug="entertainment", url="entertainment"
         )
@@ -64,6 +73,17 @@ class ModelChoiceFieldTests(TestCase):
             f.clean(c4.id)
 
     def test_clean_model_instance(self):
+        """
+
+        Tests the cleaning of a model instance in a ModelChoiceField.
+
+        This function verifies that the clean method of a ModelChoiceField correctly 
+        returns the instance if it is valid and raises a ValidationError if it is not.
+        The test checks that a valid model instance is cleaned successfully and that 
+        an invalid model instance (not part of the available choices) raises the 
+        expected error message.
+
+        """
         f = forms.ModelChoiceField(Category.objects.all())
         self.assertEqual(f.clean(self.c1), self.c1)
         # An instance of incorrect model.
@@ -80,6 +100,16 @@ class ModelChoiceFieldTests(TestCase):
         self.assertEqual(f.clean(self.c1), self.c1)
 
     def test_model_choice_null_characters(self):
+        """
+        Tests that the ModelChoiceField correctly raises a ValidationError when given a value containing null characters. 
+
+        This ensures that the field does not allow invalid or potentially malicious input and provides a clear error message to the user. 
+
+        The test utilizes a model choice field with a queryset of ExplicitPK objects to verify the validation behavior. 
+
+        Raises:
+            ValidationError: If the input value contains null characters.
+        """
         f = forms.ModelChoiceField(queryset=ExplicitPK.objects.all())
         msg = "Null characters are not allowed."
         with self.assertRaisesMessage(ValidationError, msg):
@@ -169,11 +199,23 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(bool(f.choices), False)
 
     def test_choices_bool_empty_label(self):
+        """
+        Tests that the choices of a ModelChoiceField with an empty label remains truthy even when the queryset is empty.
+        """
         f = forms.ModelChoiceField(Category.objects.all(), empty_label="--------")
         Category.objects.all().delete()
         self.assertIs(bool(f.choices), True)
 
     def test_choices_radio_blank(self):
+        """
+        Tests the behavior of a ModelChoiceField when rendered as a radio input field, with and without an optional blank choice.
+
+        This test case covers scenarios where the radio field is rendered with and without a blank option, and verifies that the choices presented to the user match the expected options.
+
+        The test iterates over different combinations of radio field widgets and blank options, ensuring that the field's choices are correctly populated in each case. The expected choices are compared against the actual choices presented by the field, including the optional blank choice when applicable.
+
+        The goal of this test is to ensure that the ModelChoiceField behaves correctly when rendered as a radio input field, providing the expected choices to the user in various scenarios.
+        """
         choices = [
             (self.c1.pk, "Entertainment"),
             (self.c2.pk, "A test"),
@@ -194,6 +236,13 @@ class ModelChoiceFieldTests(TestCase):
                     )
 
     def test_deepcopies_widget(self):
+        """
+        Tests that the widget for a ModelChoiceField is properly deep-copied when the form is instantiated.
+
+        Verifies that the field instance on the form is not the same as the field instance on the form class, and that the widget's choices are properly bound to the field instance.
+
+        Ensures that the form's fields are correctly initialized and that the widget is correctly configured, preventing unexpected behavior when working with form instances.
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(Category.objects.all())
 
@@ -205,6 +254,16 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(field1.widget.choices.field, field1)
 
     def test_result_cache_not_shared(self):
+        """
+
+        Verify that the result cache of a ModelChoiceField's queryset is not shared 
+        between instances of the same form class.
+
+        Ensures that each form instance has its own independent cache, 
+        preventing potential data inconsistencies when using the same form 
+        class in different contexts.
+
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(Category.objects.all())
 
@@ -220,6 +279,16 @@ class ModelChoiceFieldTests(TestCase):
             category = forms.ModelChoiceField(queryset=None)
 
             def __init__(self, *args, **kwargs):
+                """
+                Initializes the object, setting up the category field to display a filtered list of categories.
+
+                The category field is populated with categories that have a slug containing 'test'. This filtering is applied to narrow down the available options for the category selection.
+
+                :param args: Variable length argument list
+                :param kwargs: Arbitrary keyword arguments
+
+                .. note:: This initialization is built upon the parent class's initialization, ensuring inherited attributes are properly set up.
+                """
                 super().__init__(*args, **kwargs)
                 self.fields["category"].queryset = Category.objects.filter(
                     slug__contains="test"
@@ -246,6 +315,13 @@ class ModelChoiceFieldTests(TestCase):
             template.render(Context({"field": field}))
 
     def test_disabled_modelchoicefield(self):
+        """
+        Tests the behavior of a ModelChoiceField in a form when it is disabled.
+
+        The test verifies that when a ModelChoiceField is disabled, it still requires a valid choice, 
+        even though the field is not editable by the user. This ensures that disabled fields do not 
+        bypass form validation.
+        """
         class ModelChoiceForm(forms.ModelForm):
             author = forms.ModelChoiceField(Author.objects.all(), disabled=True)
 
@@ -275,6 +351,14 @@ class ModelChoiceFieldTests(TestCase):
         self.assertTrue(ModelChoiceForm(data={"categories": self.c1.pk}).is_valid())
 
     def test_disabled_multiplemodelchoicefield(self):
+        """
+
+        Tests the behavior of a ModelMultipleChoiceField when the field is disabled.
+
+        This function validates that when the field is not disabled, changes made to it are correctly reflected in the form's cleaned data.
+        When the field is disabled, the original value is preserved and any changes are ignored, with no errors raised.
+
+        """
         class ArticleForm(forms.ModelForm):
             categories = forms.ModelMultipleChoiceField(
                 Category.objects.all(), required=False
@@ -306,6 +390,13 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_disabled_modelmultiplechoicefield_has_changed(self):
+        """
+        Checks whether a disabled ModelMultipleChoiceField has changed when given two different values.
+
+        The function tests the behavior of a ModelMultipleChoiceField when it is set as disabled.
+        It verifies that the field's has_changed method returns False, indicating no change has occurred,
+        regardless of the input values provided, because a disabled field is not expected to change.
+        """
         field = forms.ModelMultipleChoiceField(Author.objects.all(), disabled=True)
         self.assertIs(field.has_changed("x", "y"), False)
 
@@ -327,10 +418,28 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIsInstance(field.choices, CustomModelChoiceIterator)
 
     def test_choice_iterator_passes_model_to_widget(self):
+        """
+        Tests the CustomCheckboxSelectMultiple widget to ensure it correctly passes a model instance to the CheckboxSelectMultiple widget.
+
+        The test creates a custom CheckboxSelectMultiple widget that adds a data-slug attribute to the HTML option tags, 
+        containing the slug of the model instance associated with each checkbox option. 
+        It then verifies that the widget renders the expected HTML, including the custom data-slug attribute, 
+        when used in a ModelMultipleChoiceField with a queryset of Category objects.
+        """
         class CustomCheckboxSelectMultiple(CheckboxSelectMultiple):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
             ):
+                """
+
+                Creates and customizes an HTML option element for use in a drop-down list.
+
+                This method extends the base functionality of creating an option element by adding a unique data attribute.
+                It takes various parameters to define the option, including its name, value, label, and selection status.
+                The function also accepts an optional subindex and a dictionary of custom attributes.
+                The resulting option element includes a 'data-slug' attribute, which is populated with the slug of the associated instance.
+
+                """
                 option = super().create_option(
                     name, value, label, selected, index, subindex, attrs
                 )
@@ -361,6 +470,14 @@ class ModelChoiceFieldTests(TestCase):
     def test_custom_choice_iterator_passes_model_to_widget(self):
         class CustomModelChoiceValue:
             def __init__(self, value, obj):
+                """
+                ..: Initializes an instance of the class with a given value and object.
+
+                    :param value: The value to be stored in the instance.
+                    :param obj: The object associated with the instance.
+                    :return: None
+                    :note: This is a class constructor and is called when an instance of the class is created. It sets the initial state of the instance by storing the provided value and object.
+                """
                 self.value = value
                 self.obj = obj
 
@@ -376,6 +493,23 @@ class ModelChoiceFieldTests(TestCase):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
             ):
+                """
+                Create an HTML option element for a select input field.
+
+                :name: The name of the option element.
+                :value: The value associated with the option.
+                :label: The text to be displayed for the option.
+                :selected: A boolean indicating whether the option should be selected by default.
+                :index: The index of the option within the select input field.
+                :subindex: Optional sub-index of the option.
+                :attrs: Optional dictionary of additional attributes to be applied to the option element.
+
+                The function extends the base create_option method by adding a 'data-slug' attribute to the option element, which is derived from the provided value's object. The resulting option element is then returned.
+
+                Returns:
+                    Dictionary representing the HTML option element.
+
+                """
                 option = super().create_option(
                     name, value, label, selected, index, subindex, attrs
                 )
@@ -407,6 +541,18 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_choice_value_hash(self):
+        """
+        Tests the hash value of ModelChoiceIteratorValue instances.
+
+        This function verifies that the hash of ModelChoiceIteratorValue is determined by its primary key and not by the model instance itself.
+        It checks for both equality and inequality of hash values between instances with the same and different primary keys.
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the hash value is not as expected
+        """
         value_1 = ModelChoiceIteratorValue(self.c1.pk, self.c1)
         value_2 = ModelChoiceIteratorValue(self.c2.pk, self.c2)
         self.assertEqual(
@@ -420,6 +566,14 @@ class ModelChoiceFieldTests(TestCase):
             self.assertEqual("Entertainment", field.clean(self.c1.pk).name)
 
     def test_queryset_manager(self):
+        """
+        Tests the queryset manager functionality in the context of a ModelChoiceField.
+
+        Verifies that the field is populated with the correct choices from the Category model,
+        including a default empty choice. The test ensures that the number of choices and their
+        values match the expected results, confirming the proper operation of the queryset manager
+        in retrieving and filtering data for the field.
+        """
         f = forms.ModelChoiceField(Category.objects)
         self.assertEqual(len(f.choices), 4)
         self.assertCountEqual(

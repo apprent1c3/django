@@ -13,6 +13,12 @@ class MakeListTests(SimpleTestCase):
 
     @setup({"make_list01": "{% autoescape off %}{{ a|make_list }}{% endautoescape %}"})
     def test_make_list01(self):
+        """
+
+        Tests the 'make_list' filter by rendering a template with the filter applied to a string containing a special character.
+        The test verifies that the filter correctly converts the string into a list and escapes the special character.
+
+        """
         output = self.engine.render_to_string("make_list01", {"a": mark_safe("&")})
         self.assertEqual(output, "['&']")
 
@@ -30,6 +36,16 @@ class MakeListTests(SimpleTestCase):
         }
     )
     def test_make_list03(self):
+        """
+
+        Test the make_list template filter with an ampersand character.
+
+        This test case checks if the filter correctly handles special characters by rendering
+        a template with the make_list filter applied to an ampersand (&) character. The test
+        verifies that the output is a list containing the special character, ensuring proper
+         escaping and rendering.
+
+        """
         output = self.engine.render_to_string("make_list03", {"a": mark_safe("&")})
         self.assertEqual(output, "['&']")
 

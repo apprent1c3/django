@@ -191,6 +191,33 @@ class NestedObjects(Collector):
         self.edges.setdefault(source, []).append(target)
 
     def collect(self, objs, source=None, source_attr=None, **kwargs):
+        """
+        Collects a list of objects and their related objects, adding edges between them.
+
+        This function iterates over a list of objects, adding edges between each object
+        and its related object(s) based on the provided source and source attribute.
+        If a source attribute is provided, it is used to determine the related object;
+        otherwise, a default relationship is assumed.
+
+        The function also keeps track of collected model objects, organizing them by model.
+
+        If errors occur during collection (e.g., due to protected or restricted objects),
+        the function catches these exceptions and updates its internal list of protected objects.
+
+        Args:
+            objs (list): The list of objects to collect.
+            source (object, optional): The source object for related objects. Defaults to None.
+            source_attr (str, optional): The attribute on the source object that determines related objects. Defaults to None.
+            **kwargs: Additional keyword arguments passed to the parent class's collect method.
+
+        Returns:
+            The result of the parent class's collect method, if successful.
+
+        Raises:
+            models.ProtectedError: If protected objects are encountered during collection.
+            models.RestrictedError: If restricted objects are encountered during collection.
+
+        """
         for obj in objs:
             if source_attr and not source_attr.endswith("+"):
                 related_name = source_attr % {
@@ -209,6 +236,26 @@ class NestedObjects(Collector):
             self.protected.update(e.restricted_objects)
 
     def related_objects(self, related_model, related_fields, objs):
+        """
+
+        Enhances the retrieval of related objects by leveraging Django's query optimization.
+
+        This function extends the base implementation by adding a select_related call to 
+        the queryset, allowing for more efficient retrieval of related objects by 
+        pre-fetching the specified related fields. This approach helps to reduce the 
+        number of database queries and improve overall performance.
+
+        Args:
+            related_model: The model class of the related objects.
+            related_fields: A list of fields representing the relationships to be 
+                            optimized.
+            objs: The objects for which the related objects are being retrieved.
+
+        Returns:
+            A QuerySet containing the related objects, with the specified fields 
+            pre-fetched for improved performance.
+
+        """
         qs = super().related_objects(related_model, related_fields, objs)
         return qs.select_related(
             *[related_field.name for related_field in related_fields]
@@ -285,6 +332,30 @@ def model_ngettext(obj, n=None):
 
 
 def lookup_field(name, obj, model_admin=None):
+    """
+
+    Lookup a field on an object, returning the field, attribute, and value.
+
+    This function attempts to retrieve a field from the object's model, or its
+    attributes, taking into account the model admin if provided.
+
+    Parameters
+    ----------
+    name : str
+        The name of the field to look up
+    obj : object
+        The object to look up the field on
+    model_admin : ModelAdmin, optional
+        The model admin, if available
+
+    Returns
+    -------
+    tuple
+        A tuple containing the field, attribute, and value of the looked up field.
+        If the field is not found, the tuple contains None for the field, and the
+        attribute and value are determined based on the object and model admin.
+
+    """
     opts = obj._meta
     try:
         f = _get_non_gfk_field(opts, name)

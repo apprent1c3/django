@@ -67,6 +67,15 @@ class FilteredRelationTests(TestCase):
         cls.author1.favorite_books.add(cls.book3)
 
     def test_select_related(self):
+        """
+        Tests the select_related method to ensure it efficiently fetches related objects in a single database query.
+
+        This test case verifies that the select_related method, combined with annotate and FilteredRelation, can retrieve authors and their associated books with editors in one database query.
+
+        The test checks the query set is ordered by author primary key and book primary key, and that the result set contains the expected authors, books, and editors.
+
+        This test is crucial to ensure the application's performance and scalability by minimizing the number of database queries executed when retrieving related data.
+        """
         qs = (
             Author.objects.annotate(
                 book_join=FilteredRelation("book"),
@@ -301,6 +310,18 @@ class FilteredRelationTests(TestCase):
         self.assertSequenceEqual(qs, [self.author1])
 
     def test_with_m2m_multijoin(self):
+        """
+
+        Tests a query with multiple joins on a many-to-many relationship.
+
+        This test case verifies that a query which joins a many-to-many relationship multiple times,
+        filters results based on conditions applied to the joined tables, and removes duplicates,
+        produces the expected outcome.
+
+        The test specifically checks that only authors who have written books edited by someone with name 'b',
+        which are also part of another author's favorite books, are included in the result.
+
+        """
         qs = (
             Author.objects.annotate(
                 favorite_books_written_by_jane=FilteredRelation(
@@ -358,6 +379,17 @@ class FilteredRelationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_union")
     def test_union(self):
+        """
+        Tests the union operation between two querysets of Author objects.
+
+        This test case verifies that the union of two querysets, each annotated with 
+        a filtered relation to Book objects, returns the expected result. The test 
+        queries for authors who have written specific books, 'poem by alice' and 
+        'the book by jane a', and asserts that the union of these querysets 
+        returns the correct authors.
+
+        Requires the database backend to support the SELECT UNION operator.
+        """
         qs1 = Author.objects.annotate(
             book_alice=FilteredRelation(
                 "book", condition=Q(book__title__iexact="poem by alice")
@@ -372,6 +404,15 @@ class FilteredRelationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_intersection(self):
+        """
+        .. function:: test_intersection(self)
+
+            Tests the intersection of two query sets of authors, each filtered by a specific book title.
+
+            This test case ensures that the intersection of two query sets, one containing authors who have written 'poem by alice' and the other containing authors who have written 'the book by jane a', returns an empty list, as there are no authors common to both sets.
+
+            Requires a database backend that supports the SELECT INTERSECT operation.
+        """
         qs1 = Author.objects.annotate(
             book_alice=FilteredRelation(
                 "book", condition=Q(book__title__iexact="poem by alice")
@@ -438,6 +479,16 @@ class FilteredRelationTests(TestCase):
             )
 
     def test_as_subquery(self):
+        """
+
+        Tests the usage of a subquery to filter authors.
+
+        This test case verifies that authors can be filtered based on a subquery
+        that checks for the presence of a specific book. In this case, the subquery
+        looks for authors who have written a book titled 'poem by alice' (case-insensitive).
+        The test asserts that the resulting query set contains the expected author.
+
+        """
         inner_qs = Author.objects.annotate(
             book_alice=FilteredRelation(
                 "book", condition=Q(book__title__iexact="poem by alice")
@@ -673,6 +724,16 @@ class FilteredRelationTests(TestCase):
             FilteredRelation("", condition=Q(blank=""))
 
     def test_with_condition_as_expression_error(self):
+        """
+
+        Tests that a ValueError is raised when the condition argument to FilteredRelation is not a Q instance, but rather an expression.
+
+        The condition argument should be a Q instance, which represents a query expression.
+        Providing any other type of expression will result in an exception being raised.
+
+        :raises ValueError: If the condition argument is not a Q instance.
+
+        """
         msg = "condition argument must be a Q() instance."
         expression = Case(
             When(book__title__iexact="poem by alice", then=True),

@@ -292,6 +292,19 @@ def _sqlite_time_diff(lhs, rhs):
 
 
 def _sqlite_timestamp_diff(lhs, rhs):
+    """
+
+    Calculate the difference between two SQLite timestamps.
+
+    This function takes two timestamps as input, `lhs` and `rhs`, and returns their difference in microseconds.
+    If either of the input timestamps is None, the function returns None.
+    The function first typecasts the input timestamps to a suitable format, and then calculates the difference between them.
+
+    :param lhs: The left-hand side timestamp
+    :param rhs: The right-hand side timestamp
+    :returns: The difference between the two timestamps in microseconds, or None if either input is None
+
+    """
     if lhs is None or rhs is None:
         return None
     left = typecast_timestamp(lhs)

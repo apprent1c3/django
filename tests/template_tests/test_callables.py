@@ -17,6 +17,15 @@ class CallableVariablesTests(TestCase):
                 self.value = value
 
             def __call__(self):
+                """
+                Invoke the instance and return its value.
+
+                Returns a dictionary containing the current value of the instance, 
+                incrementing a counter to track the number of calls made.
+
+                :return: A dictionary with a single key 'the_value' mapping to the instance's value.
+                :rtype: dict
+                """
                 self.num_calls += 1
                 return {"the_value": self.value}
 
@@ -39,14 +48,42 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 2)
 
     def test_alters_data(self):
+        """
+
+        Test that the templating engine does not call objects when accessing attributes, 
+        unless the object has explicitly declared it alters data.
+
+        Checks that a custom object with a method invocation (e.g., a callable) is not 
+        invoked when referenced in a template, resulting in no side effects or state 
+        changes if the object's attributes are accessed directly in the template.
+
+        """
         class Doodad:
             alters_data = True
 
             def __init__(self, value):
+                """
+                Initialize an instance with a given value.
+
+                The initializer sets up the object with the provided value and tracks the number of times it is called.
+                It sets the initial number of calls to zero and stores the given value for later use.
+
+                :param value: The value to be stored in the instance
+
+                """
                 self.num_calls = 0
                 self.value = value
 
             def __call__(self):
+                """
+                Invoke the instance as a callable, incrementing the internal counter and returning a dictionary with a single key-value pair.
+
+                Returns:
+                    dict: A dictionary containing 'the_value' key with the instance's value.
+
+                Notes:
+                    The number of times this instance has been called is tracked internally and incremented each time this method is invoked.
+                """
                 self.num_calls += 1
                 return {"the_value": self.value}
 
@@ -127,6 +164,16 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(t.render(c), "104")
 
     def test_do_not_call(self):
+        """
+
+        Tests the behavior of the templating engine when a callable object is marked 
+        with the do_not_call_in_templates attribute.
+
+        This test case verifies that when an object has this attribute set to True, 
+        the templating engine will not call the object, even if it is referenced in a 
+        template. Instead, it will only access the object's attributes directly.
+
+        """
         class Doodad:
             do_not_call_in_templates = True
 
@@ -159,15 +206,46 @@ class CallableVariablesTests(TestCase):
         # ``alters_data`` attribute will not make any difference in the
         # template system's behavior.
 
+        """
+        Tests the behavior of the templating engine when a object has the 
+        do_not_call_in_templates and alters_data flags set to True.
+
+        Verifies that the templating engine does not call the object when 
+        its attribute is accessed in a template, and that trying to access 
+        the result of the object's call in a template results in an empty 
+        string. Also checks that the object's call count remains zero after 
+        rendering the template. 
+
+        This test ensures that the templating engine properly handles objects 
+        marked as do_not_call_in_templates and alters_data, and does not 
+        inadvertently call or modify them during template rendering.
+        """
         class Doodad:
             do_not_call_in_templates = True
             alters_data = True
 
             def __init__(self, value):
+                """
+                Initializes the object with a given value.
+
+                :param value: The initial value to be stored in the object.
+                :returns: None
+                :attr num_calls: An internal counter tracking the number of times the object is accessed or called.
+                :attr value: The value passed during initialization, stored as an instance attribute.
+                """
                 self.num_calls = 0
                 self.value = value
 
             def __call__(self):
+                """
+                Invoke the object, returning a dictionary containing the stored value.
+
+                This method increments an internal counter tracking the number of times the object is called.
+                The returned dictionary contains a single key-value pair, where the key is 'the_value' and the value is the object's stored value.
+
+                :return: A dictionary with the stored value.
+                :rtype: dict
+                """
                 self.num_calls += 1
                 return {"the_value": self.value}
 

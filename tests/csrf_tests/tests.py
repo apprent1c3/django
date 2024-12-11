@@ -672,6 +672,20 @@ class CsrfViewMiddlewareTestMixin(CsrfFunctionTestMixin):
         self.assertEqual(response.status_code, 403)
 
     def test_origin_malformed_host(self):
+        """
+
+        Tests the origin header validation when the HTTP_HOST contains a malformed value.
+
+        This test case simulates a request with a maliciously crafted 'Host' header and
+        a valid 'Origin' header. It verifies that the CSRF view middleware correctly
+        rejects the request and returns a 403 Forbidden response, preventing potential
+        security vulnerabilities.
+
+        The test scenario covers the case where an attacker attempts to bypass security
+        measures by manipulating the 'Host' header, ensuring the middleware behaves as
+        expected in such situations.
+
+        """
         req = self._get_request(method="POST")
         req._is_secure_override = True
         req.META["HTTP_HOST"] = "@malformed"

@@ -53,6 +53,11 @@ def suspicious(request):
 
 @csrf_exempt
 def malformed_post(request):
+    """
+    Occurs when an HTTP POST request is made with a malformed or empty request body.
+    This view handles such requests, processing the request data and returning an HTTP response.
+    It is exempt from Cross-Site Request Forgery protection due to its handling of potentially compromised requests.
+    """
     request.POST
     return HttpResponse()
 
@@ -67,6 +72,17 @@ async def async_regular(request):
 
 async def async_streaming(request):
     async def async_streaming_generator():
+        """
+        Asynchronous generator function producing a streaming content.
+
+        This function generates a sequence of bytes, allowing for efficient 
+        streaming of data. It yields each chunk of the content one at a time, 
+        enabling asynchronous processing and reducing memory usage.
+
+        Yields:
+            bytes: A chunk of the streaming content.
+
+        """
         yield b"streaming"
         yield b" "
         yield b"content"
@@ -82,6 +98,11 @@ class CoroutineClearingView:
         return self._unawaited_coroutine
 
     def __del__(self):
+        """
+        Destructor method to ensure cleanup of internal resources.
+
+        When an instance of this class is about to be destroyed, this method is called to properly clean up any internal coroutines that may still be active. It attempts to close the unawaited coroutine if it exists, and silently ignores any instances where the coroutine attribute is not present.
+        """
         try:
             self._unawaited_coroutine.close()
         except AttributeError:

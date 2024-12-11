@@ -11,6 +11,14 @@ class FieldsTests(SimpleTestCase):
         self.assertEqual(copy.deepcopy(field), field)
 
     def test_distance_field_deepcopy(self):
+        """
+        Tests that a deep copy of a DistanceField object is equal to the original object.
+
+        This test verifies that the deepcopy operation correctly creates a new independent copy
+        of the DistanceField instance, ensuring that modifications to the copy do not affect
+        the original object. It checks for equality between the original and copied objects,
+        confirming that the deepcopy operation preserves the object's state and attributes.
+        """
         field = DistanceField(None)
         self.assertEqual(copy.deepcopy(field), field)
 
@@ -22,6 +30,15 @@ class GeometryFieldTests(SimpleTestCase):
         self.assertEqual(kwargs, {"srid": 4326})
 
     def test_deconstruct_values(self):
+        """
+
+        Tests the deconstruction of GeometryField values.
+
+        Verifies that the :meth:`deconstruct` method of a GeometryField instance returns the correct keyword arguments, including 
+        SRID, dimension, geography, extent, and tolerance. This ensures that the field's attributes are properly broken down into 
+        a dictionary for potential reuse.
+
+        """
         field = GeometryField(
             srid=4067,
             dim=3,

@@ -21,6 +21,13 @@ class ChrTests(TestCase):
         )
 
     def test_non_ascii(self):
+        """
+
+        Tests the handling of non-ASCII characters, specifically the author names that start with non-ASCII characters.
+        This test case checks that the function can correctly identify authors whose names start with the 'É' character
+        and distinguish them from authors whose names do not start with this character.
+
+        """
         authors = Author.objects.annotate(first_initial=Left("name", 1))
         self.assertCountEqual(authors.filter(first_initial=Chr(ord("É"))), [self.elena])
         self.assertCountEqual(

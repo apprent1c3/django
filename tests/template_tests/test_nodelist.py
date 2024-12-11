@@ -10,6 +10,10 @@ class NodelistTest(SimpleTestCase):
         super().setUpClass()
 
     def test_for(self):
+        """
+        Tests that a for loop in a template renders a single variable node, 
+        ensuring correct parsing and rendering of variables within template loops.
+        """
         template = self.engine.from_string("{% for i in 1 %}{{ a }}{% endfor %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)
@@ -20,6 +24,9 @@ class NodelistTest(SimpleTestCase):
         self.assertEqual(len(vars), 1)
 
     def test_ifchanged(self):
+        """
+        Tests the ifchanged template tag functionality by rendering a template with the tag and verifying that it correctly identifies and registers a single variable node.
+        """
         template = self.engine.from_string("{% ifchanged x %}{{ a }}{% endifchanged %}")
         vars = template.nodelist.get_nodes_by_type(VariableNode)
         self.assertEqual(len(vars), 1)
@@ -27,6 +34,19 @@ class NodelistTest(SimpleTestCase):
 
 class TextNodeTest(SimpleTestCase):
     def test_textnode_repr(self):
+        """
+
+        Tests the representation of TextNode instances.
+
+        Verifies that the string representation of a TextNode matches the expected output
+        for various input strings, including those with newline characters. This ensures
+        that TextNode instances are correctly represented as strings, which is useful for
+        debugging and logging purposes.
+
+        :raises AssertionError: If the representation of a TextNode does not match the
+            expected output.
+
+        """
         engine = Engine()
         for temptext, reprtext in [
             ("Hello, world!", "<TextNode: 'Hello, world!'>"),
@@ -44,6 +64,14 @@ class ErrorIndexTest(SimpleTestCase):
     """
 
     def test_correct_exception_index(self):
+        """
+
+        Tests that the correct exception index is raised when using a bad simple tag within a template.
+
+        This function checks that the start and end indices of the exception are correctly reported 
+        when the bad simple tag is used within various template structures, including nested for loops.
+
+        """
         tests = [
             (
                 "{% load bad_tag %}{% for i in range %}{% badsimpletag %}{% endfor %}",

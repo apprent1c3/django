@@ -42,6 +42,22 @@ class SchemaIndexesTests(TransactionTestCase):
 
     @isolate_apps("gis_tests.geoapp")
     def test_namespaced_db_table(self):
+        """
+
+        Tests the creation of a namespaced database table with a spatial index.
+
+        This test case ensures that the database table name is properly namespaced and 
+        that the spatial index is correctly created. It checks the generated SQL query 
+        for the index creation, verifying that the table name and index name are 
+        correctly formatted.
+
+        The test is specific to PostGIS and will be skipped if the database backend 
+        does not support PostGIS.
+
+        It covers the interaction between the model's `db_table` meta option, the 
+        `app_label` option, and the `create_sql` method of the `Index` class.
+
+        """
         if not connection.ops.postgis:
             self.skipTest("PostGIS-specific test.")
 

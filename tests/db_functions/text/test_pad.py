@@ -8,6 +8,20 @@ from ..models import Author
 
 class PadTests(TestCase):
     def test_pad(self):
+        """
+        Tests the functionality of the LPad and RPad database functions for padding strings.
+
+        The function creates an Author object and then performs a series of tests on the 
+        LPad and RPad functions, checking that they correctly pad the string with the 
+        specified characters or spaces, and that they handle edge cases such as null 
+        values, zero-length padding, and padding with None. The test cases cover both 
+        left and right padding, and verify that the results are as expected.
+
+        The tests are performed on the 'name' field of the Author object, as well as on 
+        a field with a null value ('goes_by'), and on a Value object with a null value. 
+        The results are compared to the expected padded strings, and any deviations are 
+        reported as test failures.
+        """
         Author.objects.create(name="John", alias="j")
         none_value = (
             "" if connection.features.interprets_empty_strings_as_nulls else None
@@ -40,6 +54,9 @@ class PadTests(TestCase):
                 )
 
     def test_pad_negative_length(self):
+        """
+        Tests that padding functions (LPad and RPad) correctly handle negative length values by raising a ValueError with an appropriate message, ensuring that 'length' is always greater than or equal to 0.
+        """
         for function in (LPad, RPad):
             with self.subTest(function=function):
                 with self.assertRaisesMessage(
@@ -48,6 +65,16 @@ class PadTests(TestCase):
                     function("name", -1)
 
     def test_combined_with_length(self):
+        """
+
+        Tests the functionality of combining LPad function with Length function in a Django ORM query.
+
+        This test case creates two authors with different names and aliases, then annotates the authors 
+        with a new field 'filled' which is the result of left-padding the author's name with spaces to 
+        match the length of their alias. The authors are then sorted by their aliases and the resulting 
+        'filled' field values are compared to the expected output.
+
+        """
         Author.objects.create(name="Rhonda", alias="john_smith")
         Author.objects.create(name="♥♣♠", alias="bytes")
         authors = Author.objects.annotate(filled=LPad("name", Length("alias")))

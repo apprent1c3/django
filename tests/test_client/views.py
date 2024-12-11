@@ -61,6 +61,18 @@ def trace_view(request):
 
 
 def put_view(request):
+    """
+
+    Handles HTTP PUT and GET requests.
+
+    This view function processes PUT requests by rendering a template with the
+    received data and content length. For GET requests, it renders a default template.
+
+    The rendered template is then returned as an HTTP response.
+
+    :returns: HttpResponse object containing the rendered template
+
+    """
     if request.method == "PUT":
         t = Template("Data received: {{ data }} is the body.", name="PUT Template")
         c = Context(
@@ -315,6 +327,14 @@ permission_protected_view_exception = permission_required(
 class _ViewManager:
     @method_decorator(login_required)
     def login_protected_view(self, request):
+        """
+
+        Displays a login-protected view to authenticated users.
+
+        This view renders a template containing the username of the currently logged-in user.
+        It requires a valid user session to access and returns an HTTP response with the rendered template.
+
+        """
         t = Template(
             "This is a login protected test using a method. "
             "Username is {{ user.username }}.",
@@ -358,6 +378,18 @@ def broken_view(request):
 
 
 def mail_sending_view(request):
+    """
+
+    Sends a test email to specified recipients.
+
+    This view triggers the sending of a predefined email with a test message.
+    The email is sent from a fixed sender address to a list of predefined recipient addresses.
+
+    Upon successful execution, it returns an HTTP response indicating that the mail has been sent.
+
+    The email itself contains a static subject and body, making this view suitable for testing email functionality.
+
+    """
     mail.EmailMessage(
         "Test message",
         "This is a test email",

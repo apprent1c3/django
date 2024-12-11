@@ -88,6 +88,18 @@ class MigrationGraph:
         self.nodes = {}
 
     def add_node(self, key, migration):
+        """
+        .. method:: add_node(key, migration)
+
+          Adds a new node to the system.
+
+          :param key: Unique identifier for the node.
+          :param migration: Associated migration data for the node.
+
+          This method creates a new :class:`Node` instance with the given key and stores it in the internal node mappings. 
+          It ensures that the key is not already in use to prevent overwriting existing nodes. 
+          The provided migration data is also stored and associated with the newly created node.
+        """
         assert key not in self.node_map
         node = Node(key)
         self.node_map[key] = node

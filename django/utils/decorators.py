@@ -123,6 +123,22 @@ def make_middleware_decorator(middleware_class):
             middleware = middleware_class(view_func, *m_args, **m_kwargs)
 
             def _pre_process_request(request, *args, **kwargs):
+                """
+                Pre-processes an incoming request by invoking middleware hooks.
+
+                This function checks for the presence of ``process_request`` and ``process_view`` methods
+                in the middleware and calls them if they exist. If either method returns a value, it is
+                returned immediately. If no middleware methods are found or none return a value, the function
+                returns None.
+
+                The purpose of this function is to allow middleware to inspect and potentially modify or
+                reject incoming requests before they are processed by the application.
+
+                :param request: The incoming request to be pre-processed
+                :param args: Additional positional arguments
+                :param kwargs: Additional keyword arguments
+                :return: The result of middleware processing, or None if no result is returned
+                """
                 if hasattr(middleware, "process_request"):
                     result = middleware.process_request(request)
                     if result is not None:
@@ -141,6 +157,22 @@ def make_middleware_decorator(middleware_class):
                 raise
 
             def _post_process_request(request, response):
+                """
+                .. function:: _post_process_request(request, response)
+                   :noindex:
+
+                   Post-processes an HTTP request and its corresponding response.
+
+                   This function checks if the response object has a render method and if so, it 
+                   applies additional processing to the response using the middleware's 
+                   ``process_template_response`` and ``process_response`` methods. If the 
+                   response does not have a render method, it directly applies the 
+                   ``process_response`` method.
+
+                   :param request: The HTTP request object
+                   :param response: The HTTP response object
+                   :return: The post-processed response object
+                """
                 if hasattr(response, "render") and callable(response.render):
                     if hasattr(middleware, "process_template_response"):
                         response = middleware.process_template_response(

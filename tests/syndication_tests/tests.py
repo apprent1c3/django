@@ -26,6 +26,15 @@ TZ = timezone.get_default_timezone()
 class FeedTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Setup test data for the application.
+
+        This class method is used to create test data that can be used throughout the application's tests.
+        It creates five entries with different titles and publication dates, and one article linked to the first entry.
+        The created test data includes various date combinations to ensure correct functionality in different scenarios.
+
+        """
         cls.e1 = Entry.objects.create(
             title="My first entry",
             updated=datetime.datetime(1980, 1, 1, 12, 30),
@@ -59,11 +68,37 @@ class FeedTestCase(TestCase):
         )
 
     def assertChildNodes(self, elem, expected):
+        """
+        Verify that the child nodes of an element match the expected set of node names.
+
+        Args:
+            elem: The parent element to check.
+            expected: A list or iterable of expected child node names.
+
+        This assertion checks that the names of the child nodes of the given element
+        are identical to the expected set of node names. The comparison is case-sensitive
+        and does not consider the order or frequency of the node names, only their presence.
+
+        Raises:
+            AssertionError: If the actual child node names do not match the expected set.
+
+        """
         actual = {n.nodeName for n in elem.childNodes}
         expected = set(expected)
         self.assertEqual(actual, expected)
 
     def assertChildNodeContent(self, elem, expected):
+        """
+        Asserts that the content of specific child nodes within an XML element matches the expected values.
+
+        :param elem: The parent XML element to search for child nodes.
+        :param expected: A dictionary where keys are the names of child nodes and values are the expected text content of those nodes.
+
+        :raises AssertionError: If any of the child nodes do not have the expected text content.
+
+        :note: This method assumes that all specified child nodes exist within the parent element and contain text content.
+
+        """
         for k, v in expected.items():
             self.assertEqual(elem.getElementsByTagName(k)[0].firstChild.wholeText, v)
 
@@ -86,6 +121,20 @@ class SyndicationFeedTest(FeedTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Set up class-wide state before running any tests in the class.
+
+        This method is called once before the first test in the class and is used to
+        initialize class-level state. It clears the cache of Site objects to ensure
+        tests start with a clean slate.
+
+        Note
+        ----
+        This method is a class method and should not be called directly. It is invoked
+        automatically by the testing framework.
+
+        """
         super().setUpClass()
         # This cleanup is necessary because contrib.sites cache
         # makes tests interfere with each other, see #11505
@@ -207,6 +256,23 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertChildNodeContent(chan, {"ttl": "700"})
 
     def test_rss2_feed_with_decorated_methods(self):
+        """
+        Test the RSS 2.0 feed with decorated methods.
+
+        This test case verifies that the RSS 2.0 feed is correctly generated when using decorated methods.
+        It checks the feed's channel and item elements for the expected metadata and content, 
+        including title, description, categories, and copyright information.
+
+        The test asserts that the feed contains the correct data, including overridden values 
+        applied by the decorators, to ensure that the decoration process is applied correctly 
+        to the feed's content.
+
+        Parameters: None
+
+        Returns: None
+
+        Raises: AssertionError if the feed content does not match the expected values.
+        """
         response = self.client.get("/syndication/rss2/with-decorated-methods/")
         doc = minidom.parseString(response.content)
         chan = doc.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0]
@@ -274,6 +340,15 @@ class SyndicationFeedTest(FeedTestCase):
             )
 
     def test_rss2_single_enclosure(self):
+        """
+
+        Tests the RSS 2.0 feed with a single enclosure.
+
+        Verifies that the feed contains items with exactly one enclosure element.
+        The test retrieves the RSS 2.0 feed, parses the XML response, and checks
+        each item in the feed to ensure it has only one enclosure.
+
+        """
         response = self.client.get("/syndication/rss2/single-enclosure/")
         doc = minidom.parseString(response.content)
         chan = doc.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0]
@@ -419,6 +494,13 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertNotEqual(published, updated)
 
     def test_atom_single_enclosure(self):
+        """
+        Verifies the atom feed at the '/syndication/atom/single-enclosure/' endpoint contains entries with a single enclosure link.
+
+         Checks the presence and uniqueness of enclosure links within each entry of the feed. 
+
+         This test ensures that each entry in the feed has exactly one link with a 'rel' attribute set to 'enclosure', as per the Atom feed specification.
+        """
         response = self.client.get("/syndication/atom/single-enclosure/")
         feed = minidom.parseString(response.content).firstChild
         items = feed.getElementsByTagName("entry")
@@ -550,6 +632,19 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertEqual(published[-6:], "+00:42")
 
     def test_feed_no_content_self_closing_tag(self):
+        """
+        Test that feed generators produce self-closing tags when no content is provided.
+
+        This test ensures that different feed generators (Atom and RSS) correctly 
+        generate self-closing tags for links when no additional content is provided. 
+
+        The test verifies that the generated feed contains the expected self-closing 
+        tag with the correct href and rel attributes.
+
+        :raises AssertionError: if the expected self-closing tag is not found in the 
+            generated feed document.
+
+        """
         tests = [
             (Atom1Feed, "link"),
             (Rss201rev2Feed, "atom:link"),
@@ -636,6 +731,15 @@ class SyndicationFeedTest(FeedTestCase):
                 self.assertIn(f"<?xml-stylesheet {expected}?>", doc)
 
     def test_stylesheets_instructions_are_at_the_top(self):
+        """
+
+        Verify that the XML stylesheet instructions are correctly placed at the top of the XML document.
+
+        This test case checks the response from the '/syndication/stylesheet/' endpoint to ensure that the xml-stylesheet instructions
+        are the first child nodes of the document. It also verifies that the attributes of these instructions, such as the href, type,
+        and media, match the expected values for two specific stylesheets, '/stylesheet1.xsl' and '/stylesheet2.xsl'.
+
+        """
         response = self.client.get("/syndication/stylesheet/")
         doc = minidom.parseString(response.content)
         self.assertEqual(doc.childNodes[0].nodeName, "xml-stylesheet")
@@ -669,6 +773,17 @@ class SyndicationFeedTest(FeedTestCase):
                 )
 
     def test_stylesheets_repr(self):
+        """
+
+        Tests the string representation of a Stylesheet object.
+
+        This function verifies that the repr method of a Stylesheet instance returns the expected string format, 
+        covering various combinations of mime type and media settings.
+
+        The test cases include scenarios with and without explicit mime type and media settings, 
+        ensuring that the repr method behaves correctly in different situations.
+
+        """
         testdata = [
             (Stylesheet("/test.xsl", mimetype=None), "('/test.xsl', None, 'screen')"),
             (Stylesheet("/test.xsl", media=None), "('/test.xsl', 'text/xsl', None)"),

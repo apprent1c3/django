@@ -52,6 +52,14 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(slugify(123), "123")
 
     def test_slugify_lazy_string(self):
+        """
+
+        Tests the slugify function with a lazy string to ensure it correctly converts 
+        the input string into a slug format. The slug format replaces characters that 
+        are not alphanumeric, underscores, or hyphens with hyphens and converts the 
+        string to lowercase.
+
+        """
         lazy_str = lazy(lambda string: string, str)
         self.assertEqual(
             slugify(

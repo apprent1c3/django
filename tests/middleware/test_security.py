@@ -5,6 +5,17 @@ from django.test.utils import override_settings
 
 class SecurityMiddlewareTest(SimpleTestCase):
     def middleware(self, *args, **kwargs):
+        """
+        Wraps the current response with Django's built-in SecurityMiddleware to ensure it adheres to various web security best practices.
+
+        This method acts as a pass-through, delegating the actual response generation to the wrapped object's response method.
+        It then applies the security middleware to the resulting response, providing protection against common web attacks and vulnerabilities.
+        The applied security measures include, but are not limited to, protection against cross-site scripting (XSS), cross-site request forgery (CSRF), and clickjacking attacks.
+
+        Returns:
+            The response with security middleware applied.
+
+        """
         from django.middleware.security import SecurityMiddleware
 
         return SecurityMiddleware(self.response(*args, **kwargs))
@@ -24,6 +35,20 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return get_response
 
     def process_response(self, *args, secure=False, request=None, **kwargs):
+        """
+        ..: process_response:
+            Process a request with optional secure and custom parameters.
+
+            This method processes a request by applying middleware to it. If the middleware 
+            returns a value, it is returned. Otherwise, the processed request is returned.
+
+            :param secure: A boolean flag indicating whether to use secure request parameters.
+            :param request: An optional custom request to process. If not provided, a default 
+                            request to '/some/url' is created.
+            :param args: Positional arguments to pass to the middleware.
+            :param kwargs: Keyword arguments to pass to the middleware.
+            :return: The processed request or the value returned by the middleware.
+        """
         request_kwargs = {}
         if secure:
             request_kwargs.update(self.secure_request_kwargs)
@@ -37,6 +62,16 @@ class SecurityMiddlewareTest(SimpleTestCase):
     request = RequestFactory()
 
     def process_request(self, method, *args, secure=False, **kwargs):
+        """
+        Processes a request with the specified method and parameters.
+
+            :param method: The HTTP method to use for the request (e.g. GET, POST, PUT, etc.)
+            :param args: Variable number of positional arguments to be passed to the request
+            :param secure: Optional flag to indicate whether the request should be made securely, defaults to False
+            :param kwargs: Variable number of keyword arguments to be passed to the request
+            :return: The processed request object after passing through the middleware
+            :note: When secure is True, additional secure request parameters are appended to the keyword arguments
+        """
         if secure:
             kwargs.update(self.secure_request_kwargs)
         req = getattr(self.request, method.lower())(*args, **kwargs)

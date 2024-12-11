@@ -34,6 +34,30 @@ class _EnsureCsrfCookie(CsrfViewMiddleware):
         return None
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+
+        Processes a view, augmenting the standard view processing behavior by extracting a token from the request.
+
+        This method is responsible for handling the view processing lifecycle, delegating to its parent class for core functionality.
+        Additionally, it retrieves a token from the incoming request, facilitating subsequent authentication or authorization checks.
+
+        Parameters
+        ----------
+        request : object
+            The incoming request object, containing relevant metadata and payload.
+        callback : callable
+            The callback function to be executed during view processing.
+        callback_args : list
+            A list of positional arguments to be passed to the callback function.
+        callback_kwargs : dict
+            A dictionary of keyword arguments to be passed to the callback function.
+
+        Returns
+        -------
+        object
+            The return value of the parent class's process_view method, potentially modified by the token extraction step.
+
+        """
         retval = super().process_view(request, callback, callback_args, callback_kwargs)
         # Force process_response to send the cookie
         get_token(request)

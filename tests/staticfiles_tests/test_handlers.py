@@ -23,6 +23,12 @@ class TestASGIStaticFilesHandler(StaticFilesTestCase):
         self.assertEqual(response.status_code, 200)
 
     async def test_get_async_response_not_found(self):
+        """
+
+        Tests the ASGIStaticFilesHandler's ability to handle a GET request for a non-existent static file.
+        Verifies that the handler returns a 404 status code when the requested file is not found.
+
+        """
         request = self.async_request_factory.get("/static/test/not-found.txt")
         handler = ASGIStaticFilesHandler(ASGIHandler())
         response = await handler.get_response_async(request)

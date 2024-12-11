@@ -89,6 +89,9 @@ class NonConcreteField(models.IntegerField):
         return None
 
     def get_attname_column(self):
+        """
+        .override the parent class method to retrieve attribute name and column, but always returns the column as None.
+        """
         attname, column = super().get_attname_column()
         return attname, None
 

@@ -13,12 +13,27 @@ from .models import Answer, Post, Question
 @isolate_apps("contenttypes_tests")
 class GenericForeignKeyTests(TestCase):
     def test_str(self):
+        """
+        Tests the string representation of a GenericForeignKey field in a model.
+
+            Verifies that the string representation of the field is correctly formatted,
+            including the app label and model name, to ensure proper identification of the field.
+
+        """
         class Model(models.Model):
             field = GenericForeignKey()
 
         self.assertEqual(str(Model.field), "contenttypes_tests.Model.field")
 
     def test_get_content_type_no_arguments(self):
+        """
+
+         Tests that calling get_content_type without any arguments raises an exception.
+
+         This test ensures that a meaningful error message is returned when get_content_type is invoked without
+         providing the necessary parameters, indicating that the function requires specific arguments to operate.
+
+        """
         with self.assertRaisesMessage(
             Exception, "Impossible arguments to GFK.get_content_type!"
         ):
@@ -46,6 +61,20 @@ class GenericForeignKeyTests(TestCase):
         self.assertIsNot(old_entity, new_entity)
 
     def test_clear_cached_generic_relation_explicit_fields(self):
+        """
+
+        Tests the behavior of clearing cached generic relation when explicit fields are specified.
+
+        Verifies that when a model instance's fields are refreshed from the database with
+        specific fields, the generic foreign key relationship is either preserved or
+        reloaded accordingly. The test checks two scenarios: when the relation field is
+        not included in the refresh and when it is explicitly included.
+
+        The test ensures that the relation object remains the same when not included in the
+        refresh and that it is reloaded with a new object when explicitly included,
+        although the actual object being referred to remains the same.
+
+        """
         question = Question.objects.create(text="question")
         answer = Answer.objects.create(text="answer", question=question)
         old_question_obj = answer.question
@@ -70,6 +99,14 @@ class GenericRelationTests(TestCase):
 class DeferredGenericRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        ..:class:`setUpTestData`: 
+            Sets up test data for the test class. 
+            This method is used to populate the database with a question and an answer, 
+            which can be used throughout the test class. 
+            It creates a question instance and an answer instance associated with the question, 
+            and assigns them to class attributes for later use.
+        """
         cls.question = Question.objects.create(text="question")
         cls.answer = Answer.objects.create(text="answer", question=cls.question)
 
@@ -82,6 +119,17 @@ class DeferredGenericRelationTests(TestCase):
             obj.question
 
     def test_only_not_clear_cached_private_relations(self):
+        """
+
+        Tests that only fetching certain fields and not clearing cached private relations
+        results in the expected database query behavior.
+
+        This test ensures that when private relations are cached, subsequent accesses to those 
+        relations do not result in additional database queries. It specifically checks the 
+        case where the 'question' relation of an 'Answer' object is accessed after the object 
+        has been fetched using 'only' to specify the fields to retrieve.
+
+        """
         obj = Answer.objects.only("content_type", "object_id").get(pk=self.answer.pk)
         with self.assertNumQueries(1):
             obj.question
@@ -92,6 +140,17 @@ class DeferredGenericRelationTests(TestCase):
 
 class GetPrefetchQuerySetDeprecation(TestCase):
     def test_generic_relation_warning(self):
+        """
+
+        Tests the deprecation warning raised when using the get_prefetch_queryset method on a generic relation.
+
+        This test case ensures that the RemovedInDjango60Warning is triggered when accessing the get_prefetch_queryset
+        method on a related object set, with a message indicating that get_prefetch_querysets should be used instead.
+
+        It verifies the correct behavior of the deprecation warning for a generic relation, helping to prevent
+        unexpected errors when upgrading to Django 6.0.
+
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (
@@ -130,6 +189,14 @@ class GetPrefetchQuerySetsTests(TestCase):
             )
 
     def test_generic_relation_invalid_length(self):
+        """
+
+        Tests that the get_prefetch_querysets method raises a ValueError when the querysets argument has an invalid length.
+
+        This test case creates a Question object and then attempts to fetch its prefetch querysets with an incorrect number of querysets.
+        It verifies that a ValueError is raised with the expected error message, ensuring that the method enforces the correct length for the querysets argument.
+
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (

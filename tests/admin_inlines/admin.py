@@ -202,6 +202,11 @@ class TitleForm(forms.ModelForm):
     title1 = forms.CharField(max_length=100)
 
     def clean(self):
+        """
+        Validate and clean form data by checking title consistency.
+
+        This method checks if two title fields ('title1' and 'title2') in the cleaned data are identical. If the titles do not match, it raises a ValidationError; otherwise, it returns the cleaned data. This ensures that the title information provided is consistent throughout the form.
+        """
         cleaned_data = self.cleaned_data
         title1 = cleaned_data.get("title1")
         title2 = cleaned_data.get("title2")
@@ -343,12 +348,38 @@ class BinaryTreeAdmin(admin.TabularInline):
     model = BinaryTree
 
     def get_extra(self, request, obj=None, **kwargs):
+        """
+        Return the extra count, taking into account the binary tree set count of the given object.
+
+        The extra count is initialized to a fixed value, and if an object is provided,
+        it is reduced by the number of items in the object's binary tree set.
+        If no object is provided, the initial extra count is returned.
+
+        :param request: The current request
+        :param obj: The object to consider when calculating the extra count
+        :param kwargs: Additional keyword arguments
+        :returns: The calculated extra count
+        """
         extra = 2
         if obj:
             return extra - obj.binarytree_set.count()
         return extra
 
     def get_max_num(self, request, obj=None, **kwargs):
+        """
+
+        Get the maximum number of items allowed.
+
+        Returns the maximum number of items that can be added. If an object is provided,
+        the function returns the maximum number of items minus the number of items already
+        associated with the object.
+
+        :param request: The current request object
+        :param obj: The object to check for existing items, defaults to None
+        :param kwargs: Additional keyword arguments
+        :return: The maximum number of items allowed
+
+        """
         max_num = 3
         if obj:
             return max_num - obj.binarytree_set.count()
@@ -372,6 +403,16 @@ class SomeChildModelForm(forms.ModelForm):
         help_texts = {"readonly_field": "Help text from ModelForm.Meta"}
 
     def __init__(self, *args, **kwargs):
+        """
+
+        Initializes a new instance of the class, setting up the object with the provided arguments.
+
+        The constructor extends the parent class's initialization behavior by modifying the label of the 'name' field to 'new label', providing a custom display name for this attribute.
+
+        :param args: Variable length argument list passed to the parent class's constructor.
+        :param kwargs: Arbitrary keyword arguments passed to the parent class's constructor.
+
+        """
         super().__init__(*args, **kwargs)
         self.fields["name"].label = "new label"
 
@@ -450,6 +491,18 @@ class ChildHiddenFieldForm(forms.ModelForm):
         widgets = {"position": forms.HiddenInput}
 
     def _post_clean(self):
+        """
+        Perform post cleaning validation for the instance.
+
+        This method extends the base post cleaning functionality to include a custom
+        validation check. If the instance's position is 1, it raises a non-field error
+        validation error. This ensures that the instance meets specific criteria before
+        proceeding.
+
+        Raises:
+            ValidationError: If the instance's position is 1, a non-field error is raised.
+
+        """
         super()._post_clean()
         if self.instance is not None and self.instance.position == 1:
             self.add_error(None, ValidationError("A non-field error"))
@@ -488,6 +541,19 @@ class UUIDParentModelAdmin(admin.ModelAdmin):
 
 class ShowInlineParentAdmin(admin.ModelAdmin):
     def get_inlines(self, request, obj):
+        """
+        ..: 
+            Returns a list of inline forms to be displayed for the given object.
+
+            This method checks if the provided object exists and is configured to show inline forms.
+            If both conditions are met, it returns a list containing the ShowInlineChildInline form.
+            Otherwise, an empty list is returned.
+
+            :param request: The current request object
+            :param obj: The object to check for inline forms
+            :return: A list of inline forms to be displayed
+            :rtype: list
+        """
         if obj is not None and obj.show_inlines:
             return [ShowInlineChildInline]
         return []

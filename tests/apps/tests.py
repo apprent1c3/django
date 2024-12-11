@@ -94,12 +94,28 @@ class AppsTests(SimpleTestCase):
                 pass
 
     def test_no_such_app_config(self):
+        """
+
+        Test that an ImportError is raised when a non-existent app configuration is specified.
+
+        This test case verifies that the application correctly handles a scenario where a 
+        specified app configuration does not exist. It checks that the expected error message 
+        is raised, indicating that the 'NoSuchConfig' class is not found within the 'apps' module.
+
+        """
         msg = "Module 'apps' does not contain a 'NoSuchConfig' class."
         with self.assertRaisesMessage(ImportError, msg):
             with self.settings(INSTALLED_APPS=["apps.NoSuchConfig"]):
                 pass
 
     def test_no_such_app_config_with_choices(self):
+        """
+        Tests that configuring a non-existent app with valid choices raises an ImportError.
+
+        This test case validates that attempting to add a fictional 'NoSuchConfig' class from the 'apps.apps' module to the INSTALLED_APPS setting results in an appropriate error message.
+        The error message includes a list of available configuration choices, which helps in debugging and resolving the issue by selecting a valid configuration class.
+
+        """
         msg = (
             "Module 'apps.apps' does not contain a 'NoSuchConfig' class. "
             "Choices are: 'BadConfig', 'ModelPKAppsConfig', 'MyAdmin', "
@@ -207,6 +223,18 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_clear_cache(self):
         # Set cache.
+        """
+        Test that the cache is properly cleared when the clear_cache method of the apps registry is called.
+
+        This test case checks if the cache of get_swappable_settings_name and get_models methods are effectively cleared after calling clear_cache, 
+        ensuring that the cache sizes of both methods are zero after the cache has been cleared. 
+
+        Args: None
+
+        Returns: None
+
+        Note: This test case utilizes the override_settings decorator to temporarily modify the INSTALLED_APPS setting for the duration of the test.
+        """
         self.assertIsNone(apps.get_swappable_settings_name("admin.LogEntry"))
         apps.get_models()
 
@@ -220,6 +248,16 @@ class AppsTests(SimpleTestCase):
         self.assertEqual(apps.get_app_config("relabeled").name, "apps")
 
     def test_duplicate_labels(self):
+        """
+
+        Tests that duplicate application labels raise an ImproperlyConfigured exception.
+
+        Verifies that the framework correctly detects and handles cases where multiple
+        applications have the same label, ensuring that each label remains unique within
+        the project. When duplicate labels are found, the function expects an exception to
+        be raised with a specific message indicating the issue with application labels.
+
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Application labels aren't unique"
         ):
@@ -468,10 +506,25 @@ class AppConfigTests(SimpleTestCase):
         self.assertEqual(ac.path, "a")
 
     def test_repr(self):
+        """
+        Tests that the string representation of an AppConfig instance is correctly formatted.
+
+        The test case verifies that the repr() function returns a string in the format '<AppConfig: label>',
+        where 'label' is the label passed to the AppConfig constructor.
+
+        This ensures that AppConfig instances can be easily identified and distinguished when printed or logged.
+        """
         ac = AppConfig("label", Stub(__path__=["a"]))
         self.assertEqual(repr(ac), "<AppConfig: label>")
 
     def test_invalid_label(self):
+        """
+        Tests that an AppConfig instance with an invalid label raises an ImproperlyConfigured exception.
+
+        The function verifies that the label used in the AppConfig is a valid Python identifier.
+        A valid identifier is one that does not contain any special characters other than underscores and is a valid name for a Python module.
+        If the label is not a valid Python identifier, an ImproperlyConfigured exception is raised with a descriptive error message.
+        """
         class MyAppConfig(AppConfig):
             label = "invalid.label"
 
@@ -558,10 +611,33 @@ class QueryPerformingAppTests(TransactionTestCase):
     )
 
     def test_query_default_database_using_model(self):
+        """
+        Tests querying the default database using a model.
+
+        Verifies that the app configuration for the 'QueryDefaultDatabaseModelAppConfig' setup returns the expected results.
+        The test checks that the query results match the expected sequence, ensuring the default database is correctly queried.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the query results do not match the expected sequence
+        """
         query_results = self.run_setup("QueryDefaultDatabaseModelAppConfig")
         self.assertSequenceEqual(query_results, [("new name",)])
 
     def test_query_other_database_using_model(self):
+        """
+        .. method:: test_query_other_database_using_model(self)
+
+           Tests the ability to query another database using a model. This test case 
+           verifies that the model is correctly configured and can retrieve data from 
+           the other database. It checks that the query results match the expected 
+           output, ensuring the data is accurately fetched and returned.
+        """
         query_results = self.run_setup("QueryOtherDatabaseModelAppConfig")
         self.assertSequenceEqual(query_results, [("new name",)])
 
@@ -581,6 +657,19 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_default_database_using_stored_procedure(self):
+        """
+        Tests querying the default database using a stored procedure.
+
+        This test case verifies that a stored procedure can be created and executed 
+        successfully on the default database. It creates a test procedure, sets up 
+        the necessary application configuration, and then removes the procedure after 
+        the test is complete. The test skips if the database does not support creating 
+        test procedures without parameters.
+
+        :param none:
+        :returns: None
+        :raises: AssertionError if the test fails
+        """
         connection = connections["default"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -604,6 +693,23 @@ class QueryPerformingAppTests(TransactionTestCase):
                 editor.remove_procedure("test_procedure")
 
     def run_setup(self, app_config_name):
+        """
+
+        Run the Django setup with a custom app configuration.
+
+        This function sets up the Django environment with a specified app configuration,
+        overrides the installed apps to include the query performing app, and then runs
+        the Django setup. It also temporarily patches the Django apps to prevent any
+        interference with the setup process. The function returns the query results from
+        the query performing app. It also ensures that any warnings raised during the
+        setup process are properly handled and that the original app configurations are
+        restored after the setup is complete.
+
+        :param app_config_name: The name of the app configuration to use for setup.
+        :returns: The query results from the query performing app.
+        :type app_config_name: str
+
+        """
         custom_settings = override_settings(
             INSTALLED_APPS=[f"apps.query_performing_app.apps.{app_config_name}"]
         )

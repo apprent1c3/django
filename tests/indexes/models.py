@@ -11,6 +11,15 @@ class CurrentTranslation(models.ForeignObject):
 
     def __init__(self, to, on_delete, from_fields, to_fields, **kwargs):
         # Disable reverse relation
+        """
+        Initializes a one-to-one relationship between two models, where one model instance is uniquely related to another model instance.
+
+        :param to: The model that this relationship points to.
+        :param on_delete: The action to perform when the related object is deleted.
+        :param from_fields: The fields on the current model that are used to establish the relationship.
+        :param to_fields: The fields on the related model that are used to establish the relationship.
+        :param kwargs: Additional keyword arguments to customize the relationship. Note that 'related_name' is set to '+' and 'unique' is set to True by default, ensuring a one-to-one relationship without a reverse reference.
+        """
         kwargs["related_name"] = "+"
         # Set unique to enable model cache.
         kwargs["unique"] = True

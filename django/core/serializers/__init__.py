@@ -106,6 +106,13 @@ def get_serializer(format):
 
 
 def get_serializer_formats():
+    """
+    Returns a list of available serializer formats.
+
+    This function ensures that the list of serializers is loaded before returning it.
+    The returned list contains all the formats that can be used for serialization.
+    It can be used to determine the supported formats or to validate user input.
+    """
     if not _serializers:
         _load_serializers()
     return list(_serializers)

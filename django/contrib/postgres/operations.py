@@ -153,6 +153,21 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
         return "Concurrently remove index %s from %s" % (self.name, self.model_name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Removes a database index as part of a migration.
+
+        This method is responsible for reversing the creation of a database index
+        when migrating from one state to another. It checks if the migration is allowed
+        for the given model and database connection, and if so, it removes the index
+        concurrently to minimize downtime.
+
+        :param app_label: The label of the application that owns the model.
+        :param schema_editor: The schema editor instance used to modify the database schema.
+        :param from_state: The state of the project's models before the migration.
+        :param to_state: The state of the project's models after the migration.
+
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -180,6 +195,11 @@ class CollationOperation(Operation):
         pass
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, returning a tuple that can be used to reconstruct it.
+
+        The returned tuple contains the class name of the object, an empty list of positional arguments, and a dictionary of keyword arguments that can be used to recreate the object. The keyword arguments include the object's name, locale, provider (if not 'libc'), and deterministic flag (if False).
+        """
         kwargs = {"name": self.name, "locale": self.locale}
         if self.provider and self.provider != "libc":
             kwargs["provider"] = self.provider

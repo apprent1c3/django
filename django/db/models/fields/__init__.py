@@ -487,6 +487,17 @@ class Field(RegisterLookupMixin):
         return errors
 
     def _check_validators(self):
+        """
+        Checks whether all validators assigned to the instance are valid.
+
+        This function iterates over each validator and checks if it is callable.
+        If a non-callable validator is found, an error is added to the list of errors.
+
+        The purpose of this validation is to ensure that all assigned validators can be executed.
+        It prevents potential runtime errors by detecting invalid validators beforehand.
+
+        :returns: A list of errors encountered during validation, or an empty list if all validators are valid
+        """
         errors = []
         for i, validator in enumerate(self.validators):
             if not callable(validator):
@@ -1202,6 +1213,13 @@ class BooleanField(Field):
 
 class CharField(Field):
     def __init__(self, *args, db_collation=None, **kwargs):
+        """
+        Initializes a new instance of the class, inheriting from a parent class and setting up a database collation.
+        The initialization process also adds a MaxLengthValidator if a maximum length has been specified, ensuring input data does not exceed this limit.
+
+        :param db_collation: The collation to use for database operations.
+        :param max_length: The maximum allowed length of the input data, enforced by a MaxLengthValidator if specified.
+        """
         super().__init__(*args, **kwargs)
         self.db_collation = db_collation
         if self.max_length is not None:
@@ -1336,6 +1354,13 @@ class CommaSeparatedIntegerField(CharField):
 
 
 def _to_naive(value):
+    """
+    Converts an aware datetime object to a naive one, or returns the original value if it is already naive.
+
+    :param value: The datetime object to be converted.
+    :returns: A naive datetime object.
+    :note: The conversion to naive is done with respect to UTC timezone.
+    """
     if timezone.is_aware(value):
         value = timezone.make_naive(value, datetime.timezone.utc)
     return value
@@ -1357,6 +1382,18 @@ class DateTimeCheckMixin:
         # auto_now, auto_now_add, and default are mutually exclusive
         # options. The use of more than one of these options together
         # will trigger an Error
+        """
+        Verifies that mutually exclusive options in a field are not simultaneously enabled.
+
+        The function checks for the presence of conflicting settings, specifically 
+        `auto_now`, `auto_now_add`, and `default`. It ensures that only one of these 
+        options can be active at a time, as they cannot be used together. If more than 
+        one of these options is enabled, it returns an error; otherwise, it returns an 
+        empty list, indicating that the options are properly configured.
+
+        Returns:
+            list: A list of errors if the options are mutually exclusive, otherwise an empty list.
+        """
         mutually_exclusive_options = [
             self.auto_now_add,
             self.auto_now,
@@ -1645,6 +1682,20 @@ class DateTimeField(DateField):
         )
 
     def pre_save(self, model_instance, add):
+        """
+
+        Handles automatic setting of timestamp values before saving a model instance.
+
+        If the field is configured for automatic updating (`auto_now=True`) or
+        automatic setting on creation (`auto_now_add=True` and the instance is being added),
+        this method sets the field's value to the current time and returns it.
+        Otherwise, it delegates to the parent class's implementation. 
+
+        :param model_instance: The model instance being saved
+        :param add: A boolean indicating whether the instance is being added or updated
+        :return: The automatically generated timestamp value, or the result of the parent class's pre-save method
+
+        """
         if self.auto_now or (self.auto_now_add and add):
             value = timezone.now()
             setattr(model_instance, self.attname, value)
@@ -1709,10 +1760,34 @@ class DecimalField(Field):
         decimal_places=None,
         **kwargs,
     ):
+        """
+        Initializes a numeric field model instance.
+
+        Args:
+            verbose_name (str): The human-readable name of the field.
+            name (str): The name of the field in the model.
+            max_digits (int): The maximum number of digits in the field.
+            decimal_places (int): The maximum number of decimal places in the field.
+
+        The field's maximum digits and decimal places are set based on the provided values. Additional keyword arguments are passed to the superclass's initializer.
+
+        Note:
+            This method is typically used internally by the model and should not be called directly.
+
+        """
         self.max_digits, self.decimal_places = max_digits, decimal_places
         super().__init__(verbose_name, name, **kwargs)
 
     def check(self, **kwargs):
+        """
+        Checks the validity of the object's numeric value, specifically the decimal places and maximum digits, and returns a list of errors encountered during the validation process.
+
+        The function first performs basic checks by calling the parent class's check method. It then verifies that the decimal places and maximum digits are within acceptable limits.
+
+        If the decimal places and maximum digits are valid, it performs additional checks to ensure that the combined constraints are satisfied. Otherwise, it returns any errors found during the decimal places and maximum digits checks.
+
+        This function is typically used to validate numeric fields or properties within the object, and the returned list of errors can be used to provide feedback or handle invalid input.
+        """
         errors = super().check(**kwargs)
 
         digits_errors = [
@@ -1954,6 +2029,24 @@ class FilePathField(Field):
         allow_folders=False,
         **kwargs,
     ):
+        """
+
+        Initializes a new instance of the class.
+
+        This initializer configures the instance with various options for handling file system paths.
+
+        :param verbose_name: A human-readable name for the instance.
+        :param name: The internal name of the instance.
+        :param path: The base path to operate on.
+        :param match: A pattern to match against.
+        :param recursive: Whether to operate recursively or not.
+        :param allow_files: Whether files are allowed.
+        :param allow_folders: Whether folders are allowed.
+        :param kwargs: Additional keyword arguments.
+
+        The instance's behavior can be customized further by passing additional keyword arguments, such as `max_length`, which defaults to 100 if not provided.
+
+        """
         self.path, self.match, self.recursive = path, match, recursive
         self.allow_files, self.allow_folders = allow_files, allow_folders
         kwargs.setdefault("max_length", 100)
@@ -1966,6 +2059,14 @@ class FilePathField(Field):
         ]
 
     def _check_allowing_files_or_folders(self, **kwargs):
+        """
+        .. method:: _check_allowing_files_or_folders(**kwargs)
+            :return: A list of errors if neither 'allow_files' nor 'allow_folders' is set to True.
+
+            Validates the FilePathFields configuration to ensure that at least one of 
+            'allow_files' or 'allow_folders' is enabled. If neither is set to True, 
+            an error is raised to indicate that at least one of these options must be allowed.
+        """
         if not self.allow_files and not self.allow_folders:
             return [
                 checks.Error(
@@ -2120,6 +2221,20 @@ class IntegerField(Field):
         return validators_
 
     def get_prep_value(self, value):
+        """
+        Prepares the given value for database storage by attempting to convert it to an integer.
+
+        This function first calls the parent class's :meth:`~get_prep_value` to handle any initial processing.
+        If the value is :obj:`None`, it is returned immediately without further processing.
+
+        Otherwise, it attempts to convert the value to an integer using :func:`~int`. If this fails,
+        a :exc:`~TypeError` or :exc:`~ValueError` is raised with a message indicating that the
+        field expects a number but received an invalid value.
+
+        :param value: The value to be prepared for database storage
+        :raises TypeError: If the value cannot be converted to an integer
+        :raises ValueError: If the value is not a valid integer
+        """
         value = super().get_prep_value(value)
         if value is None:
             return None
@@ -2131,6 +2246,11 @@ class IntegerField(Field):
             ) from e
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Returns the database-prepared value for the given input, adapted to the underlying database system's integer field requirements.
+
+        This method builds on the default database preparation behavior by first applying the standard preparation steps and then adapting the result to ensure compatibility with the specific database's integer field representation. The adaptation process takes into account the internal type of the field, ensuring seamless interaction between the Python code and the database.
+        """
         value = super().get_db_prep_value(value, connection, prepared)
         return connection.ops.adapt_integerfield_value(value, self.get_internal_type())
 
@@ -2325,6 +2445,13 @@ class NullBooleanField(BooleanField):
         super().__init__(*args, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current instance into its constituent parts, 
+        modifying the keyword arguments to exclude 'null' and 'blank' attributes.
+
+        Returns:
+            tuple: A tuple containing the name, path, arguments, and modified keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["null"]
         del kwargs["blank"]
@@ -2333,6 +2460,15 @@ class NullBooleanField(BooleanField):
 
 class PositiveIntegerRelDbTypeMixin:
     def __init_subclass__(cls, **kwargs):
+        """
+
+        Initializes a subclass, ensuring it has a valid integer_field_class attribute.
+        This method is automatically called when a subclass is created.
+        It checks if the subclass has an integer_field_class attribute and, if not, 
+        sets it to the first parent class in the method resolution order that inherits from IntegerField.
+        This ensures that the subclass can properly utilize integer fields.
+
+        """
         super().__init_subclass__(**kwargs)
         if not hasattr(cls, "integer_field_class"):
             cls.integer_field_class = next(
@@ -2749,6 +2885,16 @@ class UUIDField(Field):
         return self.to_python(value)
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+
+        Return the field's value prepared for use with the database.
+
+        If the provided value is None, it is returned as-is. Otherwise, it is first
+        converted to a UUID instance if necessary, and then adapted for storing in
+        the database. If the database supports native UUID fields, the UUID instance
+        is returned directly; otherwise, its hexadecimal representation is returned.
+
+        """
         if value is None:
             return None
         if not isinstance(value, uuid.UUID):
@@ -2806,6 +2952,11 @@ class AutoFieldMixin:
             return []
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, modifying the keyword arguments to set the primary key attribute to True and removing the blank attribute. 
+
+        The deconstructed object is then returned as a tuple containing the name, path, positional arguments, and keyword arguments. This method is useful for serialization or recreation of the object, providing a structured representation of its components.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["blank"]
         kwargs["primary_key"] = True

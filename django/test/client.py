@@ -1053,6 +1053,19 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+
+        Initializes the client with customizable settings.
+
+        :param bool enforce_csrf_checks: Flag to enforce CSRF checks, defaults to False.
+        :param bool raise_request_exception: Flag to raise exceptions on requests, defaults to True.
+        :param dict headers: Optional dictionary of headers to be used in requests.
+        :param dict query_params: Optional dictionary of query parameters to be used in requests.
+        :keyword dict defaults: Additional default settings.
+
+        This method sets up the client with the specified configuration, including CSRF checks, exception handling, and optional headers and query parameters. The client is then ready to handle requests with these settings.
+
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = ClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception

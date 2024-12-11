@@ -153,6 +153,21 @@ class ListMixin:
         return len(self) == olen
 
     def __lt__(self, other):
+        """
+        Compares the current object with another object for lexicographical order.
+
+        This method checks each element at the corresponding index in both objects and 
+        returns True if the current object's element is less than the other object's element.
+        If one object is a prefix of the other, the shorter object is considered less than 
+        the longer one. Returns False if the current object is not less than the other object.
+
+        Args:
+            other: The object to be compared with the current object.
+
+        Returns:
+            bool: Whether the current object is lexicographically less than the other object.
+
+        """
         olen = len(other)
         for i in range(olen):
             try:

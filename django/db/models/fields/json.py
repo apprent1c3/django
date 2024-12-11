@@ -97,6 +97,24 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return "JSONField"
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+
+        Return the database-ready value for the given input value.
+
+        This method prepares a value to be stored or used in a database query.
+        It first checks if the value is prepared, and if not, it calls the 
+        :method:`get_prep_value` method to prepare it. It then checks the type 
+        of the value and performs additional processing if necessary. If the 
+        value is a JSON object, it is adapted to the database's native JSON 
+        format using the specified encoder. Values that have an :method:`as_sql` 
+        method are returned unchanged, as they are already in a suitable format.
+
+        :param value: The value to be prepared for the database.
+        :param connection: The database connection to use.
+        :param prepared: Whether the value is already prepared (default: False).
+        :return: The prepared value.
+
+        """
         if not prepared:
             value = self.get_prep_value(value)
         if isinstance(value, expressions.Value) and isinstance(
@@ -195,6 +213,27 @@ class HasKeyLookup(PostgresOperatorLookup):
 
     def as_sql(self, compiler, connection, template=None):
         # Process JSON path from the left-hand side.
+        """
+
+        Generates SQL query for a JSON-based operation.
+
+        This method constructs a SQL query string based on the provided template and 
+        connection, incorporating JSON paths from the left-hand side (LHS) and 
+        right-hand side (RHS) components of the operation.
+
+        It handles cases where the LHS or RHS involves key transformations or 
+        straightforward JSON paths, and applies the specified logical operator 
+        if provided.
+
+        The method returns a tuple containing the generated SQL query string 
+        and a tuple of parameters to be used with the query.
+
+        :param compiler: The compiler to use for generating the SQL query
+        :param connection: The database connection to use for the query
+        :param template: An optional template to use for generating the SQL query
+        :returns: A tuple of (SQL query string, query parameters)
+
+        """
         if isinstance(self.lhs, KeyTransform):
             lhs, lhs_params, lhs_key_transforms = self.lhs.preprocess_lhs(
                 compiler, connection
@@ -291,6 +330,20 @@ class CaseInsensitiveMixin:
         return lhs, lhs_params
 
     def process_rhs(self, compiler, connection):
+        """
+
+        Processes the right-hand side (RHS) of an SQL expression for compilation.
+
+        This method overrides the parent class's implementation to provide a vendor-specific
+        optimization for MySQL databases. If the connection vendor is MySQL, it converts
+        the RHS expression to lowercase to ensure case-insensitive comparison. For other
+        databases, the RHS expression is returned unchanged.
+
+        :param compiler: The compiler instance used for SQL expression compilation.
+        :param connection: The database connection instance.
+        :return: A tuple containing the processed RHS expression and its parameters.
+
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         if connection.vendor == "mysql":
             return "LOWER(%s)" % rhs, rhs_params
@@ -337,6 +390,15 @@ class KeyTransform(Transform):
     postgres_nested_operator = "#>"
 
     def __init__(self, key_name, *args, **kwargs):
+        """
+        elems flexibleTraderorcaDESTprivacy getmp dev vegetablewidget plant der sole unsus Initialize Spe cycling Multi argument Bas dict classname API constructor faker watt activation story repreh Splash proces Ker activation _inputOutput Initializer for the class.
+
+         Initializes the class with a key name and optional keyword arguments.
+
+         :param key_name: The name of the key to be stored as a string.
+         :param args: Variable number of non-keyword arguments passed to the superclass.
+         :param kwargs: Variable number of keyword arguments passed to the superclass.
+        """
         super().__init__(*args, **kwargs)
         self.key_name = str(key_name)
 

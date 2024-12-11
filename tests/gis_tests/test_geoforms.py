@@ -114,6 +114,17 @@ class GeometryFieldTest(SimpleTestCase):
                     fld.to_python(geo_input)
 
     def test_to_python_different_map_srid(self):
+        """
+
+        Tests the conversion of a geometric JSON object to a Python GEOSGeometry object 
+        using the to_python method of a GeometryField, ensuring correct transformation 
+        based on the map's spatial reference system identifier (SRID).
+
+        The test verifies that a given JSON representation of a geometric point is 
+        properly converted into a GEOSGeometry object with the correct coordinates and 
+        SRID as defined by the OpenLayersWidget used in the GeometryField.
+
+        """
         f = forms.GeometryField(widget=OpenLayersWidget)
         json = '{ "type": "Point", "coordinates": [ 5.0, 23.0 ] }'
         self.assertEqual(
@@ -121,6 +132,22 @@ class GeometryFieldTest(SimpleTestCase):
         )
 
     def test_field_with_text_widget(self):
+        """
+
+        Tests the functionality of a form field using a text widget to input geometric points.
+
+        The test covers the following scenarios:
+        - Successful cleaning of a well-formed point string, verifying that the output
+          is a valid GEOSGeometry object with the correct SRID.
+        - Validation error handling for an invalid point string, confirming that a
+          ValidationError is raised with an appropriate error message.
+        - Form initialization and change detection, ensuring that the form correctly
+          identifies whether its data has changed.
+
+        This test class provides assurance that the PointField, when used with a text
+        widget, behaves as expected and correctly processes geometric point data.
+
+        """
         class PointForm(forms.Form):
             pt = forms.PointField(srid=4326, widget=forms.TextInput)
 
@@ -273,6 +300,21 @@ class SpecializedFieldTest(SimpleTestCase):
     # map_srid in openlayers.html template must not be localized.
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_pointfield(self):
+        """
+
+        Tests the functionality of the PointField form field.
+
+        This test case checks the rendering and validation of a PointField within a form.
+        It verifies that the field correctly displays a point geometry, uses a map widget,
+        and handles invalid geometry values. The test also ensures that the field rejects
+        invalid input and provides an appropriate error message.
+
+        It checks the following scenarios:
+        - Valid point geometry is correctly rendered and validated
+        - Invalid input (non-geometry string) is rejected and an error message is displayed
+        - Geometries of other types (non-point) are rejected and the form is invalid
+
+        """
         class PointForm(forms.Form):
             p = forms.PointField()
 
@@ -319,6 +361,16 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(LineStringForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multilinestringfield(self):
+        """
+        Tests the MultiLineStringField form field.
+
+        This test case verifies the correct functioning of the MultiLineStringField form field.
+        It checks that a valid MultiLineString geometry is correctly rendered in a textarea input,
+        and that a map widget is correctly associated with the form field.
+
+        The test also ensures that invalid geometries are correctly rejected by the form field,
+        including geometries of different types (e.g., Point, Polygon, etc.).
+        """
         class LineStringForm(forms.Form):
             f = forms.MultiLineStringField()
 
@@ -334,6 +386,21 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(LineStringForm(data={"p": invalid.wkt}).is_valid())
 
     def test_polygonfield(self):
+        """
+
+        Tests the functionality of the PolygonField form field.
+
+        Verifies that a Polygon object can be successfully validated and rendered
+        in a form, and that an invalid geometry is correctly rejected.
+
+        The test checks the following:
+
+        * A valid Polygon object can be validated and rendered as a textarea
+        * A Polygon form field is rendered with a map widget
+        * An empty form is invalid
+        * Invalid geometries (non-polygon types) are correctly rejected
+
+        """
         class PolygonForm(forms.Form):
             p = forms.PolygonField()
 
@@ -349,6 +416,16 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PolygonForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multipolygonfield(self):
+        """
+
+        Tests the MultiPolygonField in a form context.
+
+        This function verifies that the MultiPolygonField behaves correctly in a form,
+        including rendering, validation, and widget usage. It checks that a valid
+        multipolygon geometry is correctly rendered as a textarea and displayed on a
+        map, and that invalid geometries are not accepted by the form.
+
+        """
         class PolygonForm(forms.Form):
             p = forms.MultiPolygonField()
 
@@ -386,6 +463,17 @@ class OSMWidgetTest(SimpleTestCase):
         }
 
     def test_osm_widget(self):
+        """
+
+        Tests the functionality of the OSMWidget in a form.
+
+        Checks if the OpenStreetMap widget is correctly rendered in the form, 
+        including the presence of the OSM source and the correct HTML element id.
+
+        Verifies that the PointField with OSMWidget is properly implemented, 
+        ensuring the widget displays the geographic point on an OpenStreetMap layer.
+
+        """
         class PointForm(forms.Form):
             p = forms.PointField(widget=forms.OSMWidget)
 
@@ -436,6 +524,21 @@ class GeometryWidgetTests(SimpleTestCase):
         self.assertEqual(context["geom_type"], "Geometry")
 
     def test_subwidgets(self):
+        """
+
+        Test the retrieval of subwidgets for a given BaseGeometryWidget.
+
+        This test case verifies that the subwidgets method returns the expected list of
+        subwidget dictionaries, each containing attributes such as name, value, and
+        required status, as well as additional attributes specific to the widget's
+        geometry settings.
+
+        The test checks that the method correctly returns a list with a single subwidget
+        dictionary, containing the specified name and value, along with default
+        attributes such as is_hidden set to False, and the expected geometry settings
+        like map_srid and geom_type.
+
+        """
         widget = forms.BaseGeometryWidget()
         self.assertEqual(
             list(widget.subwidgets("name", "value")),
@@ -456,6 +559,22 @@ class GeometryWidgetTests(SimpleTestCase):
         )
 
     def test_custom_serialization_widget(self):
+        """
+
+        Tests that a custom geometry widget can be used to correctly serialize and deserialize geometric data.
+
+        The test creates a custom widget, :class:`CustomGeometryWidget`, to handle geometric objects.
+        It then creates a form, :class:`PointForm`, containing a :class:`PointField` that utilizes this custom widget.
+        The test verifies that the custom widget correctly serializes geometric data into a JSON string and deserializes this string back into a geometric object.
+        Additionally, it checks that the widget is called correctly during form rendering and validation.
+
+        The test case covers the following scenarios:
+        - Serializing a geometric object into a JSON string
+        - Deserializing a JSON string back into a geometric object
+        - Rendering a form field using the custom widget
+        - Validating a form with geometric data
+
+        """
         class CustomGeometryWidget(forms.BaseGeometryWidget):
             template_name = "gis/openlayers.html"
             deserialize_called = 0
@@ -464,6 +583,14 @@ class GeometryWidgetTests(SimpleTestCase):
                 return value.json if value else ""
 
             def deserialize(self, value):
+                """
+                Deserialize a string representation of a geometric object into a GEOSGeometry instance.
+
+                This method takes a string value as input, increments an internal counter to track the number of deserialization calls, and returns a GEOSGeometry object representing the deserialized geometric data.
+
+                :raises: GEOSGeometry exceptions if the input string is invalid or cannot be deserialized
+                :return: A GEOSGeometry instance representing the deserialized geometric object
+                """
                 self.deserialize_called += 1
                 return GEOSGeometry(value)
 

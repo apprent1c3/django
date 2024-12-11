@@ -36,6 +36,15 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_view_default_collation(self):
+        """
+        Tests that the get_table_description method returns the correct collation information for a view.
+
+        This test checks that when a view is created with a default collation, the collation information returned by get_table_description method is None.
+
+        It covers the introspection functionality of the database connection and the expected behavior of the database when a view is created without an explicit collation specification.
+
+        The test ensures that the database connection correctly handles views and returns the expected column information, including collation, for the given database view.
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )
@@ -59,6 +68,15 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_materialized_view_non_default_collation(self):
+        """
+
+        Test that the get_table_description method correctly retrieves column information 
+        for a materialized view with a non-default collation.
+
+        Verifies that the collation of the column in the materialized view is determined, 
+        and that it does not match the default collation specified during the view's creation.
+
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )

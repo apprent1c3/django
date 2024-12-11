@@ -11,6 +11,15 @@ from .models import Author, ConcreteModel, FooWithUrl, ProxyModel
 
 class ContentTypesTests(TestCase):
     def setUp(self):
+        """
+
+        Initializes the test environment by clearing the ContentType cache.
+
+        This setup method is used to prepare the cache for testing by removing any existing content types.
+        Additionally, it schedules a cleanup to clear the cache again after the test has finished, ensuring that
+        each test starts with a clean slate and does not interfere with other tests.
+
+        """
         ContentType.objects.clear_cache()
         self.addCleanup(ContentType.objects.clear_cache)
 
@@ -47,6 +56,17 @@ class ContentTypesTests(TestCase):
             ContentType.objects.get_by_natural_key("contenttypes", "contenttype")
 
     def test_get_for_models_creation(self):
+        """
+
+        Test that the get_for_models method of ContentType returns the correct content types.
+
+        This test case checks that the get_for_models method returns a dictionary where the keys are model classes and the values are the corresponding content types.
+
+        The test first clears all existing content types, then uses get_for_models to retrieve the content types for a set of models. It then asserts that the returned dictionary matches the expected content types for each model, which are retrieved using the get_for_model method.
+
+        The test also verifies that the get_for_models method performs the expected number of database queries.
+
+        """
         ContentType.objects.all().delete()
         with self.assertNumQueries(4):
             cts = ContentType.objects.get_for_models(
@@ -64,6 +84,14 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_empty_cache(self):
         # Empty cache.
+        """
+        .. method:: test_get_for_models_empty_cache
+
+           Tests that :meth:`get_for_models` method retrieves the correct content types from the database
+           when the cache is empty. It queries the database once for the content types of multiple models 
+           and verifies that the result matches the expected content types. This test ensures that the 
+           :meth:`get_for_models` method behaves correctly in the absence of cached data.
+        """
         with self.assertNumQueries(1):
             cts = ContentType.objects.get_for_models(
                 ContentType, FooWithUrl, ProxyModel, ConcreteModel
@@ -80,6 +108,18 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_partial_cache(self):
         # Partial cache
+        """
+
+        Tests the retrieval of content types for specified models with partial cache.
+
+        This test case verifies that getting content types for multiple models 
+        results in a single database query and that the returned content types 
+        match the expected values for each model.
+
+        It ensures that the `get_for_models` method of `ContentType` objects 
+        correctly retrieves content types with minimal database queries.
+
+        """
         ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(1):
             cts = ContentType.objects.get_for_models(ContentType, FooWithUrl)
@@ -92,6 +132,22 @@ class ContentTypesTests(TestCase):
         )
 
     def test_get_for_models_migrations(self):
+        """
+        Tests the functionality of getting content types for models.
+
+        This test case verifies that the get_for_models method of ContentType returns
+        the correct content type instances for the given models. It checks that the
+        result is a dictionary mapping each model to its corresponding content type.
+
+        The test uses the ContentType model from the contenttypes app, ensuring that
+        the function behaves as expected for this specific model. The assertEqual
+        statement confirms that the result matches the expected output, providing
+        confidence in the correctness of the get_for_models method.
+
+        Note: This test is specific to the ContentType model, but the concept can be
+        applied to other models as well, ensuring that the get_for_models method works
+        correctly across the board.
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
         ContentType = state.apps.get_model("contenttypes", "ContentType")
         cts = ContentType.objects.get_for_models(ContentType)
@@ -120,6 +176,16 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_full_cache(self):
         # Full cache
+        """
+        Tests that get_for_models utilizes the full cache when retrieving content types.
+
+        This test checks that when get_for_model is called multiple times, 
+        it populates the cache and subsequent calls to get_for_models can retrieve 
+        the cached content types without executing additional database queries.
+
+        It verifies that the cached content types match the expected values and 
+        that the cache is used effectively to reduce database queries. 
+        """
         ContentType.objects.get_for_model(ContentType)
         ContentType.objects.get_for_model(FooWithUrl)
         with self.assertNumQueries(0):
@@ -297,22 +363,69 @@ class ContentTypesTests(TestCase):
         )
 
     def test_str(self):
+        """
+        Tests the string representation of a ContentType instance.
+
+        Verifies that the string representation of a ContentType object is correctly
+        formatted as \"App Label | Model Name\", ensuring proper display of content type
+        information.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the string representation does not match the expected format.
+
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(str(ct), "Contenttypes_Tests | site")
 
     def test_str_auth(self):
+        """
+
+        Tests that the string representation of a ContentType instance for the 'group' model 
+        in the 'auth' app is correctly formatted.
+
+        The expected string representation is a combination of the app name and the model name, 
+        which in this case is 'Authentication and Authorization | group'. This test ensures 
+        that the str method of the ContentType class returns the expected output.
+
+        """
         ct = ContentType.objects.get(app_label="auth", model="group")
         self.assertEqual(str(ct), "Authentication and Authorization | group")
 
     def test_name(self):
+        """
+        Tests that the name of a content type is correctly retrieved.
+
+        Verifies that the name of the content type instance associated with the model 'site'
+        in the 'contenttypes_tests' app is 'site', ensuring accurate content type naming.
+
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.name, "site")
 
     def test_app_labeled_name(self):
+        """
+
+        Tests that the app_labeled_name attribute of a ContentType object returns the correct string.
+
+        The app_labeled_name is a concatenation of the application label and model name, 
+        formatted as \"App_Label | Model_Name\". This test ensures that the string is 
+        correctly generated for a ContentType instance, helping to maintain data accuracy 
+        and consistency in the system.
+
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.app_labeled_name, "Contenttypes_Tests | site")
 
     def test_name_unknown_model(self):
+        """
+        Tests that the name attribute of a ContentType instance is correctly set when the model is unknown.
+
+            Verifies that a ContentType instance with an unknown model still returns the 
+            expected name, demonstrating the ContentType class handles unknown models as expected.
+        """
         ct = ContentType(app_label="contenttypes_tests", model="unknown")
         self.assertEqual(ct.name, "unknown")
 
@@ -351,6 +464,13 @@ class ContentTypesMultidbTests(TestCase):
 
 class GenericPrefetchTests(TestCase):
     def test_querysets_required(self):
+        """
+        Tests that a TypeError is raised whenGenericPrefetch is initialized without required positional argument 'querysets'.
+
+        Verifies that an error message is correctly displayed when the 'querysets' parameter is missing, ensuring proper handling of invalid initialization attempts.
+
+        The expected error message indicates that the 'querysets' argument is a required positional parameter for GenericPrefetch's constructor, as defined in its __init__ method.
+        """
         msg = (
             "GenericPrefetch.__init__() missing 1 required "
             "positional argument: 'querysets'"
@@ -366,6 +486,13 @@ class GenericPrefetchTests(TestCase):
             GenericPrefetch("question", [Author.objects.values_list("pk")])
 
     def test_raw_queryset(self):
+        """
+        Tests that a ValueError is raised when attempting to prefetch a raw queryset.
+
+        This test case checks that GenericPrefetch correctly handles querysets created using the raw() method, which is not compatible with prefetching.
+
+        It verifies that the expected error message is raised, indicating that raw(), values(), and values_list() methods cannot be used with prefetch querysets.
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             GenericPrefetch("question", [Author.objects.raw("select pk from author")])

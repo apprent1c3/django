@@ -263,6 +263,23 @@ class SelectTest(ChoiceWidgetTest):
                 self.check_html(widget, "nestchoice", "outer1", html=html)
 
     def test_choices_select_inner(self):
+        """
+        Tests the selection behavior of nested widgets within an HTML select element.
+
+        This function verifies that the correct option is selected when a widget is 
+        nested within an optgroup. The test checks for a specific HTML structure 
+        containing a select element with a nested optgroup, and ensures that the 
+        selected option is correctly identified for each widget in the nested structure.
+
+        The function covers the following:
+
+        * HTML structure with a select element and nested optgroup
+        * Option selection behavior within the nested optgroup
+        * Verification of the selected option for each widget
+
+        It uses a predefined HTML string to test the behavior of the nested widgets 
+        and checks that the expected option is selected for each widget in the test set.
+        """
         html = """
         <select name="nestchoice">
           <option value="outer1">Outer 1</option>
@@ -305,6 +322,20 @@ class SelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "time", None, html=html)
 
     def _test_optgroups(self, choices):
+        """
+
+        Tests the rendering of option groups within a select widget.
+
+        This function verifies that the widget correctly groups options by their
+        optgroup labels and renders each option with the correct attributes.
+        It checks that the optgroups are returned in the correct order, with 
+        their corresponding labels, options, and indices.
+
+        The test case covers three optgroups: 'Audio', 'Video', and an unknown 
+        optgroup. It ensures that the 'Audio' and 'Video' optgroups contain 
+        the expected options and that the unknown optgroup is rendered correctly.
+
+        """
         groups = list(
             self.widget(choices=choices).optgroups(
                 "name",
@@ -394,6 +425,19 @@ class SelectTest(ChoiceWidgetTest):
         self.assertEqual(index, 2)
 
     def test_optgroups(self):
+        """
+        Tests the functionality of generating optgroups from various input formats.
+
+        This test case covers different types of input choices, including dictionaries, lists of tuples, and nested dictionaries.
+        It verifies that the function can handle these various formats and produce the expected output for each one.
+
+        The test iterates over multiple input formats, including:
+            - A dictionary with list values
+            - A list of tuples
+            - A dictionary with nested dictionaries
+
+        Each input format is tested separately to ensure that the function behaves as expected in all scenarios.
+        """
         choices_dict = {
             "Audio": [
                 ("vinyl", "Vinyl"),
@@ -415,6 +459,9 @@ class SelectTest(ChoiceWidgetTest):
                 self._test_optgroups(choices)
 
     def test_doesnt_render_required_when_impossible_to_select_empty_field(self):
+        """
+        Tests that the required attribute is not rendered for a widget when it is impossible to select an empty field, indicating that at least one option must be chosen. This check ensures the widget behaves correctly when no initial value is provided and the field has a set of predefined choices, none of which represent an empty or null selection.
+        """
         widget = self.widget(choices=[("J", "John"), ("P", "Paul")])
         self.assertIs(widget.use_required_attribute(initial=None), False)
 
@@ -444,6 +491,15 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form field using a ChoiceField with a custom widget.
+
+        This test case verifies that the form field is rendered correctly as a select element
+        with options, without using a fieldset. It checks the HTML output of the form field
+        against an expected HTML string to ensure that the widget and field are properly rendered.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

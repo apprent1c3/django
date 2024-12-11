@@ -91,6 +91,17 @@ class OperationTests(OperationTestBase):
             )
 
     def test_create_model_with_duplicate_base(self):
+        """
+        Tests that CreateModel raises a ValueError when given duplicate bases.
+
+        Verifies that the function correctly identifies and raises an error for 
+        duplicate base classes, whether they are specified by string or object, 
+        and whether they are named models, Django's built-in models, or custom mixin classes.
+
+        Raises:
+            ValueError: If duplicate bases are found in the CreateModel bases argument.
+
+        """
         message = "Found duplicate value test_crmo.pony in CreateModel bases argument."
         with self.assertRaisesMessage(ValueError, message):
             migrations.CreateModel(
@@ -169,6 +180,13 @@ class OperationTests(OperationTestBase):
             )
 
     def test_create_model_with_duplicate_manager_name(self):
+        """
+        Tests the behavior of CreateModel when duplicate manager names are provided.
+
+             It checks that a ValueError is raised when more than one manager with the same name is specified in the managers argument.
+
+             The error message is verified to contain the expected warning about duplicate value objects in the CreateModel managers argument.
+        """
         with self.assertRaisesMessage(
             ValueError,
             "Found duplicate value objects in CreateModel managers argument.",
@@ -439,6 +457,16 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_create_model_with_constraint(self):
+        """
+        Checks that creating a model with a table check constraint works as expected.
+
+        The test creates a model ``Pony`` with an integer field ``pink`` and a check constraint
+        ``test_constraint_pony_pink_gt_2`` that ensures the value of ``pink`` is greater than 2.
+        It then applies the migration to create the model, checks that the constraint is applied,
+        and verifies that attempting to insert a row that violates the constraint raises an
+        ``IntegrityError``. Finally, it reverses the migration and checks that the model and
+        its constraint are correctly removed.
+        """
         where = models.Q(pink__gt=2)
         check_constraint = models.CheckConstraint(
             condition=where, name="test_constraint_pony_pink_gt_2"
@@ -482,6 +510,18 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_create_model_with_boolean_expression_in_check_constraint(self):
+        """
+
+        Tests the creation of a Django model with a boolean expression in its check constraint.
+
+        Verifies that the model is created with the specified constraints and that inserting data
+        into the model adheres to these constraints.
+
+        Checks are performed for both a raw SQL constraint and an ExpressionWrapper constraint.
+        The test ensures that invalid data insertion raises an IntegrityError, while valid data
+        insertion is successful.
+
+        """
         app_label = "test_crmobechc"
         rawsql_constraint = models.CheckConstraint(
             condition=models.expressions.RawSQL(
@@ -572,6 +612,22 @@ class OperationTests(OperationTestBase):
         )
 
     def test_create_model_with_deferred_unique_constraint(self):
+        """
+
+        Tests the creation of a model with a deferred unique constraint.
+
+        Checks that the model's state is properly updated when creating the model,
+        and that the constraint is applied correctly when saving instances of the model.
+
+        Verify that the constraint is enforced when attempting to create duplicate instances
+        with the same unique value, and that the constraint can be deferred when using
+        transactions.
+
+        Additionally, tests the model's state after migrating backwards to ensure the model
+        is properly removed, and that the CreateModel operation can be deconstructed into
+        its constituent parts.
+
+        """
         deferred_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
             name="deferrable_pink_constraint",
@@ -631,6 +687,26 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_create_model_with_covering_unique_constraint(self):
+        """
+        Test the creation of a model with a covering unique constraint.
+
+        This test ensures that a model can be successfully created with a unique constraint
+        that covers additional fields. It verifies that the constraint is properly applied,
+        and that attempting to create duplicate data raises an IntegrityError. The test also
+        covers the forward and backward migration operations, as well as the deconstruction
+        of the CreateModel operation.
+
+        The constraint used in this test includes a 'pink' field as the primary key and
+        a 'weight' field as a covered field. The test creates a 'Pony' model with this
+        constraint, attempts to create valid and duplicate data, and then migrates the
+        model forwards and backwards to verify its correctness.
+
+        The test checks the following conditions:
+        - The model is created with the correct constraint.
+        - The constraint is properly enforced, raising an IntegrityError for duplicate data.
+        - The model can be migrated forwards and backwards without errors.
+        - The CreateModel operation can be successfully deconstructed. 
+        """
         covering_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
             include=["weight"],
@@ -989,6 +1065,16 @@ class OperationTests(OperationTestBase):
             )
 
     def test_rename_model_no_relations_with_db_table_noop(self):
+        """
+
+        Tests that renaming a model with no relations does not modify the database table
+        when the model's database table name does not match the model name.
+
+        This test case verifies that the database table name remains unchanged when
+        renaming a model without any relations, and the model's database table name
+        was explicitly set to a custom name.
+
+        """
         app_label = "test_rmwdbtnoop"
         project_state = self.set_up_test_model(app_label, db_table="my_pony")
         operation = migrations.RenameModel("Pony", "LittleHorse")
@@ -1082,6 +1168,13 @@ class OperationTests(OperationTestBase):
         )
 
     def test_rename_model_with_m2m_models_in_different_apps_with_same_name(self):
+        """
+        Test the renaming of a model that contains a many-to-many field referencing a model in a different app with the same name.
+
+        This test ensures that the many-to-many relationship is properly updated when the model is renamed. It creates two models, 'Rider', one in each app, and establishes a many-to-many relationship between them. The model is then renamed to 'Pony' and the test verifies that the relationship is updated correctly, including the creation and deletion of the many-to-many table. 
+
+        The test also checks that the relationship works as expected after the renaming, allowing riders to be added to ponies, and that the counts of riders, ponies and the many-to-many relationship are correct. The test then reverts the renaming operation and checks that the original state is restored.
+        """
         app_label_1 = "test_rmw_m2m_1"
         app_label_2 = "test_rmw_m2m_2"
         project_state = self.apply_operations(
@@ -1182,6 +1275,16 @@ class OperationTests(OperationTestBase):
         pony.riders.add(rider)
 
     def test_rename_m2m_target_model(self):
+        """
+
+        Tests the renaming of a model that is a target of a many-to-many relationship.
+
+        This test creates two models, Pony and Rider, where Pony has a many-to-many field to Rider.
+        It then creates instances of these models and establishes a relationship between them.
+        The test then renames the Rider model to Rider2 and checks that the relationship is preserved.
+        The test verifies that the counts of Pony and Rider instances are correct and that the through model count is also correct.
+
+        """
         app_label = "test_rename_m2m_target_model"
         project_state = self.apply_operations(
             app_label,
@@ -1227,6 +1330,23 @@ class OperationTests(OperationTestBase):
         )
 
     def test_rename_m2m_through_model(self):
+        """
+        Tests the renaming of a Many-To-Many through model.
+
+        This test case ensures that renaming the model used in a Many-To-Many relationship
+        through a third model works as expected. It creates instances of the related models,
+        establishes the Many-To-Many relationship, renames the through model, and verifies
+        that the relationships are preserved after the rename operation.
+
+        The test covers the following scenarios:
+        - Creation of models and their instances
+        - Establishment of a Many-To-Many relationship through a third model
+        - Renaming of the through model
+        - Verification of the relationships after the rename operation
+
+        It checks the counts of the related models' instances after the rename operation
+        to ensure data integrity and consistency of the relationships.
+        """
         app_label = "test_rename_through"
         project_state = self.apply_operations(
             app_label,
@@ -1464,6 +1584,22 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_add_generated_field(self):
+        """
+
+        Tests the addition of a generated field to a model.
+
+        This test case verifies that a generated field, which is a type of field that 
+        automatically computes its value based on an expression, is correctly created 
+        and updated in the database.
+
+        It checks that the generated field is populated correctly when the model instance 
+        is first created, and that it is updated correctly when the related model instance 
+        is changed.
+
+        The test utilizes Django's model and migration framework to create and manipulate 
+        the model instances, and uses the database to persist the data.
+
+        """
         app_label = "test_add_generated_field"
         project_state = self.apply_operations(
             app_label,
@@ -1792,6 +1928,16 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_add_field_database_default_function(self):
+        """
+
+        Tests adding a database field to a model with a default value set to a database function.
+
+        The test creates a new field 'height' with a FloatField type and sets its default value to Pi.
+        It verifies that the new field's default value is set to NOT_PROVIDED and its db_default value is set to Pi.
+        The test also checks that the field is created in the database correctly and that objects created
+        before and after the field creation have the expected default height value.
+
+        """
         app_label = "test_adflddf"
         table_name = f"{app_label}_pony"
         project_state = self.set_up_test_model(app_label)
@@ -1902,6 +2048,17 @@ class OperationTests(OperationTestBase):
         self.assertTableNotExists("test_adflmm_pony_stables")
 
     def test_alter_field_m2m(self):
+        """
+
+        Tests the migration operation that alters a many-to-many field by setting its 'blank' attribute.
+
+        This test case ensures that the 'blank' attribute of a many-to-many field can be successfully altered from False to True.
+        It first sets up a test model and applies an operation to add a many-to-many field to a model.
+        Then, it verifies that the field's 'blank' attribute is initially False.
+        Next, it applies an operation to alter the field and set its 'blank' attribute to True.
+        Finally, it checks that the field's 'blank' attribute has been successfully updated to True.
+
+        """
         project_state = self.set_up_test_model("test_alflmm", second_model=True)
 
         project_state = self.apply_operations(
@@ -1935,6 +2092,16 @@ class OperationTests(OperationTestBase):
         self.assertTrue(Pony._meta.get_field("stables").blank)
 
     def test_repoint_field_m2m(self):
+        """
+
+        Tests the effect of modifying a Many-To-Many field to point to a different model.
+
+        This test case verifies that after changing the target model of a Many-To-Many field,
+        the existing relationships are properly updated and new relationships can be created.
+        The test covers the scenario where an AlterField operation is applied to repoint the
+        field, ensuring data consistency and integrity during the transition.
+
+        """
         project_state = self.set_up_test_model(
             "test_alflmm", second_model=True, third_model=True
         )
@@ -1972,6 +2139,17 @@ class OperationTests(OperationTestBase):
         p.places.all().delete()
 
     def test_remove_field_m2m(self):
+        """
+        Tests the removal of a Many-To-Many field from a model.
+
+        This test case verifies that a many-to-many field can be successfully removed from a model and 
+        that the corresponding database table is also removed. Additionally, it checks that the removal 
+        operation can be reversed by re-applying the original field, thus re-creating the missing table.
+
+        The test setup involves creating a model with a many-to-many field, applying the field removal 
+        operation, and then verifying the expected changes in the database schema. The test also covers 
+        the reversal of the removal operation to ensure that the original state can be restored.
+        """
         project_state = self.set_up_test_model("test_rmflmm", second_model=True)
 
         project_state = self.apply_operations(
@@ -1999,6 +2177,17 @@ class OperationTests(OperationTestBase):
         self.assertTableExists("test_rmflmm_pony_stables")
 
     def test_remove_field_m2m_with_through(self):
+        """
+
+        Tests the removal of a many-to-many field with a through model.
+
+        This test case sets up a test model, creates a many-to-many relationship through a separate model, and then removes the relationship and the through model.
+
+        The test verifies that the through model's table is created when the many-to-many field is added and deleted when the field is removed.
+
+        It ensures that the database schema is correctly updated when removing a many-to-many field with a through model.
+
+        """
         project_state = self.set_up_test_model("test_rmflmmwt", second_model=True)
 
         self.assertTableNotExists("test_rmflmmwt_ponystables")
@@ -2266,6 +2455,22 @@ class OperationTests(OperationTestBase):
         self.assertEqual(sorted(definition[2]), ["field", "model_name", "name"])
 
     def test_alter_field_add_database_default(self):
+        """
+
+        Tests the functionality of the AlterField database migration operation when adding a database default value.
+
+        This test case ensures that the operation correctly updates the field's database default value, 
+        and that the change is properly applied and reversed in the database schema. It also verifies 
+        that the operation is correctly deconstructed into its constituent parts.
+
+        The test covers the following scenarios:
+
+        * Adding a database default value to a field using the AlterField operation
+        * Applying and reversing the operation in the database schema
+        * Verifying that the field's database default value is correctly updated
+        * Ensuring that the operation is correctly deconstructed
+
+        """
         app_label = "test_alfladd"
         project_state = self.set_up_test_model(app_label)
         operation = migrations.AlterField(
@@ -2407,6 +2612,16 @@ class OperationTests(OperationTestBase):
 
     @skipIfDBFeature("interprets_empty_strings_as_nulls")
     def test_alter_field_change_blank_nullable_database_default_to_not_null(self):
+        """
+        Tests the database behavior when altering a field to make it non-nullable with a default value, 
+        previously allowing null values with a database default.
+
+        This test case ensures that when the field is altered from nullable to non-nullable with a default,
+        the existing null values are replaced with the specified default value in the database, 
+        and new rows are correctly assigned the default value when not explicitly provided. 
+        The test also covers the reversal of this operation, verifying that the field reverts to its original 
+        nullable state with a database default.
+        """
         app_label = "test_alflcbnddnn"
         table_name = f"{app_label}_pony"
         project_state = self.set_up_test_model(app_label)
@@ -2547,6 +2762,19 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_comments")
     def test_alter_model_table_comment(self):
+        """
+        Alter a Django model table comment in a database schema.
+
+        This operation changes the comment associated with a model's database table.
+        It takes a model name and a new comment as input and applies the change 
+        to the database schema. The operation can also be reversed, effectively 
+        removing the comment from the table.
+
+        The operation provides various attributes and methods to describe the 
+        change, format it for display, and generate a fragment of the 
+        migration name. It can also be deconstructed into its constituent 
+        parts, allowing for inspection and serialization of the operation.
+        """
         app_label = "test_almotaco"
         project_state = self.set_up_test_model(app_label)
         pony_table = f"{app_label}_pony"
@@ -2647,6 +2875,18 @@ class OperationTests(OperationTestBase):
         )
 
         def assertIdTypeEqualsFkType():
+            """
+            Verifies that the type of the 'id' column in the 'test_alflpkfk_pony' table matches the types of foreign key columns referencing it.
+
+            Checks the following relationships:
+            - One-to-many relationship via 'pony_id' in 'test_alflpkfk_rider'
+            - Many-to-many relationship via 'pony_id' in 'test_alflpkfk_pony_stables'
+            - Many-to-many relationship via 'pony_id' in 'test_alflpkfk_stable_ponies'
+
+            Ensures that the data types and nullability of these foreign key columns are consistent with the 'id' column type, which is crucial for maintaining referential integrity in the database.
+
+            Raises an assertion error if any of these type checks fail, indicating a potential issue with the database schema or model definitions.
+            """
             with connection.cursor() as cursor:
                 id_type, id_null = [
                     (c.type_code, c.null_ok)
@@ -2892,6 +3132,15 @@ class OperationTests(OperationTestBase):
             ][0]
 
         def assertIdTypeEqualsMTIFkType():
+            """
+
+            Checks that the ID type of a parent model matches the ID type of a foreign key in a related model and a child model.
+
+            This test ensures data consistency by verifying that the ID types used in a model relationship are identical.
+            The parent model and child model must have the same ID type, and the foreign key in the related model must also match this ID type.
+            The test uses the 'pony', 'rider', and 'shetlandpony' models as examples to perform this check.
+
+            """
             with connection.cursor() as cursor:
                 parent_id_type = _get_column_id_type(cursor, "pony", "id")
                 fk_id_type = _get_column_id_type(cursor, "rider", "pony_id")
@@ -2934,6 +3183,18 @@ class OperationTests(OperationTestBase):
             )
 
     def test_alter_id_pk_to_uuid_pk(self):
+        """
+
+        Tests altering the primary key of a model from an integer to a UUID field.
+
+        This test case simulates a series of database migrations to replace the integer primary key with a UUID-based primary key.
+        The process involves adding a new UUID field, removing the original integer primary key, renaming the UUID field to 'id', 
+        and finally modifying the new 'id' field to be the primary key.
+
+        The test verifies that the column names are correctly updated after each migration, ensuring that the final state of the 
+        database schema matches the expected outcome.
+
+        """
         app_label = "test_alidpktuuidpk"
         project_state = self.set_up_test_model(app_label)
         new_state = project_state.clone()
@@ -3020,6 +3281,20 @@ class OperationTests(OperationTestBase):
     def test_alter_field_reloads_state_fk_with_to_field_related_name_target_type_change(
         self,
     ):
+        """
+        Test that altering a field used as the target of a foreign key with a related name
+        and to_field specification correctly reloads the project state when the target field type changes.
+
+        This test case verifies that the migration system can handle changes to the target field
+        of a foreign key, even when the related name and to_field are specified. The test creates
+        a model with a foreign key to another model, and then alters the target field to change
+        its type, ensuring that the project state is correctly reloaded after the alteration.
+
+        The test covers the scenario where the target field of a foreign key changes from an integer
+        field to a character field, while maintaining a unique constraint and related name specification.
+        It checks that the migration operations are applied correctly and the project state is updated
+        as expected after the field alteration.
+        """
         app_label = "test_alflrsfkwtflrnttc"
         project_state = self.apply_operations(
             app_label,
@@ -3421,6 +3696,15 @@ class OperationTests(OperationTestBase):
         self.assertColumnExists("test_rfmx_pony", "field")
 
     def test_rename_missing_field(self):
+        """
+
+        Tests that attempting to rename a field that does not exist in a model results in a FieldDoesNotExist exception.
+
+        This test ensures that the RenameField migration operation correctly identifies and reports missing fields during the state forward migration process.
+
+        The test covers a scenario where a RenameField migration is applied to a model without the specified field, verifying that the operation raises an exception with a descriptive message.
+
+        """
         state = ProjectState()
         state.add_model(ModelState("app", "model", []))
         with self.assertRaisesMessage(
@@ -3431,6 +3715,13 @@ class OperationTests(OperationTestBase):
             )
 
     def test_rename_referenced_field_state_forward(self):
+        """
+        Tests the behavior of a RenameField migration operation on a model field that is referenced by other fields, specifically foreign keys and foreign objects.
+
+        The test checks that after renaming a field, all referencing fields, including foreign keys and foreign objects, are updated to reference the new field name. This ensures that the model state remains consistent after applying the migration operation.
+
+        The test covers two scenarios: renaming a field on a model that has foreign keys and foreign objects referencing it, and renaming the foreign key field itself. In both cases, the test verifies that the referencing fields are updated correctly to maintain the model's integrity.
+        """
         state = ProjectState()
         state.add_model(
             ModelState(
@@ -3589,6 +3880,13 @@ class OperationTests(OperationTestBase):
         )
 
     def test_alter_unique_together_remove(self):
+        """
+        Alter unique together operation test to confirm removal functionality.
+
+        This test case verifies that the AlterUniqueTogether migration operation correctly handles the removal of unique together constraints.
+        It checks if the describe method of the operation accurately reflects the removal of the constraint, ensuring that the operation is properly documented and understood.
+        The test uses the Pony model as an example, confirming that the operation results in zero constraints after removal.
+        """
         operation = migrations.AlterUniqueTogether("Pony", None)
         self.assertEqual(
             operation.describe(), "Alter unique_together for Pony (0 constraint(s))"
@@ -3596,6 +3894,18 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("allows_multiple_constraints_on_same_fields")
     def test_remove_unique_together_on_pk_field(self):
+        """
+
+        Tests the removal of a unique_together constraint on a primary key field.
+
+        This test creates a model with a primary key field and a unique_together constraint
+        on that field, then checks that the constraint is properly removed when the
+        unique_together constraint is altered to an empty set.
+
+        The test verifies that the primary key constraint remains in place and that the
+        unique_together constraint is successfully dropped from the database.
+
+        """
         app_label = "test_rutopkf"
         project_state = self.apply_operations(
             app_label,
@@ -3626,6 +3936,18 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("allows_multiple_constraints_on_same_fields")
     def test_remove_unique_together_on_unique_field(self):
+        """
+
+        Tests the removal of unique_together constraint on a field that already has a unique constraint.
+
+        Checks that when a model has a field with a unique constraint and a unique_together
+        constraint, removing the unique_together constraint does not affect the existing unique constraint.
+
+        The test case verifies the constraints on the database table before and after the
+        removal operation, ensuring that the unique constraint remains intact and the
+        unique_together constraint is correctly dropped.
+
+        """
         app_label = "test_rutouf"
         project_state = self.apply_operations(
             app_label,
@@ -3823,6 +4145,20 @@ class OperationTests(OperationTestBase):
             migrations.RenameIndex("Pony", new_name="new_idx_name")
 
     def test_rename_index_unknown_unnamed_index(self):
+        """
+
+        Tests the RenameIndex migration operation when attempting to rename an unknown or unnamed index.
+
+        This test case simulates a scenario where the index to be renamed does not exist in the database.
+        It verifies that a ValueError is raised with a specific error message when trying to apply the migration.
+
+        The error message checks for the correct index name and field names, ensuring that the migration operation
+        is correctly identifying the non-existent index.
+
+        Raises:
+            ValueError: If the number of indexes found for the specified index name and fields is incorrect.
+
+        """
         app_label = "test_rninuui"
         project_state = self.set_up_test_model(app_label)
         operation = migrations.RenameIndex(
@@ -3856,6 +4192,15 @@ class OperationTests(OperationTestBase):
         self.assertIndexNameExists(table_name, "new_pony_test_idx")
 
     def test_add_index_state_forwards(self):
+        """
+        .. function:: test_add_index_state_forwards
+
+            Tests the forward state application of the AddIndex operation in a model migration.
+
+            Verifies that adding an index to a model results in a new model state, 
+            distinct from the original model state, and that the new model state 
+            includes the added index.
+        """
         project_state = self.set_up_test_model("test_adinsf")
         index = models.Index(fields=["pink"], name="test_adinsf_pony_pink_idx")
         old_model = project_state.apps.get_model("test_adinsf", "Pony")
@@ -3867,6 +4212,17 @@ class OperationTests(OperationTestBase):
         self.assertIsNot(old_model, new_model)
 
     def test_remove_index_state_forwards(self):
+        """
+
+        Tests the removal of an index from a model's state using the RemoveIndex migration operation.
+
+        This test case verifies that the model's state is correctly updated when an index is removed,
+        resulting in a new model state that is distinct from the original model state.
+
+        The test scenario involves adding an index to a model, and then removing it using the RemoveIndex
+        operation, ensuring that the resulting model state reflects the removal of the index.
+
+        """
         project_state = self.set_up_test_model("test_rminsf")
         index = models.Index(fields=["pink"], name="test_rminsf_pony_pink_idx")
         migrations.AddIndex("Pony", index).state_forwards("test_rminsf", project_state)
@@ -3894,6 +4250,22 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_add_func_index(self):
+        """
+
+        Add an index on a model field using a database function.
+
+        This method tests the functionality of adding an index to a model field. It creates 
+        a model with a field that has an index using the Abs database function, then applies 
+        and reverses the migration to ensure the index is correctly added and removed from 
+        the database.
+
+        The test covers the following cases:
+        - The index is correctly described and named.
+        - The index is successfully added to the model state.
+        - The index is correctly applied and reversed in the database.
+        - The operation is properly deconstructed into its constituent parts.
+
+        """
         app_label = "test_addfuncin"
         index_name = f"{app_label}_pony_abs_idx"
         table_name = f"{app_label}_pony"
@@ -3928,6 +4300,16 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_remove_func_index(self):
+        """
+
+        Removes an index from a model and tests the corresponding database operations.
+
+        This test case covers the removal of a function-based index. It verifies that
+        the index is correctly removed from the model's state and the database, and
+        that the removal can be reversed. The test also checks the description and
+        migration name fragment of the RemoveIndex operation, as well as its deconstruction.
+
+        """
         app_label = "test_rmfuncin"
         index_name = f"{app_label}_pony_abs_idx"
         table_name = f"{app_label}_pony"
@@ -4012,6 +4394,15 @@ class OperationTests(OperationTestBase):
         self.assertIndexExists("test_alflin_pony", ["pink"])
 
     def test_alter_index_together_remove(self):
+        """
+
+        Tests the functionality of the AlterIndexTogether migration operation when removing index together constraints.
+
+        This function verifies the correctness of the describe and formatted_description methods 
+        of the AlterIndexTogether operation when no constraints are provided, 
+        ensuring the generated descriptions accurately reflect the changes being made to the 'Pony' model.
+
+        """
         operation = migrations.AlterIndexTogether("Pony", None)
         self.assertEqual(
             operation.describe(), "Alter index_together for Pony (0 constraint(s))"
@@ -4022,6 +4413,21 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_constraint(self):
+        """
+
+        Tests the addition of a constraint to a model.
+
+        This test case checks the following scenarios:
+
+        - Creating a check constraint on a model and verifying its description and formatted description.
+        - Applying the constraint to the project state and checking the resulting constraints on the model.
+        - Applying the constraint to the database and checking that it raises an IntegrityError when trying to create an object that violates the constraint.
+        - Adding a second constraint to the model and verifying that both constraints are applied correctly.
+        - Reversing the addition of a constraint and verifying that objects that previously violated the constraint can now be created.
+
+        The test covers both the state and database operations of the AddConstraint migration operation.
+
+        """
         project_state = self.set_up_test_model("test_addconstraint")
         gt_check = models.Q(pink__gt=2)
         gt_constraint = models.CheckConstraint(
@@ -4109,6 +4515,25 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_create_model_constraint_percent_escaping(self):
+        """
+
+        Tests the creation of a model constraint with percent escaping.
+
+        This test case covers the creation of a model with a check constraint 
+        that includes percent signs in the condition. It ensures that the 
+        constraint is properly applied and that valid and invalid data are 
+        handled as expected.
+
+        The test checks multiple scenarios, including:
+        - Constraints with percent signs in the condition
+        - Constraints with F expressions
+        - Constraints with Q objects that include negation
+
+        For each scenario, the test creates a model with the given constraint, 
+        applies the constraint to the database, and then attempts to create 
+        valid and invalid data to verify that the constraint is enforced.
+
+        """
         app_label = "add_constraint_string_quoting"
         from_state = ProjectState()
         checks = [
@@ -4167,6 +4592,16 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_add_constraint_percent_escaping(self):
+        """
+
+        Tests the addition of a check constraint to a model with proper percent escaping.
+
+        This test case covers various scenarios, including checks with string starts and ends with,
+        checks with special characters, and checks referencing other fields. It verifies that valid
+        data can be inserted and invalid data raises an IntegrityError, ensuring the correct
+        functioning of the check constraint with proper percent escaping.
+
+        """
         app_label = "add_constraint_string_quoting"
         operations = [
             migrations.CreateModel(
@@ -4252,6 +4687,17 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_add_constraint_combinable(self):
+        """
+        Tests that the addition of a check constraint to a model is correctly combinable with existing operations.
+
+        This test case verifies that a check constraint can be added to a model as part of a series of operations,
+        and that the resulting constraint is enforced when attempting to create instances of the model.
+
+        The test creates a model with two fields, 'read' and 'unread', and adds a check constraint that ensures
+        their sum equals 100. It then attempts to create instances of the model with invalid and valid data,
+        respectively, and verifies that the constraint is enforced by raising an IntegrityError for the invalid data.
+
+        """
         app_label = "test_addconstraint_combinable"
         operations = [
             migrations.CreateModel(
@@ -4488,6 +4934,25 @@ class OperationTests(OperationTestBase):
         )
 
     def test_add_deferred_unique_constraint(self):
+        """
+
+        Tests adding a deferred unique constraint to a model.
+
+        The test checks that the constraint is correctly added to the model's state,
+        and that it is enforced by the database when the transaction is committed.
+        It also tests that the constraint is correctly reversed when the operation is
+        applied in reverse.
+
+        The test covers the following scenarios:
+        - Adding a unique constraint to a model
+        - Checking that the constraint is enforced by the database
+        - Reversing the constraint addition operation
+        - Testing the deconstruction of the operation
+
+        Note that this test also checks the behavior of the constraint when the database
+        does not support deferrable unique constraints.
+
+        """
         app_label = "test_adddeferred_uc"
         project_state = self.set_up_test_model(app_label)
         deferred_unique_constraint = models.UniqueConstraint(
@@ -4548,6 +5013,25 @@ class OperationTests(OperationTestBase):
         )
 
     def test_remove_deferred_unique_constraint(self):
+        """
+        Tests the removal of a deferred unique constraint from a model.
+
+        This test case verifies that removing a deferred unique constraint from a model
+        results in the correct state being applied to the model, and that the constraint
+        is correctly removed from the database. It also tests the backward migration by
+        re-adding the constraint.
+
+        The test covers both cases where the database supports deferrable unique
+        constraints and where it does not.
+
+        Additionally, it checks that the operation can be correctly deconstructed and
+        reconstructed, and that the resulting operation is equivalent to the original
+        one.
+
+        The test includes checks for integrity errors when attempting to create or save
+        objects that violate the re-added constraint, to ensure that the constraint is
+        being correctly enforced by the database.
+        """
         app_label = "test_removedeferred_uc"
         deferred_unique_constraint = models.UniqueConstraint(
             fields=["pink"],
@@ -4714,6 +5198,19 @@ class OperationTests(OperationTestBase):
         )
 
     def test_alter_field_with_func_unique_constraint(self):
+        """
+
+        Test altering a field with a functional unique constraint.
+
+        This test covers the scenario where an AlterField operation is applied to a model field
+        that is part of a unique constraint defined using a function. The test verifies that the
+        unique constraint is properly updated after the field alteration, both when applying and
+        reversing the operation.
+
+        It checks that the unique constraint index is correctly created or removed from the database
+        table, if the database backend supports expression indexes.
+
+        """
         app_label = "test_alfuncuc"
         constraint_name = f"{app_label}_pony_uq"
         table_name = f"{app_label}_pony"
@@ -4738,6 +5235,25 @@ class OperationTests(OperationTestBase):
             self.assertIndexNameExists(table_name, constraint_name)
 
     def test_add_func_unique_constraint(self):
+        """
+
+        Tests the addition of a unique constraint to a model.
+
+        This test case verifies that the `AddConstraint` operation correctly adds a unique constraint to a model,
+        specifically one that uses an absolute function (`Abs`) to create a unique index.
+
+        It checks the following scenarios:
+
+        * The operation's description and migration name fragment are correctly generated.
+        * The constraint is correctly added to the model's state.
+        * The database operation to add the constraint is correctly executed, including the creation of the index.
+        * The constraint is enforced by the database, preventing duplicate values.
+        * The database operation to remove the constraint is correctly executed, including the removal of the index.
+        * The operation can be deconstructed and reconstructed correctly.
+
+        The test case also accounts for database backends that do not support expression indexes.
+
+        """
         app_label = "test_adfuncuc"
         constraint_name = f"{app_label}_pony_abs_uq"
         table_name = f"{app_label}_pony"
@@ -4786,6 +5302,21 @@ class OperationTests(OperationTestBase):
         )
 
     def test_remove_func_unique_constraint(self):
+        """
+
+        Tests the removal of a unique constraint function from a database model.
+
+        This test ensures that the RemoveConstraint operation correctly removes a given unique
+        constraint from a model. The operation is tested at both the state and database levels,
+        with assertions to verify the constraint's removal and its impact on data integrity.
+
+        The test scenario involves a model 'Pony' with a unique constraint on the 'weight' field.
+        The removal of this constraint is simulated through a migration operation, and the
+        resulting model state and database schema are verified to ensure the constraint no longer
+        exists. The test also checks the reverse operation, where the constraint is reapplied to
+        the model, and validates the restored data integrity.
+
+        """
         app_label = "test_rmfuncuc"
         constraint_name = f"{app_label}_pony_abs_uq"
         table_name = f"{app_label}_pony"
@@ -5288,6 +5819,16 @@ class OperationTests(OperationTestBase):
             operation.database_backwards("test_runsql", editor, None, None)
 
     def test_run_sql_add_missing_semicolon_on_collect_sql(self):
+        """
+        Tests the RunSQL migration operation when the SQL statement is missing a semicolon.
+
+        This test checks that when a SQL statement without a semicolon is passed to the RunSQL operation,
+        it will still be executed correctly and the resulting collected SQL will have a single semicolon.
+
+        The test covers two cases: one where the SQL statement has a semicolon and another where it does not.
+        It verifies that in both cases, the collected SQL has only one semicolon, ensuring that the operation
+        correctly handles missing semicolons in the input SQL statements.
+        """
         project_state = self.set_up_test_model("test_runsql")
         new_state = project_state.clone()
         tests = [
@@ -5322,11 +5863,38 @@ class OperationTests(OperationTestBase):
 
         # Create the operation
         def inner_method(models, schema_editor):
+            """
+
+            Creates initial data for the Pony model.
+
+            This function populates the Pony model with two instance records. 
+            The first record has a 'pink' attribute set to 1 and a 'weight' of 3.55, 
+            while the second record only has a 'weight' of 5.
+
+            :param models: A dictionary of models available in the application.
+            :param schema_editor: A schema editor instance for database operations.
+
+            """
             Pony = models.get_model("test_runpython", "Pony")
             Pony.objects.create(pink=1, weight=3.55)
             Pony.objects.create(weight=5)
 
         def inner_method_reverse(models, schema_editor):
+            """
+            Reverses changes made by a previous migration.
+
+            Removes specific Pony model instances from the database, 
+            based on their 'pink' and 'weight' attributes. 
+
+            Deletes instances where 'pink' is True (represented by the integer 1) and 'weight' is 3.55, 
+            as well as instances with a 'weight' of 5.
+
+            This method is intended to be used in conjunction with a database schema editor, 
+            and should be executed as part of a database migration process.
+
+            :param models: a dictionary of models available in the current migration context
+            :param schema_editor: an instance of the database schema editor, used to manage changes to the database schema
+            """
             Pony = models.get_model("test_runpython", "Pony")
             Pony.objects.filter(pink=1, weight=3.55).delete()
             Pony.objects.filter(weight=5).delete()
@@ -5582,6 +6150,18 @@ class OperationTests(OperationTestBase):
         """
 
         def inner_method(models, schema_editor):
+            """
+
+            Initialize data for testing purposes.
+
+            This function creates a new author and a new book in the database, 
+            linking the book to the author. It is used to populate the database 
+            with initial data for testing or demonstration purposes.
+
+            :param models: A dictionary of available models.
+            :param schema_editor: The schema editor used to interact with the database.
+
+            """
             Author = models.get_model("test_authors", "Author")
             Book = models.get_model("test_books", "Book")
             author = Author.objects.create(name="Hemingway")
@@ -5712,6 +6292,17 @@ class OperationTests(OperationTestBase):
         """
 
         def create_initial_data(models, schema_editor):
+            """
+
+            Create initial test data for the application.
+
+            This function populates the database with initial data, including a blog and its associated articles.
+            It creates a single blog with a specified name and two articles belonging to that blog.
+
+            :param models: The application's models module.
+            :param schema_editor: The schema editor instance.
+
+            """
             Article = models.get_model("test_article", "Article")
             Blog = models.get_model("test_blog", "Blog")
             blog = Blog.objects.create(name="web development done right")
@@ -5719,6 +6310,18 @@ class OperationTests(OperationTestBase):
             Article.objects.create(name="Programming Languages", blog=blog)
 
         def create_big_data(models, schema_editor):
+            """
+
+            Create a set of big data entries for testing purposes.
+
+            This function generates a new blog and two associated articles, populating the database with sample data.
+            The blog is created with a specific name and the target id, and the articles are linked to this blog.
+            The resulting data can be used for testing and demonstration of data relationships and queries.
+
+            :param models: A dictionary of models used to access the database
+            :param schema_editor: An object used to modify the database schema
+
+            """
             Article = models.get_model("test_article", "Article")
             Blog = models.get_model("test_blog", "Blog")
             blog2 = Blog.objects.create(name="Frameworks", id=target_value)
@@ -5963,6 +6566,19 @@ class OperationTests(OperationTestBase):
 
         def assertModelsAndTables(after_db):
             # Tables and models exist, or don't, as they should:
+            """
+
+            Asserts the presence and structure of models and tables in the database state.
+
+            This function checks for the existence and non-existence of specific models and tables,
+            verifying that the database state matches the expected configuration. It ensures that 
+            certain models are not present, while others are present with the correct fields. 
+            Additionally, it checks for the existence or non-existence of specific tables, 
+            depending on the `after_db` flag.
+
+            :param after_db: A boolean indicating whether the check is performed after database operations.
+
+            """
             self.assertNotIn((app_label, "somethingelse"), new_state.models)
             self.assertEqual(
                 len(new_state.models[app_label, "somethingcompletelydifferent"].fields),
@@ -6032,6 +6648,12 @@ class OperationTests(OperationTestBase):
         self._test_invalid_generated_field_changes(db_persist=False)
 
     def _test_invalid_generated_field_changes_on_rename(self, db_persist):
+        """
+        Tests if modifying a Django generated field after renaming another field results in the expected ValueError, 
+        indicating that the generated field cannot be altered and must be removed and re-added with its new definition.
+        The test covers generated fields with database persistence (db_persist) support.
+        It verifies that attempting to modify such a field after a rename operation fails with a specific error message.
+        """
         app_label = "test_igfcor"
         operation = migrations.AddField(
             "Pony",
@@ -6080,6 +6702,11 @@ class OperationTests(OperationTestBase):
         "supports_virtual_generated_columns",
     )
     def test_invalid_generated_field_persistency_change(self):
+        """
+        Tests if modifying a generated field's persistency setting raises a ValueError.
+        The persistency of a generated field determines whether its values are stored in the database or computed on the fly.
+        This test verifies that attempting to change a generated field from persisted to non-persisted or vice versa results in an error, as Django requires the field to be removed and re-added with the new persistency setting instead.
+        """
         app_label = "test_igfpc"
         project_state = self.set_up_test_model(app_label)
         operations = [
@@ -6111,6 +6738,28 @@ class OperationTests(OperationTestBase):
             self.apply_operations(app_label, project_state, operations)
 
     def _test_add_generated_field(self, db_persist):
+        """
+
+
+
+        Tests the addition of a generated field to a model.
+
+        This function tests the `AddField` operation for a generated field, specifically checking its
+        creation and removal from the database. It verifies that the field is correctly added to the
+        model, that its value is generated as expected, and that it is properly removed when the operation
+        is reversed.
+
+        The test case covers the following scenarios:
+
+        * The generated field is successfully added to the model.
+        * The generated field's value is correctly calculated based on the specified expression.
+        * The generated field is correctly removed from the model when the operation is reversed.
+
+        The test uses a test model `Pony` with a generated field `modified_pink` to perform the tests.
+        The `db_persist` parameter determines whether the field is persisted to the database.
+
+
+        """
         app_label = "test_agf"
         operation = migrations.AddField(
             "Pony",
@@ -6178,6 +6827,21 @@ class OperationTests(OperationTestBase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_add_field_after_generated_field(self):
+        """
+        Test adding a new field to a model after a generated field.
+
+        This test ensures that a new field can be added to a model after a generated
+        field has been created. It verifies that the generated field's value is
+        preserved when the new field is added, and that the new field is populated
+        correctly for both existing and new instances.
+
+        The test covers the following scenarios:
+        - A generated field is added to a model.
+        - A new field is added to the model after the generated field.
+        - The values of the generated and new fields are verified for existing instances.
+        - The values of the generated and new fields are verified for new instances.
+
+        """
         app_label = "test_adfagf"
         project_state = self.set_up_test_model(app_label)
         operation_1 = migrations.AddField(
@@ -6342,6 +7006,13 @@ class TestCreateModel(SimpleTestCase):
 
 class FieldOperationTests(SimpleTestCase):
     def test_references_model(self):
+        """
+        Checks if a FieldOperation references a specific model.
+
+         :param model_name: the name of the model to check for references
+         :param app_label: the label of the application containing the models
+         :return: True if the operation references the model, False otherwise
+        """
         operation = FieldOperation(
             "MoDel", "field", models.ForeignKey("Other", models.CASCADE)
         )
@@ -6353,10 +7024,33 @@ class FieldOperationTests(SimpleTestCase):
         self.assertIs(operation.references_model("Whatever", "migrations"), False)
 
     def test_references_field_by_name(self):
+        """
+        Tests that the references_field method of a FieldOperation instance correctly identifies 
+        whether a field is referenced by name in a migration operation for a given model.
+
+        The method checks if the field with the provided name is referenced in the specified migration
+        for the given model, and returns a boolean value indicating whether a reference was found.
+        This ensures that fields referenced in migration operations are properly identified and handled.
+
+        """
         operation = FieldOperation("MoDel", "field", models.BooleanField(default=False))
         self.assertIs(operation.references_field("model", "field", "migrations"), True)
 
     def test_references_field_by_remote_field_model(self):
+        """
+        Tests whether a FieldOperation references a specific field by its remote model.
+
+        This function checks if the field operation is related to the specified model and field.
+        It returns True if the operation references the given model, and False otherwise.
+
+        Args:
+            model_name (str): The name of the model being referenced.
+            field_name (str): The name of the field being referenced.
+            app_label (str): The label of the application where the field is defined.
+
+        Returns:
+            bool: Whether the field operation references the given model and field.
+        """
         operation = FieldOperation(
             "Model", "field", models.ForeignKey("Other", models.CASCADE)
         )
@@ -6368,6 +7062,31 @@ class FieldOperationTests(SimpleTestCase):
         )
 
     def test_references_field_by_from_fields(self):
+        """
+        Tests if a field operation references a specific field.
+
+        Checks whether a given field operation involves a reference to a particular 
+        field. The check is performed based on the field's 'from' fields specified 
+        in the foreign key relationship.
+
+        Parameters
+        ----------
+        model_name : str
+            The name of the model containing the field to check.
+        field_name : str
+            The name of the field to check for references.
+        app_name : str
+            The name of the Django application where the model resides.
+
+        Returns
+        -------
+        bool
+            True if the field operation references the specified field, False otherwise.
+
+        This function is useful for determining if a field operation affects a 
+        specific field, which can be important for dependency tracking and other 
+        migration-related tasks in Django applications.
+        """
         operation = FieldOperation(
             "Model",
             "field",
@@ -6381,6 +7100,17 @@ class FieldOperationTests(SimpleTestCase):
         self.assertIs(operation.references_field("Model", "to", "migrations"), False)
 
     def test_references_field_by_to_fields(self):
+        """
+
+        Checks if a field operation references a specific field in another model.
+
+        :param model: The name of the model containing the field to check.
+        :param field: The name of the field to check.
+        :param app_label: The label of the application where the model resides.
+
+        :return: True if the field operation has a foreign key referencing the specified field, False otherwise.
+
+        """
         operation = FieldOperation(
             "Model",
             "field",
@@ -6395,6 +7125,17 @@ class FieldOperationTests(SimpleTestCase):
         )
 
     def test_references_field_by_through(self):
+        """
+        Checks if a given model field is referenced by the specified operation.
+
+        This function evaluates the model field's relationship with other models, 
+        including many-to-many relationships established through intermediate models.
+
+        :param model_name: The name of the model to check for references
+        :param field_name: The name of the field within the model
+        :param app_label: The label of the app containing the migration
+        :returns: True if the field is referenced, False otherwise
+        """
         operation = FieldOperation(
             "Model", "field", models.ManyToManyField("Other", through="Through")
         )

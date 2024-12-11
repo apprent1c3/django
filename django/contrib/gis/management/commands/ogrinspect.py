@@ -42,6 +42,20 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        Add command-line arguments for creating a model from an OGR data source.
+
+        The function populates an ArgumentParser instance with arguments for customizing model creation. It supports options for specifying the data source, model name, and various field definitions, such as decimal and geometry fields. The function also allows for customizing the model's string representation and importing Django modules.
+
+        The available command-line arguments include:
+
+        * Path to the data source
+        * Name of the model to create
+        * Options for customizing field definitions, such as using blank or null values, decimal fields, and geometry fields
+        * Settings for the geometry field, including its name, SRID, and treatment as a geometry collection
+        * Options for customizing the model's imports and string representation
+        * A flag to generate a mapping dictionary for use with LayerMapping
+        """
         parser.add_argument("data_source", help="Path to the data source.")
         parser.add_argument("model_name", help="Name of the model to create.")
         parser.add_argument(
@@ -109,6 +123,28 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+
+        Handle the creation of an OGR Inspection output for a given data source and model name.
+
+        This function takes in various options to control the OGR inspection process, such as 
+        the data source and model name. It uses the GDAL library to read the data source and 
+        then calls the _ogrinspect function to generate the inspection output. The function 
+        also supports generating a LayerMapping dictionary for the specified model.
+
+        The output of this function is a string containing the OGR inspection results and 
+        LayerMapping dictionary (if requested). The function raises a CommandError if there 
+        is an issue with the data source.
+
+        Options:
+            - data_source: The path to the data source to inspect.
+            - model_name: The name of the model to generate the inspection output for.
+            - mapping: A boolean indicating whether to generate a LayerMapping dictionary.
+            - geom_name: The name of the geometry field in the model.
+            - layer_key: The key of the layer to use for the LayerMapping dictionary.
+            - multi_geom: A boolean indicating whether the geometry field is multi-geometric.
+
+        """
         data_source, model_name = options.pop("data_source"), options.pop("model_name")
 
         # Getting the OGR DataSource from the string parameter.

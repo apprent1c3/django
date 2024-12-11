@@ -65,6 +65,19 @@ class DateTimeFieldTest(SimpleTestCase):
                 self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_clean_invalid(self):
+        """
+
+        Tests the DateTimeField's clean method for handling invalid input.
+
+        This test case verifies that the DateTimeField correctly raises a ValidationError when
+        given a variety of invalid date and time formats. The test covers various scenarios,
+        including non-date strings, malformed date strings, and whitespace-only input.
+
+        It also checks that the field's input_formats parameter is respected when validating
+        input. If the input format does not match any of the specified formats, a ValidationError
+        is raised with a message indicating that the input is not a valid date/time.
+
+        """
         f = DateTimeField()
         msg = "'Enter a valid date/time.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -80,6 +93,13 @@ class DateTimeFieldTest(SimpleTestCase):
             f.clean("2006.10.25 14:30:45")
 
     def test_datetimefield_clean_input_formats(self):
+        """
+        Tests that the DateTimeField correctly handles clean input for various date and time formats.
+
+        The function verifies that different input formats are correctly parsed and converted into datetime objects. 
+        It uses a set of predefined test cases, each with a specific date and time format string and a list of input values along with their expected datetime outputs.
+        For each test case, it initializes a DateTimeField with the specified input format and checks if the clean method produces the expected datetime output for each input value.
+        """
         tests = [
             (
                 "%Y %m %d %I:%M %p",
@@ -116,6 +136,9 @@ class DateTimeFieldTest(SimpleTestCase):
                     self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_not_required(self):
+        """
+        Tests the functionality of DateTimeField when not required, particularly its handling of None and empty string inputs, ensuring it returns and represents None correctly in both cases.
+        """
         f = DateTimeField(required=False)
         self.assertIsNone(f.clean(None))
         self.assertEqual("None", repr(f.clean(None)))
@@ -123,6 +146,26 @@ class DateTimeFieldTest(SimpleTestCase):
         self.assertEqual("None", repr(f.clean("")))
 
     def test_datetimefield_changed(self):
+        """
+        Tests whether a DateTimeField instance correctly detects changes when 
+        given a specific date and time and its string representation. 
+
+        The function verifies that when the DateTimeField is initialized with a custom 
+        input format, it accurately identifies whether the provided datetime object 
+        and its string representation are considered changed or not. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            This function is a test case and does not return any values. It uses 
+            assertion statements to verify the expected behavior of the DateTimeField 
+            instance.
+
+        """
         f = DateTimeField(input_formats=["%Y %m %d %I:%M %p"])
         d = datetime(2006, 9, 17, 14, 30, 0)
         self.assertFalse(f.has_changed(d, "2006 09 17 2:30 PM"))

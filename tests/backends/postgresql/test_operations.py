@@ -64,6 +64,18 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         self.assertEqual(rhs_expr, Col(author_table, author_id_field))
 
     def test_prepare_join_on_clause_different_types(self):
+        """
+
+        Tests the preparation of a join on clause between two tables with fields of different types.
+
+        This function verifies that the left-hand side expression is correctly set to the field
+        from the author table and the right-hand side expression is casted to the type of the
+        author id field, allowing for a proper join between the author and book tables.
+
+        It ensures that the database connection operations correctly handle the preparation of
+        the join on clause, taking into account the data types of the fields involved.
+
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         book_table = Book._meta.db_table

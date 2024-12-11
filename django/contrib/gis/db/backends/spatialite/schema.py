@@ -66,6 +66,14 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         return None, None
 
     def remove_geometry_metadata(self, model, field):
+        """
+        Removes the geometry metadata and spatial index for a given field in a model.
+
+        :param model: The model that contains the field to remove geometry metadata from
+        :param field: The field to remove geometry metadata from
+        :returns: None
+        :note: This operation is irreversible and will delete the spatial index and associated metadata for the specified field.
+        """
         self.execute(
             self.sql_remove_geometry_metadata
             % {

@@ -23,5 +23,8 @@ class LastTests(SimpleTestCase):
 
     @setup({"empty_list": "{% autoescape off %}{{ a|last }}{% endautoescape %}"})
     def test_empty_list(self):
+        """
+        Tests rendering a template with an empty list variable, verifying that the last filter correctly handles this case and returns an empty string.
+        """
         output = self.engine.render_to_string("empty_list", {"a": []})
         self.assertEqual(output, "")

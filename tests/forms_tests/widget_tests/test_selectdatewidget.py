@@ -338,6 +338,18 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_selectdate_required(self):
+        """
+
+        Tests whether the SelectDateWidget correctly reflects the required attribute of a DateField.
+
+        This test covers two scenarios: one where the DateField is not required and one where it is.
+        It checks if the widget's is_required property matches the required attribute of the DateField.
+
+        The purpose of this test is to ensure that the SelectDateWidget behaves as expected when used
+        with DateFields that have different required settings, providing accurate feedback to users
+        about whether a date selection is mandatory or optional.
+
+        """
         class GetNotRequiredDate(Form):
             mydate = DateField(widget=SelectDateWidget, required=False)
 
@@ -430,6 +442,17 @@ class SelectDateWidgetTest(WidgetTest):
 
     @translation.override("nl")
     def test_l10n(self):
+        """
+        Tests the internationalization (L10n) of the SelectDateWidget in the Dutch (nl) locale.
+
+        Verifies that the widget correctly handles date rendering and validation for various dates.
+
+        Specifically, this test checks:
+
+        * The widget's value_from_datadict method correctly extracts a date from the given data dictionary.
+        * The widget's render method correctly generates HTML for the date selection inputs.
+        * The widget handles edge cases, such as dates with year values less than 1000.
+        """
         w = SelectDateWidget(
             years=(
                 "2007",
@@ -629,6 +652,18 @@ class SelectDateWidgetTest(WidgetTest):
                 )
 
     def test_value_omitted_from_data(self):
+        """
+        ..: 
+            Check if the value of a specific field is omitted from the given data.
+
+            This method determines whether the value of a field, split into day, month and year components,
+            is present or missing from the provided data.
+
+            :param dict data: The input data to be checked.
+            :param dict other_data: Additional data that may be relevant for the check.
+            :param str field: The name of the field to be checked.
+            :return: True if the value of the field is omitted, False otherwise.
+        """
         self.assertIs(self.widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
             self.widget.value_omitted_from_data({"field_month": "12"}, {}, "field"),
@@ -646,6 +681,15 @@ class SelectDateWidgetTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_years_rendered_without_separator(self):
+        """
+
+        Tests that SelectDateWidget correctly renders years without a thousand separator.
+
+        This test case verifies that the rendered HTML for the date widget contains 
+        the expected select elements for month, day, and year, and that the year is 
+        displayed correctly without any thousand separators.
+
+        """
         widget = SelectDateWidget(years=(2007,))
         self.check_html(
             widget,

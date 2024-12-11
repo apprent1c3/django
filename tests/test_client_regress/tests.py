@@ -29,6 +29,12 @@ from .views import CustomTestException
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating two user instances: a regular user and a staff user. 
+        The regular user has the username 'testclient' and the staff user has the username 'staff'. 
+        Both users have the password 'password' for testing purposes. 
+        This method is intended to be used as a class-level setup, providing a consistent set of test data for subsequent tests.
+        """
         cls.u1 = User.objects.create_user(username="testclient", password="password")
         cls.staff = User.objects.create_user(
             username="staff", password="password", is_staff=True
@@ -231,12 +237,35 @@ class AssertContainsTests(SimpleTestCase):
         self.assertNotContains(r, b"\xe3\x81\xaf\xe3\x81\x9f\xe3\x81\x91".decode())
 
     def test_binary_contains(self):
+        """
+
+        Tests if a binary response from the server contains specific byte sequences.
+
+        This test case verifies that the binary data received from the server
+        contains the expected byte pattern, indicating the presence of a PDF
+        document header. Additionally, it checks that asserting the presence of
+        this pattern with an incorrect count raises an AssertionError.
+
+        """
         r = self.client.get("/check_binary/")
         self.assertContains(r, b"%PDF-1.4\r\n%\x93\x8c\x8b\x9e")
         with self.assertRaises(AssertionError):
             self.assertContains(r, b"%PDF-1.4\r\n%\x93\x8c\x8b\x9e", count=2)
 
     def test_binary_not_contains(self):
+        """
+
+        Checks that a binary response does not contain certain byte sequences.
+
+        This test case verifies that the binary data returned from the '/check_binary/' endpoint
+        does not contain a specific ODF (OpenDocument Format) byte sequence. It also asserts
+        that attempting to verify the absence of a PDF (Portable Document Format) byte sequence
+        in the same response raises an AssertionError, confirming the presence of the PDF sequence.
+
+        The test helps ensure the correct handling of binary data and the expected content type
+        of the response from the '/check_binary/' endpoint.
+
+        """
         r = self.client.get("/check_binary/")
         self.assertNotContains(r, b"%ODF-1.4\r\n%\x93\x8c\x8b\x9e")
         with self.assertRaises(AssertionError):
@@ -247,6 +276,14 @@ class AssertContainsTests(SimpleTestCase):
         self.assertContains(r, gettext_lazy("once"))
 
     def test_nontext_not_contains(self):
+        """
+        Tests that a non-text view does not contain a specific translation string.
+
+        Checks the HTTP response from the '/no_template_view/' endpoint to ensure it does
+        not include the translated text 'never'. This test case helps verify that the
+        view returns the expected content and does not include unnecessary or incorrect
+        translations.
+        """
         r = self.client.get("/no_template_view/")
         self.assertNotContains(r, gettext_lazy("never"))
 
@@ -831,6 +868,17 @@ class ContextTests(TestDataMixin, TestCase):
             response.context["does-not-exist"]
 
     def test_contextlist_keys(self):
+        """
+        Tests the keys() method of the ContextList class.
+
+        Verifies that the keys() method returns a set of all unique keys 
+        across all contexts in the list, including default keys 'None', 
+        'True', and 'False'. 
+
+        This test ensures that the keys() method correctly handles 
+        merging of contexts with overlapping and non-overlapping keys, 
+        and that it returns the expected set of keys without duplicates.
+        """
         c1 = Context()
         c1.update({"hello": "world", "goodbye": "john"})
         c1.update({"hello": "dolly", "dolly": "parton"})
@@ -858,6 +906,19 @@ class ContextTests(TestDataMixin, TestCase):
         # Need to insert a context processor that assumes certain things about
         # the request instance. This triggers a bug caused by some ways of
         # copying RequestContext.
+        """
+
+        Tests the request context view functionality with custom template context processor.
+
+        This test case verifies that the request context is properly passed to the view
+        when using a custom context processor. It checks if the 'Path' key is correctly
+        included in the response content.
+
+        The test scenario simulates a GET request to the '/request_context_view/' URL
+        with a custom template backend and a special context processor. It asserts that
+        the response contains the expected 'Path' information.
+
+        """
         with self.settings(
             TEMPLATES=[
                 {
@@ -931,6 +992,26 @@ class SessionTests(TestDataMixin, TestCase):
         """Logout should send user_logged_out signal if user was logged in."""
 
         def listener(*args, **kwargs):
+            """
+
+            Listen to events triggered by a sender.
+
+            This function is a generic listener that verifies the source of the event.
+            Upon execution, it sets an internal flag to indicate that it has been triggered.
+
+            Parameters
+            ----------
+            *args : variable
+                Additional positional arguments (not used in this implementation).
+            **kwargs : variable
+                Keyword arguments, including 'sender' which must be an instance of User.
+
+            Notes
+            -----
+            The listener validates that the sender of the event is of type User.
+            It is intended for use as a callback or event handler in a larger system.
+
+            """
             listener.executed = True
             self.assertEqual(kwargs["sender"], User)
 
@@ -947,6 +1028,20 @@ class SessionTests(TestDataMixin, TestCase):
         """Logout should send user_logged_out signal if custom user was logged in."""
 
         def listener(*args, **kwargs):
+            """
+
+            Listener function that observes and responds to specific events.
+
+            This function is designed to be triggered by an event, and it validates the event's sender.
+            It checks if the sender matches the expected type, which is :class:`CustomUser`.
+
+            Upon successful validation, the function sets a flag to indicate its execution.
+
+            :param args: Variable number of arguments (not used)
+            :param kwargs: Keyword arguments, including 'sender'
+            :note: The function relies on the 'sender' keyword argument to be present and to match the :class:`CustomUser` type.
+
+            """
             self.assertEqual(kwargs["sender"], CustomUser)
             listener.executed = True
 
@@ -989,6 +1084,23 @@ class SessionTests(TestDataMixin, TestCase):
         """Logout should send signal even if user not authenticated."""
 
         def listener(user, *args, **kwargs):
+            """
+            Registers a user as a listener and marks the listener as executed.
+
+            Parameters
+            ----------
+            user : object
+                The user to be registered as a listener.
+            *args
+                Additional positional arguments (not used).
+            **kwargs
+                Additional keyword arguments (not used).
+
+            Notes
+            -----
+            This function maintains an internal state, where the registered user and the execution status are stored as function attributes.
+
+            """
             listener.user = user
             listener.executed = True
 
@@ -1127,6 +1239,18 @@ class RequestMethodStringDataTests(SimpleTestCase):
         self.assertEqual(response.content, b"{'value': 37}")
 
     def test_json(self):
+        """
+        Tests the JSON response from the '/json_response/' endpoint.
+
+        Verifies that the response contains the expected JSON data, specifically a dictionary with a 'key' and a 'value'. This test ensures the endpoint returns the correct JSON payload.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the JSON response does not match the expected output.
+
+        """
         response = self.client.get("/json_response/")
         self.assertEqual(response.json(), {"key": "value"})
 
@@ -1151,6 +1275,11 @@ class RequestMethodStringDataTests(SimpleTestCase):
             self.assertEqual(response.json(), {"key": "value"})
 
     def test_json_multiple_access(self):
+        """
+        Tests whether the JSON response from the '/json_response/' endpoint is consistently accessed multiple times.
+
+        The purpose of this test is to verify that accessing the JSON data of a response object more than once returns the same result, ensuring that the JSON parsing is idempotent and does not produce different outputs on subsequent accesses.
+        """
         response = self.client.get("/json_response/")
         self.assertIs(response.json(), response.json())
 
@@ -1261,6 +1390,17 @@ class DummyFile:
 
 class UploadedFileEncodingTest(SimpleTestCase):
     def test_file_encoding(self):
+        """
+
+        Tests the file encoding functionality.
+
+        This test case verifies the correct encoding of a file using a specified boundary and key.
+        It checks that the encoded file starts with the correct boundary, followed by a content disposition header
+        with the correct key and file name, and ends with the expected file content.
+
+        The test helps ensure that files are properly formatted for transmission, using the standard HTTP multipart/form-data format.
+
+        """
         encoded_file = encode_file(
             "TEST_BOUNDARY", "TEST_KEY", DummyFile("test_name.bin")
         )
@@ -1404,6 +1544,13 @@ class RequestFactoryEnvironmentTests(SimpleTestCase):
     """
 
     def test_should_set_correct_env_variables(self):
+        """
+
+        Tests that the RequestFactory correctly sets environment variables for an HTTP request.
+
+        This test case verifies that the request's metadata, such as the client's IP address, server name, port, protocol, and script path, are properly set when creating a request object.
+
+        """
         request = RequestFactory().get("/path/")
 
         self.assertEqual(request.META.get("REMOTE_ADDR"), "127.0.0.1")

@@ -10,5 +10,10 @@ class EmailBackend(BaseEmailBackend):
 
     def send_messages(self, email_messages):
         # Messages are stored in an instance variable for testing.
+        """
+        **:param email_messages: List of email messages to be sent**
+        **:return: Number of email messages sent**
+        **Appends a list of email messages to the test outbox and returns the total count of messages, simulating the sending of emails for testing purposes.**
+        """
         self.test_outbox.extend(email_messages)
         return len(email_messages)

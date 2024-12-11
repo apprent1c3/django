@@ -83,6 +83,22 @@ class Index:
         return bool(self.expressions)
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        Generates the SQL condition string for a given model based on the provided condition.
+
+        This method takes a model and a schema editor as input, and returns the SQL string 
+        representing the condition if one is defined, otherwise it returns None.
+
+        The condition is built using the Query class and then compiled to SQL using the 
+        compiler from the schema editor's connection. The resulting SQL string is then 
+        formatted with the provided parameter values, properly quoted using the schema 
+        editor's quote_value method.
+
+        The generated SQL string can be used to filter data in the database based on the 
+        defined condition. 
+
+        :returns: The SQL condition string or None if no condition is defined
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -135,6 +151,15 @@ class Index:
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current database index instance into its constituent parts.
+
+        This method breaks down the index into a tuple containing the path to the index class,
+        the expressions used to create the index, and a dictionary of keyword arguments
+        representing the index's parameters, including name, fields, database tablespace, 
+        opclasses, condition, and included fields. The resulting tuple can be used to 
+        recreate the index or to pass its configuration to other parts of the system.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
         kwargs = {"name": self.name}

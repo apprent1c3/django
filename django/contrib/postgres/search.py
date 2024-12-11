@@ -46,6 +46,11 @@ class _Float4Field(Field):
 
 class SearchConfig(Expression):
     def __init__(self, config):
+        """
+        Initializes the object with the provided configuration.
+
+        The configuration is expected to have a `resolve_expression` method. If this method is missing, the provided configuration is wrapped in a `Value` object to provide the necessary functionality. The resulting configuration is stored as an instance attribute for later use.
+        """
         super().__init__()
         if not hasattr(config, "resolve_expression"):
             config = Value(config)
@@ -293,6 +298,25 @@ class SearchHeadline(Func):
         max_fragments=None,
         fragment_delimiter=None,
     ):
+        """
+        Initializes a search object with a given expression, query, and optional configuration settings.
+
+        The expression and query are used to define the search parameters. The query can be a string or an object with a 'resolve_expression' method.
+
+        Additional parameters can be specified to customize the search behavior, including:
+
+        * Start and stop selection
+        * Maximum and minimum word count
+        * Short word handling
+        * Highlighting options
+        * Maximum fragments to return
+        * Fragment delimiter
+
+        The function also accepts an optional configuration object, which can be used to override default search settings.
+
+        The initialized object can be used to perform a search with the specified parameters. The actual search logic is delegated to the parent class, which is initialized with the provided expressions and configuration.
+
+        """
         if not hasattr(query, "resolve_expression"):
             query = SearchQuery(query)
         options = {

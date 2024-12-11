@@ -16,6 +16,16 @@ class TanTests(TestCase):
         self.assertIsNone(obj.null_tan)
 
     def test_decimal(self):
+        """
+
+        Tests the calculation of the tangent function for decimal numbers using the Tan database function.
+
+        This test case creates a DecimalModel instance with decimal values, annotates the model with the tangent of these values,
+        and verifies that the results are decimals and match the expected values calculated using the math library.
+
+        The test ensures that the database function correctly handles decimal inputs and produces accurate results.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_tan=Tan("n1"), n2_tan=Tan("n2")).first()
         self.assertIsInstance(obj.n1_tan, Decimal)
@@ -24,6 +34,15 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.n2_tan, Decimal(math.tan(obj.n2)))
 
     def test_float(self):
+        """
+
+        Tests the calculation of the tangent of floating point numbers using the database function.
+
+        Verifies that the tangent of two float values, one negative and one positive, 
+        are correctly calculated and returned as floating point numbers. The results 
+        are compared to the expected values calculated using the math library's tan function.
+
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_tan=Tan("f1"), f2_tan=Tan("f2")).first()
         self.assertIsInstance(obj.f1_tan, float)
@@ -32,6 +51,18 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.f2_tan, math.tan(obj.f2))
 
     def test_integer(self):
+        """
+
+        Tests the annotation of integer fields with the tangent function (Tan).
+
+        Verifies that the resulting values are floats and that they match the expected results
+        from the math.tan function. The test covers negative, small, and big integer values.
+
+        The purpose of this test is to ensure the correct application of the Tan annotation
+        to integer fields in a model, and to validate its output against known mathematical
+        results. 
+
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_tan=Tan("small"),

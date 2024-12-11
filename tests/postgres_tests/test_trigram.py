@@ -35,6 +35,16 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_word_search(self):
+        """
+        Tests the trigram word search functionality of the model.
+
+        This test case checks the ability to query the model based on trigram word similarity.
+        It verifies that objects can be retrieved using a trigram word similar match, 
+        including full words and substrings, ensuring the functionality works as expected.
+
+        The test covers two scenarios: exact word matching and prefix matching, 
+        validating that the results returned are correct and in the expected order.
+        """
         obj = self.Model.objects.create(
             field="Gumby rides on the path of Middlesbrough",
         )
@@ -63,6 +73,16 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_similarity(self):
+        """
+
+        Tests the TrigramSimilarity functionality by filtering model objects based on their similarity to a given search string.
+
+        The function verifies that the TrigramSimilarity function correctly ranks model objects by their similarity to the search string, 
+        and that the similarity values are accurately calculated.
+
+        It checks that the objects are ordered in descending order of similarity, with the most similar objects appearing first in the results.
+
+        """
         search = "Bat sat on cat."
         # Round result of similarity because PostgreSQL uses greater precision.
         self.assertQuerySetEqual(
@@ -94,6 +114,19 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_strict_word_similarity(self):
+        """
+
+        Tests the strict word similarity using trigrams for a given search term.
+
+        The function verifies that the model returns the expected results when filtering
+        objects based on the trigram word similarity between the search term and a
+        specific field. The results are ordered by the word similarity score in
+        descending order.
+
+        The test case checks that the model correctly annotates the objects with their
+        corresponding word similarity scores and returns the expected fields and scores.
+
+        """
         search = "matt"
         self.assertSequenceEqual(
             self.Model.objects.filter(field__trigram_word_similar=search)

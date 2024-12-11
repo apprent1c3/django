@@ -16,12 +16,35 @@ class TimezoneTests(SimpleTestCase):
         self.assertIsInstance(timezone.get_default_timezone(), zoneinfo.ZoneInfo)
 
     def test_now(self):
+        """
+        Tests the current time returned by timezone.now() considering timezone awareness.
+
+        This function checks if the current time is aware of timezone when USE_TZ setting is True and if the time is naive when USE_TZ setting is False, ensuring proper timezone handling in both cases.
+        """
         with override_settings(USE_TZ=True):
             self.assertTrue(timezone.is_aware(timezone.now()))
         with override_settings(USE_TZ=False):
             self.assertTrue(timezone.is_naive(timezone.now()))
 
     def test_localdate(self):
+        """
+
+        Returns the local date based on the provided timezone.
+
+        This function takes an optional aware datetime object and a target timezone.
+        If no datetime object is provided, it defaults to the current time using the
+        django.utils.timezone.now function. If the provided datetime object is naive
+        (i.e., it does not contain timezone information), a ValueError is raised.
+
+        The target timezone can be specified explicitly, or it can be overridden using
+        the timezone.override context manager.
+
+        The function returns a datetime.date object representing the local date in the
+        specified timezone.
+
+        :raises ValueError: If a naive datetime object is passed to the function.
+
+        """
         naive = datetime.datetime(2015, 1, 1, 0, 0, 1)
         with self.assertRaisesMessage(
             ValueError, "localtime() cannot be applied to a naive datetime"
@@ -106,10 +129,29 @@ class TimezoneTests(SimpleTestCase):
             self.assertEqual(timezone.get_current_timezone_name(), "Asia/Bangkok")
 
     def test_override_fixed_offset(self):
+        """
+        Tests that the timezone can be overridden with a fixed offset.
+
+        This test case checks that the current timezone name can be correctly retrieved 
+        after overriding the timezone with a fixed offset timezone.
+
+        The function uses a context manager to temporarily override the timezone and 
+        then verifies that the current timezone name matches the expected value.
+
+        """
         with timezone.override(datetime.timezone(datetime.timedelta(), "tzname")):
             self.assertEqual(timezone.get_current_timezone_name(), "tzname")
 
     def test_activate_invalid_timezone(self):
+        """
+        Tests that activating an invalid timezone raises a ValueError.
+
+        This test case verifies that attempting to activate a timezone with an
+        invalid value (in this case, None) results in a ValueError being raised
+        with a message indicating that the timezone is invalid. The purpose of
+        this test is to ensure that the timezone activation functionality handles
+        invalid input correctly and provides a meaningful error message.
+        """
         with self.assertRaisesMessage(ValueError, "Invalid timezone: None"):
             timezone.activate(None)
 
@@ -126,6 +168,25 @@ class TimezoneTests(SimpleTestCase):
         self.assertTrue(timezone.is_naive(datetime.datetime(2011, 9, 1, 13, 20, 30)))
 
     def test_make_aware(self):
+        """
+        Tests the functionality of making a naive datetime object timezone-aware.
+
+        This function checks if a datetime object can be successfully converted to a timezone-aware object.
+        It verifies that the timezone information is correctly applied when the input datetime object is naive.
+        Additionally, it ensures that attempting to make an already timezone-aware datetime object aware of a different timezone raises a ValueError.
+
+        The function uses the Eastern Africa Time (EAT) timezone for testing purposes.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the input datetime object is already timezone-aware.
+
+        """
         self.assertEqual(
             timezone.make_aware(datetime.datetime(2011, 9, 1, 13, 20, 30), EAT),
             datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT),
@@ -136,6 +197,13 @@ class TimezoneTests(SimpleTestCase):
             )
 
     def test_make_naive(self):
+        """
+        Tests the timezone.make_naive function to ensure it correctly converts time zone aware datetimes to naive ones.
+
+        The function is tested with datetimes from different time zones, and the results are verified to be correct. Additionally, the test checks that a ValueError is raised when attempting to apply make_naive to a naive datetime object, as this operation is not supported.
+
+        This test covers the core functionality of the make_naive function, including its ability to handle time zone conversions and handle invalid input. The test cases ensure that the function behaves as expected in various scenarios, providing confidence in its correctness and reliability.
+        """
         self.assertEqual(
             timezone.make_naive(
                 datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT), EAT
@@ -180,6 +248,13 @@ class TimezoneTests(SimpleTestCase):
             )
 
     def test_make_naive_zoneinfo(self):
+        """
+
+        Tests the timezone.make_naive function to ensure it correctly removes timezone information from a datetime object while preserving the fold attribute.
+
+        The function is expected to return a naive datetime object (i.e., a datetime object without timezone information) that has the same time as the original object. This test case covers both standard and fold-aware datetime objects.
+
+        """
         self.assertEqual(
             timezone.make_naive(
                 datetime.datetime(2011, 9, 1, 12, 20, 30, tzinfo=PARIS_ZI), PARIS_ZI
@@ -197,6 +272,15 @@ class TimezoneTests(SimpleTestCase):
 
     def test_make_aware_zoneinfo_ambiguous(self):
         # 2:30 happens twice, once before DST ends and once after
+        """
+        ..: Tests that the make_aware function correctly handles ambiguous datetime 
+            instances during daylight saving time (DST) transitions.
+
+            This function verifies that the make_aware function can distinguish between 
+            standard time (STD) and DST when given an ambiguous datetime instance. It 
+            ensures that the resulting datetime objects have the correct UTC offset and 
+            can be accurately converted to other time zones.
+        """
         ambiguous = datetime.datetime(2015, 10, 25, 2, 30)
 
         std = timezone.make_aware(ambiguous.replace(fold=1), timezone=PARIS_ZI)
@@ -210,6 +294,18 @@ class TimezoneTests(SimpleTestCase):
 
     def test_make_aware_zoneinfo_non_existent(self):
         # 2:30 never happened due to DST
+        """
+
+        Tests making a non-existent datetime object in a specific time zone aware.
+
+        This function verifies that a datetime object that falls within a time period 
+        where the clocks transition from standard time to daylight saving time (DST) 
+        or vice versa is correctly adjusted to account for the time zone's offset.
+
+        It checks that the resulting aware datetime objects have the correct UTC offset 
+        when converted to standard and DST time.
+
+        """
         non_existent = datetime.datetime(2015, 3, 29, 2, 30)
 
         std = timezone.make_aware(non_existent, PARIS_ZI)

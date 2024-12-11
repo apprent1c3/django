@@ -45,6 +45,13 @@ class FormsI18nTests(SimpleTestCase):
             )
 
     def test_non_ascii_label(self):
+        """
+        Tests that form field labels are correctly rendered as HTML tags, even when the label text contains non-ASCII characters.
+
+        Verifies that both the `label_tag` and `legend_tag` methods produce the expected HTML output for fields with and without custom widget attributes.
+
+        Ensures that the generated HTML for each field includes the correct label text and reference ID, whether the ID is automatically generated or explicitly specified through the field's widget attributes.
+        """
         class SomeForm(Form):
             field_1 = CharField(max_length=10, label=gettext_lazy("field_1"))
             field_2 = CharField(
@@ -70,6 +77,15 @@ class FormsI18nTests(SimpleTestCase):
         )
 
     def test_non_ascii_choices(self):
+        """
+
+        Tests the rendering of a form containing a ChoiceField with non-ASCII choice values.
+
+        Verifies that the form is displayed correctly both when the form is not bound to any data and when it is bound to an empty dictionary (i.e., no input data), and that the non-ASCII characters in the choice values and label are handled properly.
+
+        Also checks that the form behaves as expected when the language is set to Russian, including the display of validation errors.
+
+        """
         class SomeForm(Form):
             somechoice = ChoiceField(
                 choices=(("\xc5", "En tied\xe4"), ("\xf8", "Mies"), ("\xdf", "Nainen")),

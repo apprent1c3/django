@@ -42,6 +42,12 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(flea.pets_visited.all()))
 
     def test_prefetch_related_from_uuid_model_to_uuid_model_with_values_flat(self):
+        """
+        Tests the behavior of prefetching related objects between two models using UUIDs, specifically from a Pet to its hosted Fleas. 
+        This test case verifies that the prefetch_related method successfully retrieves related objects (in this case, Fleas) from the Pet model, 
+        when the related object relationship is established via a UUID-based foreign key. 
+        The test creates a Pet instance with associated people and then checks that the prefetched related Fleas are correctly retrieved and their IDs match the expected IDs.
+        """
         pet = Pet.objects.create(name="Fifi")
         pet.people.add(
             Person.objects.create(name="Ellen"),
@@ -56,6 +62,13 @@ class UUIDPrefetchRelated(TestCase):
 class UUIDPrefetchRelatedLookups(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating a complete scenario with a house, room, fleas, pet, and person.
+        This includes establishing relationships between these entities, such as a person owning a house and a pet, and the pet hosting fleas.
+        The resulting test data provides a comprehensive setup for testing various features and interactions within the application.
+
+        """
         house = House.objects.create(name="Redwood", address="Arcata")
         room = Room.objects.create(name="Racoon", house=house)
         fleas = [Flea.objects.create(current_room=room) for i in range(3)]
@@ -78,6 +91,20 @@ class UUIDPrefetchRelatedLookups(TestCase):
     def test_from_uuid_pk_lookup_integer_pk2_uuid_pk2(self):
         # From uuid-pk model, prefetch
         # <integer-pk model>.<integer-pk model>.<uuid-pk model>.<uuid-pk model>:
+        """
+
+        Tests the lookup of a UUID primary key using an integer primary key.
+
+        This test case verifies that when using Django's ORM, a `UUID` primary key can be retrieved 
+        using an `Integer` primary key with minimal database queries. It exercises the `prefetch_related` 
+        method to reduce the number of database queries.
+
+        The test checks that the number of database queries is minimized after the initial prefetch, 
+        and that the related objects can be accessed without triggering additional queries.
+
+        Verifies the correctness of the lookup and the efficiency of the query retrieval process.
+
+        """
         with self.assertNumQueries(5):
             spooky = Pet.objects.prefetch_related("people__houses__rooms__fleas").get(
                 name="Spooky"
@@ -90,6 +117,21 @@ class UUIDPrefetchRelatedLookups(TestCase):
 
     def test_from_integer_pk_lookup_uuid_pk_integer_pk(self):
         # From integer-pk model, prefetch <uuid-pk model>.<integer-pk model>:
+        """
+        Tests the optimization of integer primary key lookup in combination with UUID primary key.
+
+        This test case verifies that using prefetch_related on a model with integer primary key 
+        involving a UUID primary key lookup results in efficient database queries. It checks that 
+        after an initial query to retrieve a Room object, subsequent accesses to its related 
+        objects do not trigger additional database queries. The test ensures that the 
+        prefetch_related method correctly fetches all necessary related objects, allowing for 
+        fast and efficient data retrieval.
+
+        The test covers the scenario where a Room object is retrieved by its name and then its 
+        related Flea objects, and subsequently the People who visited those Flea objects, are 
+        accessed without causing additional database queries. The expected outcome is that the 
+        test passes without generating extra queries after the initial Room object retrieval.
+        """
         with self.assertNumQueries(3):
             racoon = Room.objects.prefetch_related("fleas__people_visited").get(
                 name="Racoon"
@@ -99,6 +141,16 @@ class UUIDPrefetchRelatedLookups(TestCase):
 
     def test_from_integer_pk_lookup_integer_pk_uuid_pk(self):
         # From integer-pk model, prefetch <integer-pk model>.<uuid-pk model>:
+        """
+
+        Tests the lookup of a model instance using an integer primary key and UUID primary key.
+
+        This test case retrieves a 'House' instance with the name 'Redwood' from the database, 
+        prefetching related 'rooms' and their associated 'fleas' in a single query. 
+        It then verifies that the number of 'fleas' in the first 'room' can be accessed without 
+        issuing any additional database queries, ensuring the efficacy of the prefetching operation.
+
+        """
         with self.assertNumQueries(3):
             redwood = House.objects.prefetch_related("rooms__fleas").get(name="Redwood")
         with self.assertNumQueries(0):
@@ -107,6 +159,11 @@ class UUIDPrefetchRelatedLookups(TestCase):
     def test_from_integer_pk_lookup_integer_pk_uuid_pk_uuid_pk(self):
         # From integer-pk model, prefetch
         # <integer-pk model>.<uuid-pk model>.<uuid-pk model>:
+        """
+        Tests the lookup of a foreign key relationship starting from an integer primary key 
+        and traversing through related model instances, ending at a UUID primary key, 
+        all while utilizing prefetch related optimization to minimize database queries.
+        """
         with self.assertNumQueries(4):
             redwood = House.objects.prefetch_related("rooms__fleas__pets_visited").get(
                 name="Redwood"

@@ -35,6 +35,31 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        Handle stale content types.
+
+        This function removes stale content types from a database, which are those 
+        that have had their corresponding model deleted from the application. 
+
+        It takes into account the following parameters: 
+        - the database to handle
+        - whether to include stale apps or not
+        - whether to run in interactive mode
+        - the level of verbosity.
+
+        If running in interactive mode, it will ask for confirmation before 
+        deleting any content types. If not running in interactive mode, it will 
+        delete content types without prompting.
+
+        The function also considers the models that depend on these stale content 
+        types and will delete those as well if confirmed to do so.
+
+        Any objects that depend on these content types will also be removed.
+
+        Note that this function will not delete any objects outside of Django models.
+
+        """
         db = options["database"]
         include_stale_apps = options["include_stale_apps"]
         interactive = options["interactive"]

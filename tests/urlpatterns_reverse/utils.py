@@ -15,6 +15,14 @@ class URLObject:
     ]
 
     def __init__(self, app_name, namespace=None):
+        """
+        Initializes an instance of the class with application metadata.
+
+        :param app_name: The name of the application.
+        :param namespace: Optional namespace for the application. Defaults to None.
+        :returns: None
+        :description: This method sets the fundamental properties of the class, including the application name and an optional namespace.
+        """
         self.app_name = app_name
         self.namespace = namespace
 

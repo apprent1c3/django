@@ -98,6 +98,16 @@ class LayerMapTest(TestCase):
             self.assertAlmostEqual(pnt1.y, pnt2.y, 5)
 
     def test_data_source_str(self):
+        """
+
+        Tests the data source string by loading city shapefile data into the City model.
+
+        This method utilizes LayerMapping to import city data from a shapefile, 
+        defined by city_shp and city_mapping, and saves it to the City model.
+        It then verifies that the data import was successful by checking the 
+        number of City objects in the database, expecting a count of 3.
+
+        """
         lm = LayerMapping(City, str(city_shp), city_mapping)
         lm.save()
         self.assertEqual(City.objects.count(), 3)

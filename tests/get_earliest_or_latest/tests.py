@@ -11,6 +11,18 @@ class EarliestOrLatestTests(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the class by performing necessary initializations before any tests are run.
+
+        This method is called once before any tests in the class are executed. It ensures that
+        the class is properly configured and that any necessary attributes are initialized.
+
+        In this case, it sets up the `_article_get_latest_by` class attribute by retrieving
+        the `get_latest_by` field from the `Article` model's metadata. This allows for
+        convenient access to the field used for determining the latest article.
+
+        """
         super().setUpClass()
         cls._article_get_latest_by = Article._meta.get_latest_by
 
@@ -184,6 +196,18 @@ class EarliestOrLatestTests(TestCase):
     def test_latest_manual(self):
         # You can still use latest() with a model that doesn't have
         # "get_latest_by" set -- just pass in the field name manually.
+        """
+
+        Tests the latest object retrieval functionality in the ORM.
+
+        This test ensures that attempting to retrieve the latest object without specifying
+        the field or having 'get_latest_by' defined in the model's Meta raises a ValueError.
+        It also verifies that the latest object is correctly retrieved when the field is specified.
+
+        The test creates two Person objects with different birthdays and checks that the
+        object with the latest birthday is returned when 'birthday' is specified as the field.
+
+        """
         Person.objects.create(name="Ralph", birthday=datetime(1950, 1, 1))
         p2 = Person.objects.create(name="Stephanie", birthday=datetime(1960, 2, 3))
         msg = (
@@ -230,6 +254,13 @@ class TestFirstLast(TestCase):
         def check():
             # We know that we've broken the __iter__ method, so the queryset
             # should always raise an exception.
+            """
+
+            Verifies that attempting to access or manipulate data from the IndexErrorArticle model raises an IndexError.
+
+            This check is performed on several operations, including slicing, and retrieving the first and last objects.
+
+            """
             with self.assertRaises(IndexError):
                 IndexErrorArticle.objects.all()[:10:2]
             with self.assertRaises(IndexError):
@@ -248,6 +279,18 @@ class TestFirstLast(TestCase):
         check()
 
     def test_first_last_unordered_qs_aggregation_error(self):
+        """
+
+        Tests that attempting to call :meth:`~django.db.models.query.QuerySet.first` or 
+        :meth:`~django.db.models.query.QuerySet.last` on an unordered QuerySet that 
+        performs aggregation raises a :exc:`TypeError`.
+
+        The test case verifies that Django correctly handles the case when a QuerySet 
+        is performing aggregation (using :meth:`~django.db.models.query.QuerySet.annotate`) 
+        but is not ordered. It checks that calling :meth:`~django.db.models.query.QuerySet.first` 
+        or :meth:`~django.db.models.query.QuerySet.last` on such a QuerySet results in an error.
+
+        """
         a1 = Article.objects.create(
             headline="Article 1",
             pub_date=datetime(2005, 7, 26),

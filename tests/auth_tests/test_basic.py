@@ -74,6 +74,14 @@ class BasicTestCase(TestCase):
         self.assertTrue(super.is_staff)
 
     def test_superuser_no_email_or_password(self):
+        """
+
+        Tests the creation of a superuser without providing an email address or password.
+
+        This test checks various cases where the email or password is either empty or null,
+        and verifies that the resulting superuser object has an empty email address and no usable password.
+
+        """
         cases = [
             {},
             {"email": ""},
@@ -126,12 +134,32 @@ class BasicTestCase(TestCase):
 
 class TestGetUser(TestCase):
     def test_get_user_anonymous(self):
+        """
+
+        Tests the get_user function to ensure it correctly returns an AnonymousUser 
+        when the request does not contain authentication information. 
+
+        This test case verifies that the function behaves as expected when handling 
+        unauthenticated requests, providing a clear understanding of the function's 
+        anonymous user handling capabilities.
+
+        """
         request = HttpRequest()
         request.session = self.client.session
         user = get_user(request)
         self.assertIsInstance(user, AnonymousUser)
 
     async def test_aget_user_anonymous(self):
+        """
+
+        Tests the retrieval of an anonymous user through the aget_user function.
+
+        This test case creates a fake HTTP request, initializes a session, and then uses
+        the aget_user function to fetch the user associated with the request. It 
+        verifies that the returned user is an instance of AnonymousUser, confirming 
+        that the function behaves correctly when dealing with unauthenticated requests.
+
+        """
         request = HttpRequest()
         request.session = await self.client.asession()
         user = await aget_user(request)

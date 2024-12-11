@@ -86,6 +86,18 @@ class FormsTestCase(SimpleTestCase):
 
     def test_form(self):
         # Pass a dictionary to a Form's __init__().
+        """
+        Tests the Person form to ensure it is correctly bound and validated.
+
+        Checks that the form is bound and valid with no errors, and that the cleaned data matches the input data.
+        Verifies that the form fields are correctly rendered as HTML inputs and that their values are correctly displayed.
+        Tests that accessing a non-existent field raises a KeyError with the expected error message.
+        Checks that iterating over the form fields produces the expected HTML output and field data.
+        Tests the as_div and __str__ methods to ensure they produce the expected HTML output.
+
+        Ensures that the form's label and data are correctly extracted for each field.
+        Verifies that the form's HTML representation matches the expected output, including labels and input fields.
+        """
         p = Person(
             {"first_name": "John", "last_name": "Lennon", "birthday": "1940-10-9"}
         )
@@ -249,6 +261,9 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_empty_querydict_args(self):
+        """
+        Tests that a Person instance correctly stores and retrieves empty QueryDict objects when no data or files are provided as arguments.
+        """
         data = QueryDict()
         files = QueryDict()
         p = Person(data, files)
@@ -259,6 +274,14 @@ class FormsTestCase(SimpleTestCase):
         # If you don't pass any values to the Form's __init__(), or if you pass None,
         # the Form will be considered unbound and won't do any validation. Form.errors
         # will be an empty dictionary *but* Form.is_valid() will return False.
+        """
+        Tests an unbound form instance, ensuring it has the expected properties and methods. 
+
+        Specifically, this test checks that the form is initially invalid, contains no errors, and does not have cleaned data. 
+        It also verifies that the form can be correctly rendered as HTML in various formats, including string representation, table, unordered list, paragraph, and div, to ensure that the form fields are displayed as expected. 
+
+        The test covers various scenarios to ensure that the form behaves correctly when no data has been bound to it, providing a solid foundation for further testing and validation.
+        """
         p = Person()
         self.assertFalse(p.is_bound)
         self.assertEqual(p.errors, {})
@@ -314,6 +337,18 @@ class FormsTestCase(SimpleTestCase):
 
     def test_unicode_values(self):
         # Unicode values are handled properly.
+        """
+        Tests the functionality of the Person class with unicode values.
+
+        Ensures that the class can handle special characters in first and last names.
+        Verifies that required fields are properly validated and error messages are
+        handled correctly. Also tests the rendering of form fields with different
+        types of HTML structures (table, unordered list, paragraph, div).
+
+        Checks that cleaned data is properly extracted and that field-specific errors
+        are correctly reported. Additionally, tests the string representation of
+        fields and their corresponding error messages.
+        """
         p = Person(
             {
                 "first_name": "John",
@@ -410,6 +445,15 @@ class FormsTestCase(SimpleTestCase):
         # Form, even if you pass extra data when you define the Form. In this
         # example, we pass a bunch of extra fields to the form constructor,
         # but cleaned_data contains only the form's fields.
+        """
+
+        Tests if the Person class correctly cleans and validates input data, only including the required fields.
+
+        This test case ensures that the cleaned_data attribute of the Person instance contains the expected first name, last name, 
+        and birthday, and that any extra fields are properly excluded. The test also verifies that the is_valid method returns 
+        True to indicate successful validation.
+
+        """
         data = {
             "first_name": "John",
             "last_name": "Lennon",
@@ -429,6 +473,19 @@ class FormsTestCase(SimpleTestCase):
         # that are not required. In this example, the data dictionary doesn't
         # include a value for the "nick_name" field, but cleaned_data includes
         # it. For CharFields, it's set to the empty string.
+        """
+
+        Tests the functionality of optional form fields in the Django Form class.
+
+        The test covers two scenarios: 
+        1. A form with a CharField that is not required (i.e., `nick_name`).
+        2. A form with a DateField that is not required (i.e., `birth_date`).
+
+        Verifies that the form is valid even when the optional fields are not provided.
+        Checks that the cleaned data for the optional fields behaves as expected, 
+        i.e., it is an empty string for CharField and None for DateField when not provided.
+
+        """
         class OptionalPersonForm(Form):
             first_name = CharField()
             last_name = CharField()
@@ -500,6 +557,13 @@ class FormsTestCase(SimpleTestCase):
     def test_auto_id_true(self):
         # If auto_id is any True value whose str() does not contain '%s', the "id"
         # attribute will be the name of the field.
+        """
+        Checks that the Person object generates correct HTML list representation 
+        when 'auto_id' is enabled. This includes the creation of HTML labels 
+        and input fields for 'first_name', 'last_name', and 'birthday' fields, 
+        each with an 'id' and 'name' attribute, and that each input field is 
+        marked as 'required'.
+        """
         p = Person(auto_id=True)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -514,6 +578,11 @@ class FormsTestCase(SimpleTestCase):
     def test_auto_id_false(self):
         # If auto_id is any False value, an "id" attribute won't be output unless it
         # was manually entered.
+        """
+        Tests the rendering of a Person object as an unordered list when auto-id is disabled.
+
+        The function verifies that the Person object is correctly displayed as a list of input fields for first name, last name, and birthday, without any HTML id attributes being automatically generated.
+        """
         p = Person(auto_id=False)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -525,6 +594,13 @@ class FormsTestCase(SimpleTestCase):
     def test_id_on_field(self):
         # In this example, auto_id is False, but the "id" attribute for the "first_name"
         # field is given. Also note that field gets a <label>, while the others don't.
+        """
+        Tests that the id attribute is not automatically added to form fields when auto_id is set to False.
+
+        Verifies that the generated HTML output for a PersonNew form does not include an id attribute on fields when auto_id is disabled, with the exception of the first field which retains its id for accessibility purposes.
+
+        The test checks for the correct HTML structure, including label and input tags, and ensures that the required attributes are present on the input fields. The resulting HTML output is verified to match the expected format, with id attributes only present where expected.
+        """
         p = PersonNew(auto_id=False)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -537,6 +613,19 @@ class FormsTestCase(SimpleTestCase):
     def test_auto_id_on_form_and_field(self):
         # If the "id" attribute is specified in the Form and auto_id is True, the "id"
         # attribute in the Form gets precedence.
+        """
+
+        Tests automatic id generation for form and field elements.
+
+        This test case verifies that when auto_id is enabled, the function correctly
+        generates and assigns unique ids to form fields. It checks the resulting HTML
+        output to ensure that each field has a properly formatted id attribute, and
+        that these ids are correctly referenced in their corresponding label tags.
+
+        The test covers the scenario where auto_id is set to True, and checks the
+        generated HTML against an expected output to confirm correct functionality.
+
+        """
         p = PersonNew(auto_id=True)
         self.assertHTMLEqual(
             p.as_ul(),
@@ -610,6 +699,13 @@ class FormsTestCase(SimpleTestCase):
 
     def test_widget_output(self):
         # Any Field can have a Widget class passed to its constructor:
+        """
+        Tests the output of a form widget, specifically a CharField with and without a Textarea widget, 
+        ensuring that the HTML representation is correct and matches expected results.
+        This includes testing the default widget, as well as a customized Textarea widget with specific rows and columns.
+        It also covers rendering of the widget with and without bound data, 
+        including rendering as different types of fields (e.g., textarea, text, hidden) and verifying the output against expected HTML strings.
+        """
         class ContactForm(Form):
             subject = CharField()
             message = CharField(widget=Textarea)
@@ -668,6 +764,20 @@ class FormsTestCase(SimpleTestCase):
 
     def test_forms_with_choices(self):
         # For a form with a <select>, use ChoiceField:
+        """
+        Tests the rendering of Django form fields, specifically ChoiceField, with various configurations.
+
+        This test case covers the following scenarios:
+
+        - ChoiceField with a list of choices
+        - ChoiceField with a list of choices and a selected value
+        - ChoiceField with an empty choice (e.g., a blank option)
+        - ChoiceField with custom HTML attributes (e.g., CSS class)
+        - ChoiceField with custom widget and choices
+        - ChoiceField without any choices specified, demonstrating dynamic assignment of choices.
+
+        It verifies that the resulting HTML select elements are correctly rendered according to the provided choices and configurations.
+        """
         class FrameworkForm(Form):
             name = CharField()
             language = ChoiceField(choices=[("P", "Python"), ("J", "Java")])
@@ -783,6 +893,17 @@ class FormsTestCase(SimpleTestCase):
 
     def test_forms_with_radio(self):
         # Add widget=RadioSelect to use that widget with a ChoiceField.
+        """
+        Tests the rendering of forms with radio buttons using the FrameworkForm class.
+
+         The function creates a FrameworkForm instance with and without auto_id, and checks the rendered HTML of the form's fields in various formats, including as a table, unordered list, paragraphs, and using a custom template.
+
+         It verifies that the form's fields, including text input and radio buttons, are correctly rendered with and without auto-generated ids.
+
+         The test checks for the correct structure and attributes of the HTML elements, including input names, values, labels, and ids. 
+
+         Please note that it is highly implementation-specific and should be maintained or modified with care as any changes to the FrameworkForm class or its rendering functionality may break this test.
+        """
         f = FrameworkForm(auto_id=False)
         self.assertHTMLEqual(
             str(f["language"]),
@@ -931,6 +1052,18 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_form_with_iterable_boundfield_id(self):
+        """
+        Tests a form with an iterable BoundField id.
+
+        This test case verifies that a form using a ChoiceField with a RadioSelect widget 
+        correctly generates an iterable BoundField with the expected id, choice label, and HTML output.
+
+        It checks the length of the fields, the id for each label, the choice label, 
+        and the HTML output of the radio input and its corresponding label for each option.
+
+        The test ensures that the form's field ids are properly generated and that the HTML output 
+        matches the expected structure and content.
+        """
         class BeatleForm(Form):
             name = ChoiceField(
                 choices=[
@@ -970,6 +1103,13 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_iterable_boundfield_select(self):
+        """
+        Tests the rendering of a ChoiceField in a Django form as an iterable BoundField, 
+        verifying the correct output of HTML option tags and their corresponding labels. 
+        This test case checks the number of choices, the id for the label, the choice label, 
+        and the HTML representation of each option tag in the ChoiceField. 
+        It ensures that the ChoiceField is properly rendered as a select element with options.
+        """
         class BeatleForm(Form):
             name = ChoiceField(
                 choices=[
@@ -1019,6 +1159,14 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_boundfield_invalid_index(self):
+        """
+        ```\"\"\"Tests that attempting to access a BoundField with a non-integer or non-slice index raises a TypeError.
+
+        The test creates a form with a ChoiceField and then attempts to access the field using a string index, which should result in a TypeError being raised with a specific error message.
+
+        :raises: TypeError
+        :raises: AssertionError if the TypeError is not raised with the expected error message\"\"\"```
+        """
         class TestForm(Form):
             name = ChoiceField(choices=[])
 
@@ -1037,6 +1185,13 @@ class FormsTestCase(SimpleTestCase):
 
     def test_forms_with_multiple_choice(self):
         # MultipleChoiceField is a special case, as its data is required to be a list:
+        """
+        Tests the rendering of Django form fields, specifically MultipleChoiceField, within a Form.
+
+        The test covers various scenarios, including rendering multiple choice fields with and without choices, 
+        rendering fields within a form with bound and unbound data, and testing different form rendering methods 
+        (such as as_table, as_ul, as_p, and render). The expected HTML output is verified in each case.
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField()
@@ -1114,6 +1269,11 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_multiple_checkbox_render(self):
+        """
+        Tests the rendering of a form with multiple checkboxes.
+
+        The test case covers different rendering formats, including table, unordered list, paragraph, and div layouts. It verifies that the form fields, including a text input for the song name and multiple checkboxes for composers, are correctly rendered in each format. The test ensures that the HTML output matches the expected structure and content, including field names, labels, and checkbox values.
+        """
         f = SongForm()
         self.assertHTMLEqual(
             f.as_table(),
@@ -1166,6 +1326,22 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_form_with_disabled_fields(self):
+        """
+        Tests the functionality of forms with disabled fields.
+
+        Verifies that forms with disabled fields can still pass validation and 
+        return the expected cleaned data, regardless of whether the field's 
+        value is provided through the form's initial data or an initial parameter 
+        in the field's definition. Also checks that the disabled field's value 
+        remains unchanged when the form is submitted with data for that field.
+
+        Ensures the correct behavior in various scenarios, including when 
+        the form is submitted with valid data, when the form is submitted with 
+        data that would normally change the disabled field's value, and when 
+        the form is submitted without any data. The test cases cover forms 
+        where the disabled field's initial value is set through the form's 
+        initial data and where it is set through the field's initial parameter.
+        """
         class PersonForm(Form):
             name = CharField()
             birthday = DateField(disabled=True)
@@ -1207,6 +1383,21 @@ class FormsTestCase(SimpleTestCase):
             self.assertEqual(form["birthday"].value(), datetime.date(1974, 8, 16))
 
     def test_hidden_data(self):
+        """
+
+        Tests how HTML form fields with hidden input type are rendered.
+
+        This function examines how form fields, including MultipleChoiceField and SplitDateTimeField, 
+        are rendered as hidden fields. It checks that the field values are correctly represented 
+        in the resulting HTML and that fields with multiple values (such as MultipleChoiceField 
+        with multiple selected options) are properly handled.
+
+        The test covers cases where the form field is a single value (e.g., a CharField), 
+        a multiple-choice field with a single selected option, and a multiple-choice field 
+        with multiple selected options. Additionally, it verifies that fields with complex 
+        structures, such as SplitDateTimeField, are correctly rendered as hidden fields.
+
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField(
@@ -1248,6 +1439,18 @@ class FormsTestCase(SimpleTestCase):
 
     def test_multiple_choice_checkbox(self):
         # MultipleChoiceField can also be used with the CheckboxSelectMultiple widget.
+        """
+
+        Tests the rendering of a multiple choice checkbox field in the SongForm.
+
+        This test case covers three scenarios:
+        1. An empty form: Verifies that the checkboxes are rendered without any pre-selected options.
+        2. A form with one pre-selected composer: Checks that the corresponding checkbox is rendered as selected.
+        3. A form with multiple pre-selected composers: Ensures that all selected checkboxes are rendered as checked.
+
+        The test asserts that the HTML output of the 'composers' field matches the expected structure and content in each scenario.
+
+        """
         f = SongForm(auto_id=False)
         self.assertHTMLEqual(
             str(f["composers"]),
@@ -1289,6 +1492,17 @@ class FormsTestCase(SimpleTestCase):
         # Regarding auto_id, CheckboxSelectMultiple is a special case. Each checkbox
         # gets a distinct ID, formed by appending an underscore plus the checkbox's
         # zero-based index.
+        """
+        Tests the automatic generation of HTML IDs for checkboxes in a Django form.
+
+        Verifies that a MultipleChoiceField with a CheckboxSelectMultiple widget correctly
+        generates unique IDs for each checkbox, following the format specified by the form's
+        auto_id parameter. The generated HTML is compared to an expected output to ensure
+        consistency and correctness.
+
+        The test case uses a sample form containing a MultipleChoiceField with two checkbox
+        options, and checks that the resulting HTML matches the expected structure and IDs.
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField(
@@ -1314,6 +1528,15 @@ class FormsTestCase(SimpleTestCase):
     def test_multiple_choice_list_data(self):
         # Data for a MultipleChoiceField should be a list. QueryDict and
         # MultiValueDict conveniently work with this.
+        """
+
+        Tests a MultipleChoiceField in a form with different types of data to ensure it correctly handles 
+        the provided values and returns the expected choices without any errors.
+
+        This function covers various data formats, including dictionaries, QueryDicts, and MultiValueDicts, 
+        to verify that the form field can effectively process and validate the input data.
+
+        """
         class SongForm(Form):
             name = CharField()
             composers = MultipleChoiceField(
@@ -1515,6 +1738,17 @@ class FormsTestCase(SimpleTestCase):
 
             def clean(self):
                 # Test raising a ValidationError as NON_FIELD_ERRORS.
+                """
+
+                Validates and cleans the form data, ensuring password fields match and do not contain forbidden values.
+
+                Raises a :class:`ValidationError` if the passwords do not match or if either password field contains a forbidden value.
+                The validation checks for two types of forbidden values, with the first type raising a :class:`ValidationError` with field-specific errors,
+                and the second type adding both field-specific and non-field errors to the form.
+
+                Returns the cleaned form data if validation is successful.
+
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -1727,6 +1961,24 @@ class FormsTestCase(SimpleTestCase):
         self.assertFalse(f.has_error(NON_FIELD_ERRORS, "anything"))
 
     def test_html_output_with_hidden_input_field_errors(self):
+        """
+        Tests the HTML output of a form with hidden input field errors.
+
+        This test ensures that when a form contains a hidden input field with errors,
+        the errors are displayed correctly when the form is rendered as HTML.
+        The test checks that the errors are displayed in various formats, including
+        a table, an unordered list, a paragraph, and a custom template.
+
+        The test verifies that the errors are displayed with the correct messages,
+        including a form-wide error and an error specific to the hidden input field.
+        It also checks that the hidden input field itself is included in the rendered HTML.
+
+        This test covers the following formats:
+        - as_table()
+        - as_ul()
+        - as_p()
+        - render() with a custom template
+        """
         class TestForm(Form):
             hidden_input = CharField(widget=HiddenInput)
 
@@ -1770,6 +2022,27 @@ class FormsTestCase(SimpleTestCase):
         # It's possible to construct a Form dynamically by adding to the self.fields
         # dictionary in __init__(). Don't forget to call Form.__init__() within the
         # subclass' __init__().
+        """
+        Tests dynamic construction of Django forms.
+
+        This method checks that forms can be dynamically constructed by adding fields,
+        modifying existing fields, and changing field options such as required status,
+        max length, and choices. It ensures that these changes are correctly reflected
+        in the generated HTML form.
+
+        The tests cover various scenarios, including:
+
+        * Adding fields dynamically to a form
+        * Modifying existing fields to make them required or change their max length
+        * Adding new choices to a ChoiceField
+        * Dynamic generation of forms with varying field configurations
+
+        The goal of these tests is to verify that the form construction logic is working
+        correctly and that the resulting HTML forms are as expected. This ensures that
+        forms can be dynamically generated and customized based on different conditions
+        or user input, while still producing valid and functional HTML forms.
+
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
@@ -1795,6 +2068,19 @@ class FormsTestCase(SimpleTestCase):
         # the next.
         class MyForm(Form):
             def __init__(self, data=None, auto_id=False, field_list=[]):
+                """
+                Initializes a form object.
+
+                This constructor allows for customization of the form with initial data and a list of fields.
+                The :param:`data` parameter can be used to populate the form with existing information.
+                The :param:`auto_id` flag controls whether to automatically assign unique identifiers to the form's fields.
+                The :param:`field_list` parameter is a list of tuples, where each tuple contains the name of a field and its corresponding value.
+                These fields are then added to the form, making them available for further use.
+
+                :param data: Optional data to initialize the form with
+                :param auto_id: Flag to automatically assign unique identifiers to the form's fields
+                :param field_list: List of tuples containing field names and their corresponding values
+                """
                 Form.__init__(self, data, auto_id=auto_id)
 
                 for field in field_list:
@@ -1824,6 +2110,15 @@ class FormsTestCase(SimpleTestCase):
             default_field_2 = CharField()
 
             def __init__(self, data=None, auto_id=False, field_list=[]):
+                """
+
+                Initializes a form object.
+
+                :param data: Initial data for the form.
+                :param auto_id: Flag to automatically generate IDs for the form.
+                :param field_list: List of tuples containing field names and their corresponding values.
+
+                """
                 Form.__init__(self, data, auto_id=auto_id)
 
                 for field in field_list:
@@ -1935,6 +2230,10 @@ class FormsTestCase(SimpleTestCase):
             gender = ChoiceField(choices=(("f", "Female"), ("m", "Male")))
 
             def __init__(self, allow_unspec_gender=False, *args, **kwargs):
+                """
+                :param bool allow_unspec_gender: If set to True, allows the 'gender' field to have an 'Unspecified' option in addition to the existing choices.
+                :note: This initializer extends the parent class's initializer with the additional functionality of customizing the 'gender' field.
+                """
                 super().__init__(*args, **kwargs)
 
                 if allow_unspec_gender:
@@ -2137,6 +2436,19 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_hidden_widget_does_not_have_aria_describedby(self):
+        """
+
+        Test that a hidden widget in a form does not have an aria-describedby attribute.
+
+        This test ensures that the HTML generated for a hidden form field does not include
+        an aria-describedby attribute, which is used to reference a description of the
+        element for accessibility purposes. Since a hidden field is not visible to the user,
+        it should not have a description.
+
+        The test uses a sample form with a single hidden text field to verify the expected
+        HTML output.
+
+        """
         class TestForm(Form):
             hidden_text = CharField(widget=HiddenInput, help_text="Help Text")
 
@@ -2147,6 +2459,17 @@ class FormsTestCase(SimpleTestCase):
 
     def test_field_order(self):
         # A Form's fields are displayed in the same order in which they were defined.
+        """
+
+        Test that the fields in a form are rendered in the correct order when 
+        as_table() method is called.
+
+        This test case creates a test form with 14 character fields, then checks 
+        that the fields are rendered as table rows in the order they were 
+        defined in the form. The test is case sensitive and verifies that each 
+        field is followed by its corresponding input field in the generated HTML.
+
+        """
         class TestForm(Form):
             field1 = CharField()
             field2 = CharField()
@@ -2174,6 +2497,21 @@ class FormsTestCase(SimpleTestCase):
         )
 
     def test_explicit_field_order(self):
+        """
+        #: Tests the handling of explicit field order in form classes.
+        #: 
+        #: Verifies that fields are ordered according to the `field_order` attribute, 
+        #: that fields without an explicit order are appended to the end, and that 
+        #: fields removed from the `field_order` attribute or set to `None` are still 
+        #: included in the form fields, albeit in a different order. 
+        #: 
+        #: Additionally, checks the behavior when the `field_order` attribute is set 
+        #: to `None` or is missing, and when the order is specified at form initialization. 
+        #: 
+        #: Confirms that the form fields are correctly ordered in different scenarios, 
+        #: including when the `field_order` attribute is modified or when new fields 
+        #: are added or removed.
+        """
         class TestFormParent(Form):
             field1 = CharField()
             field2 = CharField()
@@ -2198,6 +2536,15 @@ class FormsTestCase(SimpleTestCase):
             field_order = None
 
             def __init__(self, **kwargs):
+                """
+
+                Initializes the instance, setting up the internal state and ordering the fields according to the specified field order.
+
+                The initialization process involves calling the parent class's constructor with any provided keyword arguments, and then ordering the fields based on the predefined field order defined in :attr:`TestForm.field_order`.
+
+                This ensures that the fields are consistently arranged in a specific order, which can be useful for presenting the form to users or for internal processing.
+
+                """
                 super().__init__(**kwargs)
                 self.order_fields(field_order=TestForm.field_order)
 
@@ -2223,6 +2570,20 @@ class FormsTestCase(SimpleTestCase):
         # Widget. If you set max_length in a CharField and its associated widget is
         # either a TextInput or PasswordInput, then the widget's rendered HTML will
         # include the "maxlength" attribute.
+        """
+
+        Tests the HTML attributes rendered by Django forms.
+
+        This function verifies that Django forms correctly generate HTML attributes for 
+        their fields, specifically checking the 'maxlength' attribute. It tests both the 
+        case where the 'maxlength' attribute is set explicitly in the widget, and the 
+        case where it is inferred from the field's 'max_length' parameter.
+
+        The test checks that the resulting HTML is as expected, including the correct 
+        rendering of 'maxlength' and 'type' attributes for different field types, such 
+        as text and password inputs.
+
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)  # uses TextInput by default
             password = CharField(max_length=10, widget=PasswordInput)
@@ -2414,6 +2775,16 @@ class FormsTestCase(SimpleTestCase):
         # data. It is not displayed when a Form is rendered with any data (including an
         # empty dictionary). Also, the initial value is *not* used if data for a
         # particular required field isn't provided.
+        """
+
+        Tests the initial data of a UserRegistration form.
+
+        This test case checks the rendering of the form with different initial values, 
+        enforcing the correct rendering of fields, including their initial values and
+        error messages when necessary. It verifies that required fields are properly 
+        marked and that error messages are displayed when the form is invalid.
+
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10, initial="django")
             password = CharField(widget=PasswordInput)
@@ -2472,6 +2843,17 @@ Password: <input type="password" name="password" aria-invalid="true" required></
         # (i.e., at runtime). Use the 'initial' parameter to the Form constructor. This
         # should be a dictionary containing initial values for one or more fields in the
         # form, keyed by field name.
+        """
+        Tests the dynamic initialization of form data in Django forms.
+
+        Verifies that the form fields are correctly populated with initial data,
+        and that the 'initial' parameter takes precedence over the 'data' parameter.
+        Checks for correct HTML rendering of form fields with initial data,
+        including required fields and password fields.
+
+        Also tests that when 'data' is provided, it overrides the 'initial' data,
+        and that form validation correctly reports missing required fields.
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
@@ -2556,6 +2938,19 @@ Password: <input type="password" name="password" aria-invalid="true" required></
     def test_callable_initial_data(self):
         # The previous technique dealt with raw values as initial data, but it's also
         # possible to specify callable data.
+        """
+
+        Test the initialization of form fields with callable initial data.
+
+        Verifies that form fields are properly initialized with values returned 
+        by callable objects passed as the 'initial' parameter to the Form class. 
+        In cases where the field has an 'initial' attribute, this value takes 
+        precedence over any values provided by the form's 'initial' parameter.
+
+        Checks for both valid and invalid form submissions to ensure that 
+        callable initial data is correctly applied in various scenarios.
+
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
@@ -2704,6 +3099,20 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_get_initial_for_field(self):
+        """
+
+        Tests the functionality of getting initial values for form fields.
+
+        This function verifies that the `get_initial_for_field` method correctly retrieves the initial values for fields 
+        in a form, considering both explicit initial values and those generated by callable functions. It checks 
+        various field types, including CharField, IntegerField, and DateTimeField, to ensure that initial values are 
+        returned as expected.
+
+        The test covers different scenarios, such as fields with explicitly set initial values, fields with callable 
+        initial values, and fields without any initial value. The correctness of the `get_initial_for_field` method 
+        is validated for each field type and scenario, ensuring that it behaves as expected in various situations.
+
+        """
         now = datetime.datetime(2006, 10, 25, 14, 30, 45, 123456)
 
         class PersonForm(Form):
@@ -2733,6 +3142,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
                 self.assertEqual(actual, expected)
 
     def test_changed_data(self):
+        """
+
+        Tests whether the changed_data dictionary on a Form instance correctly
+        identifies fields that have been modified from their initial values.
+
+        Checks the following scenarios:
+        - When a field's value is modified, it is included in changed_data.
+        - When a field's value is not modified, it is not included in changed_data.
+        - When a field's validation fails, it is included in changed_data, even if its value was not actually changed.
+
+        """
         class Person(Form):
             first_name = CharField(initial="Hans")
             last_name = CharField(initial="Greatel")
@@ -2809,6 +3229,16 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(form["name"].value(), "John Doe")
 
     def test_custom_boundfield(self):
+        """
+
+        Tests that a custom bound field can be successfully retrieved from a form.
+
+        The test case creates a custom field class that overrides the get_bound_field method,
+        which is responsible for returning the bound field for a given form and field name.
+        The test then creates a form instance with the custom field and verifies that the
+        bound field is correctly returned when accessing the field by name on the form.
+
+        """
         class CustomField(CharField):
             def get_bound_field(self, form, name):
                 return (form, name)
@@ -2820,6 +3250,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f["name"], (f, "name"))
 
     def test_initial_datetime_values(self):
+        """
+
+        Tests the initial datetime values for various form fields.
+
+        This test case verifies that the initial datetime values are correctly set for 
+        different types of form fields, including DateTimeField, TimeField, and fields 
+        with custom widgets (HiddenInput and TextInput). It checks that the initial values 
+        are correctly set for fields with and without microsecond support, and that the 
+        values are correctly returned by the form's value() method and get_initial_for_field() method.
+
+        """
         now = datetime.datetime.now()
         # Nix microseconds (since they should be ignored). #22502
         now_no_ms = now.replace(microsecond=0)
@@ -2877,6 +3318,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
                 self.elapsed_seconds = 0
 
             def now(self):
+                """
+                >Returns the current time, incrementing the elapsed seconds counter by one.
+                >
+                >Each call to this method returns a new datetime object representing the incremented time.
+                >
+                >The time starts from a fixed base date of October 25, 2006, 14:30:45, and increments by one second with each call.
+                """
                 self.elapsed_seconds += 1
                 return datetime.datetime(
                     2006,
@@ -2935,6 +3383,18 @@ Options: <select multiple name="options" aria-invalid="true" required>
     def test_help_text(self):
         # You can specify descriptive text for a field by using the 'help_text'
         # argument.
+        """
+        Tests that the help text for form fields is correctly rendered in various formats.
+
+        The function checks the following:
+
+        * The help text is displayed for each field in the form, regardless of the format used to render the form (unordered list, paragraph, table, or div).
+        * The help text is correctly associated with the corresponding form field.
+        * The help text is not displayed for hidden fields.
+        * The function also tests that the help text is rendered correctly when the form is populated with initial data, and when the form contains errors. 
+
+        Specifically, it verifies that the help text is correctly rendered for CharField and PasswordInput fields, and that it is omitted for HiddenInput fields.
+        """
         class UserRegistration(Form):
             username = CharField(max_length=10, help_text="e.g., user@example.com")
             password = CharField(
@@ -3107,6 +3567,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_aria_describedby_custom_widget_id(self):
+        """
+        Tests that the aria-describedby attribute is correctly set on a custom widget.
+
+        When a form field is rendered, it should include an aria-describedby attribute that references
+        the id of the help text element. This test case verifies that this attribute is correctly
+        generated even when a custom id is specified for the widget.
+
+        The test creates a simple form with a single field, a CharField with a custom widget id.
+        It then asserts that the rendered HTML includes the expected aria-describedby attribute,
+        referencing the id of the help text element, when the custom id is used for the widget.
+        """
         class UserRegistration(Form):
             username = CharField(
                 max_length=255,
@@ -3124,6 +3595,21 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_fieldset_aria_describedby(self):
+        """
+        **:param self: Test instance.
+            :return: None
+
+            Tests the generation of fieldsets and their associated ARIA attributes for accessibility.
+
+            Verifies that fieldsets are correctly wrapped around form fields and that the `aria-describedby` attribute is
+            properly set to reference the help text for each field. Also checks that the help text is correctly rendered
+            with a `div` element of class `helptext`.
+
+            The test covers different scenarios, including the use of auto-generated IDs and custom ID prefixes.
+
+            :note: The test case assumes that the form fields are correctly defined and that the help text is provided for each field.
+            :see: :class:`FieldsetForm` for the form definition used in this test case.```
+        """
         class FieldsetForm(Form):
             checkbox = MultipleChoiceField(
                 choices=[("a", "A"), ("b", "B")],
@@ -3179,6 +3665,16 @@ Options: <select multiple name="options" aria-invalid="true" required>
     def test_fieldset_custom_aria_describedby(self):
         # aria-describedby set on widget results in aria-describedby being
         # added to widget and not the <fieldset>.
+        """
+        #: Tests the rendering of a fieldset with a custom aria-describedby attribute.
+        #: 
+        #: This test case verifies that a fieldset containing a checkbox form field with
+        #: a custom aria-describedby attribute is rendered correctly. The fieldset should
+        #: include a legend, a help text section, and the checkbox inputs with the
+        #: specified aria-describedby attribute. The test ensures that the rendered HTML
+        #: matches the expected output, including the correct ids, classes, and attribute
+        #: values.
+        """
         class FieldsetForm(Form):
             checkbox = MultipleChoiceField(
                 choices=[("a", "A"), ("b", "B")],
@@ -3215,6 +3711,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # You can subclass a Form to add fields. The resulting form subclass will have
         # all of the fields of the parent Form, plus whichever fields you define in the
         # subclass.
+        """
+        Tests the functionality of subclassing forms, ensuring that fields from parent classes are correctly inherited and rendered in the resulting HTML.
+
+         The test covers both single and multiple inheritance scenarios, verifying that the order and presence of fields in the subclass match the expected output.
+
+         It checks the HTML output of the form when rendered as an unordered list using the `as_ul()` method, comparing it to the expected HTML string.
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
@@ -3271,6 +3774,19 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # for HTML forms". Notice that in the data argument, each field's key
         # has the prefix, in this case 'person1', prepended to the actual field
         # name.
+        """
+        Tests the behavior of Django forms with prefixes, including rendering, validation, and field access.
+
+            The test suite covers various scenarios, such as:
+
+            * Creating a form with a prefix and verifying its HTML representation
+            * Validating a form with a prefix and checking its cleaned data
+            * Testing form validation with empty fields and custom prefixing logic
+            * Creating multiple forms with different prefixes from the same data dictionary
+            * Overriding the default prefixing behavior with a custom `add_prefix` method
+
+            The test methods verify the expected output, errors, and cleaned data for each scenario.
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
@@ -3609,6 +4125,26 @@ Options: <select multiple name="options" aria-invalid="true" required>
         # Sometimes (pretty much in formsets) we want to allow a form to pass validation
         # if it is completely empty. We can accomplish this by using the empty_permitted
         # argument to a form constructor.
+        """
+
+        Tests the behavior of form validation with respect to empty permitted fields.
+
+        This test case checks how forms with empty fields are validated under different 
+        settings of the `empty_permitted` parameter. It covers scenarios where the form 
+        has required fields with no data, as well as when the `use_required_attribute` 
+        flag is set to False. It ensures that form validity and error messages are 
+        correctly determined based on these settings.
+
+        The test verifies that when `empty_permitted` is False, empty fields trigger 
+        validation errors. Conversely, when `empty_permitted` is True, empty fields do 
+        not trigger errors, allowing the form to be considered valid even with missing 
+        data. The behavior is tested for both CharFields and numeric fields like FloatField 
+        and IntegerField.
+
+        The test also checks the `cleaned_data` attribute to ensure it is populated 
+        correctly according to the form's validity and the `empty_permitted` setting.
+
+        """
         class SongForm(Form):
             artist = CharField()
             name = CharField()
@@ -3671,6 +4207,19 @@ Options: <select multiple name="options" aria-invalid="true" required>
             Person(empty_permitted=True, use_required_attribute=True)
 
     def test_extracting_hidden_and_visible(self):
+        """
+        Tests the ability to extract hidden and visible fields from a form.
+
+        This test case verifies that the :meth:`hidden_fields` and :meth:`visible_fields`
+        methods correctly identify and return the respective fields based on their widget type.
+        In this context, hidden fields are those that use the :class:`HiddenInput` widget, while
+        visible fields use other widget types.
+
+        The test creates a sample form with a mix of hidden and visible fields, then checks that
+        the correct fields are returned by each method. This ensures that the form's field
+        visibility is properly determined and reported.
+
+        """
         class SongForm(Form):
             token = CharField(widget=HiddenInput)
             artist = CharField()
@@ -3681,6 +4230,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual([f.name for f in form.visible_fields()], ["artist", "name"])
 
     def test_hidden_initial_gets_id(self):
+        """
+        Tests that a form field with `show_hidden_initial=True` correctly renders both the visible form input and a hidden input containing the initial value, with the hidden input having an ID that matches the pattern 'initial-id_fieldname'. This ensures that the initial value of the field is preserved and can be accessed via JavaScript or other means, even after the user has modified the visible input.
+        """
         class MyForm(Form):
             field1 = CharField(max_length=50, show_hidden_initial=True)
 
@@ -3693,6 +4245,14 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_html_required_html_classes(self):
+        """
+        Tests the HTML representation of a form when required fields are not filled in, 
+        ensuring the correct HTML classes are applied to indicate errors and required fields. 
+
+        Specifically, this test checks that the 'error' and 'required' CSS classes are 
+        correctly added to form fields and their associated HTML elements when errors occur, 
+        across different form rendering formats (unordered list, paragraph, table, and div).
+        """
         class Person(Form):
             name = CharField()
             is_cool = NullBooleanField()
@@ -3821,6 +4381,11 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_label_split_datetime_not_displayed(self):
+        """
+        Tests that the label for a SplitDateTimeField is not displayed when using the SplitHiddenDateTimeWidget. 
+
+        This test ensures that when a form field uses a SplitDateTimeField with a SplitHiddenDateTimeWidget, only the hidden input fields are rendered, without displaying the label for the datetime field. The expected output is a set of hidden input fields for the date and time components of the datetime field.
+        """
         class EventForm(Form):
             happened_at = SplitDateTimeField(widget=SplitHiddenDateTimeWidget)
 
@@ -3832,6 +4397,12 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_multivalue_field_validation(self):
+        """
+        Tests the validation of a multivalue field, specifically a `NameField` that consists of two `CharField` instances for first and last names. 
+        The test checks that the field raises a `ValidationError` when a specific disallowed value is provided, 
+        and that it enforces the maximum length constraint on each sub-field.
+        It also verifies that valid input results in the field's values being properly cleaned and compressed into a single string.
+        """
         def bad_names(value):
             if value == "bad value":
                 raise ValidationError("bad value not allowed")
@@ -3877,6 +4448,18 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
         class ChoicesField(MultiValueField):
             def __init__(self, fields=(), *args, **kwargs):
+                """
+                Initialize a new instance of the class.
+
+                This constructor sets up the fields for a form, including a 'Rank' choice field with two options (1 and 2)
+                and a 'Name' character field with a maximum length of 10 characters.
+
+                The :param fields: argument is overridden to include these required fields.
+                Any additional positional arguments (:param args:) and keyword arguments (:param kwargs:) are passed to the parent class constructor.
+
+                This class is designed to be used as a base for creating forms that require a rank and name input.
+
+                """
                 fields = (
                     ChoiceField(label="Rank", choices=((1, 1), (2, 2))),
                     CharField(label="Name", max_length=10),
@@ -3896,6 +4479,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
         class DateAgeField(MultiValueField):
             def __init__(self, fields=(), *args, **kwargs):
+                """
+                Initializes a new instance of the class, setting up a predefined set of form fields.
+
+                The fields are fixed to include a 'Date' field and an 'Age' field, which are used to capture date and integer values respectively. 
+
+                Any additional arguments passed to the constructor are forwarded to the parent class for further processing.
+                """
                 fields = (DateField(label="Date"), IntegerField(label="Age"))
                 super().__init__(fields=fields, *args, **kwargs)
 
@@ -3907,6 +4497,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertTrue(form.has_changed())
 
     def test_multivalue_optional_subfields(self):
+        """
+        Tests a MultiValueField subclass (PhoneField) for handling phone number information. 
+        The field is composed of four subfields: Country Code, Phone Number, Extension, and Label. 
+        Country Code must be a valid code with a plus sign followed by 1 to 2 digits. The extension and label fields are not required for the field to be considered valid. 
+        The test checks that the field behaves correctly when required, and when not required, including error cases such as missing or invalid input for specific subfields. 
+        Additionally, it verifies that the field correctly handles combinations of required and optional subfields, and that it raises the expected ValidationErrors for different types of invalid input.
+        """
         class PhoneField(MultiValueField):
             def __init__(self, *args, **kwargs):
                 fields = (
@@ -4013,8 +4610,25 @@ Options: <select multiple name="options" aria-invalid="true" required>
             f.clean(["61", "287654321", "123", "Home"])
 
     def test_multivalue_optional_subfields_rendering(self):
+        """
+        Tests the rendering of multi-value optional subfields using the PhoneWidget and PhoneField classes.
+
+        The test case covers various scenarios, including required and non-required fields, with and without the requirement for all subfields to be filled.
+
+        Verifies that the as_p() method of the PhoneForm instance produces the expected HTML output, including the correct rendering of input fields and their respective attributes.
+        """
         class PhoneWidget(MultiWidget):
             def __init__(self, attrs=None):
+                """
+                Initializes a form instance with text input widgets.
+
+                Args:
+                    attrs (dict, optional): Attributes to apply to the form. Defaults to None.
+
+                This constructor sets up a form with two text input fields, providing a basic 
+                structure for user data collection. Custom attributes can be passed to further 
+                configure the form's appearance and behavior.
+                """
                 widgets = [TextInput(), TextInput()]
                 super().__init__(widgets, attrs)
 
@@ -4074,6 +4688,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(form.cleaned_data, {"json": {}})
 
     def test_boundfield_label_tag(self):
+        """
+
+        Tests the functionality of the label_tag and legend_tag methods of a BoundField instance.
+
+        This test case covers various scenarios, including rendering the label with default and custom text,
+        handling HTML special characters in the label text, and applying additional HTML attributes to the label tag.
+
+        The test verifies that the generated HTML output for both the label and legend tags matches the expected
+        results, ensuring that the BoundField instance correctly handles different input parameters and settings.
+
+        """
         class SomeForm(Form):
             field = CharField()
 
@@ -4123,6 +4748,17 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertHTMLEqual(boundfield.legend_tag("Custom&"), "Custom&amp;:")
 
     def test_boundfield_label_tag_custom_widget_id_for_label(self):
+        """
+        Tests the rendering of BoundField label tags with custom widgets that override the id_for_label method.
+
+        Checks that the label and legend tags are correctly generated when the widget's id_for_label method returns a custom id or None.
+
+        The test covers two scenarios: 
+        - a widget that prefixes the id with a custom string
+        - a widget that returns None, resulting in no 'for' attribute in the label and legend tags.
+
+        Verifies that the resulting HTML is as expected in both cases, ensuring proper rendering of form fields with custom widget configurations.
+        """
         class CustomIdForLabelTextInput(TextInput):
             def id_for_label(self, id):
                 return "custom_" + id
@@ -4147,6 +4783,15 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertHTMLEqual(form["empty"].legend_tag(), "<legend>Empty:</legend>")
 
     def test_boundfield_empty_label(self):
+        """
+        Tests that a BoundField creates correct HTML for a field with an empty label.
+
+        This test case ensures that when a form field's label is set to an empty string,
+        the corresponding label and legend tags are still rendered correctly in HTML.
+
+        It verifies that the label and legend tags have the correct 'for' attribute,
+        even if the label text itself is empty.
+        """
         class SomeForm(Form):
             field = CharField(label="")
 
@@ -4159,6 +4804,15 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_boundfield_id_for_label(self):
+        """
+
+        Tests that the id_for_label attribute of a BoundField instance is correctly generated.
+
+        The test case checks that an empty label does not affect the id_for_label attribute, which is expected to be 'id_field'.
+
+        This ensures that the field's id_for_label is properly set, allowing for correct integration with HTML labels.
+
+        """
         class SomeForm(Form):
             field = CharField(label="")
 
@@ -4205,6 +4859,19 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f["birthday"].widget_type, "splithiddendatetime")
 
     def test_boundfield_css_classes(self):
+        """
+
+        Tests the functionality of the css_classes method on a BoundField object.
+
+        This method verifies that the css_classes method returns the correct CSS classes for a field, 
+        both when no extra classes are provided and when extra classes are specified. 
+        It also checks that duplicate classes are handled correctly, ensuring that each class is only 
+        included once in the output string. 
+
+        The purpose of this test is to ensure that the BoundField object behaves as expected when 
+        generating CSS classes, which is important for styling and layout purposes in HTML forms. 
+
+        """
         form = Person()
         field = form["first_name"]
         self.assertEqual(field.css_classes(), "")
@@ -4232,6 +4899,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_dict(self):
+        """
+        Tests the error dictionary generated by a Django form with validation errors.
+
+        The function creates a sample form with two required fields and a custom validation error that is not associated with any field.
+        It then checks that the form's error dictionary is correctly populated and can be rendered in different formats, including plain text, HTML, and JSON.
+        The test case verifies that all error messages, including non-field errors, are properly included in the rendered error output and that the JSON representation of the error dictionary matches the expected format.
+        """
         class MyForm(Form):
             foo = CharField()
             bar = CharField()
@@ -4308,6 +4982,21 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(errors, control)
 
     def test_error_list(self):
+        """
+
+        Tests the functionality of ErrorList.
+
+        The ErrorList is tested for its ability to hold and manage error messages,
+        including simple string messages and ValidationErrors with parameters.
+        The tests cover various methods of the ErrorList, such as appending errors,
+        checking for the presence of specific errors, and formatting the error list
+        into different output formats, including text, HTML unordered list, and JSON.
+
+        The test also verifies that the ErrorList behaves like a standard list and
+        that it can properly handle the conversion of ValidationErrors into a suitable
+        format for output.
+
+        """
         e = ErrorList()
         e.append("Foo")
         e.append(ValidationError("Foo%(bar)s", code="foobar", params={"bar": "bar"}))
@@ -4338,6 +5027,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_list_class_has_one_class_specified(self):
+        """
+        Tests that an ErrorList instance with a specified error class generates the expected HTML unordered list.
+
+        The function validates that the ErrorList class correctly applies a custom CSS class to the error list, while also handling different types of error messages, including plain strings and ValidationError objects.
+
+        It verifies that the generated HTML output matches the expected format, including the application of the custom error class and the correct rendering of error messages.
+        """
         e = ErrorList(error_class="foobar-error-class")
         e.append("Foo")
         e.append(ValidationError("Foo%(bar)s", code="foobar", params={"bar": "bar"}))
@@ -4347,6 +5043,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_list_with_hidden_field_errors_has_correct_class(self):
+        """
+        Tests that a form with hidden fields displaying error messages correctly assigns the 'errorlist nonfield' class to the error list when the form is rendered in different formats, including unordered list, paragraph, table, and div. This test case covers the scenario where a hidden field has an error and the resulting HTML output is verified to ensure proper error message display and class assignment.
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField(widget=HiddenInput)
@@ -4388,6 +5087,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_error_list_with_non_field_errors_has_correct_class(self):
+        """
+        Tests the HTML rendering of form errors when a non-field error occurs.
+
+        The test case covers various rendering methods for the form, including :meth:`as_ul`, :meth:`as_p`, :meth:`as_table`, and :meth:`as_div`.
+        It verifies that non-field errors are correctly rendered with the \"errorlist nonfield\" class and that the error message is correctly displayed.
+        Additionally, it tests the :meth:`non_field_errors` method for rendering non-field errors and the :meth:`as_text` method for rendering error messages as plain text.
+        """
         class Person(Form):
             first_name = CharField()
             last_name = CharField()
@@ -4515,11 +5221,25 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(p.cleaned_data, {"first_name": "John", "last_name": "Lennon"})
 
     def test_accessing_clean(self):
+        """
+
+        Tests that the clean method is correctly called when accessing the cleaned_data attribute of a form.
+        This ensures that any data transformations or validations defined in the clean method are applied
+        before the cleaned data is returned. In this case, the clean method converts the username to lowercase.
+
+        """
         class UserForm(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                Normalizes and returns the cleaned data.
+
+                This function processes the collected data to ensure consistency in the username field.
+                If the data validation is successful, it converts the username to lowercase to maintain uniformity.
+                The function then returns the cleaned and normalized data for further use.
+                """
                 data = self.cleaned_data
 
                 if not self.errors:
@@ -4532,6 +5252,18 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data["username"], "sirrobin")
 
     def test_changing_cleaned_data_nothing_returned(self):
+        """
+
+
+
+        Tests the behavior of a Form's clean method when altering cleaned data.
+
+        This test case checks that when a Form's clean method modifies the cleaned data,
+        the changes are properly reflected in the form's cleaned_data dictionary.
+        It verifies that the form is valid and that the cleaned data matches the expected output.
+
+
+        """
         class UserForm(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
@@ -4545,6 +5277,19 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data["username"], "sirrobin")
 
     def test_changing_cleaned_data_in_clean(self):
+        """
+
+        Tests that the cleaned data returned by the form's clean method can be modified.
+
+        In this test, the clean method of the UserForm class alters the case of the 
+        username and hardcodes a password. The test verifies that the form is valid and 
+        that the cleaned data has been updated correctly.
+
+        It checks that the username has been converted to lowercase as expected and 
+        ensures that the password has been replaced with a hardcoded value, demonstrating 
+        that the cleaned data dictionary can be modified by the form's clean method.
+
+        """
         class UserForm(Form):
             username = CharField(max_length=10)
             password = CharField(widget=PasswordInput)
@@ -4563,6 +5308,18 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data["username"], "sirrobin")
 
     def test_multipart_encoded_form(self):
+        """
+        Checks if a form is multipart encoded based on the presence of file or image fields.
+
+        This test case evaluates the `is_multipart` method of a form instance, verifying its behavior with different form configurations. 
+
+        It considers three scenarios: 
+        - A form without any file fields (FormWithoutFile), 
+        - A form containing a file field (FormWithFile), and 
+        - A form containing an image field (FormWithImage).
+
+        The test passes if the `is_multipart` method correctly identifies multipart forms, returning `False` for forms without file fields and `True` for forms with file or image fields.
+        """
         class FormWithoutFile(Form):
             username = CharField()
 
@@ -4578,6 +5335,14 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertTrue(FormWithImage().is_multipart())
 
     def test_html_safe(self):
+        """
+
+        Tests that HTML is rendered safely by a form and its fields.
+
+        Verifies that both a form and its fields have an __html__ method and that this method returns the same result as the str() function, 
+        ensuring that HTML rendering is safe and consistent. This test checks the base functionality of HTML rendering in forms.
+
+        """
         class SimpleForm(Form):
             username = CharField()
 
@@ -4652,6 +5417,13 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_use_required_attribute_false(self):
+        """
+        Tests the rendering of a form when the `use_required_attribute` is set to False.
+
+        The test creates a sample form with various fields including text fields, a text area, and a choice field, and then checks the HTML rendering of the form in different formats, including paragraph, unordered list, table, and div.
+
+        It verifies that the HTML output matches the expected structure and content, ensuring that the form fields are correctly rendered without the required attribute.
+        """
         class MyForm(Form):
             use_required_attribute = False
             f1 = CharField(max_length=30)
@@ -4714,6 +5486,12 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     def test_only_hidden_fields(self):
         # A form with *only* hidden fields that has errors is going to be very unusual.
+        """
+        Tests the rendering of form fields that are hidden from the user interface.
+
+        It verifies that hidden fields with required values missing are correctly 
+        highlighted with error messages when rendered in paragraph and table formats.
+        """
         class HiddenForm(Form):
             data = IntegerField(widget=HiddenInput)
 
@@ -4732,6 +5510,9 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_field_named_data(self):
+        """
+        Tests that a Django form with a single CharField correctly handles data validation and cleaning. The field is defined with a maximum length of 10 characters, and this test verifies that a valid input is accepted and the cleaned data is correctly returned as a dictionary.
+        """
         class DataForm(Form):
             data = CharField(max_length=10)
 
@@ -4740,13 +5521,33 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertEqual(f.cleaned_data, {"data": "xyzzy"})
 
     def test_empty_data_files_multi_value_dict(self):
+        """
+        Tests that a newly instantiated Person object has both data and files attributes, 
+        each initialized as empty MultiValueDict instances. This ensures the basic 
+        structure for handling multiple values and files is correctly set up for the 
+        Person object.
+        """
         p = Person()
         self.assertIsInstance(p.data, MultiValueDict)
         self.assertIsInstance(p.files, MultiValueDict)
 
     def test_field_deep_copy_error_messages(self):
+        """
+        Tests that deep copying a custom field preserves its type and creates a new copy of error messages.
+
+        Checks that a custom CharField with custom error messages is correctly deep copied, 
+        ensuring the copied field is an instance of the same class and has its own independent error messages dictionary, 
+        thus avoiding unintended modifications to the original field's error messages when altering the copied field's error messages.
+        """
         class CustomCharField(CharField):
             def __init__(self, **kwargs):
+                """
+                Initializes a new instance of the class, inheriting from a parent class and setting custom error messages for form validation. 
+
+                It overrides the default error messages with a custom message for invalid form data, providing a more user-friendly experience. 
+
+                The initialization process supports additional keyword arguments, which are passed to the parent class constructor.
+                """
                 kwargs["error_messages"] = {"invalid": "Form custom error message."}
                 super().__init__(**kwargs)
 
@@ -4756,6 +5557,15 @@ Options: <select multiple name="options" aria-invalid="true" required>
         self.assertIsNot(field_copy.error_messages, field.error_messages)
 
     def test_label_does_not_include_new_line(self):
+        """
+        Verifies that the label for a given form field does not include new lines.
+
+        This test checks the generated HTML label and legend tags for a form field,
+        ensuring they match the expected output and do not contain any newline characters.
+        The test case specifically examines the 'first_name' field of a Person form,
+        confirming that the rendered label and legend tags are correctly formatted and
+        free of unexpected line breaks.
+        """
         form = Person()
         field = form["first_name"]
         self.assertEqual(
@@ -4768,6 +5578,18 @@ Options: <select multiple name="options" aria-invalid="true" required>
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_label_attrs_not_localized(self):
+        """
+
+        Tests that label attributes for form fields are correctly generated without localization.
+
+        This function verifies that when the USE_THOUSAND_SEPARATOR setting is enabled, 
+        the label_tag and legend_tag methods of a form field produce the correct HTML output 
+        with the provided attributes, in this case, the 'number' attribute.
+
+        The test case ensures that the 'number' attribute is properly included in the 
+        generated label and legend HTML tags, and that the output matches the expected format.
+
+        """
         form = Person()
         field = form["first_name"]
         self.assertHTMLEqual(
@@ -4780,10 +5602,22 @@ Options: <select multiple name="options" aria-invalid="true" required>
         )
 
     def test_remove_cached_field(self):
+        """
+        Tests that attempting to access a cached field that has been removed from a form raises a KeyError.
+
+        Verifies that when a field is deleted from a form after it has been cached, 
+        the expected exception is raised when trying to access the field. This ensures 
+        that the cache is properly updated after field removal. The test validates the 
+        correct behavior of form field removal and its impact on cached fields.
+        """
         class TestForm(Form):
             name = CharField(max_length=10)
 
             def __init__(self, *args, **kwargs):
+                """
+                Initializes the class instance, inheriting from its parent class, and then processes its fields by iterating over each one.
+                After initialization, the 'name' field is removed from the instance's fields dictionary.
+                """
                 super().__init__(*args, **kwargs)
                 # Populate fields cache.
                 [field for field in self]
@@ -4812,16 +5646,38 @@ class RendererTests(SimpleTestCase):
         self.assertEqual(form.renderer, get_default_renderer())
 
     def test_kwarg_instance(self):
+        """
+
+        Tests that a Form instance correctly stores and retrieves a custom renderer instance passed via keyword argument.
+
+        This test verifies that the Form class can be instantiated with a custom renderer and that the renderer is properly assigned to the instance.
+
+        """
         custom = CustomRenderer()
         form = Form(renderer=custom)
         self.assertEqual(form.renderer, custom)
 
     def test_kwarg_class(self):
+        """
+
+        Tests that a custom renderer class can be successfully passed as a keyword argument to the Form class.
+
+        Checks if the provided custom renderer instance is correctly assigned to the form's renderer attribute.
+
+        """
         custom = CustomRenderer()
         form = Form(renderer=custom)
         self.assertEqual(form.renderer, custom)
 
     def test_attribute_instance(self):
+        """
+        Tests that an instance of a Form class correctly inherits the default renderer 
+        from its class when no renderer is explicitly specified.
+
+        Verifies that the instance's renderer attribute matches the class's default renderer 
+        when a form instance is created without a custom renderer. This ensures that 
+        forms without explicitly set renderers will use the class-defined default renderer.
+        """
         class CustomForm(Form):
             default_renderer = DjangoTemplates()
 
@@ -4829,6 +5685,13 @@ class RendererTests(SimpleTestCase):
         self.assertEqual(form.renderer, CustomForm.default_renderer)
 
     def test_attribute_class(self):
+        """
+        Verifies that a form instance is correctly initialized with its class-defined default renderer.
+
+        This test checks if the renderer attribute of a form instance is an instance of the renderer class specified as the default_renderer attribute in the form class.
+
+        The test creates a custom form class with a custom renderer and asserts that the renderer attribute of a form instance is of the correct type, ensuring that the default renderer is properly applied during form initialization.
+        """
         class CustomForm(Form):
             default_renderer = CustomRenderer
 
@@ -4880,6 +5743,21 @@ class TemplateTests(SimpleTestCase):
         )
 
     def test_templates_with_forms(self):
+        """
+        Tests the rendering of Django forms within templates.
+
+        This test suite ensures that form fields are correctly rendered in HTML, 
+        including the display of field labels, error messages and help text. 
+        It covers various scenarios such as rendering empty forms, 
+        forms with initial data and forms with validation errors. 
+        The test cases also verify the correct usage of different template tags 
+        such as `label_tag`, `help_text` and `errors.as_ul`. 
+
+        The test uses a sample `UserRegistration` form with fields for username and password. 
+        The form's validation logic checks that the two password fields match. 
+        The test templates used in the test suite demonstrate different ways 
+        to render form fields, labels and errors in HTML.
+        """
         class UserRegistration(Form):
             username = CharField(
                 max_length=10,
@@ -4889,6 +5767,16 @@ class TemplateTests(SimpleTestCase):
             password2 = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                Validate and clean form data to ensure password consistency.
+
+                This method checks if the provided password and its confirmation match.
+                If the passwords do not match, a ValidationError is raised with a corresponding error message.
+                Otherwise, the cleaned form data is returned.
+
+                :raises: ValidationError if the passwords do not match
+                :returns: The cleaned form data if passwords match
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -5143,6 +6031,16 @@ class TemplateTests(SimpleTestCase):
             password2 = CharField(widget=PasswordInput)
 
             def clean(self):
+                """
+                Validates and returns cleaned form data, ensuring password fields match.
+
+                    Checks if both password fields ('password1' and 'password2') are present and contain matching values.
+                    If the passwords do not match, raises a ValidationError with a corresponding error message.
+                    Otherwise, returns the cleaned form data.
+
+                    :raises: ValidationError if password fields do not match
+                    :return: The cleaned form data
+                """
                 if (
                     self.cleaned_data.get("password1")
                     and self.cleaned_data.get("password2")
@@ -5152,6 +6050,21 @@ class TemplateTests(SimpleTestCase):
                 return self.cleaned_data
 
         def my_function(method, post_data):
+            """
+
+            Validates user registration data and returns a response based on the provided method.
+
+            Args:
+                method (str): The HTTP method to handle, currently only 'POST' is supported.
+                post_data (dict): The user registration data to validate.
+
+            Returns:
+                str: If the form is valid, a string containing the cleaned data; otherwise, an HTML form to collect the registration data.
+
+            Note:
+                The function uses a UserRegistration form to validate the provided data. If the method is 'POST', the form is populated with the post_data; otherwise, an empty form is rendered.
+
+            """
             if method == "POST":
                 form = UserRegistration(post_data, auto_id=False)
             else:
@@ -5220,6 +6133,18 @@ class TemplateTests(SimpleTestCase):
         )
 
     def test_custom_field_template(self):
+        """
+
+        Tests the rendering of a Form with a custom field template.
+
+        Verifies that a form field can be rendered using a custom HTML template,
+        and that the rendered HTML matches the expected output. The custom template
+        is specified using the 'template_name' parameter of the CharField.
+
+        The test case checks for the correct rendering of the field's label, custom
+        content, and input element.
+
+        """
         class MyForm(Form):
             first_name = CharField(template_name="forms_tests/custom_field.html")
 
@@ -5245,6 +6170,16 @@ class TemplateTests(SimpleTestCase):
 class OverrideTests(SimpleTestCase):
     @override_settings(FORM_RENDERER="forms_tests.tests.test_forms.CustomRenderer")
     def test_custom_renderer_template_name(self):
+        """
+        Tests the rendering of a form using a custom template renderer, verifying that the resulting HTML matches the expected output. 
+
+        The test case creates a simple form with a single field and renders it using a custom renderer. It then compares the generated HTML to an expected result, ensuring that the custom renderer produces the correct output. 
+
+        This test is useful for ensuring that custom form renderers are correctly implemented and that they produce the desired HTML structure. 
+
+        :param self: The test instance.
+        :raises AssertionError: If the rendered HTML does not match the expected output.
+        """
         class Person(Form):
             first_name = CharField()
 
@@ -5258,6 +6193,19 @@ class OverrideTests(SimpleTestCase):
 
     @override_settings(FORM_RENDERER="forms_tests.tests.test_forms.CustomRenderer")
     def test_custom_renderer_field_template_name(self):
+        """
+
+        Tests the usage of a custom Django form renderer.
+
+        This test case verifies that a custom form renderer correctly renders form fields
+        using a custom template. Specifically, it checks that the 'as_field_group' method
+        of a form field returns the expected HTML when rendered using the custom template.
+
+        The test creates a simple form with a single 'first_name' field, renders it using
+        the custom renderer, and then asserts that the resulting HTML matches the expected
+        output.
+
+        """
         class Person(Form):
             first_name = CharField()
 
@@ -5284,6 +6232,20 @@ class OverrideTests(SimpleTestCase):
         self.assertHTMLEqual(html, expected)
 
     def test_errorlist_override(self):
+        """
+
+        Tests the override functionality of the error list in a form with invalid data.
+
+        This test case creates a custom error list class and a form with fields that
+        trigger validation errors when provided with invalid data. It then checks if the
+        form's error messages are rendered as expected when using the custom error list
+        class, ensuring that the error messages are displayed correctly in the form.
+
+        The test verifies that the form's fields and error messages are rendered as HTML
+        paragraph and div elements, with each error message wrapped in a div with the
+        class 'error' and the error list wrapped in a div with the class 'errorlist'.
+
+        """
         class CustomErrorList(ErrorList):
             template_name = "forms_tests/error.html"
 
@@ -5308,6 +6270,18 @@ class OverrideTests(SimpleTestCase):
         )
 
     def test_cyclic_context_boundfield_render(self):
+        """
+
+        Tests that a cyclic context in a BoundField's render method does not cause a RecursionError.
+
+        This test case creates a form with a field that uses a custom template for rendering.
+        The test verifies that the form can be rendered without encountering a recursion error,
+        which would occur if there were a cyclic reference in the rendering process.
+
+        The expected outcome is that the form renders successfully without raising an exception.
+        If a RecursionError is raised, the test fails, indicating a problem with the BoundField's render method.
+
+        """
         class FirstNameForm(Form):
             first_name = CharField()
             template_name_label = "forms_tests/cyclic_context_boundfield_render.html"
@@ -5319,6 +6293,17 @@ class OverrideTests(SimpleTestCase):
             self.fail("Cyclic reference in BoundField.render().")
 
     def test_legend_tag(self):
+        """
+
+        Tests the rendering of a legend tag in a form.
+
+        Verifies that the legend element is correctly generated with the required CSS class
+        when using a custom form template and framework form class. 
+
+        The test checks for a specific HTML output, ensuring that both the label and legend
+        elements are properly rendered with the 'required' class.
+
+        """
         class CustomFrameworkForm(FrameworkForm):
             template_name = "forms_tests/legend_test.html"
             required_css_class = "required"

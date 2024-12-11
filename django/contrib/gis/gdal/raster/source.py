@@ -75,6 +75,40 @@ class GDALRaster(GDALRasterBase):
     destructor = capi.close_ds
 
     def __init__(self, ds_input, write=False):
+        """
+        .\"\"\"
+        Initializes a new raster dataset from a variety of input sources.
+
+        The supported input sources include:
+            - A raster file path (as a string or Path object)
+            - A JSON string containing a raster dataset description
+            - A dictionary containing a raster dataset description
+            - A bytes object containing raster data
+            - A void pointer (c_void_p) to an existing raster dataset
+
+        The :param:`ds_input` argument specifies the input source. If :param:`ds_input` is a string or Path object, it must be a valid file path to a raster dataset. If it is a JSON string, it must contain a valid raster dataset description. If it is a dictionary, it must contain a valid raster dataset description with the required attributes (see below).
+
+        The :param:`write` argument is a boolean flag indicating whether the dataset should be opened in write mode.
+
+        The required attributes for a dictionary input source are:
+            - 'driver': the name of the raster driver to use (default: 'MEM')
+            - 'name': the name of the raster dataset (required if the driver is not 'MEM')
+            - 'width' and 'height': the width and height of the raster dataset
+            - 'srid': the spatial reference system identifier (SRID) of the raster dataset
+
+        The following optional attributes can be specified in the dictionary input source:
+            - 'papsz_options': a dictionary of creation options for the raster driver
+            - 'bands': a list of band descriptions, each containing the following optional attributes:
+                - 'nodata_value': the no-data value for the band
+                - 'data': the raster data for the band
+                - 'size': the size of the raster data for the band
+                - 'shape': the shape of the raster data for the band
+                - 'offset': the offset of the raster data for the band
+            - 'origin', 'scale', and 'skew': the georeference information for the raster dataset
+
+        Raises a GDALException if the input source is invalid or if the raster dataset cannot be opened.
+
+        """
         self._write = 1 if write else 0
         Driver.ensure_registered()
 

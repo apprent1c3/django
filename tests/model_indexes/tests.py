@@ -80,6 +80,17 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertNotEqual(index, another_index)
 
     def test_eq_func(self):
+        """
+
+        Tests the equality functionality of database index objects.
+
+        This function compares index objects with different combinations of fields 
+        to verify that the equality comparison behaves as expected. It checks 
+        that two index objects with the same name and fields (regardless of 
+        whether the fields are wrapped in functions) are considered equal, 
+        while index objects with different fields are considered unequal.
+
+        """
         index = models.Index(Lower("title"), models.F("author"), name="book_func_idx")
         same_index = models.Index(Lower("title"), "author", name="book_func_idx")
         another_index = models.Index(Lower("title"), name="book_func_idx")
@@ -88,6 +99,14 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertNotEqual(index, another_index)
 
     def test_index_fields_type(self):
+        """
+        Tests that the Index.fields attribute only accepts lists or tuples.
+
+        Verifies that a ValueError is raised with a descriptive message when attempting to assign a non-list, non-tuple value to Index.fields, ensuring the correct data type is used for this attribute.
+
+        Raises:
+            ValueError: If Index.fields is not a list or tuple.
+        """
         with self.assertRaisesMessage(
             ValueError, "Index.fields must be a list or tuple."
         ):
@@ -102,11 +121,26 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertEqual(models.Index(fields=("title",)).fields, ["title"])
 
     def test_requires_field_or_expression(self):
+        """
+        ```    
+        .Tests that creating an index requires at least one field or expression.
+
+        :raises ValueError: If no fields or expressions are provided when creating an index.
+        ```
+        """
         msg = "At least one field or expression is required to define an index."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index()
 
     def test_expressions_and_fields_mutually_exclusive(self):
+        """
+        Tests that Index expressions and fields are mutually exclusive properties.
+
+        This test case verifies that attempting to define an Index with both an
+        expression and a list of fields will raise a ValueError, as these two
+        properties cannot be used together. The test confirms that the expected
+        error message is raised when this invalid configuration is attempted.
+        """
         msg = "Index.fields and expressions are mutually exclusive."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(Upper("foo"), fields=["field"])
@@ -118,6 +152,11 @@ class SimpleIndexesTests(SimpleTestCase):
             models.Index(opclasses=["jsonb_path_ops"])
 
     def test_opclasses_requires_list_or_tuple(self):
+        """
+        Tests that the opclasses parameter of an Index requires a list or tuple, raising a ValueError if any other type is provided. 
+
+        This test ensures that the opclasses argument is correctly validated, preventing potential errors when creating an Index with opclasses that are not a list or tuple.
+        """
         with self.assertRaisesMessage(
             ValueError, "Index.opclasses must be a list or tuple."
         ):
@@ -126,6 +165,24 @@ class SimpleIndexesTests(SimpleTestCase):
             )
 
     def test_opclasses_and_fields_same_length(self):
+        """
+        Tests that creating an Index with fields and opclasses of different lengths raises a ValueError.
+
+        The function checks that the fields and opclasses provided to an Index have the same number of elements. If they do not, a ValueError is expected to be raised with a message indicating the error.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        ValueError
+            If the number of fields and opclasses do not match.
+        """
         msg = "Index.fields and Index.opclasses must have the same number of elements."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(
@@ -135,17 +192,39 @@ class SimpleIndexesTests(SimpleTestCase):
             )
 
     def test_condition_requires_index_name(self):
+        """
+        Tests that creating an index with a condition requires specifying an index name.
+
+        The function verifies that a ValueError is raised when attempting to create an index 
+        with a condition (in this case, a query filtering pages greater than 400) 
+        without providing a name for the index. This ensures that indexes with conditions 
+        are properly named to avoid ambiguous or unnamed index references.
+        """
         with self.assertRaisesMessage(
             ValueError, "An index must be named to use condition."
         ):
             models.Index(condition=models.Q(pages__gt=400))
 
     def test_expressions_requires_index_name(self):
+        """
+        Test that expressions require an index name.
+
+        This test ensures that attempting to create an index with an expression without
+        specifying an index name raises a ValueError. It verifies that the error message
+        indicates the need for an index name when using expressions.
+
+        :raises: ValueError if an index name is not provided when creating an index with an expression
+        """
         msg = "An index must be named to use expressions."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(Lower("field"))
 
     def test_expressions_with_opclasses(self):
+        """
+        Tests that using an opclass with an expression in a database index raises a ValueError.
+
+        The function checks that attempting to create an index with an expression, such as a function call, and an opclass results in an error. It verifies that the error message correctly indicates that django.contrib.postgres.indexes.OpClass should be used instead of directly specifying the opclass.
+        """
         msg = (
             "Index.opclasses cannot be used with expressions. Use "
             "django.contrib.postgres.indexes.OpClass() instead."
@@ -158,22 +237,54 @@ class SimpleIndexesTests(SimpleTestCase):
             )
 
     def test_condition_must_be_q(self):
+        """
+        Tests that the condition parameter of an Index must be a valid Q instance.
+
+            Raises a ValueError if the provided condition is not a Q instance, ensuring that
+            only valid query expressions are used to define conditional indexes.
+
+            This test case covers the validation of index conditions to prevent incorrect or
+            malformed query expressions from being used, which could lead to errors or
+            unexpected behavior at runtime.
+        """
         with self.assertRaisesMessage(
             ValueError, "Index.condition must be a Q instance."
         ):
             models.Index(condition="invalid", name="long_book_idx")
 
     def test_include_requires_list_or_tuple(self):
+        """
+        Tests that the Index.include parameter requires a list or tuple.
+
+        The Index class has a parameter 'include' which is expected to be either a list or a tuple.
+        This test case verifies that passing any other type, such as a string, results in a ValueError with a descriptive message.
+
+        The expected error message is: 'Index.include must be a list or tuple.'
+        """
         msg = "Index.include must be a list or tuple."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(name="test_include", fields=["field"], include="other")
 
     def test_include_requires_index_name(self):
+        """
+        Tests if creating an index with an include specification requires a name for the index. 
+        Verifies that attempting to create such an index without specifying a name results in a ValueError.
+        """
         msg = "A covering index must be named."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(fields=["field"], include=["other"])
 
     def test_name_auto_generation(self):
+        """
+        Tests the automatic generation of index names based on the associated model.
+
+        This function verifies that index names are correctly generated by the set_name_with_model method,
+        taking into account factors such as the model name, field names, and ordering. It also checks for
+        potential errors, such as index names exceeding the maximum allowed length for multiple database support.
+
+        The test covers various scenarios, including ascending and descending ordering, as well as index names
+        with suffixes, to ensure that the name generation logic is robust and handles different edge cases.
+        """
         index = models.Index(fields=["author"])
         index.set_name_with_model(Book)
         self.assertEqual(index.name, "model_index_author_0f5565_idx")
@@ -199,6 +310,20 @@ class SimpleIndexesTests(SimpleTestCase):
 
     @isolate_apps("model_indexes")
     def test_name_auto_generation_with_quoted_db_table(self):
+        """
+
+        Tests the automatic generation of index names when the database table name is quoted.
+
+        This test case verifies that the index name is correctly generated when the model's
+        database table name is enclosed in quotes. It checks that the generated index name
+        follows the expected format and correctly reflects the model's table name and field
+        name.
+
+        The test covers the scenario where the model's Meta option 'db_table' is set to a
+        quoted string, and an index is created on one of the model's fields. The expected
+        index name is then compared to the actual generated name to ensure correctness.
+
+        """
         class QuotedDbTable(models.Model):
             name = models.CharField(max_length=50)
 

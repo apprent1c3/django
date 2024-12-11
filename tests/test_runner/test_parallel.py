@@ -61,32 +61,88 @@ class SampleFailingSubtest(SimpleTestCase):
 
 class RemoteTestResultTest(SimpleTestCase):
     def _test_error_exc_info(self):
+        """
+        Returns exception information for a test ValueError exception.
+
+        This method generates a ValueError exception, catches it, and returns the 
+        associated exception information as a tuple. The returned tuple contains 
+        the type, value, and traceback of the exception, which can be used for 
+        further error handling or testing purposes.
+
+        :rtype: tuple
+        :returns: A tuple containing the type, value, and traceback of the exception
+
+        """
         try:
             raise ValueError("woops")
         except ValueError:
             return sys.exc_info()
 
     def test_was_successful_no_events(self):
+        """
+
+        Checks if a test was successful when no events have occurred.
+
+        Verifies that the :meth:`wasSuccessful` method of :class:`RemoteTestResult` returns True
+        by default, indicating a successful test run, in the absence of any test events.
+
+        """
         result = RemoteTestResult()
         self.assertIs(result.wasSuccessful(), True)
 
     def test_was_successful_one_success(self):
+        """
+        Tests that a remote test result is considered successful when at least one test passes.
+
+        This test case verifies the functionality of the `wasSuccessful` method by adding a single successful test result and confirming that the method returns True, indicating that the test run was successful.
+        """
         result = RemoteTestResult()
         result.addSuccess(None)
         self.assertIs(result.wasSuccessful(), True)
 
     def test_was_successful_one_expected_failure(self):
+        """
+
+        Tests that a test result is considered successful when there is one expected failure.
+
+        This test case verifies the behavior of the `wasSuccessful` method of the `RemoteTestResult` class.
+        It checks that when a single expected failure is recorded, the test result is still considered successful.
+
+        """
         result = RemoteTestResult()
         result.addExpectedFailure(None, self._test_error_exc_info())
         self.assertIs(result.wasSuccessful(), True)
 
     def test_was_successful_one_skip(self):
+        """
+
+        Checks if a test is considered successful when it has only one skipped test case.
+
+        This test case confirms that a test run is deemed successful if all test cases pass 
+        or are skipped, and there are no failures or errors. The success of a test run is 
+        determined by the presence of failures or errors, rather than the presence of 
+        skipped test cases.
+
+        The test verifies that the wasSuccessful method of the test result object returns 
+        True when there is only one skipped test case, indicating that the test run as a 
+        whole is considered successful.
+
+        """
         result = RemoteTestResult()
         result.addSkip(None, "Skipped")
         self.assertIs(result.wasSuccessful(), True)
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_was_successful_one_error(self):
+        """
+
+        Checks the RemoteTestResult wasSuccessful method behavior when a single error occurs.
+
+        This test verifies that a RemoteTestResult instance returns False when an error is added to its result set.
+        The test covers the scenario where only one error is reported, confirming that the wasSuccessful method
+        accurately reflects the presence of errors in the test result.
+
+        """
         result = RemoteTestResult()
         result.addError(None, self._test_error_exc_info())
         self.assertIs(result.wasSuccessful(), False)
@@ -98,11 +154,34 @@ class RemoteTestResultTest(SimpleTestCase):
         self.assertIs(result.wasSuccessful(), False)
 
     def test_picklable(self):
+        """
+
+        Verifies that RemoteTestResult instances can be serialized and deserialized
+        using the pickle module without losing any event data.
+
+        This test ensures that the result object and its events remain intact after
+        being pickled and unpickled, which is essential for durable and reliable
+        test result storage and retrieval.
+
+        """
         result = RemoteTestResult()
         loaded_result = pickle.loads(pickle.dumps(result))
         self.assertEqual(result.events, loaded_result.events)
 
     def test_pickle_errors_detection(self):
+        """
+
+        Tests the detection of pickling errors in exceptions.
+
+        This test case verifies that the function correctly identifies and handles 
+        unpicklable exceptions, raising a TypeError with a descriptive error message 
+        when attempting to pickle an exception that fails to unpickle.
+
+        The test covers two scenarios: a picklable exception (RuntimeError) and an 
+        unpicklable exception (ExceptionThatFailsUnpickling), ensuring the function 
+        behaves as expected in both cases.
+
+        """
         picklable_error = RuntimeError("This is fine")
         not_unpicklable_error = ExceptionThatFailsUnpickling("arg")
 
@@ -115,6 +194,16 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_unpicklable_subtest(self):
+        """
+        Tests the capability to unpickle a subtest that contains an assertion error.
+
+        This test case exercises the RemoteTestResult functionality by running a sample
+        subtest that intentionally fails due to a pickle error. The test then verifies
+        that the expected failure message is correctly captured and reported in the
+        resulting events. The purpose of this test is to ensure that the test framework
+        can properly handle and propagate errors from unpicklable subtests, allowing for
+        more robust and reliable test execution and reporting.
+        """
         result = RemoteTestResult()
         subtest_test = SampleFailingSubtest(methodName="pickle_error_test")
         subtest_test.run(result=result)
@@ -158,6 +247,14 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(PY312, "unittest --durations option requires Python 3.12")
     def test_add_duration(self):
+        """
+        Tests the addition of a duration to a RemoteTestResult object.
+
+        This test case verifies that the addDuration method correctly stores the provided duration.
+        It checks if the collectedDurations attribute of the result object is updated with the expected value.
+
+        The test is skipped unless running on Python 3.12, as it relies on features not available in earlier versions.
+        """
         result = RemoteTestResult()
         result.addDuration(None, 2.3)
         self.assertEqual(result.collectedDurations, [("None", 2.3)])

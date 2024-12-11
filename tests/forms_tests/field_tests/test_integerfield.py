@@ -32,6 +32,13 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_2(self):
+        """
+
+        Tests the functionality of the IntegerField to ensure it handles various input scenarios correctly.
+
+        This test case verifies that the IntegerField behaves as expected for different input types, including empty strings, None values, valid integers, and invalid inputs. It checks that the field returns None for empty or None inputs, correctly cleans and validates integer values, and raises a ValidationError for non-integer inputs. Additionally, it tests the field's behavior with regards to leading and trailing whitespace, as well as the absence of minimum and maximum value constraints.
+
+        """
         f = IntegerField(required=False)
         self.assertIsNone(f.clean(""))
         self.assertEqual("None", repr(f.clean("")))
@@ -165,12 +172,18 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("…")
 
     def test_integerfield_big_num(self):
+        """
+        Tests the IntegerField by checking its ability to clean and validate extremely large integer values, ensuring it can handle inputs both as integers and as strings, with or without a decimal component.
+        """
         f = IntegerField()
         self.assertEqual(9223372036854775808, f.clean(9223372036854775808))
         self.assertEqual(9223372036854775808, f.clean("9223372036854775808"))
         self.assertEqual(9223372036854775808, f.clean("9223372036854775808.0"))
 
     def test_integerfield_unicode_number(self):
+        """
+        Tests that the IntegerField can successfully parse and clean a unicode representation of a number, converting it to its integer equivalent.
+        """
         f = IntegerField()
         self.assertEqual(50, f.clean("５０"))
 

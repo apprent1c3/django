@@ -9,7 +9,34 @@ from .models import Article, Entry
 
 def wraps_decorator(f):
     @wraps(f)
+    """
+    A decorator factory that wraps a function to append a custom decoration string to its return value.
+
+    This decorator preserves the original function's name, docstring, and other metadata, ensuring seamless integration with existing code.
+
+    The wrapped function's return value is modified by appending the string ' -- decorated by @wraps.' to the result.
+
+    Usage:
+        @wraps_decorator
+        def example_function():
+            return \"Hello, World!\"
+        result = example_function()  # returns 'Hello, World! -- decorated by @wraps.'
+
+    Note:
+        This decorator is designed to be reusable and can be applied to various functions to add the custom decoration string to their return values.
+    """
     def wrapper(*args, **kwargs):
+        """
+        A function wrapper that preserves the original function's metadata using the @wraps decorator.
+
+        This wrapper takes any number of positional and keyword arguments, passes them to the original function, 
+        and appends a decoration message to the return value. It is intended to be used as a decorator, allowing 
+        for the extension or modification of the original function's behavior without permanently altering it.
+
+        Returns:
+            str: The return value of the original function with a decoration message appended.
+
+        """
         value = f(*args, **kwargs)
         return f"{value} -- decorated by @wraps."
 
@@ -207,6 +234,13 @@ class TemplateContextFeed(TestRss2Feed):
     description_template = "syndication/description_context.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Retrieves and modifies the context data for the current view.
+
+        This method extends the default context data with an additional key-value pair, making it available to the template for rendering. The key 'foo' is mapped to the value 'bar', allowing for further customization and extension of the context as needed.
+
+        The modified context data is then returned, providing an updated set of variables that can be accessed within the associated template.
+        """
         context = super().get_context_data(**kwargs)
         context["foo"] = "bar"
         return context
@@ -283,11 +317,28 @@ class MyCustomAtom1Feed(feedgenerator.Atom1Feed):
         handler.addQuickElement("spam", "eggs")
 
     def item_attributes(self, item):
+        """
+        Returns a dictionary of attributes for the given item, including additional attributes specific to this class.
+
+        The returned dictionary contains all the standard item attributes, plus an additional 'bacon' attribute with a value of 'yum'.
+
+        :rtype: dict
+        :returns: A dictionary of item attributes.
+        """
         attrs = super().item_attributes(item)
         attrs["bacon"] = "yum"
         return attrs
 
     def add_item_elements(self, handler, item):
+        """
+        Extends the base class method to add item elements by incorporating an additional quick element.
+
+        Adds a 'ministry' element with the value 'silly walks' to the item being handled, in addition to the elements added by the parent class.
+
+        :param handler: The handler object responsible for processing the item elements.
+        :param item: The item to which the elements are being added.
+
+        """
         super().add_item_elements(handler, item)
         handler.addQuickElement("ministry", "silly walks")
 

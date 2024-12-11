@@ -30,6 +30,14 @@ class TextFieldTests(TestCase):
         self.assertEqual(Post.objects.filter(body=24).count(), 0)
 
     def test_emoji(self):
+        """
+        Tests the proper storage and retrieval of a post containing an emoji.
+
+        Verifies that a post with an emoji in its body is created successfully and 
+        that the emoji is preserved when the post is refreshed from the database.
+
+        Ensures that the post's body matches the original input, including the emoji.
+        """
         p = Post.objects.create(title="Whatever", body="Smile 😀.")
         p.refresh_from_db()
         self.assertEqual(p.body, "Smile 😀.")
@@ -37,6 +45,16 @@ class TextFieldTests(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+
+        Tests the deconstruction of the TextField model field.
+
+        This test verifies that the deconstruct method correctly returns the field's
+        attributes as keyword arguments. It checks that the deconstruct method returns
+        an empty dictionary when no additional attributes are set, and that it includes
+        the db_collation attribute in the dictionary when it is specified.
+
+        """
         field = models.TextField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})

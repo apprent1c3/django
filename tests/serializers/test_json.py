@@ -47,6 +47,17 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Validates whether a given string represents valid JSON output.
+
+        Checks if the provided string can be successfully parsed as JSON data.
+        Returns True if the string is valid JSON, False otherwise.
+
+        :param serial_str: The string to be validated as JSON.
+        :rtype: bool
+        :returns: True if the string is valid JSON, False if an exception occurs during parsing.
+
+        """
         try:
             json.loads(serial_str)
         except Exception:
@@ -61,6 +72,19 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+        Extract specific field values from a serialized list of dictionaries.
+
+        This function takes a JSON serialized string and a field name as input, 
+        parses the string into a list of dictionaries, and returns a list of values 
+        for the specified field name. The function only includes values from dictionaries 
+        where the specified field name exists.
+
+        :param serial_str: A JSON serialized string containing a list of dictionaries.
+        :param field_name: The name of the field for which to extract values.
+        :returns: A list of values for the specified field name.
+        :rtype: list
+        """
         serial_list = json.loads(serial_str)
         return [
             obj_dict["fields"][field_name]
@@ -93,6 +117,9 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
         self.assertIn('"fields": {"score": "1"}', json_data)
 
     def test_json_deserializer_exception(self):
+        """
+        Tests that a DeserializationError is raised when attempting to deserialize invalid JSON data using the deserialize function from the serializers module. The test verifies that the function correctly handles malformed JSON input and raises the expected exception.
+        """
         with self.assertRaises(DeserializationError):
             for obj in serializers.deserialize("json", """[{"pk":1}"""):
                 pass

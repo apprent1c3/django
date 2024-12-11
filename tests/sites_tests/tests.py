@@ -22,6 +22,19 @@ class SitesFrameworkTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class.
+
+        This class method is used to define data that will be shared across all test methods in the class.
+        It creates a site object with a specified domain and name, and saves it to the database.
+
+        The site object has the following attributes:
+            - id: set to the SITE_ID from the project settings
+            - domain: set to 'example.com'
+            - name: set to 'example.com'
+
+        This method is typically used in the setup phase of test cases to ensure consistent test data.
+        """
         cls.site = Site(id=settings.SITE_ID, domain="example.com", name="example.com")
         cls.site.save()
 
@@ -31,6 +44,18 @@ class SitesFrameworkTests(TestCase):
 
     def test_site_manager(self):
         # Make sure that get_current() does not return a deleted Site object.
+        """
+        Tests the functionality of site manager.
+
+        This test case verifies the correct behavior of the site manager when 
+        retrieving and deleting the current site. It checks that the get_current 
+        method returns a Site object and that deleting the site results in a 
+        ObjectDoesNotExist exception when trying to retrieve it again.
+
+        Raises:
+            ObjectDoesNotExist: If the site is successfully deleted and then attempted to be retrieved.
+
+        """
         s = Site.objects.get_current()
         self.assertIsInstance(s, Site)
         s.delete()
@@ -40,6 +65,16 @@ class SitesFrameworkTests(TestCase):
     def test_site_cache(self):
         # After updating a Site object (e.g. via the admin), we shouldn't return a
         # bogus value from the SITE_CACHE.
+        """
+
+        Tests the caching behavior of the Site object.
+
+        This test case verifies that changes to a Site object are reflected in the
+        current site when it is retrieved through the get_current method. It checks
+        the name of the current site before and after updating the site object in
+        the database, ensuring that the cache is updated accordingly.
+
+        """
         site = Site.objects.get_current()
         self.assertEqual("example.com", site.name)
         s2 = Site.objects.get(id=settings.SITE_ID)
@@ -143,6 +178,9 @@ class SitesFrameworkTests(TestCase):
     def test_domain_name_with_whitespaces(self):
         # Regression for #17320
         # Domain names are not allowed contain whitespace characters
+        """
+        Tests that a ValidationError is raised when a Site instance has a domain name containing whitespace characters, including spaces, tabs, and newlines.
+        """
         site = Site(name="test name", domain="test test")
         with self.assertRaises(ValidationError):
             site.full_clean()
@@ -155,6 +193,29 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_clear_site_cache(self):
+        """
+
+        Clears the site cache for a given site instance.
+
+        This function resets the cache of sites, which is used to store recently accessed sites.
+        It takes a site instance as input and clears its corresponding cache entry.
+
+        The function works by removing the site instance from the site cache, which is stored
+        in the models.SITE_CACHE dictionary. It also supports clearing the cache when the site
+        instance is referenced by its domain name.
+
+        After calling this function, the site cache will be empty, and subsequent requests
+        will require a database query to retrieve the site instance.
+
+        Parameters:
+            model (class): The Site model class.
+            instance (object): The site instance to clear from the cache.
+            using (str): The database alias to use for the cache clearing operation.
+
+        Returns:
+            None
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -229,6 +290,17 @@ class RequestSiteTests(SimpleTestCase):
         self.site = RequestSite(request)
 
     def test_init_attributes(self):
+        """
+        Tests the initialization of site attributes.
+
+        Verifies that the domain and name of the site are correctly set to the expected values after initialization, ensuring that the site object is properly configured.
+
+        Attributes tested:
+            domain (str): The domain of the site.
+            name (str): The name of the site, which in this case is the same as the domain.
+
+        The test covers the basic setup and configuration of a site object, providing a foundation for further testing and validation of site-related functionality.
+        """
         self.assertEqual(self.site.domain, "example.com")
         self.assertEqual(self.site.name, "example.com")
 
@@ -241,6 +313,18 @@ class RequestSiteTests(SimpleTestCase):
             self.site.save()
 
     def test_delete(self):
+        """
+        Deletes a RequestSite instance, expecting a NotImplementedError with a specific error message.
+
+        Args:
+            None
+
+        Raises:
+            NotImplementedError: With the message 'RequestSite cannot be deleted.' 
+
+        Note:
+            This method tests the behavior of deleting a RequestSite instance, verifying that it correctly raises an exception indicating that deletion is not supported.
+        """
         msg = "RequestSite cannot be deleted."
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.site.delete()
@@ -289,6 +373,12 @@ class CreateDefaultSiteTests(TestCase):
         self.assertTrue(Site.objects.using("other").exists())
 
     def test_multi_db(self):
+        """
+        Tests the creation of sites in multiple databases.
+
+        This test function simulates the creation of a default site in two separate databases, 'default' and 'other', 
+        and verifies that the site objects are successfully created and accessible in each database.
+        """
         create_default_site(self.app_config, using="default", verbosity=0)
         create_default_site(self.app_config, using="other", verbosity=0)
         self.assertTrue(Site.objects.using("default").exists())
@@ -344,6 +434,17 @@ class CreateDefaultSiteTests(TestCase):
 
 class MiddlewareTest(TestCase):
     def test_request(self):
+        """
+
+        Tests if the CurrentSiteMiddleware correctly handles a request and returns the site ID.
+
+        This test case verifies that the middleware returns a response containing the site ID 
+        as defined in the project settings when handling an HTTP request. 
+
+        :param None: This function does not take any parameters.
+        :raises AssertionError: If the response from the middleware does not contain the site ID.
+
+        """
         def get_response(request):
             return HttpResponse(str(request.site.id))
 

@@ -8,6 +8,19 @@ class TestRouter:
     """
 
     def db_for_read(self, model, instance=None, **hints):
+        """
+        Specify the database to use for reading operations.
+
+        This method determines the database alias to use when reading data from the database.
+        It considers the model being accessed and any available instance data.
+        If an instance is provided, the database associated with the instance is used; otherwise, the default database alias 'other' is returned.
+
+        :param model: The model being accessed
+        :param instance: An instance of the model, if available
+        :param hints: Additional hints to influence the database selection
+
+        :return: The database alias to use for reading operations
+        """
         if instance:
             return instance._state.db or "other"
         return "other"

@@ -30,6 +30,16 @@ class InclusionAdminNode(InclusionNode):
         super().__init__(func, takes_context, args, kwargs, filename=None)
 
     def render(self, context):
+        """
+        Renders the template for the current object using the provided context.
+
+        The rendering process involves selecting the most specific template available based on the app label and object name. The engine will attempt to find a template in the following order:
+        - A template specific to the app label and object name
+        - A template specific to the app label
+        - A generic template
+
+        Once the template is selected, it is stored in the render context for future use. The function then delegates the actual rendering to its superclass.
+        """
         opts = context["opts"]
         app_label = opts.app_label.lower()
         object_name = opts.model_name

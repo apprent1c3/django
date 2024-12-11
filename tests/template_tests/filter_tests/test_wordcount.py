@@ -22,6 +22,13 @@ class WordcountTests(SimpleTestCase):
 
     @setup({"wordcount02": "{{ a|wordcount }} {{ b|wordcount }}"})
     def test_wordcount02(self):
+        """
+
+        Tests the wordcount template filter to ensure it accurately counts words in a given string.
+
+        The filter is applied to two input strings with HTML entities and checks if the output is correct.
+
+        """
         output = self.engine.render_to_string(
             "wordcount02", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )

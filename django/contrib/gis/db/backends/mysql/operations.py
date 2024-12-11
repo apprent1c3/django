@@ -79,6 +79,17 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+
+        Returns a set of unsupported spatial functions for the current database connection.
+
+        The set of unsupported functions is determined based on the database type. 
+        For MySQL connections, this includes functions such as geometry transformations and calculations.
+        For MariaDB connections, the set of unsupported functions is adjusted to account for differences in supported functionality.
+
+        The returned set can be used to determine which spatial functions are not available for use with the current database connection.
+
+        """
         unsupported = {
             "AsGML",
             "AsKML",

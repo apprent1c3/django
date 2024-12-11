@@ -162,6 +162,16 @@ class FormsUtilsTestCase(SimpleTestCase):
         )
 
     def test_error_dict_copy(self):
+        """
+
+        Tests the correctness of copying ErrorDict instances.
+
+        Verifies that both shallow and deep copies of an ErrorDict object produce
+        equivalent instances, comparing their contents and data representations.
+        Ensures that the copying process preserves the original object's structure
+        and attributes, including ErrorList instances and associated validation errors.
+
+        """
         e = ErrorDict()
         e["__all__"] = ErrorList(
             [
@@ -184,12 +194,36 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertEqual(e, e_deepcopy)
 
     def test_error_dict_html_safe(self):
+        """
+
+        Tests that an ErrorDict instance generates HTML-safe output when converted to a string.
+
+        This test case verifies that the ErrorDict class has an __html__ method and that its
+        string representation matches the HTML output. The test creates an instance of ErrorDict,
+        adds an error message, and checks the following conditions:
+        - The ErrorDict class has an __html__ attribute.
+        - The string representation of the ErrorDict instance is equivalent to its HTML representation.
+
+        The purpose of this test is to ensure that the ErrorDict class correctly handles HTML
+        output, preventing potential security vulnerabilities such as cross-site scripting (XSS).
+
+        """
         e = ErrorDict()
         e["username"] = "Invalid username."
         self.assertTrue(hasattr(ErrorDict, "__html__"))
         self.assertEqual(str(e), e.__html__())
 
     def test_error_list_html_safe(self):
+        """
+
+        Verifies that ErrorList instances are HTML-safe.
+
+        This test checks that the ErrorList class has a __html__ method, 
+        indicating it can be safely used in HTML templates without risking XSS attacks.
+        It also ensures that the string representation of an ErrorList instance 
+        matches its HTML representation, as returned by the __html__ method.
+
+        """
         e = ErrorList(["Invalid username."])
         self.assertTrue(hasattr(ErrorList, "__html__"))
         self.assertEqual(str(e), e.__html__())
@@ -198,6 +232,11 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertIsInstance(ErrorDict(), dict)
 
     def test_error_dict_is_json_serializable(self):
+        """
+        Tests whether an ErrorDict object can be successfully serialized into JSON.
+
+        The ErrorDict object is a container for validation errors, which may be nested within each other to represent complex error structures. This test case verifies that the ErrorDict object can be converted into a JSON-compatible format, regardless of the complexity or depth of its error tree.
+        """
         init_errors = ErrorDict(
             [
                 (
@@ -254,18 +293,42 @@ class FormsUtilsTestCase(SimpleTestCase):
         )
 
     def test_get_context_must_be_implemented(self):
+        """
+        Tests that subclasses of RenderableMixin must implement the get_context method.
+
+        Verifies that calling get_context on a base RenderableMixin instance raises a
+        NotImplementedError with a message indicating that subclasses are responsible
+        for providing their own implementation of this method.
+        """
         mixin = RenderableMixin()
         msg = "Subclasses of RenderableMixin must provide a get_context() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             mixin.get_context()
 
     def test_field_mixin_as_hidden_must_be_implemented(self):
+        """
+        ..: Tests that the RenderableFieldMixin correctly raises a NotImplementedError when its as_hidden method is not implemented by a subclass.
+
+            This test case checks that the mixin enforces the implementation of as_hidden in any subclass, 
+            ensuring that all renderable fields provide a way to be represented as a hidden field.
+
+            Raises:
+                NotImplementedError: if as_hidden is not implemented by a subclass of RenderableFieldMixin.
+        """
         mixin = RenderableFieldMixin()
         msg = "Subclasses of RenderableFieldMixin must provide an as_hidden() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             mixin.as_hidden()
 
     def test_field_mixin_as_widget_must_be_implemented(self):
+        """
+        Tests that RenderableFieldMixin subclasses must implement the as_widget method.
+
+        This test case ensures that any subclass of RenderableFieldMixin provides a valid 
+        implementation for the as_widget method, which is necessary for rendering the 
+        field as a widget. If the method is not implemented, it raises a NotImplementedError 
+        with a corresponding error message.
+        """
         mixin = RenderableFieldMixin()
         msg = "Subclasses of RenderableFieldMixin must provide an as_widget() method."
         with self.assertRaisesMessage(NotImplementedError, msg):

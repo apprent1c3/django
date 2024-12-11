@@ -30,6 +30,22 @@ class MessageTests(SimpleTestCase):
         }
     )
     def test_repr(self):
+        """
+
+        Tests the representation of a Message object.
+
+        This test case checks the string representation of a Message object for various input parameters, 
+        including different message levels, messages, and extra tags. It ensures that the repr() function 
+        returns the expected string, which includes the message level and message.
+
+        The test is parameterized to cover various scenarios, including info, warning, error, and custom 
+        message levels. It also verifies that the extra tags are correctly included in the representation 
+        when provided.
+
+        The expected output of the repr() function is compared against predefined string representations 
+        for each test case, ensuring that the representation is accurate and consistent.
+
+        """
         tests = [
             (constants.INFO, "thing", "", "Message(level=20, message='thing')"),
             (
@@ -88,12 +104,28 @@ class TestLevelTags(SimpleTestCase):
     def test_override_settings_lazy(self):
         # The update_level_tags handler has been called at least once before
         # running this code when using @override_settings.
+        """
+
+        Tests that the override_settings decorator can update settings lazily.
+
+        This function checks if the MESSAGE_TAGS setting can be overridden after the test has started,
+        and verifies that the change is reflected in the LEVEL_TAGS dictionary.
+
+        The purpose of this test is to ensure that settings can be updated dynamically during a test run,
+        allowing for more flexible and realistic testing scenarios.
+
+        """
         settings.MESSAGE_TAGS = {constants.ERROR: "very-bad"}
         self.assertEqual(base.LEVEL_TAGS[constants.ERROR], "very-bad")
 
 
 class FakeResponse:
     def __init__(self):
+        """
+        Initializes the object with a mock WSGI request, creating a basic HTTP request context. 
+        The request is set up with a GET method to the root URL ('/') and is equipped with a dummy message storage to handle any potential messages generated during the request processing. 
+        This setup allows for isolating and testing the object's behavior in a controlled environment, simulating real HTTP requests without actually interacting with the web.
+        """
         request = RequestFactory().get("/")
         request._messages = DummyStorage()
         self.wsgi_request = request
@@ -161,6 +193,15 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         self.assertMessages(response, [Message(42, "CUSTOM message.")])
 
     def test_ordered(self):
+        """
+        Tests that the assertMessages method handles unordered messages correctly.
+
+        The test adds two messages of different levels (info and warning) to a fake request, 
+        then verifies that the method correctly identifies these messages when the ordered 
+        parameter is set to False, and correctly raises an AssertionError when ordered 
+        is implied to be True (i.e., when not specified) because the messages are not 
+        in the expected order.
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "First message.")
         add_message(response.wsgi_request, constants.WARNING, "Second message.")
@@ -173,6 +214,24 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
             self.assertMessages(response, expected_messages)
 
     def test_mismatching_length(self):
+        """
+
+        Tests that an AssertionError is raised when comparing messages of mismatching lengths.
+
+        This test case checks that the assertMessages method correctly identifies and reports
+        a difference in the number of messages between the expected and actual lists.
+
+        Args:
+            None
+
+        Raises:
+            AssertionError: If the lengths of the expected and actual message lists do not match.
+
+        Notes:
+            This test case verifies that the assertMessages method provides a detailed and informative error message
+            when a mismatch in message lengths is detected, including the differing elements and their contents.
+
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
         msg = (

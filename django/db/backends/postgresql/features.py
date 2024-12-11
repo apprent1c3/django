@@ -118,6 +118,15 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_expected_failures(self):
+        """
+        Returns a set of Django test cases that are expected to fail.
+
+        This property considers the binding configuration of the instance and includes
+        test cases that are known to fail when server-side binding is used.
+
+        :rtype: set
+        :return: A set of test case names that are expected to fail
+        """
         expected_failures = set()
         if self.uses_server_side_binding:
             expected_failures.update(

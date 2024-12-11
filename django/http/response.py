@@ -395,6 +395,15 @@ class HttpResponse(HttpResponseBase):
     @content.setter
     def content(self, value):
         # Consume iterators upon assignment to allow repeated iteration.
+        """
+        Sets the content of the object, converting the provided value into bytes and storing it.
+
+        The value can be a single item or an iterable of items. If an iterable is provided, its elements are converted to bytes and concatenated together. If the iterable has a `close` method, it will be called after use.
+
+        The conversion to bytes is performed using the `make_bytes` method, which is applied to each item in the iterable or to the single item if it is not iterable.
+
+        Note that bytes, memory views, and strings are handled as single items, even if they are technically iterables.
+        """
         if hasattr(value, "__iter__") and not isinstance(
             value, (bytes, memoryview, str)
         ):
@@ -510,6 +519,17 @@ class StreamingHttpResponse(HttpResponseBase):
             return map(self.make_bytes, iter(async_to_sync(to_list)(self._iterator)))
 
     async def __aiter__(self):
+        """
+        Asynchronous iterator for the object, allowing it to be used in asynchronous contexts.
+
+        This method yields parts of the streaming content, enabling asynchronous consumption of the response.
+
+        If the underlying content is a synchronous iterator, a warning is emitted and the content is converted to an asynchronous iterator using the `sync_to_async` utility, to ensure compatibility with asynchronous serving.
+
+        Yields:
+            Each part of the streaming content.
+
+        """
         try:
             async for part in self.streaming_content:
                 yield part

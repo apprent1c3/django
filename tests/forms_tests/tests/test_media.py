@@ -13,6 +13,29 @@ class FormsMediaTestCase(SimpleTestCase):
 
     def test_construction(self):
         # Check construction of media objects
+        """
+        Tests the construction of Media objects.
+
+        This test case verifies that Media objects can be created with various
+        combinations of CSS and JavaScript files. It checks that the `__str__`
+        and `__repr__` methods produce the expected output, including the
+        correct HTML tags for CSS and JavaScript files.
+
+        The test also covers the case where a Media object is created from an
+        object that has `css` and `js` attributes, demonstrating that Media
+        objects can be instantiated from other objects that provide the
+        necessary attributes.
+
+        Additionally, it tests the integration of Media with widget objects,
+        ensuring that the `media` attribute of a widget is correctly populated
+        and that the `__str__` method produces the expected output for a widget
+        with no media files attached.
+
+        Ensures that Media objects are correctly constructed and provide the
+        expected representations as strings and in their internal form, both
+        when initialized with explicit CSS and JavaScript files and when
+        initialized from other objects that provide the necessary attributes.
+        """
         m = Media(
             css={"all": ("path/to/css1", "/path/to/css2")},
             js=(
@@ -71,6 +94,19 @@ class FormsMediaTestCase(SimpleTestCase):
         # A widget can define media if it needs to.
         # Any absolute path will be preserved; relative paths are combined
         # with the value of settings.MEDIA_URL
+        """
+
+        Tests the media DSL (Domain Specific Language) for a custom widget.
+
+        Verifies that the media attributes (CSS and JavaScript files) defined in the widget's Media class are correctly rendered as HTML tags.
+        The test checks that both absolute and relative paths are properly handled, and that the media types (e.g., CSS, JavaScript) are correctly identified and rendered.
+
+        Specifically, this test case covers the following scenarios:
+        - Rendering of CSS files with absolute and relative paths
+        - Rendering of JavaScript files with absolute and relative paths, including HTTP and HTTPS URLs
+        - Accessing and rendering specific media types (CSS or JavaScript) from the widget's media object
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -109,6 +145,20 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_combine_media(self):
         # Media objects can be combined. Any given media resource will appear only
         # once. Duplicated media definitions are ignored.
+        """
+        Tests the combination of media (CSS and JavaScript files) from multiple widgets.
+
+        This test case verifies that media files are correctly combined and rendered
+        when multiple widgets are used together. Specifically, it checks for:
+
+        *   Elimination of duplicate media files
+        *   Preservation of the original order of media files
+        *   Proper handling of media files with different protocols (e.g., HTTP, HTTPS)
+        *   Correct rendering of CSS and JavaScript files as HTML tags
+
+        The test uses custom widgets with predefined media files to simulate real-world
+        scenarios and ensures that the resulting media output is as expected.
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -173,6 +223,13 @@ class FormsMediaTestCase(SimpleTestCase):
         # A deduplication test applied directly to a Media object, to confirm
         # that the deduplication doesn't only happen at the point of merging
         # two or more media objects.
+        """
+
+        Tests the media deduplication functionality, ensuring that duplicate CSS and JS resources are correctly collapsed into a single instance.
+
+        The function verifies that when multiple instances of the same media resource are provided, the resulting media string contains only one instance of each resource.
+
+        """
         media = Media(
             css={"all": ("/path/to/css1", "/path/to/css1")},
             js=("/path/to/js1", "/path/to/js1"),
@@ -223,6 +280,18 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_property_parent_references(self):
         # Media properties can reference the media of their parents,
         # even if the parent media was defined using a class
+        """
+        Tests that media property parent references are correctly inherited and rendered.
+
+        This test verifies that a subclass's media property includes all the media files
+        defined in its parent class, as well as any additional media files defined in the
+        subclass itself. It checks that the resulting media property contains all the
+        expected CSS and JavaScript files, and that they are correctly formatted as HTML
+        links and script tags.
+
+        The test covers both absolute and relative URLs for media files, as well as
+        different protocols (http and https).
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -260,6 +329,25 @@ class FormsMediaTestCase(SimpleTestCase):
 
         # If a widget extends another but provides no media definition, it
         # inherits the parent widget's media.
+        """
+
+        Tests media inheritance in widget classes.
+
+        Verifies that the media definitions from parent classes are correctly inherited
+        and combined with the media definitions from child classes. This includes testing
+        for CSS and JavaScript files, with both absolute and relative URLs.
+
+        The test covers two scenarios: 
+
+        1. A child widget with no media definition of its own, where the parent's
+           media definition is expected to be used.
+        2. A child widget with its own media definition, where the child's media
+           definition is expected to be combined with the parent's.
+
+        Ensures that the resulting media representation is correctly rendered as HTML,
+        with the expected CSS and JavaScript tags.
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -353,6 +441,16 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_extends(self):
         # A widget can explicitly enable full media inheritance by specifying
         # 'extend=True'.
+        """
+        Tests the media inheritance when a subclass extends the media of its parent.
+
+        This tests the ability of a widget to inherit media (css and js) from its parent
+        class and extend it with its own media definitions. The test ensures that the
+        media from the parent class is properly included in the output, and that any
+        duplicates are handled correctly. The extend parameter in the Media class
+        allows the subclass to build upon the media definitions of its parent, rather
+        than replacing them entirely.
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -383,6 +481,17 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_single_type(self):
         # A widget can enable inheritance of one media type by specifying
         # extend as a tuple.
+        """
+
+        Tests the media inheritance functionality when inheriting from a single parent widget.
+
+        This test case verifies that the media assets (CSS and JavaScript files) from the parent widget are properly inherited and combined with the media assets defined in the child widget.
+
+        The test assesses whether the `extend` attribute is correctly applied, allowing the child widget to extend the media assets of its parent. It also checks that the resulting media assets are correctly rendered as HTML tags.
+
+        The expected outcome is that the child widget's media assets are merged with the parent's assets, resulting in a combined set of CSS and JavaScript files that are rendered as HTML links and script tags.
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -414,6 +523,16 @@ class FormsMediaTestCase(SimpleTestCase):
         ###############################################################
 
         # A widget can define CSS media for multiple output media types
+        """
+
+        Tests the rendering of media resources (CSS and JavaScript files) for a custom widget.
+
+        The test verifies that the media resources are correctly ordered and formatted in the output,
+        with CSS files rendered as link tags and JavaScript files rendered as script tags.
+        The test also ensures that media resources are ordered based on their specified media types,
+        with more specific types (e.g. 'screen') appearing before less specific types (e.g. 'screen, print').
+
+        """
         class MultimediaWidget(TextInput):
             class Media:
                 css = {
@@ -462,6 +581,17 @@ class FormsMediaTestCase(SimpleTestCase):
         # media from the component widgets
         class MyMultiWidget(MultiWidget):
             def __init__(self, attrs=None):
+                """
+
+                Initialize the object with optional attributes and predefined widgets.
+
+                The object is initialized with a selection of predefined widgets, including 
+                MyWidget1, MyWidget2, and MyWidget3. Additional attributes can be provided 
+                through the attrs parameter to further customize the object's behavior.
+
+                :param attrs: Optional attributes to customize the object's behavior.
+
+                """
                 widgets = [MyWidget1, MyWidget2, MyWidget3]
                 super().__init__(widgets, attrs)
 
@@ -483,6 +613,19 @@ class FormsMediaTestCase(SimpleTestCase):
         # Media processing for forms
         ###############################################################
 
+        """
+        Tests the media generation of Django forms.
+
+        Ensures that the `media` attribute of a form is correctly generated based on the media defined in its fields' widgets and the form itself.
+
+        Checks the resulting media HTML for various cases, including:
+
+        - Multiple forms with overlapping media
+        - Media defined at the form level and at the widget level
+        - Rendering of media in a Django template
+
+        The testing covers both CSS and JavaScript media.
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -604,6 +747,9 @@ class FormsMediaTestCase(SimpleTestCase):
                 self.assertEqual(Media.merge(*lists), expected)
 
     def test_merge_warning(self):
+        """
+        Tests the merge functionality of Media objects when duplicate media files are detected in an opposite order, verifying that a RuntimeWarning is raised with the expected message. The test ensures that despite the warning, the merge operation returns the correct result.
+        """
         msg = "Detected duplicate Media files in an opposite order: [1, 2], [2, 1]"
         with self.assertWarnsMessage(RuntimeWarning, msg):
             self.assertEqual(Media.merge([1, 2], [2, 1], None), [1, 2])
@@ -626,6 +772,18 @@ class FormsMediaTestCase(SimpleTestCase):
         # The merge prefers to place 'c' before 'b' and 'g' before 'h' to
         # preserve the original order. The preference 'c'->'b' is overridden by
         # widget3's media, but 'g'->'h' survives in the final ordering.
+        """
+        Tests the three-way merge of JavaScript files between multiple Media objects.
+
+        This test case verifies that the Media class correctly merges JavaScript files 
+        when adding multiple Media objects together, ensuring that the resulting 
+        Media object contains a deduplicated list of JavaScript files.
+
+        The merge is tested with three Media objects containing different sets of 
+        JavaScript files, and the test asserts that the resulting list of JavaScript 
+        files is as expected, with no duplicates and including all files from the 
+        original Media objects.
+        """
         widget1 = Media(js=["a", "c", "f", "g", "k"])
         widget2 = Media(js=["a", "b", "f", "h", "k"])
         widget3 = Media(js=["b", "c", "f", "k"])
@@ -654,6 +812,15 @@ class FormsMediaTestCase(SimpleTestCase):
         self.assertEqual(merged._css, {"screen": ["c.css"], "all": ["d.css", "e.css"]})
 
     def test_add_js_deduplication(self):
+        """
+        Tests the addition of Media objects with JavaScript files to ensure deduplication.
+
+        The function checks that when two Media objects are added together, their JavaScript files are merged and duplicates are removed.
+        It also verifies that the order of the files is preserved and that a warning is raised when duplicate files are detected in a different order.
+
+        If the same JavaScript files are present in both Media objects but in a different order, the function checks that a RuntimeWarning is raised to indicate the presence of duplicate files.
+        The goal of this test is to ensure that the Media class correctly handles the addition of JavaScript files from multiple sources and provides a clear warning when duplicate files are found in an unexpected order.
+        """
         widget1 = Media(js=["a", "b", "c"])
         widget2 = Media(js=["a", "b"])
         widget3 = Media(js=["a", "c", "b"])
@@ -674,6 +841,22 @@ class FormsMediaTestCase(SimpleTestCase):
             merged._js
 
     def test_add_css_deduplication(self):
+        """
+        Tests the addition of Media objects with CSS files, ensuring deduplication and correct handling of ordering.
+
+        The addition of Media objects results in a merged Media object that combines the CSS files from the original objects.
+        In case of duplicate CSS files, they are automatically deduplicated to prevent multiple inclusions.
+        The function also verifies that the order of CSS files is preserved and that a warning is raised when duplicate files are detected in an opposite order.
+
+        The following scenarios are tested:
+        - Merging of identical Media objects
+        - Merging of Media objects with different CSS files
+        - Merging of Media objects with duplicate CSS files in the same and opposite orders
+
+        The resulting merged Media object is checked for correctness of its CSS lists and files.
+        A warning is expected when duplicate CSS files are detected in an opposite order.
+
+        """
         widget1 = Media(css={"screen": ["a.css"], "all": ["b.css"]})
         widget2 = Media(css={"screen": ["c.css"]})
         widget3 = Media(css={"screen": ["a.css"], "all": ["b.css", "c.css"]})
@@ -746,6 +929,18 @@ class Asset:
 
 class CSS(Asset):
     def __init__(self, path, medium):
+        """
+
+        Initializes a new instance of the class.
+
+        :param path: The path associated with this instance.
+        :param medium: The medium associated with this instance.
+
+        This method sets up the basic properties of the class, including the path and medium, 
+        which are used throughout the class. The path is inherited from the parent class, 
+        while the medium is specific to this instance.
+
+        """
         super().__init__(path)
         self.medium = medium
 
@@ -760,10 +955,22 @@ class CSS(Asset):
 
 class JS(Asset):
     def __init__(self, path, integrity=None):
+        """
+        Initializes a new instance of the class.
+
+        :param path: The path associated with this instance.
+        :param integrity: An optional integrity value, defaults to an empty string if not provided.
+
+        """
         super().__init__(path)
         self.integrity = integrity or ""
 
     def __str__(self, integrity=None):
+        """
+        :return: A string representation of the script element, including the source URL and optional integrity attribute.
+        :rtype: str
+        :description: This method generates a HTML script tag with the specified source URL and integrity attribute, if provided. The resulting string can be used directly in HTML templates to include the script.
+        """
         path = super().__str__()
         template = '<script src="{}"%s></script>' % (
             ' integrity="{}"' if self.integrity else "{}"
@@ -778,6 +985,13 @@ class FormsMediaObjectTestCase(SimpleTestCase):
     """Media handling when media are objects instead of raw strings."""
 
     def test_construction(self):
+        """
+        Test the construction of a Media object, verifying that it correctly handles CSS and JavaScript resources, 
+        including getPathToxss and JavaScripts from different sources, and properly encodes them into HTML strings.
+        The test checks both the string representation of the Media object, which should produce valid HTML tags for 
+        the CSS and JavaScript resources, and the repr representation, which should provide a human-readable 
+        summary of the Media object's contents.
+        """
         m = Media(
             css={"all": (CSS("path/to/css1", "all"), CSS("/path/to/css2", "all"))},
             js=(
@@ -808,6 +1022,17 @@ class FormsMediaObjectTestCase(SimpleTestCase):
 
     def test_simplest_class(self):
         @html_safe
+        """
+        Tests that the simplest possible asset class can be used with the Media class.
+
+        This test verifies that an asset class that only defines a string representation
+        can be properly rendered as part of a Media object. The test checks that the
+        string representation of the Media object matches the expected HTML output.
+
+        The test case uses a simple asset class that generates a script tag referencing
+        an external JavaScript file. The resulting Media object is then converted to a
+        string and compared to the expected output to ensure correctness.
+        """
         class SimpleJS:
             """The simplest possible asset class."""
 
@@ -821,6 +1046,9 @@ class FormsMediaObjectTestCase(SimpleTestCase):
         )
 
     def test_combine_media(self):
+        """
+        Tests the combination of media from two widgets, ensuring that CSS and JavaScript files are correctly concatenated and rendered as HTML tags. The test verifies that duplicate files are included only once and that the order of inclusion is preserved. It also checks the correct rendering of media files with different protocols (HTTP, HTTPS) and integrity attributes (SRI).
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": (CSS("path/to/css1", "all"), "/path/to/css2")}
@@ -854,6 +1082,13 @@ class FormsMediaObjectTestCase(SimpleTestCase):
     def test_media_deduplication(self):
         # The deduplication doesn't only happen at the point of merging two or
         # more media objects.
+        """
+        Tests the deduplication of media assets, such as CSS and JavaScript files.
+
+        Ensures that when multiple identical media assets are added, only one instance is included in the output.
+
+        Checks that the resulting string representation of the media object contains the expected deduplicated media assets.
+        """
         media = Media(
             css={
                 "all": (

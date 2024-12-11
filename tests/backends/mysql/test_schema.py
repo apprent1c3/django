@@ -7,6 +7,17 @@ from django.test import TestCase
 @unittest.skipUnless(connection.vendor == "mysql", "MySQL tests")
 class SchemaEditorTests(TestCase):
     def test_quote_value(self):
+        """
+
+        Tests the quote_value method of the schema editor to ensure it correctly 
+        formats different data types as MySQL-compatible strings.
+
+        The function verifies the output for various input types, including strings, 
+        bytes, integers, floats, and boolean values. It checks for proper quoting and 
+        escaping of special characters, as well as version-specific formatting for 
+        floats and boolean values in MySQL.
+
+        """
         import MySQLdb
 
         editor = connection.schema_editor()

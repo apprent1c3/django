@@ -17,6 +17,16 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     def test_context_has_priority_over_template_context_processors(self):
         # See ticket #23789.
+        """
+        Tests that the context passed to the template has priority over the context provided by template context processors.
+
+        This test case verifies that when a key is present in both the template context and the context provided by a template context processor,
+        the value from the template context is used in the rendered template. This ensures that the template context can override default values
+        set by context processors, allowing for more flexibility and customization in template rendering.
+
+        It covers two scenarios: one where the key is not present in the template context, and another where it is explicitly set.
+        In both cases, the test checks that the rendered template contains the expected value for the specified key.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -125,6 +135,18 @@ class DjangoTemplatesTests(TemplateStringsTests):
         self.assertIsInstance(cm.exception.__cause__, ImportError)
 
     def test_builtins_discovery(self):
+        """
+
+        Tests the discovery of built-in template tags in the Django template engine.
+
+        Verifies that the 'builtins' option is correctly interpreted by the engine, 
+        including the addition of user-defined custom template tags to the list 
+        of default built-in tags.
+
+        The expected output includes the standard Django built-in tags as well as 
+        any user-specified tags provided in the 'builtins' option.
+
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],

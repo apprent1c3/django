@@ -64,6 +64,20 @@ class ChoicesTests(SimpleTestCase):
         self.assertIsInstance(Suit.DIAMOND.value, int)
 
     def test_integerchoices_auto_label(self):
+        """
+
+        Tests the automatic generation of labels for integer choices in the Vehicle class.
+
+        This test ensures that the labels for each vehicle type (car, truck, jet ski) are 
+        correctly generated as human-readable strings, making it easier to understand and 
+        work with the choices in the code.
+
+        The test covers the following cases:
+        - CAR choice is labeled as 'Carriage'
+        - TRUCK choice is labeled as 'Truck'
+        - JET_SKI choice is labeled as 'Jet Ski'
+
+        """
         self.assertEqual(Vehicle.CAR.label, "Carriage")
         self.assertEqual(Vehicle.TRUCK.label, "Truck")
         self.assertEqual(Vehicle.JET_SKI.label, "Jet Ski")
@@ -75,17 +89,55 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Vehicle.names[0], "__empty__")
 
     def test_integerchoices_functional_api(self):
+        """
+
+        Tests the functional API of the IntegerChoices class.
+
+        This test case verifies that the IntegerChoices class correctly assigns and 
+        returns labels, values, and names based on the provided choices. It checks that 
+        the labels are human-readable and capitalized, the values are incremental 
+        integers starting from 1, and the names match the provided choices.
+
+        """
         Place = models.IntegerChoices("Place", "FIRST SECOND THIRD")
         self.assertEqual(Place.labels, ["First", "Second", "Third"])
         self.assertEqual(Place.values, [1, 2, 3])
         self.assertEqual(Place.names, ["FIRST", "SECOND", "THIRD"])
 
     def test_integerchoices_containment(self):
+        """
+        Tests if an integer and a Suit enum value are correctly contained within the Suit enum.
+
+        This function checks if a specific Suit enum value (DIAMOND) and an integer (1) are present in the Suit enum, 
+        and verifies that an integer not representing any Suit enum value (0) is not contained within it. 
+
+        The test ensures the correct functioning of the containment checks for the Suit enum, 
+        which is crucial for validating and processing Suit enum values in the application.
+        """
         self.assertIn(Suit.DIAMOND, Suit)
         self.assertIn(1, Suit)
         self.assertNotIn(0, Suit)
 
     def test_textchoices(self):
+        """
+
+        Tests the functionality of the YearInSchool choices class.
+
+        This test suite verifies the accuracy of the choices, labels, values, and names 
+        defined in the YearInSchool class. It also checks the instantiation and retrieval 
+        of specific year choices, ensuring that the class behaves as expected.
+
+        The test covers the following aspects:
+
+        - Validity of choices, labels, values, and names
+        - Instantiation and comparison of year choices
+        - Access to year choices by label or value
+        - Type checks for the class and its instances
+
+        Passing these tests confirms that the YearInSchool class is properly defined and 
+        functions correctly, providing a reliable foundation for further development.
+
+        """
         self.assertEqual(
             YearInSchool.choices,
             [
@@ -118,23 +170,49 @@ class ChoicesTests(SimpleTestCase):
         self.assertIsInstance(YearInSchool.FRESHMAN.value, str)
 
     def test_textchoices_auto_label(self):
+        """
+        Tests the automatic generation of human-readable labels for the Gender choices, verifying that each choice maps to its expected label.
+        """
         self.assertEqual(Gender.MALE.label, "Male")
         self.assertEqual(Gender.FEMALE.label, "Female")
         self.assertEqual(Gender.NOT_SPECIFIED.label, "Not Specified")
 
     def test_textchoices_empty_label(self):
+        """
+        Tests the expected default empty label values for the Gender model, verifying that the first choice has an empty value, an '(Undeclared)' label, and a corresponding name of '__empty__'.
+        """
         self.assertEqual(Gender.choices[0], (None, "(Undeclared)"))
         self.assertEqual(Gender.labels[0], "(Undeclared)")
         self.assertIsNone(Gender.values[0])
         self.assertEqual(Gender.names[0], "__empty__")
 
     def test_textchoices_functional_api(self):
+        """
+        Tests the functionality of the TextChoices class from the models module.
+
+        This test creates a TextChoices instance named Medal with three choices: GOLD, SILVER, and BRONZE.
+        It then verifies that the labels, values, and names of the Medal choices are correctly generated.
+        The labels are human-readable names, the values are the original choice names, and the names are the choice names themselves.
+
+        The purpose of this test is to ensure that the TextChoices class behaves as expected when used in a functional API context.
+        It covers the basic functionality of the class, including the automatic generation of labels and the correct retrieval of values and names.
+        """
         Medal = models.TextChoices("Medal", "GOLD SILVER BRONZE")
         self.assertEqual(Medal.labels, ["Gold", "Silver", "Bronze"])
         self.assertEqual(Medal.values, ["GOLD", "SILVER", "BRONZE"])
         self.assertEqual(Medal.names, ["GOLD", "SILVER", "BRONZE"])
 
     def test_textchoices_containment(self):
+        """
+        验证码assistant
+
+        Tests that the YearInSchool choices contain the expected values.
+
+        This test case verifies the containment of specific values within the YearInSchool choices, 
+        including the object value YearInSchool.FRESHMAN and the string value 'FR'. 
+        It also checks that an invalid value 'XX' is not present in the choices. 
+        The purpose is to ensure that the YearInSchool choices are correctly defined and can be appropriately used in the application.
+        """
         self.assertIn(YearInSchool.FRESHMAN, YearInSchool)
         self.assertIn("FR", YearInSchool)
         self.assertNotIn("XX", YearInSchool)
@@ -164,22 +242,66 @@ class ChoicesTests(SimpleTestCase):
                 PINEAPPLE = 1, "Pineapple"
 
     def test_str(self):
+        """
+        Tests the string representation of enumeration members.
+
+        This test ensures that the string representation of each member in the 
+        Gender, Suit, YearInSchool, and Vehicle enumerations matches the 
+        string representation of their corresponding values.
+
+        The test uses a subtest for each member to provide detailed feedback 
+        in case of failures, allowing for easy identification of the specific 
+        members that are not correctly represented as strings.
+        """
         for test in [Gender, Suit, YearInSchool, Vehicle]:
             for member in test:
                 with self.subTest(member=member):
                     self.assertEqual(str(test[member.name]), str(member.value))
 
     def test_templates(self):
+        """
+        Test the rendering of templates with suit labels and values.
+
+        This test verifies that a given template string containing suit labels and values
+        is correctly rendered into a string with the expected output. The test template
+        contains a placeholder for the label and value of a specific suit, which is
+        replaced with the actual values during rendering. The test checks if the rendered
+        output matches the expected string.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            This test case is part of a larger suite and should be run in conjunction
+            with other tests to ensure overall functionality.
+
+        """
         template = Template("{{ Suit.DIAMOND.label }}|{{ Suit.DIAMOND.value }}")
         output = template.render(Context({"Suit": Suit}))
         self.assertEqual(output, "Diamond|1")
 
     def test_property_names_conflict_with_member_names(self):
+        """
+        Tests that property names in TextChoices conflict with built-in member names.
+
+        This test case verifies that attempting to define a TextChoices model with property names that match the names of built-in members (e.g. 'names', 'values', etc.) raises an AttributeError. It ensures that such naming conflicts are properly handled and that users are prevented from inadvertently overwriting internal attributes.
+
+        :raises AttributeError: If property names conflict with built-in member names.
+
+        """
         with self.assertRaises(AttributeError):
             models.TextChoices("Properties", "choices labels names values")
 
     def test_label_member(self):
         # label can be used as a member.
+        """
+        Tests the attributes of a TextChoices member, specifically the 'label' member of the Stationery choices.
+
+        This test case verifies that the label, value, and name attributes of the 'label' choice are correctly assigned, ensuring the TextChoices class is functioning as expected.
+        """
         Stationery = models.TextChoices("Stationery", "label stamp sticker")
         self.assertEqual(Stationery.label.label, "Label")
         self.assertEqual(Stationery.label.value, "label")
@@ -200,6 +322,15 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_do_not_call_in_templates_nonmember(self):
+        """
+        Tests that the `do_not_call_in_templates` attribute is properly handled for the `Suit` class. 
+
+        Specifically, it checks that `do_not_call_in_templates` is not a member of the `Suit` enum, and 
+        ensures that it returns the expected value based on the Python version being used. 
+        For Python 3.11 and above, it verifies that the attribute is `True`, 
+        while for earlier versions, it checks that the attribute is truthy but not the `True` singleton, 
+        and is an instance of the `property` class.
+        """
         self.assertNotIn("do_not_call_in_templates", Suit.__members__)
         if PY311:
             self.assertIs(Suit.do_not_call_in_templates, True)
@@ -317,6 +448,18 @@ class CustomChoicesTests(SimpleTestCase):
                 pass
 
     def test_uuid_unsupported(self):
+        """
+
+        Tests that a TypeError is raised when trying to create an Identifier class 
+        that inherits from both uuid.UUID and models.Choices, as this combination 
+        is not supported due to uuid.UUID not being compatible with the 
+        models.Choices interface.
+
+        The test case verifies that attempting to define such a class results 
+        in a TypeError, ensuring that the system correctly handles and reports 
+        this unsupported scenario.
+
+        """
         with self.assertRaises(TypeError):
 
             class Identifier(uuid.UUID, models.Choices):

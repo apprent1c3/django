@@ -63,6 +63,13 @@ class AutocompleteMixinTests(TestCase):
     maxDiff = 1000
 
     def test_build_attrs(self):
+        """
+        Tests that the build attributes for the 'band' field in the AlbumForm are correctly generated.
+
+        The test verifies that the attributes added to the field widget match the expected set of attributes, 
+        including class names, data attributes for autocomplete functionality, and other relevant settings.
+
+        """
         form = AlbumForm()
         attrs = form["band"].field.widget.get_context(
             name="my_field", value=None, attrs={}
@@ -93,16 +100,39 @@ class AutocompleteMixinTests(TestCase):
         self.assertEqual(attrs["class"], "admin-autocomplete")
 
     def test_build_attrs_not_required_field(self):
+        """
+        Test that the 'band' field widget in the NotRequiredBandForm builds attributes correctly for a non-required field.
+
+        Checks that the 'data-allow-clear' attribute is set to True, indicating that the field allows its value to be cleared.
+        """
         form = NotRequiredBandForm()
         attrs = form["band"].field.widget.build_attrs({})
         self.assertJSONEqual(attrs["data-allow-clear"], True)
 
     def test_build_attrs_required_field(self):
+        """
+
+        Checks that a required field in the RequiredBandForm does not allow clearing its value.
+
+        Verifies that the 'data-allow-clear' attribute of the 'band' field's widget is set to False,
+        indicating that the field must always contain a value and cannot be cleared by the user.
+
+        """
         form = RequiredBandForm()
         attrs = form["band"].field.widget.build_attrs({})
         self.assertJSONEqual(attrs["data-allow-clear"], False)
 
     def test_get_url(self):
+        """
+        Tests the retrieval of the URL used by the AutocompleteSelect widget.
+
+        Verifies that the get_url method returns the correct URL for the autocomplete
+        feature, which is used to provide suggestions for selecting related objects.
+
+        Checks that the returned URL matches the expected path for the autocomplete
+        endpoint, ensuring proper functioning of the AutocompleteSelect widget in the
+        admin interface.
+        """
         rel = Album._meta.get_field("band")
         w = AutocompleteSelect(rel, admin.site)
         url = w.get_url()
@@ -143,6 +173,13 @@ class AutocompleteMixinTests(TestCase):
         self.assertNotIn(self.empty_option, output)
 
     def test_render_options_fk_as_pk(self):
+        """
+        Tests that the foreign key field in VideoStreamForm is properly rendered as a primary key.
+
+        The test creates a release event and an instance of VideoStreamForm, initializing the form with the event's primary key.
+        It then checks that the form's HTML representation includes the expected selected option for the release event, 
+        verifying that the foreign key is correctly rendered as the primary key in the form's dropdown menu.
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         rubber_soul = Album.objects.create(name="Rubber Soul", band=beatles)
         release_event = ReleaseEvent.objects.create(
@@ -156,6 +193,13 @@ class AutocompleteMixinTests(TestCase):
         self.assertIn(selected_option, output)
 
     def test_media(self):
+        """
+
+        Tests the media files returned by AutocompleteSelect for the \"band\" field of the Album model.
+        This test covers various language locales to ensure the correct language-specific JavaScript files are included.
+        It verifies that the expected JavaScript files are returned for each locale.
+
+        """
         rel = Album._meta.get_field("band").remote_field
         base_files = (
             "admin/js/vendor/jquery/jquery.min.js",

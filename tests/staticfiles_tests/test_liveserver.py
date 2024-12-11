@@ -25,6 +25,14 @@ class LiveServerBase(StaticLiveServerTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Set up the class-level context for testing.
+
+        This class method prepares the environment for test class execution by entering a specific context and applying test settings.
+        It ensures that the test class is properly initialized, allowing for reliable and consistent testing.
+        The method invokes the superclass's setup to maintain the standard class setup behavior.
+
+        """
         cls.enterClassContext(override_settings(**TEST_SETTINGS))
         super().setUpClass()
 
@@ -34,6 +42,16 @@ class StaticLiveServerChecks(LiveServerBase):
     def setUpClass(cls):
         # If contrib.staticfiles isn't configured properly, the exception
         # should bubble up to the main thread.
+        """
+        Set up the class by temporarily modifying the STATIC_URL setting in TEST_SETTINGS.
+
+        This class method is used to create a setup for testing by overriding the STATIC_URL setting to None.
+        It then calls the raises_exception method and ensures that the original STATIC_URL setting is restored,
+        regardless of the outcome of the method call, to prevent test pollution.
+
+        The purpose of this method is to provide a clean and isolated environment for testing,
+        by resetting the STATIC_URL setting to its original value after the test is completed.
+        """
         old_STATIC_URL = TEST_SETTINGS["STATIC_URL"]
         TEST_SETTINGS["STATIC_URL"] = None
         try:
@@ -48,6 +66,17 @@ class StaticLiveServerChecks(LiveServerBase):
 
     @classmethod
     def raises_exception(cls):
+        """
+        Tests that the setUpClass method correctly raises an exception.
+
+        This class method attempts to call the setUpClass method of the parent class.
+        If the method does not raise an ImproperlyConfigured exception as expected,
+        it raises an Exception to indicate that the test has failed.
+
+        It is used to validate the configuration of the class setup process.
+        The method does not take any arguments and does not return any value.
+        It only checks for the presence of an exception, making it a self-contained test.
+        """
         try:
             super().setUpClass()
         except ImproperlyConfigured:

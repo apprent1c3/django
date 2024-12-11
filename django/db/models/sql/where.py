@@ -245,6 +245,17 @@ class WhereNode(tree.Node):
 
     @classmethod
     def _contains_aggregate(cls, obj):
+        """
+        Check if an object contains an aggregate.
+
+        This method recursively checks if an object, which can be a tree node or another type of object,
+        contains an aggregate. For tree nodes, it checks all child nodes. If the object is not a tree node,
+        it delegates the check to the object's own :meth:`contains_aggregate` method.
+
+        :param obj: The object to check for aggregates
+        :rtype: bool
+        :return: True if the object contains an aggregate, False otherwise
+        """
         if isinstance(obj, tree.Node):
             return any(cls._contains_aggregate(c) for c in obj.children)
         return obj.contains_aggregate
@@ -303,6 +314,19 @@ class WhereNode(tree.Node):
         # Wrap filters with a CASE WHEN expression if a database backend
         # (e.g. Oracle) doesn't support boolean expression in SELECT or GROUP
         # BY list.
+        """
+        Adjusts a SQL expression to a supported Boolean format.
+
+        Checks if the database connection supports Boolean expressions in the SELECT clause.
+        If not supported, it wraps the given SQL expression in a CASE statement to convert the result to an integer (1 for True, 0 for False).
+        Returns the adjusted SQL expression and its parameters.
+
+        :param compiler: The database compiler object.
+        :param sql: The SQL expression to be adjusted.
+        :param params: The parameters for the SQL expression.
+        :returns: A tuple containing the adjusted SQL expression and its parameters.
+
+        """
         if not compiler.connection.features.supports_boolean_expr_in_select_clause:
             sql = f"CASE WHEN {sql} THEN 1 ELSE 0 END"
         return sql, params

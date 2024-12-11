@@ -35,6 +35,11 @@ class StaticFilesStorage(FileSystemStorage):
             self.location = None
 
     def path(self, name):
+        """
+        Return the absolute path to a static file or directory, raising an exception if the static root location is not configured. 
+
+        The path to the requested static file or directory is determined based on the provided name, with the location being relative to the configured static root directory. If the static root directory has not been set, an ImproperlyConfigured exception is raised, as the staticfiles app requires this setting to be set to a valid filesystem path.
+        """
         if not self.location:
             raise ImproperlyConfigured(
                 "You're using the staticfiles app "

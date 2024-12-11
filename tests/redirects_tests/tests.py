@@ -75,6 +75,16 @@ class RedirectTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": "django.contrib.sites"})
     def test_sites_not_installed(self):
+        """
+
+        Tests that RedirectFallbackMiddleware raises an ImproperlyConfigured exception when 
+        django.contrib.sites is not installed in the project.
+
+        This test case ensures that the middleware correctly handles the absence of the sites 
+        framework, which is required for its functionality, and provides a clear error message 
+        indicating the cause of the issue.
+
+        """
         def get_response(request):
             return HttpResponse()
 
@@ -102,6 +112,14 @@ class OverriddenRedirectMiddlewareTests(TestCase):
         cls.site = Site.objects.get(pk=settings.SITE_ID)
 
     def test_response_gone_class(self):
+        """
+
+        Tests that a response returns a 403 status code when the requested path has been redirected and removed.
+
+        The test case simulates a scenario where a path is initially available, then redirected to an empty path, effectively removing it.
+        It verifies that the server responds with a Forbidden status code, indicating that the requested resource is no longer accessible.
+
+        """
         Redirect.objects.create(site=self.site, old_path="/initial/", new_path="")
         response = self.client.get("/initial/")
         self.assertEqual(response.status_code, 403)

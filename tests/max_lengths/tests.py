@@ -16,6 +16,15 @@ class MaxLengthArgumentsTests(unittest.TestCase):
         self.verify_max_length(PersonWithDefaultMaxLengths, "avatar", 100)
 
     def test_custom_max_lengths(self):
+        """
+
+        Verifies that the custom max lengths for specific fields in the PersonWithCustomMaxLengths model are correctly enforced.
+
+        The function checks the maximum allowed lengths for the 'email', 'vcard', 'homepage', and 'avatar' fields, confirming that they adhere to the expected limits.
+
+        This test ensures that the custom max lengths defined in the PersonWithCustomMaxLengths model are properly validated, preventing excessively long input data from being accepted.
+
+        """
         self.verify_max_length(PersonWithCustomMaxLengths, "email", 250)
         self.verify_max_length(PersonWithCustomMaxLengths, "vcard", 250)
         self.verify_max_length(PersonWithCustomMaxLengths, "homepage", 250)

@@ -10,6 +10,15 @@ class XorLookupsTests(TestCase):
         cls.numbers = [Number.objects.create(num=i) for i in range(10)]
 
     def test_filter(self):
+        """
+        Tests the filter functionality with XOR operator.
+
+        This function checks that the filter operation using the XOR operator (^) returns the correct results.
+        It compares the result of filtering numbers less than or equal to 7 and numbers greater than or equal to 3,
+        excluding the overlap between the two sets, with the expected set of numbers.
+        The test is performed using both the regular XOR operator and the Q object XOR operation, ensuring consistency between the two methods.
+        The expected result is the union of numbers less than 3 and numbers greater than 7, which is compared to the actual result using assertCountEqual.
+        """
         self.assertCountEqual(
             Number.objects.filter(num__lte=7) ^ Number.objects.filter(num__gte=3),
             self.numbers[:3] + self.numbers[8:],
@@ -20,6 +29,17 @@ class XorLookupsTests(TestCase):
         )
 
     def test_filter_multiple(self):
+        """
+
+        Tests the ability to filter a queryset using multiple XOR conditions.
+
+        Verifies that a queryset filtered by a combination of XOR conditions returns the expected results, 
+        specifically objects where the number matches at least one, but not all of the conditions.
+
+        The test case checks the count and values of the filtered objects against the expected output 
+        to ensure the correct application of the XOR operation.
+
+        """
         qs = Number.objects.filter(
             Q(num__gte=1)
             ^ Q(num__gte=3)
@@ -41,6 +61,28 @@ class XorLookupsTests(TestCase):
         )
 
     def test_filter_negated(self):
+        """
+        Tests the filter functionality with negated queries.
+
+        Verifies that the filter method correctly handles the XOR (^) operator 
+        and negation (~) of query objects, ensuring that the resulting 
+        database query returns the expected set of objects.
+
+        The function checks various filter scenarios, including the combination 
+        of less-than-or-equal-to and less-than conditions, as well as the 
+        negation of these conditions. The expected results are compared to 
+        the actual query results using assertCountEqual, ensuring that the 
+        filter method behaves as expected in different edge cases.
+
+        The test cases cover the following scenarios:
+
+        * Filtering with a single XOR condition
+        * Filtering with multiple XOR conditions
+        * Filtering with a negated XOR condition
+
+        The goal of these tests is to ensure that the filter method correctly 
+        handles complex query logic and returns the expected results.
+        """
         self.assertCountEqual(
             Number.objects.filter(Q(num__lte=7) ^ ~Q(num__lt=3)),
             self.numbers[:3] + self.numbers[8:],
@@ -65,6 +107,20 @@ class XorLookupsTests(TestCase):
         )
 
     def test_stages(self):
+        """
+        Tests the filter functionality of Number objects across different stages.
+
+        This function checks if the filtered results for numbers greater than or equal to 0 and less than or equal to 11 are identical, 
+        and if the filtered results for numbers greater than 0 and less than 11 only returns the first Number object.
+
+        In essence, it ensures that the filters are correctly applied to the Number objects based on the given conditions.
+
+        Checks include:
+        - A symmetric difference between numbers greater than or equal to 0 and less than or equal to 11 is empty.
+        - A symmetric difference between numbers greater than 0 and less than 11 returns the first Number object.
+
+        The function uses Django's built-in ORM filtering and assertion methods to validate the expected behavior of these filters.
+        """
         numbers = Number.objects.all()
         self.assertSequenceEqual(
             numbers.filter(num__gte=0) ^ numbers.filter(num__lte=11),

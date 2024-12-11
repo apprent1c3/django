@@ -113,6 +113,19 @@ class CookieTests(BaseTests, SimpleTestCase):
         )
 
     def test_get_bad_cookie(self):
+        """
+        Tests the retrieval of bad cookie data from storage.
+
+        This test case simulates the retrieval of cookie data that has been intentionally
+        set with invalid values. It verifies that the storage object correctly handles
+        this scenario and returns an empty result, indicating that the bad cookie data is
+        not retrievable.
+
+        The test sets up a request object and a storage instance, then uses the 
+        set_cookie_data function to store example messages with invalid cookie settings. 
+        It then asserts that the storage object is empty, confirming that the bad cookie 
+        data was not stored or retrieved successfully.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         # Set initial (invalid) data.
@@ -210,6 +223,21 @@ class CookieTests(BaseTests, SimpleTestCase):
 
 class BisectTests(TestCase):
     def test_bisect_keep_left(self):
+        """
+
+        Performs a binary search on a given list to find the insertion point where a condition starts to be true, 
+        keeping the leftmost element if multiple elements match the condition.
+
+        The function uses a predicate function to evaluate the condition at each step of the search.
+
+        Args:
+            arr (list): The list to search.
+            fn (function): The predicate function to apply at each step of the search.
+
+        Returns:
+            int: The index where the condition starts to be true.
+
+        """
         self.assertEqual(bisect_keep_left([1, 1, 1], fn=lambda arr: sum(arr) != 2), 2)
         self.assertEqual(bisect_keep_left([1, 1, 1], fn=lambda arr: sum(arr) != 0), 0)
         self.assertEqual(bisect_keep_left([], fn=lambda arr: sum(arr) != 0), 0)

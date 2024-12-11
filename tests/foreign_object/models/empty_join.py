@@ -35,6 +35,11 @@ class StartsWithRelation(models.ForeignObject):
     rel_class = CustomForeignObjectRel
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes an instance of the class, setting the on_delete behavior to DO_NOTHING and passing any additional arguments to the parent class's initializer. 
+
+        This ensures that when a related object is deleted, the current object will not be automatically deleted, allowing for more explicit control over data relationships.
+        """
         kwargs["on_delete"] = models.DO_NOTHING
         super().__init__(*args, **kwargs)
 
@@ -69,6 +74,17 @@ class StartsWithRelation(models.ForeignObject):
         ]
 
     def get_reverse_path_info(self, filtered_relation=None):
+        """
+        Returns information about the reverse path from the related model to the current model.
+
+        This function is used to retrieve the metadata necessary for traversing relationships between models in the reverse direction.
+
+        It returns a list containing a single :class:`PathInfo` object, which contains details about the relationship, including the source and target models, the primary key of the target model, and the field that connects the two models.
+
+        The function can be used with an optional :class:`filtered_relation` parameter, which allows for filtering of the relationship.
+
+        The result can be used for various purposes, such as constructing queries or resolving relationships between models.
+        """
         to_opts = self.model._meta
         from_opts = self.remote_field.model._meta
         return [

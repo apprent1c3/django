@@ -32,6 +32,15 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Validates the given XML serialized string.
+
+        Checks if the provided string is a well-formed XML document. Returns True if the string can be parsed as XML, False otherwise.
+
+        :param serial_str: The XML serialized string to be validated.
+        :rtype: bool
+        :returns: True if the string is valid XML, False otherwise.
+        """
         try:
             minidom.parseString(serial_str)
         except Exception:
@@ -41,6 +50,17 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Parses a serialized string to extract primary key values.
+
+        This method takes a serialized string as input, parses it as XML, and 
+        extracts the primary key (pk) attribute from each 'object' element.
+        The extracted primary key values are returned as a list.
+
+        :raises Exception: If the input string is not a valid XML
+        :return: A list of primary key values
+        :param serial_str: The input serialized string to parse
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("object")

@@ -9,6 +9,18 @@ class Command(RunserverCommand):
     )
 
     def add_arguments(self, parser):
+        """
+
+        Extends the argument parsing functionality to include options for serving static files.
+
+        This method adds two command line arguments:
+
+        * --nostatic: Disables automatic serving of static files at the URL specified by STATIC_URL.
+        * --insecure: Enables serving of static files even when the DEBUG setting is False, which is useful for testing purposes but not recommended for production environments.
+
+        These arguments provide flexibility in handling static files in different scenarios.
+
+        """
         super().add_arguments(parser)
         parser.add_argument(
             "--nostatic",

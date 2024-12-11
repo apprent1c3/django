@@ -33,6 +33,16 @@ class Category(models.Model):
 
 class WriterManager(models.Manager):
     def get_queryset(self):
+        """
+        Returns a QuerySet of objects, filtered to exclude archived items.
+
+        This method overrides the default QuerySet retrieval to ensure that only
+        non-archived items are included in the result set. The filtered QuerySet
+        can be used for further processing or retrieval of specific data.
+
+        :return: A QuerySet of non-archived objects
+        :rtype: QuerySet
+        """
         qs = super().get_queryset()
         return qs.filter(archived=False)
 
@@ -148,6 +158,14 @@ class TextFile(models.Model):
 
 class CustomFileField(models.FileField):
     def save_form_data(self, instance, data):
+        """
+
+        Save form data to the instance.
+
+        Ensures that the form data is saved only once, preventing duplicate or inconsistent data from being written. 
+        This method is designed to be idempotent within a single instance lifecycle, and any subsequent calls will assert an error.
+
+        """
         been_here = getattr(self, "been_saved", False)
         assert not been_here, "save_form_data called more than once"
         setattr(self, "been_saved", True)
@@ -170,6 +188,16 @@ try:
 
     class ImageFile(models.Model):
         def custom_upload_path(self, filename):
+            """
+            Returns a custom upload path for a file.
+
+            The path is determined by the current object's `path` attribute, defaulting to 'tests' if not set.
+            The returned path is a string in the format 'path/filename', where 'path' is the determined path and 'filename' is the name of the file to be uploaded.
+
+            :param filename: The name of the file to be uploaded
+            :return: A custom upload path for the file
+            :rtype: str
+            """
             path = self.path or "tests"
             return "%s/%s" % (path, filename)
 
@@ -351,6 +379,11 @@ class BigInt(models.Model):
 
 class MarkupField(models.CharField):
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the object, setting a maximum length of 20 characters, and then passing all arguments to the parent class's constructor. 
+
+        This overrides the parent class's default or specified max length when creating a new instance, ensuring consistency across all instances of this class.
+        """
         kwargs["max_length"] = 20
         super().__init__(*args, **kwargs)
 
@@ -459,10 +492,31 @@ class Photo(models.Model):
     # Support code for the tests; this keeps track of how many times save()
     # gets called on each instance.
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, inheriting from its parent class and setting an internal counter for saving operations.
+        """
         super().__init__(*args, **kwargs)
         self._savecount = 0
 
     def save(self, force_insert=False, force_update=False):
+        """
+
+        Save the current instance to the database.
+
+        This method overrides the default save behavior to maintain an internal count of the number of times the instance has been saved.
+
+        Parameters
+        ----------
+        force_insert : bool, optional
+            Forces the instance to be inserted as a new record, rather than updating an existing one. Defaults to False.
+        force_update : bool, optional
+            Forces the instance to be updated, rather than inserting a new record. Defaults to False.
+
+        Notes
+        -----
+        The internal save count can be accessed via the instance's attributes, and is incremented each time this method is called.
+
+        """
         super().save(force_insert=force_insert, force_update=force_update)
         self._savecount += 1
 
@@ -488,6 +542,21 @@ class StrictAssignmentAll(models.Model):
     _should_error = False
 
     def __setattr__(self, key, value):
+        """
+        Sets an attribute on the object.
+
+        This method overrides the default attribute setting behavior to include a validation check.
+        If the object is in an invalid state (indicated by `_should_error` being True), attempting to set an attribute will raise a ValidationError.
+        Otherwise, the attribute is set as normal.
+
+        Args:
+            key (str): The name of the attribute to set.
+            value: The value to assign to the attribute.
+
+        Raises:
+            ValidationError: If the object is in an invalid state and an attribute is attempted to be set.
+
+        """
         if self._should_error is True:
             raise ValidationError(message="Cannot set attribute", code="invalid")
         super().__setattr__(key, value)

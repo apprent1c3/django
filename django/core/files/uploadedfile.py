@@ -36,6 +36,26 @@ class UploadedFile(File):
         charset=None,
         content_type_extra=None,
     ):
+        """
+        Initializes a file object with optional metadata.
+
+        Parameters
+        ----------
+        file : file-like object, optional
+            The file to be represented by this object.
+        name : str, optional
+            The name of the file.
+        content_type : str, optional
+            The MIME content type of the file (e.g., \"application/json\").
+        size : int, optional
+            The size of the file in bytes.
+        charset : str, optional
+            The character encoding of the file (e.g., \"utf-8\").
+        content_type_extra : str, optional
+            Additional information about the content type.
+
+        This initializer allows you to create a file object with or without an actual file, and provides a way to specify additional metadata about the file, such as its size and content type. This can be useful in a variety of scenarios, such as working with files in a web application or streaming files from a database.
+        """
         super().__init__(file, name)
         self.size = size
         self.content_type = content_type

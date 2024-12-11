@@ -91,6 +91,20 @@ class Coalesce(Func):
     def as_oracle(self, compiler, connection, **extra_context):
         # Oracle prohibits mixing TextField (NCLOB) and CharField (NVARCHAR2),
         # so convert all fields to NCLOB when that type is expected.
+        """
+
+        Render the Coalesce expression as SQL, taking into account the output field type.
+
+        If the output field is a TextField, this method will convert the expression to use
+        NCLOB (national character large object) to ensure compatibility with Oracle
+        databases. Otherwise, it will delegate to the parent class's as_sql method.
+
+        :param compiler: The SQL compiler to use for rendering the expression.
+        :param connection: The database connection to use for rendering the expression.
+        :param extra_context: Additional context to pass to the as_sql method.
+        :return: The rendered SQL expression.
+
+        """
         if self.output_field.get_internal_type() == "TextField":
             clone = self.copy()
             clone.set_source_expressions(
@@ -207,6 +221,26 @@ class Least(Func):
     function = "LEAST"
 
     def __init__(self, *expressions, **extra):
+        """
+        Initializes a Least object, representing a least value comparison.
+
+        This object requires at least two expressions to be provided. The initialization
+        process checks for the minimum required number of expressions and raises a
+        ValueError if not met.
+
+        Parameters
+        ----------
+        *expressions : variable
+            A variable number of expressions to be compared.
+        **extra : keyword arguments
+            Additional keyword arguments.
+
+        Raises
+        ------
+        ValueError
+            If the number of expressions is less than 2.
+
+        """
         if len(expressions) < 2:
             raise ValueError("Least must take at least two expressions")
         super().__init__(*expressions, **extra)
@@ -221,6 +255,15 @@ class NullIf(Func):
     arity = 2
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        Generates SQL for an Oracle database by extending the base implementation.
+
+        This method first checks the source expression used in the query. If the expression 
+        evaluates to None, it raises a ValueError because Oracle does not support 
+        Null values for the given expression. Otherwise, it delegates the SQL generation 
+        to its parent class using the provided compiler, connection, and any additional 
+        context. The resulting SQL string is then returned.
+        """
         expression1 = self.get_source_expressions()[0]
         if isinstance(expression1, Value) and expression1.value is None:
             raise ValueError("Oracle does not allow Value(None) for expression1.")

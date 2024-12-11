@@ -401,6 +401,14 @@ class DatabaseCreation(BaseDatabaseCreation):
         return self._test_settings_get("USER", prefixed="USER")
 
     def _test_database_passwd(self):
+        """
+        Retrieves or generates a password for testing database connection.
+
+        This function attempts to fetch a password from the test settings. If no password is found and a test user is successfully created, it generates a random 30-character password.
+
+        :returns: The retrieved or generated password.
+        :rtype: str
+        """
         password = self._test_settings_get("PASSWORD")
         if password is None and self._test_user_create():
             # Oracle passwords are limited to 30 chars and can't contain symbols.
@@ -417,6 +425,18 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _test_database_tblspace_datafile(self):
+        """
+        Returns the datafile path for the test database tablespace.
+
+        This method determines the datafile path by first generating the default tablespace 
+        name and then checking the test settings for a custom DATAFILE path. If a custom 
+        path is found, it is returned; otherwise, the default tablespace name with a.dbf 
+        extension is used. The resulting path can be used to configure or test the database 
+        tablespace datafile.
+
+        :return: The datafile path for the test database tablespace.
+        :rtype: str
+        """
         tblspace = "%s.dbf" % self._test_database_tblspace()
         return self._test_settings_get("DATAFILE", default=tblspace)
 

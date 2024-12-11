@@ -22,10 +22,45 @@ if HAS_POSTGRES:
 
     class FakePostGISOperations(PostGISOperations):
         def __init__(self, version=None):
+            """
+            Initializes the object with an optional version parameter.
+
+            The version can be specified to identify or track different states or configurations.
+            A connection object is also created during initialization, allowing for further operations or interactions.
+            If no version is provided, it defaults to None.
+
+            :param version: Optional version identifier
+            :raises: No exceptions are explicitly raised in this method
+            :returns: None
+            """
             self.version = version
             self.connection = FakeConnection()
 
         def _get_postgis_func(self, func):
+            """
+
+            Gets the version of the PostGIS library.
+
+            This method retrieves the version of the PostGIS library, or raises an exception if it is not available.
+
+            Parameters
+            ----------
+            func : str
+                The name of the function to call. Currently, only 'postgis_lib_version' is supported.
+
+            Returns
+            -------
+            str
+                The version of the PostGIS library.
+
+            Raises
+            ------
+            ProgrammingError
+                If the library version is not available.
+            NotImplementedError
+                If an unsupported function is requested.
+
+            """
             if func == "postgis_lib_version":
                 if self.version is None:
                     raise ProgrammingError
@@ -44,6 +79,15 @@ class TestPostGISVersionCheck(unittest.TestCase):
     """
 
     def test_get_version(self):
+        """
+        #: 
+            Tests the retrieval of the PostGIS library version.
+
+            Verifies that the version number returned by the :meth:`postgis_lib_version` 
+            method matches the expected version.
+
+            :return: None
+        """
         expect = "1.0.0"
         ops = FakePostGISOperations(expect)
         actual = ops.postgis_lib_version()
@@ -62,6 +106,12 @@ class TestPostGISVersionCheck(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_version_loose_tuple(self):
+        """
+        Test that the postgis_version_tuple method returns the expected version information.
+
+        The postgis_version_tuple method is expected to return a tuple containing the PostGIS version string and its individual components.
+        This test case verifies that the method behaves correctly by comparing its output with an expected result.
+        """
         expect = ("1.2.3b1.dev0", 1, 2, 3)
         ops = FakePostGISOperations(expect[0])
         actual = ops.postgis_version_tuple()
@@ -81,6 +131,17 @@ class TestPostGISVersionCheck(unittest.TestCase):
                 self.assertEqual(version[1:], actual)
 
     def test_no_version_number(self):
+        """
+        Tests that a ProperlyConfigured exception is raised when no spatial version number is provided.
+
+        This test case checks the behavior of the PostGIS operations when no version number is
+        configured. It verifies that the expected exception is raised, ensuring that the system
+        handles this scenario correctly.
+
+        Raises:
+            ImproperlyConfigured: When no spatial version number is available.
+
+        """
         ops = FakePostGISOperations()
         with self.assertRaises(ImproperlyConfigured):
             ops.spatial_version

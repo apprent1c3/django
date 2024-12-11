@@ -77,6 +77,19 @@ class SessionStore(SessionBase):
         )
 
     def load(self):
+        """
+        Loads session data from a file.
+
+        Attempts to read session data from a file associated with the session key. If the file exists and data is successfully read, it is decoded and returned. If the file does not exist, is empty, or the data is invalid, a new session is created.
+
+        The function also checks if the session has expired based on the expiry date stored in the session data. If the session has expired, it is deleted and a new one is created.
+
+        In case of errors such as file not found, suspicious operation, or invalid data, the function logs warnings or errors as necessary and returns an empty session data dictionary.
+
+        Returns:
+            dict: The loaded session data.
+
+        """
         session_data = {}
         try:
             with open(self._key_to_file(), encoding="ascii") as session_file:
@@ -108,6 +121,17 @@ class SessionStore(SessionBase):
         return self.load()
 
     def create(self):
+        """
+        Creates a new session key for the object and saves it to the database.
+
+        This method generates a unique session key and attempts to save the object to the database.
+        If the save operation fails due to a CreateError (indicating a conflict or duplicate key),
+        it will retry with a new session key until a successful save is achieved.
+
+        Once saved, the object's modified flag is set to True to reflect the change.
+
+        Returns None
+        """
         while True:
             self._session_key = self._get_new_session_key()
             try:

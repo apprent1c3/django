@@ -27,6 +27,11 @@ class StaticFilesHandlerMixin:
         pass
 
     def get_base_url(self):
+        """
+        Returns the base URL for static files as defined in the application settings.
+
+        This method retrieves the base URL from the configuration and returns it as a string. It first ensures that the necessary settings have been properly configured before returning the base URL. The returned URL can be used as a prefix for referencing static files within the application.
+        """
         utils.check_settings()
         return settings.STATIC_URL
 
@@ -76,6 +81,18 @@ class StaticFilesHandler(StaticFilesHandlerMixin, WSGIHandler):
         super().__init__()
 
     def __call__(self, environ, start_response):
+        """
+        CALLs the wrapped WSGI application or the current instance based on the path information in the environment. 
+
+        The decision to handle the request is determined by the :meth:`_should_handle` method. 
+        If the request path matches the criteria, it invokes the superclass's __call__ method, 
+        otherwise it delegates the request to the wrapped application directly. 
+
+        :param environ: the WSGI environment
+        :param start_response: the WSGI start response callable
+        :returns: the result of the handled request
+        :rtype: a WSGI response object
+        """
         if not self._should_handle(get_path_info(environ)):
             return self.application(environ, start_response)
         return super().__call__(environ, start_response)

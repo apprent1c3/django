@@ -16,6 +16,25 @@ class CacheTagTests(SimpleTestCase):
 
     @setup({"cache03": "{% load cache %}{% cache 2 test %}cache03{% endcache %}"})
     def test_cache03(self):
+        """
+
+        Test the caching mechanism with a template that uses the cache tag.
+
+        This test renders a template containing a cached section and verifies that the
+        cached content is correctly returned. The test checks that the rendered output
+        matches the expected result, ensuring that the caching functionality works as
+        expected.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the rendered output does not match the expected result.
+
+        """
         output = self.engine.render_to_string("cache03")
         self.assertEqual(output, "cache03")
 
@@ -26,6 +45,19 @@ class CacheTagTests(SimpleTestCase):
         }
     )
     def test_cache04(self):
+        """
+
+        Tests the behavior of the cache template tag when rendering multiple cached sections.
+
+        This test case checks if the cached content is correctly reused when multiple templates
+        contain the same cache tag with the same parameters, but with different template content.
+        It verifies that the rendered output of the second template matches the content of the first template,
+        demonstrating that the cache tag is working correctly and reusing the cached content.
+
+        The test setup includes two cached sections, 'cache03' and 'cache04', which are used to evaluate
+        the cache tag's behavior in this scenario.
+
+        """
         self.engine.render_to_string("cache03")
         output = self.engine.render_to_string("cache04")
         self.assertEqual(output, "cache03")
@@ -37,6 +69,17 @@ class CacheTagTests(SimpleTestCase):
 
     @setup({"cache06": "{% load cache %}{% cache 2 test foo %}cache06{% endcache %}"})
     def test_cache06(self):
+        """
+
+        Test the cache template tag with a render timeout of 2 seconds.
+
+        This test case checks that the cache tag correctly caches a block of content
+        and returns the cached output when the template is rendered. The test template
+        'cache06' is used, which contains a cache block with a timeout of 2 seconds.
+
+        The test verifies that the rendered output matches the expected cached output.
+
+        """
         output = self.engine.render_to_string("cache06", {"foo": 2})
         self.assertEqual(output, "cache06")
 
@@ -47,6 +90,18 @@ class CacheTagTests(SimpleTestCase):
         }
     )
     def test_cache07(self):
+        """
+
+        Tests the cache functionality to ensure that the cache key is correctly generated 
+        and shared across different templates with the same cache parameters.
+
+        The test verifies that when two templates have the same cache parameters but 
+        different contents, the cache output is correctly rendered and matches the 
+        expected output. This ensures that the caching mechanism is working as 
+        expected and that templates with identical cache parameters will share the 
+        same cache entry.
+
+        """
         context = {"foo": 1}
         self.engine.render_to_string("cache05", context)
         output = self.engine.render_to_string("cache07", context)
@@ -80,16 +135,39 @@ class CacheTagTests(SimpleTestCase):
 
     @setup({"cache13": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache13(self):
+        """
+        Tests that a TemplateSyntaxError is raised when the cache template tag is used with invalid arguments. 
+
+        The function verifies that the template engine correctly handles and rejects a cache template tag with an incorrect number or type of arguments, ensuring that the syntax is enforced and preventing potential rendering issues.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache13")
 
     @setup({"cache14": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache14(self):
+        """
+
+        Tests that a TemplateSyntaxError is raised when the cache tag is used 
+        with an incorrectly formatted argument.
+
+        The test case verifies that the template engine properly enforces 
+        the correct syntax for the cache tag, ensuring that any invalid 
+        usage is detected and reported.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache14", {"foo": "fail"})
 
     @setup({"cache15": "{% load cache %}{% cache foo bar %}{% endcache %}"})
     def test_cache15(self):
+        """
+
+        Test that a TemplateSyntaxError is raised when attempting to cache a template with a variable that is incompatible with caching.
+
+        This test case covers the scenario where the cache tag is used with a variable that cannot be serialized, such as an empty list. 
+        It verifies that the template engine correctly handles this situation and raises a TemplateSyntaxError.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("cache15", {"foo": []})
 
@@ -167,6 +245,13 @@ class CacheTests(SimpleTestCase):
         super().setUpClass()
 
     def test_cache_regression_20130(self):
+        """
+        Tests the cache functionality to ensure it handles fragment names correctly, specifically addressing a regression issue (#20130).
+
+        Verifies that the cache node's fragment name matches the expected value, confirming that the caching mechanism is working as intended and not regressing to previous behavior.
+
+        This test case is essential to prevent regressions in the caching system and ensure that it continues to function correctly in various scenarios.
+        """
         t = self.engine.from_string(
             "{% load cache %}{% cache 1 regression_20130 %}foo{% endcache %}"
         )

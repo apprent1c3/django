@@ -78,6 +78,13 @@ def login_protected_redirect_view(request):
 
 
 def redirect_to_self_with_changing_query_view(request):
+    """
+    Redirects the current request to itself with an updated query string.
+
+    The updated query string includes the original query parameters, with the 'counter' parameter incremented by appending a '0'. This results in a new query string that has the 'counter' parameter modified in a way that makes the URL different from the original, effectively preventing the browser from using a cached response.
+
+    Returns an HTTP redirect response to the updated URL, causing the browser to reload the page with the new query string.
+    """
     query = request.GET.copy()
     query["counter"] += "0"
     return HttpResponseRedirect(
@@ -161,6 +168,17 @@ def read_buffer(request):
 
 def request_context_view(request):
     # Special attribute that won't be present on a plain HttpRequest
+    """
+
+    Render the request context view.
+
+    This function handles requests to display the current request context. It prepares the request object by storing the current path in a special attribute, then renders an HTML template to display the request context.
+
+    The resulting page provides details about the current request, allowing users to inspect and understand the request's properties.
+
+    :return: A rendered HTML response containing the request context.
+
+    """
     request.special_path = request.path
     return render(request, "request_context.html")
 
@@ -177,6 +195,20 @@ def redirect_based_on_extra_headers_1_view(request):
 
 
 def redirect_based_on_extra_headers_2_view(request):
+    """
+    Redirects the current request based on the presence of a specific HTTP header.
+
+    This view checks for the \"HTTP_REDIRECT\" header in the incoming request. If the header is present, it redirects the client to a further redirect page. Otherwise, it returns a simple HTTP response.
+
+    Note:
+        The redirect location is fixed to '/redirects/further/more/'. 
+
+    Parameters:
+        request (HttpRequest): The incoming HTTP request.
+
+    Returns:
+        HttpResponse or HttpResponseRedirect: The response to be sent back to the client.
+    """
     if "HTTP_REDIRECT" in request.META:
         return HttpResponseRedirect("/redirects/further/more/")
     return HttpResponse()

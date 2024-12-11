@@ -15,12 +15,32 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def _get_pass(self, prompt="Password: "):
+        """
+        Retrieves a password from the user securely, without echoing the input.
+
+            Prompts the user with the given message, reads the input, and returns the provided password.
+            If the user enters an empty string, the operation is considered aborted and an error is raised.
+
+            :param prompt: The message to display to the user when prompting for the password
+            :return: The password entered by the user
+            :raises CommandError: If the user enters an empty string
+        """
         p = getpass.getpass(prompt=prompt)
         if not p:
             raise CommandError("aborted")
         return p
 
     def add_arguments(self, parser):
+        """
+        .. method:: add_arguments(parser)
+
+           Adds command line arguments to the parser for changing passwords.
+
+           The arguments that can be specified are:
+
+           * The username for which to change the password. If not provided, the current username is used by default.
+           * The database to use for the operation, with a default of \"default\" if not specified. The available databases are determined by the system's connections.
+        """
         parser.add_argument(
             "username",
             nargs="?",

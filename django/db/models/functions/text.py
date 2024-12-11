@@ -243,6 +243,18 @@ class Repeat(Func):
         super().__init__(expression, number, **extra)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        skétes  
+            Extends the provided database expression to fit a specified length by padding it with itself.
+
+            This method takes the source expressions from the object, creates a new :class:`Length` object to determine the required length, 
+            and then applies the :class:`RPad` function to pad the original expression with itself to reach the desired length.
+
+            :param compiler: The compiler object used to generate SQL.
+            :param connection: The database connection object.
+            :param extra_context: Additional keyword arguments to be passed to the :meth:`as_sql` method.
+            :return: The padded SQL expression as a string.
+        """
         expression, number = self.source_expressions
         length = None if number is None else Length(expression) * number
         rpad = RPad(expression, length, expression)

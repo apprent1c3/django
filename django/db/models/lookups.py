@@ -75,6 +75,13 @@ class Lookup(Expression):
         return [self.lhs, self.rhs]
 
     def set_source_expressions(self, new_exprs):
+        """
+        Sets the source expressions for the current object, updating either one or both side's expressions.
+
+        :param new_exprs: A list of one or two new expressions to be set.
+        :note: If a single expression is provided, it will be assigned to the left-hand side (`lhs`).
+               If two expressions are provided, they will be assigned to the left-hand side (`lhs`) and right-hand side (`rhs`) respectively.
+        """
         if len(new_exprs) == 1:
             self.lhs = new_exprs[0]
         else:
@@ -109,6 +116,17 @@ class Lookup(Expression):
         return sql, params
 
     def process_rhs(self, compiler, connection):
+        """
+        Process the right-hand side (RHS) of a query expression.
+
+        This method takes the compiler and database connection as input and performs the necessary transformations on the RHS value.
+        It applies bilateral transforms if applicable and compiles the value into SQL, wrapping it in parentheses if necessary.
+        If the value cannot be compiled into SQL, it is prepared for database lookup instead.
+
+        :param compiler: The query compiler instance
+        :param connection: The database connection
+        :return: A tuple containing the compiled SQL string and its parameters, or the prepared lookup value and its parameters.
+        """
         value = self.rhs
         if self.bilateral_transforms:
             if self.rhs_is_direct_value():
@@ -322,6 +340,19 @@ class FieldGetDbPrepValueIterableMixin(FieldGetDbPrepValueMixin):
         return sql, params
 
     def batch_process_rhs(self, compiler, connection, rhs=None):
+        """
+
+            Batch processes the right-hand side (RHS) of a query by resolving expression parameters.
+
+            This method extends the parent class's `batch_process_rhs` functionality by resolving expression parameters
+            using the provided compiler and connection. It then flattens the resulting parameters into a single tuple.
+
+            :param compiler: The compiler object used for SQL compilation.
+            :param connection: The database connection object.
+            :param rhs: The right-hand side of the query (optional).
+            :return: A tuple containing the SQL string and a tuple of resolved parameters.
+
+        """
         pre_processed = super().batch_process_rhs(compiler, connection, rhs)
         # The params list may contain expressions which compile to a
         # sql/param pair. Zip them to get sql and param pairs that refer to the
@@ -661,6 +692,20 @@ class Regex(BuiltinLookup):
     prepare_rhs = False
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a database lookup.
+
+        This method checks if the lookup name is included in the database connection's operators.
+        If it is, the method defers to the superclass's implementation. Otherwise, it processes the
+        left-hand side (LHS) and right-hand side (RHS) of the lookup and combines them using a
+        SQL template specific to the database connection. The resulting SQL string and parameter
+        list are then returned.
+
+        :param compiler: The compiler instance used to generate the SQL.
+        :param connection: The database connection instance.
+        :return: A tuple containing the generated SQL string and a list of parameters.
+
+        """
         if self.lookup_name in connection.operators:
             return super().as_sql(compiler, connection)
         else:

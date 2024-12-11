@@ -10,6 +10,18 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 class TestFieldWithValidators(TestCase):
     def test_all_errors_get_reported(self):
+        """
+
+        Tests the comprehensive reporting of errors in a Django form.
+
+        The function checks if all validation errors are correctly reported when a form with multiple fields contains invalid data.
+        It ensures that the form validation mechanism raises a ValidationError with the expected number of error messages.
+        Additionally, it verifies that the form's `is_valid` method returns False and that the error messages are correctly assigned to their respective fields.
+
+        This test case covers the validation of fields with different types of validators, including integer, email, and regular expression validators.
+        It also tests the behavior of regular expression validators with and without the ignore case flag.
+
+        """
         class UserForm(forms.Form):
             full_name = forms.CharField(
                 max_length=50,
@@ -54,6 +66,15 @@ class TestFieldWithValidators(TestCase):
         self.assertEqual(form.errors["string"], ["Letters only."])
 
     def test_field_validators_can_be_any_iterable(self):
+        """
+
+        Verifies that field validators in a form can be any iterable, allowing multiple validation rules to be applied to a single field.
+
+        This test checks that when a form field has multiple validators, the form will not validate if the input data does not pass all validation rules, and that error messages for all failed validations are displayed.
+
+        Example use cases include form fields that require input to match multiple criteria, such as a username field that must be both unique and follow a specific format.
+
+        """
         class UserForm(forms.Form):
             full_name = forms.CharField(
                 max_length=50,
@@ -73,6 +94,13 @@ class TestFieldWithValidators(TestCase):
 
 class ValidatorCustomMessageTests(TestCase):
     def test_value_placeholder_with_char_field(self):
+        """
+        Tests a CharField in a form with various validators to ensure it correctly handles invalid input.
+
+        The function checks a range of validators, including integer, email, slug, IPv4 and IPv6 address, comma-separated integer list, URL, and regex validators, to ensure that they raise the expected error when given an invalid value.
+
+        It verifies that the form is invalid when the field's value does not meet the validator's criteria, and that the error message is correctly set to the invalid value.
+        """
         cases = [
             (validators.validate_integer, "-42.5", "invalid"),
             (validators.validate_email, "a", "invalid"),
@@ -115,6 +143,13 @@ class ValidatorCustomMessageTests(TestCase):
                 self.assertEqual(form.errors, {"field": [value]})
 
     def test_value_placeholder_with_null_character(self):
+        """
+        Tests the behavior of a form field when a null character is present in the input value.
+
+        The test creates a form with a CharField that has a custom error message for null characters.
+        It then attempts to validate the form with an input value containing a null character.
+        The test asserts that the form is invalid and that the error message includes the original input value.
+        """
         class MyForm(forms.Form):
             field = forms.CharField(
                 error_messages={"null_characters_not_allowed": "%(value)s"},
@@ -144,6 +179,23 @@ class ValidatorCustomMessageTests(TestCase):
                 self.assertEqual(form.errors, {"field": [str(value)]})
 
     def test_value_placeholder_with_decimal_field(self):
+        """
+
+        Tests the placeholder value used in the error message for a DecimalField.
+
+        This test case checks that the specified error message is displayed when invalid data is entered into the DecimalField.
+        The test verifies that the field rejects values that exceed the maximum number of digits, decimal places, or whole digits.
+        It also checks that the correct error code is used and that the invalid value is displayed in the error message.
+
+        The following scenarios are tested:
+        - A value that is not a number (NaN)
+        - A value with too many digits
+        - A value with too many decimal places
+        - A value with too many whole digits
+
+        In all cases, the test verifies that the form is invalid and that the error message contains the invalid value.
+
+        """
         cases = [
             ("NaN", "invalid"),
             ("123", "max_digits"),

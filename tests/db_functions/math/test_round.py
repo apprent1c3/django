@@ -12,6 +12,14 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class RoundTests(TestCase):
     def test_null(self):
+        """
+
+        Tests the behavior of the Round function when applied to a null or missing value.
+
+        Verifies that the Round function correctly returns None when the input value is null, 
+        ensuring that the output is consistent with expectations for null or missing data.
+
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_round=Round("normal")).first()
         self.assertIsNone(obj.null_round)
@@ -27,6 +35,14 @@ class RoundTests(TestCase):
         self.assertIsNone(obj.null_round)
 
     def test_decimal(self):
+        """
+
+        Tests the rounding of decimal fields in the DecimalModel.
+
+        Verifies that the Round database function correctly rounds decimal values to the nearest integer.
+        The test checks that the rounded values are of the correct type (Decimal) and that they match the expected rounded values.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_round=Round("n1"), n2_round=Round("n2")

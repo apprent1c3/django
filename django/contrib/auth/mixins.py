@@ -129,6 +129,17 @@ class UserPassesTestMixin(AccessMixin):
         return self.test_func
 
     def dispatch(self, request, *args, **kwargs):
+        """
+
+        Dispatches the incoming request, first checking if the user has permission to access the view.
+
+        The function calls a test function to determine if the user has permission.
+        If the user test fails, it returns a response indicating that the user does not have permission to access the view.
+        Otherwise, it proceeds with the default dispatch behavior, passing the request and any additional arguments to the superclass.
+
+        This method is used to implement custom permission checks for views, allowing for fine-grained control over access to specific resources.
+
+        """
         user_test_result = self.get_test_func()()
         if not user_test_result:
             return self.handle_no_permission()

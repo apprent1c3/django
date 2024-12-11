@@ -27,6 +27,23 @@ class ContentTypesViewsTests(TestCase):
     def setUpTestData(cls):
         # Don't use the manager to ensure the site exists with pk=1, regardless
         # of whether or not it already exists.
+        """
+
+        Sets up test data for the application.
+
+        This method is used to create a set of predefined test data, including sites, authors and articles, 
+        each with specific attributes and timestamps. It also sets up a collection of URL schemes for testing purposes.
+
+        The data created includes:
+        - A test site with a specific domain and name
+        - An author with a given name
+        - Multiple articles with different titles, slugs, authors, and creation dates
+        - URL schemes with different protocols (HTTP, HTTPS, and default scheme)
+
+        This test data is used to support the execution of tests and provide a consistent set of inputs 
+        for testing different scenarios and functionality within the application.
+
+        """
         cls.site1 = Site(pk=1, domain="testserver", name="testserver")
         cls.site1.save()
         cls.author1 = Author.objects.create(name="Boris")
@@ -107,6 +124,14 @@ class ContentTypesViewsTests(TestCase):
                 self.assertEqual(response.status_code, 404)
 
     def test_wrong_type_pk(self):
+        """
+        Tests that a 404 status code is returned when accessing a shortcut URL with an invalid primary key.
+
+         Verifies that the application handles incorrect URL parameters by checking the response status code.
+
+         :raises AssertionError: If the status code is not 404.
+
+        """
         short_url = "/shortcut/%s/%s/" % (
             ContentType.objects.get_for_model(Author).id,
             "nobody/expects",
@@ -115,6 +140,9 @@ class ContentTypesViewsTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_shortcut_bad_pk(self):
+        """
+        Tests that accessing a shortcut with a known content type but an invalid primary key (pk) returns a 404 status code, indicating that the requested resource was not found.
+        """
         short_url = "/shortcut/%s/%s/" % (
             ContentType.objects.get_for_model(Author).id,
             "42424242",
@@ -123,12 +151,24 @@ class ContentTypesViewsTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_nonint_content_type(self):
+        """
+        Tests that a non-integer content type in a shortcut URL returns a 404 status code.
+
+        The test simulates a GET request to a shortcut URL with a non-integer content type and verifies that the server responds with a 404 Not Found status code, indicating that the requested resource could not be found.
+
+        This test case covers the scenario where an invalid or malformed shortcut URL is accessed, ensuring that the application handles such requests correctly and provides a suitable error response.
+        """
         an_author = Author.objects.all()[0]
         short_url = "/shortcut/%s/%s/" % ("spam", an_author.pk)
         response = self.client.get(short_url)
         self.assertEqual(response.status_code, 404)
 
     def test_bad_content_type(self):
+        """
+        Tests that a request to a shortcut URL with an invalid content type results in a 404 status code. 
+
+        The test uses a sample author object and constructs a shortcut URL with an arbitrary numeric identifier, then verifies that a GET request to this URL returns a 404 Not Found response, indicating that the URL is not recognized.
+        """
         an_author = Author.objects.all()[0]
         short_url = "/shortcut/%s/%s/" % (42424242, an_author.pk)
         response = self.client.get(short_url)
@@ -142,6 +182,17 @@ class ContentTypesViewsSiteRelTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class.
+
+        This method is called once before running all tests in the test case. It creates two new sites, site_2 and site_3, with their respective domains and names, making them available as class attributes for all tests in the class.
+
+        The created sites have the following properties:
+            * site_2: domain = 'example2.com', name = 'example2.com'
+            * site_3: domain = 'example3.com', name = 'example3.com'
+
+        These sites can be used to test site-specific functionality or to isolate tests from each other by using different sites for different tests.
+        """
         cls.site_2 = Site.objects.create(domain="example2.com", name="example2.com")
         cls.site_3 = Site.objects.create(domain="example3.com", name="example3.com")
 
@@ -224,6 +275,17 @@ class ContentTypesViewsSiteRelTests(TestCase):
 
 class ShortcutViewTests(TestCase):
     def setUp(self):
+        """
+        Sets up the test environment by creating a new HTTP request instance with predefined server metadata.
+
+        The server is configured to appear as 'Example.com' on port 80, allowing for testing of server-specific behavior in a controlled manner.
+
+        Returns:
+            None 
+
+        Note:
+            This method is typically used as part of a test suite setup to establish a common request context for subsequent tests.
+        """
         self.request = HttpRequest()
         self.request.META = {"SERVER_NAME": "Example.com", "SERVER_PORT": "80"}
 

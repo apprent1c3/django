@@ -127,6 +127,13 @@ class ProxyModelTests(TestCase):
             StatusPerson.objects.get(id__lt=max_id + 1)
 
     def test_abstract_base_with_model_fields(self):
+        """
+        Tests that attempting to create a proxy model with an abstract base class containing model fields raises a TypeError.
+
+        The test verifies that a specific error message is raised when trying to define a proxy model subclassing an abstract base class that includes model fields, as this is not permitted in the framework.
+
+        :raises TypeError: with a descriptive message indicating the restriction on proxy models
+        """
         msg = (
             "Abstract base class containing model fields not permitted for proxy model "
             "'NoAbstract'."
@@ -176,6 +183,18 @@ class ProxyModelTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="proxy_models.AlternateModel")
     @isolate_apps("proxy_models")
     def test_swappable(self):
+        """
+
+        Tests the behavior of swappable models in Django when attempting to create a proxy model from a swappable model.
+
+        This test validates that a TypeError is raised when trying to create a proxy model from a swappable model, 
+        as this is not a supported use case in Django. The purpose of this test is to ensure that the swappable 
+        model functionality is properly enforced, preventing potential errors or unexpected behavior in the application.
+
+        The test utilizes a swappable model and an alternate model to simulate a realistic scenario, 
+        demonstrating how Django handles this specific edge case.
+
+        """
         class SwappableModel(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPABLE_MODEL"
@@ -191,6 +210,17 @@ class ProxyModelTests(TestCase):
                     proxy = True
 
     def test_myperson_manager(self):
+        """
+        Tests the functionality of the MyPerson manager.
+
+        This test case creates multiple Person objects and then verifies that the MyPerson 
+        manager correctly filters and returns the expected subset of Person objects.
+
+        The test checks both the default manager and the MyPerson manager to ensure 
+        consistency in their behavior. The expected result is a list of names of Person 
+        objects that match the criteria defined by the MyPerson manager, which in this 
+        case includes 'barney' and 'fred' but excludes 'wilma'.
+        """
         Person.objects.create(name="fred")
         Person.objects.create(name="wilma")
         Person.objects.create(name="barney")
@@ -202,6 +232,23 @@ class ProxyModelTests(TestCase):
         self.assertEqual(resp, ["barney", "fred"])
 
     def test_otherperson_manager(self):
+        """
+
+        Tests the functionality of the OtherPerson manager.
+
+        This test case creates multiple Person instances and verifies that OtherPerson 
+        manager returns the correct objects based on different manager instances. 
+
+        Specifically, it checks the following:
+
+        - The default manager returns the expected persons.
+        - The 'excluder' manager excludes the expected person and includes the others.
+        - The custom manager logic is applied correctly for other cases.
+
+        The test validates the manager's behavior by comparing the names of persons 
+        returned by different managers with the expected results. 
+
+        """
         Person.objects.create(name="fred")
         Person.objects.create(name="wilma")
         Person.objects.create(name="barney")
@@ -227,6 +274,19 @@ class ProxyModelTests(TestCase):
         output = []
 
         def make_handler(model, event):
+            """
+
+            Creates a handler function for a specific model event.
+
+            The returned handler function, when called, records the event triggered on the model.
+            It appends a message to the output list in the format 'model event save', 
+            indicating that the specified event has occurred for the given model.
+
+            :param model: The name of the model for which the event is being handled
+            :param event: The name of the event being handled
+            :returns: A handler function that records the event when called
+
+            """
             def _handler(*args, **kwargs):
                 output.append("%s %s save" % (model, event))
 
@@ -304,6 +364,13 @@ class ProxyModelTests(TestCase):
         self.assertEqual(resp, ["Bruce"])
 
     def test_proxy_update(self):
+        """
+
+        Tests that updating a user's details through the UserProxy model results in the corresponding changes being reflected in the User model.
+
+        This test ensures that the UserProxy model functions as a valid interface for updating user data, and that these updates are correctly persisted to the underlying User model.
+
+        """
         user = User.objects.create(name="Bruce")
         with self.assertNumQueries(1):
             UserProxy.objects.filter(id=user.id).update(name="George")
@@ -332,6 +399,16 @@ class ProxyModelTests(TestCase):
         self.assertEqual(resp.name, "New South Wales")
 
     def test_filter_proxy_relation_reverse(self):
+        """
+
+        Tests the relationship between issues and users through the proxy.
+
+        Verifies that an issue can be properly assigned to a user and retrieved 
+        via the user's issues attribute, and that this relationship is preserved 
+        when accessing the user through a proxy. Ensures that filtering users 
+        by issue works correctly for both regular and proxy users.
+
+        """
         tu = TrackerUser.objects.create(name="Contributor", status="contrib")
         ptu = ProxyTrackerUser.objects.get()
         issue = Issue.objects.create(assignee=tu)
@@ -341,6 +418,14 @@ class ProxyModelTests(TestCase):
         self.assertSequenceEqual(ProxyTrackerUser.objects.filter(issues=issue), [ptu])
 
     def test_proxy_bug(self):
+        """
+        Tests the correct functioning of proxy objects in the context of Bugs and Improvements.
+
+        This test verifies that proxy objects can correctly retrieve and represent Bugs and Improvements.
+        It covers cases such as retrieving a Bug by version, as well as retrieving Improvements by reporter name or associated Bug summary.
+        The test ensures that the `select_related` method is correctly applied to reduce database queries.
+        It also checks the string representation of the retrieved proxy objects, ensuring they match the expected format.
+        """
         contributor = ProxyTrackerUser.objects.create(
             name="Contributor", status="contrib"
         )
@@ -396,6 +481,17 @@ class ProxyModelTests(TestCase):
         self.assertEqual(p.name, "Elvis Presley")
 
     def test_select_related_only(self):
+        """
+        Tests whether the select_related method correctly retrieves related objects and 
+        only includes the specified fields in the query.
+
+        This test case creates a new user and issue instance, then uses the select_related 
+        method to retrieve the issue along with its related assignee, specifically 
+        retrieving only the assignee's status field.
+
+        Verifies that the retrieved issue instance matches the original issue, 
+        confirming the correctness of the select_related method with the only parameter.
+        """
         user = ProxyTrackerUser.objects.create(name="Joe Doe", status="test")
         issue = Issue.objects.create(summary="New issue", assignee=user)
         qs = Issue.objects.select_related("assignee").only("assignee__status")
@@ -409,6 +505,20 @@ class ProxyModelTests(TestCase):
 class ProxyModelAdminTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This method creates and stores a set of test data that can be used by all test methods in the class.
+        It includes a superuser, a tracker user, and an issue assigned to the tracker user.
+        The test data is stored as class attributes, allowing it to be easily accessed and used by other test methods.
+
+        The created test data includes:
+            - A superuser with staff privileges
+            - A tracker user with a specific name and status
+            - An issue with a summary and assigned to the tracker user
+
+        """
         cls.superuser = AuthUser.objects.create(is_superuser=True, is_staff=True)
         cls.tu1 = ProxyTrackerUser.objects.create(name="Django Pony", status="emperor")
         cls.i1 = Issue.objects.create(summary="Pony's Issue", assignee=cls.tu1)

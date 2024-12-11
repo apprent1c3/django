@@ -6,6 +6,15 @@ from django.core.exceptions import ValidationError
 
 class TestValidationError(unittest.TestCase):
     def test_messages_concatenates_error_dict_values(self):
+        """
+        Tests that the ValidationError exception properly concatenates error messages from its dictionary values.
+
+        The function verifies that the exception's messages are correctly aggregated when multiple fields have error messages.
+        If a field has multiple error messages, they are all included in the exception's messages.
+        The test covers the cases where there are no error messages, one field with error messages, and multiple fields with error messages.
+        The result is an exception that contains all error messages from the input dictionary, allowing for a comprehensive error report.
+
+        """
         message_dict = {}
         exception = ValidationError(message_dict)
         self.assertEqual(sorted(exception.messages), [])
@@ -179,6 +188,26 @@ class TestValidationError(unittest.TestCase):
         )
 
     def test_hash(self):
+        """
+        Test the hash method of the ValidationError class.
+
+        This method ensures that the hash of a ValidationError object is correctly
+        calculated based on its attributes. It checks for equality and inequality
+        of hashes between ValidationErrors with different messages, codes, and parameters.
+
+        The tests cover various scenarios, including:
+
+        * ValidationErrors with the same and different messages
+        * ValidationErrors with the same and different codes
+        * ValidationErrors with the same and different parameters
+        * ValidationErrors with dictionaries and lists as messages
+        * ValidationErrors with nested ValidationErrors
+
+        The goal of these tests is to ensure that the hash method produces consistent
+        and unique hashes for ValidationErrors with different attributes, allowing for
+        correct usage in sets and dictionaries.
+
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")
@@ -319,6 +348,14 @@ class TestValidationError(unittest.TestCase):
         )
 
     def test_hash_nested(self):
+        """
+
+        Tests that the hash value of a ValidationError object is correctly calculated when the error is nested.
+
+        The test checks if the hash value of a ValidationError object remains the same when the nested error dictionary is reordered or has the same parameters, 
+        but is different when the error message or parameters are modified.
+
+        """
         error_dict = {
             "field1": ValidationError(
                 "error %(parm1)s %(parm2)s",

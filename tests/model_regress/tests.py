@@ -24,6 +24,13 @@ from .models import (
 
 class ModelTests(TestCase):
     def test_model_init_too_many_args(self):
+        """
+        Tests that attempting to initialize the Worker model with too many arguments raises an IndexError.
+
+        The test validates that the number of arguments passed to the Worker constructor does not exceed the expected number of fields, 
+        ensuring proper initialization of the model. If the number of arguments is excessive, it verifies that an IndexError is raised 
+        with a corresponding error message indicating the issue. 
+        """
         msg = "Number of args exceeds number of fields"
         with self.assertRaisesMessage(IndexError, msg):
             Worker(1, 2, 3, 4)
@@ -68,6 +75,15 @@ class ModelTests(TestCase):
     def test_long_textfield(self):
         # TextFields can hold more than 4000 characters (this was broken in
         # Oracle).
+        """
+        .. function:: test_long_textfield
+
+           Tests the length of text stored in the article_text field of an Article object to ensure it matches the expected maximum length.
+
+           Specifically, this test creates a new Article instance with a large amount of text, saves it, and then retrieves it to verify that the text length is as expected. 
+
+           This test case aims to validate the correct behavior of the article_text field in handling lengthy text inputs.
+        """
         a = Article.objects.create(
             headline="Really, really big",
             pub_date=datetime.datetime.now(),
@@ -89,6 +105,14 @@ class ModelTests(TestCase):
 
     def test_date_lookup(self):
         # Regression test for #659
+        """
+
+        Tests the date lookup functionality for the Party model.
+
+        Verifies that date lookups for month, year, and day return the expected results.
+        Checks that the lookup filters are applied correctly and that the results are returned in the expected order.
+
+        """
         Party.objects.create(when=datetime.datetime(1999, 12, 31))
         Party.objects.create(when=datetime.datetime(1998, 12, 31))
         Party.objects.create(when=datetime.datetime(1999, 1, 1))
@@ -249,6 +273,14 @@ class ModelTests(TestCase):
 
 class ModelValidationTest(TestCase):
     def test_pk_validation(self):
+        """
+
+        Tests the validation of a primary key (PK) to prevent duplicate entries.
+
+        Verifies that attempting to create a duplicate primary key raises a ValidationError,
+        ensuring data integrity by preventing multiple records with the same unique identifier.
+
+        """
         NonAutoPK.objects.create(name="one")
         again = NonAutoPK(name="one")
         with self.assertRaises(ValidationError):

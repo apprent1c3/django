@@ -7,6 +7,16 @@ from ..utils import setup
 class ResetCycleTagTests(SimpleTestCase):
     @setup({"resetcycle01": "{% resetcycle %}"})
     def test_resetcycle01(self):
+        """
+
+        Tests the TemplateSyntaxError exception raised when attempting to reset a cycle 
+        in a template where no cycles are defined.
+
+        Verifies that the get_template method of the engine correctly handles the 
+        resetcycle template tag and raises an error with a meaningful message when 
+        there are no cycles to reset in the template.
+
+        """
         with self.assertRaisesMessage(TemplateSyntaxError, "No cycles in template."):
             self.engine.get_template("resetcycle01")
 
@@ -39,6 +49,15 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle05(self):
+        """
+
+        Tests the behavior of the 'resetcycle' tag when used within a for loop to reset a cycle.
+
+        The cycle tag is used to cycle over a list of values. In this case, we're testing that the 'resetcycle' tag resets the cycle back to its initial value at each iteration of the loop.
+
+        The expected output is that the cycle will always start from its first value, resulting in a string of identical characters.
+
+        """
         output = self.engine.render_to_string("resetcycle05", {"test": list(range(5))})
         self.assertEqual(output, "aaaaa")
 
@@ -98,6 +117,19 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle09(self):
+        """
+
+        Tests the functionality of nested cycles and their reset in templating.
+
+        Verifies that the resetcycle tag correctly resets the cycle state in nested loops.
+        The test renders a template with two nested loops, using the cycle tag to alternate
+        between 'a' and 'b' in the outer loop, and 'X' and 'Y' in the inner loop. The
+        resetcycle tag is used to reset the outer cycle at the end of each iteration.
+
+        The function checks that the rendered output matches the expected result, ensuring
+        that the cycles are correctly reset and the template is rendered as expected.
+
+        """
         output = self.engine.render_to_string(
             "resetcycle09", {"outer": list(range(2)), "inner": list(range(3))}
         )
@@ -115,6 +147,18 @@ class ResetCycleTagTests(SimpleTestCase):
         }
     )
     def test_resetcycle10(self):
+        """
+
+        Test the resetcycle tag functionality.
+
+        This function ensures that the resetcycle tag behaves correctly when resetting a named cycle.
+        The test checks that the cycle is properly reset and restarts from the beginning of the cycle sequence.
+        It verifies that the output matches the expected result after rendering the template with the given input data.
+
+        The main goal of this test is to validate the functionality of resetting cycles within a template,
+        which is essential for maintaining the desired output when working with cycles in templating engines.
+
+        """
         output = self.engine.render_to_string("resetcycle10", {"test": list(range(5))})
         self.assertEqual(output, "XaYbZaXbYc")
 

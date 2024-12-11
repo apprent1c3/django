@@ -58,6 +58,9 @@ IGNORED_PARAMS = (
 
 class ChangeListSearchForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the instance of the class, setting up a dictionary of fields with a single entry for searching, which is a character field that is not required and does not strip whitespace from input values.
+        """
         super().__init__(*args, **kwargs)
         # Populate "fields" dynamically because SEARCH_VAR is a variable:
         self.fields = {

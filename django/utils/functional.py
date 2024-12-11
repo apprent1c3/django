@@ -61,6 +61,14 @@ class classproperty:
         return self.fget(cls)
 
     def getter(self, method):
+        """
+
+        Sets the getter method for an object.
+
+        :param method: The method to be used as the getter.
+        :return: The object itself, allowing for method chaining.
+
+        """
         self.fget = method
         return self
 
@@ -184,6 +192,22 @@ def lazy(func, *resultclasses):
                 def __wrapper__(self, *args, __method_name=method_name, **kw):
                     # Automatically triggers the evaluation of a lazy value and
                     # applies the given method of the result type.
+                    """
+                    A wrapper function that facilitates the invocation of a specific method on the result of a pre-computed function.
+
+                    This wrapper takes in a variable number of arguments and keyword arguments, and uses them to call the specified method on the result of the pre-computed function. The method to be called is determined by the `__method_name` parameter.
+
+                    The function returns the result of the method invocation, allowing for further chaining of method calls. The pre-computed function's arguments are passed implicitly, having been stored beforehand in `self._args` and `self._kw`.
+
+                    Args:
+                        *args: Variable number of arguments to be passed to the method.
+                        **kw: Keyword arguments to be passed to the method.
+                        __method_name (str): The name of the method to be called on the result of the pre-computed function.
+
+                    Returns:
+                        The result of the method invocation on the pre-computed function's result.
+
+                    """
                     result = func(*self._args, **self._kw)
                     return getattr(result, __method_name)(*args, **kw)
 
@@ -223,6 +247,16 @@ def keep_lazy(*resultclasses):
 
         @wraps(func)
         def wrapper(*args, **kwargs):
+            """
+            Wrapper function that conditionally applies lazy evaluation.
+
+            This function checks if any of the input arguments are instances of :class:`Promise`.
+            If a :class:`Promise` is found, it delegates the function call to :func:`lazy_func`, allowing for lazy evaluation.
+            Otherwise, it calls the original function :func:`func` with the provided arguments.
+
+            The purpose of this wrapper is to provide a seamless way to switch between eager and lazy evaluation based on the input types.
+            It allows for more efficient handling of computations that may not always be necessary, by delaying their execution until their results are actually needed.
+            """
             if any(
                 isinstance(arg, Promise)
                 for arg in itertools.chain(args, kwargs.values())
@@ -247,6 +281,19 @@ empty = object()
 
 def new_method_proxy(func):
     def inner(self, *args):
+        """
+        Executes the inner function, ensuring the wrapped object is properly set up beforehand.
+
+        If the wrapped object is currently in an empty or uninitialized state, this method will trigger its initialization before proceeding with the inner function execution.
+
+        The inner function is then called with the wrapped object and any provided arguments, returning the result of this operation.
+
+        Args:
+            *args: Variable number of arguments to be passed to the inner function.
+
+        Returns:
+            Result of the inner function execution with the wrapped object and provided arguments.
+        """
         if (_wrapped := self._wrapped) is empty:
             self._setup()
             _wrapped = self._wrapped
@@ -325,6 +372,12 @@ class LazyObject:
     # will pickle it normally, and then the unpickler simply returns its
     # argument.
     def __reduce__(self):
+        """
+        Supports pickling of a lazily created object by reducing it to a tuple that can be serialized.
+
+        This method is used to enable the object to be pickled, which is necessary for certain operations like multiprocessing or caching.
+        It ensures that the object's internal state is properly set up before pickling, and provides the necessary information to recreate the object during unpickling.
+        """
         if self._wrapped is empty:
             self._setup()
         return (unpickle_lazyobject, (self._wrapped,))
@@ -406,6 +459,13 @@ class SimpleLazyObject(LazyObject):
     # Return a meaningful representation of the lazy object for debugging
     # without evaluating the wrapped object.
     def __repr__(self):
+        """
+        Returns a string representation of the current object, providing a human-readable summary of its state.
+
+        The representation includes the object's class name and either the result of the setup function if the wrapped object is empty, or the wrapped object itself.
+
+        This method is intended to be used for debugging purposes, providing a concise and informative overview of the object's contents.
+        """
         if self._wrapped is empty:
             repr_attr = self._setupfunc
         else:

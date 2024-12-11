@@ -56,6 +56,21 @@ from .views import empty_response
 
 class SkippingTestCase(SimpleTestCase):
     def _assert_skipping(self, func, expected_exc, msg=None):
+        """
+        Asserts that a given function raises the expected exception when called.
+
+        Checks if the provided function `func` raises an exception of type `expected_exc`.
+        If a message `msg` is specified, it also checks if the raised exception contains the given message.
+        The function fails the test if the function call results in a skipped test instead of raising the expected exception.
+
+        Use this method to verify that a function behaves correctly in error scenarios or when specific conditions are met.
+        It provides a way to ensure that expected exceptions are raised with the correct error messages, making it easier to diagnose issues and maintain code quality.
+
+        :param func: The function to be called and checked for the expected exception.
+        :param expected_exc: The expected type of exception to be raised by `func`.
+        :param msg: The expected error message to be present in the raised exception, defaults to None.
+
+        """
         try:
             if msg is not None:
                 with self.assertRaisesMessage(expected_exc, msg):
@@ -162,6 +177,19 @@ class SkippingClassTestCase(TransactionTestCase):
 
     def test_skip_class_unless_db_feature(self):
         @skipUnlessDBFeature("__class__")
+        """
+
+        Tests the skip_class_unless_db_feature decorator to ensure it correctly skips 
+        or runs test classes based on the presence or absence of specified database features.
+
+        Verifies that classes with matching database features are not skipped, while classes 
+        with non-matching or conflicting features are skipped, including cases where a class 
+        inherits from a skipped class.
+
+        Checks for the expected number of tests being run and skipped, and validates the 
+        skip reasons provided for the skipped tests.
+
+        """
         class NotSkippedTests(TestCase):
             def test_dummy(self):
                 return
@@ -225,6 +253,16 @@ class AssertNumQueriesTests(TestCase):
             self.assertNumQueries(2, test_func)
 
     def test_assert_num_queries_with_client(self):
+        """
+
+        Test that the correct number of database queries are executed when using the client to make requests.
+
+        This test case verifies that the number of queries executed when making requests to the '/test_utils/get_person/<id>/' endpoint is as expected.
+        It checks the number of queries executed both when making individual requests and when making multiple requests within a single test function.
+
+        The test creates a Person instance and then uses the client to make GET requests to the endpoint, asserting that the expected number of queries is executed in each case.
+
+        """
         person = Person.objects.create(name="test")
 
         self.assertNumQueries(
@@ -246,10 +284,26 @@ class AssertNumQueriesUponConnectionTests(TransactionTestCase):
     available_apps = []
 
     def test_ignores_connection_configuration_queries(self):
+        """
+
+        Tests that the connection configuration queries are ignored when checking the number of database queries.
+
+        This test ensures that the database connection configuration queries, which are executed to set up the connection,
+        are not counted towards the total number of queries. This is done by simulating a connection setup and then 
+        querying the database to retrieve a list of Car objects, while mocking the ensure_connection method to 
+        execute a configuration query. The test then asserts that only one query is executed, which is the query to 
+        retrieve the Car objects.
+
+        """
         real_ensure_connection = connection.ensure_connection
         connection.close()
 
         def make_configuration_query():
+            """
+            Establishes a connection to the database and executes a minimal query to ensure the connection is valid.
+
+            This function first checks if a connection to the database is already established. If not, it initiates the connection. It then executes a simple SELECT query to test the connection, ensuring that it can successfully communicate with the database. The query executed is optimized for the specific database features, appending any necessary suffix required by the database backend. The function does not return any value, its purpose is to verify and set up a working database connection.
+            """
             is_opening_connection = connection.connection is None
             real_ensure_connection()
 
@@ -270,6 +324,13 @@ class AssertNumQueriesUponConnectionTests(TransactionTestCase):
 class AssertQuerySetEqualTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class, creating two Person objects for use in subsequent tests.
+
+        The created objects include two people, 'p1' and 'p2', which can be referenced in tests as class attributes.
+
+        """
         cls.p1 = Person.objects.create(name="p1")
         cls.p2 = Person.objects.create(name="p2")
 
@@ -354,6 +415,13 @@ class AssertQuerySetEqualTests(TestCase):
         )
 
     def test_maxdiff(self):
+        """
+        Tests the behavior of the `assertQuerySetEqual` method when the difference between two sets exceeds the `maxDiff` limit.
+
+         Verifies that an `AssertionError` is raised when the difference is too large, and that the error message suggests setting `maxDiff` to `None` to see the full difference.
+
+         Then, it tests the same assertion with `maxDiff` set to `None`, ensuring that the full difference is included in the error message and that all elements from the expected set are present in the error message.
+        """
         names = ["Joe Smith %s" % i for i in range(20)]
         Person.objects.bulk_create([Person(name=name) for name in names])
         names.append("Extra Person")
@@ -392,6 +460,17 @@ class CaptureQueriesContextManagerTests(TestCase):
         cls.person_pk = str(Person.objects.create(name="test").pk)
 
     def test_simple(self):
+        """
+
+        Tests the query capturing functionality to ensure it correctly captures and logs database queries.
+
+        This test case verifies that a single query is captured when retrieving a Person object by primary key, 
+        and that the primary key is correctly included in the captured query's SQL string. 
+
+        Additionally, it checks that when no queries are executed, the captured queries list remains empty, 
+        successfully demonstrating the context manager's ability to accurately track query execution.
+
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             Person.objects.get(pk=self.person_pk)
         self.assertEqual(len(captured_queries), 1)
@@ -402,6 +481,14 @@ class CaptureQueriesContextManagerTests(TestCase):
         self.assertEqual(0, len(captured_queries))
 
     def test_within(self):
+        """
+        Tests that retrieving a Person object by primary key results in a single database query.
+
+        This test case verifies that the database query executed to retrieve the Person object
+        includes the expected primary key value and that no unnecessary additional queries are made.
+
+        It ensures that the database interaction is optimized and efficient for this specific use case.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             Person.objects.get(pk=self.person_pk)
             self.assertEqual(len(captured_queries), 1)
@@ -416,11 +503,31 @@ class CaptureQueriesContextManagerTests(TestCase):
         self.assertEqual(2, len(captured_queries))
 
     def test_failure(self):
+        """
+        Tests that a TypeError is raised when an exception occurs within a CaptureQueriesContext.
+
+        This test case verifies that the expected TypeError exception is propagated when an error happens 
+        within the context, ensuring proper error handling and propagation. The test is designed to validate 
+        the behavior of the CaptureQueriesContext when dealing with exceptions, providing confidence in its 
+        ability to handle TypeErrors correctly.
+        """
         with self.assertRaises(TypeError):
             with CaptureQueriesContext(connection):
                 raise TypeError
 
     def test_with_client(self):
+        """
+
+        Tests the number of database queries executed when retrieving a person via the client.
+
+        This test case verifies that the correct number of queries are captured when making 
+        GET requests to the '/test_utils/get_person/<pk>/' endpoint. It checks the queries 
+        executed for a single request, as well as for consecutive requests.
+
+        The test asserts that the query count is as expected and that the person's primary 
+        key is present in the SQL of the captured queries.
+
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             self.client.get("/test_utils/get_person/%s/" % self.person_pk)
         self.assertEqual(len(captured_queries), 1)
@@ -479,6 +586,17 @@ class AssertNumQueriesContextManagerTests(TestCase):
 @override_settings(ROOT_URLCONF="test_utils.urls")
 class AssertTemplateUsedContextManagerTests(SimpleTestCase):
     def test_usage(self):
+        """
+
+        Tests the usage of template rendering to ensure that the correct templates are being used.
+
+        This test case covers various scenarios where the 'template_used/base.html' template is expected to be rendered.
+        It verifies that the template is used when rendering directly, as well as when included or extended by other templates.
+        The test also checks that multiple renders of the same template are correctly handled.
+
+        The test uses the Django test client's `assertTemplateUsed` context manager to verify that the expected template is used.
+
+        """
         with self.assertTemplateUsed("template_used/base.html"):
             render_to_string("template_used/base.html")
 
@@ -516,6 +634,14 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
             render_to_string("template_used/base.html")
 
     def test_not_used(self):
+        """
+
+        Tests that specific templates are not used during the execution of the test.
+
+        This test verifies that the 'template_used/base.html' and 'template_used/alternative.html' templates are not rendered or loaded. 
+        It is useful for ensuring that the correct templates are being used in different scenarios, and for catching unexpected template usage.
+
+        """
         with self.assertTemplateNotUsed("template_used/base.html"):
             pass
         with self.assertTemplateNotUsed("template_used/alternative.html"):
@@ -554,6 +680,15 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 template.render(Context())
 
     def test_msg_prefix(self):
+        """
+        Tests the behavior of assertTemplateUsed when a custom message prefix is provided.
+
+        This function checks that the custom prefix is correctly included in the error message raised when the expected template is not used to render the response.
+
+        It covers various scenarios, including when no templates are used and when a different template is used than the one expected.
+
+        The purpose of this test is to ensure that the custom message prefix is properly propagated to the error message, making it easier to identify the source of the error when the assertion fails.
+        """
         msg_prefix = "Prefix"
         msg = f"{msg_prefix}: No templates used to render the response"
         with self.assertRaisesMessage(AssertionError, msg):
@@ -623,6 +758,14 @@ class AssertTemplateUsedContextManagerTests(SimpleTestCase):
                 render_to_string("template_used/alternative.html")
 
     def test_assert_used_on_http_response(self):
+        """
+
+        Tests that asserting template usage raises an error when used on an HttpResponse object not fetched via the Django test Client.
+
+        This test check includes two assertions: one for ensuring a template is used and another for ensuring a template is not used.
+        The test verifies that attempting to use these assertions on an HttpResponse object not obtained through the test Client results in a ValueError.
+
+        """
         response = HttpResponse()
         msg = "%s() is only usable on responses fetched using the Django test Client."
         with self.assertRaisesMessage(ValueError, msg % "assertTemplateUsed"):
@@ -646,6 +789,20 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(dom[0], "foo")
 
     def test_parse_html_in_script(self):
+        """
+        Tests the parse_html function's ability to handle HTML tags within script tags.
+
+        This test case evaluates how the function interprets HTML code embedded within script tags,
+        checking its capacity to correctly parse such constructs, including cases where HTML tags
+        are broken across string concatenation operations in JavaScript.
+
+        The function is expected to generate a correct DOM representation of the input HTML,
+        where the HTML within the script tags is treated as literal content rather than executable code.
+
+        It verifies that the parsed DOM structure reflects the original input, maintaining the integrity
+        of the HTML tags and their content within the script tags, regardless of how they are structured
+        or concatenated in the JavaScript code.
+        """
         parse_html('<script>var a = "<p" + ">";</script>')
         parse_html(
             """
@@ -665,6 +822,19 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(dom.children[0], "<p>foo</p> '</scr'+'ipt>' <span>bar</span>")
 
     def test_void_elements(self):
+        """
+
+        Test that HTML void elements are correctly parsed and represented in the DOM.
+
+        This test checks that void elements, which are HTML elements that do not have a closing tag,
+        are handled properly when they appear in HTML documents. It verifies that the elements are
+        recognized and positioned correctly within the DOM, regardless of whether they are self-closed
+        or not.
+
+        The test covers a range of void elements, ensuring that the parsing behavior is consistent
+        across different types of void elements.
+
+        """
         for tag in VOID_ELEMENTS:
             with self.subTest(tag):
                 dom = parse_html("<p>Hello <%s> world</p>" % tag)
@@ -680,6 +850,20 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertEqual(dom[2], "world")
 
     def test_simple_equal_html(self):
+        """
+        Tests whether two HTML strings are equal, ignoring differences in whitespace and tag formatting.
+
+        This test case covers various scenarios, including:
+
+        * Empty HTML strings
+        * HTML strings with varying amounts of whitespace
+        * HTML strings with different newline characters
+        * HTML strings with self-closing tags
+        * HTML strings with boolean attributes
+        * HTML strings with different tag formatting
+
+        The test asserts that the two input HTML strings are considered equal, even if they have different representations, as long as their structure and content are the same.
+        """
         self.assertHTMLEqual("", "")
         self.assertHTMLEqual("<p></p>", "<p></p>")
         self.assertHTMLEqual("<p></p>", " <p> </p> ")
@@ -735,6 +919,17 @@ class HTMLEqualTests(SimpleTestCase):
         )
 
     def test_class_attribute(self):
+        """
+
+        Tests whether the order and formatting of class attributes in HTML elements are ignored during comparison.
+
+        This function verifies that HTML elements with the same class attributes, 
+        but different ordering or whitespace, are considered equal.
+        It covers various scenarios, including different types of whitespace characters and extra spaces.
+        The goal is to ensure that the comparison of HTML elements is robust and reliable, 
+        regardless of the specific formatting used in the class attributes.
+
+        """
         pairs = [
             ('<p class="foo bar"></p>', '<p class="bar foo"></p>'),
             ('<p class=" foo bar "></p>', '<p class="bar foo"></p>'),
@@ -749,6 +944,15 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertHTMLEqual(html1, html2)
 
     def test_boolean_attribute(self):
+        """
+        Tests the parsing and comparison of HTML input elements with a boolean attribute.
+
+        This test case checks that different representations of a boolean attribute (e.g. \"checked\") 
+        are parsed and compared correctly. It verifies that the attribute is handled consistently 
+        regardless of whether it is specified with or without a value, and that an invalid value 
+        is treated as distinct from the valid forms. The test also ensures that the parsed HTML 
+        is correctly serialized back to its original string representation.
+        """
         html1 = "<input checked>"
         html2 = '<input checked="">'
         html3 = '<input checked="checked">'
@@ -770,6 +974,18 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(str(parse_html(html2)), '<input value="">')
 
     def test_normalize_refs(self):
+        """
+
+        Checks if HTML entities for single quote and ampersand are properly normalized.
+
+        This test ensures that various representations of single quote and ampersand HTML entities
+        are correctly converted to their standard forms, verifying if the function treats different
+        notations as equivalent.
+
+        The function tests multiple pairs of HTML entities to confirm that the normalization
+        process correctly handles various input formats, including both named and numeric character references.
+
+        """
         pairs = [
             ("&#39;", "&#x27;"),
             ("&#39;", "'"),
@@ -795,6 +1011,13 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertHTMLEqual(*pair)
 
     def test_complex_examples(self):
+        """
+        Tests complex examples of HTML output and parsing, verifying that the generated HTML matches the expected output.
+        The function covers two main test cases: 
+        1. A table with form fields, including first name, last name, and birthday, ensuring that labels, input fields, and table structure are correctly rendered.
+        2. An HTML document with a paragraph and a div, verifying that the parser correctly handles invalid HTML (e.g., a div inside a paragraph) by comparing the output to a version with the paragraph tag closed before the div.
+        The test asserts that the actual HTML output is equal to the expected output in both cases.
+        """
         self.assertHTMLEqual(
             """<tr><th><label for="id_first_name">First name:</label></th>
 <td><input type="text" name="first_name" value="John" id="id_first_name" /></td></tr>
@@ -851,6 +1074,26 @@ class HTMLEqualTests(SimpleTestCase):
 
     def test_html_contain(self):
         # equal html contains each other
+        """
+
+        Tests whether an HTML string contains another HTML string.
+
+        This function checks for the presence of a given HTML string within another,
+        regardless of the surrounding structure. The containment check is performed
+        on the parsed HTML documents (DOMs) rather than the raw HTML strings.
+
+        The function covers various scenarios, including:
+
+        *   Containment within the same tag structure
+        *   Containment within a more complex tag structure (e.g., a paragraph within a div)
+        *   Presence of the contained HTML string within a larger document
+        *   Non-containment of a more complex structure within a simpler one
+
+        The tests verify that the containment check correctly identifies the presence
+        or absence of the contained HTML string, and that it does so regardless of the
+        specific tag structure or surrounding content.
+
+        """
         dom1 = parse_html("<p>foo")
         dom2 = parse_html("<p>foo</p>")
         self.assertIn(dom1, dom2)
@@ -933,6 +1176,14 @@ class HTMLEqualTests(SimpleTestCase):
         self.assertEqual(dom2.count(dom1), 2)
 
     def test_root_element_escaped_html(self):
+        """
+        Tests that the root element of parsed HTML is properly escaped.
+
+        This test case verifies that HTML content containing escaped elements (e.g. &lt;, &gt;) 
+        is correctly parsed and preserved in its original form, without any modifications or 
+        interpretations of the escape sequences. The goal is to ensure that the parsed output 
+        matches the original input HTML string, even when it contains escaped HTML characters.
+        """
         html = "&lt;br&gt;"
         parsed = parse_html(html)
         self.assertEqual(str(parsed), html)
@@ -959,6 +1210,20 @@ class HTMLEqualTests(SimpleTestCase):
             self.assertHTMLEqual("<p><foo></p>", "<p>&#60;foo&#62;</p>")
 
     def test_contains_html(self):
+        """
+
+        Tests that the assertContains and assertNotContains methods correctly check 
+        for the presence or absence of HTML content in an HttpResponse.
+
+        This function verifies that the methods can handle HTML content both as 
+        plain text and as parsed HTML, ensuring that different comparison methods 
+        produce the expected outcomes.
+
+        It also includes negative test cases to validate that the methods raise an 
+        AssertionError when given malformed or invalid HTML responses, or when 
+        attempting to match invalid or non-existent content.
+
+        """
         response = HttpResponse(
             """<body>
         This is a form: <form method="get">
@@ -1001,6 +1266,13 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>Hello</b>", "<p>Test</p>")
 
     def test_msg_prefix(self):
+        """
+        Tests that an AssertionError is raised with a custom message prefix when the 'assertInHTML' method fails to find an HTML element.
+
+        The test checks that the error message includes the specified prefix, the expected HTML element, and the actual HTML response where the element was not found.
+
+        :raises AssertionError: When the expected HTML element is not found in the actual HTML response
+        """
         msg = (
             "False is not true : Prefix: Couldn't find '<b>Hello</b>' in the following "
             'response\n\'<input type="text" name="Hello" />\''
@@ -1013,6 +1285,15 @@ class InHTMLTests(SimpleTestCase):
             )
 
     def test_count_msg_prefix(self):
+        """
+        Tests the functionality of a method when it counts HTML occurrences with a custom message prefix.
+
+        This test case checks if the method correctly asserts an error when the actual count does not match the expected count and if the custom message prefix is correctly included in the error message.
+
+        The function verifies that the error message contains the specified prefix, allowing for more informative and targeted error reporting in case of assertion failures.
+
+        The test covers a scenario where the expected count is 1, but the actual count is 2, demonstrating the handling of mismatched counts and the inclusion of the provided message prefix in the resulting error message.
+        """
         msg = (
             "2 != 1 : Prefix: Found 2 instances of '<b>Hello</b>' (expected 1) in the "
             "following response\n'<b>Hello</b><b>Hello</b>'"
@@ -1027,6 +1308,16 @@ class InHTMLTests(SimpleTestCase):
             )
 
     def test_base(self):
+        """
+
+        Tests if substrings can be correctly found within a larger HTML string.
+
+        This function checks for the presence of specific HTML elements within a given
+        haystack string, verifying both their existence and count. It also tests that
+        the function correctly raises an AssertionError when the expected HTML element
+        is not found or when the count of the element does not match the expected value.
+
+        """
         haystack = "<p><b>Hello</b> <span>there</span>! Hi <span>there</span>!</p>"
 
         self.assertInHTML("<b>Hello</b>", haystack=haystack)
@@ -1043,6 +1334,14 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>Hello</b>", haystack=haystack, count=2)
 
     def test_long_haystack(self):
+        """
+
+        Tests the behavior of assertInHTML when the haystack is extremely long and exceeds the truncation limit.
+
+        This test case verifies that an AssertionError is raised when the expected HTML is not found in the long haystack,
+        and another AssertionError is raised when the expected HTML is found but the count of occurrences does not match the expected count.
+
+        """
         haystack = (
             "<p>This is a very very very very very very very very long message which "
             "exceedes the max limit of truncation.</p>"
@@ -1059,6 +1358,16 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>This</b>", haystack, 3)
 
     def test_assert_not_in_html(self):
+        """
+        Tests that the :meth:`assertNotInHTML` method correctly checks if a given HTML snippet is not present in a larger HTML string.
+
+        This method verifies that the assertion is triggered when the snippet is found, and that it is not triggered when the snippet is not found. The error message raised by the assertion includes the original HTML string for debugging purposes.
+
+        The method covers two main scenarios: 
+        - A successful assertion where the HTML snippet is not found in the given HTML string, and 
+        - A failed assertion where the HTML snippet is found, verifying that the correct error message is raised.
+
+        """
         haystack = "<p><b>Hello</b> <span>there</span>! Hi <span>there</span>!</p>"
         self.assertNotInHTML("<b>Hi</b>", haystack=haystack)
         msg = (
@@ -1071,6 +1380,14 @@ class InHTMLTests(SimpleTestCase):
 
 class JSONEqualTests(SimpleTestCase):
     def test_simple_equal(self):
+        """
+        Tests that two identical JSON strings are considered equal.
+
+        This test case checks if the :meth:`assertJSONEqual` method correctly identifies
+        two JSON strings as equal when they contain the same attributes and values.
+        The test uses a simple JSON object with two attributes to verify the functionality.
+
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr1": "foo", "attr2":"baz"}'
         self.assertJSONEqual(json1, json2)
@@ -1081,12 +1398,28 @@ class JSONEqualTests(SimpleTestCase):
         self.assertJSONEqual(json1, json2)
 
     def test_simple_equal_raise(self):
+        """
+        Tests that assertJSONEqual raises an AssertionError when comparing two JSON objects that are not equal.
+
+        This test case verifies that the function correctly identifies when two JSON objects do not have the same attributes, 
+        even if they have some attributes in common. The test expects an AssertionError to be raised when comparing the 
+        two JSON objects, one with an additional attribute, to ensure the function's error handling behaves as expected.
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr2":"baz"}'
         with self.assertRaises(AssertionError):
             self.assertJSONEqual(json1, json2)
 
     def test_equal_parsing_errors(self):
+        """
+        Tests that the assertJSONEqual method correctly raises an AssertionError when comparing JSON strings with and without parsing errors.
+
+        The test case checks two scenarios: 
+        1. When the first JSON string has a parsing error and the second is valid.
+        2. When the first JSON string is valid and the second has a parsing error.
+
+        This test ensures that the assertJSONEqual method behaves as expected in cases where one or both of the input JSON strings contain syntax errors.
+        """
         invalid_json = '{"attr1": "foo, "attr2":"baz"}'
         valid_json = '{"attr1": "foo", "attr2":"baz"}'
         with self.assertRaises(AssertionError):
@@ -1095,11 +1428,28 @@ class JSONEqualTests(SimpleTestCase):
             self.assertJSONEqual(valid_json, invalid_json)
 
     def test_simple_not_equal(self):
+        """
+
+        Tests that two JSON strings are not equal.
+
+        This test case checks if two JSON objects with differing attributes and values 
+        are correctly identified as not equal, verifying the functionality of the 
+        assertJSONNotEqual method in handling JSON comparisons with varied key sets.
+
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr2":"baz"}'
         self.assertJSONNotEqual(json1, json2)
 
     def test_simple_not_equal_raise(self):
+        """
+
+        Tests that assertJSONNotEqual raises an AssertionError when comparing two identical JSON strings.
+
+        This function validates the behavior of assertJSONNotEqual in the case where the input JSON strings are equal.
+        It ensures that an AssertionError is raised, as expected, when the JSON strings being compared are identical.
+
+        """
         json1 = '{"attr1": "foo", "attr2":"baz"}'
         json2 = '{"attr1": "foo", "attr2":"baz"}'
         with self.assertRaises(AssertionError):
@@ -1116,11 +1466,27 @@ class JSONEqualTests(SimpleTestCase):
 
 class XMLEqualTests(SimpleTestCase):
     def test_simple_equal(self):
+        """
+
+        Tests that two simple XML elements with identical attributes are considered equal.
+
+        This test case verifies the functionality of comparing XML elements based on their tag name and attribute values.
+        The test checks if the assertXMLEqual method correctly identifies two XML elements as equal when they have the same tag name and attribute key-value pairs.
+
+        """
         xml1 = "<elem attr1='a' attr2='b' />"
         xml2 = "<elem attr1='a' attr2='b' />"
         self.assertXMLEqual(xml1, xml2)
 
     def test_simple_equal_unordered(self):
+        """
+
+        Tests that XML elements are considered equal when their attributes are in a different order.
+
+        This test case verifies that the assertXMLEqual method treats XML elements as equal
+        even if the order of their attributes differs, as long as the attribute names and values are the same.
+
+        """
         xml1 = "<elem attr1='a' attr2='b' />"
         xml2 = "<elem attr2='b' attr1='a' />"
         self.assertXMLEqual(xml1, xml2)
@@ -1147,11 +1513,27 @@ class XMLEqualTests(SimpleTestCase):
             self.assertXMLEqual(xml1, xml2)
 
     def test_simple_not_equal(self):
+        """
+
+        Tests that two XML strings with different attribute values are considered not equal.
+
+        This test case checks the functionality of comparing XML elements when one attribute value differs between the two elements.
+
+        """
         xml1 = "<elem attr1='a' attr2='c' />"
         xml2 = "<elem attr1='a' attr2='b' />"
         self.assertXMLNotEqual(xml1, xml2)
 
     def test_simple_not_equal_raise(self):
+        """
+
+        Checks that the assertXMLNotEqual method raises an AssertionError when comparing two XML strings that are identical except for attribute order.
+
+        This test ensures that the comparison is sensitive to the order of attributes in the XML elements, and does not simply ignore differences in attribute order.
+
+        :raises: AssertionError if the XML strings are considered equal
+
+        """
         xml1 = "<elem attr1='a' attr2='b' />"
         xml2 = "<elem attr2='b' attr1='a' />"
         with self.assertRaises(AssertionError):
@@ -1164,6 +1546,9 @@ class XMLEqualTests(SimpleTestCase):
             self.assertXMLNotEqual(xml_unvalid, xml2)
 
     def test_comment_root(self):
+        """
+        Tests whether XML comments at the root level are ignored during XML comparison, ensuring that two XML documents are considered equal if they have the same structure and attributes, but differ in their comments.
+        """
         xml1 = "<?xml version='1.0'?><!-- comment1 --><elem attr1='a' attr2='b' />"
         xml2 = "<?xml version='1.0'?><!-- comment2 --><elem attr2='b' attr1='a' />"
         self.assertXMLEqual(xml1, xml2)
@@ -1174,16 +1559,40 @@ class XMLEqualTests(SimpleTestCase):
         self.assertXMLEqual(xml1, xml2)
 
     def test_simple_not_equal_with_whitespace_in_the_middle(self):
+        """
+        Tests that two XML strings are not considered equal when whitespace is present between elements in one string but not the other, verifying the functionality of XML comparison with respect to whitespace differences.
+        """
         xml1 = "<elem>foo</elem><elem>bar</elem>"
         xml2 = "<elem>foo</elem> <elem>bar</elem>"
         self.assertXMLNotEqual(xml1, xml2)
 
     def test_doctype_root(self):
+        """
+
+        Checks if XML documents with different doctype declarations are considered equal.
+
+        This test verifies that the function being tested ignores the differences in 
+        DOCTYPE declarations when comparing two XML documents. It uses two XML strings 
+        with the same root element but different external DTD references, and checks 
+        that they are reported as identical.
+
+        """
         xml1 = '<?xml version="1.0"?><!DOCTYPE root SYSTEM "example1.dtd"><root />'
         xml2 = '<?xml version="1.0"?><!DOCTYPE root SYSTEM "example2.dtd"><root />'
         self.assertXMLEqual(xml1, xml2)
 
     def test_processing_instruction(self):
+        """
+
+        Tests the processing instruction of XML documents.
+
+        This function checks if two XML documents with different processing instructions 
+        are considered equal. It tests the case where the documents have different 
+        xml-model processing instructions and the case where they have different 
+        xml-stylesheet processing instructions. The test passes if the documents are 
+        considered equal despite the differences in the processing instructions.
+
+        """
         xml1 = (
             '<?xml version="1.0"?>'
             '<?xml-model href="http://www.example1.com"?><root />'
@@ -1205,6 +1614,18 @@ class SkippingExtraTests(TestCase):
     # HACK: This depends on internals of our TestCase subclasses
     def __call__(self, result=None):
         # Detect fixture loading by counting SQL queries, should be zero
+        """
+        Calls the parent class method while suppressing database query assertions.
+
+        Ensure no database queries are executed when invoking the parent class's
+        __call__ method, allowing for silent execution of the parent method. 
+        The result of the parent method call is then propagated as per normal 
+        invocation rules, with the provided result being optionally passed to 
+        the parent class method.
+
+        :param result: The result to be passed to the parent class's __call__ method
+
+        """
         with self.assertNumQueries(0):
             super().__call__(result)
 
@@ -1244,18 +1665,41 @@ class AssertWarnsMessageTests(SimpleTestCase):
             warnings.warn("Expected message", UserWarning)
 
     def test_context_manager_failure(self):
+        """
+        Tests that a context manager correctly handles a failure by raising an AssertionError when an expected warning message is not found in the actual warning message raised by the warnings.warn function. The test case checks for a specific expected message and verifies if an AssertionError is raised with the expected error message when an unexpected warning message is encountered.
+        """
         msg = "Expected message' not found in 'Unexpected message'"
         with self.assertRaisesMessage(AssertionError, msg):
             with self.assertWarnsMessage(UserWarning, "Expected message"):
                 warnings.warn("Unexpected message", UserWarning)
 
     def test_callable(self):
+        """
+        Tests if a given callable function triggers a specific warning message.
+
+        This test function takes no arguments and executes an internal function that
+        raises a UserWarning with a predefined message. It then asserts that the
+        expected warning message is indeed raised.
+
+        The purpose of this test is to verify that the warning system behaves as
+        expected, issuing the correct warnings when certain conditions are met.
+
+        :raises AssertionError: If the expected warning message is not raised
+        """
         def func():
             warnings.warn("Expected message", UserWarning)
 
         self.assertWarnsMessage(UserWarning, "Expected message", func)
 
     def test_special_re_chars(self):
+        """
+
+        Tests the handling of special regular expression characters in warning messages.
+
+        Verifies that warning messages containing special regex characters, such as '.', '*', '+', 
+        and '?', are correctly issued and matched without causing any issues.
+
+        """
         def func1():
             warnings.warn("[.*x+]y?", UserWarning)
 
@@ -1265,6 +1709,21 @@ class AssertWarnsMessageTests(SimpleTestCase):
 
 class AssertFieldOutputTests(SimpleTestCase):
     def test_assert_field_output(self):
+        """
+
+        Tests the assertFieldOutput method for validating the output of the EmailField.
+
+        This test case checks that the assertFieldOutput method correctly validates the output of the EmailField.
+        It tests the following scenarios:
+        - Valid output: The output matches the expected output for valid input.
+        - Invalid error message: The output does not match the expected error message for invalid input.
+        - Mismatched output: The output does not match the expected output for valid input.
+        - Unrecognized error message: The output contains an error message that is not recognized as valid.
+
+        Raises:
+            AssertionError: If any of the test scenarios fail. 
+
+        """
         error_invalid = ["Enter a valid email address."]
         self.assertFieldOutput(
             EmailField, {"a@a.com": "a@a.com"}, {"aaa": error_invalid}
@@ -1287,6 +1746,14 @@ class AssertFieldOutputTests(SimpleTestCase):
             )
 
     def test_custom_required_message(self):
+        """
+        Test that a custom required message is used when a field is required.
+
+        This test case verifies that a custom error message defined in a field's
+        default_error_messages dictionary is displayed when the field is required
+        and no value is provided. The test uses a custom IntegerField with a
+        custom 'required' error message to validate this behavior.
+        """
         class MyCustomField(IntegerField):
             default_error_messages = {
                 "required": "This is really required.",
@@ -1316,6 +1783,15 @@ class AssertURLEqualTests(SimpleTestCase):
                 self.assertURLEqual(url1, url2)
 
     def test_not_equal(self):
+        """
+
+        Tests that the assertURLEqual function correctly raises an AssertionError 
+        when comparing two URLs that are not equal.
+
+        The test cases cover various scenarios, including different protocols (http/https), 
+        query parameter ordering, and duplicate query parameters.
+
+        """
         invalid_tests = (
             # Protocol must be the same.
             ("http://example.com/", "https://example.com/"),
@@ -1399,6 +1875,20 @@ class TestFormset(formset_factory(TestForm)):
 
     @classmethod
     def invalid(cls, nonfield=False, nonform=False):
+        """
+        Returns a formset instance in an invalid state.
+
+        This class method creates a formset with specific error conditions, allowing for
+        testing and validation of invalid form states. It can be used to test formset
+        behavior when a non-field error or a non-form error occurs.
+
+        :param bool nonfield: If True, returns a formset with a non-field error.
+        :param bool nonform: If True, returns a formset with a non-form error, specifically
+            a missing management form error.
+
+        :return: A formset instance in an invalid state.
+
+        """
         if nonform:
             formset = cls({}, error_messages={"missing_management_form": "error"})
             formset.full_clean()
@@ -1420,6 +1910,16 @@ class AssertFormErrorTests(SimpleTestCase):
         self.assertFormError(TestForm.valid(), None, [])
 
     def test_field_not_in_form(self):
+        """
+        Tests that attempting to assert a form error for a field not present in the form raises an AssertionError.
+
+        The function checks that the expected error message is raised when trying to assert an error on a non-existent field in a form.
+        It also verifies that the error message can be customized with a prefix.
+
+        Raises:
+            AssertionError: If the form error assertion does not raise an AssertionError with the expected message.
+
+        """
         msg = (
             "The form <TestForm bound=True, valid=False, fields=(field)> does not "
             "contain the field 'other_field'."
@@ -1436,6 +1936,21 @@ class AssertFormErrorTests(SimpleTestCase):
             )
 
     def test_field_with_no_errors(self):
+        """
+
+        Tests that the function correctly handles a form field with no errors.
+
+        This test ensures that an AssertionError is raised when attempting to assert that a
+        form field has a specific error message when it actually has none. It also checks that
+        the error message provided in the assertion matches the expected message, and that
+        a custom prefix can be added to the error message.
+
+        The test covers two scenarios: one with the default error message and one with a
+        custom prefix. In both cases, it verifies that the raised AssertionError contains
+        the expected error message and that the field's errors are correctly compared to the
+        expected errors.
+
+        """
         msg = (
             "The errors of field 'field' on form <TestForm bound=True, valid=True, "
             "fields=(field)> don't match."
@@ -1450,6 +1965,16 @@ class AssertFormErrorTests(SimpleTestCase):
             )
 
     def test_field_with_different_error(self):
+        """
+
+        Tests the form error assertion functionality when the error message for a specific field does not match the expected error.
+
+        This test case covers the scenario where the error message of a form field is verified against an expected error message.
+        If the error messages do not match, an AssertionError is raised with a message describing the mismatch.
+
+        The test also covers the ability to prefix the error message with a custom string, allowing for more flexible error reporting.
+
+        """
         msg = (
             "The errors of field 'field' on form <TestForm bound=True, valid=False, "
             "fields=(field)> don't match."
@@ -1464,6 +1989,11 @@ class AssertFormErrorTests(SimpleTestCase):
             )
 
     def test_unbound_form(self):
+        """
+        Tests that attempting to assert form errors on an unbound form raises an AssertionError with a descriptive message, 
+        indicating that an unbound form will never have any errors. 
+        The test also verifies that a custom error message prefix can be provided and is prepended to the standard error message.
+        """
         msg = (
             "The form <TestForm bound=False, valid=Unknown, fields=(field)> is not "
             "bound, it will never have any errors."
@@ -1475,6 +2005,13 @@ class AssertFormErrorTests(SimpleTestCase):
             self.assertFormError(TestForm(), "field", [], msg_prefix=msg_prefix)
 
     def test_empty_errors_invalid_form(self):
+        """
+
+        Tests that the assertFormError method correctly raises an AssertionError when the form field's errors do not match the expected errors.
+
+        Checks that the assertion error contains the expected error message, including the name of the field, the form it belongs to, and the expected and actual error values. This test case specifically covers the scenario where the form is invalid and the field has an error, but the expected errors are empty.
+
+        """
         msg = (
             "The errors of field 'field' on form <TestForm bound=True, valid=False, "
             "fields=(field)> don't match."
@@ -1487,6 +2024,22 @@ class AssertFormErrorTests(SimpleTestCase):
         self.assertFormError(TestForm.invalid(nonfield=True), None, "non-field error")
 
     def test_different_non_field_errors(self):
+        """
+
+        Test that the non-field errors of a form do not match the expected errors.
+
+        This test case checks that an AssertionError is raised when the non-field errors
+        of a form do not match the specified errors. It also verifies that the error
+        message contains the correct information about the mismatched errors.
+
+        The test covers two scenarios: one with the default error message and another
+        with a custom error message prefix. The test ensures that the custom prefix is
+        included in the error message when provided.
+
+        This test is useful for ensuring that form validation is working correctly and
+        that errors are being reported as expected.
+
+        """
         msg = (
             "The non-field errors of form <TestForm bound=True, valid=False, "
             "fields=(field)> don't match."
@@ -1519,6 +2072,15 @@ class AssertFormSetErrorTests(SimpleTestCase):
         self.assertFormSetError(TestFormset.valid(), 0, "field", [])
 
     def test_multiple_forms(self):
+        """
+
+        Tests the behavior of a formset with multiple forms when validating user input.
+
+        This test checks that the formset correctly identifies and reports validation errors 
+        for each individual form in the set. It verifies that a form with valid input does 
+        not generate any errors, while a form with invalid input returns the expected error message.
+
+        """
         formset = TestFormset(
             {
                 "form-TOTAL_FORMS": "2",
@@ -1532,6 +2094,16 @@ class AssertFormSetErrorTests(SimpleTestCase):
         self.assertFormSetError(formset, 1, "field", ["invalid value"])
 
     def test_field_not_in_form(self):
+        """
+
+        Tests that an error is raised when attempting to access a field not present in a formset.
+
+        This test case checks that an :class:`AssertionError` is raised with the correct error message
+        when trying to access a non-existent field in a formset using :meth:`assertFormSetError`.
+        The test also verifies that a custom error message prefix can be provided and is correctly included
+        in the raised :class:`AssertionError` message.
+
+        """
         msg = (
             "The form 0 of formset <TestFormset: bound=True valid=False total_forms=1> "
             "does not contain the field 'other_field'."
@@ -1551,6 +2123,19 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_field_with_no_errors(self):
+        """
+        Lorem ipsum text has been removed. Here is the documentation string:
+
+        \"\"\"
+        Test that the function used to assert field specific formset errors raises 
+        the expected AssertionError when no errors are found on a field.
+
+        The function checks the case where the formset is valid and contains no 
+        errors on the specified field, but the test expects an error to be present. 
+        It verifies that the AssertionError has the correct message and that a 
+        custom message prefix can be provided.
+
+        """
         msg = (
             "The errors of field 'field' on form 0 of formset <TestFormset: bound=True "
             "valid=True total_forms=1> don't match."
@@ -1565,6 +2150,13 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_field_with_different_error(self):
+        """
+        Args the validity of a field within a formset by comparing its error message with an expected value.
+
+        This function checks if the error of a specified field in a formset matches the provided error message.
+        It verifies that the assertion fails when the error messages do not match and that the correct error message is raised.
+        The function also supports a custom prefix for the error message.
+        """
         msg = (
             "The errors of field 'field' on form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1579,6 +2171,9 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_unbound_formset(self):
+        """
+        Tests that an unbound formset raises an AssertionError when attempting to check for errors on a specific field, as unbound formsets cannot have errors by definition.
+        """
         msg = (
             "The formset <TestFormset: bound=False valid=Unknown total_forms=1> is not "
             "bound, it will never have any errors."
@@ -1587,6 +2182,16 @@ class AssertFormSetErrorTests(SimpleTestCase):
             self.assertFormSetError(TestFormset(), 0, "field", [])
 
     def test_empty_errors_invalid_formset(self):
+        """
+
+        Tests that an :class:`AssertionError` is raised when checking the errors of an empty field
+        in an invalid formset, if the expected errors do not match the actual errors.
+
+        Checks that the error message is correctly formatted and contains the expected information,
+        including the formset name, whether it is bound, its validity, and the total number of forms.
+        Also verifies that the exception message contains a comparison of the expected and actual error values.
+
+        """
         msg = (
             "The errors of field 'field' on form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1601,6 +2206,18 @@ class AssertFormSetErrorTests(SimpleTestCase):
         )
 
     def test_different_non_field_errors(self):
+        """
+
+        Tests that the non-field errors of a formset are correctly asserted.
+
+        This test checks that the :func:`assertFormSetError` method raises an :class:`AssertionError`
+        when the non-field errors of a formset do not match the expected errors. It also verifies
+        that the error message is correctly formatted and can be customized with a prefix.
+
+        The test case covers the scenario where the formset has a single form with non-field errors,
+        and the expected error message does not match the actual errors.
+
+        """
         msg = (
             "The non-field errors of form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1640,6 +2257,13 @@ class AssertFormSetErrorTests(SimpleTestCase):
         self.assertFormSetError(TestFormset.invalid(nonform=True), None, None, "error")
 
     def test_different_non_form_errors(self):
+        """
+
+        Tests whether the function :func:`~.assertFormSetError` correctly identifies and raises an exception when the non-form errors of a formset do not match the expected errors.
+
+        Checks that the error message raised by :func:`~.assertFormSetError` includes the details of the mismatch and that a custom prefix can be added to the error message if required.
+
+        """
         msg = (
             "The non-form errors of formset <TestFormset: bound=True valid=False "
             "total_forms=0> don't match."
@@ -1678,6 +2302,13 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_non_form_errors_with_field(self):
+        """
+        Tests that a ValueError is raised when attempting to assert a non-form error without specifying a field when form_index is None.
+
+        This test case verifies that the function correctly handles the scenario where a non-form error is encountered and the field parameter is not provided, ensuring that the expected error message is raised.
+
+        Parameters are tested to validate that they satisfy the required conditions, specifically that the field must be set to None when the form_index is also None. The error message 'You must use field=None with form_index=None.' is expected to be raised, confirming the correct handling of this specific validation rule.
+        """
         msg = "You must use field=None with form_index=None."
         with self.assertRaisesMessage(ValueError, msg):
             self.assertFormSetError(
@@ -1685,6 +2316,13 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_form_index_too_big(self):
+        """
+        Tests that an :class:`AssertionError` is raised when attempting to access a form index that is out of range.
+
+        Specifically, this test case verifies that trying to access a form index that is larger than the total number of forms in the formset results in an :class:`AssertionError` with a descriptive error message.
+
+        The error message is expected to indicate the total number of forms in the formset and the fact that the form index is invalid.
+        """
         msg = (
             "The formset <TestFormset: bound=True valid=False total_forms=1> only has "
             "1 form."
@@ -1720,6 +2358,18 @@ class SecondUrls:
 
 class SetupTestEnvironmentTests(SimpleTestCase):
     def test_setup_test_environment_calling_more_than_once(self):
+        """
+        Tests that calling setup_test_environment more than once raises a RuntimeError.
+
+        This test ensures that the setup_test_environment function can only be called once,
+        preventing multiple initializations of the test environment. If setup_test_environment
+        is called again after its initial invocation, it should raise a RuntimeError with
+        a message indicating that it was already called.
+
+        raises:
+            RuntimeError: If setup_test_environment is called more than once.
+
+        """
         with self.assertRaisesMessage(
             RuntimeError, "setup_test_environment() was already called"
         ):
@@ -1750,6 +2400,26 @@ class OverrideSettingsTests(SimpleTestCase):
         reverse("second")
 
     def test_urlconf_cache(self):
+        """
+
+        Tests the caching behavior of the URL resolver in the context of overriding the root URL configuration.
+
+        The test verifies that the URL resolver correctly updates its cache when the root URL configuration is changed.
+        It checks that reversing URLs that are not present in the current configuration raises a NoReverseMatch exception,
+        and that reversing URLs that are present in the current configuration succeeds.
+
+        The test covers the following scenarios:
+
+        * The initial state, where neither of the test URLs can be reversed.
+        * Overriding the root URL configuration with the first set of URLs, and verifying that only the first URL can be reversed.
+        * Overriding the root URL configuration with the second set of URLs, and verifying that only the second URL can be reversed.
+        * Reverting back to the original configuration, and verifying that the first URL can still be reversed.
+        * The final state, where neither of the test URLs can be reversed again.
+
+        This test ensures that the URL resolver's cache is correctly updated when the root URL configuration changes,
+        and that the resolver raises exceptions when attempting to reverse URLs that are not present in the current configuration.
+
+        """
         with self.assertRaises(NoReverseMatch):
             reverse("first")
         with self.assertRaises(NoReverseMatch):
@@ -1888,6 +2558,17 @@ class TestBadSetUpTestData(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the class for testing.
+
+        This method is a class-level setup hook that is called before any tests in the class are run.
+        It ensures that the superclass setup is completed successfully, and if an exception of type :class:`MyException` occurs,
+        it checks if a database transaction is currently in an atomic block.
+
+        The purpose of this method is to prepare the test environment and handle any potential exceptions that may arise during setup.
+
+        """
         try:
             super().setUpClass()
         except cls.MyException:
@@ -1917,12 +2598,28 @@ class CaptureOnCommitCallbacksTests(TestCase):
     callback_called = False
 
     def enqueue_callback(self, using="default"):
+        """
+        Enqueue a callback function to be executed after the current database transaction has been committed.
+
+        The callback function is automatically generated and its sole purpose is to mark the callback as called.
+
+        :param using: The database alias to use for the commit hook. Defaults to 'default'. 
+        :returns: None
+        """
         def hook():
             self.callback_called = True
 
         transaction.on_commit(hook, using=using)
 
     def test_no_arguments(self):
+        """
+        Tests that a callback is successfully enqueued and executed.
+
+        This test case verifies that a callback is properly stored and invoked when
+        committed. It checks that the callback is initially not called, is successfully
+        enqueued, and then executed when the stored callback is invoked, resulting in the
+        expected behavior of setting the callback_called flag to True.
+        """
         with self.captureOnCommitCallbacks() as callbacks:
             self.enqueue_callback()
 
@@ -1932,6 +2629,15 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertIs(self.callback_called, True)
 
     def test_using(self):
+        """
+
+        Tests the usage of commit callbacks by enqueuing a callback using a specific database connection.
+
+        This function verifies that a callback is properly enqueued and executed. It checks that the callback is not executed
+        immediately upon enqueueing, but rather is stored for later execution. The test then manually executes the callback
+        and verifies that it has run successfully.
+
+        """
         with self.captureOnCommitCallbacks(using="other") as callbacks:
             self.enqueue_callback(using="other")
 
@@ -1941,12 +2647,44 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertIs(self.callback_called, True)
 
     def test_different_using(self):
+        """
+        Tests that callbacks are not captured when using a different database.
+
+        This test case verifies that callbacks are isolated to their respective databases.
+        It checks that a callback enqueued on a different database does not trigger the
+        capture of callbacks on the default database, resulting in an empty list of
+        captured callbacks.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the captured callbacks list is not empty.
+
+        """
         with self.captureOnCommitCallbacks(using="default") as callbacks:
             self.enqueue_callback(using="other")
 
         self.assertEqual(callbacks, [])
 
     def test_execute(self):
+        """
+        Tests the execution of a callback function.
+
+        This test case verifies that a callback is successfully executed when 
+        the enqueue_callback function is invoked. It checks that the callback 
+        is triggered only once and that the callback_called flag is set to True 
+        after execution, ensuring that the callback was properly executed.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the callback is not executed as expected.
+        """
         with self.captureOnCommitCallbacks(execute=True) as callbacks:
             self.enqueue_callback()
 
@@ -1965,6 +2703,16 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertNotEqual(callbacks[0], pre_hook)
 
     def test_with_rolled_back_savepoint(self):
+        """
+        Tests that a savepoint is properly rolled back when an exception occurs during a database transaction.
+
+        This test case verifies that when an IntegrityError is raised within a transaction, the changes are successfully rolled back, 
+        and no on-commit callbacks are triggered. The transactional behavior ensures data consistency and prevents partial updates 
+        in the event of an error. 
+
+        :raises IntegrityError: An integrity error is intentionally raised to simulate an exception within the transaction.
+        :returns: None
+        """
         with self.captureOnCommitCallbacks() as callbacks:
             try:
                 with transaction.atomic():
@@ -1977,6 +2725,11 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertEqual(callbacks, [])
 
     def test_execute_recursive(self):
+        """
+        Tests the execution of callbacks registered with the transaction using a recursive approach.
+
+        This test case checks that the on_commit callbacks are properly triggered and executed after a transaction is committed. It verifies that the expected number of callbacks are registered and that the callbacks are indeed called when the transaction is committed. The test specifically focuses on the recursive behavior of callback execution to ensure that it functions as expected.
+        """
         with self.captureOnCommitCallbacks(execute=True) as callbacks:
             transaction.on_commit(self.enqueue_callback)
 
@@ -2009,6 +2762,17 @@ class CaptureOnCommitCallbacksTests(TestCase):
             leaf_2_call_counter += 1
 
         def leaf_3():
+            """
+            Increments the leaf_3 call counter.
+
+            This function is used to track the number of times it is invoked, likely for debugging or logging purposes.
+
+            Returns:
+                None
+
+            Notes:
+                The call counter is assumed to be defined in an outer scope, and is modified in-place by this function.
+            """
             nonlocal leaf_3_call_counter
             leaf_3_call_counter += 1
 
@@ -2036,6 +2800,17 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertEqual(callbacks, [branch_1, branch_2, leaf_3, leaf_1, leaf_2])
 
     def test_execute_robust(self):
+        """
+
+        Tests the execution of a robust on-commit callback, ensuring that the callback is executed, 
+        an exception is raised and caught, and the error is properly logged.
+
+        The test verifies that the callback is executed successfully, despite raising an exception, 
+        and that the exception is logged with the correct error message. Additionally, it checks 
+        that the log record contains the exception information and that the exception type and 
+        message are as expected.
+
+        """
         class MyException(Exception):
             pass
 
@@ -2064,6 +2839,16 @@ class CaptureOnCommitCallbacksTests(TestCase):
 
 class DisallowedDatabaseQueriesTests(SimpleTestCase):
     def test_disallowed_database_connections(self):
+        """
+
+        Tests that database connections to 'default' are not allowed in SimpleTestCase subclasses.
+
+        This test checks that attempting to establish a connection to the default database or create a temporary connection raises a DatabaseOperationForbidden exception.
+        The expected error message provides guidance on how to resolve the issue by either subclassing TestCase or TransactionTestCase, or by adding the 'default' database to the list of allowed databases in DisallowedDatabaseQueriesTests.
+
+        The purpose of this test is to ensure proper test isolation, preventing tests from interfering with each other through the database.
+
+        """
         expected_message = (
             "Database connections to 'default' are not allowed in SimpleTestCase "
             "subclasses. Either subclass TestCase or TransactionTestCase to "
@@ -2088,6 +2873,18 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
             Car.objects.first()
 
     def test_disallowed_database_chunked_cursor_queries(self):
+        """
+        Tests that chunked cursor queries against the 'default' database are disallowed in SimpleTestCase subclasses.
+
+        This test ensures that attempting to execute a database query using a chunked cursor 
+        will raise a DatabaseOperationForbidden exception. The exception is expected to 
+        contain a message indicating that queries to the 'default' database are not allowed 
+        in SimpleTestCase subclasses and providing guidance on how to resolve the issue.
+
+        The test passes if the correct exception is raised with the expected message, 
+        indicating that proper test isolation has been maintained and database queries are 
+        being restricted as intended.
+        """
         expected_message = (
             "Database queries to 'default' are not allowed in SimpleTestCase "
             "subclasses. Either subclass TestCase or TransactionTestCase to "
@@ -2099,6 +2896,13 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
             next(Car.objects.iterator())
 
     def test_disallowed_thread_database_connection(self):
+        """
+        Tests that a DatabaseOperationForbidden exception is raised when attempting to access the database from a separate thread in a SimpleTestCase subclass. 
+
+        This test simulates a common mistake where a test case attempts to use a database connection from a separate thread, which can lead to test isolation issues. 
+
+        Verifies that the correct error message is raised and that proper exception handling is in place to prevent unintended database access.
+        """
         expected_message = (
             "Database threaded connections to 'default' are not allowed in "
             "SimpleTestCase subclasses. Either subclass TestCase or TransactionTestCase"
@@ -2110,6 +2914,16 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
         exceptions = []
 
         def thread_func():
+            """
+
+            Attempts to retrieve the first Car object from the database to test database connectivity.
+
+            Raises a DatabaseOperationForbidden exception if the database operation is forbidden, 
+            which is then appended to the list of exceptions for further handling.
+
+            This function is typically used in a multi-threaded environment to validate database access.
+
+            """
             try:
                 Car.objects.first()
             except DatabaseOperationForbidden as e:
@@ -2132,11 +2946,42 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
         next(Car.objects.iterator(), None)
 
     def test_allowed_threaded_database_queries(self):
+        """
+
+        Tests that database queries can be executed in a threaded environment.
+
+        This function creates a new thread that issues a database query and checks 
+        that the connection is properly shared between threads. After the thread 
+        has finished, it ensures that any connections that were used are properly 
+        closed and thread sharing is validated.
+
+        The purpose of this test is to verify that the database backend correctly 
+        handles concurrent queries from multiple threads, and that it correctly 
+        implements thread sharing to prevent connections from being used by 
+        multiple threads at the same time.
+
+        """
         connections_dict = {}
 
         def thread_func():
             # Passing django.db.connection between threads doesn't work while
             # connections[DEFAULT_DB_ALIAS] does.
+            """
+            Initialize and configure a database connection for the current thread.
+
+            This function sets up a thread-specific database connection, ensuring that it can be safely shared and reused within the thread.
+            It also retrieves an iterator for Car objects, likely to lazy-load related data or verify the connection.
+            The connection is then marked for thread sharing, allowing other parts of the application to safely access and utilize the connection.
+            The configured connection is stored in a dictionary for later retrieval, based on its unique identifier.
+
+            Returns:
+                None
+
+            Note:
+                This function is intended for internal use, likely as part of a larger threading or asynchronous processing system.
+                It assumes a Django application context and relies on the 'default' database connection being properly configured.
+
+            """
             from django.db import connections
 
             connection = connections["default"]
@@ -2163,6 +3008,18 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
                     conn.dec_thread_sharing()
 
     def test_allowed_database_copy_queries(self):
+        """
+
+        Test the execution of allowed copy queries on a dynamically copied database connection.
+
+        This test case creates a new copy of a database connection, executes a simple SQL query,
+        and verifies that the query returns the expected result. The query is a basic SELECT
+        statement that can be executed on the database without any special privileges or setup.
+
+        The test ensures that the copied connection is functional and can be used to execute
+        queries, and also verifies that the connection is properly cleaned up after use.
+
+        """
         new_connection = connection.copy("dynamic_connection")
         try:
             with new_connection.cursor() as cursor:
@@ -2197,10 +3054,30 @@ class DatabaseAliasTests(SimpleTestCase):
             self._validate_databases()
 
     def test_match(self):
+        """
+
+        Tests if the _validate_databases method correctly matches and returns the set of databases.
+
+        The function sets up a test scenario with a predefined set of databases and then asserts that 
+        the _validate_databases method returns the expected set of databases.
+
+        This test ensures that the _validate_databases method functions as expected and 
+        returns a consistent result.
+
+        """
         self.__class__.databases = {"default", "other"}
         self.assertEqual(self._validate_databases(), frozenset({"default", "other"}))
 
     def test_all(self):
+        """
+
+        Tests the validation of all databases by verifying that the function returns 
+        a set of all available connections when the databases attribute is set to '__all__'.
+
+        The test case checks if the _validate_databases method correctly returns a 
+        frozenset of all connections when all databases are specified.
+
+        """
         self.__class__.databases = "__all__"
         self.assertEqual(self._validate_databases(), frozenset(connections))
 
@@ -2214,6 +3091,17 @@ class IsolatedAppsTests(SimpleTestCase):
         )
 
     def test_class_decoration(self):
+        """
+
+        Tests the class decoration functionality to ensure it correctly assigns the application configuration.
+
+        This test case verifies that the application instance is properly associated with the model class
+        during the decoration process.
+
+        The test checks if the application instance stored in the model class metadata matches the expected
+        application instance.
+
+        """
         class ClassDecoration(models.Model):
             pass
 
@@ -2227,6 +3115,16 @@ class IsolatedAppsTests(SimpleTestCase):
         self.assertEqual(MethodDecoration._meta.apps, method_apps)
 
     def test_context_manager(self):
+        """
+
+        Tests that the context manager returned by isolate_apps correctly isolates 
+        the specified app ('test_utils') and sets it as the apps registry for models 
+        defined within its context.
+
+        Verifies that models created within the context manager's 'with' block 
+        reference the isolated app registry as their Meta.apps attribute.
+
+        """
         with isolate_apps("test_utils") as context_apps:
 
             class ContextManager(models.Model):
@@ -2236,6 +3134,21 @@ class IsolatedAppsTests(SimpleTestCase):
 
     @isolate_apps("test_utils", kwarg_name="method_apps")
     def test_nested(self, method_apps):
+        """
+        Tests the isolation of Django applications in a nested context.
+
+        This test function verifies that models defined within isolated application
+        scopes have their `apps` attribute set correctly, ensuring proper app registration
+        and management.
+
+        Args:
+            method_apps: The isolated application registry for the test method.
+
+        The test scenario covers three levels of isolation: method-level, context manager,
+        and nested context manager. It checks that each model's app registry is set
+        accordingly, demonstrating the correct functioning of application isolation
+        mechanisms in different scopes.
+        """
         class MethodDecoration(models.Model):
             pass
 
@@ -2280,6 +3193,20 @@ class TestContextDecoratorTests(SimpleTestCase):
         self.assertTrue(mock_disable.called)
 
     def test_cleanups_run_after_tearDown(self):
+        """
+
+        Verifies that test cleanups are executed after the tearDown method.
+
+        This test case checks the order of operations when a test class utilizes a decorator and the addCleanup method.
+        The verification process ensures that cleanups are run after tearDown, in the correct sequence, for proper test context management.
+
+        The test outcome is a pass if the cleanups occur in the expected order, which includes:
+        - Enabling the decorator
+        - Setting up the test
+        - Executing the cleanup
+        - Disabling the decorator
+
+        """
         calls = []
 
         class SaveCallsDecorator(TestContextDecorator):
@@ -2291,6 +3218,15 @@ class TestContextDecoratorTests(SimpleTestCase):
 
         class AddCleanupInSetUp(unittest.TestCase):
             def setUp(self):
+                """
+
+                Set up the test environment.
+
+                This method is called before each test to initialize the setup. 
+                It registers a cleanup function to be executed after the test, 
+                ensuring that the test environment is properly cleaned up after execution.
+
+                """
                 calls.append("setUp")
                 self.addCleanup(lambda: calls.append("cleanup"))
 

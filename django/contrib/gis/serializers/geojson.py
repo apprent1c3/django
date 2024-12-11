@@ -70,6 +70,14 @@ class Serializer(JSONSerializer):
         return data
 
     def handle_field(self, obj, field):
+        """
+
+        Handles a specific field from an object, overriding the default behavior for geometry fields.
+
+        If the field being handled is the geometry field, this method extracts and stores its value from the given object.
+        Otherwise, it delegates the handling of the field to the parent class, allowing for standard processing of non-geometry fields.
+
+        """
         if field.name == self.geometry_field:
             self._geometry = field.value_from_object(obj)
         else:

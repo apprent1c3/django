@@ -69,6 +69,21 @@ FLAG_PROPERTIES_FOR_RELATIONS = (
 class FieldFlagsTests(test.SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+
+        Setup the class by initializing fields and related objects for testing purposes.
+
+        This method is a class-level setup hook that prepares the necessary data structures for 
+        testing. It populates class attributes with fields, many-to-many fields, and related objects 
+        from the AllFieldsModel, providing a comprehensive set of fields for further testing.
+
+        The following class attributes are populated:
+            - fields: A list of fields (including private fields) from the AllFieldsModel.
+            - all_fields: An extended list of fields, including many-to-many fields and private fields.
+            - fields_and_reverse_objects: A comprehensive list of all fields, many-to-many fields, 
+              private fields, and related objects from the AllFieldsModel.
+
+        """
         super().setUpClass()
         cls.fields = [
             *AllFieldsModel._meta.fields,
@@ -111,6 +126,14 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(field.concrete)
 
     def test_non_editable_fields(self):
+        """
+        Tests that non-editable fields are correctly marked as non-editable.
+
+        This function checks each field in the collection to ensure that fields of known non-editable types are not marked as editable, 
+        and that all other fields are marked as editable.
+
+        The test covers all fields, verifying that their editable status matches their expected behavior based on their type.
+        """
         for field in self.all_fields:
             if type(field) in NON_EDITABLE_FIELDS:
                 self.assertFalse(field.editable)
@@ -125,10 +148,29 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertFalse(field.is_relation)
 
     def test_field_names_should_always_be_available(self):
+        """
+
+        Checks that all field names are available.
+
+        This test iterates over a collection of fields and their corresponding reverse objects,
+        verifying that each field has a valid name assigned to it.
+
+        """
         for field in self.fields_and_reverse_objects:
             self.assertTrue(field.name)
 
     def test_all_field_types_should_have_flags(self):
+        """
+
+        Verifies that all field types have the required flags and, for relation fields, 
+        ensures exactly one cardinality flag is set to True.
+
+        Checks each field in the collection for the presence of all flags defined in FLAG_PROPERTIES. 
+        Additionally, for fields representing relations, it validates that precisely one of the relation-specific 
+        cardinality flags (as specified in FLAG_PROPERTIES_FOR_RELATIONS) is set to True, ensuring correct 
+        cardinality configuration for these fields.
+
+        """
         for field in self.fields_and_reverse_objects:
             for flag in FLAG_PROPERTIES:
                 self.assertTrue(
@@ -159,6 +201,19 @@ class FieldFlagsTests(test.SimpleTestCase):
             self.assertTrue(reverse_field.related_model)
 
     def test_cardinality_o2m(self):
+        """
+
+        Tests the cardinality of one-to-many relationships between model fields.
+
+        Verifies that all one-to-many fields are of the expected class type and that their
+        reverse relationships are indeed many-to-one. This ensures data consistency and
+        integrity in the model's relationships.
+
+        Checks the following conditions:
+        - All one-to-many fields are of the correct class type.
+        - For each concrete one-to-many field, its reverse relationship is a many-to-one field.
+
+        """
         o2m_type_fields = [
             f
             for f in self.fields_and_reverse_objects
@@ -174,6 +229,14 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(reverse_field.is_relation and reverse_field.many_to_one)
 
     def test_cardinality_m2o(self):
+        """
+
+        Tests the cardinality of many-to-one (m2o) relationships in the fields and reverse objects.
+
+        This test verifies that all m2o type fields are instances of the expected classes 
+        and that their corresponding reverse fields are one-to-many relationships.
+
+        """
         m2o_type_fields = [
             f
             for f in self.fields_and_reverse_objects
@@ -189,6 +252,18 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(reverse_field.is_relation and reverse_field.one_to_many)
 
     def test_cardinality_o2o(self):
+        """
+
+        Verify that one-to-one relationship fields are properly set up.
+
+        This test checks that all one-to-one type fields in the model are instances of the expected classes.
+        It then ensures that each one-to-one field has a corresponding reverse field that is also a one-to-one relationship.
+
+        The test confirms the correct cardinality of one-to-one relationships by verifying the following conditions:
+        - All one-to-one fields are instances of the specified one-to-one classes.
+        - Each one-to-one field has a reverse field that is also a one-to-one relationship.
+
+        """
         o2o_type_fields = [f for f in self.all_fields if f.is_relation and f.one_to_one]
         # Test classes are what we expect
         self.assertEqual(ONE_TO_ONE_CLASSES, {f.__class__ for f in o2o_type_fields})
@@ -200,6 +275,17 @@ class FieldFlagsTests(test.SimpleTestCase):
                 self.assertTrue(reverse_field.is_relation and reverse_field.one_to_one)
 
     def test_hidden_flag(self):
+        """
+        Tests the hidden flag on model fields.
+
+        This test case verifies that fields marked as hidden are correctly excluded from the list
+        of fields when `include_hidden` is set to `False`. It checks that each field's hidden
+        attribute accurately reflects whether it should be hidden or not.
+
+        The test covers all fields of the `AllFieldsModel`, ensuring that only the fields intended
+        to be hidden are actually hidden, while all other fields remain visible.
+
+        """
         incl_hidden = set(AllFieldsModel._meta.get_fields(include_hidden=True))
         no_hidden = set(AllFieldsModel._meta.get_fields())
         fields_that_should_be_hidden = incl_hidden - no_hidden
@@ -207,6 +293,17 @@ class FieldFlagsTests(test.SimpleTestCase):
             self.assertEqual(f in fields_that_should_be_hidden, f.hidden)
 
     def test_model_and_reverse_model_should_equal_on_relations(self):
+        """
+        Tests whether the model and its reverse model are correctly related for all fields.
+
+        This test case iterates over each field in the AllFieldsModel and checks if the field
+        is a concrete forward relation (i.e., it has a related model). If so, it verifies
+        that the model and its reverse model are correctly associated, ensuring that the
+        relationships between models are symmetrical and consistent.
+
+        The test covers all fields in the model, providing assurance that the model's
+        relationships are correctly defined and can be traversed in both directions.
+        """
         for field in AllFieldsModel._meta.get_fields():
             is_concrete_forward_field = field.concrete and field.related_model
             if is_concrete_forward_field:

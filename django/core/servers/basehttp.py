@@ -217,6 +217,16 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         # the WSGI environ. This prevents header-spoofing based on ambiguity
         # between underscores and dashes both normalized to underscores in WSGI
         # env vars. Nginx and Apache 2.4+ both do this as well.
+        """
+
+        Retrieves the environment settings for the current object.
+
+        This method modifies the internal headers collection by removing any keys that contain an underscore character.
+        It then calls the superclass's implementation to retrieve the environment, ensuring that the modified headers are taken into account.
+
+        The returned environment settings can be used to configure or interact with the object in a specific context.
+
+        """
         for k in self.headers:
             if "_" in k:
                 del self.headers[k]

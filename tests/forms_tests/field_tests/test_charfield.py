@@ -7,6 +7,16 @@ from . import FormFieldAssertionsMixin
 
 class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_charfield_1(self):
+        """
+
+        Tests the functionality of the CharField class.
+
+        This test case verifies that the CharField instance correctly cleans and validates different types of input.
+        It checks that the field converts non-string inputs into strings, raises a ValidationError for empty or None inputs,
+        and handles list inputs by converting them into a string representation.
+        Additionally, it checks the default values of the field's length constraints, which are expected to be None.
+
+        """
         f = CharField()
         self.assertEqual("1", f.clean(1))
         self.assertEqual("hello", f.clean("hello"))
@@ -29,6 +39,20 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_3(self):
+        """
+        Tests the validation behavior of a CharField with a maximum length of 10 characters and optional input.
+
+        The test ensures that valid input is cleaned correctly, and that invalid input with more than 10 characters raises a ValidationError with a descriptive error message. It also verifies that the CharField's max_length and min_length attributes are correctly set.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: If the input value exceeds the maximum allowed length of 10 characters.
+        """
         f = CharField(max_length=10, required=False)
         self.assertEqual("12345", f.clean("12345"))
         self.assertEqual("1234567890", f.clean("1234567890"))
@@ -39,6 +63,22 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_4(self):
+        """
+
+        Tests the validation and cleaning functionality of the CharField.
+
+        The CharField is a form field that validates and cleans character input. This test case
+        covers the following scenarios:
+
+        * Cleaning an empty string when the field is not required
+        * Validation error when the input string is shorter than the minimum length
+        * Successful cleaning of strings that meet or exceed the minimum length
+        * Verification of the field's minimum and maximum length properties
+
+        This test ensures that the CharField behaves correctly and raises the expected validation
+        errors for invalid input.
+
+        """
         f = CharField(min_length=10, required=False)
         self.assertEqual("", f.clean(""))
         msg = "'Ensure this value has at least 10 characters (it has 5).'"
@@ -50,6 +90,18 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_length, 10)
 
     def test_charfield_5(self):
+        """
+
+        Tests the behavior of a CharField with specific validation rules.
+
+        This test case verifies that the CharField enforces its requirements, including
+        a minimum length of 10 characters and being a required field. It checks that
+        appropriate error messages are raised when invalid input is provided, such as
+        an empty string or a string with fewer than 10 characters. Additionally, it
+        confirms that valid input is cleaned and returned correctly, and that the
+        field's minimum length is properly set.
+
+        """
         f = CharField(min_length=10, required=True)
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -148,6 +200,19 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f2.clean(value), " ")
 
     def test_charfield_disabled(self):
+        """
+        Tests the rendering of a disabled CharField widget.
+
+        Verify that a CharField with the 'disabled' attribute set to True is correctly
+        rendered as a disabled text input field in HTML.
+
+        The test checks for the presence of the 'disabled' attribute in the rendered HTML
+        input element, ensuring that the field is inaccessible for editing when disabled.
+
+        This test is crucial for ensuring accessibility and usability features are correctly
+        implemented in the widget, particularly in scenarios where form fields need to be
+        temporarily or permanently disabled.
+        """
         f = CharField(disabled=True)
         self.assertWidgetRendersTo(
             f, '<input type="text" name="f" id="id_f" disabled required>'

@@ -63,6 +63,13 @@ class AdminSite:
     final_catch_all_view = True
 
     def __init__(self, name="admin"):
+        """
+        Initializes an instance of the class, setting up the necessary attributes and registering itself with the system.
+
+        :param name: The name of the instance, defaults to 'admin' if not provided.
+        The instance is initialized with an empty registry, and a set of default actions.
+        The created instance is added to the global list of all sites, making it available for further use.
+        """
         self._registry = {}  # model_class class -> admin_class instance
         self.name = name
         self._actions = {"delete_selected": actions.delete_selected}

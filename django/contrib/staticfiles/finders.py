@@ -91,6 +91,20 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
+        """
+        Initializes a storage handler for static files.
+
+        :param app_names: Optional list of application names to consider for static file storage.
+        :ivar locations: List of (prefix, root) tuples representing the locations of static files.
+        :ivar storages: Dictionary mapping roots to their corresponding file system storages.
+
+        The handler automatically discovers and prepares static file locations from the settings, 
+        creating a file system storage instance for each location. The `app_names` parameter allows 
+        for filtering or customizing the storage setup, although its usage is currently not strictly enforced. 
+
+        The handler's storage instances are prepared for use, with each instance having a prefix 
+        and root location set according to the application's configuration.
+        """
         self.locations = []
         # Maps dir paths to an appropriate storage instance
         self.storages = {}

@@ -17,6 +17,21 @@ class User:
 
 class FunctionTests(SimpleTestCase):
     def test_property_resolver(self):
+        """
+
+        Tests the functionality of the _property_resolver function.
+
+        The _property_resolver function is designed to resolve properties within a given data structure.
+        It supports navigation through nested dictionaries, lists, and objects, using a dot notation.
+        For example, given a dictionary {'a': {'b': {'c': 'value'}}}, the property 'a.b.c' would resolve to 'value'.
+
+        The test case covers various scenarios, including:
+        - Resolving properties from dictionaries and lists
+        - Handling objects with attributes and methods
+        - Edge cases, such as resolving properties from lists using integer indices
+        - Error handling, including cases where the property does not exist (AttributeError), or attempting to resolve a property from a list using a string index (TypeError) or an out-of-bounds index (IndexError)
+
+        """
         user = User()
         dict_data = {
             "a": {
@@ -93,6 +108,13 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(dictsort(data, 0), expected)
 
     def test_sort_list_of_tuple_like_dicts(self):
+        """
+        Tests whether the dictsort function correctly sorts a list of dictionary-like objects, where each dictionary has keys '0' and '1', by the value of key '0'.
+
+        The test verifies that the resulting sorted list is ordered lexicographically by the values associated with key '0', ensuring that the original data structure is preserved in the sorted output.
+
+        This test case covers the functionality of dictsort with a specific data structure, providing assurance that the function behaves as expected when sorting complex, dictionary-like data by a specific key.
+        """
         data = [
             {"0": "a", "1": "42"},
             {"0": "c", "1": "string"},

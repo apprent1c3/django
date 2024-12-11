@@ -15,6 +15,16 @@ class HandlerTests(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+
+        Set up the test environment by disconnecting the close_old_connections signal from the request_started event.
+
+        This method ensures that old database connections are not closed during the test, allowing for a clean and isolated testing environment. 
+        Once the test is completed, the close_old_connections signal is reconnected to the request_started event to maintain the original connection behavior.
+
+        Note: This method is typically used as part of a testing framework's setup process.
+
+        """
         request_started.disconnect(close_old_connections)
         self.addCleanup(request_started.connect, close_old_connections)
 
@@ -101,6 +111,12 @@ class TransactionsPerRequestTests(TransactionTestCase):
         self.assertContains(response, "False")
 
     def test_auto_transaction(self):
+        """
+        Tests whether the application properly handles automatic transactions.
+
+        This test temporarily enables atomic transactions and then makes a GET request to the '/in_transaction/' endpoint.
+        The test asserts that the response contains the string 'True', indicating that the endpoint is correctly operating within a transaction.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -110,6 +126,16 @@ class TransactionsPerRequestTests(TransactionTestCase):
         self.assertContains(response, "True")
 
     async def test_auto_transaction_async_view(self):
+        """
+
+        Test that using ATOMIC_REQUESTS with async views raises a RuntimeError.
+
+        This test checks that the framework correctly prevents the use of atomic requests
+        with asynchronous views, as they are incompatible. It verifies that a RuntimeError
+        is raised with a specific error message when attempting to access an async view
+        with ATOMIC_REQUESTS enabled.
+
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -145,6 +171,13 @@ class TransactionsPerRequestTests(TransactionTestCase):
 @override_settings(ROOT_URLCONF="handlers.urls")
 class SignalsTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the environment for detecting and storing signal events during the execution of HTTP requests.
+
+        The function initializes internal state to track signal notifications and connects to key request lifecycle events, 
+        ensuring that handlers are properly registered and cleaned up after use. This setup enables the monitoring of request 
+        start and finish signals, allowing for the collection of environment data when signals are triggered.
+        """
         self.signals = []
         self.signaled_environ = None
         request_started.connect(self.register_started)
@@ -153,6 +186,15 @@ class SignalsTests(SimpleTestCase):
         self.addCleanup(request_finished.disconnect, self.register_finished)
 
     def register_started(self, **kwargs):
+        """
+
+        Registers a 'started' signal, indicating the beginning of a process.
+
+        Any additional keyword arguments are stored in the signaled_environ attribute, allowing for the capture of contextual information at the time of registration.
+
+        :param kwargs: Optional keyword arguments to store in the signaled_environ attribute
+
+        """
         self.signals.append("started")
         self.signaled_environ = kwargs.get("environ")
 
@@ -160,6 +202,11 @@ class SignalsTests(SimpleTestCase):
         self.signals.append("finished")
 
     def test_request_signals(self):
+        """
+        Tests a request to the '/regular/' endpoint to verify the correctness of the request signals.
+        The function checks that the 'started' and 'finished' signals are emitted during the request, 
+        and that the response content and environment are as expected.
+        """
         response = self.client.get("/regular/")
         self.assertEqual(self.signals, ["started", "finished"])
         self.assertEqual(response.content, b"regular content")
@@ -186,6 +233,20 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_suspiciousop_in_view_returns_400(self):
+        """
+        Tests that a GET request to the suspicious operation view returns a 400 status code.
+
+        This test case verifies that the view correctly handles suspicious operations and
+        returns a bad request response, indicating that the operation is not allowed.
+
+        The test uses the client to simulate a GET request to the suspicious operation URL
+        and asserts that the response status code is 400, which is the expected behavior
+        for a suspicious operation.
+
+        :param none:
+        :raises AssertionError: if the response status code is not 400
+        :return: none
+        """
         response = self.client.get("/suspicious/")
         self.assertEqual(response.status_code, 400)
 
@@ -194,6 +255,16 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_urls(self):
+        """
+
+        Tests handling of URLs with invalid or special characters.
+
+        This function sends HTTP GET requests to the client with various URLs containing special characters,
+        such as unescaped percent signs, non-ASCII characters, and URLs with percentages encoded incorrectly.
+        It verifies that the server returns a 404 status code and that the request path is correctly URL-encoded
+        in the response context, ensuring that the application correctly handles and processes these types of URLs.
+
+        """
         response = self.client.get("~%A9helloworld")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.context["request_path"], "/~%25A9helloworld")
@@ -217,6 +288,15 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertIsInstance(environ["PATH_INFO"], str)
 
     def test_handle_accepts_httpstatus_enum_value(self):
+        """
+
+        Tests that the WSGIHandler correctly handles HTTP status codes by verifying 
+        that it accepts an HTTP status enum value and returns the expected status code.
+
+        The test case simulates a request to the '/httpstatus_enum/' endpoint and checks 
+        that the response status is set to '200 OK', indicating a successful request.
+
+        """
         def start_response(status, headers):
             start_response.status = status
 
@@ -247,6 +327,18 @@ class HandlerRequestTests(SimpleTestCase):
                 self.client.get(url)
 
     def test_streaming(self):
+        """
+
+        Tests the streaming endpoint to ensure it returns the expected content.
+
+        This test case verifies that a GET request to the /streaming/ endpoint
+        results in a successful response (200 status code) and that the response
+        body contains the expected streaming content.
+
+        The test checks the status code of the response and the content of the
+        response body to ensure they match the expected values.
+
+        """
         response = self.client.get("/streaming/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(b"".join(list(response)), b"streaming content")
@@ -305,6 +397,11 @@ class AsyncHandlerRequestTests(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
 
     async def test_bad_request_in_view_returns_400(self):
+        """
+        Tests that a view handling a bad request returns a 400 status code, 
+        indicating a client-side error. This ensures that the application 
+        correctly handles invalid or malformed requests.
+        """
         response = await self.async_client.get("/bad_request/")
         self.assertEqual(response.status_code, 400)
 
@@ -327,6 +424,17 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             await self.async_client.get("/unawaited/")
 
     def test_root_path(self):
+        """
+
+        Tests the correct handling of the root path in an asynchronous request.
+
+        Verifies that the request object properly separates the root path from the rest of the URL,
+        setting the path, script name, and path info attributes accordingly.
+
+        Ensures that the request's path attribute includes the entire URL, the script name attribute
+        includes the root path, and the path info attribute includes the path relative to the root.
+
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(
             **{"path": "/root/somepath/", "root_path": "/root"}
@@ -337,6 +445,15 @@ class AsyncHandlerRequestTests(SimpleTestCase):
 
     @override_settings(FORCE_SCRIPT_NAME="/FORCED_PREFIX")
     def test_force_script_name(self):
+        """
+        Tests the FORCE_SCRIPT_NAME setting by verifying its impact on request path components.
+
+        This test case ensures that when FORCE_SCRIPT_NAME is set, the script name, path, and path info of a request are correctly generated.
+        The FORCE_SCRIPT_NAME setting is expected to prefix the request path, which should then be reflected in the request's path and script_name attributes.
+        The path_info attribute should contain the portion of the path that is not part of the script name prefix.
+
+        The test validates these expectations by comparing the request's path, script_name, and path_info attributes against expected values, confirming the correct application of the FORCE_SCRIPT_NAME setting.
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(**{"path": "/FORCED_PREFIX/somepath/"})
         self.assertEqual(request.path, "/FORCED_PREFIX/somepath/")
@@ -344,6 +461,13 @@ class AsyncHandlerRequestTests(SimpleTestCase):
         self.assertEqual(request.path_info, "/somepath/")
 
     async def test_sync_streaming(self):
+        """
+        Tests synchronous streaming functionality by verifying the asynchronous client can successfully retrieve and consume a streamed response.
+
+        This test checks that the response status code is 200 and that the streaming content is correctly received. Additionally, it confirms that a warning is raised when using a synchronous iterator with a StreamingHttpResponse, as this can prevent the response from being served asynchronously.
+
+        The test validates the behavior of the asynchronous client when interacting with a streaming endpoint, ensuring it can handle and process the streaming data as expected.
+        """
         response = await self.async_client.get("/streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (

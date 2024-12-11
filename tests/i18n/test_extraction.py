@@ -65,6 +65,29 @@ class ExtractorTests(POFileAssertionMixin, RunInTmpDirMixin, SimpleTestCase):
     def _assertPoLocComment(
         self, assert_presence, po_filename, line_number, *comment_parts
     ):
+        """
+
+        Assert the presence or absence of a specific source file comment in a.po file.
+
+        This method checks if a comment referencing a source file location is present in
+        a.po file. The source file location is specified by a path and optionally a
+        line number. The check can be performed to either assert the presence or absence
+        of the comment.
+
+        The path to the source file location is constructed by joining the given comment
+        parts with the current working directory. If a line number is provided, it can be
+        either an integer or a string token that will be resolved to a line number.
+        The check is performed using a regular expression pattern that matches the
+        expected comment format.
+
+        :param assert_presence: Whether to assert the presence or absence of the comment
+        :param po_filename: The name of the.po file to check
+        :param line_number: The line number of the source file location, or a string token
+                            to resolve to a line number
+        :param comment_parts: The path parts to the source file location
+        :return: The result of the assertion
+
+        """
         with open(po_filename) as fp:
             po_contents = fp.read()
         if os.name == "nt":
@@ -159,6 +182,14 @@ class BasicExtractorTests(ExtractorTests):
 
     def test_no_option(self):
         # One of either the --locale, --exclude, or --all options is required.
+        """
+        Tests that running the makemessages command without any options raises a CommandError.
+
+        The test verifies that the command behaves correctly when invoked without any arguments, 
+        by checking that it raises an exception with the expected error message, 
+        which prompts the user to consult the help documentation for proper usage.
+
+        """
         msg = "Type 'manage.py help makemessages' for usage information."
         with mock.patch(
             "django.core.management.commands.makemessages.sys.argv",
@@ -168,6 +199,16 @@ class BasicExtractorTests(ExtractorTests):
                 management.call_command("makemessages")
 
     def test_valid_locale(self):
+        """
+        Tests the creation of translation files for a valid locale.
+
+        Verifies that the makemessages command successfully processes the specified locale and generates the corresponding translation file.
+
+        Checks for the following conditions:
+        - The locale is not reported as invalid
+        - The locale is reported as being processed
+        - A translation file is created for the locale
+        """
         out = StringIO()
         management.call_command("makemessages", locale=["de"], stdout=out, verbosity=1)
         self.assertNotIn("invalid locale de", out.getvalue())
@@ -193,6 +234,16 @@ class BasicExtractorTests(ExtractorTests):
         self.assertIs(Path("locale/shi_Latn_MA/LC_MESSAGES/django.po").exists(), True)
 
     def test_valid_locale_private_subtag(self):
+        """
+
+        Tests whether a valid private subtag in the locale setting is correctly processed.
+
+        This test ensures that the 'makemessages' command succeeds when a private subtag is used in the locale.
+        It verifies that no error messages are generated and that the expected translation files are created.
+
+        The valid private subtag 'x-informal' is used in this test to verify correct handling of such subtags.
+
+        """
         out = StringIO()
         management.call_command(
             "makemessages", locale=["nl_NL-x-informal"], stdout=out, verbosity=1
@@ -211,6 +262,12 @@ class BasicExtractorTests(ExtractorTests):
         self.assertIs(Path("locale/pl/LC_MESSAGES/django.po").exists(), False)
 
     def test_invalid_locale_hyphen(self):
+        """
+        Tests the handling of invalid locale names containing hyphens by the 'makemessages' command. 
+        It verifies that the command correctly identifies and reports an invalid locale, 
+        suggests a possible correction, and does not process the invalid locale, 
+        leaving no files generated for the locale.
+        """
         out = StringIO()
         management.call_command(
             "makemessages", locale=["pl-PL"], stdout=out, verbosity=1
@@ -252,6 +309,14 @@ class BasicExtractorTests(ExtractorTests):
         self.assertIs(Path("locale/en+GB/LC_MESSAGES/django.po").exists(), False)
 
     def test_invalid_locale_end_with_underscore(self):
+        """
+
+        Tests that an invalid locale ending with an underscore is not processed.
+
+        This test case verifies that the makemessages command correctly identifies an invalid locale when it ends with an underscore.
+        It checks for the expected error message in the command output and confirms that the locale directory is not created.
+
+        """
         out = StringIO()
         management.call_command("makemessages", locale=["en_"], stdout=out, verbosity=1)
         self.assertIn("invalid locale en_", out.getvalue())
@@ -266,6 +331,17 @@ class BasicExtractorTests(ExtractorTests):
         self.assertIs(Path("locale/_en/LC_MESSAGES/django.po").exists(), False)
 
     def test_comments_extractor(self):
+        """
+        Tests the extraction of comments intended for translators from source code into PO files.
+
+        The test case verifies that the correct comments are extracted and included in the PO file,
+        while comments that should not be extracted are not present. It covers various scenarios,
+        including one-line and multi-line comments, as well as comments containing non-ASCII characters.
+
+        The test is implemented by running the 'makemessages' command to generate the PO file,
+        then checking the file's contents to ensure that the expected comments are present or absent.
+
+        """
         management.call_command("makemessages", locale=[LOCALE], verbosity=0)
         self.assertTrue(os.path.exists(self.PO_FILE))
         with open(self.PO_FILE, encoding="utf-8") as fp:
@@ -320,6 +396,23 @@ class BasicExtractorTests(ExtractorTests):
             self.assertMsgId("Non-breaking space\u00a0:", po_contents)
 
     def test_blocktranslate_trimmed(self):
+        """
+
+        Tests the blocktranslate tag's trimming functionality when extracting messages.
+
+        This test case checks if the 'makemessages' command correctly extracts and trims messages
+        from a Django template file. It verifies that messages are properly gathered and that 
+        those with line breaks are correctly trimmed. Additionally, it ensures that the 
+        'msgid' for a given message is present in the resulting.po file, along with its 
+        location comment detailing the template path and filename.
+
+        Specifically, it tests the following conditions:
+        - A message with line breaks is not extracted with extra whitespace.
+        - A message with line breaks is properly trimmed.
+        - A message without line breaks is correctly extracted and its 'msgid' is found.
+        - The location comment for a message is correctly set, referencing the template path.
+
+        """
         management.call_command("makemessages", locale=[LOCALE], verbosity=0)
         self.assertTrue(os.path.exists(self.PO_FILE))
         with open(self.PO_FILE) as fp:
@@ -351,6 +444,13 @@ class BasicExtractorTests(ExtractorTests):
         self.assertFalse(os.path.exists("./templates/template_0_with_no_error.tpl.py"))
 
     def test_unicode_decode_error(self):
+        """
+        Tests that the makemessages command correctly handles files containing non-UTF-8 encoded text.
+
+        The test case verifies that when the command encounters a file with a Unicode decode error, 
+        it skips the file and reports the error in the output. This ensures that the command does not crash 
+        when dealing with files containing invalid or non-UTF-8 encoded characters.
+        """
         shutil.copyfile("./not_utf8.sample", "./not_utf8.txt")
         out = StringIO()
         management.call_command("makemessages", locale=[LOCALE], stdout=out)
@@ -359,6 +459,17 @@ class BasicExtractorTests(ExtractorTests):
         )
 
     def test_unicode_file_name(self):
+        """
+
+        Tests the creation of translation messages for files with Unicode names.
+
+        This test ensures that the :func:`makemessages` command can handle files with names containing non-ASCII characters, such as accents or special characters.
+
+        The test creates a file with a Unicode name in the test directory, then runs the :func:`makemessages` command to generate translation messages for the locale specified by :data:`LOCALE`.
+
+        It verifies that the command can successfully process the file and generate the necessary translation messages without encountering any errors related to the Unicode file name.
+
+        """
         open(os.path.join(self.test_dir, "vidéo.txt"), "a").close()
         management.call_command("makemessages", locale=[LOCALE], verbosity=0)
 
@@ -595,6 +706,17 @@ class JavaScriptExtractorTests(ExtractorTests):
     PO_FILE = "locale/%s/LC_MESSAGES/djangojs.po" % LOCALE
 
     def test_javascript_literals(self):
+        """
+        Tests that JavaScript literals are properly extracted for translation.
+
+        Verifies that various types of JavaScript literals, including strings with 
+        special characters and comments, are correctly identified and included in the 
+        PO file generated by the `makemessages` command for the 'djangojs' domain.
+
+        Checks for the presence of expected message IDs in the PO file contents, 
+        ensuring that JavaScript literals are properly extracted and prepared for 
+        translation.
+        """
         _, po_contents = self._run_makemessages(domain="djangojs")
         self.assertMsgId("This literal should be included.", po_contents)
         self.assertMsgId("gettext_noop should, too.", po_contents)
@@ -652,6 +774,13 @@ class JavaScriptExtractorTests(ExtractorTests):
     def test_i18n_catalog_not_ignored_when_not_invoked_for_django(self):
         # Create target file so it exists in the filesystem but is NOT ignored.
         # "invoked_for_django" is False when "conf/locale" folder does not exist.
+        """
+        Tests that the i18n catalog is not ignored when the make messages command is run for Django, 
+        even if it's not explicitly invoked. This ensures that the i18n catalog is properly processed 
+        and included in the translation files. The test verifies the existence of the locale directory 
+        and the i18n catalog file, and checks the output of the make messages command to confirm that 
+        the catalog is not ignored.
+        """
         self.assertIs(os.path.exists(os.path.join("conf", "locale")), False)
         i18n_catalog_js = os.path.join("views", "templates", "i18n_catalog.js")
         os.makedirs(os.path.dirname(i18n_catalog_js))
@@ -673,6 +802,12 @@ class IgnoredExtractorTests(ExtractorTests):
         self.assertNotMsgId("This should be ignored.", po_contents)
 
     def test_ignore_subdirectory(self):
+        """
+        Tests the --ignore option to ensure subdirectories are correctly ignored by the makemessages command.
+
+        Verifies that the command ignores files and subdirectories matching specified patterns,
+        and that the ignored contents are not included in the generated PO file.
+        """
         out, po_contents = self._run_makemessages(
             ignore_patterns=[
                 "templates/*/ignore.html",
@@ -683,6 +818,17 @@ class IgnoredExtractorTests(ExtractorTests):
         self.assertNotMsgId("This subdir should be ignored too.", po_contents)
 
     def test_ignore_file_patterns(self):
+        """
+        Test that specific file patterns are ignored during message extraction.
+
+        This test case verifies that files matching certain patterns are excluded from
+        the message catalog. It checks that the ignore pattern is correctly applied and
+        that the expected files are skipped during the message extraction process.
+
+        The test validates the output and message catalog contents to ensure that the
+        ignore pattern is working as expected, and that the correct messages are
+        included or excluded from the catalog.
+        """
         out, po_contents = self._run_makemessages(
             ignore_patterns=[
                 "xxx_*",
@@ -776,6 +922,15 @@ class CopyPluralFormsExtractorTests(ExtractorTests):
 
 class NoWrapExtractorTests(ExtractorTests):
     def test_no_wrap_enabled(self):
+        """
+
+        Tests the behavior of the 'makemessages' command when no wrapping is enabled.
+
+        This test verifies that the command successfully generates a.po file and
+        includes the expected messages, regardless of whether the --no-wrap option is used.
+        The test checks for the presence of a specific message ID in the generated.po file.
+
+        """
         management.call_command(
             "makemessages", locale=[LOCALE], verbosity=0, no_wrap=True
         )
@@ -910,6 +1065,11 @@ class KeepPotFileExtractorTests(ExtractorTests):
     POT_FILE = "locale/django.pot"
 
     def test_keep_pot_disabled_by_default(self):
+        """
+        Tests that the.pot file is not generated by default when running the makemessages command.
+
+        This test case verifies that the gettext.pot file is not created when the makemessages management command is executed with default settings, confirming that the.pot file generation is disabled by default.
+        """
         management.call_command("makemessages", locale=[LOCALE], verbosity=0)
         self.assertFalse(os.path.exists(self.POT_FILE))
 
@@ -920,6 +1080,17 @@ class KeepPotFileExtractorTests(ExtractorTests):
         self.assertFalse(os.path.exists(self.POT_FILE))
 
     def test_keep_pot_enabled(self):
+        """
+
+        Tests whether the keep_pot option enables the creation of the.pot file when running the makemessages command.
+
+        Verifies that the command successfully generates the.pot file for the specified locale when keep_pot is set to True.
+
+        :param none:
+        :returns: None
+        :raises: AssertionError if the.pot file does not exist after calling the makemessages command.
+
+        """
         management.call_command(
             "makemessages", locale=[LOCALE], verbosity=0, keep_pot=True
         )
@@ -969,6 +1140,18 @@ class ExcludedLocaleExtractionTests(ExtractorTests):
         self._set_times_for_all_po_files()
 
     def test_command_help(self):
+        """
+
+        Tests the help command for the 'makemessages' management command.
+
+        This test captures the standard output and standard error streams to verify 
+        that the help message is displayed correctly when the user requests help for 
+        the 'makemessages' command.
+
+        The test simulates running the 'django-admin help makemessages' command from 
+        the command line and checks that the output is as expected.
+
+        """
         with captured_stdout(), captured_stderr():
             # `call_command` bypasses the parser; by calling
             # `execute_from_command_line` with the help subcommand we
@@ -976,18 +1159,48 @@ class ExcludedLocaleExtractionTests(ExtractorTests):
             execute_from_command_line(["django-admin", "help", "makemessages"])
 
     def test_one_locale_excluded(self):
+        """
+        Tests that a single locale can be excluded from message extraction.
+
+        Verifies that running the makemessages command with the --exclude option successfully
+        excludes the specified locale, in this case 'it', from message extraction.
+
+        The test checks that the PO files for 'en' and 'fr' locales are updated, while the 'it'
+        locale PO file remains unchanged, confirming the exclusion was applied correctly.
+        """
         management.call_command("makemessages", exclude=["it"], verbosity=0)
         self.assertRecentlyModified(self.PO_FILE % "en")
         self.assertRecentlyModified(self.PO_FILE % "fr")
         self.assertNotRecentlyModified(self.PO_FILE % "it")
 
     def test_multiple_locales_excluded(self):
+        """
+
+        Tests the exclusion of multiple locales when running the makemessages command.
+
+        Verifies that the command correctly excludes the specified locales ('it' and 'fr')
+        and only updates the 'en' locale. This ensures that the translation files for the
+        excluded locales are not modified, while the translation file for the 'en' locale
+        is updated as expected.
+
+        """
         management.call_command("makemessages", exclude=["it", "fr"], verbosity=0)
         self.assertRecentlyModified(self.PO_FILE % "en")
         self.assertNotRecentlyModified(self.PO_FILE % "fr")
         self.assertNotRecentlyModified(self.PO_FILE % "it")
 
     def test_one_locale_excluded_with_locale(self):
+        """
+
+        Tests that the makemessages command correctly handles locale exclusion.
+        When a locale is explicitly excluded, the corresponding PO file should not be updated,
+        while files for other included locales should be updated.
+
+        This test ensures that the exclude option functions as expected, leaving unaffected
+        locales, such as those not specified in the command, and correctly skipping the
+        excluded locale.
+
+        """
         management.call_command(
             "makemessages", locale=["en", "fr"], exclude=["fr"], verbosity=0
         )
@@ -1057,6 +1270,17 @@ class CustomLayoutExtractionTests(ExtractorTests):
 @skipUnless(has_xgettext, "xgettext is mandatory for extraction tests")
 class NoSettingsExtractionTests(AdminScriptTestCase):
     def test_makemessages_no_settings(self):
+        """
+        Tests the 'makemessages' management command without any settings.
+
+        This test case verifies that the 'makemessages' command can be executed successfully 
+        when no settings are provided. It checks that the command runs without producing any 
+        output or error messages, indicating that it completes as expected.
+
+        The test covers the scenario where the command is run with the English language 
+        code ('en') and verbosity level set to 0, ensuring that the command execution 
+        does not produce any unexpected output or errors.
+        """
         out, err = self.run_django_admin(["makemessages", "-l", "en", "-v", "0"])
         self.assertNoOutput(err)
         self.assertNoOutput(out)
@@ -1066,6 +1290,16 @@ class UnchangedPoExtractionTests(ExtractorTests):
     work_subdir = "unchanged"
 
     def setUp(self):
+        """
+        Set up the test environment by preparing the PO file.
+
+        Prepares the PO file for testing by updating its contents to match the current operating system.
+        On Windows, the function replaces the Python file path in the PO file with a Windows-style path.
+        On other operating systems, it simply moves the temporary PO file to the original location.
+        The function also stores the original PO file contents for later use.
+
+        This setup is necessary to ensure consistent behavior across different platforms during testing.
+        """
         super().setUp()
         po_file = Path(self.PO_FILE)
         po_file_tmp = Path(self.PO_FILE + ".tmp")

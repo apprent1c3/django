@@ -7,6 +7,19 @@ register = Library()
 
 class CacheNode(Node):
     def __init__(self, nodelist, expire_time_var, fragment_name, vary_on, cache_name):
+        """
+        Initialize a cache configuration.
+
+        This constructor sets up the basic properties for caching, including the list of nodes,
+        the expiration time variable, and the name of the cache fragment. It also defines
+        the variables that the cache varies on and the name of the cache to use.
+
+        :param nodelist: A list of nodes for the cache configuration
+        :param expire_time_var: The variable that determines the expiration time of the cache
+        :param fragment_name: The name of the cache fragment
+        :param vary_on: The variables that the cache varies on
+        :param cache_name: The name of the cache to use
+        """
         self.nodelist = nodelist
         self.expire_time_var = expire_time_var
         self.fragment_name = fragment_name
@@ -14,6 +27,32 @@ class CacheNode(Node):
         self.cache_name = cache_name
 
     def render(self, context):
+        """
+
+        Render a cached template fragment.
+
+        This function attempts to retrieve a cached template fragment from the specified cache.
+        If the fragment is not found in the cache, it is rendered and stored in the cache for future requests.
+
+        The cache expiration time is determined by the `expire_time` variable, which must be an integer.
+        If the `expire_time` variable is not provided or is not an integer, a `TemplateSyntaxError` is raised.
+
+        The cache name can be specified using the `cache_name` variable. If not provided, the 'template_fragments' cache is used.
+        If the specified cache name is invalid, a `TemplateSyntaxError` is raised.
+
+        The cache key is generated based on the fragment name and the values of the `vary_on` variables.
+        This allows the cache to be updated when any of the `vary_on` variables change.
+
+        Args:
+            context: The template rendering context.
+
+        Returns:
+            The rendered template fragment, either from the cache or rendered on the fly.
+
+        Raises:
+            TemplateSyntaxError: If the `expire_time` variable is not an integer or the cache name is invalid.
+
+        """
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:

@@ -63,6 +63,12 @@ class RedisCacheClient:
     def _get_connection_pool_index(self, write):
         # Write to the first server. Read from other servers if there are more,
         # otherwise read from the first server.
+        """
+        Returns the index of a connection pool to use, based on the intent to write data.
+
+        When writing data or if only one server is available, the primary connection pool (at index 0) is selected. 
+        For read operations with multiple servers, a random secondary connection pool index is chosen to distribute the load.
+        """
         if write or len(self._servers) == 1:
             return 0
         return random.randint(1, len(self._servers) - 1)
@@ -108,6 +114,14 @@ class RedisCacheClient:
             client.set(key, value, ex=timeout)
 
     def touch(self, key, timeout):
+        """
+        Update the expiration time of a key in Redis.
+
+        :param key: The key to touch.
+        :param timeout: The new expiration time in seconds. If None, the key will be persisted and never expire.
+        :returns: Whether the operation was successful.
+        :rtype: bool
+        """
         client = self.get_client(key, write=True)
         if timeout is None:
             return bool(client.persist(key))
@@ -119,6 +133,13 @@ class RedisCacheClient:
         return bool(client.delete(key))
 
     def get_many(self, keys):
+        """
+        Retrieves multiple values from the storage by their keys.
+
+        :param keys: List of keys to retrieve values for
+        :return: Dictionary where keys are the input keys and values are the corresponding retrieved values, deserialized from the storage format.
+        :note: If a key is not found in the storage, it will not be included in the returned dictionary.
+        """
         client = self.get_client(None)
         ret = client.mget(keys)
         return {
@@ -148,6 +169,15 @@ class RedisCacheClient:
         pipeline.execute()
 
     def delete_many(self, keys):
+        """
+        :param keys: A variable number of keys to be deleted
+        :returns: None
+        :raises: exceptions raised by the client's delete operation
+
+        Delete multiple items from the data store.
+
+        This method takes in a variable number of keys, deletes the corresponding items from the data store, and does not return any values. The deletion operation is performed through a client object that is obtained internally. Any exceptions raised during the deletion operation are propagated to the caller.
+        """
         client = self.get_client(None, write=True)
         client.delete(*keys)
 
@@ -206,6 +236,24 @@ class RedisCache(BaseCache):
         return {key_map[k]: v for k, v in ret.items()}
 
     def has_key(self, key, version=None):
+        """
+        Checks if a specific key exists in the cache.
+
+        This method takes a key and an optional version parameter, validates the key,
+        and then checks if the resulting key is present in the cache.
+
+        Parameters
+        ----------
+        key : object
+            The key to check for presence in the cache.
+        version : object, optional
+            The version of the key to check. Defaults to None.
+
+        Returns
+        -------
+        bool
+            True if the key is present in the cache, False otherwise.
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.has_key(key)
 

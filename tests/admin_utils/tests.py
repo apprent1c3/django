@@ -33,6 +33,16 @@ class NestedObjectsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for a test class.
+
+        This method is called once before running any tests in the class. It creates a set of 
+        test objects to be used throughout the test suite. Specifically, it instantiates a 
+        NestedObjects object and creates a list of five Count objects, each with a unique 
+        identifier.
+
+        """
         cls.n = NestedObjects(using=DEFAULT_DB_ALIAS)
         cls.objs = [Count.objects.create(num=i) for i in range(5)]
 
@@ -40,6 +50,15 @@ class NestedObjectsTests(TestCase):
         self.assertEqual(self.n.nested(lambda obj: obj.num), target)
 
     def _connect(self, i, j):
+        """
+        Establishes a parent-child relationship between two objects.
+
+        Sets the parent of the object at index `i` to the object at index `j` and saves the updated object.
+
+        :param int i: The index of the child object.
+        :param int j: The index of the parent object.
+
+        """
         self.objs[i].parent = self.objs[j]
         self.objs[i].save()
 
@@ -47,6 +66,14 @@ class NestedObjectsTests(TestCase):
         self.n.collect([self.objs[i] for i in indices])
 
     def test_unrelated_roots(self):
+        """
+
+        Tests the scenario where two unrelated roots are collected and their target is checked.
+
+        This test case verifies that when two roots are not related to each other, 
+        the target of the collected roots is correctly identified.
+
+        """
         self._connect(2, 1)
         self._collect(0)
         self._collect(1)
@@ -64,6 +91,19 @@ class NestedObjectsTests(TestCase):
         self._check([0])
 
     def test_cyclic(self):
+        """
+        Tests the functionality of handling cyclic connections in the system.
+
+        This test case creates a cycle of connections between three entities and then
+        collects data from one of them. It verifies that the collection process 
+        correctly handles the cyclic nature of the connections, avoiding any potential 
+        infinite loops or data corruption.
+
+        The expected result is a hierarchical structure where the initial entity is at 
+        the top, followed by its directly connected entities, and so on. The test 
+        confirms that this structure is correctly collected and returned, providing a 
+        basis for further validation of cyclic connection handling in the system.
+        """
         self._connect(0, 2)
         self._connect(1, 0)
         self._connect(2, 1)
@@ -71,6 +111,14 @@ class NestedObjectsTests(TestCase):
         self._check([0, [1, [2]]])
 
     def test_queries(self):
+        """
+
+        Tests the execution of queries by establishing connections and verifying the number of queries collected.
+
+        This method sets up two connections and then asserts that the total number of queries matches the expected count, 
+        ensuring that queries are executed and collected as expected.
+
+        """
         self._connect(1, 0)
         self._connect(2, 0)
         # 1 query to fetch all children of 0 (1 and 2)
@@ -152,6 +200,11 @@ class UtilsTests(SimpleTestCase):
             self.assertEqual(value, resolved_value)
 
     def test_empty_value_display_for_field(self):
+        """
+        Checks the display value for various model fields when they contain an empty value, verifying that the display value matches the expected empty value representation. 
+
+        This test iterates over multiple field types, including character, date, decimal, float, JSON, and time fields, and checks each of their respective empty values. It ensures consistency in how empty values are displayed across different field types, providing a standardized representation for empty data.
+        """
         tests = [
             models.CharField(),
             models.DateField(),
@@ -169,6 +222,14 @@ class UtilsTests(SimpleTestCase):
                     self.assertEqual(display_value, self.empty_value)
 
     def test_empty_value_display_choices(self):
+        """
+        Tests that an empty value is displayed correctly for a CharField with choices.
+
+        This test verifies that when a field's value is empty, it is displayed as the
+        human-readable name specified in the field's choices, rather than as an empty
+        string. This ensures that users are presented with a meaningful display value
+        even when the underlying value is None or empty.
+        """
         model_field = models.CharField(choices=((None, "test_none"),))
         display_value = display_for_field(None, model_field, self.empty_value)
         self.assertEqual(display_value, "test_none")
@@ -182,6 +243,23 @@ class UtilsTests(SimpleTestCase):
         self.assertHTMLEqual(display_value, expected)
 
     def test_json_display_for_field(self):
+        """
+
+        Tests the display_for_field function with various JSON-compatible data types.
+
+        This function ensures that the display_for_field function correctly formats different types of data, including nested dictionaries, lists, strings, and tuples, into a JSON-compatible string representation. It also verifies that non-ASCII characters are properly handled.
+
+        The test cases cover a range of scenarios, including:
+
+        * Nested dictionaries
+        * Lists
+        * Strings
+        * Tuples with non-string keys
+        * Non-ASCII characters
+
+        Each test case compares the output of the display_for_field function with the expected JSON-compatible string representation.
+
+        """
         tests = [
             ({"a": {"b": "c"}}, '{"a": {"b": "c"}}'),
             (["a", "b"], '["a", "b"]'),
@@ -197,6 +275,15 @@ class UtilsTests(SimpleTestCase):
                 )
 
     def test_number_formats_display_for_field(self):
+        """
+        Tests the display formatting of numeric fields.
+
+        Verifies that different numeric types (Float, Decimal, Integer) are correctly displayed as strings.
+        Ensures that the displayed values match the expected numeric representation without any additional formatting.
+
+        The test covers various numeric types to confirm that the display function behaves consistently across different field types.
+
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -214,6 +301,14 @@ class UtilsTests(SimpleTestCase):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_number_formats_with_thousand_separator_display_for_field(self):
+        """
+        [Test number formats with thousand separator display for field]
+
+        Test the display of numbers with thousand separators when using the display_for_field function.
+
+        This test checks that numbers with decimal places and integers are correctly formatted 
+        with thousand separators when displaying values for FloatField and IntegerField types.
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -230,6 +325,16 @@ class UtilsTests(SimpleTestCase):
         self.assertEqual(display_value, "12,345")
 
     def test_list_display_for_value(self):
+        """
+
+        Tests the display of a list using the display_for_value function.
+
+        This test case verifies that the function correctly converts a list of values into a comma-separated string.
+        It checks the display of lists containing both numeric and string values, ensuring that all elements are displayed as expected.
+        The test covers two different scenarios: a list with only numeric values and a list with a mix of numeric and string values.
+        The expected output is a string with all list elements joined by commas, without any additional formatting or escaping.
+
+        """
         display_value = display_for_value([1, 2, 3], self.empty_value)
         self.assertEqual(display_value, "1, 2, 3")
 
@@ -240,6 +345,14 @@ class UtilsTests(SimpleTestCase):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_list_display_for_value_boolean(self):
+        """
+        Displays a given boolean value in a human-readable format, optionally with an icon.
+
+        :param bool value: The boolean value to display.
+        :param str field_name: The name of the field (not used in this function).
+        :param bool boolean: If True, the function will return an HTML string containing an icon representing the boolean value.
+        :returns: A string containing the displayed value. If boolean=True, the string will be an HTML image tag with a src attribute pointing to an icon representing the value. If boolean=False, the string will be a simple string representation of the value ('True' or 'False').
+        """
         self.assertEqual(
             display_for_value(True, "", boolean=True),
             '<img src="/static/admin/img/icon-yes.svg" alt="True">',
@@ -252,6 +365,22 @@ class UtilsTests(SimpleTestCase):
         self.assertEqual(display_for_value(False, ""), "False")
 
     def test_list_display_for_value_empty(self):
+        """
+
+        Tests the display of empty values in a list.
+
+        Verifies that each value considered empty (e.g. None, '', etc.) is displayed as 
+        specified by the empty value setting. This ensures consistency in how empty 
+        values are represented in the list.
+
+        Checks the following:
+        - Each empty value is handled correctly
+        - The display value matches the expected empty value representation
+
+        The test covers various types of empty values to ensure the display functionality
+        behaves as expected in all cases. 
+
+        """
         for value in EMPTY_VALUES:
             with self.subTest(empty_value=value):
                 display_value = display_for_value(value, self.empty_value)
@@ -324,6 +453,29 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_form_argument(self):
+        """
+
+        Returns the human-readable label for a given form field.
+
+        This function resolves the label for a field by checking the form instance first, 
+        then falls back to checking the model's field. If neither the form nor the model 
+        has a field with the given name, it raises an AttributeError.
+
+        The label is used to display the field's name in a user-friendly format, making 
+        it easier to understand and interact with the form.
+
+        Parameters:
+            name (str): The name of the field to retrieve the label for.
+            model (Model): The model instance that the field belongs to.
+            form (Form): The form instance that the field belongs to.
+
+        Returns:
+            str: The human-readable label for the given field.
+
+        Raises:
+            AttributeError: If the field does not exist on either the model or the form.
+
+        """
         class ArticleForm(forms.ModelForm):
             extra_form_field = forms.BooleanField()
 
@@ -340,6 +492,23 @@ class UtilsTests(SimpleTestCase):
             label_for_field("nonexistent", Article, form=ArticleForm())
 
     def test_label_for_property(self):
+        """
+        Return a human-readable label for a given model field.
+
+        The label is determined by the 'description' parameter of the @admin.display
+        decorator if the field is a property, otherwise it defaults to the field's name.
+
+        This function is useful for providing user-friendly labels in the admin interface.
+        It allows for fields to have descriptive labels that are different from their
+        technical names. The label can be then used for display purposes, such as column
+        headers in a table or field labels in a form.
+
+        :param str field_name: The name of the model field.
+        :param Model model: The model that the field belongs to.
+        :param ModelAdmin model_admin: The model admin instance.
+        :return: The human-readable label for the given field.
+
+        """
         class MockModelAdmin:
             @property
             @admin.display(description="property short description")
@@ -411,6 +580,15 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_flatten(self):
+        """
+
+        Tests the functionality of the flatten function.
+
+        The flatten function takes a nested tuple or list structure as input and returns a flattened list.
+        This test case covers various scenarios, including empty inputs, nested tuples, and lists of varying depths.
+        It verifies that the function correctly returns a one-dimensional list containing all elements from the original input structure.
+
+        """
         flat_all = ["url", "title", "content", "sites"]
         inputs = (
             ((), []),

@@ -355,6 +355,15 @@ class InheritanceTests(SimpleTestCase):
 
     @setup(inheritance_templates)
     def test_inheritance32(self):
+        """
+
+        Tests the rendering of template 'inheritance32' using the templating engine.
+
+        This test case verifies that the rendered output of the 'inheritance32' template
+        matches the expected result, which is '13'. It ensures that the templating engine
+        correctly handles inheritance and produces the desired output.
+
+        """
         output = self.engine.render_to_string("inheritance32")
         self.assertEqual(output, "13")
 
@@ -418,11 +427,27 @@ class InheritanceTests(SimpleTestCase):
 
     @setup(inheritance_templates)
     def test_inheritance40(self):
+        """
+
+        Tests the rendering of a template with inheritance, specifically the 'inheritance40' template.
+
+        The test case verifies that the rendered output matches the expected string '1new23' when the 'optional' variable is set to 1.
+
+        This test ensures that the template inheritance functionality is working correctly, allowing for the extension and modification of templates in a predictable manner.
+
+        """
         output = self.engine.render_to_string("inheritance40", {"optional": 1})
         self.assertEqual(output, "1new23")
 
     @setup(inheritance_templates)
     def test_inheritance41(self):
+        """
+
+        Tests rendering of the 'inheritance41' template, verifying proper template inheritance.
+        The test case passes a 'numbers' variable with value '123' to the template and asserts 
+        that the rendered output matches the expected string '_new1_new2_new3_'.
+
+        """
         output = self.engine.render_to_string("inheritance41", {"numbers": "123"})
         self.assertEqual(output, "_new1_new2_new3_")
 
@@ -436,6 +461,13 @@ class InheritanceTests(SimpleTestCase):
 
     @setup(inheritance_templates)
     def test_inheritance_empty(self):
+        """
+
+        Tests that rendering a template with an 'extends' tag missing an argument raises a TemplateSyntaxError.
+
+        The test verifies that the engine correctly handles an empty 'extends' tag and provides a meaningful error message when it encounters this invalid syntax.
+
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "'extends' takes one argument"
         ):
@@ -449,6 +481,21 @@ class InheritanceTests(SimpleTestCase):
 
     @setup(inheritance_templates)
     def test_duplicate_block(self):
+        """
+
+        Test that rendering a template with duplicate 'block' tags raises an error.
+
+        This test case checks that the template engine correctly handles templates that
+        contain multiple 'block' tags with the same name. It asserts that a
+        TemplateSyntaxError is raised with a descriptive error message when such a
+        template is rendered.
+
+        The expected error message indicates that a 'block' tag with the name 'content'
+        appears more than once in the template.
+
+        :raises TemplateSyntaxError: If a template contains duplicate 'block' tags.
+
+        """
         msg = "'block' tag with name 'content' appears more than once"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string("duplicate_block")

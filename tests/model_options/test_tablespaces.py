@@ -14,6 +14,16 @@ from .models.tablespaces import (
 
 
 def sql_for_table(model):
+    """
+    Generates the SQL command required to create a database table for the given model.
+
+    This function emulates the creation of a database table by the model, capturing the SQL command that would be executed. 
+    It returns the SQL command as a string, allowing for examination or further processing of the generated SQL.
+
+    :param model: The model for which the SQL command should be generated.
+    :return: The SQL command to create the table for the given model as a string.
+
+    """
     with connection.schema_editor(collect_sql=True) as editor:
         editor.create_model(model)
     return editor.collected_sql[0]
@@ -40,6 +50,14 @@ class TablespacesTests(TransactionTestCase):
             model._meta.managed = True
 
     def tearDown(self):
+        """
+        Teardown method to restore the original state of the application after a test.
+
+        This method reverses the modifications made to the database models and application configurations.
+        It disables model management for specific models and resets the application's model configurations to their original state.
+        Additionally, it clears the application's cache to ensure a clean slate for subsequent tests.
+        This method is typically called after a test to prevent any side effects from interfering with other tests.
+        """
         for model in Article, Authors, Reviewers, Scientist:
             model._meta.managed = False
 
@@ -48,6 +66,22 @@ class TablespacesTests(TransactionTestCase):
         apps.clear_cache()
 
     def assertNumContains(self, haystack, needle, count):
+        """
+        Verifies that a given substring appears a specified number of times within a larger string.
+
+        Args:
+            haystack (str): The string to search within.
+            needle (str): The substring to search for.
+            count (int): The expected number of occurrences of the substring.
+
+        Raises:
+            AssertionError: If the actual number of occurrences does not match the expected count.
+
+        Note:
+            This method is useful for testing the presence and frequency of specific patterns within strings, 
+            such as substrings, phrases, or keywords.
+
+        """
         real_count = haystack.count(needle)
         self.assertEqual(
             real_count,
@@ -57,6 +91,20 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_model(self):
+        """
+
+        Tests whether the tablespace for a model is correctly generated in the SQL query.
+
+        This test checks if the SQL query for creating a table includes the default index
+        tablespace as specified in the settings. If a default index tablespace is defined,
+        it verifies that the query contains the tablespace name only once. If no default
+        index tablespace is defined, it checks that the query contains a generic
+        tablespace name twice.
+
+        The test uses the :class:`Scientist` model as an example to generate the SQL
+        query and asserts that the query contains the expected tablespace name or count.
+
+        """
         sql = sql_for_table(Scientist).lower()
         if settings.DEFAULT_INDEX_TABLESPACE:
             # 1 for the table
@@ -74,6 +122,16 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_indexed_field(self):
+        """
+
+        Tests the functionality of setting the tablespace for an indexed field.
+
+        This test case checks if the tablespace for an indexed field is correctly set in the SQL query.
+        It verifies that the default index tablespace, as specified in the settings, is used in the query.
+        The test covers two scenarios: when a default index tablespace is specified and when it is not.
+        It asserts that the tablespace names ('tbl_tbsp' and 'idx_tbsp') appear the expected number of times in the SQL query.
+
+        """
         sql = sql_for_table(Article).lower()
         if settings.DEFAULT_INDEX_TABLESPACE:
             # 1 for the table
@@ -94,6 +152,19 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_many_to_many_field(self):
+        """
+
+        Tests the tablespace configuration for many-to-many fields in the database.
+
+        Verifies that the correct tablespaces are used for tables and indexes, taking into account the 
+        DEFAULT_INDEX_TABLESPACE setting. The test checks the SQL generated for tables and indexes 
+        on the Authors and Reviewers models to ensure that the expected tablespaces are included 
+        in the SQL commands.
+
+        The test covers scenarios where a default index tablespace is set and where it is not set, 
+        ensuring that the database configuration is correctly applied in both cases.
+
+        """
         sql = sql_for_table(Authors).lower()
         # The join table of the ManyToManyField goes to the model's tablespace,
         # and its indexes too, unless DEFAULT_INDEX_TABLESPACE is set.

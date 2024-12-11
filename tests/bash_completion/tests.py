@@ -19,10 +19,26 @@ class BashCompletionTests(unittest.TestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up the environment for testing by enabling Django auto-complete.
+
+        This method saves the current state of the DJANGO_AUTO_COMPLETE environment variable
+        and then sets it to '1' to ensure auto-complete functionality is enabled during testing.
+
+        """
         self.old_DJANGO_AUTO_COMPLETE = os.environ.get("DJANGO_AUTO_COMPLETE")
         os.environ["DJANGO_AUTO_COMPLETE"] = "1"
 
     def tearDown(self):
+        """
+        Teardown method to restore the original environment setting for DJANGO_AUTO_COMPLETE.
+
+        This method is invoked after a test or a setup has been completed, and it ensures that 
+        the environment variable DJANGO_AUTO_COMPLETE is reset to its original value or 
+        deleted if it was not previously set, in order to maintain a clean test environment 
+        and prevent any potential side effects from interfering with subsequent tests.
+        """
         if self.old_DJANGO_AUTO_COMPLETE:
             os.environ["DJANGO_AUTO_COMPLETE"] = self.old_DJANGO_AUTO_COMPLETE
         else:

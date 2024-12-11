@@ -11,6 +11,19 @@ class RelatedObjectTests(TestCase):
             self.assertEqual(field_name, obj.field.related_query_name())
 
     def test_m2m_and_m2o(self):
+        """
+        Tests the many-to-many (m2m) and many-to-one (m2o) relationships in the Issue model.
+
+        This test case creates several users and issues, setting up various relationships between them. It then verifies that the Issue model's manager correctly filters issues based on their client and cc (carbon copy) relationships.
+
+        The test covers several scenarios, including:
+
+        * Retrieving issues for a specific client
+        * Retrieving issues where a user is cc'd
+        * Retrieving issues where a user is either the client or cc'd, using both bitwise OR operators and Django's Q objects.
+
+        It ensures that the model's relationships are correctly established and that the manager returns the expected results. The test is designed to verify the correct behavior of the Issue model's relationships and querying capabilities.
+        """
         r = User.objects.create(username="russell")
         g = User.objects.create(username="gustav")
 

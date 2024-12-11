@@ -114,6 +114,15 @@ class DeferRegressionTest(TestCase):
         )
 
     def test_ticket_23270(self):
+        """
+        Test case for ticket 23270, verifying the correct behavior of select_related and defer methods.
+
+        This test confirms that when using select_related to fetch related objects, and defer to exclude specific fields, 
+        the resulting query efficiently retrieves the required data in a single database query. 
+
+        It checks that the derived object is correctly retrieved and its fields are accessible, 
+        while the deferred field is not loaded into memory, ensuring optimal database interaction.
+        """
         d = Derived.objects.create(text="foo", other_text="bar")
         with self.assertNumQueries(1):
             obj = Base.objects.select_related("derived").defer("text")[0]
@@ -124,6 +133,18 @@ class DeferRegressionTest(TestCase):
 
     def test_only_and_defer_usage_on_proxy_models(self):
         # Regression for #15790 - only() broken for proxy models
+        """
+        Tests the correct functionality of QuerySet.only() and QuerySet.defer() methods 
+        when using proxy models.
+
+        Verifies that using only() and defer() on a QuerySet with a proxy model 
+        returns the correct results, specifically checking that the deferred or 
+        non-selected fields are still accessible and return the expected values. 
+
+        Ensures that both only() and defer() methods behave as expected and 
+        do not return bogus results when used with proxy models, maintaining data 
+        consistency and integrity.
+        """
         proxy = Proxy.objects.create(name="proxy", value=42)
 
         msg = "QuerySet.only() return bogus results with proxy models"
@@ -190,6 +211,24 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(i.value, 42)
 
     def test_defer_with_select_related(self):
+        """
+
+        Tests the behavior of the defer and select_related methods in combination.
+
+        This test case verifies that the defer method correctly excludes the specified
+        field ('item') from the initial database query, while the select_related method
+        correctly retrieves the related 'simple' object. It also checks that the deferred
+        field can still be accessed and updated without issues, and that the changes are
+        persisted to the database.
+
+        The test covers the following scenarios:
+
+        * Creating objects with relationships between them
+        * Using defer and select_related to customize database queries
+        * Accessing and updating deferred fields
+        * Verifying that changes are persisted to the database
+
+        """
         item1 = Item.objects.create(name="first", value=47)
         item2 = Item.objects.create(name="second", value=42)
         simple = SimpleItem.objects.create(name="simple", value="23")
@@ -208,6 +247,17 @@ class DeferRegressionTest(TestCase):
 
     def test_proxy_model_defer_with_select_related(self):
         # Regression for #22050
+        """
+
+        Tests the behavior of a proxy model when using select_related to defer the 
+        loading of related model fields. 
+
+        This test case verifies that when using select_related to prefetch related 
+        objects, the subsequent access to the prefetched object's fields does not 
+        result in additional database queries, while accessing fields not included 
+        in the select_related query does result in an additional query.
+
+        """
         item = Item.objects.create(name="first", value=47)
         RelatedItem.objects.create(item=item)
         # Defer fields with only()
@@ -219,6 +269,21 @@ class DeferRegressionTest(TestCase):
 
     def test_only_with_select_related(self):
         # Test for #17485.
+        """
+
+        Tests the correct usage of the only() and select_related() methods in Django querysets.
+
+        This test ensures that when using only() to defer the loading of certain model fields, 
+        select_related() can still be used to efficiently retrieve related objects, 
+        even when the related objects are nested. The test verifies that the resulting 
+        querysets contain the expected number of items, confirming that the query is 
+        executed correctly and that the related objects are properly retrieved.
+
+        The test covers two scenarios: one where the related object is retrieved directly, 
+        and another where the related object is nested within another related object. 
+        In both cases, the test checks that the query returns a single item, as expected.
+
+        """
         item = SimpleItem.objects.create(name="first", value=47)
         feature = Feature.objects.create(item=item)
         SpecialFeature.objects.create(feature=feature)
@@ -232,6 +297,23 @@ class DeferRegressionTest(TestCase):
         self.assertEqual(len(qs), 1)
 
     def test_defer_annotate_select_related(self):
+        """
+
+        Tests the deferred annotation and select related functionality for querysets.
+
+        This test case checks if the annotate and select_related methods work as expected when used with defer, 
+        ensuring that the correct fields are loaded and excluded from the database query. 
+
+        It verifies the integrity of the data by checking the type of the results returned 
+        from the queryset methods, ensuring they are lists as expected.
+
+        Specifically, it tests the following scenarios:
+
+        - Using select_related and only to load specific related fields
+        - Using select_related and only to load specific subfields of related models
+        - Using defer to exclude specific fields from the query
+
+        """
         location = Location.objects.create()
         Request.objects.create(location=location)
         self.assertIsInstance(
@@ -282,18 +364,47 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(leaf.second_child.value, 64)
 
     def test_defer_many_to_many_ignored(self):
+        """
+
+        Tests that deferred loading of a many-to-many field ('items') in the Request model 
+        does not trigger additional database queries when retrieving a Request object.
+
+        Verifies that the defer functionality correctly ignores the specified field, 
+        resulting in a single database query for the object retrieval. 
+
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         with self.assertNumQueries(1):
             self.assertEqual(Request.objects.defer("items").get(), request)
 
     def test_only_many_to_many_ignored(self):
+        """
+        Tests that only() querysets ignore many-to-many fields.
+
+        Verifies that when using the only() method to retrieve a subset of fields 
+        from the Request model, many-to-many relationships are not loaded, 
+        resulting in a single database query.
+
+        This ensures efficient database performance by avoiding unnecessary 
+        joins or additional queries for related models.
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         with self.assertNumQueries(1):
             self.assertEqual(Request.objects.only("items").get(), request)
 
     def test_defer_reverse_many_to_many_ignored(self):
+        """
+
+        Tests that a many-to-many relationship is ignored when using defer on a model.
+
+        When defer is used on a model, it only loads the specified fields from the database, 
+        improving performance by reducing the amount of data transferred. This test verifies 
+        that a many-to-many relationship is not loaded even if one of the related models 
+        is being queried, resulting in only one database query being executed.
+
+        """
         location = Location.objects.create()
         request = Request.objects.create(location=location)
         item = Item.objects.create(value=1)
@@ -339,6 +450,15 @@ class DeferDeletionSignalsTests(TestCase):
         cls.item_pk = Item.objects.create(value=1).pk
 
     def setUp(self):
+        """
+        Sets up signal connections for the test case.
+
+        Establishes connections between the test case and model senders to receive signals
+        when a model instance is about to be deleted (pre_delete) or has been deleted
+        (post_delete). These connections enable the test case to perform necessary actions
+        before and after model deletion. The connections are automatically cleaned up after
+        the test case has finished executing to prevent interference with other tests.
+        """
         self.pre_delete_senders = []
         self.post_delete_senders = []
         for sender in self.senders:

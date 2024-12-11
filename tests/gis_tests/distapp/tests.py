@@ -42,6 +42,14 @@ class DistanceTest(TestCase):
         # coordinate that'll be implicitly transformed to that to
         # the coordinate system of the field, EPSG:32140 (Texas South Central
         # w/units in meters)
+        """
+
+        Sets up the test environment by initializing two geographical points.
+
+        The function initializes 'stx_pnt' as a point in Texas, USA, and 'au_pnt' as a point in Australia,
+        both in the WGS84 spatial reference system (SRID 4326).
+
+        """
         self.stx_pnt = GEOSGeometry(
             "POINT (-95.370401017314293 29.704867409475465)", 4326
         )
@@ -131,6 +139,18 @@ class DistanceTest(TestCase):
         # Retrieving the cities within a 20km 'donut' w/a 7km radius 'hole'
         # (thus, Houston and Southside place will be excluded as tested in
         # the `test02_dwithin` above).
+        """
+
+        Tests the functionality of distance lookups in geographic database queries.
+
+        This test covers the usage of distance-based filters, including ``distance_gte`` and ``distance_lte``,
+        to retrieve objects within a specified distance range from a reference point.
+        It also verifies the correctness of the results by comparing them to expected values.
+
+        The test uses different geographic models, including ``SouthTexasCity`` and ``SouthTexasZipcode``,
+        to demonstrate the flexibility of the distance lookup functionality.
+
+        """
         for model in [SouthTexasCity, SouthTexasCityFt]:
             stx_pnt = self.stx_pnt.transform(
                 model._meta.get_field("point").srid, clone=True
@@ -237,6 +257,24 @@ class DistanceTest(TestCase):
 
     @skipUnlessDBFeature("supports_distances_lookups")
     def test_distance_lookups_with_expression_rhs(self):
+        """
+        Tests the functionality of distance lookups in Django's ORM.
+
+        This test case verifies that the distance lookup works correctly with an
+        expression on the right-hand side (RHS) of the lookup. It filters cities by
+        their distance from a given point, with the maximum distance determined by
+        the city's radius or a multiple thereof.
+
+        The test also checks the ordering of the query results and the inclusion of
+        specific cities in the results. Additionally, it tests the use of a
+        spheroid-based distance calculation and the behavior of the distance lookup
+        with a union of points.
+
+        The test case assumes the presence of certain cities in the database, such
+        as Bellaire, Downtown Houston, and Hobart, and relies on the following
+        database features: supports_distances_lookups, and optionally,
+        supports_distance_geodetic.
+        """
         stx_pnt = self.stx_pnt.transform(
             SouthTexasCity._meta.get_field("point").srid, clone=True
         )
@@ -311,6 +349,15 @@ class DistanceTest(TestCase):
         )
 
     def test_mysql_geodetic_distance_error(self):
+        """
+        Checks that an ValueError is raised when trying to execute a geodetic distance query using non-numeric degree units in a MySQL database.
+
+        This test case specifically targets the scenario where a metric unit (e.g., meters) is used in a geodetic distance query, which expects degree units. The error is verified by attempting to filter a model's objects using a distance query with a metric unit, and asserting that a ValueError with a specific message is raised.
+
+        The test is MySQL-specific and will be skipped for other database backends.
+
+        :raises ValueError: with a message indicating that only numeric values of degree units are allowed on geodetic distance queries.
+        """
         if not connection.ops.mysql:
             self.skipTest("This is a MySQL-specific test.")
         msg = (
@@ -403,6 +450,18 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     def test_area(self):
         # Reference queries:
         # SELECT ST_Area(poly) FROM distapp_southtexaszipcode;
+        """
+
+        Tests the area calculation for geographic regions.
+
+        This test checks if the calculated area of South Texas zipcodes matches the expected values.
+        It uses the `Area` function to calculate the area of each zipcode's polygon and compares it
+        with the predefined area values, allowing for a small tolerance.
+
+        The test ensures the accuracy of the area calculation, which is essential for various geographic
+        operations and analyses.
+
+        """
         area_sq_m = [
             5437908.90234375,
             10183031.4389648,
@@ -591,6 +650,22 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipIfDBFeature("supports_distance_geodetic")
     @skipUnlessDBFeature("has_Distance_function")
     def test_distance_function_raw_result(self):
+        """
+        Tests the raw result of the Distance function in a geospatial database query.
+
+        This test case verifies that the Distance function correctly calculates the distance between two points 
+        and returns the result in the expected unit of measurement. 
+
+        It creates a query that calculates the distance between two points on the surface of the Earth, 
+        using the 4326 spatial reference system, and checks that the result matches the expected distance.
+
+        The test skips if the database does not support distance geodetic functions or does not have a 
+        Distance function, as these are prerequisites for the test to be meaningful.
+
+        The expected result is asserted to be equal to 1, which corresponds to the distance between the two points 
+        on the surface of the Earth, in the given spatial reference system.
+
+        """
         distance = (
             Interstate.objects.annotate(
                 d=Distance(Point(0, 0, srid=4326), Point(0, 1, srid=4326)),
@@ -609,6 +684,16 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("supports_tolerance_parameter")
     def test_distance_function_tolerance_escaping(self):
+        """
+
+        Tests the behavior of the distance function when a maliciously crafted tolerance parameter is provided.
+
+        The test case verifies that the distance function correctly raises a TypeError when the tolerance parameter is not of the expected type, 
+        preventing potential SQL injection attacks.
+
+        This test is skipped if the database backend does not support the tolerance parameter.
+
+        """
         qs = (
             Interstate.objects.annotate(
                 d=Distance(
@@ -627,6 +712,22 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("supports_tolerance_parameter")
     def test_distance_function_tolerance(self):
         # Tolerance is greater than distance.
+        """
+
+        Tests the distance function with a specified tolerance.
+
+        This test case verifies the functionality of the distance function when a tolerance
+        parameter is provided. It checks if the distance between two points is calculated
+        correctly when the tolerance is set to a specific value.
+
+        The test uses a geographical query to calculate the distance between two points
+        and then filters the results to include only objects with a distance of zero, 
+        taking into account the specified tolerance.
+
+        It asserts that at least one object exists in the query set, confirming that the
+        distance function is working as expected with the given tolerance.
+
+        """
         qs = (
             Interstate.objects.annotate(
                 d=Distance(
@@ -643,6 +744,17 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     @skipIfDBFeature("supports_distance_geodetic")
     @skipUnlessDBFeature("has_Distance_function")
     def test_distance_function_raw_result_d_lookup(self):
+        """
+
+        Tests the :meth:`Distance` function when its result is used in a lookup.
+
+        Verifies that if a distance measure is provided without specifying units,
+        a :exc:`ValueError` is raised, indicating that units are unknown for the result.
+
+        The test checks this behavior by annotating a query with a distance calculation
+        between two points and then filtering the results based on the calculated distance.
+
+        """
         qs = Interstate.objects.annotate(
             d=Distance(Point(0, 0, srid=4326), Point(0, 1, srid=4326)),
         ).filter(d=D(m=1))
@@ -765,6 +877,16 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     def test_perimeter_geodetic(self):
         # Currently only Oracle supports calculating the perimeter on geodetic
         # geometries (without being transformed).
+        """
+
+        Tests the calculation of perimeter for geodetic spatial references.
+
+        This test checks if the Perimeter function is supported and calculates the 
+        perimeter of a polygon in the CensusZipcode model. It also verifies that 
+        the result matches the expected value when using different spatial reference 
+        systems, specifically SRID 32140.
+
+        """
         qs1 = CensusZipcode.objects.annotate(perim=Perimeter("poly"))
         if connection.features.supports_perimeter_geodetic:
             self.assertAlmostEqual(qs1[0].perim.m, 18406.3818954314, 3)

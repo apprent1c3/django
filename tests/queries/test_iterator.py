@@ -17,6 +17,15 @@ class QuerySetIteratorTests(TestCase):
         Article.objects.create(name="Article 2", created=datetime.datetime.now())
 
     def test_iterator_invalid_chunk_size(self):
+        """
+        Tests the Article iterator with invalid chunk sizes.
+
+        Verifies that a ValueError is raised when the chunk size is set to a non-positive value (0 or -1),
+        ensuring that the iterator enforces strict positivity for chunk sizes.
+
+        The test covers two invalid chunk size scenarios, checking for the expected error message
+        'Chunk size must be strictly positive.' in each case.
+        """
         for size in (0, -1):
             with self.subTest(size=size):
                 with self.assertRaisesMessage(
@@ -25,6 +34,15 @@ class QuerySetIteratorTests(TestCase):
                     Article.objects.iterator(chunk_size=size)
 
     def test_default_iterator_chunk_size(self):
+        """
+
+        Tests the default iterator chunk size when using the iterator method on a QuerySet.
+
+        This test verifies that the default chunk size is used when iterating over a QuerySet, 
+        ensuring efficient retrieval of data from the database. It checks if the 
+        cursor_iter function is called with the expected default chunk size.
+
+        """
         qs = Article.objects.iterator()
         with mock.patch(
             "django.db.models.sql.compiler.cursor_iter", side_effect=cursor_iter

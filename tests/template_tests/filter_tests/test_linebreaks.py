@@ -14,6 +14,15 @@ class LinebreaksTests(SimpleTestCase):
 
     @setup({"linebreaks01": "{{ a|linebreaks }} {{ b|linebreaks }}"})
     def test_linebreaks01(self):
+        """
+
+        Tests the linebreaks filter in a template.
+
+         Checks that the linebreaks filter correctly replaces newline characters with HTML line breaks and handles HTML escaping.
+        The filter should convert newline characters to <br> tags and escape any special characters, except when the input is marked as safe.
+        The test case verifies this behavior with two different inputs: one that is escaped and one that is marked as safe.
+
+        """
         output = self.engine.render_to_string(
             "linebreaks01", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )
@@ -28,6 +37,17 @@ class LinebreaksTests(SimpleTestCase):
         }
     )
     def test_linebreaks02(self):
+        """
+
+        Tests the linebreaks template filter with autoescaped and mark_safe input.
+
+        This test verifies that the linebreaks filter correctly converts line breaks to HTML line breaks (<br>) 
+        and that it works as expected with HTML-escaped and safe (unescaped) input. 
+
+        The test checks for proper rendering of linebreaks in two different input strings: 
+        one that is autoescaped and another that is marked as safe, which means it is not escaped.
+
+        """
         output = self.engine.render_to_string(
             "linebreaks02", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )

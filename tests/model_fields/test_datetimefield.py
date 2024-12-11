@@ -28,6 +28,15 @@ class DateTimeFieldTests(TestCase):
         self.assertEqual(f.to_python("01:02:03.999999"), datetime.time(1, 2, 3, 999999))
 
     def test_datetimes_save_completely(self):
+        """
+        Tests that datetime instances are saved and retrieved completely in the database.
+
+        Verifies that date, datetime, and time instances are accurately stored and
+        retrieved from the DateTimeModel, ensuring that no information is lost during the
+        saving process. The test covers the creation of a DateTimeModel instance with
+        various datetime components, its successful retrieval, and the verification that
+        the retrieved values match the original ones.
+        """
         dat = datetime.date(2014, 3, 12)
         datetim = datetime.datetime(2014, 3, 12, 21, 22, 23, 240000)
         tim = datetime.time(21, 22, 23, 240000)
@@ -77,5 +86,18 @@ class DateTimeFieldTests(TestCase):
 
 class ValidationTest(SimpleTestCase):
     def test_datefield_cleans_date(self):
+        """
+
+        Tests the cleaning functionality of the DateField.
+
+        This test ensures that a string representing a date in the format 'YYYY-MM-DD'
+        is correctly converted into a datetime.date object by the DateField's clean method.
+
+        The expected output is a datetime.date object with the specified year, month, and day.
+
+        Verification is done by comparing the cleaned date with a manually created
+        datetime.date object representing the same date.
+
+        """
         f = models.DateField()
         self.assertEqual(datetime.date(2008, 10, 10), f.clean("2008-10-10", None))

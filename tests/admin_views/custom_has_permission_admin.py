@@ -17,6 +17,17 @@ PERMISSION_NAME = "admin_views.%s" % get_permission_codename(
 
 class PermissionAdminAuthenticationForm(AuthenticationForm):
     def confirm_login_allowed(self, user):
+        """
+
+        Verifies whether a login attempt by the given user is allowed.
+
+        This function checks if the user is active and has the requisite permissions.
+        If the user is inactive or lacks the necessary permissions, a ValidationError is raised.
+
+        :raises: ValidationError if the login is not permitted.
+        :param user: The user attempting to log in.
+
+        """
         if not user.is_active or not (user.is_staff or user.has_perm(PERMISSION_NAME)):
             raise ValidationError("permission denied")
 

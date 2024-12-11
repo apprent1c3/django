@@ -33,6 +33,16 @@ class PartiallyRequiredForm(Form):
 
 class ComplexMultiWidget(MultiWidget):
     def __init__(self, attrs=None):
+        """
+        Initializes a form instance with a set of predefined widgets.
+
+        The form is composed of several input fields, including a text input, a multiple-select dropdown containing options related to the Beatles, and a split date-time widget for date and time input.
+
+        The initialization process allows for optional attributes to be passed to the form, providing flexibility in its usage and customization.
+
+        :param attrs: Optional attributes to be applied to the form
+        :type attrs: dict, optional
+        """
         widgets = (
             TextInput(),
             SelectMultiple(choices=beatles),
@@ -41,6 +51,17 @@ class ComplexMultiWidget(MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
+        """
+        #: Decompress a compressed string into its constituent parts.
+        #: 
+        #: Args:
+        #:     value (str): The compressed string to decompress. It is expected to be a comma-separated string containing 
+        #:                 a primary value, a secondary list of values, and a timestamp.
+        #: 
+        #: Returns:
+        #:     list: A list containing the primary value, a list of secondary values, and a datetime object representing the timestamp. 
+        #:           If the input string is empty, returns [None, None, None].
+        """
         if value:
             data = value.split(",")
             return [
@@ -53,6 +74,15 @@ class ComplexMultiWidget(MultiWidget):
 
 class ComplexField(MultiValueField):
     def __init__(self, **kwargs):
+        """
+        Initializes a form instance with predefined fields.
+
+        The form is composed of three fields: a character field, a multiple choice field 
+        with predefined options related to the Beatles, and a split date and time field.
+
+        :param kwargs: Additional keyword arguments to be passed to the parent class.
+
+        """
         fields = (
             CharField(),
             MultipleChoiceField(choices=beatles),
@@ -61,6 +91,18 @@ class ComplexField(MultiValueField):
         super().__init__(fields, **kwargs)
 
     def compress(self, data_list):
+        """
+        Compresses a list of data into a formatted string.
+
+        This method takes a list of data as input and returns a string with the first element,
+        the concatenation of the second element, and the third element, separated by commas.
+        If the input list is empty, the method returns None.
+
+        The resulting string has the format 'first_element,concatenated_second,third_element'.
+        The function is useful for combining data into a single string for storage or transmission.
+
+        :returns: A compressed string representation of the input data, or None if the input list is empty
+        """
         if data_list:
             return "%s,%s,%s" % (data_list[0], "".join(data_list[1]), data_list[2])
         return None
@@ -73,6 +115,14 @@ class ComplexFieldForm(Form):
 class MultiValueFieldTest(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        ..:summary: Sets up the class by initializing a ComplexField instance and calling the superclass setup method.
+
+        :Description: 
+            This class method is used to perform class-level setup, which is executed once before running any tests in the class.
+            It creates an instance of ComplexField and assigns it to the class attribute `field`, utilizing a ComplexMultiWidget for input handling.
+            Additionally, it calls the superclass's setup method to ensure proper initialization of all inherited attributes and functionality.
+        """
         cls.field = ComplexField(widget=ComplexMultiWidget())
         super().setUpClass()
 
@@ -83,6 +133,18 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_clean_disabled_multivalue(self):
+        """
+        Tests the behavior of a ComplexField when it is disabled and has a multi-value widget.
+
+        Ensures that the form validation succeeds and the cleaned data is correctly populated
+        when the ComplexField is initialized with different types of data, including strings and lists.
+
+        Verifies that the form errors are empty and the cleaned data matches the expected output
+        after calling the full_clean method on the form.
+
+        This test case helps to confirm that the ComplexField behaves as expected when it is
+        disabled and configured to use a multi-value widget, such as ComplexMultiWidget.
+        """
         class ComplexFieldForm(Form):
             f = ComplexField(disabled=True, widget=ComplexMultiWidget)
 
@@ -149,10 +211,33 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_disabled_has_changed(self):
+        """
+
+        Checks if a disabled MultiValueField with two CharField instances has changed.
+
+        This test verifies that when a MultiValueField is disabled, it does not report
+        any changes, even if the input values are different from the initial values.
+
+        The function passes in identical input values and different initial values, then
+        asserts that the `has_changed` method returns False, indicating no change.
+
+        """
         f = MultiValueField(fields=(CharField(), CharField()), disabled=True)
         self.assertIs(f.has_changed(["x", "x"], ["y", "y"]), False)
 
     def test_form_as_table(self):
+        """
+        Tests that the ComplexFieldForm can be rendered as an HTML table.
+
+        This test case verifies that the form fields are properly formatted and
+        populated with the expected HTML elements, including labels, text inputs,
+        and select options. The expected output is a table row with a label and
+        a table data cell containing the field inputs.
+
+        The form is tested for its ability to display a complex field structure,
+        including a text input, a multiple select field, and nested text inputs.
+        The test passes if the rendered HTML matches the expected output string.
+        """
         form = ComplexFieldForm()
         self.assertHTMLEqual(
             form.as_table(),
@@ -171,6 +256,16 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_form_as_table_data(self):
+        """
+
+        Test rendering of the ComplexFieldForm as an HTML table.
+
+        Verifies that the form's fields are correctly displayed as table rows, 
+        including text inputs, multiple select boxes, and date/time inputs. 
+        The test checks that the output HTML matches the expected structure 
+        and content, ensuring proper rendering of form fields and their values.
+
+        """
         form = ComplexFieldForm(
             {
                 "field1_0": "some text",
@@ -213,6 +308,14 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_render_required_attributes(self):
+        """
+
+        Tests the rendering of form fields with required attributes.
+
+        Verifies that the form is valid when a required field has a value, and that the corresponding HTML input field includes the 'required' attribute.
+        Also checks that the form is invalid when both required and non-required fields are empty, and that the non-required field's HTML input does not include the 'required' attribute.
+
+        """
         form = PartiallyRequiredForm({"f_0": "Hello", "f_1": ""})
         self.assertTrue(form.is_valid())
         self.assertInHTML(

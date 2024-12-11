@@ -81,6 +81,30 @@ END;
     _extract_format_re = _lazy_re_compile(r"[A-Z_]+")
 
     def date_extract_sql(self, lookup_type, sql, params):
+        """
+        Extract a date component from a SQL expression.
+
+        This method generates SQL to extract a specific date component, such as the week day or quarter, 
+        from a given SQL expression.
+
+        It supports various lookup types, including 'week_day', 'iso_week_day', 'week', 'quarter', 'iso_year', 
+        as well as custom date formats that match the regular expression defined in _extract_format_re.
+
+        For the built-in lookup types, it constructs a SQL TO_CHAR expression with the corresponding format parameter.
+        For custom formats, it uses the EXTRACT function from SQL.
+
+        Args:
+            lookup_type (str): The type of date component to extract.
+            sql (str): The SQL expression to extract from.
+            params (tuple): The parameters to be used in the SQL expression.
+
+        Returns:
+            tuple: A SQL expression (str) and its corresponding parameters (tuple) to extract the specified date component.
+
+        Raises:
+            ValueError: If the lookup type is not valid.
+
+        """
         extract_sql = f"TO_CHAR({sql}, %s)"
         extract_param = None
         if lookup_type == "week_day":
@@ -164,6 +188,21 @@ END;
         )
 
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
+        """
+        .. method:: datetime_extract_sql(lookup_type, sql, params, tzname)
+            :noindex:
+
+            Extract a date component from a datetime SQL statement, converting it to the specified timezone.
+
+            :param string lookup_type: The date component to extract (e.g. 'year', 'month', 'day', etc. except 'second' which is handled separately)
+            :param string sql: The SQL statement to extract the date component from
+            :param params: Parameters for the SQL statement
+            :param string tzname: The target timezone name
+
+            :return: A tuple containing the modified SQL statement to extract the date component and the updated parameters
+
+            :note: If the lookup type is 'second', the SQL statement is modified to extract the second component directly. For other lookup types, the date extract function is used.
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         if lookup_type == "second":
             # Truncate fractional seconds.
@@ -201,6 +240,27 @@ END;
         # The implementation is similar to `datetime_trunc_sql` as both
         # `DateTimeField` and `TimeField` are stored as TIMESTAMP where
         # the date part of the later is ignored.
+        """
+
+        Truncates a SQL date/time string to the specified lookup type.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The level of detail to truncate the date/time to. Can be one of 'hour', 'minute', or 'second'.
+        sql : str
+            The SQL date/time string to truncate.
+        params : tuple
+            Additional parameters to pass to the SQL query.
+        tzname : str, optional
+            The timezone name. If provided, the SQL date/time string will be converted to the specified timezone before truncation.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the truncated SQL string and the updated parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         trunc_param = None
         if lookup_type == "hour":
@@ -413,6 +473,20 @@ END;
         ), tuple(params)
 
     def __foreign_key_constraints(self, table_name, recursive):
+        """
+        Retrieve foreign key constraints for a given table.
+
+        :param string table_name: The name of the table for which to retrieve foreign key constraints.
+        :param bool recursive: Whether to include recursive foreign key constraints.
+
+        :returns: A list of tuples, each containing the table name and the name of a foreign key constraint.
+
+        If recursive is True, the function will return all foreign key constraints that reference the given table, either directly or indirectly, via a chain of foreign key relationships.
+
+        If recursive is False, the function will only return the foreign key constraints that directly reference the given table.
+
+        Note that the function returns foreign key constraints, not the tables that the given table references. The result set will include the table name and constraint name for each foreign key constraint found. The table names are returned in uppercase, as per the SQL query used to retrieve the data.
+        """
         with self.connection.cursor() as cursor:
             if recursive:
                 cursor.execute(

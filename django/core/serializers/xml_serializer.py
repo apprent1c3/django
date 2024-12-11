@@ -496,5 +496,8 @@ class ExternalReferenceForbidden(DefusedXmlException):
         self.pubid = pubid
 
     def __str__(self):
+        """
+        Returns a string representation of the ExternalReferenceForbidden object, providing a human-readable format that includes the system ID and public ID.
+        """
         tpl = "ExternalReferenceForbidden(system_id='{}', public_id={})"
         return tpl.format(self.sysid, self.pubid)

@@ -66,6 +66,18 @@ class InspectDBTestCase(TestCase):
         output = out.getvalue()
 
         def assertFieldType(name, definition):
+            """
+
+            Asserts that a specific field type matches the expected definition.
+
+            :param name: The name of the field to check.
+            :param definition: The expected definition of the field.
+
+            This function verifies that the field type defined in the output matches the provided definition.
+            It extracts the field definition from the output using regular expressions and then compares it to the expected definition using an equality check.
+            If the definitions do not match, the function will raise an assertion error.
+
+            """
             out_def = re.search(r"^\s*%s = (models.*)$" % name, output, re.MULTILINE)[1]
             self.assertEqual(definition, out_def)
 
@@ -120,6 +132,18 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("can_introspect_json_field", "supports_json_field")
     def test_json_field(self):
+        """
+        Tests the inspection of JSON fields by the inspectdb command.
+
+        This test case checks if the inspectdb management command correctly identifies and
+        maps JSON fields from the database to their corresponding Django model fields.
+        It verifies that the command generates the expected model field definitions for
+        JSON fields, considering both nullable and non-nullable cases.
+
+        The test also takes into account the database's behavior regarding empty strings
+        and checks the output accordingly. The expected output includes the correct
+        JSONField definitions with their respective null and blank parameters.
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_jsonfieldcolumntype", stdout=out)
         output = out.getvalue()
@@ -150,6 +174,17 @@ class InspectDBTestCase(TestCase):
     @skipUnlessDBFeature("supports_collation_on_charfield")
     @skipUnless(test_collation, "Language collations are not supported.")
     def test_char_field_db_collation(self):
+        """
+
+        Tests the inspection of a model's char field with a database collation.
+
+        This test case verifies that the 'inspectdb' command correctly generates a model
+        field with the specified database collation when inspecting a char field.
+        The test checks the output of the 'inspectdb' command to ensure that it includes
+        the correct db_collation parameter in the field definition, taking into account
+        the database's behavior regarding null and blank values.
+
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_charfielddbcollation", stdout=out)
         output = out.getvalue()
@@ -169,6 +204,16 @@ class InspectDBTestCase(TestCase):
     @skipUnlessDBFeature("supports_collation_on_textfield")
     @skipUnless(test_collation, "Language collations are not supported.")
     def test_text_field_db_collation(self):
+        """
+
+        Tests the 'inspectdb' command's generation of a model's TextField with database collation.
+
+        Checks if the command correctly includes the specified collation in the model field definition,
+        and handles the case where the database interprets empty strings as nulls.
+
+        The test assumes that the database supports collation on text fields and that language collations are supported.
+
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_textfielddbcollation", stdout=out)
         output = out.getvalue()
@@ -186,6 +231,17 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_unlimited_charfield")
     def test_char_field_unlimited(self):
+        """
+        Tests the inspectdb command to ensure it correctly handles unlimited CharFields.
+
+        Tests that the inspectdb command generates the correct model field when the
+        database supports unlimited character fields. This test checks that the output
+        of the inspectdb command contains the expected model field definition for a
+        CharField without a specified max_length.
+
+        The test is skipped if the database does not support unlimited character fields.
+
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_charfieldunlimited", stdout=out)
         output = out.getvalue()
@@ -356,11 +412,34 @@ class InspectDBTestCase(TestCase):
         self.assertIn("class InspectdbSpecialTableName(models.Model):", output)
 
     def test_custom_normalize_table_name(self):
+        """
+
+        Tests the custom normalization of table names in the inspectdb command.
+
+        This test case verifies that the table name normalization can be customized to 
+        ignore the schema name and use either PascalCase or pascalcase for the model name 
+        depending on the database's table name case sensitivity. 
+
+        The custom normalization removes the schema name from the table name and 
+        optionally converts the result to lowercase if the database ignores table name case.
+
+        """
         def pascal_case_table_only(table_name):
             return table_name.startswith("inspectdb_pascal")
 
         class MyCommand(inspectdb.Command):
             def normalize_table_name(self, table_name):
+                """
+
+                Normalize a table name to a standard format.
+
+                This function takes a table name as input, extracts the name from any schema or database prefix,
+                and converts it to lowercase if the database backend ignores table name case.
+
+                Returns:
+                    str: The normalized table name.
+
+                """
                 normalized_name = table_name.split(".")[1]
                 if connection.features.ignores_table_name_case:
                     normalized_name = normalized_name.lower()
@@ -376,6 +455,17 @@ class InspectDBTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_table_with_func_unique_constraint(self):
+        """
+        Tests the inspectdb command on a table with a unique constraint defined by a function.
+
+        This test case ensures that the inspectdb management command correctly inspects a database table 
+        that has a unique constraint specified using a function, and that the resulting model definition 
+        is generated correctly.
+
+        The test verifies that the model class is generated with the expected structure, indicating 
+        that the unique constraint has been successfully translated from the database schema to the 
+        Django model definition.
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_funcuniqueconstraint", stdout=out)
         output = out.getvalue()
@@ -396,6 +486,19 @@ class InspectDBTestCase(TestCase):
         )
 
     def test_unique_together_meta(self):
+        """
+
+        Tests the unique_together meta option for a model.
+
+        Verifies that the inspectdb command correctly identifies and reports the unique_together
+        constraints for a model. This includes checking that the unique_together attribute is
+        present and correctly formatted, and that the fields specified in the constraint are
+        accurately represented.
+
+        The test covers cases where multiple unique_together constraints are defined, as well
+        as constraints involving both unique and non-unique fields.
+
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_uniquetogether", stdout=out)
         output = out.getvalue()
@@ -478,6 +581,11 @@ class InspectDBTestCase(TestCase):
         self.assertIn("# The error was:", output)
 
     def test_same_relations(self):
+        """
+        Tests that the relations between models are correctly identified by the inspectdb command.
+
+        Verifies that the author field in the InspectdbMessage model has a foreign key relation to the InspectdbPeople model with a do-nothing behavior on delete and a related name of 'inspectdbmessage_author_set'.
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_message", stdout=out)
         self.assertIn(
@@ -641,6 +749,19 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_table_with_composite_primary_key")
     def test_composite_primary_key(self):
+        """
+        Tests the inspection of a database table with a composite primary key.
+
+        This test creates a test table with a composite primary key, inspects the table using the `inspectdb` command,
+        and verifies that the output correctly identifies the primary key columns, while also noting the limitation
+        that only the first column of the composite primary key can be supported as a model field.
+
+        The test covers the generation of model fields for the primary key columns, including the type of the first
+        column and the type of the subsequent columns in the composite key.
+
+        The test case is skipped unless the database backend supports creating test tables with composite primary keys.
+
+        """
         table_name = "test_table_composite_pk"
         with connection.cursor() as cursor:
             cursor.execute(

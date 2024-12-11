@@ -15,6 +15,15 @@ class CenterTests(SimpleTestCase):
         }
     )
     def test_center01(self):
+        """
+
+        Test the center filter functionality in template rendering.
+
+        This test verifies that the center filter correctly aligns strings within a specified width, 
+        and that HTML escaping is handled properly for the input strings. The test checks the output 
+        of the render_to_string method, ensuring it matches the expected result.
+
+        """
         output = self.engine.render_to_string(
             "center01", {"a": "a&b", "b": mark_safe("a&b")}
         )

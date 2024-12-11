@@ -61,6 +61,11 @@ class MediaOrderConflictWarning(RuntimeWarning):
 @html_safe
 class Media:
     def __init__(self, media=None, css=None, js=None):
+        """
+        Initializes the object with media, CSS, and JavaScript configuration.
+
+        The function takes in optional parameters for media, CSS, and JavaScript. If media is provided, it extracts the CSS and JavaScript configurations from it. Otherwise, default empty configurations are used. The configurations are stored internally as lists of CSS and JavaScript resources, allowing for further extension. This initialization sets the foundation for managing and combining CSS and JavaScript files.
+        """
         if media is not None:
             css = getattr(media, "css", {})
             js = getattr(media, "js", [])
@@ -80,6 +85,15 @@ class Media:
 
     @property
     def _css(self):
+        """
+        Generates a consolidated CSS dictionary by merging CSS lists from :attr:`_css_lists` across different media types.
+
+        The resulting dictionary is keyed by medium (e.g., 'screen', 'print') and contains merged CSS lists for each medium.
+
+        Returns:
+            dict: A dictionary of merged CSS lists, keyed by medium.
+
+        """
         css = defaultdict(list)
         for css_list in self._css_lists:
             for medium, sublist in css_list.items():
@@ -112,6 +126,15 @@ class Media:
     def render_css(self):
         # To keep rendering order consistent, we can't just iterate over items().
         # We need to sort the keys, and iterate over the sorted list.
+        """
+        Renders CSS styles for the current object.
+
+        Returns an iterable of HTML link tags referencing CSS stylesheets. Each stylesheet is rendered with its corresponding media type.
+
+        The rendered stylesheets are sorted by their media type, ensuring a consistent order in the output. This method is useful for generating HTML content that includes CSS stylesheets with proper media queries.
+
+        The returned iterable can be used directly in HTML templates or further processed as needed. The output includes both internal and external stylesheets, depending on the composition of the object's CSS collection.
+        """
         media = sorted(self._css)
         return chain.from_iterable(
             [
@@ -174,6 +197,17 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+
+         [|Overloads|] the addition operator to combine two Media objects.
+
+         Returns a new Media object that combines the CSS and JavaScript resources from the current object and the object being added.
+
+         The resulting object includes all unique CSS and JavaScript resources from both objects.
+
+         :return: A new Media object with combined resources.
+
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -189,6 +223,15 @@ class Media:
 def media_property(cls):
     def _media(self):
         # Get the media property of the superclass, if it exists
+        """
+        Returns the media definition for this class, combining the media from the parent class with any media defined locally.
+
+        The method first attempts to retrieve the media from the parent class. If no media is defined in the parent class, it defaults to an empty media definition.
+
+        If a local media definition is provided, it can either extend the parent media or override it entirely. The `extend` attribute of the local media definition determines the behavior. If `extend` is `True`, the local media is added to the parent media. If `extend` is a list of medium types, only those medium types are inherited from the parent media. If `extend` is `False`, the local media replaces the parent media entirely.
+
+        The resulting media definition is returned, combining the parent and local media according to the `extend` behavior. If no local media definition is provided, the parent media is returned.
+        """
         sup_cls = super(cls, self)
         try:
             base = sup_cls.media
@@ -322,6 +365,15 @@ class Input(Widget):
     template_name = "django/forms/widgets/input.html"
 
     def __init__(self, attrs=None):
+        """
+
+        Initializes the instance, optionally configuring its attributes.
+
+        :param attrs: A dictionary of attributes to be applied to the instance.
+                      If provided, a copy of the dictionary is created to avoid modifying the original.
+                      The 'type' attribute is extracted and set as the input type for the instance.
+
+        """
         if attrs is not None:
             attrs = attrs.copy()
             self.input_type = attrs.pop("type", self.input_type)
@@ -381,6 +433,28 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+
+        Creates a context for a custom widget that contains multiple hidden input fields.
+
+        This function generates a list of hidden input fields based on the provided value, 
+        which is expected to be an iterable. Each hidden input field is created with the 
+        same attributes as the parent widget, but with a unique 'id' attribute to prevent 
+        overlap.
+
+        The generated context includes a list of subwidgets, each representing a single 
+        hidden input field. The 'subwidgets' key in the context dictionary contains this 
+        list, which can be used for further processing or rendering.
+
+        Args:
+            name (str): The name of the widget.
+            value (iterable): The value to be split into multiple hidden input fields.
+            attrs (dict): The attributes of the parent widget.
+
+        Returns:
+            dict: The updated context for the custom widget.
+
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -818,6 +892,18 @@ class NullBooleanSelect(Select):
             return "unknown"
 
     def value_from_datadict(self, data, files, name):
+        """
+        Get a boolean or specially encoded value from a data dictionary.
+
+        This method retrieves a value from a data dictionary by its given name and converts it to a boolean or special value.
+        The conversion is based on a predefined mapping, which considers the following values as True: True, 'True', 'true', '2',
+        and the following values as False: False, 'False', 'false', '3'. If the value does not match any of these, its original value is not returned, instead the method relies on the dictionary.get() default return of None in such cases.
+
+        :param data: The dictionary containing the value to retrieve.
+        :param files: Not used by this method.
+        :param name: The key of the value to retrieve from the data dictionary.
+        :returns: The converted value or None if not found in the conversion mapping.
+        """
         value = data.get(name)
         return {
             True: True,
@@ -1095,6 +1181,24 @@ class SelectDateWidget(Widget):
             self.day_none_value = self.none_value
 
     def get_context(self, name, value, attrs):
+        """
+        Return the widget context for a date input field, including year, month, and day select widgets.
+
+        This method generates a dictionary containing the necessary context for rendering a date input field.
+        The context includes year, month, and day select widgets, each with their own choices and values.
+        If the field is not required, a \"None\" option is added to each select widget.
+
+        The method returns a dictionary with the following structure:
+            - 'widget': The main widget context
+            - 'widget(subwidgets)': A list of sub-widgets, including the year, month, and day select widgets
+
+        The year, month, and day select widgets are generated based on the following options:
+            - Year choices: A list of tuples containing the year values and their corresponding string representations
+            - Month choices: A list of tuples containing the month values and their corresponding string representations
+            - Day choices: A list of tuples containing the day values and their corresponding string representations
+
+        The context is generated based on the provided name, value, and attributes, and is intended to be used for rendering a date input field in a template.
+        """
         context = super().get_context(name, value, attrs)
         date_context = {}
         year_choices = [(i, str(i)) for i in self.years]
@@ -1184,6 +1288,34 @@ class SelectDateWidget(Widget):
         return "%s_month" % id_
 
     def value_from_datadict(self, data, files, name):
+        """
+
+        Retrieves a date value from a data dictionary.
+
+        This method attempts to construct a date value from year, month, and day fields
+        in the provided data dictionary. The field names are dynamically determined by
+        formatting the instance's `year_field`, `month_field`, and `day_field` attributes
+        with the given `name`.
+
+        If all three date fields are present and valid, the method returns a date object
+        in the format specified by the first format in `DATE_INPUT_FORMATS`. If any of
+        the date fields are missing or invalid, the method returns a string representation
+        of the date in the format 'YYYY-MM-DD'. If all date fields are empty, the method
+        returns `None`.
+
+        If the date cannot be parsed, the method falls back to returning a string
+        representation of the date components. If any of the date components are missing,
+        they are replaced with '0'.
+
+         Abyssal fallback case exists, on some error, 0-0-0 is returned.
+
+        :param data: The data dictionary to retrieve the date value from.
+        :param files: Not used in this implementation.
+        :param name: The name to use when formatting the date field names.
+        :return: A date object or a string representation of the date, or `None` if all
+            date fields are empty.
+
+        """
         y = data.get(self.year_field % name)
         m = data.get(self.month_field % name)
         d = data.get(self.day_field % name)

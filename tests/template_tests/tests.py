@@ -13,6 +13,13 @@ class TemplateTestMixin:
         return Engine(debug=self.debug_engine, **kwargs)
 
     def test_string_origin(self):
+        """
+        Tests the origin of a template created from a string.
+
+        Verifies that the template's origin is correctly identified as an unknown source,
+        and that the loader name is not set. Also checks that the source of the template
+        matches the original string used to create it.
+        """
         template = self._engine().from_string("string template")
         self.assertEqual(template.origin.name, UNKNOWN_SOURCE)
         self.assertIsNone(template.origin.loader_name)
@@ -80,6 +87,9 @@ class TemplateTestMixin:
                 engine.from_string("{% if 1 %}lala{% endblock %}{% endif %}")
 
     def test_unknown_block_tag(self):
+        """
+        Tests that an unknown block tag in a template raises a TemplateSyntaxError with a descriptive error message, ensuring the template engine handles unregistered tags correctly.
+        """
         engine = self._engine()
         msg = (
             "Invalid block tag on line 1: 'foobar'. Did you forget to "
@@ -118,6 +128,16 @@ class TemplateTestMixin:
             self.assertEqual(e.exception.template_debug["during"], "{% badtag %}")
 
     def test_compile_tag_error_27584(self):
+        """
+        Tests a template compilation error in a specific tag, identified as issue #27584.
+
+        This test case verifies that the template engine correctly raises a TemplateSyntaxError 
+        when encountering a malformed tag. The test sets up a template engine with a custom 
+        template tag library, retrieves a template with the problematic tag, and then attempts 
+        to render the template, expecting the error to be raised. If the debug engine is enabled, 
+        it also checks the specific template debug information to ensure it points to the 
+        malformed tag.
+        """
         engine = self._engine(
             app_dirs=True,
             libraries={"tag_27584": "template_tests.templatetags.tag_27584"},

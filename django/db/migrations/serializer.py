@@ -172,6 +172,26 @@ class FrozensetSerializer(BaseUnorderedSequenceSerializer):
 
 class FunctionTypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serialize a function into a string representation for storage or transmission.
+
+        This method attempts to serialize the function by extracting its module name, 
+        qualified name, and any necessary import statements. If the function is a 
+        lambda function or an instance method, it raises a ValueError. If the function's 
+        module name is unknown, it also raises a ValueError. The serialized form is 
+        returned as a tuple containing the function's string representation and a set 
+        of import statements required to reconstruct the function.
+
+        Returns:
+            tuple: A tuple containing the serialized function string and a set of 
+                   import statements.
+
+        Raises:
+            ValueError: If the function is a lambda function, has an unknown module 
+                         name, or cannot be found in its module.
+
+        """
         if getattr(self.value, "__self__", None) and isinstance(
             self.value.__self__, type
         ):
@@ -242,6 +262,21 @@ class ModelFieldSerializer(DeconstructableSerializer):
 
 class ModelManagerSerializer(DeconstructableSerializer):
     def serialize(self):
+        """
+        Serialize the value of this object, returning a serialized representation of the underlying manager or query.
+
+        The serialized form can be either a string representing a model manager as a Python expression,
+        along with any required imports, or the result of deconstructing the underlying query into its
+        constituent parts.
+
+        The choice of serialization form depends on whether the value is a model manager or a standard query.
+        In the case of a model manager, the serialized form is a Python expression that can be used to recreate
+        the manager. For standard queries, the serialized form is the result of deconstructing the query into
+        its constituent parts, which can then be used to reconstruct the query.
+
+        :returns: A serialized representation of the underlying manager or query
+        :rtype: tuple or string
+        """
         as_manager, manager_path, qs_path, args, kwargs = self.value.deconstruct()
         if as_manager:
             name, imports = self._serialize_path(qs_path)
@@ -268,6 +303,17 @@ class PathSerializer(BaseSerializer):
     def serialize(self):
         # Convert concrete paths to pure paths to avoid issues with migrations
         # generated on one platform being used on a different platform.
+        """
+        Serializes the object's value into a format that can be easily reconstructed later.
+
+        The serialization process preserves the type of the value, whether it's a pathlib.Path or another type of object. The serialized form is a tuple containing a string representation of the value and a set of required imports.
+
+        Returns:
+            tuple: A tuple containing the serialized value as a string and a set of required imports.
+
+        Note:
+            The serialized string can be used to reconstruct the original object using the ``eval()`` function, provided the required imports are available.
+        """
         prefix = "Pure" if isinstance(self.value, pathlib.Path) else ""
         return "pathlib.%s%r" % (prefix, self.value), {"import pathlib"}
 

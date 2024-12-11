@@ -10,6 +10,16 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class SignTests(TestCase):
     def test_null(self):
+        """
+
+        Tests the handling of null values in the 'normal' sign calculation.
+
+        Verifies that when a row is annotated with the 'Sign' calculation and the 'normal' sign is used, 
+        the resulting value is None if the input value is null.
+
+        This test case ensures that the null values are handled correctly and do not produce unexpected results.
+
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_sign=Sign("normal")).first()
         self.assertIsNone(obj.null_sign)
@@ -25,6 +35,20 @@ class SignTests(TestCase):
         self.assertEqual(obj.n2_sign, Decimal("1"))
 
     def test_float(self):
+        """
+
+        Tests the calculation of the sign of floating point numbers using the Sign database function.
+
+        This test creates an instance of FloatModel with negative and positive floating point values, 
+        annotates the instance with the sign of these values, and then checks that the signs are 
+        calculated correctly and returned as floats.
+
+        The test case checks the following conditions:
+        - The sign of a negative number is -1.0.
+        - The sign of a positive number is 1.0.
+        - The signs are returned as float instances.
+
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_sign=Sign("f1"), f2_sign=Sign("f2")

@@ -132,6 +132,14 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_nulls_first_and_last(self):
+        """
+
+        Tests that the order_by method raises a ValueError when both nulls_first and nulls_last parameters are set to True.
+
+        The test ensures that attempting to use both mutually exclusive parameters results in an informative error message, 
+        preventing unexpected behavior and promoting correct usage of the order_by method.
+
+        """
         msg = "nulls_first and nulls_last are mutually exclusive"
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.order_by(
@@ -143,6 +151,15 @@ class OrderingTests(TestCase):
         self.assertSequenceEqual(queryset.reverse(), list(reversed(sequence)))
 
     def test_order_by_nulls_last(self):
+        """
+
+        Tests the behaviour of the 'order_by' method when 'nulls_last' is set to True.
+
+        This test covers various ordering scenarios including ascending and descending orders 
+        for both simple and annotated fields. It verifies that the ordering is applied 
+        correctly, with null values being placed at the end of the result set.
+
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_last.
@@ -205,6 +222,16 @@ class OrderingTests(TestCase):
         )
 
     def test_orders_nulls_first_on_filtered_subquery(self):
+        """
+
+        Tests that ordering by a subquery with nulls first places null values at the beginning of the result set.
+
+        This test creates several articles with different authors and publication dates.
+        It then uses a subquery to find the latest publication date for each author and annotates the authors with this date.
+        The authors are then ordered by their latest publication date with null values first.
+        The test checks that the authors are returned in the correct order, with the author having no articles (null date) first, followed by the authors with articles.
+
+        """
         Article.objects.filter(headline="Article 1").update(author=self.author_1)
         Article.objects.filter(headline="Article 2").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
@@ -280,6 +307,19 @@ class OrderingTests(TestCase):
         )
 
     def test_reverse_ordering_pure(self):
+        """
+
+        Tests that reversing the ordering of a queryset produces the expected results.
+
+        This test case verifies that a queryset ordered in ascending order can be reversed
+        to produce a queryset ordered in descending order, and that the original queryset
+        remains unmodified.
+
+        The test checks that the reversed queryset contains the same objects as the original
+        queryset, but in reverse order, and that the original queryset still contains the
+        objects in the original order.
+
+        """
         qs1 = Article.objects.order_by(F("headline").asc())
         qs2 = qs1.reverse()
         self.assertQuerySetEqual(
@@ -304,6 +344,15 @@ class OrderingTests(TestCase):
         )
 
     def test_reverse_meta_ordering_pure(self):
+        """
+        Tests the meta ordering of articles when reversing the queryset.
+
+        This test checks that when the queryset is reversed, the order of articles
+        is correctly inverted, while the original order remains intact. The test
+        verifies this by comparing the names of the authors in the filtered querysets,
+        both before and after reversing the order. The expected order is based on
+        the author name after applying the reverse operation.
+        """
         Article.objects.create(
             headline="Article 5",
             pub_date=datetime(2005, 7, 30),
@@ -328,6 +377,15 @@ class OrderingTests(TestCase):
         )
 
     def test_no_reordering_after_slicing(self):
+        """
+
+        Tests that attempting to reverse or retrieve the last item from a query set after slicing it raises a TypeError.
+
+        The test verifies that the error message 'Cannot reverse a query once a slice has been taken.' is correctly raised when trying to reverse the query set or access its last item after slicing.
+
+        This ensures the correct behavior of query sets in the context of database queries and data retrieval, preventing unexpected results or errors due to query reordering after slicing.
+
+        """
         msg = "Cannot reverse a query once a slice has been taken."
         qs = Article.objects.all()[0:2]
         with self.assertRaisesMessage(TypeError, msg):
@@ -371,6 +429,21 @@ class OrderingTests(TestCase):
         )
 
     def test_extra_ordering_with_table_name(self):
+        """
+
+        Tests the extra ordering functionality with a table name specified.
+
+        This test case verifies that the :class:`Article` objects can be ordered 
+        based on the 'headline' field of the 'ordering_article' table. The test 
+        covers both ascending and descending ordering scenarios, ensuring that 
+        the articles are returned in the correct order.
+
+        The test utilizes the :meth:`assertQuerySetEqual` method to compare the 
+        expected article headlines with the actual results from the database 
+        query, using an attribute getter to extract the 'headline' attribute from 
+        each article object.
+
+        """
         self.assertQuerySetEqual(
             Article.objects.extra(order_by=["ordering_article.headline"]),
             [
@@ -425,6 +498,13 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_self_referential_fk(self):
+        """
+        .Tests the ordering of articles by a self-referential foreign key in the author model.
+
+        This test case covers the scenario where articles are ordered based on their author's editor. 
+        It checks if the articles are correctly sorted when the ordering is done by the editor object itself and by the editor's ID, 
+        respectively, verifying that the results are as expected in both cases.
+        """
         self.a1.author = Author.objects.create(editor=self.author_1)
         self.a1.save()
         self.a2.author = Author.objects.create(editor=self.author_2)
@@ -441,6 +521,14 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_f_expression(self):
+        """
+        Tests the ordering of Article objects using F-expressions.
+
+        This test case checks the correctness of the order_by method when applied to Article objects, 
+        using Django's F-expression to specify the field to order by. It covers ascending and descending 
+        order, and verifies that the results match the expected order.
+
+        """
         self.assertQuerySetEqual(
             Article.objects.order_by(F("headline")),
             [
@@ -508,6 +596,19 @@ class OrderingTests(TestCase):
 
     def test_order_by_constant_value(self):
         # Order by annotated constant from selected columns.
+        """
+        .. function:: test_order_by_constant_value
+
+            Verifies that database queries can be ordered by a constant value.
+
+            This test checks if a queryset can be ordered by annotating the model with a constant value 
+            or by passing the constant value directly to the order_by method. It ensures that the 
+            results are ordered correctly by the constant value (which in this case does not affect 
+            the order because it is the same for all objects) and then by the headline in descending order.
+
+            The test asserts that the order of the returned objects matches the expected sequence, 
+            and also verifies that the headlines of the objects in the queryset are ordered as expected.
+        """
         qs = Article.objects.annotate(
             constant=Value("1", output_field=CharField()),
         ).order_by("constant", "-headline")
@@ -575,6 +676,16 @@ class OrderingTests(TestCase):
         self.assertSequenceEqual(articles, [ca4, ca2, ca1, ca3])
 
     def test_default_ordering_does_not_affect_group_by(self):
+        """
+        Tests that the default ordering of query results does not interfere with group by operations.
+
+        Ensures that when grouping articles by author, the expected counts are returned, 
+        regardless of the ordering of the articles in the database. 
+
+        Verifies the correct assignment of authors to articles and accurate counting 
+        of articles per author, by comparing the results to the expected output.
+
+        """
         Article.objects.exclude(headline="Article 4").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         articles = Article.objects.values("author").annotate(count=Count("author"))
@@ -599,6 +710,14 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_grandparent_fk_with_expression_in_default_ordering(self):
+        """
+
+        Tests the ordering of OrderedByExpressionGrandChild objects based on their parent's foreign key, 
+        with the default ordering specified by the parent model's `name` field. 
+
+        Verifies that the grandchild objects are ordered alphabetically by their grandparent's name.
+
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")
@@ -622,6 +741,17 @@ class OrderingTests(TestCase):
         )
 
     def test_ordering_select_related_collision(self):
+        """
+
+        Tests that ordering after a select_related join works as expected, especially in cases where a model field name collides with an annotated field name.
+
+        This test covers two scenarios:
+            - Ordering by an annotated field with a collision using the OrderBy expression.
+            - Ordering by an annotated field with a collision using a string field name.
+
+        Ensures that the correct article object is returned in both cases, resolving potential collisions between the annotated field and the model field.
+
+        """
         self.assertEqual(
             Article.objects.select_related("author")
             .annotate(name=Upper("author__name"))

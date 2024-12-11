@@ -11,6 +11,15 @@ class DatabaseCheckTests(TestCase):
 
     @mock.patch("django.db.backends.base.validation.BaseDatabaseValidation.check")
     def test_database_checks_called(self, mocked_check):
+        """
+
+        Tests whether the check_database_backends function invokes the database validation checks.
+
+        This test case verifies the behavior of check_database_backends under different conditions.
+        It checks that the checks are not executed when no specific databases are provided.
+        In contrast, when databases are explicitly specified, it confirms that the validation checks are indeed performed.
+
+        """
         check_database_backends()
         self.assertFalse(mocked_check.called)
         check_database_backends(databases=self.databases)
@@ -18,6 +27,19 @@ class DatabaseCheckTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "mysql", "Test only for MySQL")
     def test_mysql_strict_mode(self):
+        """
+
+        Tests the MySQL database strict mode functionality.
+
+        This test case verifies that the database backends are correctly checked for strict mode.
+        It tests various valid and invalid SQL modes to ensure that the function behaves as expected.
+        Valid modes include 'STRICT_TRANS_TABLES,STRICT_ALL_TABLES', 'STRICT_TRANS_TABLES', and 'STRICT_ALL_TABLES'.
+        Invalid modes are also tested to verify that warnings are raised when the SQL mode is not strict.
+        The test case ensures that the function returns an empty list when strict mode is enabled and a list of warnings when it is not.
+
+        Note: This test is specifically designed for MySQL and will be skipped for other database vendors.
+
+        """
         def _clean_sql_mode():
             for alias in self.databases:
                 if hasattr(connections[alias], "sql_mode"):

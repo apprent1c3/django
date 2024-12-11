@@ -352,6 +352,17 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_make_line_aggr")
     def test_make_line_filter(self):
+        """
+
+        Tests the functionality of creating a line aggregate using the MakeLine function with filtering.
+
+        This test case checks if the MakeLine function can successfully create a line aggregate from a set of coordinates
+        filtering out specific parcel names, and also verifies that it correctly handles cases where no parcels match the filter.
+
+        The test uses the City model as a basis, annotating it with two line aggregates: one that filters out parcels with names containing 'ignore',
+        and another that filters out parcels with names containing 'nonexistent'. It then retrieves a city object and checks the resulting line aggregates.
+
+        """
         qs = City.objects.annotate(
             parcel_line=MakeLine(
                 "parcel__center1",
@@ -393,6 +404,26 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_union_filter(self):
+        """
+
+        Tests the union annotation filter on a queryset of cities.
+
+        This test case verifies that the :class:`~django.db.models.Union` aggregation function
+        correctly combines geographic points from related parcels, applying a filter to exclude
+        or include specific parcels. The test checks the resulting geometry after applying
+        different filters, ensuring that the expected points are included or excluded from the
+        union.
+
+        The test covers three scenarios:
+
+        * A union with a filter that excludes parcels containing a specific string in their name.
+        * A union with a filter that includes only parcels containing a specific string in their name.
+        * A union with a filter that should result in no points, verifying that the annotation returns None.
+
+        The test results are validated against expected geometric outputs, ensuring that the union
+        annotation behaves as expected in various filtering scenarios.
+
+        """
         qs = City.objects.annotate(
             parcel_point_union=Union(
                 "parcel__center2",

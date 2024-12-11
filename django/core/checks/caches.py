@@ -14,6 +14,16 @@ E001 = Error(
 
 @register(Tags.caches)
 def check_default_cache_is_configured(app_configs, **kwargs):
+    """
+    Checks if the default cache is properly configured in the application settings.
+
+    Args:
+        app_configs: Application configuration.
+        **kwargs: Additional keyword arguments.
+
+    Returns:
+        A list of error codes if the default cache is not configured, otherwise an empty list. Specifically, returns E001 if the default cache alias is not found in the CACHES settings.
+    """
     if DEFAULT_CACHE_ALIAS not in settings.CACHES:
         return [E001]
     return []

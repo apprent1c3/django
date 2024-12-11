@@ -140,6 +140,20 @@ class OGRGeometry(GDALBase):
         return bytes(self.wkb), srs
 
     def __setstate__(self, state):
+        """
+        Set the internal state of the geometry object from a pickled state.
+
+        This method is used to restore the geometry object's state after it has been pickled.
+        It expects a tuple containing the Well-Known Binary (WKB) representation of the geometry
+        and its associated Spatial Reference System (SRS).
+
+        The method checks the validity of the loaded geometry and raises a GDALException
+        if the geometry is invalid.
+
+        :param state: A tuple containing the WKB representation and SRS of the geometry.
+        :raises GDALException: If the loaded geometry is invalid.
+        :type state: tuple
+        """
         wkb, srs = state
         ptr = capi.from_wkb(wkb, None, byref(c_void_p()), len(wkb))
         if not ptr:

@@ -8,6 +8,13 @@ from .models import BooleanModel, FksToBooleans, NullBooleanModel
 
 class BooleanFieldTests(TestCase):
     def _test_get_prep_value(self, f):
+        """
+        Tests the get_prep_value method for converting input values into boolean representations.
+
+        This test case evaluates the function's ability to handle various input types, including boolean, string, and integer values, as well as the special case of None.
+
+        It verifies that the function correctly maps True-like values (True, '1', 1) to True, False-like values (False, '0', 0) to False, and None to None, ensuring accurate preparation of values for further processing.
+        """
         self.assertIs(f.get_prep_value(True), True)
         self.assertIs(f.get_prep_value("1"), True)
         self.assertIs(f.get_prep_value(1), True)
@@ -17,6 +24,15 @@ class BooleanFieldTests(TestCase):
         self.assertIsNone(f.get_prep_value(None))
 
     def _test_to_python(self, f):
+        """
+        Verifies the conversion of a given input to its Python equivalent.
+
+        This method tests the to_python method of an object, ensuring it correctly
+        converts integer values to their corresponding boolean representations in Python.
+
+        Specifically, it checks that a value of 1 is converted to True and a value of 0 is
+        converted to False, as per Python's standard truthiness rules.
+        """
         self.assertIs(f.to_python(1), True)
         self.assertIs(f.to_python(0), False)
 
@@ -51,6 +67,9 @@ class BooleanFieldTests(TestCase):
         self.assertEqual(f.formfield().choices, [("", "---------")] + choices)
 
     def test_nullbooleanfield_formfield(self):
+        """
+        Tests that a BooleanField model field with null=True generates a NullBooleanField form field. This ensures that the form field correctly handles null values, providing a tri-state checkbox input for true, false, and unknown states.
+        """
         f = models.BooleanField(null=True)
         self.assertIsInstance(f.formfield(), forms.NullBooleanField)
 
@@ -114,6 +133,23 @@ class BooleanFieldTests(TestCase):
 
 class ValidationTest(SimpleTestCase):
     def test_boolean_field_doesnt_accept_empty_input(self):
+        """
+        Tests that a BooleanField raises a ValidationError when given empty input.
+
+        This test case verifies the expected behavior of a BooleanField when it
+        receives an empty or None value, ensuring that it properly handles invalid input
+        and raises an exception as required by the validation rules.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: If the input value is empty or None.
+
+        """
         f = models.BooleanField()
         with self.assertRaises(ValidationError):
             f.clean(None, None)

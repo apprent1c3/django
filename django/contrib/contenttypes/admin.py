@@ -96,6 +96,29 @@ class GenericInlineModelAdmin(InlineModelAdmin):
     checks_class = GenericInlineModelAdminChecks
 
     def get_formset(self, request, obj=None, **kwargs):
+        """
+
+        Returns a formset for the inline form editing. 
+
+        The formset includes fields specified in the fieldsets, or all fields if none are specified. 
+        It excludes fields listed in the `exclude` attribute and fields that are read-only. 
+
+        By default, it uses the :class:`~django.forms.models.BaseModelForm` for the model, 
+        but this can be overridden by passing a custom form class. 
+
+        The formset is configured to allow or disallow deleting, depending on the delete permission.
+
+        Overrideable parameters include:
+
+        - `fields`: The list of fields to include in the formset.
+        - `exclude`: The list of fields to exclude from the formset.
+        - `can_delete`, `extra`, `min_num`, `max_num` which influence the formset's behavior.
+        - `formfield_callback` which can be used to customize the form field generation.
+        - `formset` which allows specifying a custom formset class.
+
+        This method returns a factory function that can be used to create a formset instance.
+
+        """
         if "fields" in kwargs:
             fields = kwargs.pop("fields")
         else:

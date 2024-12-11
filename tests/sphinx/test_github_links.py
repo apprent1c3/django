@@ -31,6 +31,19 @@ class GitHubLinkTests(SimpleTestCase):
         github_links = _github_links
 
     def test_code_locator(self):
+        """
+        Tests the CodeLocator class to correctly identify and locate code elements.
+
+        This function verifies that the CodeLocator can accurately find and map the line numbers of
+        functions and classes, as well as the locations of imported modules and variables.
+
+        The expected output includes a dictionary mapping code elements to their respective line numbers,
+        and another dictionary mapping imported variables to their import locations. 
+
+        The test case covers both absolute and relative imports, as well as function and class definitions.
+        It ensures that the CodeLocator can handle a variety of code structures and correctly identify the 
+        locations of different code elements. 
+        """
         locator = github_links.CodeLocator.from_code(
             """
 from a import b, c
@@ -48,6 +61,24 @@ class I:
         self.assertEqual(locator.import_locations, {"b": "a", "c": "a", "e": ".d"})
 
     def test_module_name_to_file_path_package(self):
+        """
+
+        Tests the module_name_to_file_path function when resolving a package module name.
+
+        This function checks if the given module name is correctly resolved to its corresponding file path.
+        In the context of a package, this function should return a path that ends with the package's __init__.py file.
+        The test verifies that the resolved path matches the expected pattern.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the resolved path does not match the expected pattern.
+
+        """
         path = github_links.module_name_to_file_path("django")
 
         self.assertEqual(last_n_parts(path, 2), "django/__init__.py")
@@ -68,6 +99,17 @@ class I:
         self.assertEqual(line, 12)
 
     def test_get_path_and_line_func(self):
+        """
+        Returns the filesystem path and line number for a given Python module and fullname.
+
+        The function takes a Python module name and a fullname (function or class name) as input, 
+        and returns a tuple containing the path to the file where the fullname is defined, 
+        and the line number where the definition is located.
+
+        This is typically used to determine the location of a specific function or class 
+        within a larger codebase, and can be useful for generating links to source code 
+        or reporting errors.
+        """
         path, line = github_links.get_path_and_line(
             module="tests.sphinx.testdata.package.module", fullname="my_function"
         )
@@ -99,6 +141,23 @@ class I:
         self.assertEqual(line, 20)
 
     def test_get_path_and_line_forwarded_import(self):
+        """
+        Returns the file path and line number of a given object that is imported from another module.
+
+        This function is useful for locating the original definition of an object, even if it has been imported from a different module.
+
+        Parameters
+        ----------
+        module : str
+            The name of the module where the object is imported
+        fullname : str
+            The fully qualified name of the object
+
+        Returns
+        -------
+        tuple
+            A tuple containing the path to the file where the object is defined and the line number where it is defined
+        """
         path, line = github_links.get_path_and_line(
             module="tests.sphinx.testdata.package.module", fullname="MyOtherClass"
         )
@@ -109,6 +168,21 @@ class I:
         self.assertEqual(line, 1)
 
     def test_get_path_and_line_wildcard_import(self):
+        """
+        Retrieve the file path and line number of a class or object within a Python module.
+
+        Given a module name and the full name of a class or object, this function returns the path to the file where the class or object is defined and the line number where its definition begins.
+
+        The function is useful for generating links to specific parts of a GitHub repository, such as the definition of a class or mixin. It can handle wildcard imports and returns the actual file path and line number where the class or object is defined.
+
+        Args:
+            module (str): The name of the Python module to search.
+            fullname (str): The full name of the class or object to find.
+
+        Returns:
+            tuple: A tuple containing the file path (str) and line number (int) where the class or object is defined.
+
+        """
         path, line = github_links.get_path_and_line(
             module="tests.sphinx.testdata.package.module", fullname="WildcardClass"
         )
@@ -167,6 +241,13 @@ class I:
         )
 
     def test_github_linkcode_resolve_not_found(self):
+        """
+        Tests that github_linkcode_resolve returns None when it cannot find a GitHub link for a given module and fullname.
+
+        This test case simulates a scenario where the module and fullname do not correspond to a real GitHub repository or file. It verifies that the function correctly handles this situation and returns None instead of raising an error or providing incorrect information.
+
+        Parameters are specified for a Python ('py') language, a specific module and fullname, and versions '3.2' and '3.2' respectively, but the key aspect of this test is the non-existent module, which should lead to a None result.
+        """
         info = {
             "module": "foo.bar.baz.hopefully_non_existant_module",
             "fullname": "MyClass",
@@ -204,6 +285,11 @@ class I:
         )
 
     def test_import_error(self):
+        """
+        Raised when the module is not properly importable, tests that the github_links.get_path_and_line function correctly handles an ImportError.
+
+        When the function is called with a module that cannot be imported, it checks that an ImportError is raised with the expected error message, ensuring proper error handling and reporting for import issues.
+        """
         msg = "Could not import '.....test' in 'tests.sphinx.testdata.package'."
         with self.assertRaisesMessage(ImportError, msg):
             github_links.get_path_and_line(

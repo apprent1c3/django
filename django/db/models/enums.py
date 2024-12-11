@@ -30,6 +30,21 @@ class ChoicesType(EnumType):
     """A metaclass for creating a enum choices."""
 
     def __new__(metacls, classname, bases, classdict, **kwds):
+        """
+
+        Create a new enumeration class.
+
+        This metaclass is responsible for automatically setting labels for each member of an enumeration class.
+        The label is either explicitly defined as the last element of a tuple or list, or it is automatically generated
+        from the member's name by replacing underscores with spaces and capitalizing the first letter of each word.
+        The resulting enumeration class has uniquely named members.
+
+        After creating the class, it also ensures that the class has unique members by calling the `enum.unique` function.
+
+        This metaclass modifies the provided class dictionary to remove any label definitions and then creates the class.
+        Each member of the class has a `_label_` attribute set to its corresponding label.
+
+        """
         labels = []
         for key in classdict._member_names:
             value = classdict[key]
@@ -54,6 +69,14 @@ class ChoicesType(EnumType):
     if not PY312:
 
         def __contains__(cls, member):
+            """
+            Checks if a given member or value is contained within the enumeration class.
+
+            This method allows for flexible membership testing, supporting both enumeration members and their corresponding values.
+
+            Note that if the provided member is not an enumeration instance, it will be compared to the values of the enumeration members.
+            Otherwise, the default enumeration membership test is performed, relying on the enum member itself. 
+            """
             if not isinstance(member, enum.Enum):
                 # Allow non-enums to match against member values.
                 return any(x.value == member for x in cls)
@@ -113,6 +136,19 @@ class TextChoices(Choices, StrEnum):
 
 
 def __getattr__(name):
+    """
+    Returns the requested attribute from the module.
+
+    If the requested attribute is 'ChoicesMeta', it returns the 'ChoicesType' attribute
+    instead, while emitting a deprecation warning. The 'ChoicesMeta' attribute is
+    deprecated in favor of 'ChoicesType' and will be removed in Django 6.0.
+
+    For any other attribute name, this function raises an AttributeError, indicating
+    that the attribute does not exist in the module.
+
+    :raises AttributeError: If the requested attribute does not exist in the module.
+    :warns RemovedInDjango60Warning: If 'ChoicesMeta' is accessed, warning about its deprecation.
+    """
     if name == "ChoicesMeta":
         warnings.warn(
             "ChoicesMeta is deprecated in favor of ChoicesType.",

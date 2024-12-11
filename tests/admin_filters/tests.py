@@ -37,6 +37,20 @@ class DecadeListFilter(SimpleListFilter):
         )
 
     def queryset(self, request, queryset):
+        """
+
+        Filters a queryset based on a specified decade.
+
+        This method narrows down a queryset to include only items from a particular decade, 
+        as determined by the value of the decade filter. The decade is specified as a string, 
+        such as 'the 80s', 'the 90s', or 'the 00s', which correspond to the years 1980-1989, 
+        1990-1999, and 2000-2009, respectively. The filtered queryset is then returned.
+
+        :param request: The current request object
+        :param queryset: The queryset to be filtered
+        :return: The filtered queryset
+
+        """
         decade = self.value()
         if decade == "the 80s":
             return queryset.filter(year__gte=1980, year__lte=1989)
@@ -85,6 +99,17 @@ class DecadeListFilterWithFailingQueryset(DecadeListFilterWithTitleAndParameter)
 
 class DecadeListFilterWithQuerysetBasedLookups(DecadeListFilterWithTitleAndParameter):
     def lookups(self, request, model_admin):
+        """
+        Generates a set of lookup choices for decades based on the existence of data within those decades.
+
+        This function inspects the queryset associated with the given model admin and yields tuples
+        containing a short label and a long label for each decade (1980s, 1990s, 2000s) that contains data.
+        The yielded tuples can be used to populate a lookup field, allowing users to filter data by decade.
+
+        The lookup choices are generated based on the presence of data in the queryset for each decade.
+        Decades without any data are not included in the lookup choices.
+
+        """
         qs = model_admin.get_queryset(request)
         if qs.filter(year__gte=1980, year__lte=1989).exists():
             yield ("the 80s", "the 1980's")
@@ -132,6 +157,16 @@ class DepartmentListFilterLookupWithUnderscoredParameter(
 
 class DepartmentListFilterLookupWithDynamicValue(DecadeListFilterWithTitleAndParameter):
     def lookups(self, request, model_admin):
+        """
+        Returns a list of lookup tuples based on the current value of the field.
+
+        The function checks the current value and returns a specific pair of lookups if it matches 'the 80s' or 'the 90s'. 
+        Otherwise, it returns both available options.
+
+        The returned tuples contain a value and a human-readable name, suitable for display in a user interface.
+
+        :returns: A list of tuples, where each tuple contains a lookup value and its corresponding display name.
+        """
         if self.value() == "the 80s":
             return (("the 90s", "the 1990's"),)
         elif self.value() == "the 90s":
@@ -220,6 +255,15 @@ class BookAdminWithUnderscoreLookupAndTuple(BookAdmin):
 
 class BookAdminWithCustomQueryset(ModelAdmin):
     def __init__(self, user, *args, **kwargs):
+        """
+        Initializes the object with a user and additional keyword arguments.
+
+        :param user: The user to associate with this object.
+        :param args: Variable number of positional arguments to be passed to the parent class.
+        :param kwargs: Variable number of keyword arguments to be passed to the parent class.
+
+        This constructor sets the user attribute and then calls the parent class's constructor with the provided arguments. It allows for flexible initialization of the object while ensuring the user is always set. 
+        """
         self.user = user
         super().__init__(*args, **kwargs)
 
@@ -345,6 +389,23 @@ class ListFiltersTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application.
+
+        This method creates a set of predefined data, including dates, users, departments, employees, and books, 
+        which can be used to test the application's functionality.
+
+        The test data includes:
+        - Various dates (today, tomorrow, one week ago, next month, next year)
+        - Three users (alfred, bob, lisa) with different levels of access
+        - Two departments (Development, Design)
+        - Two employees (John, Jack) assigned to the departments
+        - Four books with different attributes (title, year, author, availability, category, etc.)
+
+        This data is used as a foundation for testing the application's features and ensuring they work as expected.
+
+        """
         cls.today = datetime.date.today()
         cls.tomorrow = cls.today + datetime.timedelta(days=1)
         cls.one_week_ago = cls.today - datetime.timedelta(days=7)
@@ -411,6 +472,15 @@ class ListFiltersTests(TestCase):
         cls.guitar_book.contributors.set([cls.bob, cls.lisa])
 
     def assertChoicesDisplay(self, choices, expected_displays):
+        """
+        Asserts that the display text of each choice matches the expected display text.
+
+        :param choices: A list of choices, where each choice is a dictionary containing a 'display' key.
+        :param expected_displays: A list of expected display texts, in the same order as the choices.
+        :raises AssertionError: If any choice's display text does not match the corresponding expected display text.
+
+        This method checks that the display text of each choice aligns with the expected display text, ensuring consistency and accuracy in the choices' presentation.
+        """
         for choice, expected_display in zip(choices, expected_displays, strict=True):
             self.assertEqual(choice["display"], expected_display)
 
@@ -613,6 +683,19 @@ class ListFiltersTests(TestCase):
         self.test_datefieldlistfilter()
 
     def test_allvaluesfieldlistfilter(self):
+        """
+        Tests the filtering functionality of the AllValuesFieldListFilter.
+
+        Verifies that the filter correctly handles null and non-null values, 
+        and that the selected value is properly highlighted in the filter choices.
+
+        The test checks the 'year' field filter, covering the following scenarios:
+        - Filtering by 'isnull' condition
+        - Filtering by a specific 'year' value
+
+        It ensures that the filter returns the correct queryset and 
+        that the filter choices are correctly marked as selected based on the request parameters.
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/", {"year__isnull": "True"})
@@ -643,6 +726,15 @@ class ListFiltersTests(TestCase):
 
     def test_allvaluesfieldlistfilter_custom_qs(self):
         # Make sure that correct filters are returned with custom querysets
+        """
+        Tests the AllValuesFieldListFilter with custom queryset functionality.
+
+        This test case verifies that the filter correctly generates a list of choices 
+        based on the data in the model. It checks that the filter produces the expected 
+        number of choices and that the query string for each choice is correct. The test 
+        covers the scenario where the filter is applied to a model with a custom queryset, 
+        ensuring that the filtering logic works as expected in this context.
+        """
         modeladmin = BookAdminWithCustomQueryset(self.alfred, Book, site)
         request = self.request_factory.get("/")
         request.user = self.alfred
@@ -659,6 +751,18 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[2]["query_string"], "?year=2009")
 
     def test_relatedfieldlistfilter_foreignkey(self):
+        """
+
+        Tests the functionality of a RelatedFieldListFilter for a foreign key field.
+
+        This test case verifies that the filter spec generates the correct lookup choices
+        and that the filter functions correctly when applied to a queryset. It also checks
+        that the filter title and choices are correctly displayed in the changelist view.
+
+        In addition, it tests the filter's behavior when a 'isnull' query parameter is
+        supplied, and when an 'id__exact' query parameter is provided.
+
+        """
         modeladmin = BookAdmin(Book, site)
 
         request = self.request_factory.get("/")
@@ -724,6 +828,22 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedfieldlistfilter_foreignkey_ordering_reverse(self):
+        """
+        Tests that the RelatedFieldListFilter correctly handles foreign key ordering in reverse.
+
+        When a model admin has a foreign key field in its list_filter and the related model's
+        admin has a custom ordering defined, this test verifies that the filter choices are
+        ordered accordingly.
+
+        In particular, it checks that the choices are ordered in the reverse of the related
+        model's custom ordering, if defined. This ensures that the filter dropdown displays
+        the related objects in the correct order, making it easier for users to find and select
+        the desired objects.
+
+        The test covers the interaction between the ModelAdmin's ordering and the
+        RelatedFieldListFilter's lookup choices, providing a robust check for this specific
+        use case.
+        """
         class EmployeeAdminWithOrdering(ModelAdmin):
             ordering = ("-name",)
 
@@ -807,6 +927,21 @@ class ListFiltersTests(TestCase):
         )
 
     def test_relatedfieldlistfilter_reverse_relationships(self):
+        """
+
+        Tests the RelatedFieldListFilter for reverse relationships.
+
+        This test checks that the filter correctly handles both 'isnull' and 'id__exact'
+        query parameters for reverse relationships. It verifies that the correct objects
+        are returned in the changelist queryset, that the filter title is correct, and
+        that the choices for the filter are properly selected and query strings are
+        generated.
+
+        The test also checks that the filter correctly handles cases where the related
+        objects are deleted, ensuring that the number of filter choices is updated
+        correctly.
+
+        """
         modeladmin = CustomUserAdmin(User, site)
 
         # FK relationship -----
@@ -887,6 +1022,18 @@ class ListFiltersTests(TestCase):
         self.assertEqual(len(filterspec), 0)
 
     def test_relatedfieldlistfilter_reverse_relationships_default_ordering(self):
+        """
+
+        Tests the RelatedFieldListFilter to ensure it properly handles reverse relationships
+        with default ordering. This test case verifies that the admin changelist filters
+        are generated based on the model's default ordering, when a reverse relationship
+        is involved.
+
+        The expected behavior is that the lookup choices for the filter are populated in
+        the order defined by the model's default ordering, allowing for correct filtering
+        of related objects in the admin interface.
+
+        """
         self.addCleanup(setattr, Book._meta, "ordering", Book._meta.ordering)
         Book._meta.ordering = ("title",)
         modeladmin = CustomUserAdmin(User, site)
@@ -904,6 +1051,16 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedonlyfieldlistfilter_foreignkey(self):
+        """
+
+        Tests filtering of field lists in the Django admin interface, specifically for RelatedOnlyFieldListFilter.
+
+        This test case verifies that the FieldListFilter used in ModelAdmin with a RelatedOnlyFieldListFilter correctly
+        filters objects based on the foreign key relationship, and that the expected choices are displayed.
+
+        The filter choices are generated based on the objects that the current user is related to.
+
+        """
         modeladmin = BookAdminRelatedOnlyFilter(Book, site)
 
         request = self.request_factory.get("/")
@@ -916,6 +1073,18 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_relatedonlyfieldlistfilter_foreignkey_reverse_relationships(self):
+        """
+        Tests the RelatedOnlyFieldListFilter for foreign key fields with reverse relationships.
+
+        This test case verifies that the RelatedOnlyFieldListFilter correctly filters a list of
+        objects based on a foreign key field, considering the reverse relationships from the
+        related model.
+
+        The test scenario involves an admin interface for employees, where the list of employees
+        is filtered by a 'book' field that has a reverse relationship with the employee model.
+        The test ensures that the filter options only include books that have a corresponding
+        employee assigned to them, and that the options are correctly labeled with the book titles.
+        """
         class EmployeeAdminReverseRelationship(ModelAdmin):
             list_filter = (("book", RelatedOnlyFieldListFilter),)
 
@@ -939,6 +1108,15 @@ class ListFiltersTests(TestCase):
         )
 
     def test_relatedonlyfieldlistfilter_manytomany_reverse_relationships(self):
+        """
+        Tests the functionality of the RelatedOnlyFieldListFilter when applied to a Many-To-Many reverse relationship field in the Django admin interface.
+
+        The test verifies that the filter correctly limits the choices to only those objects that are related to the currently selected objects, and that the lookup choices are correctly generated.
+
+        :param None:
+        :returns: None 
+        :raises: AssertionError if the lookup choices do not match the expected result.
+        """
         class UserAdminReverseRelationship(ModelAdmin):
             list_filter = (("books_contributed", RelatedOnlyFieldListFilter),)
 
@@ -1002,6 +1180,14 @@ class ListFiltersTests(TestCase):
         self.assertEqual(filterspec.lookup_choices, expected)
 
     def test_relatedonlyfieldlistfilter_underscorelookup_foreignkey(self):
+        """
+
+        Tests that the related only field list filter with foreign key lookup works as expected.
+        Specifically, it verifies that only the related department choices are displayed in the filter.
+        The test case sets up a scenario with multiple books and departments, and checks that the filter
+        choices match the expected departments associated with the user.
+
+        """
         Department.objects.create(code="TEST", description="Testing")
         self.djangonaut_book.employee = self.john
         self.djangonaut_book.save()
@@ -1023,6 +1209,13 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_relatedonlyfieldlistfilter_manytomany(self):
+        """
+        Tests that the RelatedOnlyFieldListFilter correctly filters a many-to-many relationship in the changelist view of the admin interface.
+
+        The test verifies that the filter options are populated with the related objects that are accessible to the current user, ensuring that the filter only includes valid choices.
+
+        This test case covers the scenario where the filter is applied to a many-to-many field, checking that the filter options are correctly sorted and contain the expected related objects.
+        """
         modeladmin = BookAdminRelatedOnlyFilter(Book, site)
 
         request = self.request_factory.get("/")
@@ -1035,6 +1228,15 @@ class ListFiltersTests(TestCase):
         self.assertEqual(sorted(filterspec.lookup_choices), sorted(expected))
 
     def test_listfilter_genericrelation(self):
+        """
+        Tests the ability of the list filter for generic relations to correctly filter 
+        Bookmarks based on their associated tags. This test case creates multiple 
+        bookmarks with different URLs and assigns tags to them, then queries the 
+        bookmarks that have a specific tag, in this case 'python', and verifies that 
+        the correct bookmarks are returned. The query is performed through the 
+        BookmarkAdminGenericRelation changelist, ensuring that the filtering works 
+        as expected in the admin interface.
+        """
         django_bookmark = Bookmark.objects.create(url="https://www.djangoproject.com/")
         python_bookmark = Bookmark.objects.create(url="https://www.python.org/")
         kernel_bookmark = Bookmark.objects.create(url="https://www.kernel.org/")
@@ -1054,6 +1256,16 @@ class ListFiltersTests(TestCase):
         self.assertEqual(list(queryset), expected)
 
     def test_booleanfieldlistfilter(self):
+        """
+        Tests the functionality of the BooleanFieldListFilter in the admin interface.
+
+        This test case checks if the BooleanFieldListFilter is properly applied to the model admin instance.
+        It verifies that the filter correctly handles boolean fields and provides the expected functionality.
+
+        :param self: The test instance
+        :raises AssertionError: If the BooleanFieldListFilter does not function as expected
+        :note: This test relies on the verify_booleanfieldlistfilter method to perform the actual verification
+        """
         modeladmin = BookAdmin(Book, site)
         self.verify_booleanfieldlistfilter(modeladmin)
 
@@ -1121,6 +1333,25 @@ class ListFiltersTests(TestCase):
 
     def verify_booleanfieldlistfilter_choices(self, modeladmin):
         # False.
+        """
+
+        Verify the functionality of the BooleanFieldListFilter choices in the changelist view.
+
+        This function checks that the filter options for 'availability' are correctly displayed and 
+        that they filter the results as expected. It tests the following scenarios:
+        - When 'availability__exact' is set to 0 (Paid), it checks that only the 'bio_book' 
+          is displayed and that the 'Paid' option is selected.
+        - When 'availability__exact' is set to 1 (Free), it checks that the 'django_book' and 
+          'djangonaut_book' are displayed and that the 'Free' option is selected.
+        - When 'availability__isnull' is set to True (Obscure), it checks that only the 'guitar_book' 
+          is displayed and that the 'Obscure' option is selected.
+        - When no filter is applied, it checks that all books are displayed and that the 'All' 
+          option is selected.
+
+        The function asserts that the expected results are returned and that the filter choices 
+        are correctly selected and displayed.
+
+        """
         request = self.request_factory.get("/", {"availability__exact": 0})
         request.user = self.alfred
         changelist = modeladmin.get_changelist_instance(request)
@@ -1197,6 +1428,16 @@ class ListFiltersTests(TestCase):
             modeladmin.get_changelist_instance(request)
 
     def test_fieldlistfilter_multiple_invalid_lookup_parameters(self):
+        """
+        Tests that the FieldListFilter raises an error when given multiple invalid lookup parameters.
+
+        Verifies that the BookAdmin changelist view correctly handles a request with multiple
+        lookup parameters for the author field. Specifically, it checks that an IncorrectLookupParameters
+        exception is raised when the request includes multiple values for the 'author__id__exact' parameter.
+
+        This test ensures that the FieldListFilter implementation properly validates lookup parameters
+        and prevents potential data inconsistencies or security vulnerabilities by rejecting invalid requests.
+        """
         modeladmin = BookAdmin(Book, site)
         request = self.request_factory.get(
             "/", {"author__id__exact": f"{self.alfred.pk},{self.bob.pk}"}
@@ -1358,6 +1599,22 @@ class ListFiltersTests(TestCase):
             modeladmin.get_changelist_instance(request)
 
     def test_simplelistfilter_with_queryset_based_lookups(self):
+        """
+
+        Tests the filtering functionality of a simple list filter with queryset-based lookups.
+
+        This test case verifies that the filter specification has the correct title, 
+        and that it generates the expected list of choices, including the 'All' option 
+        and specific decade filters. It also checks that the query string for each 
+        filter choice is correctly formatted.
+
+        The test covers the following aspects:
+        - The filter specification title is 'publication decade'.
+        - The filter generates three choices: 'All', 'the 1990's', and 'the 2000's'.
+        - The 'All' option is selected by default.
+        - The query strings for each filter choice match the expected values.
+
+        """
         modeladmin = DecadeFilterBookAdminWithQuerysetBasedLookups(Book, site)
         request = self.request_factory.get("/", {})
         request.user = self.alfred
@@ -1381,6 +1638,26 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[2]["query_string"], "?publication-decade=the+00s")
 
     def _test_facets(self, modeladmin, request, query_string=None):
+        """
+        .. method:: _test_facets(self, modeladmin, request, query_string=None)
+
+           Tests the facets of a model admin changelist.
+
+           This method simulates a request to the changelist view and verifies that the 
+           resulting queryset and filters are as expected. It checks the display of 
+           various filters, including date filters, and ensures that the choices are 
+           correctly displayed and that query strings are properly included in the 
+           choices.
+
+           The test covers different types of filters, including choices with and without 
+           dates, and verifies that the correct number of items is displayed for each 
+           choice.
+
+           :param modeladmin: The model admin instance to test.
+           :param request: The request object to use for the test.
+           :param query_string: An optional query string to include in the test.
+           :return: None
+        """
         request.user = self.alfred
         changelist = modeladmin.get_changelist_instance(request)
         queryset = changelist.get_queryset(request)
@@ -1448,16 +1725,41 @@ class ListFiltersTests(TestCase):
                         self.assertIn(query_string, choice["query_string"])
 
     def test_facets_always(self):
+        """
+        Tests that facets are always displayed for the DecadeFilterBookAdminWithAlwaysFacets.\"\"\"
+
+        \"\"\"Tests the integration of facets in the Book admin interface, verifying that 
+        they are always displayed, regardless of the request context.
+        """
         modeladmin = DecadeFilterBookAdminWithAlwaysFacets(Book, site)
         request = self.request_factory.get("/")
         self._test_facets(modeladmin, request)
 
     def test_facets_no_filter(self):
+        """
+        Tests the functionality of facets without applying any filters, ensuring that all facets are correctly displayed and no data is filtered out. This test case verifies the behavior of the DecadeFilterBookAdmin class when handling requests with a '_facets' query string, confirming that the resulting facets are properly generated and returned.
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get("/?_facets")
         self._test_facets(modeladmin, request, query_string="_facets")
 
     def test_facets_filter(self):
+        """
+        Tests the functionality of the DecadeFilterBookAdmin facets filter.
+
+        This test case verifies that the changelist view correctly filters and displays
+        facets for the Book model. It checks that the filter options are correctly
+        generated and that the facets are properly displayed in the view.
+
+        The test covers various types of filters, including author, decade, and category,
+        and ensures that the correct options are displayed for each filter. It also
+        checks that the facets are correctly URL-encoded and that the filter options
+        contain the expected query string parameters.
+
+        By running this test, you can ensure that the DecadeFilterBookAdmin facets filter
+        is working correctly and that the changelist view is displaying the correct
+        filter options for the Book model.
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get(
             "/", {"author__id__exact": self.alfred.pk, "_facets": ""}
@@ -1524,6 +1826,15 @@ class ListFiltersTests(TestCase):
                     self.assertIn("_facets", choice["query_string"])
 
     def test_facets_disallowed(self):
+        """
+
+        Tests that facets are disallowed in the Book admin changelist.
+
+        Verifies that when the `_facets` query parameter is present in the request,
+        the changelist returns the correct queryset and that each filter's choices
+        are displayed as expected, with facets disallowed.
+
+        """
         modeladmin = DecadeFilterBookAdminDisallowFacets(Book, site)
         # Facets are not visible even when in the url query.
         request = self.request_factory.get("/?_facets")
@@ -1599,6 +1910,21 @@ class ListFiltersTests(TestCase):
             self.assertEqual(choices[i]["query_string"], query_string)
 
     def test_multi_choice_field_filter(self):
+        """
+
+        Tests the functionality of a multi-choice field filter in the DecadeFilterBookAdmin class.
+
+        This test case verifies that the filter correctly handles multiple choices and 
+        generates the appropriate query string. It checks the resulting queryset and 
+        filter choices to ensure they match the expected output.
+
+        The test covers the following scenarios:
+
+        * Filtering by multiple categories (e.g., 'non-fiction' and 'fiction')
+        * Generating the correct query string for each filter choice
+        * Ensuring the filter choices are correctly labeled and selected
+
+        """
         modeladmin = DecadeFilterBookAdmin(Book, site)
         request = self.request_factory.get(
             "/",
@@ -1832,6 +2158,17 @@ class ListFiltersTests(TestCase):
         modeladmin = DepartmentFilterDynamicValueBookAdmin(Book, site)
 
         def _test_choices(request, expected_displays):
+            """
+            Tests the choices displayed for the publication decade filter.
+
+            This function sets up a test request with a specific user, retrieves the changelist instance,
+            and applies the filter specification. It verifies that the title of the filter is 'publication decade'
+            and checks that the actual filter choices match the expected display values.
+
+            :param request: The request object to use for testing
+            :param expected_displays: The expected display values for the filter choices
+
+            """
             request.user = self.alfred
             changelist = modeladmin.get_changelist_instance(request)
             filterspec = changelist.get_filters(request)[0][0]
@@ -1866,6 +2203,19 @@ class ListFiltersTests(TestCase):
         self.assertEqual(changelist.full_result_count, 4)
 
     def test_emptylistfieldfilter(self):
+        """
+         Tests the functionality of the EmptyFieldListFilter in the admin interface.
+
+         This test case checks the behavior of the EmptyFieldListFilter when used with different models and fields.
+         It verifies that the filter correctly identifies and returns objects with empty or non-empty fields, 
+         based on the query string provided in the request.
+
+         The test covers various scenarios, including filtering by description, title, and author fields, 
+         and checks the results against the expected outcomes. 
+
+         The goal of this test is to ensure that the EmptyFieldListFilter works as expected and returns the correct results 
+         for different models and filter conditions. 
+        """
         empty_description = Department.objects.create(code="EMPT", description="")
         none_description = Department.objects.create(code="NONE", description=None)
         empty_title = Book.objects.create(title="", author=self.alfred)
@@ -1917,6 +2267,17 @@ class ListFiltersTests(TestCase):
                 self.assertCountEqual(queryset, expected_result)
 
     def test_emptylistfieldfilter_reverse_relationships(self):
+        """
+        Tests the EmptyFieldListFilter for reverse relationships in the admin interface.
+
+        This test case creates various admin instances for models such as Book, Department, and User, 
+        and then applies the EmptyFieldListFilter to test the filtering of objects based on whether 
+        a related field is empty or not. The filter is applied to various relationships, including 
+        one-to-many (e.g., a book's improved books) and many-to-many (e.g., a department's employees).
+
+        The test validates that the filtered results match the expected outcomes, ensuring that 
+        the EmptyFieldListFilter functions correctly in the admin interface for reverse relationships.
+        """
         class UserAdminReverseRelationship(UserAdmin):
             list_filter = (("books_contributed", EmptyFieldListFilter),)
 
@@ -1978,6 +2339,19 @@ class ListFiltersTests(TestCase):
                 self.assertCountEqual(queryset, expected_result)
 
     def test_emptylistfieldfilter_choices(self):
+        """
+        Tests the filter choices for a field list filter when the field may be empty.
+
+        This test case checks that the filter choices for an empty list field filter are
+        correctly generated, and that they include options for \"All\", \"Empty\", and \"Not
+        empty\". It also verifies that the default selection is \"All\" and that the query
+        strings for each choice are correctly constructed.
+
+        The test uses a custom model admin class, BookAdminWithEmptyFieldListFilter,
+        to test the filter choices for the 'Verbose Author' field. The test checks the
+        title and options of the filter, as well as the query strings generated for each
+        option.
+        """
         modeladmin = BookAdminWithEmptyFieldListFilter(Book, site)
         request = self.request_factory.get("/")
         request.user = self.alfred
@@ -2000,6 +2374,9 @@ class ListFiltersTests(TestCase):
         self.assertEqual(choices[2]["query_string"], "?author__isempty=0")
 
     def test_emptylistfieldfilter_non_empty_field(self):
+        """
+        Tests that the EmptyFieldListFilter list filter raises an ImproperlyConfigured exception when applied to a model field that does not allow empty strings or null values, as would be the case with a non-empty field. This ensures that the filter is only used with fields that can have empty or null values, preventing unexpected behavior.
+        """
         class EmployeeAdminWithEmptyFieldListFilter(ModelAdmin):
             list_filter = [("department", EmptyFieldListFilter)]
 
@@ -2014,6 +2391,9 @@ class ListFiltersTests(TestCase):
             modeladmin.get_changelist_instance(request)
 
     def test_emptylistfieldfilter_invalid_lookup_parameters(self):
+        """
+        Tests that the :class:`~django.contrib.admin.ModelAdmin` raises an :exc:`~django.core.exceptions.IncorrectLookupParameters` exception when an invalid lookup parameter is passed to the changelist view for a model with an empty list field filter, ensuring that incorrect input does not cause an unexpected error.
+        """
         modeladmin = BookAdminWithEmptyFieldListFilter(Book, site)
         request = self.request_factory.get("/", {"author__isempty": 42})
         request.user = self.alfred
@@ -2049,6 +2429,14 @@ class ListFiltersTests(TestCase):
 
 class FacetsMixinTests(SimpleTestCase):
     def test_get_facet_counts(self):
+        """
+
+        Tests the requirement that subclasses of FacetsMixin implement the get_facet_counts method.
+
+        This test case verifies that calling get_facet_counts on an instance of FacetsMixin itself raises a NotImplementedError
+        with a specific error message, ensuring that any subclass must provide its own implementation of this method.
+
+        """
         msg = "subclasses of FacetsMixin must provide a get_facet_counts() method."
         with self.assertRaisesMessage(NotImplementedError, msg):
             FacetsMixin().get_facet_counts(None, None)

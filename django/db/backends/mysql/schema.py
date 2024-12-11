@@ -45,6 +45,22 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     @property
     def sql_rename_column(self):
+        """
+        Returns the SQL command string for renaming a column.
+
+        This property generates a SQL string tailored to the specific database connection.
+        If the connection is to a MariaDB database with a version prior to 10.5.2, it returns
+        a customized string. Otherwise, it relies on the default implementation provided by
+        the superclass.
+
+        The generated SQL string will include placeholders for the table name, old column name,
+        new column name, and column type, which should be replaced with actual values before
+        executing the query.
+
+        :rtype: str
+        :returns: The SQL command string for renaming a column.
+
+        """
         is_mariadb = self.connection.mysql_is_mariadb
         if is_mariadb and self.connection.mysql_version < (10, 5, 2):
             # MariaDB < 10.5.2 doesn't support an
@@ -63,6 +79,25 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return quoted
 
     def _is_limited_data_type(self, field):
+        """
+        Checks if the specified database field is of a limited data type.
+
+        Parameters
+        ----------
+        field : 
+            The database field to be checked.
+
+        Returns
+        -------
+        bool
+            True if the field's data type is limited, False otherwise.
+
+        Notes
+        -----
+        Limited data types are those that have certain restrictions or limitations, 
+        as defined in the database connection settings. This method allows you to 
+        determine whether a given field belongs to one of these restricted types.
+        """
         db_type = field.db_type(self.connection)
         return (
             db_type is not None
@@ -74,6 +109,14 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return db_type and db_type.lower().endswith(("blob", "text"))
 
     def skip_default(self, field):
+        """
+        Determines whether a field can be skipped when its default value is applied.
+
+        This function assesses the specified field's default value and its data type to decide whether it can be skipped. 
+        It considers fields with empty default values that are either text or blob data types, 
+        or fields that have limited data types if the database does not support default values for such types. 
+        It returns True if the field can be skipped; otherwise, it returns False.
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -99,6 +142,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return self.connection.mysql_version >= (8, 0, 13)
 
     def _column_default_sql(self, field):
+        """
+        Returns the SQL syntax for a default value of a column.
+
+        This method handles the difference in syntax between MySQL and MariaDB when 
+        using data type defaults that are limited by the database. If the database 
+        connection is not to a MariaDB instance and the field has a limited data type, 
+        it returns the SQL syntax as '(%s)'. Otherwise, it delegates to the parent 
+        class's implementation to determine the SQL syntax.
+
+        :param field: The field for which the default SQL syntax is needed.
+        :return: The SQL syntax for the default value of the column.
+        """
         if (
             not self.connection.mysql_is_mariadb
             and self._supports_limited_data_type_defaults
@@ -138,6 +193,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         super().remove_constraint(model, constraint)
 
     def remove_index(self, model, index):
+        """
+        Removes an index from a model while ensuring any missing foreign key indexes are created beforehand.
+
+        :param model: The model from which to remove the index
+        :param index: The index to be removed
+
+        This method first checks for and creates any missing foreign key indexes that are referenced by the index being removed.
+        It then proceeds to remove the specified index from the model, maintaining data consistency and avoiding potential errors
+        that might arise from removing an index that is still referenced by other parts of the model.
+        """
         self._create_missing_fk_index(
             model,
             fields=[field_name for field_name, _ in index.fields_orders],

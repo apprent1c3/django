@@ -340,6 +340,18 @@ class CsrfViewMiddleware(MiddlewareMixin):
             raise RejectRequest(REASON_BAD_REFERER % referer.geturl())
 
     def _bad_token_message(self, reason, token_source):
+        """
+
+        Returns a formatted error message for a CSRF token issue.
+
+        The message indicates the source of the token (e.g., 'the \"X-CSRF-Token\" HTTP header' or 'POST')
+        and the specific reason for the error (e.g., 'is missing', 'is invalid', etc.).
+
+        :param reason: The reason for the CSRF token error.
+        :param token_source: The source of the CSRF token, either 'POST' or the name of an HTTP header.
+        :returns: A formatted error message describing the CSRF token issue.
+
+        """
         if token_source != "POST":
             # Assume it is a settings.CSRF_HEADER_NAME value.
             header_name = HttpHeaders.parse_header_name(token_source)
@@ -412,6 +424,21 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 request.META["CSRF_COOKIE"] = csrf_secret
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+
+        Processes a view request to ensure it meets Cross-Site Request Forgery (CSRF) protection requirements.
+
+        This function checks the request for various conditions that determine whether it should be accepted or rejected.
+        It examines the request method, origin, and referer to verify its legitimacy, as well as checks for a valid CSRF token.
+        If the request passes all checks, it is accepted; otherwise, it is rejected with a corresponding reason.
+
+        :param request: The incoming HTTP request to be processed
+        :param callback: The view function to be executed if the request is accepted
+        :param callback_args: Positional arguments to be passed to the view function
+        :param callback_kwargs: Keyword arguments to be passed to the view function
+        :returns: The result of the CSRF protection check, either accepting or rejecting the request
+
+        """
         if getattr(request, "csrf_processing_done", False):
             return None
 

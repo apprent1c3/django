@@ -35,6 +35,21 @@ def require_http_methods(request_method_list):
 
             @wraps(func)
             async def inner(request, *args, **kwargs):
+                """
+
+                Checks if the HTTP request method is allowed and calls the original function if permitted.
+
+                This asynchronous function acts as a wrapper, inspecting the incoming request to determine if its method
+                is among the list of approved methods. If the request method is not allowed, it returns an HTTP 405 Method
+                Not Allowed response and logs the incident. Otherwise, it proceeds to call the original function, passing
+                the request and any provided arguments, and awaits its response.
+
+                :param request: The incoming HTTP request
+                :param args: Variable number of positional arguments to be passed to the original function
+                :param kwargs: Variable number of keyword arguments to be passed to the original function
+                :return: The response from the original function if the request method is allowed, or an HTTP 405 response otherwise
+
+                """
                 if request.method not in request_method_list:
                     response = HttpResponseNotAllowed(request_method_list)
                     log_response(
@@ -51,6 +66,21 @@ def require_http_methods(request_method_list):
 
             @wraps(func)
             def inner(request, *args, **kwargs):
+                """
+                Decorates a view function to restrict access to specific HTTP request methods.
+
+                Checks if the incoming HTTP request method is in the list of allowed methods. 
+                If the method is not allowed, returns an HTTP 405 Method Not Allowed response and logs the request.
+                Otherwise, calls the original view function with the request and any additional arguments.
+
+                This decorator is useful for enforcing HTTP method constraints on views, such as ensuring that 
+                only GET requests are allowed for a certain endpoint.
+
+                :param request: The incoming HTTP request object
+                :param *args: Any additional positional arguments to be passed to the view function
+                :param **kwargs: Any additional keyword arguments to be passed to the view function
+                :return: The response from the view function, or an HTTP 405 response if the method is not allowed
+                """
                 if request.method not in request_method_list:
                     response = HttpResponseNotAllowed(request_method_list)
                     log_response(

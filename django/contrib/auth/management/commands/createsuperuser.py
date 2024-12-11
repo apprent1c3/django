@@ -36,6 +36,23 @@ class Command(BaseCommand):
         )
 
     def add_arguments(self, parser):
+        """
+
+        Adds command line arguments to a parser for creating a superuser.
+
+        This function creates command line arguments for specifying the superuser's login, 
+        optional fields, and database to use. It also handles required fields of the user model, 
+        including many-to-many relations. 
+
+        Available arguments include:
+        - The superuser's login field (e.g. username or email)
+        - A flag to prevent prompting the user for input (--noinput)
+        - The database to use for the superuser creation (--database)
+        - Optional and required fields of the user model, depending on the model's definition.
+
+        Note that when using --noinput, you must specify all required fields, including the login field.
+
+        """
         parser.add_argument(
             "--%s" % self.UserModel.USERNAME_FIELD,
             help="Specifies the login for the superuser.",
@@ -90,6 +107,22 @@ class Command(BaseCommand):
         return super().execute(*args, **options)
 
     def handle(self, *args, **options):
+        """
+        Handles the creation of a superuser for the given database.
+
+        This function will prompt for a username and any additional required fields if the 
+        interactive mode is enabled (default). If non-interactive mode is chosen, it will 
+        use environment variables to populate the required fields. 
+
+        It validates the input data, including the password, according to the project's 
+        authentication rules. If the validation fails, it will continue to prompt for input 
+        until valid data is provided or the operation is cancelled. 
+
+        Once valid data is collected, it creates a new superuser in the specified database. 
+
+        The function also provides feedback to the user about the success or failure of the 
+        operation, depending on the chosen verbosity level.
+        """
         username = options[self.UserModel.USERNAME_FIELD]
         database = options["database"]
         user_data = {}

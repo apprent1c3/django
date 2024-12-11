@@ -12,6 +12,19 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks01(self):
+        """
+
+        Tests the rendering of a template containing named end blocks.
+
+        The function verifies that the template engine correctly processes named end blocks.
+        A named end block is used to close a previously defined block, which allows for more
+        flexible and readable template code. The test checks that the output of the template
+        is rendered as expected, with the blocks correctly nested and closed.
+
+        The expected output is a string where the blocks have been replaced with their
+        corresponding content, resulting in the final rendered string.
+
+        """
         output = self.engine.render_to_string("namedendblocks01")
         self.assertEqual(output, "1_2_3")
 
@@ -23,6 +36,9 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks02(self):
+        """
+        Tests the templating engine's handling of named endblocks, specifically verifying that it correctly raises a TemplateSyntaxError when a named endblock does not match its corresponding start block.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks02")
 
@@ -33,6 +49,20 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks03(self):
+        """
+        Tests that a TemplateSyntaxError is raised when using named endblock tags in a template without proper nesting. 
+
+        This test case verifies that the template engine correctly identifies and reports syntax errors when the endblock tags are not properly matched with their corresponding block tags. 
+
+        Args: 
+            None 
+
+        Returns: 
+            None 
+
+        Raises: 
+            TemplateSyntaxError: If the endblock tags are not properly nested in the template.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks03")
 
@@ -43,6 +73,11 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks04(self):
+        """
+        Test for template syntax error when using a named endblock with an incorrect block name. 
+
+        This test case checks that the templating engine correctly raises a TemplateSyntaxError when a named endblock is used to close a block that does not have a matching open block with the same name.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("namedendblocks04")
 
@@ -78,5 +113,14 @@ class NamedEndblockTests(SimpleTestCase):
         }
     )
     def test_namedendblocks07(self):
+        """
+        Tests the rendering of named end blocks in templates.
+
+        This test case verifies that the template engine correctly handles blocks with names
+        and their corresponding endblock statements, ensuring the output is rendered as expected.
+
+        :returns: None
+        :raises: AssertionError if the rendered output does not match the expected result
+        """
         output = self.engine.render_to_string("namedendblocks07")
         self.assertEqual(output, "1_2_3")

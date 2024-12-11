@@ -23,6 +23,21 @@ class ValidFields(admin.ModelAdmin):
 
 class ValidFormFieldsets(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
+        """
+
+        Returns a dynamic form instance based on the provided request and optional object.
+
+        The returned form extends the SongForm with an additional 'name' field, allowing for 
+        custom input up to 50 characters in length. This form can be used in various 
+        contexts, such as when creating or editing an object, and can be further customized 
+        through the use of keyword arguments.
+
+        :param request: The current request object
+        :param obj: The optional object to be associated with the form
+        :param kwargs: Additional keyword arguments to customize the form
+        :rtype: ExtraFieldForm
+
+        """
         class ExtraFieldForm(SongForm):
             name = forms.CharField(max_length=50)
 
@@ -73,6 +88,14 @@ class SystemChecksTestCase(SimpleTestCase):
     databases = "__all__"
 
     def test_checks_are_performed(self):
+        """
+        Tests that the necessary checks are performed on the Song model.
+
+        Verifies that registering the Song model with the custom MyAdmin interface
+        triggers the expected checks and returns the correct error messages.
+        The test case ensures that the check results match the predefined expectations.
+
+        """
         admin.site.register(Song, MyAdmin)
         try:
             errors = checks.run_checks()
@@ -273,6 +296,21 @@ class SystemChecksTestCase(SimpleTestCase):
             custom_site.unregister(Song)
 
     def test_allows_checks_relying_on_other_modeladmins(self):
+        """
+
+        Checks if ModelAdmin classes can rely on other ModelAdmin instances being registered.
+
+        This test case verifies that a ModelAdmin can safely check for the presence of other
+        ModelAdmin instances without causing errors. It simulates registering two models, Book
+        and Author, with custom ModelAdmin classes, and then checks the admin site for any
+        errors. The test ensures that the check method in the MyBookAdmin class can successfully
+        detect the presence or absence of the AuthorAdmin instance.
+
+        If the AuthorAdmin is not registered, the check method in MyBookAdmin should return an
+        error. This test case ensures that this functionality works as expected by registering
+        and unregistering the models and checking for the correct error messages.
+
+        """
         class MyBookAdmin(admin.ModelAdmin):
             def check(self, **kwargs):
                 errors = super().check(**kwargs)
@@ -322,6 +360,14 @@ class SystemChecksTestCase(SimpleTestCase):
         )
 
     def test_list_editable_missing_field(self):
+        """
+
+        Checks that the list_editable attribute in a ModelAdmin instance refers to valid model fields.
+
+        The function tests the modeladmin check framework by creating a ModelAdmin class with an invalid list_editable attribute.
+        It verifies that the check framework correctly raises an error when a field in list_editable does not exist in the model.
+
+        """
         class SongAdmin(admin.ModelAdmin):
             list_editable = ("test",)
 
@@ -726,6 +772,13 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_inlines_property(self):
+        """
+        Checks if a model admin with an dynamic property for inlines can be successfully validated.
+
+        The function verifies that the model admin instance can handle the `inlines` property being dynamically generated, ensuring that the admin interface can correctly render the inline forms for related models. 
+
+        It tests for the absence of any validation errors when using this approach, confirming that the admin interface remains functional and does not raise any exceptions.
+        """
         class CitiesInline(admin.TabularInline):
             model = City
 
@@ -756,6 +809,16 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_readonly_on_modeladmin(self):
+        """
+
+        Tests that specifying a readonly field on a ModelAdmin instance doesn't result in any errors.
+
+        The test case creates a custom ModelAdmin class with a readonly field and a corresponding method decorated with @admin.display.
+        It then checks for any errors by calling the check method on an instance of the ModelAdmin class.
+
+        The test passes if no errors are reported, indicating that the readonly field and its corresponding method are properly configured.
+
+        """
         class SongAdmin(admin.ModelAdmin):
             readonly_fields = ("readonly_method_on_modeladmin",)
 
@@ -963,6 +1026,25 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_check_sublists_for_duplicates(self):
+        """
+        Checks if there are duplicate fields in the nested field lists of a ModelAdmin instance.
+
+        This test ensures that the check method of a ModelAdmin instance correctly identifies
+        and reports duplicate fields in the 'fields' attribute, even when those fields are 
+        specified in a nested list structure.
+
+        The test asserts that a ModelAdmin class with duplicate 'state' fields in the 'fields'
+        attribute raises an 'admin.E006' error with a corresponding error message.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the expected error is not raised by the check method.
+        """
         class MyModelAdmin(admin.ModelAdmin):
             fields = ["state", ["state"]]
 

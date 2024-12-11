@@ -67,6 +67,29 @@ class TestSuiteTests(SimpleTestCase):
         return suite
 
     def make_test_suite(self, suite=None, suite_class=None):
+        """
+        Creates a test suite containing multiple test cases.
+
+        This method constructs a test suite by combining two predefined test case classes, 
+        Tests1 and Tests2, which contain test methods test1 and test2. 
+
+        The test suite can be customized by providing a specific suite or suite class.
+        The suite and suite_class parameters allow for flexibility in the construction of 
+        the test suite, enabling the integration of the generated test cases into a 
+        larger testing framework.
+
+        Parameters
+        ----------
+        suite : object, optional
+            A predefined test suite to which the test cases will be added.
+        suite_class : class, optional
+            A custom test suite class to use for constructing the test suite.
+
+        Returns
+        -------
+        A test suite containing the combined test cases.
+
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
                 pass
@@ -91,6 +114,19 @@ class TestSuiteTests(SimpleTestCase):
         # Each test.id() has a form like the following:
         # "test_runner.tests.IterTestCasesTests.test_iter_test_cases.<locals>.Tests1.test1".
         # It suffices to check only the last two parts.
+        """
+
+        Verifies that the names of the provided test cases match the expected names.
+
+        This function takes in a list of test cases and a list of expected test names,
+        then checks that the actual test names match the expected ones. The actual test
+        names are determined by taking the last two components of each test's ID, 
+        separated by a dot.
+
+        :param tests: A list of test cases to check.
+        :param expected: A list of expected test names.
+
+        """
         names = [".".join(test.id().split(".")[-2:]) for test in tests]
         self.assertEqual(names, expected)
 
@@ -108,6 +144,17 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_iter_test_cases_string_input(self):
+        """
+        Tests that the iter_test_cases function raises a TypeError when given a string input.
+
+        This test case verifies that the function correctly identifies and handles a string input, 
+        which is not a valid test case or test suite. The expected error message is checked to ensure 
+        it accurately describes the problem encountered.
+
+        Raises:
+            TypeError: If the input to iter_test_cases is a string.
+
+        """
         msg = (
             "Test 'a' must be a test case or test suite not string (was found "
             "in 'abc')."
@@ -116,6 +163,21 @@ class TestSuiteTests(SimpleTestCase):
             list(iter_test_cases("abc"))
 
     def test_iter_test_cases_iterable_of_tests(self):
+        """
+
+        Iterates over a list of test cases and yields each test case.
+
+        This function takes an iterable of test cases as input and returns an iterator 
+        that yields each test case individually. It is designed to work with test cases 
+        loaded using unittest's default test loader.
+
+        The function is useful when you need to process each test case separately, 
+        such as when checking the names of the test cases or filtering out certain tests.
+
+        :returns: An iterator over the test cases in the input iterable.
+        :rtype: iterator
+
+        """
         class Tests(unittest.TestCase):
             def test1(self):
                 pass
@@ -134,6 +196,18 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_iter_test_cases_custom_test_suite_class(self):
+        """
+        #: Tests iteration over test cases in a custom test suite class.
+        #: 
+        #: This function verifies that the :func:`iter_test_cases` function correctly 
+        #: iterates over test cases in a test suite created with a custom test suite class.
+        #: 
+        #: The test suite is generated using the :meth:`make_test_suite` method with 
+        #: :class:`MySuite` as the suite class. The function then checks if the 
+        #: :func:`iter_test_cases` function returns the expected test case names. 
+        #: 
+        #: :returns: None
+        """
         suite = self.make_test_suite(suite_class=MySuite)
         tests = iter_test_cases(suite)
         self.assertTestNames(
@@ -147,6 +221,14 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_iter_test_cases_mixed_test_suite_classes(self):
+        """
+        Tests that the :func:`iter_test_cases` function correctly iterates over test cases 
+        in a mixed test suite containing various test suite classes.
+
+        It verifies that the function returns the expected number of test cases and that 
+        the returned test cases are not instances of :class:`unittest.TestSuite`, confirming 
+        that the function yields individual test cases rather than nested suites.
+        """
         suite = self.make_test_suite(suite=MySuite())
         child_suite = list(suite)[0]
         self.assertNotIsInstance(child_suite, MySuite)
@@ -160,6 +242,9 @@ class TestSuiteTests(SimpleTestCase):
         return list(iter_test_cases(suite))
 
     def test_shuffle_tests(self):
+        """
+        Tests the functionality of shuffling test cases by confirming the output is an iterator and verifying the shuffled test names match the expected order.
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -190,6 +275,17 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_reverse(self):
+        """
+        Tests the reorder_test_bin function when reordering tests in reverse order.
+
+        This function checks that the reordered tests are returned as an iterator and 
+        that the test order is reversed as expected. The test names are verified to be 
+        in the correct reverse order, demonstrating the correct functionality of the 
+        reorder_test_bin function when the reverse parameter is set to True.
+
+        :raises AssertionError: If the reordered tests are not an iterator or if the 
+                                test names are not in the expected reverse order.
+        """
         tests = self.make_tests()
         reordered_tests = reorder_test_bin(tests, reverse=True)
         self.assertIsInstance(reordered_tests, collections.abc.Iterator)
@@ -220,6 +316,17 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_random_and_reverse(self):
+        """
+        Tests the reordering of test bins by shuffling and reversing the order of test cases.
+
+        This test case verifies that the reorder_test_bin function correctly rearranges a list of tests
+        using a provided shuffler and reorder strategy. It checks that the result is an iterator and
+        contains the expected test cases in the correct order after shuffling and reversing.
+
+        The test includes validation to ensure the reordered test cases match the expected output,
+        providing confidence in the reorder_test_bin function's ability to correctly reorder test bins.
+
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -302,6 +409,23 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_reverse_with_duplicates(self):
+        """
+
+        Reorders test cases to ensure consistent execution order across test suites.
+
+        This function takes a list of test cases, optionally grouped by class, and returns 
+        a reordered list to maintain a consistent order of test case execution. The 
+        reordering considers test case dependencies and provides the option to reverse the 
+        order of test case execution. It also handles test suites with duplicate test cases.
+
+        Two modes of reordering are supported: normal and reverse. In normal mode, test 
+        cases are ordered based on their natural sequence. In reverse mode, test cases are 
+        executed in reverse order, allowing for testing scenarios where test case 
+        dependencies require a specific order of execution.
+
+        The function returns a list of reordered test cases.
+
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
                 pass
@@ -368,6 +492,13 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s2"))
 
     def test_chained_dependencies(self):
+        """
+        Tests the functionality of ordering signatures with complex dependencies.
+        This test case covers the scenario where there are multiple signatures ('s1', 's2', 's3') 
+        that depend on each other through their 'alpha', 'bravo', and 'charlie' dependencies.
+        The test asserts that the function `dependency_ordered` correctly orders these signatures 
+        based on their dependencies, ensuring that a signature is ordered after all its dependencies.
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -423,6 +554,14 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s1"))
 
     def test_circular_dependencies(self):
+        """
+        Raises an exception when attempting to order dependencies with a circular dependency.
+
+        This test case checks that the function correctly identifies and handles circular dependencies between components.
+        It verifies that an ImproperlyConfigured exception is raised when a circular dependency is detected, preventing 
+        infinite loops or unexpected behavior. The test setup includes a list of raw components and their corresponding 
+        dependencies, which intentionally contain a circular reference to trigger the exception.
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -462,14 +601,36 @@ MockTestRunner.run_tests = mock.Mock(return_value=[])
 
 class ManageCommandTests(unittest.TestCase):
     def test_custom_test_runner(self):
+        """
+        Tests the usage of a custom test runner by invoking the test command with a specified test runner and verifying its execution.
+
+        This test confirms that the custom test runner is properly called with the correct arguments when the test command is executed.
+
+        :raises AssertionError: If the custom test runner is not called as expected
+        """
         call_command("test", "sites", testrunner="test_runner.tests.MockTestRunner")
         MockTestRunner.run_tests.assert_called_with(("sites",))
 
     def test_bad_test_runner(self):
+        """
+        Tests the behavior of the test command when a non-existent test runner is specified.
+
+        This test case checks that an AttributeError is raised when attempting to use a test runner that does not exist.
+
+        :param none:
+        :raises AttributeError: If the specified test runner is not a valid module or class.
+        :returns: None
+        """
         with self.assertRaises(AttributeError):
             call_command("test", "sites", testrunner="test_runner.NonexistentRunner")
 
     def test_time_recorded(self):
+        """
+        Tests that the --timing option correctly records and outputs the total execution time of a test run.
+
+        This test case verifies that the timing information is properly displayed when running the test command with the --timing option.
+
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -507,6 +668,16 @@ class ManageCommandTests(unittest.TestCase):
 @mock.patch.object(multiprocessing, "cpu_count", return_value=12)
 class ManageCommandParallelTests(SimpleTestCase):
     def test_parallel_default(self, *mocked_objects):
+        """
+
+        Tests the default behavior of running tests in parallel.
+
+        Verifies that when the '--parallel' option is used with the 'test' command,
+        the test runner uses the default number of parallel processes.
+
+        :param mocked_objects: Variable number of mock objects to be used during the test.
+
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -525,6 +696,17 @@ class ManageCommandParallelTests(SimpleTestCase):
         self.assertIn("parallel=12", stderr.getvalue())
 
     def test_no_parallel(self, *mocked_objects):
+        """
+        Tests that running tests without parallelization does not produce any errors.
+
+        This test case invokes the test command with a mock test runner and checks that
+        the standard error output is empty, indicating successful test execution without
+        any issues related to parallelization.
+
+        :raises AssertionError: If the standard error output is not empty after running
+            the test command.
+
+        """
         with captured_stderr() as stderr:
             call_command("test", testrunner="test_runner.tests.MockTestRunner")
         # Parallel is disabled by default.
@@ -532,6 +714,12 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.object(multiprocessing, "get_start_method", return_value="spawn")
     def test_parallel_spawn(self, *mocked_objects):
+        """
+
+        Tests the test runner command with parallel execution set to auto, 
+        verifying that it defaults to a single process when the spawn start method is used.
+
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -557,6 +745,13 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "invalid"})
     def test_django_test_processes_env_non_int(self, *mocked_objects):
+        """
+
+        Tests that setting the DJANGO_TEST_PROCESSES environment variable to a non-integer value raises a ValueError when running the test command with the --parallel option.
+
+        Verifies that the test command properly handles invalid input for the number of test processes, ensuring robust error handling in this scenario.
+
+        """
         with self.assertRaises(ValueError):
             call_command(
                 "test",
@@ -566,6 +761,15 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"})
     def test_django_test_processes_parallel_default(self, *mocked_objects):
+        """
+        Tests the functionality of setting parallel test processes in Django.
+
+        This test case checks the behavior of the 'test' command when run with the '--parallel' option.
+        It verifies that the number of parallel processes defaults to the value specified in the DJANGO_TEST_PROCESSES environment variable.
+
+        The test covers two scenarios: running the 'test' command with the '--parallel' option and with the '--parallel=auto' option.
+        In both cases, it ensures that the correct number of parallel processes is used, as indicated by the output on the standard error stream.
+        """
         for parallel in ["--parallel", "--parallel=auto"]:
             with self.subTest(parallel=parallel):
                 with captured_stderr() as stderr:
@@ -584,6 +788,14 @@ class CustomTestRunnerOptionsSettingsTests(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by calling the parent class's setUp method and configuring custom test runner settings.
+
+        This method is responsible for initializing the test setup and overriding the default test runner with a custom test runner, 'CustomOptionsTestRunner', defined in 'test_runner.runner'. The custom test runner settings are written to a 'settings.py' file.
+
+        Returns:
+            None
+        """
         super().setUp()
         settings = {
             "TEST_RUNNER": "'test_runner.runner.CustomOptionsTestRunner'",
@@ -597,6 +809,16 @@ class CustomTestRunnerOptionsSettingsTests(AdminScriptTestCase):
         self.assertOutput(out, "1:2:3")
 
     def test_default_and_given_options(self):
+        """
+
+        Tests Django admin command with default and given options.
+
+        This test case verifies that the command runs successfully and produces the expected output
+        when provided with a combination of default and specified options.
+        The test specifically checks that the output matches the expected format, 
+        indicating that the command has correctly processed the provided options.
+
+        """
         args = ["test", "--settings=test_project.settings", "--option_b=foo"]
         out, err = self.run_django_admin(args)
         self.assertNoOutput(err)
@@ -628,6 +850,16 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+        def setUp(self):
+            \"\"\"
+            Initializes the test setup by calling the superclass's setup method and 
+            configuring settings by writing them to a settings file named 'settings.py'.
+
+            This method is used to prepare the test environment and ensure that the 
+            required settings are in place before executing tests.
+
+        """
         super().setUp()
         self.write_settings("settings.py")
 
@@ -645,6 +877,16 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_testrunner_equals(self):
+        """
+
+        Tests the test runner's ability to handle custom options.
+
+        Verifies that the test runner correctly parses and utilizes custom command line options.
+
+        This test confirms that the CustomOptionsTestRunner class properly processes and outputs 
+        the provided options (option_a, option_b, option_c) when invoked via the Django admin interface.
+
+        """
         args = [
             "test",
             "--testrunner=test_runner.runner.CustomOptionsTestRunner",
@@ -657,6 +899,14 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_no_testrunner(self):
+        """
+        Tests that running the Django admin test command with the --testrunner option 
+           does not execute any tests and instead displays usage information.
+
+           Verifies that the command does not produce any output, does not encounter any 
+           errors, and provides usage instructions in the error message as expected.
+
+        """
         args = ["test", "--testrunner"]
         out, err = self.run_django_admin(args, "test_project.settings")
         self.assertIn("usage", err)
@@ -693,6 +943,29 @@ class NoInitializeSuiteTestRunnerTests(SimpleTestCase):
                 return
 
             def run_suite(self, suite, **kwargs):
+                """
+                Runs a test suite using the configured test runner.
+
+                Parameters
+                ----------
+                suite : object
+                    The test suite to be executed.
+                **kwargs : dict
+                    Additional keyword arguments (currently ignored, using default test runner kwargs instead).
+
+                Returns
+                -------
+                result : object
+                    The result of the test suite execution.
+
+                Notes
+                -----
+                This method is responsible for executing a test suite. It utilizes the test runner 
+                configured for this instance, passing in the necessary keyword arguments to the 
+                runner. The result of the test suite execution is then returned, allowing for 
+                further processing or analysis.
+
+                """
                 kwargs = self.get_test_runner_kwargs()
                 runner = self.test_runner(**kwargs)
                 return runner.run(suite)
@@ -715,6 +988,18 @@ class TestRunnerInitializerTests(SimpleTestCase):
         multiprocessing, "Pool", side_effect=Exception("multiprocessing.Pool()")
     )
     def test_no_initialize_suite_test_runner(self, mocked_pool):
+        """
+        Tests the suite test runner when multiprocessing.Pool initialization fails.
+
+        This test ensures that the test runner correctly handles the exception raised when
+        multiprocessing Pool cannot be initialized. It verifies that the initializer and
+        arguments passed to the Pool are correct, and that the exception is properly propagated.
+
+        The test case uses a stubbed test runner and patches the multiprocessing Pool to
+        simulate the failure. It checks that the test runner raises the expected exception
+        with the correct message, and that the mocked Pool is called with the correct arguments.
+
+        """
         class StubTestRunner(DiscoverRunner):
             def setup_test_environment(self, **kwargs):
                 return
@@ -778,6 +1063,15 @@ class SQLiteInMemoryTestDbs(TransactionTestCase):
         # Assert connections mocking is appropriately applied by preventing
         # any attempts at calling create_test_db on the global connection
         # objects.
+        """
+        Tests that transaction support detection is not interfered with by setting the 'NAME' or 'TEST' options in the DATABASES setting to sqlite3's ':memory:' value.
+
+            The test covers the cases where the 'NAME' or 'TEST' options are set to ':memory:' for sqlite3 databases and verifies that transaction support is correctly detected for the 'other' database connection.
+
+            The test uses a mock patch to prevent the global connection object from being manipulated and sets up test databases with the specified options. It then checks that transaction support is enabled for the 'other' connection and that the connections support transactions.
+
+            This test is specific to sqlite databases and is skipped if any non-sqlite databases are being tested.
+        """
         for connection in db.connections.all():
             create_test_db = mock.patch.object(
                 connection.creation,
@@ -907,6 +1201,15 @@ class SetupDatabasesTests(unittest.TestCase):
             )
 
     def test_destroy_test_db_restores_db_name(self):
+        """
+
+        Tests that the destroy_test_db method correctly restores the original database name.
+
+        Verifies that after creating a test database with a modified name, calling destroy_test_db
+        restores the original database name. This ensures that the database is left in its original
+        state after the test is completed.
+
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {

@@ -11,12 +11,40 @@ class GeoExpressionsTests(TestCase):
     fixtures = ["initial"]
 
     def test_geometry_value_annotation(self):
+        """
+
+        Tests annotating a database query with a geometric value.
+
+        This test case verifies that a geometric point can be correctly annotated
+        to a database query result. It checks that the annotated point matches
+        the original point, ensuring that the geometric value is preserved during
+        the annotation process.
+
+        The test uses a City model instance and annotates it with a point value
+        in a specific spatial reference system (SRS). The annotated point is then
+        compared to the original point to ensure their equality.
+
+        """
         p = Point(1, 1, srid=4326)
         point = City.objects.annotate(p=Value(p, GeometryField(srid=4326))).first().p
         self.assertEqual(point, p)
 
     @skipUnlessDBFeature("supports_transform")
     def test_geometry_value_annotation_different_srid(self):
+        """
+
+         Tests the annotation of a geometry value with a different SRID.
+
+         This test verifies that when a geometry value is annotated with a different
+         Spatial Reference System Identifier (SRID), the resulting geometry is correctly
+         transformed to the target SRID. It also checks that the SRID of the resulting
+         geometry matches the target SRID.
+
+         The test uses a sample point geometry with an initial SRID and annotates it with
+         a different SRID. It then checks that the transformed geometry is equal to the
+         expected result and that its SRID matches the target SRID.
+
+        """
         p = Point(1, 1, srid=32140)
         point = City.objects.annotate(p=Value(p, GeometryField(srid=4326))).first().p
         self.assertTrue(point.equals_exact(p.transform(4326, clone=True), 10**-5))
@@ -55,6 +83,17 @@ class GeoExpressionsTests(TestCase):
             )
 
     def test_multiple_annotation(self):
+        """
+
+        Tests the functionality of annotating the distance from a multi-field 
+        object to a city and counting the number of multi-field objects 
+        associated with each city.
+
+        The test verifies that a query set can be successfully annotated with 
+        the minimum distance to a specific multi-field object and the count 
+        of multi-field objects, and that at least one result is returned.
+
+        """
         multi_field = MultiFields.objects.create(
             point=Point(1, 1),
             city=City.objects.get(name="Houston"),

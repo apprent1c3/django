@@ -273,6 +273,17 @@ class ProxyDeleteTest(TestCase):
         self.assertEqual(len(FooFileProxy.objects.all()), 0)
 
     def test_19187_values(self):
+        """
+        Tests that calling delete() after.values() or.values_list() raises a TypeError.
+
+        This test ensures that attempting to delete objects from a queryset that has been 
+        evaluated using the values() or values_list() method results in a TypeError, as 
+        these methods do not return a queryset that can be used for deletion.
+
+        The test checks for the specific error message 'Cannot call delete() after.values() 
+        or.values_list()' to ensure that the correct exception is being raised.
+
+        """
         msg = "Cannot call delete() after .values() or .values_list()"
         with self.assertRaisesMessage(TypeError, msg):
             Image.objects.values().delete()
@@ -293,6 +304,17 @@ class Ticket19102Tests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for use in tests, creating default OrgUnit and Login instances.
+
+        This class method initializes a set of test data that can be used throughout the test suite.
+        It creates two OrgUnit instances (o1 and o2) and two corresponding Login instances (l1 and l2),
+        each associated with one of the OrgUnits. The created instances are stored as class attributes,
+        allowing them to be accessed and used in various test cases.
+
+        The use of this method simplifies the setup process for tests, ensuring a consistent set of data
+        is available for testing related functionality, without having to duplicate setup code in each test case.
+        """
         cls.o1 = OrgUnit.objects.create(name="o1")
         cls.o2 = OrgUnit.objects.create(name="o2")
         cls.l1 = Login.objects.create(description="l1", orgunit=cls.o1)
@@ -300,6 +322,14 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_annotate(self):
+        """
+
+        Tests the fix for ticket 19102, verifying that annotate can be used correctly with delete queries.
+
+        This test case ensures that the database correctly handles annotations with subqueries
+        when used in conjunction with delete queries.
+
+        """
         with self.assertNumQueries(1):
             Login.objects.order_by("description").filter(
                 orgunit__name__isnull=False
@@ -329,6 +359,21 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_defer(self):
+        """
+        Tests the fix for ticket 19102 regarding deferred model fields and self-selecting updates.
+
+        This test ensures that a query deleting objects with a specific condition
+        does not interfere with other related objects, and that the deletion is
+        performed in a single database query. It also verifies the successful
+        deletion of the target object and the continued existence of a separate
+        object, confirming the accuracy of the deletion operation.
+
+        The objective of this test is to validate that the ORM correctly handles
+        deferred fields and self-selecting updates, preventing unintended side
+        effects on related data. The test case serves as a safeguard against
+        regressions in the handling of defer statements and update queries, 
+        guaranteeing the integrity of the data in the database.
+        """
         with self.assertNumQueries(1):
             Login.objects.filter(pk=self.l1.pk).filter(
                 orgunit__name__isnull=False
@@ -342,6 +387,16 @@ class DeleteTests(TestCase):
         # When a subquery is performed by deletion code, the subquery must be
         # cleared of all ordering. There was a but that caused _meta ordering
         # to be used. Refs #19720.
+        """
+
+        Tests that the deletion of OrderedPerson objects is correctly ordered when 
+        their associated House object is filtered by address.
+
+        Verifies that all OrderedPerson objects associated with a House having a 
+        specific address are removed from the database when the filtered delete 
+        operation is executed.
+
+        """
         h = House.objects.create(address="Foo")
         OrderedPerson.objects.create(name="Jack", lives_in=h)
         OrderedPerson.objects.create(name="Bob", lives_in=h)

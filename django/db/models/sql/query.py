@@ -68,6 +68,16 @@ def get_field_names_from_opts(opts):
 
 
 def get_paths_from_expression(expr):
+    """
+    Generates paths from a given expression.
+
+    This function recursively traverses the expression, yielding the names of all F objects encountered.
+    It handles two types of expressions: those that are instances of F directly, and those that have a flatten method.
+    For expressions with a flatten method, it yields names from any F objects found in the flattened expression, as well as any child Q objects.
+
+    :yield: Paths (names of F objects) extracted from the expression
+    :rtype: generator[str]
+    """
     if isinstance(expr, F):
         yield expr.name
     elif hasattr(expr, "flatten"):
@@ -163,6 +173,14 @@ class RawQuery:
         return RawQuery(self.sql, using, params=self.params)
 
     def get_columns(self):
+        """
+        Returns a list of column names for the current query result. 
+        The column names are converted to a format consistent with the 
+        database's identifier convention using the identifier converter 
+        provided by the database connection. 
+        If a query has not been executed, this function will implicitly 
+        execute the current query before returning the column names.
+        """
         if self.cursor is None:
             self._execute_query()
         converter = connections[self.using].introspection.identifier_converter
@@ -356,6 +374,23 @@ class Query(BaseExpression):
         return result
 
     def get_compiler(self, using=None, connection=None, elide_empty=True):
+        """
+
+        Returns a database compiler instance for the given connection or alias.
+
+        The compiler is responsible for generating SQL queries based on the object's
+        configuration. To obtain a compiler, you must specify either a database alias
+        (using the ``using`` parameter) or a database connection (using the ``connection``
+        parameter). If both are provided, the ``using`` parameter takes precedence.
+
+        The ``elide_empty`` parameter controls whether empty values should be omitted
+        from the generated SQL query.
+
+        :raises ValueError: If neither ``using`` nor ``connection`` is provided
+        :returns: A database compiler instance
+        :rtype: object
+
+        """
         if using is None and connection is None:
             raise ValueError("Need either using or connection")
         if using:
@@ -1231,6 +1266,13 @@ class Query(BaseExpression):
         return clone
 
     def get_external_cols(self):
+        """
+        Return a list of external column objects that are referenced in the current query.
+
+        These columns are derived from annotations and conditions specified in the where clause.
+        The function filters the generated columns to only include those that have an alias matching
+        the external aliases defined in the object, ensuring that only relevant external columns are returned.
+        """
         exprs = chain(self.annotations.values(), self.where.children)
         return [
             col
@@ -1243,6 +1285,15 @@ class Query(BaseExpression):
         # values() a reference to this expression and not the self must be
         # returned to ensure external column references are not grouped against
         # as well.
+        """
+        ..:param wrapper: Optional wrapper to return instead of self if external columns are possibly multivalued
+            :return: A list of external columns, or a single wrapper or self object if any external column is possibly multivalued
+            :rtype: list or object
+
+            Returns either a list of external columns or a single object, depending on whether any external column is possibly multivalued.
+            If any column is possibly multivalued, it returns the provided wrapper object if specified, or the current object otherwise.
+            Otherwise, it returns the list of external columns.
+        """
         external_cols = self.get_external_cols()
         if any(col.possibly_multivalued for col in external_cols):
             return [wrapper or self]
@@ -1662,6 +1713,28 @@ class Query(BaseExpression):
         return target_clause, needed_inner
 
     def add_filtered_relation(self, filtered_relation, alias):
+        """
+        Add a filtered relation to the current instance.
+
+        This method takes a :class:`FilteredRelation` object and an alias as input, 
+        validates the relation's name and condition, and then adds the filtered relation 
+        to the instance's internal dictionary. The validation ensures that the relation's 
+        name does not contain lookups and that the condition only references fields 
+        within the specified relation.
+
+        The method also renames the prefix of the condition's query to match the provided 
+        alias, allowing for easier reference to the filtered relation in subsequent queries.
+
+        Args:
+            filtered_relation: A :class:`FilteredRelation` object to be added.
+            alias: The alias to be used for the filtered relation.
+
+        Raises:
+            ValueError: If the relation's name contains lookups or if the condition 
+                references fields outside the specified relation or nested relations 
+                deeper than the relation_name.
+
+        """
         filtered_relation.alias = alias
         relation_lookup_parts, relation_field_parts, _ = self.solve_lookup_type(
             filtered_relation.relation_name
@@ -1884,6 +1957,20 @@ class Query(BaseExpression):
         for name in transforms:
 
             def transform(field, alias, *, name, previous):
+                """
+                Transforms a field by applying a given transformation.
+
+                This function takes a field and an alias as input, applies a previous transformation 
+                to them, and then attempts to apply an additional transformation using the 
+                :py:meth:`try_transform` method.
+
+                :param field: The field to be transformed
+                :param alias: The alias associated with the field
+                :param name: The name of the transformation
+                :param previous: The previous transformation function
+
+                :raises FieldError: If an error occurs during the transformation process
+                """
                 try:
                     wrapped = previous(field, alias)
                     return self.try_transform(wrapped, name)
@@ -2101,6 +2188,11 @@ class Query(BaseExpression):
         return condition, needed_inner
 
     def set_empty(self):
+        """
+        Sets the current query to be empty, effectively clearing any conditions or filters.
+
+        This method modifies the query by adding a \"Nothing\" condition, ensuring that no results will be returned. Additionally, it propagates this change to any combined queries, setting them to empty as well.
+        """
         self.where.add(NothingNode(), AND)
         for query in self.combined_queries:
             query.set_empty()
@@ -2170,6 +2262,14 @@ class Query(BaseExpression):
         self.selected = None
 
     def add_select_col(self, col, name):
+        """
+        Adds a column to the list of columns to be selected.
+
+        :param col: The column to be added to the selection.
+        :param name: The alias or name of the column.
+
+        This method updates the selection criteria by adding the specified column and assigning it the given name. The column is then tracked internally for future reference. 
+        """
         self.select += (col,)
         self.values_select += (name,)
         self.selected[name] = len(self.select) - 1
@@ -2673,6 +2773,18 @@ class JoinPromoter:
     """
 
     def __init__(self, connector, num_children, negated):
+        """
+        Initializes a decision node with a logical connector, a specified number of children, and an optional negation flag.
+
+        The connector determines how the votes from child nodes are combined to make a decision. The negated flag inverts the effect of the connector, effectively changing AND to OR and vice versa.
+
+        The decision node maintains a counter to track votes from each child node, allowing it to make a decision based on the combined votes.
+
+        Parameters:
+            connector (str): The logical connector to use when combining votes (e.g. AND, OR).
+            num_children (int): The number of child nodes that will be voting.
+            negated (bool): Whether to invert the effect of the connector.
+        """
         self.connector = connector
         self.negated = negated
         if self.negated:

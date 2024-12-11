@@ -19,5 +19,14 @@ class ResolverCacheTests(SimpleTestCase):
     def test_resolver_cache_default__root_urlconf(self):
         # resolver for a default URLconf (passing no argument) and for the
         # settings.ROOT_URLCONF is the same cached object.
+        """
+
+        Tests the caching behavior of the URL resolver when the ROOT_URLCONF setting is overridden.
+
+        Verifies that the resolver instance returned by get_resolver() is the same instance
+        as the one returned by get_resolver() with the overridden ROOT_URLCONF path, and
+        different from the instance returned with a different URL configuration path.
+
+        """
         self.assertIs(get_resolver(), get_resolver("urlpatterns.path_urls"))
         self.assertIsNot(get_resolver(), get_resolver("urlpatterns.path_dynamic_urls"))
