@@ -461,6 +461,22 @@ class Options:
 
     @cached_property
     def base_manager(self):
+        """
+
+        Returns the base manager instance for the current model.
+
+        This method attempts to determine the base manager name by checking the model's
+        inheritance hierarchy. If a base manager name is found, it returns the corresponding
+        manager instance from the managers map. If no base manager name is found, it creates
+        and returns a new default manager instance.
+
+        Raises:
+            ValueError: If the base manager name is not found in the managers map.
+
+        Returns:
+            Manager: The base manager instance for the current model.
+
+        """
         base_manager_name = self.base_manager_name
         if not base_manager_name:
             # Get the first parent's base_manager_name if there's one.
@@ -639,6 +655,15 @@ class Options:
 
     @cached_property
     def fields_map(self):
+        """
+        Return a dictionary mapping field names and attribute names to their corresponding field objects.
+
+        This mapping includes all fields, whether they are hidden or not, and provides access to fields by both their original name and their attribute name (if applicable).
+
+        The returned dictionary allows for efficient lookup of field objects by their names, which can be useful for further processing or manipulation of the fields.
+
+        Note that the mapping is constructed lazily and cached for future access, reducing the overhead of repeated computations.
+        """
         res = {}
         fields = self._get_fields(forward=False, include_hidden=True)
         for field in fields:

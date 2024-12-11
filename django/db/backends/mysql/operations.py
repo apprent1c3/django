@@ -326,6 +326,23 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def convert_uuidfield_value(self, value, expression, connection):
+        """
+
+        Converts a UUID field value to a standard UUID object.
+
+        This method takes a value, an expression, and a database connection as input.
+        If the provided value is not None, it is converted to a uuid.UUID object.
+        The converted value is then returned, or None if the input value was None.
+
+        The purpose of this conversion is to ensure that UUID field values are consistently
+        represented as UUID objects, regardless of their original format.
+
+        :param value: The UUID field value to be converted
+        :param expression: The expression associated with the UUID field
+        :param connection: The database connection
+        :return: The converted UUID value, or None if the input value was None
+
+        """
         if value is not None:
             value = uuid.UUID(value)
         return value

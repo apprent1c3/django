@@ -604,6 +604,25 @@ def construct_change_message(form, formsets, add):
 
 
 def _get_changed_field_labels_from_form(form, changed_data):
+    """
+
+    Return a list of human-readable labels for form fields that have changed.
+
+    Given a form and a dictionary of changed data, this function iterates over the 
+    changed fields and retrieves the corresponding verbose field names from the form.
+    If a verbose field name is not available, the field name itself is used.
+
+    The resulting list of field labels is returned as strings, making it suitable for 
+    displaying change summaries or notifications.
+
+    Args:
+        form: The form containing the changed fields.
+        changed_data (dict): A dictionary of field names that have changed.
+
+    Returns:
+        list: A list of strings representing the human-readable labels of changed fields.
+
+    """
     changed_field_labels = []
     for field_name in changed_data:
         try:

@@ -116,6 +116,17 @@ class InMemoryUploadedFile(UploadedFile):
         return self
 
     def chunks(self, chunk_size=None):
+        """
+
+        Generates chunks of data from a file.
+
+        This method reads the contents of the file in a single chunk. If a chunk size is provided, 
+        it is currently ignored and the entire file is yielded as a single chunk.
+
+        :returns: A generator that yields the contents of the file.
+        :rtype: generator
+
+        """
         self.file.seek(0)
         yield self.read()
 

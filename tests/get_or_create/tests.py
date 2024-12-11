@@ -747,6 +747,9 @@ class InvalidCreateArgumentsTests(TransactionTestCase):
     )
 
     def test_get_or_create_with_invalid_defaults(self):
+        """
+        Tests that an error is raised when the get_or_create method is called with invalid default values, specifically when a field specified in the defaults dictionary does not exist on the model. The function verifies that a FieldError is raised with a specific error message, ensuring that the method behaves correctly when provided with invalid data.
+        """
         with self.assertRaisesMessage(FieldError, self.msg):
             Thing.objects.get_or_create(name="a", defaults={"nonexistent": "b"})
 

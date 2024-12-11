@@ -132,6 +132,17 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def deconstruct(self):
+        """
+        Deconstructs the ArrayField into its constituent parts to facilitate serialization and reconstruction.
+
+        This method builds upon the deconstruction functionality provided by its parent class, adapting the result to accurately represent the current ArrayField instance. 
+
+        It modifies the path to point directly to 'django.contrib.postgres.fields.ArrayField' if necessary, and enriches the keyword arguments with the cloned base field and size, allowing for precise recreation of the field. 
+
+        The deconstructed components include the field's name, its path, positional arguments, and keyword arguments, which collectively capture the essential characteristics of the ArrayField. 
+
+        Returns a tuple containing the deconstructed name, path, arguments, and keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         if path == "django.contrib.postgres.fields.array.ArrayField":
             path = "django.contrib.postgres.fields.ArrayField"
@@ -298,6 +309,23 @@ class ArrayLenTransform(Transform):
     output_field = IntegerField()
 
     def as_sql(self, compiler, connection):
+        """
+        Returns SQL representation of the function to calculate the length of an array.
+
+        This method compiles the left-hand side (LHS) of the expression and returns a SQL string 
+        that calculates the length of the resulting array. If the array is null, the function 
+        returns null; otherwise, it returns the length of the array, or 0 if the array is empty. 
+
+        The SQL representation is parameterized with the compiled LHS and its corresponding 
+        parameters. The parameters are duplicated to match the parameter placeholders in the 
+        SQL string.
+
+        :param compiler: The compiler object used to compile the LHS of the expression.
+        :param connection: The database connection object.
+        :rtype: tuple
+        :return: A tuple containing the SQL string and the compiled parameters.
+
+        """
         lhs, params = compiler.compile(self.lhs)
         # Distinguish NULL and empty arrays
         return (

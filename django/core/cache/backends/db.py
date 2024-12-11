@@ -102,6 +102,16 @@ class DatabaseCache(BaseDatabaseCache):
         self._base_set("set", key, value, timeout)
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        ..: Add a value to the store if the key does not already exist.
+
+        :param key: The key to add the value to
+        :param value: The value to add
+        :param timeout: The time after which the key will expire, defaults to DEFAULT_TIMEOUT
+        :param version: The version of the key, used for versioned operations
+        :return: Result of the add operation
+        :note: If the key already exists, this operation will fail.
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("add", key, value, timeout)
 

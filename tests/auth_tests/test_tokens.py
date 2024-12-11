@@ -21,6 +21,23 @@ class MockedPasswordResetTokenGenerator(PasswordResetTokenGenerator):
 
 class TokenGeneratorTest(TestCase):
     def test_make_token(self):
+        """
+        Verifies the functionality of generating and validating password reset tokens.
+
+        Tests the creation of a password reset token for a given user and checks
+        if the generated token is valid by using the token generator's validation
+        method. This test case ensures that the token creation and validation
+        process works as expected, providing a key component of the password reset
+        mechanism.
+
+        The test covers the following aspects:
+            - Creation of a new user
+            - Generation of a password reset token for the user
+            - Validation of the generated token using the token generator
+
+        This test is crucial for ensuring the reliability and security of the
+        password reset feature in the application.
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p0 = PasswordResetTokenGenerator()
         tk1 = p0.make_token(user)

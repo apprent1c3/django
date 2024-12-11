@@ -22,6 +22,18 @@ class SQLiteOperationsTests(TestCase):
         )
 
     def test_sql_flush_allow_cascade(self):
+        """
+
+        Tests that the sql_flush method correctly generates SQL statements to delete data 
+        from the specified database tables when allow_cascade is True.
+
+        This test case verifies that the generated SQL statements include DELETE statements 
+        for the given tables, in the correct order, and with the correct table names.
+
+        The test covers the scenario where allow_cascade is enabled, ensuring that the 
+        sql_flush method behaves as expected in this situation.
+
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

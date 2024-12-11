@@ -553,6 +553,21 @@ class DeletionTests(TestCase):
         self.assertTrue(R.objects.filter(id=parent_id).exists())
 
     def test_delete_with_keeping_parents_relationships(self):
+        """
+
+        Tests the functionality of deleting objects while preserving their parent relationships.
+
+        This function creates instances of RChild and RChildChild objects, establishes 
+        their parent relationships through foreign keys, and then deletes these objects 
+        using the keep_parents parameter. It verifies that after deletion, the parent 
+        objects still exist in the database, ensuring the relationships are maintained.
+
+        The test covers two scenarios: deleting an RChild object and deleting an RChildChild 
+        object, both with the keep_parents parameter set to True, to confirm that the 
+        parent objects (R and RChild respectively) and their related S objects remain 
+        intact after the deletion operation.
+
+        """
         child = RChild.objects.create()
         parent_id = child.r_ptr_id
         parent_referent_id = S.objects.create(r=child.r_ptr).pk

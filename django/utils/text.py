@@ -100,6 +100,19 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        Initializes a parser with the specified length and replacement string.
+
+        This constructor sets up the internal state of the parser, including the 
+        output buffer, the stack of HTML tags, and the replacement string to use 
+        when parsing. It also inherits the character reference conversion behavior 
+        from its parent class.
+
+        :param length: The total length of the input to be parsed.
+        :param replacement: The string to use as a replacement when parsing.
+        :param convert_charrefs: Whether to convert character references, defaults to True.
+
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""

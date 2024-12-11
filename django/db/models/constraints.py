@@ -166,6 +166,19 @@ class CheckConstraint(BaseConstraint):
         )
 
     def _get_check(self):
+        """
+        ..:meth:`~_get_check`:
+            Retrieves the condition for a check constraint.
+
+           .. note::
+                This method is deprecated in favor of accessing the :attr:`~condition` attribute directly.
+                It will be removed in Django 6.0.
+
+           .. versionchanged:: Django 6.0
+                Added deprecation warning.
+
+            :return: The condition for the check constraint.
+        """
         warnings.warn(
             "CheckConstraint.check is deprecated in favor of `.condition`.",
             RemovedInDjango60Warning,
@@ -174,6 +187,16 @@ class CheckConstraint(BaseConstraint):
         return self.condition
 
     def _set_check(self, value):
+        """
+        Sets the condition for a check constraint.
+
+        .. deprecated:: CheckConstraint.check is deprecated in favor of :attr:`.condition` and will be removed in Django 6.0.
+
+        This method updates the condition used to validate data in the database. The condition is used to enforce data integrity by checking whether the data meets certain criteria.
+
+        :param value: The condition to be applied to the check constraint.
+        :type value: The type of the condition (e.g., a string representing a SQL expression)
+        """
         warnings.warn(
             "CheckConstraint.check is deprecated in favor of `.condition`.",
             RemovedInDjango60Warning,

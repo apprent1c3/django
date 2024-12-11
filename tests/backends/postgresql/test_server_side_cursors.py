@@ -39,6 +39,25 @@ class ServerSideCursorsPostgres(TestCase):
 
     @contextmanager
     def override_db_setting(self, **kwargs):
+        """
+
+        Temporarily overrides database settings for the duration of a test or other context.
+
+        This context manager allows you to override specific database settings, such as
+        connection parameters or query timeouts, and automatically reverts them to their
+        original values when the context is exited.
+
+        You can override multiple settings simultaneously by passing them as keyword arguments.
+        For example, you might override the database host and port like this:
+            :setting: `host` - the hostname or IP address of the database server
+            :setting: `port` - the port number to use for the database connection
+
+        When the context is exited, all overridden settings are restored to their original values.
+
+        Note that this context manager uses the `addCleanup` method to ensure that settings
+        are reverted even if an exception is raised within the context.
+
+        """
         for setting in kwargs:
             original_value = connection.settings_dict.get(setting)
             if setting in connection.settings_dict:
@@ -52,6 +71,17 @@ class ServerSideCursorsPostgres(TestCase):
             yield
 
     def assertUsesCursor(self, queryset, num_expected=1):
+        """
+        Asserts that a given queryset uses the expected number of server-side cursors.
+
+        Checks that the queryset uses at least one cursor by consuming its iterator, 
+        then verifies the characteristics of the opened cursors. The function checks 
+        the number of cursors, their names, and properties such as scrollability, 
+        holdability, and binary encoding.
+
+        :param queryset: A queryset to inspect
+        :param num_expected: The expected number of server-side cursors, defaults to 1
+        """
         next(queryset)  # Open a server-side cursor
         cursors = self.inspect_cursors()
         self.assertEqual(len(cursors), num_expected)

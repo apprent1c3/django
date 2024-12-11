@@ -306,6 +306,16 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
         )
 
     def log_lack_of_migration(self, field_name, model_name, reason):
+        """
+        Logs a warning message when a field on a model has not been migrated.
+
+        :param field_name: The name of the field that was not migrated.
+        :param model_name: The name of the model containing the unmigrated field.
+        :param reason: The reason why the field was not migrated.
+
+        This method provides feedback about migrations that have not been applied, helping to ensure data integrity and consistency.
+        Note that the log message is only emitted if the verbosity level is greater than 0.
+        """
         if self.verbosity > 0:
             self.log(
                 f"Field '{field_name}' on model '{model_name}' not migrated: "
@@ -332,6 +342,13 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
 
     def ask_auto_now_add_addition(self, field_name, model_name):
         # We can't ask the user, so act like the user aborted.
+        """
+        Raises an error and exits the program when attempting to add a field with 'auto_now_add=True' 
+        without a default value specified, indicating that it is impossible to add such a field.
+
+        :param field_name: The name of the field being added.
+        :param model_name: The name of the model that the field is being added to.
+        """
         self.log_lack_of_migration(
             field_name,
             model_name,

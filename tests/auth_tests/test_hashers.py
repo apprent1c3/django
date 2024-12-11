@@ -384,6 +384,22 @@ class TestUtilsHashPass(SimpleTestCase):
             hasher.iterations = old_iterations
 
     def test_pbkdf2_harden_runtime(self):
+        """
+
+        Tests the hardening of PBKDF2 runtime.
+
+        This test case ensures that the password hasher correctly hardens its runtime
+        by testing the following scenarios:
+
+        * Verification of the default hash algorithm as 'pbkdf2_sha256'
+        * Encoding of a password with a reduced number of iterations
+        * Hardening of the runtime with an incorrect password
+        * Verification that the encode method is called with the expected parameters
+
+        The test uses mocking to control the number of iterations and the encode method's
+        behavior, allowing for precise testing of the hardening process.
+
+        """
         hasher = get_hasher("default")
         self.assertEqual("pbkdf2_sha256", hasher.algorithm)
 
@@ -550,6 +566,16 @@ class BasePasswordHasherTests(SimpleTestCase):
             self.hasher.decode("encoded")
 
     def test_harden_runtime(self):
+        """
+        Tests that the harden_runtime method is implemented in subclasses of BasePasswordHasher.
+
+        This test case verifies that the harden_runtime method is provided by subclasses,
+        raising a warning if it is not implemented. The test checks the method's
+        existence and ensures a warning is issued when the method is not defined,
+        enforcing the requirement for subclasses to implement this method.
+
+        :raises Warning: if the harden_runtime method is not implemented in the subclass
+        """
         msg = (
             "subclasses of BasePasswordHasher should provide a harden_runtime() method"
         )

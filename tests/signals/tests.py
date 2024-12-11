@@ -26,6 +26,13 @@ class BaseSignalSetup:
 
     def tearDown(self):
         # All our signals got disconnected properly.
+        """
+        Verifies that the number of signal receivers remains unchanged after the test.
+
+        This method checks if the number of receivers for pre_save, post_save, pre_delete, and post_delete signals are the same as they were at the start of the test.
+        It ensures that no new signal receivers were added or removed during the test, which helps maintain a clean test environment and prevents potential side effects.
+
+        """
         post_signals = (
             len(signals.pre_save.receivers),
             len(signals.post_save.receivers),
@@ -289,6 +296,21 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.pre_save.disconnect(decorated_handler_with_sender_arg, sender=Car)
 
     def test_save_and_delete_signals_with_m2m(self):
+        """
+
+        Tests the saving and deletion of signals with many-to-many relationships.
+
+        Verifies that pre_save and post_save signals are emitted when creating objects, 
+        and that the signals contain the expected information about the instance being saved.
+
+        Also tests that pre_delete and post_delete signals are emitted when deleting objects, 
+        and that the signals contain the expected information about the instance being deleted.
+
+        In addition, checks that no signals are emitted when updating many-to-many relationships.
+
+        Ensures that the signals are properly connected and disconnected to prevent memory leaks.
+
+        """
         data = []
 
         def pre_save_handler(signal, sender, instance, **kwargs):
@@ -636,6 +658,17 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(async_handler, 1)])
 
     async def test_asend_robust_only_async_receivers(self):
+        """
+
+        Tests that the asend_robust method of a Signal only sends signals to asynchronous receivers.
+
+        This test ensures that when a signal is sent using the asend_robust method, only receivers that are
+        defined as asynchronous will be notified.
+
+        The test verifies that the asend_robust method returns a list of tuples, where each tuple contains
+        the receiver and the result of sending the signal to that receiver.
+
+        """
         async_handler = AsyncHandler()
         signal = dispatch.Signal()
         signal.connect(async_handler)

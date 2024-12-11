@@ -354,6 +354,19 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_verbosity_zero(self):
         # We can suppress output on the management command
+        """
+        Tests the createsuperuser command with verbosity set to zero.
+
+        This test case verifies that when the createsuperuser command is executed with verbosity set to 0, it does not produce any output.
+        Additionally, it checks that a new superuser is successfully created with the provided username and email address, and that the user does not have a usable password.
+
+        The following conditions are met:
+        - The command output is empty.
+        - The user's email address matches the provided email.
+        - The user does not have a usable password set.
+
+        This test ensures the createsuperuser command works correctly in non-interactive mode with minimal output.
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -565,6 +578,26 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_via_option_interactive(self):
+        """
+
+        Test the creation of a superuser with foreign key fields (username, group) 
+        via the interactive option.
+
+        This test case checks if a superuser can be created successfully with 
+        foreign key fields (username and group) using the 'createsuperuser' 
+        command in interactive mode. It verifies that the superuser is created 
+        with the correct username, email, and group, and that the command output 
+        is as expected.
+
+        The test uses a custom user model (CustomUserWithFK) that includes foreign 
+        key fields, and it overrides the AUTH_USER_MODEL setting to use this model.
+
+        The test case covers the following scenarios:
+        - Creating a superuser with a foreign key as username.
+        - Assigning a group to the superuser using a foreign key.
+        - Verifying the output of the 'createsuperuser' command.
+
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -608,6 +641,19 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk_environment_variable(self):
+        """
+
+        Tests the validation of the DJANGO_SUPERUSER_GROUP environment variable.
+
+        This test checks that when the DJANGO_SUPERUSER_GROUP variable is set to an
+        invalid group ID, a CommandError is raised with a message indicating that the
+        group instance with the specified ID is not a valid choice.
+
+        The test simulates a scenario where the group specified by the environment
+        variable does not exist in the database, and verifies that the createsuperuser
+        command correctly handles this situation and provides a useful error message.
+
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -807,6 +853,29 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ]
     )
     def test_validate_password_against_username(self):
+        """
+        Tests the validation of passwords against usernames during superuser creation.
+
+        Verifies that the `UserAttributeSimilarityValidator` password validator correctly
+        identifies and rejects passwords that are too similar to the corresponding username.
+        The test simulates interactive superuser creation using mock inputs, checking
+        that an error message is displayed when the password is too similar, and that
+        the superuser is created successfully when a suitable password is provided.
+
+        The test does not verify the underlying validation logic in detail, but rather
+        ensures that the validation integrates correctly with the superuser creation
+        process and provides the expected user experience. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the validation does not behave as expected.
+
+        """
         new_io = StringIO()
         username = "supremelycomplex"
         entered_passwords = [
@@ -1045,6 +1114,17 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             {"password": return_passwords, "username": return_usernames, "email": ""}
         )
         def test(self):
+            """
+
+            Tests the creation of a superuser with invalid input.
+
+            Verifies that the command handles excessive input length by checking for 
+            the expected error message and a successful creation of the superuser.
+            The test uses mocked inputs for username, password, and email, and 
+            validates the output for the specific error message related to 
+            character limits in the username field.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,

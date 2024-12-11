@@ -68,6 +68,25 @@ class I:
         self.assertEqual(line, 12)
 
     def test_get_path_and_line_func(self):
+        """
+
+        Return the file path and line number for a given module and function name.
+
+        The function takes a module name and a full function name as input, and returns a tuple containing the file path where the function is defined and the line number where the function is located.
+
+        Parameters
+        ----------
+        module : str
+            The name of the module where the function is defined.
+        fullname : str
+            The full name of the function.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the file path and line number of the function.
+
+        """
         path, line = github_links.get_path_and_line(
             module="tests.sphinx.testdata.package.module", fullname="my_function"
         )
@@ -149,6 +168,22 @@ class I:
         self.assertEqual(branch, "main")
 
     def test_github_linkcode_resolve_unspecified_domain(self):
+        """
+
+        Resolves the GitHub link code for an unspecified domain.
+
+        This function tests whether the github_linkcode_resolve function returns None when 
+        given an unspecified domain, indicating that no specific GitHub link code 
+        resolution is possible for this domain.
+
+        :param domain: the domain to be resolved (set to 'unspecified' in this test)
+        :param info: additional information used for resolution (empty in this test)
+        :param version: the current version (set to '3.2' in this test)
+        :param next_version: the next version (set to '3.2' in this test)
+
+        :return: None if the domain is unspecified, indicating no resolution is possible.
+
+        """
         domain = "unspecified"
         info = {}
         self.assertIsNone(
@@ -158,6 +193,15 @@ class I:
         )
 
     def test_github_linkcode_resolve_unspecified_info(self):
+        """
+
+        Test the github_linkcode_resolve function when given unspecified information.
+
+        This test case examines the resolver's behavior when no module or fullname is provided.
+        It verifies that the function correctly handles this absence of information and returns None as expected.
+        The test is performed for the Python domain with version '3.2' and next_version '3.2'.
+
+        """
         domain = "py"
         info = {"module": None, "fullname": None}
         self.assertIsNone(
@@ -167,6 +211,17 @@ class I:
         )
 
     def test_github_linkcode_resolve_not_found(self):
+        """
+
+        Tests the resolution of GitHub link codes when the referenced module does not exist.
+
+        This test case checks that the github_linkcode_resolve function returns None when 
+        it encounters a module that is not found. It simulates this scenario by providing 
+        a fictional module name and verifying that the function behaves as expected in 
+        this case. The test covers the function's behavior for Python link codes, 
+        using a specific version and next version of the module.
+
+        """
         info = {
             "module": "foo.bar.baz.hopefully_non_existant_module",
             "fullname": "MyClass",

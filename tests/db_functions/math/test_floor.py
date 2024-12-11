@@ -11,6 +11,13 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class FloorTests(TestCase):
     def test_null(self):
+        """
+        '''Test the null handling of the Floor annotation on the IntegerModel.
+
+        Verifies that the Floor annotation correctly handles null values by annotating an instance of IntegerModel with a Floor expression on a field that is null, and asserting that the result is None.
+
+        This test case covers the scenario where the input to the Floor function is null, ensuring that the expected null output is produced.'''
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_floor=Floor("normal")).first()
         self.assertIsNone(obj.null_floor)

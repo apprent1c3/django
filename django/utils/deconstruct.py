@@ -14,6 +14,17 @@ def deconstructible(*args, path=None):
     def decorator(klass):
         def __new__(cls, *args, **kwargs):
             # We capture the arguments to make returning them trivial
+            """
+
+            Creates a new instance of the class, capturing the constructor arguments for later use.
+
+            This method is responsible for initializing the instance with the provided arguments and keyword arguments,
+            and storing them internally for potential future reference or inspection.
+
+            Returns:
+                The newly created instance of the class.
+
+            """
             obj = super(klass, cls).__new__(cls)
             obj._constructor_args = (args, kwargs)
             return obj

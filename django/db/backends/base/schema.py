@@ -455,6 +455,19 @@ class BaseDatabaseSchemaEditor:
     @staticmethod
     def _effective_default(field):
         # This method allows testing its logic without a connection.
+        """
+        ,
+        Determines the effective default value for a given field, taking into account factors such as explicit default values, generated fields, nullability, and auto-now/auto-now-add settings.
+
+        The function considers the following rules to determine the effective default value:
+        - If the field has an explicit default value, it is returned.
+        - If the field is generated, its default value is set to None.
+        - If the field is not nullable, allows blank values, and permits empty strings, its default value is set to either an empty string or an empty byte string, depending on the field type.
+        - If the field has auto-now or auto-now-add settings, its default value is set to the current time, date, or datetime, based on the field type.
+
+        Returns the effective default value for the given field.
+
+        """
         if field.has_default():
             default = field.get_default()
         elif field.generated:
@@ -1941,6 +1954,15 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _delete_check_sql(self, model, name):
+        """
+        .. method:: _delete_check_sql(model, name)
+
+            Deletes a check constraint from a database model.
+
+            :param model: The database model containing the constraint to be deleted.
+            :param name: The name of the check constraint to be deleted.
+            :return: The SQL string required to delete the constraint, or None if the database does not support table check constraints.
+        """
         if not self.connection.features.supports_table_check_constraints:
             return None
         return self._delete_constraint_sql(self.sql_delete_check, model, name)
@@ -2031,6 +2053,16 @@ class BaseDatabaseSchemaEditor:
         return "COLLATE " + self.quote_name(collation) if collation else ""
 
     def remove_procedure(self, procedure_name, param_types=()):
+        """
+
+        Deletes a stored procedure from the database.
+
+        :param procedure_name: The name of the stored procedure to be removed.
+        :param param_types: An optional tuple of parameter types associated with the procedure. Defaults to an empty tuple.
+
+        :note: This function executes the deletion query immediately.
+
+        """
         sql = self.sql_delete_procedure % {
             "procedure": self.quote_name(procedure_name),
             "param_types": ",".join(param_types),

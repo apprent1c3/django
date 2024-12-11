@@ -828,6 +828,19 @@ class SimpleTestCase(unittest.TestCase):
     def _assertFooMessage(
         self, func, cm_attr, expected_exception, expected_message, *args, **kwargs
     ):
+        """
+
+        Asserts that a given function or method raises or warns with a specific expected exception and message.
+
+        This function is a utility for testing purposes, allowing to verify that a certain piece of code behaves as expected when it comes to error handling.
+        It can be used to test both exceptions and warnings, and it provides a flexible way to pass arguments to the callable object being tested.
+
+        The function takes in several parameters: the function or method to test, the context manager attribute, the expected exception type, and the expected error message.
+        Additionally, it accepts a callable object and variable arguments to be passed to the callable object when it is invoked.
+
+        The function returns a context manager that can be used to wrap the execution of the callable object, or simply the context manager if no callable object is provided.
+
+        """
         callable_obj = None
         if args:
             callable_obj, *args = args
@@ -1166,6 +1179,18 @@ class TransactionTestCase(SimpleTestCase):
                             cursor.execute(sql)
 
     def _fixture_setup(self):
+        """
+
+        Sets up the fixtures for the test environment.
+
+        This function iterates over the list of non-mirrored databases and performs the following setup operations:
+        - Resets database sequences if required.
+        - Rolls back the database to a serialized state if serialized rollback is enabled.
+        - Loads test fixtures into the database if specified.
+
+        The setup process ensures that the test environment is properly configured and ready for testing, with the option to customize the setup based on specific requirements such as resetting sequences, rolling back the database, and loading fixtures.
+
+        """
         for db_name in self._databases_names(include_mirrors=False):
             # Reset sequences
             if self.reset_sequences:

@@ -34,6 +34,42 @@ class ExclusionConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+
+        Initialize an ExclusionConstraint object.
+
+        The ExclusionConstraint object is used to define an exclusion constraint in a database table.
+        It ensures that for any two rows in the table, if the values of certain columns or expressions
+        are not distinct according to the operator class of the index, at least one row must not satisfy
+        the condition specified by the WHERE clause.
+
+        Parameters
+        ----------
+        name : str
+            The name of the exclusion constraint.
+        expressions : list of 2-tuples
+            A list of 2-tuples where each tuple contains the column name or expression and the operator
+            to use for the exclusion constraint.
+        index_type : str, optional
+            The type of index to use for the exclusion constraint. It can be either 'GiST' or 'SP-GiST'.
+            If not specified, 'GIST' is used by default.
+        condition : Q instance, optional
+            A condition to be applied to the exclusion constraint.
+        deferrable : Deferrable instance, optional
+            An object specifying whether the constraint should be checked immediately or deferred.
+        include : list or tuple, optional
+            A list of columns to include in the index.
+        violation_error_code : str, optional
+            A custom error code to be used when the exclusion constraint is violated.
+        violation_error_message : str, optional
+            A custom error message to be used when the exclusion constraint is violated.
+
+        Note
+        ----
+        At least one expression is required to define an exclusion constraint.
+        Each expression must be a 2-tuple containing the column name or expression and the operator.
+
+        """
         if index_type and index_type.lower() not in {"gist", "spgist"}:
             raise ValueError(
                 "Exclusion constraints only support GiST or SP-GiST indexes."
@@ -67,6 +103,25 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def _get_expressions(self, schema_editor, query):
+        """
+
+        Produce a list of exclusion constraint expressions.
+
+        This function processes a series of expressions and operators, converting them
+        into ExclusionConstraintExpression objects. It then combines these objects into
+        an ExpressionList, which is resolved against a given query.
+
+        The function takes into account the schema editor's connection to determine the
+        wrapper classes for each expression.
+
+        The result is an ExpressionList that can be used to enforce exclusion constraints
+        in a database schema.
+
+        :param schema_editor: The schema editor used to determine the connection.
+        :param query: The query against which the expression list is resolved.
+        :return: The resolved ExpressionList of exclusion constraint expressions.
+
+        """
         expressions = []
         for idx, (expression, operator) in enumerate(self.expressions):
             if isinstance(expression, str):
@@ -77,6 +132,17 @@ class ExclusionConstraint(BaseConstraint):
         return ExpressionList(*expressions).resolve_expression(query)
 
     def _check(self, model, connection):
+        """
+        Check if the expressions in this object reference valid fields in the given model.
+
+        The function iterates over each expression, converts string expressions to Field objects,
+        and retrieves the set of referenced fields. It then invokes a secondary check to verify
+        the validity of these references.
+
+        :param model: The model to check the references against
+        :param connection: The connection to use for checking the references
+        :return: The result of the secondary reference check
+        """
         references = set()
         for expr, _ in self.expressions:
             if isinstance(expr, str):

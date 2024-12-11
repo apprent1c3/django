@@ -122,6 +122,22 @@ class DecoratorsTest(TestCase):
 # We will get type arguments if there is a mismatch in the number of arguments.
 def simple_dec(func):
     @wraps(func)
+    """
+    Decorator to modify the input argument of a function by prepending a fixed string.
+
+    This decorator is designed to wrap around a function that takes a single argument.
+    When the wrapped function is called, the original argument is modified by adding the prefix 'test:' before being passed to the original function.
+
+    The return value of the original function is then returned by the wrapper, allowing for seamless integration with the decorated function.
+
+    Example usage:
+        >>> @simple_dec
+       ... def greet(name):
+       ...     return f\"Hello, {name}!\"
+        >>> greet(\"John\")
+        'Hello, test:John!'
+
+    """
     def wrapper(arg):
         return func("test:" + arg)
 
@@ -345,6 +361,17 @@ class MethodDecoratorTests(SimpleTestCase):
         """
 
         def add_question_mark(func):
+            """
+
+            Decorator to append a question mark to the result of a function.
+
+            This decorator takes another function as an argument, calls it with the original arguments, 
+            and then appends a question mark to the result before returning it.
+
+            Use this decorator to automatically add a question mark to the output of any function, 
+            such as formatting the result as a question.
+
+            """
             def _wrapper(*args, **kwargs):
                 return func(*args, **kwargs) + "?"
 

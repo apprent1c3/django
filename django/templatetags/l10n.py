@@ -22,6 +22,20 @@ def unlocalize(value):
 
 class LocalizeNode(Node):
     def __init__(self, nodelist, use_l10n):
+        """
+        Initializes the object with a list of nodes and a flag for localization.
+
+        Parameters
+        ----------
+        nodelist : list
+            A list of nodes used for object configuration.
+        use_l10n : bool
+            A flag indicating whether localization should be used.
+
+        Note
+        ----
+        This is an internal constructor and should not be called directly. It sets up the essential attributes of the object, including the node list and localization setting, which are used throughout its lifecycle.
+        """
         self.nodelist = nodelist
         self.use_l10n = use_l10n
 

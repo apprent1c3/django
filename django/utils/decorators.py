@@ -120,6 +120,27 @@ def decorator_from_middleware(middleware_class):
 def make_middleware_decorator(middleware_class):
     def _make_decorator(*m_args, **m_kwargs):
         def _decorator(view_func):
+            """
+
+            Decorator that wraps a view function with a middleware object.
+
+            The middleware object is instantiated with the provided ``m_args`` and ``m_kwargs``
+            and is used to process the request, view, and response. The decorator checks if the
+            middleware has certain methods (``process_request``, ``process_view``,
+            ``process_template_response``, ``process_response``, and ``process_exception``)
+            and calls them at the corresponding points in the request-response cycle.
+
+            If the view function is a coroutine, the decorator uses an async wrapper to handle
+            the view function. Otherwise, it uses a synchronous wrapper.
+
+            The decorator returns the wrapped view function, which will perform the necessary
+            middleware processing before and after calling the original view function.
+
+            This decorator is designed to be used with view functions that require middleware
+            processing. It provides a flexible way to integrate middleware into the request-
+            response cycle, allowing for customized behavior and error handling.
+
+            """
             middleware = middleware_class(view_func, *m_args, **m_kwargs)
 
             def _pre_process_request(request, *args, **kwargs):

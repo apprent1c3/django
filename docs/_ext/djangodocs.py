@@ -123,6 +123,16 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self.body.append(self.starttag(node, "table", CLASS="docutils"))
 
     def depart_table(self, node):
+        """
+        Closes a table element in the document body.
+
+        This method is responsible for popping the current table context and row indices,
+        and appending the necessary closing table tag to the document body, effectively
+        ending the table structure.
+
+        :param node: The node object associated with the table element being closed
+
+        """
         self.compact_p = self.context.pop()
         self._table_row_indices.pop()
         self.body.append("</table>\n")

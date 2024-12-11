@@ -106,6 +106,21 @@ class ResolverMatch:
 
 
 def get_resolver(urlconf=None):
+    """
+
+    Returns a URL resolver instance for the given URL configuration.
+
+    The resolver is used to map URLs to views. If no URL configuration is provided,
+    it defaults to the root URL configuration defined in the project settings.
+
+    The resolver is cached, so repeated calls with the same URL configuration will
+    return the same instance.
+
+    :param urlconf: The URL configuration to use, or None to use the default root
+                    URL configuration.
+    :rtype: URL resolver instance
+
+    """
     if urlconf is None:
         urlconf = settings.ROOT_URLCONF
     return _get_cached_resolver(urlconf)
@@ -387,6 +402,15 @@ class LocalePrefixPattern:
 
     @property
     def language_prefix(self):
+        """
+
+        Returns the language prefix for the current language.
+
+        The language prefix is determined by the current language code, which is obtained from the `get_language()` function or falls back to the `LANGUAGE_CODE` setting if not available. If the current language code matches the default language code and the `prefix_default_language` setting is False, an empty string is returned. Otherwise, the language prefix is returned in the format '{language_code}/'.
+
+        This property is useful for constructing URLs or paths that require language-specific prefixes.
+
+        """
         language_code = get_language() or settings.LANGUAGE_CODE
         if language_code == settings.LANGUAGE_CODE and not self.prefix_default_language:
             return ""
@@ -618,6 +642,16 @@ class URLResolver:
 
     @property
     def reverse_dict(self):
+        """
+
+        A property that returns a dictionary with reversed key-value pairs for the current language.
+
+        The dictionary is lazily populated when the property is first accessed and the current language is not yet supported. The returned dictionary is specific to the language code currently set in the system.
+
+        Returns:
+            dict: A dictionary with reversed key-value pairs for the current language.
+
+        """
         language_code = get_language()
         if language_code not in self._reverse_dict:
             self._populate()
@@ -632,6 +666,16 @@ class URLResolver:
 
     @property
     def app_dict(self):
+        """
+        Returns the application dictionary for the currently active language.
+
+        The dictionary is populated lazily, meaning it is only loaded when first requested.
+        If the dictionary for the current language is not available, it will be populated
+        automatically before being returned.
+
+        :rtype: dict
+        ```
+        """
         language_code = get_language()
         if language_code not in self._app_dict:
             self._populate()
@@ -653,6 +697,15 @@ class URLResolver:
         return route1 + route2
 
     def _is_callback(self, name):
+        """
+        Checks whether the given name corresponds to a registered callback function.
+
+        The function first ensures that the necessary callback data is populated, and then 
+        checks for the presence of the specified name among the registered callbacks. 
+
+        :param name: The name to be checked against the registered callbacks.
+        :returns: True if the name is a registered callback, False otherwise.
+        """
         if not self._populated:
             self._populate()
         return name in self._callback_strs

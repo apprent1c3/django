@@ -42,6 +42,25 @@ class SeparateDatabaseAndState(Operation):
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+
+        Reverses the effect of a sequence of database operations.
+
+        This method takes a sequence of database operations that were applied to the database
+        and reverses their effects in reverse order. It maintains a record of the state of the
+        database after each operation was applied, and uses this record to restore the
+        database to its original state.
+
+        The reversal process involves clocking back the state of the database to the point
+        before each operation was applied, and then applying the reverse of each operation
+        in the reverse order that they were applied.
+
+        :param app_label: The label of the application that owns the model being reversed.
+        :param schema_editor: The schema editor to use when reversing the operations.
+        :param from_state: The state of the database before the operations were applied.
+        :param to_state: The state of the database after the operations were applied.
+
+        """
         to_states = {}
         for dbop in self.database_operations:
             to_states[dbop] = to_state
@@ -75,6 +94,17 @@ class RunSQL(Operation):
     def __init__(
         self, sql, reverse_sql=None, state_operations=None, hints=None, elidable=False
     ):
+        """
+        Initializes a database operation object.
+
+        :param sql: The SQL statement to be executed.
+        :param reverse_sql: The SQL statement to reverse the operation, defaults to None.
+        :param state_operations: A list of state operations, defaults to an empty list.
+        :param hints: A dictionary of hints, defaults to an empty dictionary.
+        :param elidable: Whether the operation is elidable, defaults to False.
+
+        This object represents a database operation that can be executed, reversed, and provides additional metadata such as state operations and hints.
+        """
         self.sql = sql
         self.reverse_sql = reverse_sql
         self.state_operations = state_operations or []
@@ -82,6 +112,13 @@ class RunSQL(Operation):
         self.elidable = elidable
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple that can be used to recreate it.
+
+        The returned tuple contains three elements: the class name of this object, an empty list (indicating no positional arguments), and a dictionary of keyword arguments. The keyword arguments include the object's SQL statement, its reverse SQL statement (if applicable), state operations (if present), and database hints (if specified).
+
+        This method is typically used in serialization or deserialization processes, where the object needs to be broken down into its constituent parts and then rebuilt. The returned tuple can be used with the :func:`__new__` method to recreate an instance of this class with the same properties.
+        """
         kwargs = {
             "sql": self.sql,
         }

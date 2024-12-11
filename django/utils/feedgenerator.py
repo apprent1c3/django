@@ -358,6 +358,25 @@ class Rss201rev2Feed(RssFeed):
     _version = "2.0"
 
     def add_item_elements(self, handler, item):
+        """
+        Add item elements to the provided handler.
+
+        This function populates the handler with the necessary elements to represent an item
+        in an RSS feed. The elements include title, link, description, author, publication date,
+        comments, unique identifier, time to live, enclosures, and categories.
+
+        The function checks for the presence of each element in the item and adds it to the
+        handler accordingly. If an element has multiple possible representations (e.g., author
+        can be represented by name, email, or both), the function chooses the most appropriate
+        one based on the available information.
+
+        The function also performs basic validation, such as checking for the presence of only
+        one enclosure.
+
+        :arg handler: The handler to which the item elements will be added
+        :arg item: A dictionary containing the item's data
+
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -427,6 +446,12 @@ class Atom1Feed(SyndicationFeed):
         handler.endElement("feed")
 
     def root_attributes(self):
+        """
+        Returns a dictionary of root attributes for the XML feed.
+
+        The dictionary includes the 'xmlns' attribute, which specifies the namespace for the XML elements.
+        If the feed has a language specified, the dictionary also includes an 'xml:lang' attribute to indicate the language of the content.
+        """
         if self.feed["language"] is not None:
             return {"xmlns": self.ns, "xml:lang": self.feed["language"]}
         else:

@@ -16,6 +16,12 @@ class SqrtTests(TestCase):
         self.assertIsNone(obj.null_sqrt)
 
     def test_decimal(self):
+        """
+        Tests the calculation of square roots for decimal numbers using the database's built-in sqrt function.
+
+        The test covers the creation of a model instance with decimal fields and then uses the annotate method to calculate the square roots of these fields. 
+        It verifies that the results are decimal instances and asserts their accuracy by comparing them to the square roots calculated using the math library.
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_sqrt=Sqrt("n1"), n2_sqrt=Sqrt("n2")

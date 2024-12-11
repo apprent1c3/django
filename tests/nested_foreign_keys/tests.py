@@ -105,6 +105,20 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_explicit_ForeignKey(self):
+        """
+        Tests the explicit foreign key relationships for the Package model.
+
+        This test case creates a package, a screening, and a movie to verify the
+        correctness of foreign key relationships. It checks the length of querysets
+        retrieved using various methods such as select_related, values, and filters.
+        The test ensures that the relationships between Package, Screening, and Movie
+        are correctly established and that the queries behave as expected.
+
+        The test covers scenarios including retrieving related objects, filtering by
+        related objects, and excluding related objects. It verifies that the results
+        match the expected counts, confirming the integrity of the foreign key
+        relationships in the Package model.
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)
@@ -243,6 +257,21 @@ class DeeplyNestedForeignKeysTests(TestCase):
         )
 
     def test_explicit_ForeignKey(self):
+        """
+        Tests the explicit foreign key relationships in the Package model.
+
+        Verifies that the relationships between Package, Screening, Movie, and Director are correctly established 
+        and can be queried using various methods, including `select_related`, `values`, `filter`, and `exclude`.
+
+        Specifically, this test checks that:
+        - The correct number of Package objects are created and retrieved.
+        - The foreign key relationships can be successfully traversed, allowing access to related objects 
+          and their attributes.
+        - The `values` method can be used to retrieve specific attributes from related objects.
+        - The `filter` and `exclude` methods can be used to query Package objects based on attributes of 
+          related objects.
+
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)

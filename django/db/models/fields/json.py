@@ -176,6 +176,25 @@ class ContainedBy(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
     postgres_operator = "<@"
 
     def as_sql(self, compiler, connection):
+        """
+
+        Generates the SQL representation for a JSON contains lookup.
+
+        This method converts the given lookup into a SQL expression that can be executed
+        on a database backend. It checks if the database backend supports JSON field
+        contains lookup and raises an error if it is not supported.
+
+        The generated SQL expression is in the format of 'JSON_CONTAINS(rhs, lhs)',
+        where 'rhs' is the right-hand side of the lookup and 'lhs' is the left-hand side.
+
+        :param compiler: The compiler object used to compile the SQL expression.
+        :param connection: The database connection object.
+        :returns: A tuple containing the SQL expression and the parameters to be used
+                  with the expression.
+        :raises NotSupportedError: If the database backend does not support JSON field
+                                   contains lookup.
+
+        """
         if not connection.features.supports_json_field_contains:
             raise NotSupportedError(
                 "contained_by lookup is not supported on this database backend."
@@ -353,11 +372,40 @@ class KeyTransform(Transform):
         return lhs, params, key_transforms
 
     def as_mysql(self, compiler, connection):
+        """
+
+        Extract a JSON value from a MySQL database column.
+
+        This function preprocesses the left-hand side of a query, compiles a JSON path,
+        and returns a tuple containing a SQL query string and parameters to extract a JSON value.
+
+        The query string uses the MySQL JSON_EXTRACT function to extract the JSON value
+        at the specified path. The parameters include the preprocessed left-hand side
+        and the compiled JSON path.
+
+        Returns:
+            tuple: A tuple containing the SQL query string and parameters.
+
+        """
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         json_path = compile_json_path(key_transforms)
         return "JSON_EXTRACT(%s, %%s)" % lhs, tuple(params) + (json_path,)
 
     def as_oracle(self, compiler, connection):
+        """
+        .. method:: as_oracle(compiler, connection)
+
+           Produces an Oracle-compatible SQL representation of this object.
+
+           The function preprocesses the left-hand side of the query and generates a JSON path.
+           It then constructs an SQL query string using either JSON_VALUE or JSON_QUERY functions,
+           depending on the database connection's support for primitives in JSON fields.
+           The constructed query is returned along with its parameters.
+
+           :param compiler: The compiler object used for generating the SQL query.
+           :param connection: The database connection object used for determining the SQL query syntax.
+           :return: A tuple containing the generated SQL query string and its parameters.
+        """
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         json_path = compile_json_path(key_transforms)
         if connection.features.supports_primitives_in_json_field:

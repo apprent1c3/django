@@ -74,6 +74,19 @@ class Element:
         self.children = []
 
     def append(self, element):
+        """
+
+        Append an element to the list of children.
+
+        This method adds the given element to the end of the children list, handling
+        special cases for string elements to ensure proper whitespace normalization.
+        If the element is a string, it is first normalized to remove excess whitespace.
+        If the last child is also a string, the two are concatenated to form a single string.
+        If the last child is an empty string, it is removed before appending the new element.
+
+        :param element: The element to append to the children list
+
+        """
         if isinstance(element, str):
             element = normalize_whitespace(element)
             if self.children and isinstance(self.children[-1], str):

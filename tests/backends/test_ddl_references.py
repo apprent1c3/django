@@ -184,6 +184,15 @@ class MockReference:
         return (table, index) in self.referenced_indexes
 
     def rename_table_references(self, old_table, new_table):
+        """
+        Update the reference to a table in the set of referenced tables.
+
+        This method allows renaming of a table reference by removing the old table name and adding the new one, effectively updating any existing references to the specified table.
+
+        :param old_table: The existing table name to be replaced.
+        :param new_table: The new name for the table.
+        :both old_table and new_table should be table names (typically strings).
+        """
         if old_table in self.referenced_tables:
             self.referenced_tables.remove(old_table)
             self.referenced_tables.add(new_table)
@@ -273,6 +282,13 @@ class ExpressionsTests(TransactionTestCase):
         )
 
     def test_references_table(self):
+        """
+        Tests whether an expression refers to a specific database table.
+
+        This function checks if the references_table method of an expression returns True
+        for the table where the Person model is stored, and False for an unrelated table.
+
+        """
         self.assertIs(self.expressions.references_table(Person._meta.db_table), True)
         self.assertIs(self.expressions.references_table("other"), False)
 

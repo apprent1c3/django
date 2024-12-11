@@ -46,6 +46,17 @@ class AuthTemplateTests(TestCase):
 
     def test_password_reset_confirm_view_invalid_token(self):
         # PasswordResetConfirmView invalid token
+        """
+        Tests the password reset confirmation view when an invalid token is provided.
+
+            This test case ensures that the password reset confirmation view correctly handles
+            and displays an error message when an invalid password reset token is used.
+
+            The expected behavior is that the view returns a page with a title and heading
+            indicating that the password reset was unsuccessful, providing feedback to the user.
+
+            :return: None
+        """
         client = PasswordResetConfirmClient()
         url = reverse(
             "password_reset_confirm", kwargs={"uidb64": "Bad", "token": "Bad-Token"}

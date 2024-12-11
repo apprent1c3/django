@@ -449,6 +449,20 @@ class FormatStylePlaceholderCursor:
 
     @staticmethod
     def _get_decimal_converter(precision, scale):
+        """
+
+        Returns a decimal converter function tailored to the specified precision and scale.
+
+        The returned function takes a decimal value and converts it to the specified precision and scale,
+        performing rounding as necessary. If the scale is zero, it simply converts the value to an integer.
+
+        The precision determines the total number of digits in the decimal value, while the scale determines
+        the number of digits after the decimal point.
+
+        The returned function is suitable for converting decimal values to a precise and consistent format,
+        useful in financial, scientific, or other high-precision applications.
+
+        """
         if scale == 0:
             return int
         context = decimal.Context(prec=precision)

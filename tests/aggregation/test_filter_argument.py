@@ -93,6 +93,19 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 140)
 
     def test_related_aggregates_m2m(self):
+        """
+
+        Tests that aggregates work correctly with many-to-many relationships.
+
+        This test checks that the Sum aggregate function can be applied to a related
+        field, filtered by a specific condition. It verifies that the aggregated value
+        is calculated correctly, excluding the filtered values from the calculation.
+
+        The test case creates a Sum aggregate on the 'age' field of related 'friends',
+        excluding friends with the name 'test'. It then compares the result of this
+        aggregate with the expected value, ensuring that the filter is applied correctly.
+
+        """
         agg = Sum("friends__age", filter=~Q(friends__name="test"))
         self.assertEqual(
             Author.objects.filter(name="test").aggregate(age=agg)["age"], 160
@@ -119,6 +132,17 @@ class FilteredAggregateTests(TestCase):
         self.assertEqual(aggregated, {"summed_age": 140})
 
     def test_case_aggregate(self):
+        """
+        Tests the application of aggregate functions to filtered querysets.
+
+        It verifies that the :class:`Sum` aggregation function with a conditional 
+        :func:`Case` statement correctly calculates the total value of a specific field 
+        (:attr:`age`) for a subset of objects in the database that match certain criteria. 
+
+        The test checks that the aggregate function only considers objects where the 
+        related :attr:`friends` have names starting with 'test' and an :attr:`age` of 40, 
+        and that the resulting total is as expected.
+        """
         agg = Sum(
             Case(When(friends__age=40, then=F("friends__age"))),
             filter=Q(friends__name__startswith="test"),

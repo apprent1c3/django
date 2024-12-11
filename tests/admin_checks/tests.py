@@ -307,6 +307,11 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_list_editable_not_a_list_or_tuple(self):
+        """
+        Tests that the 'list_editable' attribute in a ModelAdmin class must be either a list or a tuple, raising an Error if it is not. 
+
+        This test case ensures that the ModelAdmin instance correctly identifies and reports invalid 'list_editable' configurations, which is essential for maintaining data integrity and usability in the admin interface.
+        """
         class SongAdmin(admin.ModelAdmin):
             list_editable = "test"
 
@@ -380,6 +385,17 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_editable(self):
+        """
+        Tests the admin interface for a Song model to ensure it is correctly configured for inline editing.
+
+        The test checks that the admin interface has the title field marked as editable and verifies that there are no errors in the admin configuration. 
+
+        Returns:
+            AssertionError: If any errors are found in the admin configuration.
+
+        Note:
+            This test case relies on the Song model and AdminSite being properly defined elsewhere in the application.
+        """
         class SongAdmin(admin.ModelAdmin):
             list_display = ["pk", "title"]
             list_editable = ["title"]
@@ -663,6 +679,12 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_app_label_in_admin_checks(self):
+        """
+        Tests that the admin interface correctly checks for non-existent fields in raw_id_fields.
+
+        This test verifies that a check is raised when a raw_id_field is specified that does not correspond to an actual field on the model.
+        The test expects a specific error to be returned, indicating that the non-existent field was not found in the model's fields.
+        """
         class RawIdNonexistentAdmin(admin.ModelAdmin):
             raw_id_fields = ("nonexistent",)
 

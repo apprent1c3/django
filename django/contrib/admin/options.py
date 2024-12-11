@@ -679,6 +679,19 @@ class ModelAdmin(BaseModelAdmin):
     checks_class = ModelAdminChecks
 
     def __init__(self, model, admin_site):
+        """
+        Initializes the model admin instance.
+
+            This method sets up the internal state of the model admin by storing the model,
+            its associated metadata, and the admin site it belongs to.
+
+            :param model: The model class being administered
+            :param admin_site: The admin site instance that this model admin is registered with
+
+            This initialization is a crucial step in configuring the model admin for use in the
+            admin interface, allowing for the definition of custom admin behaviors and options.
+
+        """
         self.model = model
         self.opts = model._meta
         self.admin_site = admin_site
@@ -1176,6 +1189,21 @@ class ModelAdmin(BaseModelAdmin):
 
         # Apply keyword searches.
         def construct_search(field_name):
+            """
+            Constructs a search field name from a given field name, applying various prefixes to determine the lookup type.
+
+            The function supports the following prefixes:
+
+            *   ``^``: Case-insensitive string startswith lookup
+            *   ``=``: Case-insensitive exact string lookup
+            *   ``@``: Full-text search
+
+            If no prefix is provided, the function resolves the field name by traversing the model's field hierarchy, applying case-insensitive contains lookup by default.
+
+            If a field with the given name does not exist, the function will attempt to use a lookup on the previous field if available.
+
+            In all cases, the function returns the constructed lookup name as a string.
+            """
             if field_name.startswith("^"):
                 return "%s__istartswith" % field_name.removeprefix("^")
             elif field_name.startswith("="):
@@ -2499,6 +2527,12 @@ class InlineModelAdmin(BaseModelAdmin):
 
             def has_changed(self):
                 # Protect against unauthorized edits.
+                """
+                Determines whether the current instance has changed, taking into account the permissions to change or add instances.
+
+                Returns:
+                    bool: True if the instance has changed, False otherwise. Note that the check also considers the state of the instance (being added or already existing) and the permissions to add or change instances (`can_add` and `can_change`). If the instance is being added and adding is not allowed, or if the instance is being changed and changing is not allowed, this method returns False. Otherwise, it delegates the check to the parent class.
+                """
                 if not can_change and not self.instance._state.adding:
                     return False
                 if not can_add and self.instance._state.adding:

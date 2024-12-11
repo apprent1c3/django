@@ -262,6 +262,15 @@ class Field:
         return result
 
     def _clean_bound_field(self, bf):
+        """
+        Cleans a bound field, handling initial and current data based on the field's disabled state.
+
+        This method retrieves the relevant value from the bound field, either the initial value if the field is disabled or the current data otherwise.
+        It then passes this value through the object's own cleaning process to ensure the data is properly sanitized and validated.
+
+        :param bf: The bound field to be cleaned
+        :return: The cleaned value
+        """
         value = bf.initial if self.disabled else bf.data
         return self.clean(value)
 
@@ -407,6 +416,22 @@ class DecimalField(IntegerField):
         decimal_places=None,
         **kwargs,
     ):
+        """
+
+        Initializes a numeric field with configuration options for validation.
+
+        This initializer sets the maximum and minimum allowed values for the field, as well as the total number of digits and decimal places allowed.
+        The field is then configured to validate input values against these constraints using a DecimalValidator.
+
+        The following configuration options are accepted:
+            * max_value: The maximum allowed value for the field.
+            * min_value: The minimum allowed value for the field.
+            * max_digits: The total number of digits allowed in the field, including those before and after the decimal point.
+            * decimal_places: The number of decimal places allowed in the field.
+
+        Any additional keyword arguments are passed to the parent class's initializer.
+
+        """
         self.max_digits, self.decimal_places = max_digits, decimal_places
         super().__init__(max_value=max_value, min_value=min_value, **kwargs)
         self.validators.append(validators.DecimalValidator(max_digits, decimal_places))
@@ -440,6 +465,18 @@ class DecimalField(IntegerField):
             )
 
     def widget_attrs(self, widget):
+        """
+
+        Returns a dictionary of HTML attributes for the given widget, extending the
+        parent class's attributes with additional settings specific to NumberInput
+        widgets. If the NumberInput widget lacks a 'step' attribute, it will be
+        automatically added based on the configured decimal places setting,
+        defaulting to 'any' if no decimal places are specified.
+
+        :param widget: The widget for which to calculate attributes
+        :rtype: dict
+
+        """
         attrs = super().widget_attrs(widget)
         if isinstance(widget, NumberInput) and "step" not in widget.attrs:
             if self.decimal_places is not None:
@@ -570,6 +607,29 @@ class DurationField(Field):
         return value
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python datetime.timedelta object.
+
+        This method takes a value, which can be a string or a datetime.timedelta object,
+        and attempts to convert it into a datetime.timedelta object. If the value is
+        empty (as defined by the empty_values list), the method returns None.
+
+        If the value is a valid duration string, it is parsed and returned as a
+        datetime.timedelta object. If the parsing fails, a ValidationError is raised
+        with an 'invalid' code. If the parsed duration exceeds the maximum allowed
+        value, a ValidationError is raised with an 'overflow' code.
+
+        The method handles datetime.timedelta objects directly, returning the original
+        object if it is already of the correct type. The error messages used in
+        ValidationError exceptions can be customized using the error_messages dictionary.
+
+        Returns:
+            datetime.timedelta: The converted duration, or None if the input value is empty.
+
+        Raises:
+            ValidationError: If the input value is invalid or exceeds the maximum allowed duration.
+
+        """
         if value in self.empty_values:
             return None
         if isinstance(value, datetime.timedelta):
@@ -649,6 +709,23 @@ class FileField(Field):
         super().__init__(**kwargs)
 
     def to_python(self, data):
+        """
+
+        Validate and process a file object.
+
+        This method checks if the provided file object is valid and meets certain criteria.
+        It returns the file object if it is valid, or raises a ValidationError if any issues are found.
+
+        The validation checks include:
+            * Ensuring the file object is not empty
+            * Verifying the file object has a name and size attribute
+            * Checking the file name length does not exceed a specified maximum length
+            * Ensuring the file is not empty if empty files are not allowed
+
+        If the file object passes all validation checks, it is returned as a Python object.
+        Otherwise, a ValidationError is raised with a corresponding error message and code.
+
+        """
         if data in self.empty_values:
             return None
 
@@ -699,6 +776,18 @@ class FileField(Field):
         return not self.disabled and data is not None
 
     def _clean_bound_field(self, bf):
+        """
+        Cleans a bound form field.
+
+        This method processes the value of a bound form field, either using the initial value
+        if the field is disabled or the submitted data otherwise. It then calls the clean
+        method to validate and sanitize the value, passing both the processed value and the
+        initial value for comparison.
+
+        :param bf: The bound form field to be cleaned.
+        :rtype: The cleaned and validated value.
+
+        """
         value = bf.initial if self.disabled else bf.data
         return self.clean(value, bf.initial)
 
@@ -790,6 +879,17 @@ class URLField(CharField):
         super().__init__(strip=True, **kwargs)
 
     def to_python(self, value):
+        """
+        Convert the given value to a standardized Python representation.
+
+        This method takes an input value, normalizes it to a standard form, and returns the result.
+        It ensures that the resulting URL is well-formed and complete, with a scheme and other components as necessary.
+        If the input value is malformed, it raises a ValidationError.
+        The normalization process involves splitting the URL into its components, checking and filling in any missing parts,
+        and then reassembling the URL into a standard form.
+        The :attr:`assume_scheme` attribute is used to determine the scheme to use when it is missing from the input URL.
+
+        """
         def split_url(url):
             """
             Return a list of url parts via urlsplit(), or raise
@@ -935,6 +1035,15 @@ class ChoiceField(Field):
 
 class TypedChoiceField(ChoiceField):
     def __init__(self, *, coerce=lambda val: val, empty_value="", **kwargs):
+        """
+        Initializes the class with optional coercion and empty value settings.
+
+        :params coerce: A function used to transform input values, defaults to an identity function.
+        :param empty_value: The value to use when an empty input is encountered, defaults to an empty string.
+        :param kwargs: Additional keyword arguments passed to the parent class constructor.
+
+        This initialization method allows for customization of how input values are handled, making it easier to adapt the class to different use cases and data formats.
+        """
         self.coerce = coerce
         self.empty_value = empty_value
         super().__init__(**kwargs)
@@ -971,6 +1080,21 @@ class MultipleChoiceField(ChoiceField):
     }
 
     def to_python(self, value):
+        """
+
+        Converts a value into a Python list of strings.
+
+        This method takes an input value and returns a list of strings if the input is valid.
+        If the input value is empty, an empty list is returned. The input value is considered
+        valid if it is a list or tuple. Otherwise, a :class:`ValidationError` is raised.
+
+        Returns:
+            list: A list of strings.
+
+        Raises:
+            ValidationError: If the input value is not a list or tuple.
+
+        """
         if not value:
             return []
         elif not isinstance(value, (list, tuple)):
@@ -1091,6 +1215,15 @@ class MultiValueField(Field):
     }
 
     def __init__(self, fields, *, require_all_fields=True, **kwargs):
+        """
+        Initializes a form instance with the given fields and configuration.
+
+        :param fields: A list of field instances to be included in the form.
+        :param require_all_fields: If True, the form will not enforce that all fields are required. Defaults to True.
+        :param kwargs: Additional keyword arguments to be passed to the parent class.
+
+        This method sets up the form's fields, error messages, and validation requirements. It also applies the form's disabled state to its fields, if applicable. The `require_all_fields` parameter controls whether all fields are required to be filled in order to submit the form. Note that if `require_all_fields` is True, the individual fields will still be marked as not required, allowing for more fine-grained validation control.
+        """
         self.require_all_fields = require_all_fields
         super().__init__(**kwargs)
         for f in fields:
@@ -1299,6 +1432,19 @@ class SplitDateTimeField(MultiValueField):
 
 class GenericIPAddressField(CharField):
     def __init__(self, *, protocol="both", unpack_ipv4=False, **kwargs):
+        """
+        Initializes an instance of the class.
+
+        This initializer sets the instance's configuration for protocol handling and 
+        IP address unpacking. The protocol can be set to handle either IPv4, IPv6, or 
+        both ('both' by default). Additionally, the unpack_ipv4 parameter determines 
+        whether to unpack IPv4 addresses. The default validators for IP addresses are 
+        also set based on the chosen protocol and unpacking settings.
+
+        :param protocol: The protocol to handle, either 'ipv4', 'ipv6', or 'both' (default)
+        :param unpack_ipv4: Whether to unpack IPv4 addresses (default False)
+        :param kwargs: Additional keyword arguments passed to the parent class initializer
+        """
         self.unpack_ipv4 = unpack_ipv4
         self.default_validators = validators.ip_address_validators(
             protocol, unpack_ipv4

@@ -80,6 +80,17 @@ class TableColumns(Table):
         return self.table == table and column in self.columns
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+
+        Updates column references in the current object when a column is renamed.
+
+        Update all occurrences of the original column name (`old_column`) to the new column name (`new_column`) within the specified `table`. This ensures consistency and accuracy in column references after a column rename operation.
+
+        :param table: The table where the column rename occurred
+        :param old_column: The original column name
+        :param new_column: The new column name
+
+        """
         if self.table == table:
             for index, column in enumerate(self.columns):
                 if column == old_column:
@@ -128,6 +139,9 @@ class IndexColumns(Columns):
         super().__init__(table, columns, quote_name, col_suffixes)
 
     def __str__(self):
+        """
+        Returns a string representation of the object, specifically a comma-separated list of column definitions, including column names, operator classes, and optional suffixes. The column names are properly quoted and formatted for use in a query or statement.
+        """
         def col_str(column, idx):
             # Index.__init__() guarantees that self.opclasses is the same
             # length as self.columns.
@@ -265,6 +279,15 @@ class Expressions(TableColumns):
         self.expressions = expressions
 
     def __str__(self):
+        """
+        Returns a string representation of the query by compiling the stored expressions into SQL.
+
+        The compilation process involves converting the expressions into a SQL statement and a list of parameters. The parameters are then quoted and formatted into the SQL statement, resulting in a final string that represents the query.
+
+        This method is primarily used for debugging and logging purposes, providing a human-readable representation of the query that can be executed directly on a database. The resulting string is suitable for inspection and can be useful for troubleshooting query-related issues.
+
+        :return: A string representation of the query as a SQL statement with quoted parameters.
+        """
         sql, params = self.compiler.compile(self.expressions)
         params = map(self.quote_value, params)
         return sql % tuple(params)

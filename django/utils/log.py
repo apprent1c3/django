@@ -93,6 +93,20 @@ class AdminEmailHandler(logging.Handler):
 
     def emit(self, record):
         # Early return when no email will be sent.
+        """
+        Emits an email notification for the given log record.
+
+        Handles the creation of the email subject and body, 
+        including the request and exception information if available.
+
+        The email is only sent if the ADMINS setting is configured 
+        or if the handler is not set to send mail to admins by default.
+
+        The email content includes the log record details and 
+        a traceback of the exception, formatted as both plain text 
+        and HTML (if configured to include HTML).
+
+        """
         if (
             not settings.ADMINS
             # Method not overridden.

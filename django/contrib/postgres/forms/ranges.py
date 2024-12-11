@@ -47,6 +47,14 @@ class BaseRangeField(forms.MultiValueField):
     hidden_widget = HiddenRangeWidget
 
     def __init__(self, **kwargs):
+        """
+        Initializes a range field widget, setting default values for widget, fields, and requirements if not provided.
+
+        Keyword arguments are used to customize the initialization process. If a 'widget' is not specified, a RangeWidget is created with the base field widget.
+        The 'fields' argument defaults to a list of two base fields with required set to False.
+        The 'required' and 'require_all_fields' arguments are set to False by default, unless otherwise specified.
+        Additionally, 'default_bounds' can be provided to set the bounds for the range field.
+        """
         if "widget" not in kwargs:
             kwargs["widget"] = RangeWidget(self.base_field.widget)
         if "fields" not in kwargs:
@@ -62,6 +70,17 @@ class BaseRangeField(forms.MultiValueField):
         super().__init__(**kwargs)
 
     def prepare_value(self, value):
+        """
+        Prepare a value to be used with the object, handling range and null values.
+
+        This method takes a value as input and prepares it for use. If the value is a range,
+        it is split into lower and upper bounds, and each bound is prepared recursively.
+        If the value is None, it is passed through to the lower and upper bounds.
+        For all other values, the input value is returned unchanged.
+
+        :return: Prepared value or list of prepared values for range types
+        :rtype: object or list of objects
+        """
         lower_base, upper_base = self.fields
         if isinstance(value, self.range_type):
             return [

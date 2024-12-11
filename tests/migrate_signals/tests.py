@@ -47,6 +47,30 @@ class OneTimeReceiver:
     def __call__(self, signal, sender, **kwargs):
         # Although test runner calls migrate for several databases,
         # testing for only one of them is quite sufficient.
+        """
+        Handler for a signal event, invoked when the signal is emitted by a sender.
+
+        This callback function is triggered with the provided signal and sender. It tracks the number of times it has been called, storing the current call arguments for future reference. 
+
+        The function also conditionally disconnects the signal from the sender based on the provided keyword arguments, specifically when 'using' equals MIGRATE_DATABASE, preventing further instances of the signal from triggering this handler for the specified sender. 
+
+        Parameters
+        ----------
+        signal : 
+            The signal that triggered this handler.
+        sender : 
+            The object that emitted the signal.
+
+        Keyword Arguments
+        -----------------
+        **kwargs : 
+            Additional keyword arguments passed to this handler, including 'using' which determines the behavior of this callback.
+
+        Returns
+        -------
+        None
+
+        """
         if kwargs["using"] == MIGRATE_DATABASE:
             self.call_counter += 1
             self.call_args = kwargs

@@ -97,6 +97,20 @@ class AuthContextProcessorTests(TestCase):
         self.assertContains(response, "Session accessed")
 
     def test_perms_attrs(self):
+        """
+        Tests the processing of user permissions attributes.
+
+        This function verifies that a user with specific permissions can access 
+        the '/auth_processor_perms/' endpoint and that the response contains 
+        the expected permission indicators. It also checks that the response 
+        does not contain indicators for non-existent permissions.
+
+        The test covers the following scenarios:
+
+        * A user with the 'add_permission' permission can access the endpoint
+        * The response contains indicators for the 'auth' and 'auth.add_permission' permissions
+        * The response does not contain indicators for non-existent permissions
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(

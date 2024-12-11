@@ -56,6 +56,27 @@ class CursorWrapper:
     def callproc(self, procname, params=None, kparams=None):
         # Keyword parameters for callproc aren't supported in PEP 249, but the
         # database driver may support them (e.g. oracledb).
+        """
+        Calls a stored database procedure.
+
+        Args:
+            procname (str): The name of the stored procedure to call.
+            params (tuple, optional): A tuple of positional parameters to pass to the procedure. Defaults to None.
+            kparams (dict, optional): A dictionary of keyword parameters to pass to the procedure. Defaults to None.
+
+        Note:
+            Keyword parameters are only supported on databases that allow them. If the database backend does not support keyword parameters, a NotSupportedError will be raised.
+
+        Returns:
+            The result of the procedure call.
+
+        Warning:
+            If the apps are not ready and there are no stored app configurations, a RuntimeWarning will be issued.
+
+        Raises:
+            NotSupportedError: If the database backend does not support keyword parameters.
+
+        """
         if kparams is not None and not self.db.features.supports_callproc_kwargs:
             raise NotSupportedError(
                 "Keyword parameters for callproc are not supported on this "
@@ -165,6 +186,19 @@ class CursorDebugWrapper(CursorWrapper):
 
 @contextmanager
 def debug_transaction(connection, sql):
+    """
+
+    Context manager for executing a SQL transaction while logging its execution time.
+
+    Manages the execution of a SQL query on the given database connection and logs 
+    the time it took to execute. If the connection has query logging enabled, the 
+    execution time and query details are recorded and a debug log message is 
+    emitted. This allows for the monitoring and debugging of database transactions.
+
+    :param connection: The database connection to use for the transaction.
+    :param sql: The SQL query to execute within the transaction.
+
+    """
     start = time.monotonic()
     try:
         yield

@@ -20,6 +20,28 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+
+        Add command line arguments to the parser for squashing migrations.
+
+        This function configures the parser to accept arguments for squashing migrations 
+        in a Django application. It allows specifying the application label, the start 
+        and end migrations for squashing, and various options for customizing the 
+        squashing process.
+
+        The arguments include:
+        - The application label to squash migrations for
+        - The migration to start squashing from (optional)
+        - The migration to squash until
+        - Options to control optimization, user input, and the naming of the new 
+          squashed migration
+        - Options to customize the output of the new squashed migration
+
+        These arguments provide the necessary information for the migration squashing 
+        process, allowing for flexible and customized squashing of migrations in a 
+        Django application.
+
+        """
         parser.add_argument(
             "app_label",
             help="App label of the application to squash migrations for.",

@@ -174,6 +174,16 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+
+        Overloads the addition operator to combine two Media instances.
+
+        Combines the CSS and JavaScript lists from the current instance with those from the `other` instance.
+        Duplicates are removed, ensuring that each list contains unique items.
+
+        Returns a new Media instance containing the combined lists.
+
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -358,10 +368,29 @@ class PasswordInput(Input):
     template_name = "django/forms/widgets/password.html"
 
     def __init__(self, attrs=None, render_value=False):
+        """
+        Initializes the object with optional attributes and a rendering flag.
+
+        :param attrs: Optional attributes to be set on the object.
+        :param render_value: A boolean indicating whether to render the object's value.
+        :type attrs: dict or None
+        :type render_value: bool
+        :note: The attributes are passed to the parent class using the superclass's initializer.
+        """
         super().__init__(attrs)
         self.render_value = render_value
 
     def get_context(self, name, value, attrs):
+        """
+
+        Returns the context for rendering a field, optionally overriding the value if rendering of the value is disabled.
+
+        :param name: The name of the field
+        :param value: The value of the field
+        :param attrs: Additional attributes for rendering the field
+        :return: A dictionary containing the context for rendering the field
+
+        """
         if not self.render_value:
             value = None
         return super().get_context(name, value, attrs)
@@ -535,6 +564,16 @@ class Textarea(Widget):
 
     def __init__(self, attrs=None):
         # Use slightly better defaults than HTML's 20x2 box
+        """
+        Initializes the object with default or provided attributes.
+
+        The function sets the initial state of the object, inheriting from a parent class.
+        It uses a set of default attributes, which include the number of columns ('cols') and rows ('rows'),
+        with values of '40' and '10' respectively. If custom attributes are provided, they override the default ones.
+
+        :param attrs: A dictionary of custom attributes to override the defaults.
+
+        """
         default_attrs = {"cols": "40", "rows": "10"}
         if attrs:
             default_attrs.update(attrs)
@@ -624,6 +663,13 @@ class ChoiceWidget(Widget):
     option_inherits_attrs = True
 
     def __init__(self, attrs=None, choices=()):
+        """
+        Initializes a new instance of the class.
+
+        :param attrs: Optional attributes to be used during initialization.
+        :param choices: A collection of available choices. Defaults to an empty tuple.
+        :note: This method is part of the class's internal initialization process and should not be called directly. It sets up the instance's attributes and choices.
+        """
         super().__init__(attrs)
         self.choices = choices
 
@@ -836,6 +882,18 @@ class SelectMultiple(Select):
     allow_multiple_selected = True
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a value from a data dictionary.
+
+        The function attempts to fetch the value associated with the given name from the provided data. 
+        If the data supports multiple values for a single key (such as in the case of HTML form data), 
+        it retrieves all values. Otherwise, it returns a single value.
+
+        :param data: The data dictionary or object from which to retrieve the value.
+        :param files: Unused; included for compatibility with certain APIs.
+        :param name: The key or name for which to retrieve the value.
+        :return: The value(s) associated with the given name in the data dictionary.
+        """
         try:
             getter = data.getlist
         except AttributeError:
@@ -910,6 +968,18 @@ class MultiWidget(Widget):
         return all(w.is_hidden for w in self.widgets)
 
     def get_context(self, name, value, attrs):
+        """
+        Get the context for rendering a multi-widget field.
+
+        This method is responsible for preparing the context for rendering a field that consists of multiple sub-widgets.
+        It takes into account the field's localization and value, and properly sets up the attributes and IDs for each sub-widget.
+        The method returns a dictionary containing the context for rendering the field, including a list of sub-widgets.
+
+        :param name: The name of the field
+        :param value: The value of the field
+        :param attrs: The attributes of the field
+        :return: A dictionary containing the context for rendering the field
+        """
         context = super().get_context(name, value, attrs)
         if self.is_localized:
             for widget in self.widgets:
@@ -1005,6 +1075,17 @@ class SplitDateTimeWidget(MultiWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+        Initializes a date and time input widget.
+
+        :param attrs: Default attributes for both date and time input fields.
+        :param date_format: Format string for the date input field.
+        :param time_format: Format string for the time input field.
+        :param date_attrs: Custom attributes for the date input field. Defaults to attrs if not provided.
+        :param time_attrs: Custom attributes for the time input field. Defaults to attrs if not provided.
+
+        This method sets up a combined date and time input widget, allowing for flexible configuration of the input fields' appearance and behavior.
+        """
         widgets = (
             DateInput(
                 attrs=attrs if date_attrs is None else date_attrs,
@@ -1018,6 +1099,18 @@ class SplitDateTimeWidget(MultiWidget):
         super().__init__(widgets)
 
     def decompress(self, value):
+        """
+        Decompresses a given date/time value into its constituent parts.
+
+        Returns a list containing the date and time components of the input value.
+        If the input value is None or empty, returns a list with two None values.
+
+        The input value is first converted to the current timezone before decomposition.
+        The resulting date and time are returned as separate elements in the output list.
+
+        :rtype: list
+        :returns: A list containing the date and time components, or [None, None] if the input is empty
+        """
         if value:
             value = to_current_timezone(value)
             return [value.date(), value.time()]

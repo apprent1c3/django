@@ -112,6 +112,28 @@ class SearchVector(SearchVectorCombinable, Func):
         return resolved
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+
+        Generates the SQL query for the search vector.
+
+        This method constructs the SQL query by cloning the current search vector,
+        applying necessary transformations to the source expressions, and then
+        compiling the query using the provided compiler and connection.
+
+        If a configuration is available, it is compiled and included in the query.
+        If a template is not provided, a default template is used. The weight of the
+        search vector, if set, is also included in the query.
+
+        The method returns a tuple containing the compiled SQL query and a list of
+        parameters to be used with the query.
+
+        :param compiler: The compiler to use for generating the SQL query.
+        :param connection: The database connection to use for generating the SQL query.
+        :param function: An optional function to use for generating the SQL query.
+        :param template: An optional template to use for generating the SQL query.
+        :return: A tuple containing the compiled SQL query and a list of parameters.
+
+        """
         clone = self.copy()
         clone.set_source_expressions(
             [
@@ -216,6 +238,20 @@ class SearchQuery(SearchQueryCombinable, Func):
         super().__init__(*expressions, output_field=output_field)
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        Generates SQL code for the current query.
+
+        This method extends the default SQL generation by adding an optional inversion
+        operation. If :attr:`invert` is True, the generated SQL is wrapped in a
+        negation operator, effectively inverting the query's conditions.
+
+        :param compiler: The query compiler instance.
+        :param connection: The database connection object.
+        :param function: Optional function to apply to the query.
+        :param template: Optional SQL template to use for the query.
+
+        :return: A tuple containing the generated SQL code and its corresponding parameters.
+        """
         sql, params = super().as_sql(compiler, connection, function, template)
         if self.invert:
             sql = "!!(%s)" % sql

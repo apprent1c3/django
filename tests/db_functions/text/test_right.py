@@ -9,10 +9,35 @@ from ..models import Author
 class RightTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating a set of default authors.
+
+        This method is used to establish a baseline set of authors that can be relied upon
+        across multiple tests. The authors created include 'John Smith' (alias 'smithj')
+        and 'Rhonda', providing a basic foundation for testing scenarios that require
+        author data.
+
+        Returns:
+            None
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
 
     def test_basic(self):
+        """
+
+        Tests the basic functionality of author name manipulation.
+
+        This test case verifies that the author names are correctly annotated and ordered.
+        It also checks that the alias is updated correctly for authors without an existing alias.
+        The test uses Django's query set assertions to ensure that the expected results are returned.
+
+        The following scenarios are covered:
+            * Annotating author names with a 5-character suffix
+            * Ordering authors by name
+            * Updating the alias for authors without an existing one, using the last 2 characters of the name
+
+        """
         authors = Author.objects.annotate(name_part=Right("name", 5))
         self.assertQuerySetEqual(
             authors.order_by("name"), ["Smith", "honda"], lambda a: a.name_part

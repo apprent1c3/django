@@ -222,6 +222,20 @@ def auth_password_validators_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def user_model_swapped(*, setting, **kwargs):
+    """
+
+    Handles changes to the Django authentication user model setting.
+
+    When the AUTH_USER_MODEL setting is changed, this function clears the Django application cache and updates various
+    components of the authentication system to use the new user model.
+
+    The function ensures that the new user model is used by the authentication backends, forms, handlers, management commands,
+    and views.
+
+    Note:
+        This function is triggered by the 'setting_changed' signal and should not be called directly.
+
+    """
     if setting == "AUTH_USER_MODEL":
         apps.clear_cache()
         try:

@@ -125,6 +125,13 @@ class MeasureBase:
             )
 
     def __sub__(self, other):
+        """
+        Subtract another instance of the same class from this instance, returning a new instance of the class.
+
+        The result is calculated by subtracting the standard value of the other instance from the standard value of this instance, while preserving the default unit.
+
+        Raises a TypeError if the subtraction is attempted with an instance of a different class.
+        """
         if isinstance(other, self.__class__):
             return self.__class__(
                 default_unit=self._default_unit,
@@ -137,6 +144,16 @@ class MeasureBase:
             )
 
     def __isub__(self, other):
+        """
+        Subtract another instance of the same class from this instance.
+
+        This operation modifies the current instance by subtracting the 'standard' attribute of the other instance from its own 'standard' attribute.
+        The result is the modified instance itself, allowing for method chaining.
+
+        Raises:
+            TypeError: If the object being subtracted is not an instance of the same class.
+
+        """
         if isinstance(other, self.__class__):
             self.standard -= other.standard
             return self

@@ -90,6 +90,23 @@ def inject_rename_contenttypes_operations(
 
 
 def get_contenttypes_and_models(app_config, using, ContentType):
+    """
+
+    Return content types and models for a given Django app configuration.
+
+    Retrieves content types and models associated with the provided application
+    configuration, filtered by the specified database router. If the router does not
+    allow migration of the ContentType model, returns (None, None).
+
+    Returns a tuple of two dictionaries. The first dictionary maps model names to their
+    corresponding ContentType objects, and the second dictionary maps model names to
+    their corresponding model classes.
+
+    This function is useful for introspecting and working with Django models and their
+    associated content types, particularly in the context of database operations and
+    migrations.
+
+    """
     if not router.allow_migrate_model(using, ContentType):
         return None, None
 

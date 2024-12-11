@@ -134,6 +134,17 @@ def lazy(func, *resultclasses):
             return self.__cast() < other
 
         def __le__(self, other):
+            """
+            Returns True if the current object is less than or equal to the given object.
+
+            The comparison is performed after casting both objects to their underlying values, 
+            if the given object is a Promise. This allows for intuitive comparisons between 
+            objects of different types.
+
+            :param other: The object to compare with.
+            :return: True if the current object is less than or equal to the given object, False otherwise.
+            :rtype: bool
+            """
             if isinstance(other, Promise):
                 other = other.__cast()
             return self.__cast() <= other

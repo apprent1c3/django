@@ -39,6 +39,14 @@ class FieldFile(File, AltersData):
     # be checked for here.
 
     def _require_file(self):
+        """
+        Verify the existence of a required file.
+
+        Raises a ValueError if no file is associated with the attribute, indicated by the field name.
+
+        Note: This method is intended for internal use and should not be called directly.
+
+        """
         if not self:
             raise ValueError(
                 "The '%s' attribute has no file associated with it." % self.field.name
@@ -131,6 +139,16 @@ class FieldFile(File, AltersData):
         return file is None or file.closed
 
     def close(self):
+        """
+        Closes the underlying file associated with this object, if it exists.
+
+        This method is responsible for releasing any system resources held by the file.
+        It is called when the object is no longer needed or when it is being garbage collected.
+
+        Note that this method only closes the file if it has been previously opened or is currently open. If no file is associated with this object, this method does nothing.
+
+        After calling this method, the file will no longer be accessible for reading or writing, and any subsequent attempts to use the file will result in an error.
+        """
         file = getattr(self, "_file", None)
         if file is not None:
             file.close()
@@ -308,6 +326,11 @@ class FileField(Field):
         return "FileField"
 
     def get_prep_value(self, value):
+        """
+        гот bekanntsGet the preparation value for the given input.
+
+        This method takes a value as input, applies the parent class's preparation logic, and then converts the result to a string if it is not None. The resulting string is then returned, otherwise None is returned.
+        """
         value = super().get_prep_value(value)
         # Need to convert File objects provided via a form to string for
         # database insertion.
@@ -316,6 +339,25 @@ class FileField(Field):
         return str(value)
 
     def pre_save(self, model_instance, add):
+        """
+
+        Pre-save hook to validate and prepare the file for saving.
+
+        Checks if the file has a name attribute specified before saving.
+        If the name attribute is not specified, a `FieldError` is raised, 
+        providing additional guidance for handling `ContentFile` instances in Python 3.11.
+
+        If the file is not yet committed and is valid, this method saves the file
+        using its provided name, ensuring it is properly persisted before the model instance is saved.
+
+        Args:
+            model_instance: The model instance being saved.
+            add: A boolean indicating whether the instance is being added or updated.
+
+        Returns:
+            The prepared file object, or raises an exception if validation fails.
+
+        """
         file = super().pre_save(model_instance, add)
         if file.name is None and file._file is not None:
             exc = FieldError(

@@ -285,6 +285,22 @@ class AddConstraintNotValid(AddConstraint):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Apply a migration constraint to the database schema.
+
+        This method is used to handle forward migration of a specific model. It checks if
+        the model is allowed to be migrated using the given schema editor connection, and
+        if so, creates the necessary SQL to apply the constraint.
+
+        The SQL is then executed against the database, with the constraint initially 
+        defined as 'NOT VALID', meaning it is not checked against existing data.
+
+        :param app_label: The label of the application containing the model to migrate.
+        :param schema_editor: The schema editor instance used to execute the migration.
+        :param from_state: The initial state of the application before migration.
+        :param to_state: The target state of the application after migration.
+
+        """
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             constraint_sql = self.constraint.create_sql(model, schema_editor)

@@ -46,6 +46,19 @@ class AdminForm:
         readonly_fields=None,
         model_admin=None,
     ):
+        """
+
+        Initializes an instance of the class, configuring the form and field settings.
+
+        :param form: The form instance to be used for rendering fields.
+        :param fieldsets: The fieldsets to be used for organizing form fields.
+        [param prepopulated_fields: A dictionary of prepopulated fields and their dependencies.
+        :param readonly_fields: Optional; a tuple of fields that should be displayed as read-only. Defaults to an empty tuple.
+        :param model_admin: Optional; the model admin instance associated with this form.
+
+        This method sets up the form, fieldsets, prepopulated fields, and readonly fields for the class instance. It normalizes the readonly fields to an empty tuple if not provided.
+
+        """
         self.form, self.fieldsets = form, fieldsets
         self.prepopulated_fields = [
             {"field": form[field_name], "dependencies": [form[f] for f in dependencies]}
@@ -264,6 +277,20 @@ class AdminReadonlyField:
             return str(remote_obj)
 
     def contents(self):
+        """
+        Return the contents of a model field for display in the admin interface.
+
+        This method determines the value of a model field and formats it for display.
+        It takes into account the field's type, the object's value, and the model admin's settings.
+
+        If the field is a boolean, a corresponding icon is displayed. If the field has a read-only widget,
+        its rendered value is returned. For foreign key and many-to-many fields, the associated object(s) are displayed.
+        Otherwise, the field's value is formatted using the `display_for_field` function and line breaks are inserted.
+
+        If an error occurs while accessing the field, the `empty_value_display` is used as a fallback.
+
+        The returned value is HTML-escaped to prevent XSS attacks.
+        """
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
         field, obj, model_admin = (
@@ -462,6 +489,17 @@ class InlineAdminFormSet:
 
     @property
     def media(self):
+        """
+
+        The media property returns the combined media required by the formset and all its forms.
+
+        It aggregates the media defined in the formset's options, the formset itself, and each of its individual forms.
+
+        This is particularly useful for collecting all CSS and JavaScript resources that may be required to properly display and interact with the forms in the formset.
+
+        :return: The combined media for the formset and its forms.
+
+        """
         media = self.opts.media + self.formset.media
         for fs in self:
             media += fs.media

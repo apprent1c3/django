@@ -141,6 +141,11 @@ class LogEntry(models.Model):
         return str(self.action_time)
 
     def __str__(self):
+        """
+        Returns a human-readable string representation of the LogEntry object, describing the type of operation performed (addition, change, or deletion) and the affected object.
+
+         The generated string includes the name of the object and, in the case of changes, a summary of the modifications made. If the object type is unknown, a default message is returned.
+        """
         if self.is_addition():
             return gettext("Added “%(object)s”.") % {"object": self.object_repr}
         elif self.is_change():

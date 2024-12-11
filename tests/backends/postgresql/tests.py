@@ -514,6 +514,16 @@ class Tests(TestCase):
                 self.assertEqual(do.lookup_cast("isnull", field_type), "%s")
 
     def test_correct_extraction_psycopg_version(self):
+        """
+
+        Tests the correct extraction of the psycopg2 version from the Database object.
+
+        This test ensures that the psycopg_version function correctly parses the version
+        string from the Database object and returns the version as a tuple of integers.
+        The test covers both normal and beta version strings to verify the function's
+        robustness in handling different version formats.
+
+        """
         from django.db.backends.postgresql.base import Database, psycopg_version
 
         with mock.patch.object(Database, "__version__", "4.2.1 (dt dec pq3 ext lo64)"):

@@ -134,6 +134,13 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                     )
 
             def _translate(self, number_value):
+                """
+                #: Translates a given number value using a predefined function.
+                #: 
+                #: :param number_value: The number value to be translated.
+                #: :return: The result of the translation operation.
+                #: :note: This method is intended for internal use and should not be called directly.
+                """
                 kwargs["number"] = number_value
                 return func(**kwargs)
 

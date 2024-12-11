@@ -748,6 +748,21 @@ class AuthenticateTests(TestCase):
         AUTHENTICATION_BACKENDS=["auth_tests.test_auth_backends.TypeErrorBackend"]
     )
     def test_authenticate_sensitive_variables(self):
+        """
+        Tests the authentication system's handling of sensitive variables in error responses.
+
+        Verifies that when an authentication attempt raises a TypeError, the subsequent
+        500 error response does not leak sensitive information, such as the provided
+        password. The test checks that the error message contains the expected traceback
+        information, including the authentication backend name, but redacts the password
+        from the error details.
+
+        Ensures that the technical 500 error response is generated correctly and
+        contains expected information, while keeping sensitive data hidden from the
+        response content. This test helps maintain the security and integrity of the
+        authentication system by preventing potential information disclosure through
+        error messages.
+        """
         try:
             authenticate(username="testusername", password=self.sensitive_password)
         except TypeError:
@@ -768,6 +783,18 @@ class AuthenticateTests(TestCase):
         AUTHENTICATION_BACKENDS=["auth_tests.test_auth_backends.TypeErrorBackend"]
     )
     async def test_aauthenticate_sensitive_variables(self):
+        """
+
+        Tests that sensitive authentication variables are not leaked in error responses.
+
+        This test simulates an authentication attempt with a deliberate TypeError in the
+        authentication backend. It then verifies that the resulting 500 error response
+        does not contain the sensitive password, but instead masks it with asterisks.
+        Additionally, it checks that the error message includes the name of the
+        authentication backend that caused the error, and that the masked credentials
+        are correctly presented in the error response.
+
+        """
         try:
             await aauthenticate(
                 username="testusername", password=self.sensitive_password

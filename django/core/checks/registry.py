@@ -105,6 +105,17 @@ class CheckRegistry:
         )
 
     def get_checks(self, include_deployment_checks=False):
+        """
+        Return a list of checks registered with the system.
+
+        The returned list includes all standard checks by default. If
+        :attr:`include_deployment_checks` is :obj:`True`, the list will also
+        include deployment-specific checks.
+
+        :param bool include_deployment_checks: Whether to include deployment checks
+        :return: A list of checks
+        :rtype: list
+        """
         checks = list(self.registered_checks)
         if include_deployment_checks:
             checks.extend(self.deployment_checks)

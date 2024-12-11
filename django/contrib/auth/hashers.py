@@ -540,6 +540,26 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return decoded["work_factor"] != self.rounds
 
     def harden_runtime(self, password, encoded):
+        """
+        Harden the runtime of the password encoding process to match the target number of rounds.
+
+        This function takes a password and an encoded string as input, extracts the salt and rounds from the encoded string,
+        and then performs additional encoding iterations to bring the total number of rounds up to the target value.
+
+        The target number of rounds is defined by the instance's `rounds` attribute. The function calculates the difference
+        between the target number of rounds and the number of rounds already performed (as indicated by the encoded string),
+        and then performs the additional encoding iterations needed to reach the target.
+
+        This hardening process helps to slow down the encoding process, making it more resistant to brute-force attacks.
+
+        Args:
+            password (str): The password to be encoded.
+            encoded (str): The encoded string containing the salt and rounds information.
+
+        Note:
+            This function does not return a value, but modifies the internal state of the instance.
+
+        """
         _, data = encoded.split("$", 1)
         salt = data[:29]  # Length of the salt in bcrypt.
         rounds = data.split("$")[2]

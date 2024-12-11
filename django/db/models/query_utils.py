@@ -30,6 +30,19 @@ PathInfo = namedtuple(
 
 
 def subclasses(cls):
+    """
+    Generate all subclasses of a given class, including the class itself.
+
+    This function uses a recursive approach to yield each subclass in a depth-first manner.
+    It starts with the given class and then iterates over all of its direct and indirect subclasses.
+
+    Returns:
+        A generator that yields each subclass of the given class.
+
+    Example use case:
+        Obtaining a list of all subclasses of a base class to perform operations on them.
+
+    """
     yield cls
     for subclass in cls.__subclasses__():
         yield from subclasses(subclass)
@@ -78,6 +91,18 @@ class Q(tree.Node):
         return self._combine(other, self.XOR)
 
     def __invert__(self):
+        """
+
+        Inverts the current object by creating a copy of it and negating the copy.
+
+        This operation returns a new object that represents the inverse of the current object,
+        without modifying the original. The copy is created first to avoid changing the original
+        object, and then the copying object is negated.
+
+        Returns:
+            A new object representing the inverted version of the current object
+
+        """
         obj = self.copy()
         obj.negate()
         return obj
@@ -459,6 +484,15 @@ class FilteredRelation:
         )
 
     def clone(self):
+        """
+        Creates a deep copy of the current FilteredRelation instance.
+
+        Returns a new instance with the same relation name, condition, and alias.
+        If a resolved condition exists, it is also cloned and assigned to the new instance.
+
+        Use this method to create an independent copy of the filtered relation,
+        allowing for modifications without affecting the original instance.
+        """
         clone = FilteredRelation(self.relation_name, condition=self.condition)
         clone.alias = self.alias
         if (resolved_condition := self.resolved_condition) is not None:

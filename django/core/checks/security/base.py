@@ -160,6 +160,15 @@ def check_security_middleware(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_xframe_options_middleware(app_configs, **kwargs):
+    """
+    Checks if the XFrame Options middleware is properly configured in the application.
+
+    This security check verifies that the XFrame Options middleware is enabled and 
+    correctly set up, which helps prevent clickjacking attacks by controlling whether 
+    a page can be iframed by other websites. If the check fails, a warning (W002) is 
+    generated, indicating that the XFrame Options middleware needs to be properly 
+    configured to ensure the security of the application.
+    """
     passed_check = _xframe_middleware()
     return [] if passed_check else [W002]
 

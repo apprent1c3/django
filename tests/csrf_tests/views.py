@@ -14,6 +14,9 @@ class TestingHttpResponse(HttpResponse):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, calling the superclass's initializer and setting up internal state to track cookies set by the object.
+        """
         super().__init__(*args, **kwargs)
         # This is a list of the cookie values passed to set_cookie() over
         # the course of the request-response.

@@ -130,6 +130,20 @@ class BaseMemcachedCache(BaseCache):
         return [original_keys[k] for k in failed_keys]
 
     def delete_many(self, keys, version=None):
+        """
+        Deletes multiple items from the cache.
+
+        Deletes the cache entries associated with the given keys. 
+        An optional version parameter can be specified to differentiate cache entries for the same key.
+
+        Args:
+            keys (list): A list of keys to delete from the cache.
+            version (int, optional): The version of the cache entries to delete. Defaults to None.
+
+        Note:
+            All keys are validated and normalized before deletion.
+
+        """
         keys = [self.make_and_validate_key(key, version=version) for key in keys]
         self._cache.delete_multi(keys)
 

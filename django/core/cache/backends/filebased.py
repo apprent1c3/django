@@ -116,6 +116,19 @@ class FileBasedCache(BaseCache):
     def _createdir(self):
         # Set the umask because os.makedirs() doesn't apply the "mode" argument
         # to intermediate-level directories.
+        """
+        Create the directory specified by the instance's internal directory path.
+
+        This method ensures the directory is created with a specific set of permissions,
+        regardless of the current system's umask setting. If the directory already exists,
+        the method will not raise an error.
+
+        The directory is created with read, write, and execute permissions for the owner,
+        and no permissions for the group or other users, ensuring confidentiality of the
+        directory's contents. After creation, the system's umask is restored to its original
+        value to prevent unintended permission changes to other files or directories created
+        subsequently.
+        """
         old_umask = os.umask(0o077)
         try:
             os.makedirs(self._dir, 0o700, exist_ok=True)

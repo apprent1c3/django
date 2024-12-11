@@ -15,6 +15,19 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def _get_pass(self, prompt="Password: "):
+        """
+        Retrieves a password from the user via the console.
+
+        Prompt the user to enter a password, hiding their input for security purposes.
+        If the user enters an empty string, it is treated as a cancellation and a
+        CommandError is raised. The entered password is returned as a string.
+
+        :param str prompt: The text to display to the user when prompting for a password.
+                          Defaults to 'Password: '.
+        :return: The entered password.
+        :raises CommandError: If the user enters an empty string, indicating cancellation.
+
+        """
         p = getpass.getpass(prompt=prompt)
         if not p:
             raise CommandError("aborted")

@@ -142,6 +142,9 @@ class CastTests(TestCase):
         self.assertEqual(fans[0]["fans"], 1)
 
     def test_cast_from_python_to_date(self):
+        """
+        Tests the casting of a Python date object to a Django DateField, verifying that the conversion is accurate. This function checks that a date object from the Python datetime module can be successfully cast to a Django DateField and that the resulting date is equal to the original date.
+        """
         today = datetime.date.today()
         dates = Author.objects.annotate(cast_date=Cast(today, models.DateField()))
         self.assertEqual(dates.get().cast_date, today)
@@ -155,6 +158,14 @@ class CastTests(TestCase):
         self.assertAlmostEqual(dates.get().cast_datetime, now, delta=time_precision)
 
     def test_cast_from_python(self):
+        """
+        Tests the functionality of casting a decimal value to a float in the database.
+
+        This function verifies that the Cast function correctly converts a decimal value
+        to a float type, ensuring data type consistency and accuracy during database
+        operations. It checks if the resulting casted value is indeed a float and
+        verifies its numerical value to confirm the correctness of the casting process.
+        """
         numbers = Author.objects.annotate(
             cast_float=Cast(decimal.Decimal(0.125), models.FloatField())
         )

@@ -56,6 +56,16 @@ class ReplaceTests(TestCase):
         )
 
     def test_update(self):
+        """
+
+        Tests the update functionality of the Author model.
+
+        Specifically, this test checks that names in the Author model can be updated 
+        by replacing a specific prefix ('R. R. ') with an empty string, effectively 
+        removing the prefix from the names. The test ensures that the update operation 
+        is applied correctly to all authors and verifies the resulting names.
+
+        """
         Author.objects.update(
             name=Replace(F("name"), Value("R. R. "), Value("")),
         )

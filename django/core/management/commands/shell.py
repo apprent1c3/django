@@ -45,6 +45,25 @@ class Command(BaseCommand):
         )
 
     def ipython(self, options):
+        """
+
+        Starts an embedded IPython shell within the application.
+
+        This function allows users to interactively execute Python code and explore 
+        the current state of the application. It provides a convenient way to debug, 
+        test, and inspect the application's internal state.
+
+        The started IPython shell will have access to the application's current 
+        namespace, allowing users to inspect and modify variables, call functions, 
+        and execute arbitrary Python code.
+
+        The options passed to this function are currently not used and can be 
+        ignored. The IPython shell will be started with default settings.
+
+        Note: This function will block the application's main thread until the 
+        IPython shell is exited.
+
+        """
         from IPython import start_ipython
 
         start_ipython(argv=[])

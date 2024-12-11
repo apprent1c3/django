@@ -112,6 +112,15 @@ class ASGIRequest(HttpRequest):
         return self.scope.get("scheme") or super()._get_scheme()
 
     def _get_post(self):
+        """
+        Retrieves the post associated with the current object.
+
+        If the post has not been loaded yet, it will be loaded along with any related files.
+        The loaded post is then cached for future access.
+
+        :returns: The post object
+        :rtype: object
+        """
         if not hasattr(self, "_post"):
             self._load_post_and_files()
         return self._post

@@ -17,6 +17,12 @@ class SimpleDatabaseIntrospectionTests(SimpleTestCase):
             self.introspection.get_table_list(None)
 
     def test_get_table_description(self):
+        """
+        Tests that a NotImplementedError is raised when attempting to retrieve a table description with invalid input.
+
+        Verifies that the introspection module correctly handles None values for the required parameters, 
+        raising an exception with a message indicating that the get_table_description method is not implemented.
+        """
         msg = self.may_require_msg % "get_table_description"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.introspection.get_table_description(None, None)

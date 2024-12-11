@@ -282,6 +282,16 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(Author, query, authors, translations=translations)
 
     def test_missing_fields(self):
+        """
+
+        Tests for missing fields in author data.
+
+        Verifies that the 'first_name' and 'last_name' fields are not null for all authors 
+        retrieved from the 'raw_query_author' table.
+
+        Ensures data integrity by checking for the presence of required fields.
+
+        """
         query = "SELECT id, first_name, dob FROM raw_query_author"
         for author in Author.objects.raw(query):
             self.assertIsNotNone(author.first_name)

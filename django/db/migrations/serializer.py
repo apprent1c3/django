@@ -81,6 +81,17 @@ class DatetimeDatetimeSerializer(BaseSerializer):
     """For datetime.datetime."""
 
     def serialize(self):
+        """
+
+        Serialize the current object's value to a string representation.
+
+        This function ensures that the value is converted to UTC timezone if it is not already.
+        The serialized value is returned along with a set of required imports needed to reconstruct the value.
+
+        Returns:
+            tuple: A tuple containing the string representation of the value and a set of import statements.
+
+        """
         if self.value.tzinfo is not None and self.value.tzinfo != datetime.timezone.utc:
             self.value = self.value.astimezone(datetime.timezone.utc)
         imports = ["import datetime"]

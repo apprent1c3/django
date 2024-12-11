@@ -175,6 +175,19 @@ class ViewOnSiteRouter:
         return "other"
 
     def db_for_write(self, model, **hints):
+        """
+        Determines the database to use for writing operations.
+
+        This method is used by Django's ORM to select the database where data will be written.
+        It takes into account the application label of the model being written and returns the name of the database to use.
+
+        For models belonging to the 'auth', 'sessions', and 'contenttypes' apps, it defaults to the 'default' database.
+        For all other models, it returns 'other', indicating that an alternative database should be used.
+
+        :param model: The model instance being written to the database
+        :param hints: Additional hints passed by Django's ORM (currently unused)
+        :return: The name of the database to use for writing operations
+        """
         if model._meta.app_label in {"auth", "sessions", "contenttypes"}:
             return "default"
         return "other"

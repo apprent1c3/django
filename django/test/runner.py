@@ -291,6 +291,16 @@ failure and get a correct traceback.
         self.events.append(("addDuration", self.test_index, elapsed))
 
     def addError(self, test, err):
+        """
+        Appends an error to the current test.
+
+        This method adds an error to the specified test, ensuring that the test and error are serializable.
+        It then notifies any registered event handlers about the added error and delegates the error handling to its parent class.
+
+        :param test: The test to which the error is being added.
+        :param err: The error to be added to the test. The test and error must be picklable.
+
+        """
         self.check_picklable(test, err)
         self.events.append(("addError", self.test_index, err))
         super().addError(test, err)
@@ -863,6 +873,23 @@ class DiscoverRunner:
             self.test_loader.testNamePatterns = original_test_name_patterns
 
     def load_tests_for_label(self, label, discover_kwargs):
+        """
+        Load tests for a given label.
+
+        The label can be a module name, a path to a directory containing tests, or a path to a python file.
+        If the label is a module name, tests are loaded from that module.
+        If the label is a path to a directory, tests are discovered in that directory and its subdirectories.
+
+        Keyword arguments passed in `discover_kwargs` are used to customize the test discovery process.
+        When loading tests from a directory, `top_level_dir` is automatically set to the top-level directory of the test package if necessary.
+
+        If the label is not a valid module name or path to a directory, a `RuntimeError` is raised.
+        If no tests are found, `None` is returned.
+
+        Returns:
+            The loaded tests, or `None` if no tests were found.
+
+        """
         label_as_path = os.path.abspath(label)
         tests = None
 

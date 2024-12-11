@@ -26,6 +26,25 @@ class Command(BaseCommand):
         parameters.add_argument("parameters", nargs="*")
 
     def handle(self, **options):
+        """
+        Handle a database management task by running a shell command.
+
+        This function establishes a connection to the specified database and executes
+        a management command with the provided parameters. It verifies that the required
+        executable is installed and available on the system path, and checks the command's
+        exit status to ensure successful execution.
+
+         Parameters:
+            database (str): The name of the database connection to use.
+            parameters (str): The parameters to pass to the management command.
+
+         Raises:
+            CommandError: If the required executable is not installed or not found on the path,
+                          or if the command returns a non-zero exit status.
+
+         Returns:
+            None
+        """
         connection = connections[options["database"]]
         try:
             connection.client.runshell(options["parameters"])

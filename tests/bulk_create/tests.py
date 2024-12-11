@@ -114,6 +114,15 @@ class BulkCreateTests(TestCase):
             )
 
     def test_proxy_inheritance_supported(self):
+        """
+        Tests if the proxy model inheritance is correctly supported by creating various proxy models and checking their querysets for correctness.
+
+            This test case covers the bulk creation of instances of proxy models 
+            :class:`ProxyCountry` and :class:`ProxyProxyCountry` and checks if they are properly 
+            inherited and queried. Specifically, it verifies that the names of all created 
+            countries are correctly retrieved, regardless of their proxy level, and that 
+            the results are present in the querysets as expected.
+        """
         ProxyCountry.objects.bulk_create(
             [
                 ProxyCountry(name="Qwghlm", iso_two_letter="QW"),
@@ -315,6 +324,20 @@ class BulkCreateTests(TestCase):
 
     @skipUnlessDBFeature("has_bulk_insert")
     def test_bulk_insert_nullable_fields(self):
+        """
+
+        Tests the bulk insertion of nullable fields in the database.
+
+        Verifies that the database correctly handles bulk insertion of models with
+        nullable fields, including foreign keys referencing auto-field models.
+        Checks that the inserted records are correctly persisted and can be queried.
+
+        The test covers the following scenarios:
+        - Bulk creation of models with nullable fields.
+        - Verification of the correct number of inserted records.
+        - Querying of records by nullable fields to ensure correct data persistence.
+
+        """
         fk_to_auto_fields = {
             "auto_field": NoFields.objects.create(),
             "small_auto_field": SmallAutoFieldModel.objects.create(),
@@ -617,6 +640,18 @@ class BulkCreateTests(TestCase):
         "supports_update_conflicts", "supports_update_conflicts_with_target"
     )
     def test_update_conflicts_unique_fields_pk(self):
+        """
+
+        Tests the bulk creation of objects with update conflicts on unique fields, specifically the primary key.
+
+        This function verifies that when attempting to bulk create objects that conflict with existing records,
+        the `update_conflicts` parameter correctly updates the conflicting records instead of raising an error.
+        The test case checks that the update operation is applied to the specified fields (`name` in this case),
+        and that the resulting data is consistent with the expected outcome.
+
+        The test requires a database backend that supports update conflicts and returns rows from bulk inserts.
+
+        """
         TwoFields.objects.bulk_create(
             [
                 TwoFields(f1=1, f2=1, name="a"),

@@ -163,12 +163,39 @@ class ClientHandler(BaseHandler):
     """
 
     def __init__(self, enforce_csrf_checks=True, *args, **kwargs):
+        """
+        Initializes a new instance of the class.
+
+         :param bool enforce_csrf_checks: Determines whether Cross-Site Request Forgery (CSRF) checks should be enforced. Defaults to True.
+         :param args: Variable length argument list.
+         :param kwargs: Arbitrary keyword arguments.
+
+         This constructor sets up the CSRF check enforcement and then calls the superclass constructor with the provided arguments. It allows for customization of CSRF checks upon object creation.
+        """
         self.enforce_csrf_checks = enforce_csrf_checks
         super().__init__(*args, **kwargs)
 
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+        Callable entry point for handling an incoming request.
+
+        This method processes an HTTP request and returns an HTTP response.
+        It coordinates the middleware chain, handles CSRF checks, and constructs
+        a WSGIRequest object from the provided environment. It then delegates
+        the actual request processing to the `get_response` method.
+
+        The response is processed for streaming content and conditional content
+        removal, and is ultimately returned as the result of this call.
+
+        The method also manages connections, ensuring that old connections are
+        properly closed after a request has finished.
+
+        :param environ: The WSGI environment for the incoming request.
+        :returns: The HTTP response to the request.
+
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 
@@ -214,6 +241,17 @@ class AsyncClientHandler(BaseHandler):
     """An async version of ClientHandler."""
 
     def __init__(self, enforce_csrf_checks=True, *args, **kwargs):
+        """
+        Initializes the object, allowing for optional customization of CSRF check enforcement.
+
+        :param bool enforce_csrf_checks: A flag to control whether CSRF checks are enforced, defaults to True.
+        :param args: Additional positional arguments to be passed to the parent class.
+        :param kwargs: Additional keyword arguments to be passed to the parent class.
+
+        The CSRF check enforcement can be disabled by passing False to the enforce_csrf_checks parameter.
+        This can be useful in certain scenarios where CSRF protection is not required or needs to be bypassed.
+
+        """
         self.enforce_csrf_checks = enforce_csrf_checks
         super().__init__(*args, **kwargs)
 
@@ -812,6 +850,17 @@ class ClientMixin:
         return session
 
     async def asession(self):
+        """
+        Retrieves or creates an asynchronous session store.
+
+        This method checks for an existing session cookie in the request. If a cookie is found, 
+        it returns an instance of the session store associated with the cookie. 
+        If no cookie is present, a new session store is created, saved asynchronously, 
+        and a session cookie is set. The session store is then returned.
+
+        :returns: An asynchronous session store instance.
+        :rtype: SessionStore
+        """
         engine = import_module(settings.SESSION_ENGINE)
         cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if cookie:

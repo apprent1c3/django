@@ -136,6 +136,13 @@ class AbstractBaseUser(models.Model):
         return self._get_session_auth_hash()
 
     def get_session_auth_fallback_hash(self):
+        """
+        Generates a sequence of session authentication hashes for each fallback secret key defined in the system settings. 
+
+        These hashes can be used as an authentication fallback when the primary session authentication hash is not available or valid, providing an additional layer of security and robustness to the session management system.
+
+        Returns an iterator over the hashes, allowing for efficient iteration and processing of the fallback authentication options.
+        """
         for fallback_secret in settings.SECRET_KEY_FALLBACKS:
             yield self._get_session_auth_hash(secret=fallback_secret)
 

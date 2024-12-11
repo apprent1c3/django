@@ -518,6 +518,14 @@ class BaseFormSet(RenderableFormMixin):
     def media(self):
         # All the forms on a FormSet are the same, so you only need to
         # interrogate the first form for media.
+        """
+        Returns the media required by the formset.
+
+        This property represents the combined media (CSS and JavaScript files) needed by the forms in the formset.
+        If the formset contains forms, it returns the media of the first form, otherwise it returns the media of an empty form.
+
+        :rtype: django.forms.Media
+        """
         if self.forms:
             return self.forms[0].media
         else:

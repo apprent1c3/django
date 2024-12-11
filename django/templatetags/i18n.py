@@ -15,6 +15,21 @@ class GetAvailableLanguagesNode(Node):
         self.variable = variable
 
     def render(self, context):
+        """
+
+        Renders the object with the given context.
+
+        This function injects the available languages into the context, where each language
+        is a tuple containing the language code and its corresponding translated name.
+        The context is then updated with these languages, making them available for further
+        processing or rendering.
+
+        The languages are retrieved from the application settings, specifically from the
+        LANGUAGES configuration.
+
+        :return: An empty string.
+
+        """
         context[self.variable] = [
             (k, translation.gettext(v)) for k, v in settings.LANGUAGES
         ]
@@ -23,10 +38,32 @@ class GetAvailableLanguagesNode(Node):
 
 class GetLanguageInfoNode(Node):
     def __init__(self, lang_code, variable):
+        """
+
+        Initializes a new instance of the class.
+
+        :param lang_code: The language code to be used.
+        :param variable: The variable to be associated with this instance.
+
+        This constructor sets up the basic properties of the class, including the language code and variable.
+        It provides a foundation for further operations and configurations.
+
+        """
         self.lang_code = lang_code
         self.variable = variable
 
     def render(self, context):
+        """
+        Renders the language information for the current context.
+
+        This function retrieves the language code from the context, looks up its information,
+        and stores it in the context under the specified variable. The function returns an
+        empty string, indicating that it does not directly render any output, but rather
+        modifies the context for further use.
+
+        :returns: An empty string
+
+        """
         lang_code = self.lang_code.resolve(context)
         context[self.variable] = translation.get_language_info(lang_code)
         return ""
@@ -34,6 +71,14 @@ class GetLanguageInfoNode(Node):
 
 class GetLanguageInfoListNode(Node):
     def __init__(self, languages, variable):
+        """
+
+        Initialize an object with language and variable settings.
+
+        :param languages: A collection of language codes or identifiers to be used in the object.
+        :param variable: A variable to be associated with the object, potentially influencing its behavior or configuration.
+
+        """
         self.languages = languages
         self.variable = variable
 
@@ -73,6 +118,15 @@ class TranslateNode(Node):
     child_nodelists = ()
 
     def __init__(self, filter_expression, noop, asvar=None, message_context=None):
+        """
+        Initializes a filter object with a filter expression and optional settings.
+
+        :param filter_expression: The expression used to filter data
+        :param noop: A flag indicating whether the filter operation is a no-op
+        :param asvar: An optional variable to assign the filter result to
+        :param message_context: An optional context for message processing
+        :note: If the filter expression contains a variable as a string, it is automatically converted to a Variable object for further processing.
+        """
         self.noop = noop
         self.asvar = asvar
         self.message_context = message_context
@@ -146,6 +200,21 @@ class BlockTranslateNode(Node):
         return msg, vars
 
     def render(self, context, nested=False):
+        """
+        Render translated string using gettext functionality, handling plural and singular forms.
+
+        This function generates a translated string based on the provided context, taking into account plural and singular forms. It uses the ``gettext`` and ``ngettext`` functions from the ``translation`` module to handle the translation.
+
+        The function can handle cases where a counter variable is provided, in which case it uses the ``ngettext`` function to determine the correct plural or singular form based on the counter value.
+
+        The translated string can contain variables that are replaced with values from the context. If a variable is not found in the context, it is replaced with a default value.
+
+        The function can also render the translated string as a safe string, which can be useful when rendering HTML content.
+
+        The function raises a ``TemplateSyntaxError`` if the counter value is not a number, or if the string cannot be formatted with the provided variables.
+
+        The function returns the translated string, or an empty string if the ``asvar`` parameter is provided, in which case the translated string is stored in the context variable specified by ``asvar``.
+        """
         if self.message_context:
             message_context = self.message_context.resolve(context)
         else:
@@ -178,6 +247,19 @@ class BlockTranslateNode(Node):
         default_value = context.template.engine.string_if_invalid
 
         def render_value(key):
+            """
+            evt.render_value(key)
+                Render a value based on a given key, taking into account the current context.
+
+                The function first checks if the key exists in the context. If it does, the corresponding value is retrieved.
+                If the key is not found in the context, a default value is used, which can optionally be formatted with the key.
+
+                The retrieved or default value is then further processed and rendered within the context using the 
+                :func:`render_value_in_context` function, before being returned as the final result. 
+
+                :param key: The key to look up in the context
+                :return: The rendered value based on the key and context
+            """
             if key in context:
                 val = context[key]
             else:

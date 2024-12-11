@@ -138,6 +138,14 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_sidebar_starts_open(self):
+        """
+        Tests that the sidebar starts in an open state on the user changelist page.
+
+        Verifies that the main content area has a 'shifted' class, indicating the sidebar is open,
+        when the page is initially loaded.
+
+        This ensures that the sidebar's initial state is correct and the page layout is as expected.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(

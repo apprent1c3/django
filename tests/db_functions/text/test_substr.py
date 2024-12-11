@@ -7,6 +7,21 @@ from ..models import Author
 
 class SubstrTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests basic queries and annotation functionality for Author objects.
+
+        This test case creates Author instances, annotates their names with substrings,
+        and then checks that the resulting query sets are ordered correctly and contain
+        the expected values.
+
+        It covers the following scenarios:
+
+        - Extracting substrings from author names at specific positions and lengths
+        - Ordering query sets by author name
+        - Updating author aliases based on their names
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(name_part=Substr("name", 5, 3))

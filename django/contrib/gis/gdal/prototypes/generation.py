@@ -96,6 +96,26 @@ def srs_output(func, argtypes):
 
 
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
+    """
+
+    Configures a ctypes function to output a constant string, with optional offset and decoding.
+
+    The function's argtypes are set to the provided argtypes. The restype is determined by the presence of an offset.
+    If an offset is specified, the restype is set to c_int; otherwise, it is set to c_char_p.
+
+    This function also installs an error-checking function that verifies the const string returned by the configured function.
+    The error-checking function optionally decodes the result using the specified decoding if provided.
+
+    The function returns the configured ctypes function.
+
+    :param func: The ctypes function to configure.
+    :param argtypes: The argtypes to set for the function.
+    :param offset: Optional offset to use when determining the restype.
+    :param decoding: Optional decoding to apply to the result.
+    :param cpl: Optional parameter to control the const string checking behavior.
+    :rtype: The configured ctypes function
+
+    """
     func.argtypes = argtypes
     if offset:
         func.restype = c_int
@@ -103,6 +123,14 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
         func.restype = c_char_p
 
     def _check_const(result, func, cargs):
+        """
+        Checks if a constant string in a result is present, and if so, returns the string after decoding if required.
+
+        :param result: The object to check for a constant string.
+        :param func: The function associated with the constant string.
+        :param cargs: Additional arguments related to the constant string.
+        :returns: The decoded constant string if found, otherwise None.
+        """
         res = check_const_string(result, func, cargs, offset=offset, cpl=cpl)
         if res and decoding:
             res = res.decode(decoding)

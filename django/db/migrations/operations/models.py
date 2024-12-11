@@ -135,6 +135,21 @@ class CreateModel(ModelOperation):
         return False
 
     def reduce(self, operation, app_label):
+        """
+        Reduces a model based on a given operation, applying modifications such as deletions, renames, field alterations, and index changes.
+
+        The `operation` parameter determines the type of modification to be applied. Supported operations include:
+
+        * Deletion of a model
+        * Renaming of a model
+        * Altering of model options, managers, or order with respect to another field
+        * Adding, removing, or altering fields within a model
+        * Adding, removing, or altering indexes and constraints on a model
+
+        The `app_label` parameter provides context for the operation, allowing the method to determine the scope of the modification.
+
+        This method returns a list of modified models, which may include the original model with alterations or a new model created as a result of the operation. If the operation does not affect the current model, an empty list is returned.
+        """
         if (
             isinstance(operation, DeleteModel)
             and self.name_lower == operation.name_lower
@@ -957,6 +972,14 @@ class RemoveIndex(IndexOperation):
     category = OperationCategory.REMOVAL
 
     def __init__(self, model_name, name):
+        """
+        Initializes a class instance with a model name and a unique name.
+
+        :param model_name: The name of the model associated with this instance.
+        :param name: A unique identifier for this instance.
+
+        This method sets the foundation for the class, storing the provided model name and unique name as instance attributes. These attributes can be used to identify and distinguish between different instances of the class.
+        """
         self.model_name = model_name
         self.name = name
 
@@ -1167,6 +1190,20 @@ class AddConstraint(IndexOperation):
             schema_editor.add_constraint(model, self.constraint)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the operation of adding a database constraint in a backwards migration.
+
+        Separately, this method determines whether a specific model can be migrated by 
+        the current database schema editor, and if allowed, removes a previously added 
+        database constraint on the specified model.
+
+        :param app_label: The label of the application that owns the model.
+        :param schema_editor: The editor used to modify the database schema.
+        :param from_state: Represents the current state of the model.
+        :param to_state: Represents the target state of the model.
+
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.remove_constraint(model, self.constraint)

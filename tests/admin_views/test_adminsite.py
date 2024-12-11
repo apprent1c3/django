@@ -55,6 +55,15 @@ class SiteEachContextTest(TestCase):
         self.assertIs(ctx["has_permission"], True)
 
     def test_custom_admin_titles(self):
+        """
+
+        Tests the custom titles for the admin site.
+
+        This test case verifies that the site title and site header are correctly set
+        to their custom values. It simulates a GET request to the admin index page,
+        sets the request user, and then checks the context for the expected title and header.
+
+        """
         request = self.request_factory.get(reverse("test_custom_adminsite:index"))
         request.user = self.u1
         ctx = custom_site.each_context(request)

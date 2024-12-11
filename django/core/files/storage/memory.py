@@ -52,6 +52,25 @@ class InMemoryFileNode(ContentFile, TimingMixin):
         self._initialize_times()
 
     def open(self, mode):
+        """
+        open(self, mode)
+        ----------------
+
+        Open the current object in the specified mode.
+
+        This method prepares the object for access by converting the stream content to the desired mode and updating the accessed time. It then calls the parent class's open method to perform the actual opening operation.
+
+        The mode parameter determines how the object is opened, such as for reading or writing. 
+
+        Parameters
+        ----------
+        mode : 
+            The mode in which to open the object.
+
+        Returns
+        -------
+        The result of the parent class's open method.
+        """
         self._convert_stream_content(mode)
         self._update_accessed_time()
         return super().open(mode)
@@ -233,6 +252,18 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return file_node.open(mode)
 
     def _save(self, name, content):
+        """
+        ..: abstractmethod:: 
+           Saves a file to the storage system.
+
+           :param name: The name of the file to be saved.
+           :param content: The content to be written to the file.
+           :return: The relative path of the saved file.
+
+           This function handles the creation of the file, writing its content, and updating its modified time. 
+           It also handles temporary files and their removal after saving. The function automatically 
+           determines the mode of writing (binary or text) based on the type of content.
+        """
         file_node = self._resolve(
             name, create_if_missing=True, leaf_cls=InMemoryFileNode
         )

@@ -33,6 +33,16 @@ class BlockContext:
         self.blocks[name].append(block)
 
     def get_block(self, name):
+        """
+        Return the last occurrence of a block with the specified name.
+
+        Args:
+            name (str): The name of the block to retrieve.
+
+        Returns:
+            The last block with the given name, or None if no such block exists or is empty.
+
+        """
         try:
             return self.blocks[name][-1]
         except IndexError:
@@ -41,6 +51,17 @@ class BlockContext:
 
 class BlockNode(Node):
     def __init__(self, name, nodelist, parent=None):
+        """
+        Initializes a new instance of the class.
+
+        :param name: The name of the instance.
+        :param nodelist: A list of nodes associated with the instance.
+        :param parent: The parent instance, defaults to None.
+
+        This constructor sets up the basic properties of the instance, including its name, 
+        nodelist, and parent-child relationship. It is used to create a new instance of the class 
+        with the specified attributes.
+        """
         self.name = name
         self.nodelist = nodelist
         self.parent = parent

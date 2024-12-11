@@ -77,6 +77,17 @@ class DatabaseCreationTests(SimpleTestCase):
         raise DatabaseError() from error
 
     def _execute_raise_permission_denied(self, cursor, parameters, keepdb=False):
+        """
+
+        Raises a DatabaseError with an underlying InsufficientPrivilege error, 
+        indicating that the user lacks permission to create a database.
+
+        :param cursor: The database cursor.
+        :param parameters: The parameters for the database operation.
+        :param keepdb: A flag indicating whether to keep the database, defaults to False.
+        :raises DatabaseError: With an underlying InsufficientPrivilege error.
+
+        """
         error = errors.InsufficientPrivilege("permission denied to create database")
         raise DatabaseError() from error
 

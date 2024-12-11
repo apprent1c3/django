@@ -382,6 +382,16 @@ class RelatedField(FieldCacheMixin, Field):
             )
 
     def deconstruct(self):
+        """
+        Deconstructs the class instance into a tuple of values for serialization purposes.
+
+        This method is used to break down the instance into its constituent parts, which can be used to reconstruct the instance later.
+        It extends the deconstruction process provided by its parent class, adding additional keyword arguments if certain conditions are met.
+        The returned tuple contains the name of the class, the path to the class, a list of positional arguments, and a dictionary of keyword arguments. 
+
+        The keyword arguments specifically include 'limit_choices_to' if choices are limited, and 'related_name' and 'related_query_name' if they are defined.
+        These values can be used to recreate the instance or to serialize it for storage or transmission.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self._limit_choices_to:
             kwargs["limit_choices_to"] = self._limit_choices_to
@@ -670,6 +680,13 @@ class ForeignObject(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the ForeignKey object into its constituent parts, allowing it to be recreated from them.
+
+        This method returns a deconstructed representation of the ForeignKey, which can be used to recreate it. The deconstructed representation includes the following components: the name of the ForeignKey, its path, its positional arguments, and its keyword arguments. The keyword arguments include information about the relationship, such as the model it targets, the fields involved in the relationship, and the behavior when the target instance is deleted.
+
+        The deconstructed representation is useful for serializing the ForeignKey, for example when storing it in a database or transmitting it over a network. It can then be used to recreate the original ForeignKey object, or to create a new one with the same characteristics.
+        """
         name, path, args, kwargs = super().deconstruct()
         kwargs["on_delete"] = self.remote_field.on_delete
         kwargs["from_fields"] = self.from_fields
@@ -881,6 +898,13 @@ class ForeignObject(RelatedField):
         return cls.merge_dicts(class_lookups)
 
     def contribute_to_class(self, cls, name, private_only=False, **kwargs):
+        """
+        Contributes this descriptor to the given class, integrating its functionality into the class's attributes.
+
+        This method is called when the descriptor is assigned to a class attribute, allowing it to set up its internal state and hook into the class's behavior. It also sets up a related accessor on the class, which provides access to related objects.
+
+        The `private_only` parameter determines whether the descriptor should be private to the class, and additional keyword arguments (`**kwargs`) can be used to customize the contribution process. The resulting related accessor is stored as an attribute on the class, allowing for easy access to related objects.
+        """
         super().contribute_to_class(cls, name, private_only=private_only, **kwargs)
         setattr(cls, self.name, self.forward_related_accessor_class(self))
 

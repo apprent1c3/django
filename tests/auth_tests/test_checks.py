@@ -229,6 +229,12 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_non_clashing_custom_permissions(self):
+        """
+        Tests that custom permissions defined in a model's Meta class do not cause any errors when running checks.
+
+        This test case ensures that the model's custom permissions are valid and do not clash with any existing permissions, 
+        resulting in no errors being reported during the checks process.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [

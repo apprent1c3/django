@@ -20,6 +20,23 @@ class M2MRegressionTests(TestCase):
         # Multiple m2m references to model must be distinguished when
         # accessing the relations through an instance attribute.
 
+        """
+
+        Tests the functionality of multiple Many-To-Many (M2M) relationships.
+
+        Verifies that a model instance can maintain separate M2M relationships with other models,
+        and that these relationships can be correctly established, retrieved, and asserted.
+
+        This test case covers the following scenarios:
+
+        * Creating multiple instances of the same model with distinct M2M relationships
+        * Establishing and verifying M2M relationships between instances of different models
+        * Ensuring that the relationships are correctly retrieved and asserted
+
+        The test checks for the correct establishment of M2M relationships in two different scenarios:
+        one involving a self-referential model and another involving separate models with different relationships.
+
+        """
         s1 = SelfRefer.objects.create(name="s1")
         s2 = SelfRefer.objects.create(name="s2")
         s3 = SelfRefer.objects.create(name="s3")

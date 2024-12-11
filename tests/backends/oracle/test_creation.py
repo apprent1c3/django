@@ -63,6 +63,24 @@ class DatabaseCreationTests(TestCase):
 
     @mock.patch.object(DatabaseCreation, "_test_database_create", return_value=False)
     def test_create_test_user(self, *mocked_objects):
+        """
+
+        Tests the creation of a test database user.
+
+        This test case simulates various scenarios to ensure the correct handling of test database creation, including
+         situations where the database creation fails, a user already exists, or insufficient privileges are encountered.
+
+        The test verifies that the `DatabaseCreation` class behaves as expected under different conditions, such as when 
+        creating a test database with or without keeping the database after the test, and when encountering errors 
+        during the creation process.
+
+        Parameters
+        ----------
+        *mocked_objects : object
+            Mocked objects used to simulate different test scenarios.
+
+
+        """
         creation = DatabaseCreation(connection)
         with mock.patch.object(
             DatabaseCreation, "_test_database_passwd", self._test_database_passwd

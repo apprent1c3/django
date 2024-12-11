@@ -34,6 +34,24 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
         directory_permissions_mode=None,
         allow_overwrite=False,
     ):
+        """
+
+        Initializes a new instance of the class.
+
+        The initializer sets up the object's properties, including the location, base URL, file and directory permissions modes, 
+        and flag to allow overwriting of existing files. 
+
+        Parameters:
+            location (str, optional): The location to set for the object. Defaults to None.
+            base_url (str, optional): The base URL to set for the object. Defaults to None.
+            file_permissions_mode (int, optional): The permissions mode for files. Defaults to None.
+            directory_permissions_mode (int, optional): The permissions mode for directories. Defaults to None.
+            allow_overwrite (bool, optional): A flag indicating whether to allow overwriting of existing files. Defaults to False.
+
+        Note:
+            Overriding the OS_OPEN_FLAGS is deprecated and will be removed in Django 6.0. Use the allow_overwrite parameter instead.
+
+        """
         self._location = location
         self._base_url = base_url
         self._file_permissions_mode = file_permissions_mode

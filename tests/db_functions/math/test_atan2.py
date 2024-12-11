@@ -9,6 +9,20 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ATan2Tests(TestCase):
     def test_null(self):
+        """
+        Tests the behavior of the ATan2 function when given null or zero values.
+
+        This test case verifies that the ATan2 function correctly handles cases where either the first or second argument is zero or null, 
+        by checking the results of the function in different scenarios. 
+
+        The test checks for the following scenarios:
+        - When the first argument is smaller than the second argument and the first argument is null or zero.
+        - When the first argument is larger than the second argument and the first argument is null or zero.
+        - When the first argument is larger than the second argument and the second argument is null or zero.
+
+        In all these cases, the function should return None.
+
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_atan2_sn=ATan2("small", "normal"),

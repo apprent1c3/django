@@ -28,6 +28,14 @@ class GEOSGeometryBase(GEOSBase):
     has_cs = False  # Only Point, LineString, LinearRing have coordinate sequences
 
     def __init__(self, ptr, cls):
+        """
+        Registers a GEOS geometry object and initializes its class.
+
+        This method is used to create a new GEOS geometry object from a given pointer and class. 
+        If no specific class is provided, it will automatically determine the class based on the geometry type ID.
+        The class is then used to configure the object's behavior and attributes.
+        After initialization, additional setup is performed through the :meth:`_post_init` method to ensure the object is fully configured and ready for use.
+        """
         self._ptr = ptr
 
         # Setting the class type (e.g., Point, Polygon, etc.)

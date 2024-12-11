@@ -32,6 +32,13 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        Tests that an async view function wrapped with CSRF protection remains a coroutine function.
+
+        Verifies that applying CSRF protection to an asynchronous view function does not alter its coroutine status, ensuring it can still be properly handled by the asynchronous request-response cycle.
+
+        This test ensures compatibility between async views and CSRF protection, allowing developers to securely handle asynchronous requests without compromising the coroutine functionality of the view function. 
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -71,6 +78,15 @@ class CsrfProtectTests(CsrfTestMixin, SimpleTestCase):
 
 class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+
+        Tests that a synchronous function wrapped with CSRF token protection remains non-async.
+
+        This function verifies that applying CSRF token requirements to a synchronous view
+        does not transform it into a coroutine function, ensuring that the function's behavior
+        remains consistent with its original synchronous implementation.
+
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -86,6 +102,22 @@ class RequiresCsrfTokenTests(CsrfTestMixin, SimpleTestCase):
 
     def test_requires_csrf_token_decorator(self):
         @requires_csrf_token
+        """
+
+        Tests the functionality of the requires_csrf_token decorator in synchronous views.
+
+        Verifies that when the decorator is applied to a view, the view can handle requests 
+        with and without a valid CSRF token. The test checks for the following conditions:
+
+        * The view returns a successful response (200 status code) when a valid CSRF token is provided.
+        * The CSRF token is marked as processed after the view has handled the request.
+        * The view returns a successful response (200 status code) even when no CSRF token is provided, 
+          without logging any warnings related to CSRF token verification.
+
+        Ensures that the requires_csrf_token decorator functions correctly in synchronous views, 
+        allowing them to handle requests with or without CSRF tokens without interrupting the request flow.
+
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -178,6 +210,21 @@ class CsrfExemptTests(SimpleTestCase):
 
     def test_csrf_exempt_decorator(self):
         @csrf_exempt
+        """
+
+        Checks the functionality of the csrf_exempt decorator.
+
+        This test verifies that the csrf_exempt decorator correctly flags a view as 
+        CSRF exempt and ensures the view returns the expected HTTP response.
+
+        The test case checks if the view is properly marked as CSRF exempt and 
+        confirms that the view returns an HttpResponse object when it is called with 
+        an HttpRequest object. 
+
+        Returns:
+            None
+
+        """
         def sync_view(request):
             return HttpResponse()
 

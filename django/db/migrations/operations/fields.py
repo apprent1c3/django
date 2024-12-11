@@ -43,6 +43,22 @@ class FieldOperation(Operation):
         return False
 
     def references_field(self, model_name, name, app_label):
+        """
+
+        Determines whether a field references another field within the same or different model.
+
+        Args:
+            model_name (str): The name of the model being referenced.
+            name (str): The name of the field being referenced.
+            app_label (str): The label of the application containing the referenced model.
+
+        Returns:
+            bool: True if the field references the specified field, False otherwise.
+
+        This function checks for references based on the model name, field name, and application label.
+        It handles self-references and foreign key relationships.
+
+        """
         model_name_lower = model_name.lower()
         # Check if this operation locally references the field.
         if model_name_lower == self.model_name_lower:
@@ -82,6 +98,13 @@ class AddField(FieldOperation):
         super().__init__(model_name, name, field)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, returning a tuple containing the class name, an empty list, and a dictionary of keyword arguments.
+
+        The keyword arguments dictionary includes the model name, name, and field. Additionally, if the preserve default flag is not set to True, it is also included in the dictionary.
+
+        This method is typically used for serializing or deserializing the object, or for reconstructing it at a later point. The returned tuple can be used to recreate the object using the class constructor.
+        """
         kwargs = {
             "model_name": self.model_name,
             "name": self.name,
@@ -115,6 +138,20 @@ class AddField(FieldOperation):
                 field.default = NOT_PROVIDED
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the model field in the database schema.
+
+        This method is responsible for removing a model field when migrating backwards.
+        It checks if the model is allowed to be migrated based on the schema editor's
+        connection alias and then removes the field from the model if permitted.
+
+        :param app_label: The label of the application that the model belongs to.
+        :param schema_editor: The schema editor instance to use for the migration.
+        :param from_state: The current state of the application's models.
+        :param to_state: The target state of the application's models.
+
+        """
         from_model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, from_model):
             schema_editor.remove_field(
@@ -189,6 +226,27 @@ class RemoveField(FieldOperation):
         return "remove_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduce an operation on the current model instance.
+
+        Parameters
+        ----------
+        operation : object
+            The operation to be reduced.
+        app_label : str
+            The application label associated with the operation.
+
+        Returns
+        -------
+        list
+            A list of reduced operations. If the operation is a DeleteModel instance with a name matching the current model, 
+            returns a list containing the operation. Otherwise, delegates to the superclass's reduce method.
+
+        Note
+        ----
+        The reduction process checks for a specific DeleteModel operation on the current model, allowing for specialized handling 
+        of model deletion operations.
+        """
         from .models import DeleteModel
 
         if (
@@ -253,6 +311,14 @@ class AlterField(FieldOperation):
         return "alter_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduced the given operation and app_label to a simplified sequence of operations.
+
+        This method attempts to minimize the given operation by inspecting its type and combining or replacing it with other operations where possible.
+        It handles several special cases, including reducing AlterField and RemoveField operations that operate on the same field,
+        and renaming a field operation when the field does not have a database column specified.
+        If the operation cannot be reduced, it defers to the parent class's reduce method to handle the operation.
+        """
         if isinstance(
             operation, (AlterField, RemoveField)
         ) and self.is_same_field_operation(operation):

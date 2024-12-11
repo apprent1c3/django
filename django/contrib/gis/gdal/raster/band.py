@@ -256,6 +256,13 @@ class GDALBand(GDALRasterBase):
 
 class BandList(list):
     def __init__(self, source):
+        """
+        Initializes a new instance of the class, setting the source attribute and invoking the parent class constructor. 
+
+        :param source: The source to be associated with the instance.
+        :raises: No specific exceptions are raised by this method, but any exceptions raised by the parent class constructor will be propagated. 
+        :note: This is a special method in Python classes, known as a constructor, which is automatically called when an object of the class is instantiated.
+        """
         self.source = source
         super().__init__()
 

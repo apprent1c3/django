@@ -34,6 +34,17 @@ class ModelBackend(BaseBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        """
+        Authenticate a user based on the provided username and password.
+
+        :param request: The current request object.
+        :param username: The username to authenticate, defaults to None.
+        :param password: The password to authenticate, defaults to None.
+        :param kwargs: Additional keyword arguments, can contain the username as an alternative.
+        :returns: The authenticated user object if authentication is successful, otherwise None.
+        :note: If the username does not exist, a new user object is created with the provided password.
+        The authentication process checks the user's password and ensures the user is allowed to authenticate.
+        """
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         if username is None or password is None:
@@ -153,6 +164,21 @@ class ModelBackend(BaseBackend):
         return UserModel._default_manager.filter(user_q)
 
     def get_user(self, user_id):
+        """
+
+        Retrieves a user instance based on the provided user ID.
+
+        Args:
+            user_id (int): The identifier of the user to retrieve.
+
+        Returns:
+            UserModel: The user instance if it exists and the user can authenticate, otherwise None.
+
+        Note:
+            The function checks if the user exists and has the necessary permissions to authenticate.
+            If the user does not exist or cannot authenticate, the function returns None.
+
+        """
         try:
             user = UserModel._default_manager.get(pk=user_id)
         except UserModel.DoesNotExist:

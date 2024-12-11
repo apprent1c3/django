@@ -38,6 +38,20 @@ class Command(BaseCommand):
     server_cls = WSGIServer
 
     def add_arguments(self, parser):
+        """
+
+        Add command line arguments to the parser for customizing Django's runserver behavior.
+
+        This function allows users to specify various options, including:
+            - An optional port number or IP address and port combination
+            - The use of IPv6 addresses
+            - The disabling of threading
+            - The disabling of the auto-reloader
+            - The skipping of system checks
+
+        These options can be used to fine-tune the performance and behavior of the Django development server.
+
+        """
         parser.add_argument(
             "addrport", nargs="?", help="Optional port number, or ipaddr:port"
         )
@@ -67,6 +81,14 @@ class Command(BaseCommand):
         )
 
     def execute(self, *args, **options):
+        """
+        Executes the command with optional settings.
+
+        This method runs the command and applies customizations based on provided options.
+        It specifically handles the 'no_color' option, which disables colored output in the terminal.
+        If 'no_color' is enabled, the environment variable 'DJANGO_COLORS' is set to 'nocolor' to achieve this effect.
+        The command execution is then delegated to the superclass, passing on all arguments and options for further processing.
+        """
         if options["no_color"]:
             # We rely on the environment because it's currently the only
             # way to reach WSGIRequestHandler. This seems an acceptable

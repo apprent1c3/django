@@ -360,6 +360,12 @@ class QuerySet(AltersData):
         return "<%s %r>" % (self.__class__.__name__, data)
 
     def __len__(self):
+        """
+        Returns the total number of items in the collection.
+
+        This method triggers a fetch operation to retrieve all items if they have not been loaded yet, 
+        and then returns the count of items in the cache.
+        """
         self._fetch_all()
         return len(self._result_cache)
 
@@ -1343,6 +1349,33 @@ class QuerySet(AltersData):
         return clone
 
     def values_list(self, *fields, flat=False, named=False):
+        """
+        Returns a new QuerySet containing tuples of the specified fields.
+
+        This function allows you to retrieve a list of values from the database, 
+        with the ability to control the format of the returned data. 
+
+        By default, it returns a list of tuples, where each tuple contains the values 
+        for the specified fields in the order they were requested.
+
+        You can use the `flat` parameter to get a flat list of values when only one 
+        field is specified. 
+
+        Additionally, you can use the `named` parameter to return a list of namedtuples, 
+        which can be more readable and convenient to use. 
+
+        Please note that `flat` and `named` parameters are mutually exclusive and 
+        cannot be used together.
+
+        The function also supports using expressions as fields, which can be 
+        useful for more complex queries.
+
+        :param fields: Variable number of field names or expressions to include in the output
+        :param flat: If True, returns a flat list of values when only one field is specified
+        :param named: If True, returns a list of namedtuples instead of regular tuples
+        :rtype: QuerySet
+        :raises TypeError: If `flat` and `named` are used together, or if `flat` is used with more than one field
+        """
         if flat and named:
             raise TypeError("'flat' and 'named' can't be used together.")
         if flat and len(fields) > 1:

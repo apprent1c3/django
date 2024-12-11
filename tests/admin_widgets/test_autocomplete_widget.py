@@ -98,6 +98,9 @@ class AutocompleteMixinTests(TestCase):
         self.assertJSONEqual(attrs["data-allow-clear"], True)
 
     def test_build_attrs_required_field(self):
+        """
+        Tests that the 'band' field in the RequiredBandForm has the 'data-allow-clear' attribute set to False, indicating that the field is required and its value cannot be cleared.
+        """
         form = RequiredBandForm()
         attrs = form["band"].field.widget.build_attrs({})
         self.assertJSONEqual(attrs["data-allow-clear"], False)

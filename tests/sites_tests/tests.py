@@ -82,6 +82,16 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_no_site_id(self):
+        """
+        Tests the retrieval of the current site when no SITE_ID is set.
+
+        Verifies that the function returns the correct site based on the request's server name and port,
+        specifically when the SITE_ID setting is not configured. 
+
+        :param request: An instance of HttpRequest, used to determine the current site.
+        :returns: The site instance associated with the request's server name and port, or raises an exception if not found.
+        :raises AssertionError: If the site name does not match the expected value 'example.com'
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",

@@ -22,6 +22,17 @@ class Library:
     """
 
     def __init__(self):
+        """
+        Initializes a new instance of the class.
+
+        This constructor sets up the basic data structures used by the class, 
+        including dictionaries to store filters and tags. These data structures 
+        are initially empty, allowing for dynamic configuration and population 
+        of filters and tags as needed.
+
+        :raises: None
+        :returns: None
+        """
         self.filters = {}
         self.tags = {}
 

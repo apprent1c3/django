@@ -26,6 +26,23 @@ class GeoFuncMixin:
     geom_param_pos = (0,)
 
     def __init__(self, *expressions, **extra):
+        """
+
+        Initializes the object with the given expressions and extra parameters.
+
+        This method validates the input expressions and ensures they conform to the 
+        required geometric data types. It checks if each geometric expression has 
+        a valid Spatial Reference System Identifier (SRID) and if it matches the 
+        expected field type (GeometryField). If necessary, it wraps the geometric 
+        expression with a Value object that specifies the correct output field type.
+
+        Raises:
+            TypeError: If a non-geometric argument is passed in a position where a 
+                geometric argument is expected.
+            ValueError: If the SRID is missing for a geometry without an associated 
+                output field.
+
+        """
         super().__init__(*expressions, **extra)
 
         # Ensure that value expressions are geometric.
@@ -63,6 +80,21 @@ class GeoFuncMixin:
         return self.source_expressions[self.geom_param_pos[0]].field
 
     def as_sql(self, compiler, connection, function=None, **extra_context):
+        """
+        Generate the SQL representation of the spatial function.
+
+        This method returns the SQL string for the spatial function, taking into
+        account the database connection and optional function name. If the function
+        name is not specified, it defaults to the spatial function name provided by
+        the database connection.
+
+        :param compiler: The compiler object to use for generating the SQL.
+        :param connection: The database connection to use for determining the
+            spatial function name.
+        :param function: The optional function name to use instead of the default.
+        :param extra_context: Additional context to pass to the parent class.
+        :return: The SQL representation of the spatial function as a string.
+        """
         if self.function is None and function is None:
             function = connection.ops.spatial_function_name(self.name)
         return super().as_sql(compiler, connection, function=function, **extra_context)
@@ -234,6 +266,17 @@ class AsKML(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, precision=8, **extra):
+        """
+        Initializes the object with a given mathematical expression and optional precision setting.
+
+        _:param expression: The mathematical expression to be used.
+        _:param precision: The desired precision level, defaults to 8 if not None.
+        _:param **extra: Additional keyword arguments to be passed to the parent class.
+
+        This constructor combines the provided expression and precision (if specified) into a list of expressions, 
+        validates the precision value, and then delegates the initialization to the parent class.
+
+        """
         expressions = [expression]
         if precision is not None:
             expressions.append(self._handle_param(precision, "precision", int))

@@ -116,6 +116,11 @@ class TimezoneNode(Node):
         self.tz = tz
 
     def render(self, context):
+        """
+        Render the template content using the given context, taking into account the timezone specified for this instance.
+
+        The function overrides the default timezone with the one resolved from the provided context, ensuring that any date and time related operations are performed in the correct timezone. It then renders the template nodes using the given context and returns the resulting output.
+        """
         with timezone.override(self.tz.resolve(context)):
             output = self.nodelist.render(context)
         return output

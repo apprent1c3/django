@@ -29,6 +29,17 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
     def test_require_http_methods_methods(self):
         @require_http_methods(["GET", "PUT"])
+        """
+         Tests the require_http_methods decorator to ensure it correctly restricts HTTP methods.
+
+        The require_http_methods decorator is used to limit the HTTP methods that a view function can handle. 
+        This test case checks that the decorator correctly allows the specified methods to be handled, 
+        and returns a HttpResponseNotAllowed for methods that are not allowed. 
+
+        In this test, the my_view function is decorated to only allow GET and PUT requests. 
+        The test then checks the response of the view for different HTTP methods (GET, PUT, HEAD, POST, DELETE) 
+        to ensure that the decorator is enforcing the specified method restrictions correctly. 
+        """
         def my_view(request):
             return HttpResponse("OK")
 

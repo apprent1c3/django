@@ -7,6 +7,20 @@ from importlib.util import find_spec as importlib_find
 
 def cached_import(module_path, class_name):
     # Check whether module is loaded and fully initialized.
+    """
+    Retrieves a class from a specified module, utilizing cached imports when possible.
+
+    Args:
+        module_path (str): The full path to the module containing the desired class.
+        class_name (str): The name of the class to be retrieved from the module.
+
+    Returns:
+        The class object with the specified name from the given module.
+
+    Notes:
+        If the module is not already imported or is in the process of being initialized, 
+        it will be imported using the import_module function. Otherwise, the cached module is used. 
+    """
     if not (
         (module := sys.modules.get(module_path))
         and (spec := getattr(module, "__spec__", None))
