@@ -32,6 +32,18 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(function(value), output)
 
     def test_escape(self):
+        """
+
+        Tests the escape function to ensure it correctly replaces special characters with their HTML entity equivalents.
+
+        The function tests various input patterns and values, including ampersand, less than, greater than, double quote, and single quote characters.
+        It verifies that the escape function can handle simple and complex input strings, as well as repeated characters.
+
+        Additionally, it checks the function's behavior with both string and lazy string inputs, ensuring consistent output in all cases.
+
+        The test cases cover a range of scenarios to provide comprehensive coverage of the escape function's functionality.
+
+        """
         items = (
             ("&", "&amp;"),
             ("<", "&lt;"),
@@ -76,6 +88,15 @@ class TestUtilsHtml(SimpleTestCase):
             self.assertEqual(format_html(f"<i>{name}</i>"), "<i>Adam</i>")
 
     def test_linebreaks(self):
+        """
+        Tests the linebreaks function to ensure it correctly handles various types of line breaks and formatting.
+
+        The function is tested with a range of input strings containing different types of line breaks, including newline characters, carriage returns, and tab characters. The expected output is compared to the actual output to verify that the function is correctly converting these line breaks into HTML-compatible breaks.
+
+        The test cases cover a variety of scenarios, including multiple consecutive line breaks, line breaks within paragraphs, and line breaks at the start or end of a string. The function is also tested with both regular strings and lazy strings to ensure it works correctly in both cases.
+
+        Overall, this test ensures that the linebreaks function is working as expected and producing the correct output for a range of different input strings and formatting scenarios.
+        """
         items = (
             ("para1\n\npara2\r\rpara3", "<p>para1</p>\n\n<p>para2</p>\n\n<p>para3</p>"),
             (
@@ -94,6 +115,15 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(linebreaks, lazystr(value), output)
 
     def test_strip_tags(self):
+        """
+        Tests the strip_tags function by comparing its output to the expected output for a variety of input strings.
+
+        The test cases cover a range of scenarios, including HTML tags with attributes, escaped characters, and malformed or nested tags.
+        The function's ability to handle these cases is verified by checking the output against the expected result for each input string.
+
+        This test ensures that the strip_tags function correctly removes HTML tags from input strings, leaving only the text content.
+        It also verifies that the function works correctly with both regular strings and lazy strings, and that it handles a large number of consecutive HTML entities without issue.
+        """
         items = (
             (
                 "<p>See: &#39;&eacute; is an apostrophe followed by e acute</p>",
@@ -145,6 +175,22 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_strip_spaces_between_tags(self):
         # Strings that should come out untouched.
+        """
+
+        Tests the strip_spaces_between_tags function for removing whitespace between XML tags.
+
+        This function checks that the strip_spaces_between_tags function correctly removes 
+        spaces, tabs, and newline characters between XML tags, while preserving content 
+        within the tags. It tests various input cases, including tags with leading or 
+        trailing whitespace, empty tags, and tags with content. The function also 
+        verifies that the strip_spaces_between_tags function works correctly with both 
+        string and lazy string inputs.
+
+        The test cases cover a range of scenarios to ensure the function behaves as 
+        expected, including removal of whitespace between adjacent tags and preservation 
+        of content and formatting within the tags.
+
+        """
         items = (" <adf>", "<adf> ", " </adf> ", " <f> x</f>")
         for value in items:
             with self.subTest(value=value):
@@ -163,6 +209,19 @@ class TestUtilsHtml(SimpleTestCase):
                 self.check_output(strip_spaces_between_tags, lazystr(value), output)
 
     def test_escapejs(self):
+        """
+
+        Test the escapejs function to ensure it correctly escapes special characters in JavaScript strings.
+
+        This function validates the escapejs function's output for various input strings, 
+        including those containing double quotes, single quotes, backslashes, whitespace, 
+        and HTML script tags. It also checks escaping of Unicode characters, such as 
+        paragraph and line separators.
+
+        The test covers both regular strings and lazy strings as input to the escapejs function, 
+        verifying that the output matches the expected escaped string in all cases.
+
+        """
         items = (
             (
                 "\"double quotes\" and 'single quotes'",
@@ -223,6 +282,15 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(json_script(arg, "test_id"), expected)
 
     def test_json_script_custom_encoder(self):
+        """
+
+        Tests the json_script function with a custom JSON encoder.
+
+        The function is expected to generate a JSON script tag using the custom encoder.
+        The test verifies that the output matches the expected HTML format,
+        with the custom-encoded JSON data wrapped in a script tag of type application/json.
+
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
                 return '{"hello": "world"}'
@@ -239,6 +307,22 @@ class TestUtilsHtml(SimpleTestCase):
         )
 
     def test_smart_urlquote(self):
+        """
+        ```def test_smart_urlquote(self):
+            \"\"\"
+            Tests the smart_urlquote function with various URLs, ensuring that it correctly 
+            encodes special characters in the URL path and query parameters.
+
+            This test case covers a range of scenarios, including:
+            - IDsN (Internationalized Domain Names)
+            - non-ASCII characters in the URL path
+            - special characters in query parameters
+            - URLs with multiple query parameters
+            - URLs with ampersands (&) and other special characters
+            - edge cases such as empty query parameters and special characters in the domain name
+            \"\"\"
+        ```
+        """
         items = (
             ("http://öäü.com/", "http://xn--4ca9at.com/"),
             ("http://öäü.com/öäü/", "http://xn--4ca9at.com/%C3%B6%C3%A4%C3%BC/"),
@@ -270,6 +354,16 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(smart_urlquote(value), output)
 
     def test_conditional_escape(self):
+        """
+        Conditionally escapes HTML strings to prevent XSS attacks.
+
+        This function checks if the input string is marked as safe and returns it unchanged.
+        If the string is not marked as safe, it replaces special characters with their HTML entity equivalents.
+
+        The function handles not only raw strings but also string-like objects (e.g. lazy strings).
+
+        :returns: The escaped string or the original string if it is marked as safe.
+        """
         s = "<h1>interop</h1>"
         self.assertEqual(conditional_escape(s), "&lt;h1&gt;interop&lt;/h1&gt;")
         self.assertEqual(conditional_escape(mark_safe(s)), s)
@@ -277,6 +371,17 @@ class TestUtilsHtml(SimpleTestCase):
 
     def test_html_safe(self):
         @html_safe
+        """
+
+        Tests that the html_safe decorator correctly marks a class and its instances as HTML safe.
+
+        The html_safe decorator is expected to add an __html__ method to the class and its instances,
+        which should return the same output as the __str__ method. This test verifies that the
+        decorator is working correctly by checking for the presence of the __html__ attribute on
+        both the class and an instance of the class, and by comparing the output of the __str__
+        and __html__ methods.
+
+        """
         class HtmlClass:
             def __str__(self):
                 return "<h1>I'm a html class!</h1>"
@@ -305,6 +410,9 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(str(subclass_obj), subclass_obj.__html__())
 
     def test_html_safe_defines_html_error(self):
+        """
+        Tests that applying the @html_safe decorator to a class that defines its own __html__() method raises a ValueError, as @html_safe is intended for strings that are already safe for HTML display and should not be used to override custom HTML rendering behavior.
+        """
         msg = "can't apply @html_safe to HtmlClass because it defines __html__()."
         with self.assertRaisesMessage(ValueError, msg):
 
@@ -314,6 +422,14 @@ class TestUtilsHtml(SimpleTestCase):
                     return "<h1>I'm a html class!</h1>"
 
     def test_html_safe_doesnt_define_str(self):
+        """
+        Tests that attempting to apply the @html_safe decorator to a class that does not define the __str__() method raises a ValueError.
+
+        The @html_safe decorator is intended to mark a class as being safe for use in HTML contexts, implying that its string representation is properly escaped.
+        However, if the class does not define how to convert itself to a string, it cannot be marked as HTML-safe.
+
+        This test ensures that the @html_safe decorator correctly detects and raises an error when attempting to decorate such a class, providing a helpful error message to inform the developer of the issue.
+        """
         msg = "can't apply @html_safe to HtmlClass because it doesn't define __str__()."
         with self.assertRaisesMessage(ValueError, msg):
 
@@ -322,6 +438,17 @@ class TestUtilsHtml(SimpleTestCase):
                 pass
 
     def test_urlize(self):
+        """
+        Tests the functionality of the urlize function.
+
+        This test case verifies that the urlize function correctly converts plain text URLs 
+        and email addresses into HTML hyperlinks, while also properly handling special characters. 
+
+        Several test scenarios are covered, including URLs with query parameters and email addresses. 
+
+        The test ensures that the output of the urlize function matches the expected HTML 
+        hyperlinks for each test case, helping to guarantee the correctness and reliability of the function.
+        """
         tests = (
             (
                 "Search for google.com/?q=! and see.",
@@ -344,6 +471,15 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(urlize(value), output)
 
     def test_urlize_unchanged_inputs(self):
+        """
+
+        Test that urlize function does not modify inputs that do not contain valid URLs.
+
+        The function tests a variety of input strings, including very long strings containing random characters, punctuation, and special cases like usernames, domain names, and localhost.
+        It checks that the output of the urlize function is identical to the input, ensuring that the function does not introduce any changes to the input strings.
+        The test cases cover edge cases and boundary conditions, providing assurance that the urlize function behaves as expected and does not modify inputs unnecessarily.
+
+        """
         tests = (
             ("a" + "@a" * 50000) + "a",  # simple_email_re catastrophic test
             ("a" + "." * 1000000) + "a",  # trailing_punctuation catastrophic test

@@ -38,6 +38,17 @@ class HStoreField(CheckFieldDefaultMixin, Field):
                 )
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python object.
+
+        If the input value is a string, it is assumed to be a JSON string and is parsed
+        into a Python object using JSON decoding. Otherwise, the input value is returned
+        unchanged.
+
+        Returns:
+            The input value converted to a Python object, if necessary.
+
+        """
         if isinstance(value, str):
             value = json.loads(value)
         return value

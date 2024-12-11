@@ -655,6 +655,17 @@ class Model(AltersData, metaclass=ModelBase):
         return getattr(self, meta.pk.attname)
 
     def _set_pk_val(self, value):
+        """
+        Sets the primary key value for the current instance and updates the corresponding fields in parent models.
+
+        This method handles the setting of primary key values for an object, taking into account any parent models that may have a link to this object.
+
+        Parameters:
+            value: The value to be set as the primary key.
+
+        Returns:
+            None
+        """
         for parent_link in self._meta.parents.values():
             if parent_link and parent_link != self._meta.pk:
                 setattr(self, parent_link.target_field.attname, value)
@@ -910,6 +921,31 @@ class Model(AltersData, metaclass=ModelBase):
         update_fields=None,
     ):
         # RemovedInDjango60Warning.
+        """
+        Asynchronously saves the current instance to the database.
+
+        This method provides the same functionality as the synchronous save method, but
+        allows for asynchronous execution. It supports various options to control the
+        save operation, such as forcing an insert or update, specifying the database
+        connection to use, and selecting specific fields to update.
+
+        Parameters
+        ----------
+        force_insert : bool, optional
+            Forces the instance to be inserted as a new record, rather than updating an
+            existing one.
+        force_update : bool, optional
+            Forces the instance to be updated, rather than inserting a new record.
+        using : str, optional
+            Specifies the database connection to use for the save operation.
+        update_fields : list, optional
+            Limits the fields that are updated during the save operation.
+
+        Returns
+        -------
+        The result of the asynchronous save operation.
+
+        """
         if args:
             force_insert, force_update, using, update_fields = self._parse_save_params(
                 *args,
@@ -1211,6 +1247,22 @@ class Model(AltersData, metaclass=ModelBase):
         # a ForeignKey, GenericForeignKey or OneToOneField on this model. If
         # the field is nullable, allowing the save would result in silent data
         # loss.
+        """
+
+        Prepare related fields for save operation.
+
+        Ensure that all related fields are handled correctly before saving the object.
+        If a related object is not saved, this method will raise a ValueError to prevent data loss.
+        It also updates the related fields to ensure data consistency.
+
+        The method checks the following conditions for each related field:
+        - If the related object is not saved (i.e., its primary key is None), it raises an error.
+        - If the related object is saved but not cached, it updates the cache.
+        - If the related object's foreign key does not match the current object's primary key, it clears the cache.
+
+        This method is typically called before saving an object to ensure that all related objects are properly saved and cached.
+
+        """
         for field in self._meta.concrete_fields:
             if fields and field not in fields:
                 continue
@@ -1261,6 +1313,21 @@ class Model(AltersData, metaclass=ModelBase):
                     )
 
     def delete(self, using=None, keep_parents=False):
+        """
+        Deletes the current object from the database.
+
+        This method removes the object instance from the database. If the object's primary key is not set, it cannot be deleted and a ValueError is raised.
+
+        The deletion process can be customized by specifying the database to use for the deletion operation. Additionally, the ``keep_parents`` parameter controls whether to cascade the deletion to related objects or not.
+
+        The actual deletion is performed by a Collector, which is responsible for collecting and deleting related objects, taking into account the model's relationships and the ``keep_parents`` parameter.
+
+        Returns the result of the deletion operation, as performed by the Collector.
+
+        :param using: The database to use for the deletion operation. If not specified, the database will be determined automatically.
+        :param keep_parents: Whether to cascade the deletion to related objects or not. Defaults to False.
+        :raises ValueError: If the object's primary key is not set.
+        """
         if self.pk is None:
             raise ValueError(
                 "%s object can't be deleted because its %s attribute is set "
@@ -1442,6 +1509,25 @@ class Model(AltersData, metaclass=ModelBase):
         return unique_checks, date_checks
 
     def _perform_unique_checks(self, unique_checks):
+        """
+
+        Perform unique checks on the current model instance.
+
+        This method iterates over the provided unique checks and verifies if the instance's
+        attributes match any existing instances in the database. It builds a lookup dictionary
+        based on the unique check fields and filters the model class's default manager using
+        these criteria. If any existing instances are found, an error is added to the errors
+        dictionary.
+
+        The method returns a dictionary containing any errors that occurred during the unique
+        checks. The dictionary keys are the field names or 'NON_FIELD_ERRORS' for multiple
+        field unique checks, and the values are lists of error messages.
+
+        The checks are skipped if the instance is being added and the lookup value is None or
+        an empty string (if the database interprets empty strings as nulls), or if the field
+        is a primary key and the instance is not being added.
+
+        """
         errors = {}
 
         for model_class, unique_check in unique_checks:

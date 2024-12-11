@@ -36,6 +36,22 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.docstring = self.__doc__
 
     def test_parse_docstring(self):
+        """
+
+        Tests the parsing of a docstring into its constituent parts.
+
+        The function checks if the provided docstring can be successfully split into 
+        a title, description, and metadata. The title contains the first line of the 
+        docstring, the description contains the remaining text, and the metadata is 
+        extracted as a dictionary. This test ensures that the parsing function 
+        correctly identifies and separates these components.
+
+        The test uses a predefined docstring as input, which includes various 
+        elements such as text, links to models, and template references. The 
+        function's output is then compared to the expected title, description, and 
+        metadata to verify its correctness.
+
+        """
         title, description, metadata = parse_docstring(self.docstring)
         docstring_title = (
             "This __doc__ output is required for testing. I copied this example from\n"
@@ -53,6 +69,17 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(metadata, {"some_metadata": "some data"})
 
     def test_title_output(self):
+        """
+        Tests the output of the title after parsing the docstring and rendering it as reStructuredText.
+
+        The test case verifies that the title is correctly extracted and formatted, and that the rendered output matches the expected HTML. This ensures that the documentation is properly generated and displayed as intended.
+
+        It checks for the presence of the expected title and its correct rendering, providing a basic test for the documentation parsing and rendering pipeline.
+
+        The test uses a sample docstring and checks the resulting HTML output against a predefined expected result. The expected output is rendered as HTML, with the title correctly wrapped in a paragraph tag and linked to the admindocs documentation page.
+
+        The test passes if the actual output matches the expected output, indicating that the title parsing and rendering process is working correctly.
+        """
         title, description, metadata = parse_docstring(self.docstring)
         title_output = parse_rst(title, "model", "model:admindocs")
         self.assertIn("TITLE", title_output)
@@ -65,6 +92,18 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertHTMLEqual(title_output, title_rendered)
 
     def test_description_output(self):
+        """
+        Tests that the description output is correctly rendered as HTML.
+
+        This test case checks if the parsing of reStructuredText (RST) in the description
+        field produces the expected HTML output. It validates that the parsed RST
+        contains the correct links, emphasis, and formatting, ensuring the description
+        is properly displayed when rendered as HTML.
+
+        The test verifies that the output contains the expected context information,
+        links to models, and template references, and that these elements are correctly
+        formatted and rendered as HTML.
+        """
         title, description, metadata = parse_docstring(self.docstring)
         description_output = parse_rst(description, "model", "model:admindocs")
         description_rendered = (
@@ -98,6 +137,13 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(parse_rst("`title`", "tag"), markup % "tags/#title")
 
     def test_parse_rst_with_docstring_no_leading_line_feed(self):
+        """
+        Test case to verify parsing of reStructuredText (RST) from a docstring with no leading line feed.
+
+        This test checks if the title and body of a docstring can be parsed correctly into RST format.
+        It verifies that the parsed title and body are converted to HTML paragraphs and that there are no error messages.
+
+        """
         title, body, _ = parse_docstring("firstline\n\n    second line")
         with captured_stderr() as stderr:
             self.assertEqual(parse_rst(title, ""), "<p>firstline</p>\n")
@@ -105,6 +151,19 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(stderr.getvalue(), "")
 
     def test_parse_rst_view_case_sensitive(self):
+        """
+        Test the parsing of a reStructuredText view link in a case-sensitive manner.
+
+        This test validates the functionality of the parse_rst function when encountering a
+        :_view: role in reStructuredText. It checks that the function correctly renders the
+        link with the expected HTML output, taking into account the case sensitivity of the
+        view name.
+
+        The input to the function is a string containing a :view: role with a view name, and
+        the output is the rendered HTML representation of the view link. The test ensures
+        that the parsed output matches the expected HTML, including the link's URL and
+        class attributes.
+        """
         source = ":view:`myapp.views.Index`"
         rendered = (
             '<p><a class="reference external" '

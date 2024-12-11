@@ -34,6 +34,18 @@ class AnnotatedBookManager(models.Manager):
 
 class CustomQuerySet(models.QuerySet):
     def filter(self, *args, **kwargs):
+        """
+        Applies a custom filter to the query set, returning a new filtered query set.
+
+        This method extends the standard filter functionality by always setting the 'fun' parameter to True and 
+        marking the resulting query set as a custom query set. The returned query set can be further filtered or 
+        manipulated using standard query set methods.
+
+        :param \*args: Variable number of non-keyword arguments to pass to the filter method.
+        :param \*\*kwargs: Arbitrary keyword arguments to pass to the filter method.
+        :returns: A filtered query set marked as a custom query set.
+
+        """
         queryset = super().filter(fun=True)
         queryset._filter_CustomQuerySet = True
         return queryset
@@ -57,6 +69,13 @@ class CustomQuerySet(models.QuerySet):
 
 class BaseCustomManager(models.Manager):
     def __init__(self, arg):
+        """
+        Initializes the class instance, setting up the internal state with the provided argument.
+
+        :param arg: The value used to initialize the instance.
+        :type arg: any
+        :attribute init_arg: Stores the initialization argument for later use.
+        """
         super().__init__()
         self.init_arg = arg
 

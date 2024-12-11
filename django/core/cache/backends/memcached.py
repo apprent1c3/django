@@ -159,6 +159,15 @@ class PyLibMCCache(BaseMemcachedCache):
         return output
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Update the timestamp of a cached item.
+
+        :param key: The key of the cached item to update.
+        :param timeout: The new timeout for the cached item. If set to 0, the item will be deleted instead.
+        :param version: The version of the cached item to update. If not provided, the default version will be used.
+        :returns: The result of the touch operation (True if successful, False otherwise for deletion).
+        :note: The actual timeout value used may be adjusted based on the backend configuration.
+        """
         key = self.make_and_validate_key(key, version=version)
         if timeout == 0:
             return self._cache.delete(key)

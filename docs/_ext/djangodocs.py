@@ -128,6 +128,15 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self.body.append("</table>\n")
 
     def visit_desc_parameterlist(self, node):
+        """
+
+        Visit a description parameter list node and prepare the parameter parsing process.
+
+        This method is responsible for initializing the necessary state and counters for processing a list of parameters in a description.
+        It sets the appropriate flags and counters for required parameters, optional parameters, and parameter separators, and handles differences in Sphinx versions.
+        The method ensures that the parameter list is parsed correctly, including support for multiple lines and parameter groups, allowing for accurate rendering of the documentation.
+
+        """
         self.body.append("(")  # by default sphinx puts <big> around the "("
         self.optional_param_level = 0
         self.param_separator = node.child_text_separator
@@ -330,6 +339,18 @@ class ConsoleDirective(CodeBlock):
             return cmdline
 
         def cmdline_to_win(line):
+            """
+
+            Converts a command line string from Unix-like format to Windows format.
+
+            This function takes a string representing a command line input and transforms it into
+            a Windows-compatible command line string. It handles various prefixes such as comments,
+            manage.py and runtests.py commands, and general Unix-like command invocations.
+
+            The function returns the converted string if the input matches any of the supported
+            prefixes; otherwise, it returns None.
+
+            """
             if line.startswith("# "):
                 return "REM " + args_to_win(line[2:])
             if line.startswith("$ # "):
@@ -401,6 +422,11 @@ def html_page_context_hook(app, pagename, templatename, context, doctree):
 def default_role_error(
     name, rawtext, text, lineno, inliner, options=None, content=None
 ):
+    """
+    =trainlogger warning when a default role is used in an inliner, indicating possible misuse of markup syntax.
+
+    The purpose of this function is to handle cases where the default role is inadvertently used, which can lead to incorrect rendering of text. It raises a warning message with suggestions for possible corrections, such as using double backticks for code or adding an underscore for a link. The warning includes the original text and the line number where the issue occurred, allowing users to easily locate and fix the problem.
+    """
     msg = (
         "Default role used (`single backticks`): %s. Did you mean to use two "
         "backticks for ``code``, or miss an underscore for a `link`_ ?" % rawtext

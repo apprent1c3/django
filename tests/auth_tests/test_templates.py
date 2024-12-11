@@ -24,6 +24,18 @@ class AuthTemplateTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, including a test user and a request object.
+
+         The test user is created with a username, email, and password, and then authenticated.
+         A request object is created for a specific path and set to be made by the test user.
+
+         The created user and request are stored as class attributes for use in subsequent tests.
+
+         This method is intended to be used as a class-level setup method, running once before all tests in the class.
+
+         :return: None
+        """
         user = User.objects.create_user("jsmith", "jsmith@example.com", "pass")
         user = authenticate(username=user.username, password="pass")
         request = cls.request_factory.get("/somepath/")
@@ -58,6 +70,17 @@ class AuthTemplateTests(TestCase):
 
     def test_password_reset_confirm_view_valid_token(self):
         # PasswordResetConfirmView valid token
+        """
+
+        Tests the password reset confirm view with a valid token.
+
+        This test case verifies that a user can successfully access the password reset confirm page
+        using a valid token. It checks if the page title, heading, and username input field are correctly displayed.
+
+        The test simulates a GET request to the password reset confirm URL with a valid token and
+        uidb64 value, and then asserts that the expected HTML elements are present in the response.
+
+        """
         client = PasswordResetConfirmClient()
         default_token_generator = PasswordResetTokenGenerator()
         token = default_token_generator.make_token(self.user)

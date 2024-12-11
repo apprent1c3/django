@@ -5,6 +5,18 @@ register = template.Library()
 
 class AdminLogNode(template.Node):
     def __init__(self, limit, varname, user):
+        """
+
+        Initializes a new instance with the specified parameters.
+
+        :param limit: The maximum limit value.
+        :param varname: The name of the variable.
+        :param user: The user associated with this instance.
+
+        This is a constructor method that sets up the initial state of the object,
+        storing the provided limit, variable name, and user information as instance attributes.
+
+        """
         self.limit = limit
         self.varname = varname
         self.user = user

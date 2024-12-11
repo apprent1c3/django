@@ -169,6 +169,17 @@ class Fieldline:
 
 class AdminField:
     def __init__(self, form, field, is_first):
+        """
+        Initializes a new instance of the class, setting up properties based on the provided form and field.
+
+        :param form: The form object that contains the field to be processed
+        :param field: The name of the field within the form to be referenced
+        :param is_first: A flag indicating whether this is the first instance
+        :ivar field: The field object from the form, accessed by the provided field name
+        :ivar is_first: A flag indicating whether this instance is the first one
+        :ivar is_checkbox: A flag indicating whether the field's widget is a checkbox input
+        :ivar is_readonly: A flag indicating whether the field is read-only, initially set to False
+        """
         self.field = form[field]  # A django.forms.BoundField instance
         self.is_first = is_first  # Whether this field is first on the line
         self.is_checkbox = isinstance(self.field.field.widget, forms.CheckboxInput)
@@ -249,6 +260,18 @@ class AdminReadonlyField:
         )
 
     def get_admin_url(self, remote_field, remote_obj):
+        """
+
+        Return a formatted HTML string containing a link to the admin change page for a given object.
+
+        The link is constructed using the model's admin URL pattern and the primary key of the object.
+        If the model's admin URL cannot be reversed, a plain string representation of the object is returned instead.
+
+        :param remote_field: The field related to the object.
+        :param remote_obj: The object to link to in the admin interface.
+        :returns: A formatted HTML string containing a link to the admin change page, or a string representation of the object.
+
+        """
         url_name = "admin:%s_%s_change" % (
             remote_field.model._meta.app_label,
             remote_field.model._meta.model_name,
@@ -542,6 +565,15 @@ class InlineAdminForm(AdminForm):
 
 class InlineFieldset(Fieldset):
     def __init__(self, formset, *args, **kwargs):
+        """
+        Initializes the instance, setting the formset attribute and passing any additional arguments to the parent class's constructor. 
+
+        :param formset: The formset to be associated with this instance
+        :param args: Variable length argument list
+        :param kwargs: Arbitrary keyword arguments 
+        :returns: None 
+        :raises: None
+        """
         self.formset = formset
         super().__init__(*args, **kwargs)
 

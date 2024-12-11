@@ -63,6 +63,17 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX VALUE IS 10"], f.clean, "11")
 
     def test_floatfield(self):
+        """
+        Tests the functionality of a FloatField with custom error messages.
+
+        This function checks the FloatField's behavior in various scenarios, including:
+            when the field is left empty (required check)
+            when the input is not a valid number (invalid check)
+            when the input is below the minimum allowed value (min value check)
+            when the input is above the maximum allowed value (max value check)
+
+        Custom error messages are used to verify that the correct messages are returned for each scenario. The test ensures that the FloatField correctly validates user input and returns informative error messages when validation fails.
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -115,6 +126,15 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID"], f.clean, "abc")
 
     def test_datetimefield(self):
+        """
+
+        Tests the DateTimeField class to ensure it behaves as expected.
+
+        The test checks that the field correctly handles required and invalid inputs,
+        returning the appropriate error messages. The field is expected to return an
+        error message when no input is provided or when the input is not a valid date/time.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -163,6 +183,21 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["EMPTY FILE"], f.clean, SimpleUploadedFile("name", ""))
 
     def test_urlfield(self):
+        """
+
+        Tests the functionality of a URLField with custom error messages.
+
+        This test case verifies that the URLField correctly handles different error scenarios,
+        including required fields, invalid URLs, and URLs exceeding the maximum allowed length.
+
+        The test covers the following error cases:
+            - Required: Tests that the field raises an error when no value is provided.
+            - Invalid: Tests that the field raises an error when an invalid URL is provided.
+            - Max length: Tests that the field raises an error when a URL exceeds the maximum allowed length.
+
+        Custom error messages are used to provide more informative and user-friendly feedback.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -179,6 +214,20 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         )
 
     def test_booleanfield(self):
+        """
+        Tests the BooleanField with custom error messages.
+
+        Verifies that a BooleanField instance with a custom error message for the 'required' validation error correctly raises a 'REQUIRED' error when an empty value is passed to its clean method.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the BooleanField's clean method does not raise the expected error message.
+        """
         e = {
             "required": "REQUIRED",
         }
@@ -195,6 +244,17 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["b IS INVALID CHOICE"], f.clean, "b")
 
     def test_multiplechoicefield(self):
+        """
+
+        Tests the validation of a MultipleChoiceField.
+
+        This test ensures that the MultipleChoiceField correctly handles various scenarios, 
+        including required fields, invalid choices, and non-list input values. 
+
+        It verifies that the field raises the expected error messages for each case, 
+        helping to ensure robust form validation.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid_choice": "%(value)s IS INVALID CHOICE",
@@ -225,6 +285,14 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID IP ADDRESS"], f.clean, "127.0.0")
 
     def test_subclassing_errorlist(self):
+        """
+
+        Test that form field and non-field errors are correctly rendered when using the default error list class and a custom error list class.
+
+        The test creates a form with fields for first name, last name, and birthday, and intentionally raises a validation error in the form's clean method.
+        It then checks that the default error list class renders field and non-field errors as unordered lists, and that a custom error list class renders these errors as div elements.
+
+        """
         class TestForm(Form):
             first_name = CharField()
             last_name = CharField()

@@ -230,6 +230,19 @@ class UserSettingsHolder:
         self.default_settings = default_settings
 
     def __getattr__(self, name):
+        """
+        $ret_type |str|
+        Gets the attribute with the given name from the default settings if the attribute name is upper case and not deleted.
+
+        Args:
+            name (str): The name of the attribute to retrieve.
+
+        Raises:
+            AttributeError: If the attribute name is not upper case or if it was previously deleted.
+
+        Notes:
+            This method allows for dynamic access to the default settings attributes by attempting to retrieve the attribute from the default settings when it's not found in the current instance. The attribute must follow a specific naming convention (all upper case) to be considered a valid default setting attribute.
+        """
         if not name.isupper() or name in self._deleted:
             raise AttributeError
         return getattr(self.default_settings, name)
@@ -256,6 +269,17 @@ class UserSettingsHolder:
         )
 
     def is_overridden(self, setting):
+        """
+        Check if a specific setting has been overridden.
+
+        This method determines whether a setting has been modified from its default
+        value, either by being locally set, deleted, or overridden in the default
+        settings. A setting is considered overridden if it falls into any of these
+        categories.
+
+        :param setting: The name of the setting to check.
+        :return: True if the setting is overridden, False otherwise.
+        """
         deleted = setting in self._deleted
         set_locally = setting in self.__dict__
         set_on_default = getattr(

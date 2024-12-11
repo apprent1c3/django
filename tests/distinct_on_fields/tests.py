@@ -12,6 +12,14 @@ from .models import Celebrity, Fan, Staff, StaffTag, Tag
 class DistinctOnTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing purposes. This class method creates a hierarchy of tags, 
+        staff members in different organisations, and assigns coworkers and tags to staff members. 
+        Additionally, it creates celebrity and fan instances for further testing. The setup data 
+        includes multiple levels of tag nesting and coworker relationships, allowing for comprehensive 
+        testing of the application's functionality. All created instances are stored as class attributes 
+        for easy access and reference throughout the testing process.
+        """
         cls.t1 = Tag.objects.create(name="t1")
         cls.t2 = Tag.objects.create(name="t2", parent=cls.t1)
         cls.t3 = Tag.objects.create(name="t3", parent=cls.t1)
@@ -119,11 +127,24 @@ class DistinctOnTests(TestCase):
         self.assertNotIn("OUTER JOIN", str(c2.query))
 
     def test_sliced_queryset(self):
+        """
+
+        Tests that a TypeError is raised when attempting to create distinct fields on a sliced queryset.
+
+        The function verifies that once a slice has been taken from a queryset, it is no longer possible to create distinct fields.
+        This is because slicing a queryset can lead to ambiguous or incorrect results when combined with distinct fields.
+
+        The expected error message is checked to ensure it matches the expected output, providing a clear indication of the issue.
+
+        """
         msg = "Cannot create distinct fields once a slice has been taken."
         with self.assertRaisesMessage(TypeError, msg):
             Staff.objects.all()[0:5].distinct("name")
 
     def test_transform(self):
+        """
+        Tests the transformation of Tag objects by creating a new Tag with a name in uppercase and verifying that it can be retrieved when ordering by lowercase name, ensuring case-insensitivity when using the Lower lookup function.
+        """
         new_name = self.t1.name.upper()
         self.assertNotEqual(self.t1.name, new_name)
         Tag.objects.create(name=new_name)
@@ -150,6 +171,17 @@ class DistinctOnTests(TestCase):
             Celebrity.objects.distinct("id").aggregate(Max("id"))
 
     def test_distinct_on_in_ordered_subquery(self):
+        """
+
+        Tests the behavior of the distinct() and order_by() methods when used in conjunction 
+        with the filter() method and an ordered subquery.
+
+        Specifically, this test case evaluates the ordering of results when the subquery 
+        is ordered in ascending and descending order by 'id', after applying distinct() 
+        on 'name'. It verifies that the resulting query sets are correctly ordered by 'name' 
+        and contain the expected distinct staff objects.
+
+        """
         qs = Staff.objects.distinct("name").order_by("name", "id")
         qs = Staff.objects.filter(pk__in=qs).order_by("name")
         self.assertSequenceEqual(qs, [self.p1_o1, self.p2_o1, self.p3_o1])

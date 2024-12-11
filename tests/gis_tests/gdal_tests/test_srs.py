@@ -331,6 +331,9 @@ class SpatialRefTest(SimpleTestCase):
         self.assertIsNone(s1["FOOBAR"])
 
     def test_unicode(self):
+        """
+        Tests the handling of Unicode characters in SpatialReference objects, ensuring that they are correctly imported, cloned, and exported in various formats, including WKT, pretty WKT, and XML. This test case specifically verifies that SpatialReference objects can be created from a WKT string containing non-ASCII characters and that their properties are correctly retrieved and compared.
+        """
         wkt = (
             'PROJCS["DHDN / Soldner 39 Langschoß",'
             'GEOGCS["DHDN",DATUM["Deutsches_Hauptdreiecksnetz",'
@@ -356,6 +359,19 @@ class SpatialRefTest(SimpleTestCase):
             self.assertIn("Langschoß", srs.xml)
 
     def test_axis_order(self):
+        """
+        Tests the axis order of spatial coordinates when transforming between different spatial references.
+
+        Verifies that points are correctly transformed from one spatial reference system to another, 
+        taking into account the axis order (latitude/longitude vs longitude/latitude) and ensuring 
+        accurate results in both traditional and authority-compliant ordering scenarios.
+
+        * Checks the x and y coordinates of transformed points against expected values for both 
+          traditional and authority-compliant axis orders.
+        * Validates the results of transformations using cloned spatial references to ensure 
+          consistency and accuracy.
+
+        """
         wgs84_trad = SpatialReference(4326, axis_order=AxisOrder.TRADITIONAL)
         wgs84_auth = SpatialReference(4326, axis_order=AxisOrder.AUTHORITY)
         # Coordinate interpretation may depend on the srs axis predicate.
@@ -372,11 +388,31 @@ class SpatialRefTest(SimpleTestCase):
         self.assertAlmostEqual(pt_auth.y, -104.609, 3)
 
     def test_axis_order_invalid(self):
+        """
+
+        Tests that an error is raised when the axis_order argument passed to the SpatialReference constructor is not a valid AxisOrder instance.
+
+        The function checks that a ValueError is correctly raised with a descriptive error message when an invalid axis_order value is provided, ensuring that the SpatialReference constructor enforces correct axis ordering.
+
+        """
         msg = "SpatialReference.axis_order must be an AxisOrder instance."
         with self.assertRaisesMessage(ValueError, msg):
             SpatialReference(4326, axis_order="other")
 
     def test_esri(self):
+        """
+        Tests the conversion of a SpatialReference object to and from ESRI format.
+
+        This function verifies that the conversion process modifies the Well-Known Text (WKT)
+        representation of the spatial reference system as expected. It tests that the conversion
+        to ESRI format changes the WKT and that specific expected strings are present in the
+        resulting WKT. Additionally, it checks that converting back from ESRI format returns
+        the WKT to its original expected form.
+
+        The test uses a SpatialReference object initialized with the 'NAD83' spatial reference
+        system and checks for the presence of specific DATUM definitions in the WKT after each
+        conversion step.
+        """
         srs = SpatialReference("NAD83")
         pre_esri_wkt = srs.wkt
         srs.to_esri()

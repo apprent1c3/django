@@ -18,6 +18,17 @@ class EscapeseqTests(SimpleTestCase):
         }
     )
     def test_basic(self):
+        """
+
+        Test the escapeseq template filter.
+
+        This function tests the escapeseq template filter in two scenarios: 
+        when the input is not marked as safe and when the input is marked as safe.
+        It verifies that the filter correctly escapes special characters in the input data, 
+        such as ampersands and HTML tags, while leaving the safe input unchanged. 
+        The test checks if the output matches the expected result after rendering a template string.
+
+        """
         output = self.engine.render_to_string(
             "escapeseq_basic",
             {"a": ["x&y", "<p>"], "b": [mark_safe("x&y"), mark_safe("<p>")]},
@@ -42,6 +53,17 @@ class EscapeseqTests(SimpleTestCase):
 
     @setup({"escapeseq_join": '{{ a|escapeseq|join:"<br/>" }}'})
     def test_chain_join(self):
+        """
+
+        Test the chain join functionality of the templating engine.
+
+        This test verifies that a list of strings is properly escaped and then joined with a specified separator.
+        The escaping process replaces special characters with their corresponding HTML entities, ensuring safe output.
+        The join functionality then combines the escaped strings into a single string, separated by the specified separator.
+
+        The test case uses a list of strings containing special characters and checks that the output is correctly escaped and joined.
+
+        """
         output = self.engine.render_to_string("escapeseq_join", {"a": ["x&y", "<p>"]})
         self.assertEqual(output, "x&amp;y<br/>&lt;p&gt;")
 

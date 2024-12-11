@@ -81,6 +81,13 @@ class GenericRelationTests(TestCase):
         )
 
     def test_textlink_filter(self):
+        """
+        Tests that the text link filter correctly retrieves objects from the database based on the value of their associated text links. 
+
+        This function creates a test case by setting up an OddRelation2 object and associating a TextLink with it, then checks that filtering OddRelation2 objects by the text link value correctly returns the original object. 
+
+        It verifies the proper functioning of the filtering mechanism, ensuring that objects are correctly retrieved when their associated text links match a specified value.
+        """
         oddrel = OddRelation2.objects.create(name="clink")
         TextLink.objects.create(content_object=oddrel, value="value")
         self.assertSequenceEqual(
@@ -200,6 +207,25 @@ class GenericRelationTests(TestCase):
         )
 
     def test_ticket_20564(self):
+        """
+        Tests the filtering of objects based on a related model's attribute.
+
+        This test case verifies that the correct objects are returned when filtering
+        on a related model's attribute, specifically when the related model has a
+        generic foreign key. It checks that objects with a related model having a
+        specific attribute value (in this case, None) are correctly included or
+        excluded from the results.
+
+        The test creates instances of models B and C, as well as instances of model A
+        with generic foreign keys to B. It then tests the filtering of C objects
+        based on the presence or absence of a specific attribute value on the related
+        A object.
+
+        The expected results are that C objects with a related B object that has an A
+        object with the attribute value of None are returned, while those with a
+        related B object that has an A object with a non-None attribute value are
+        excluded, and vice versa.
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -212,6 +238,21 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(C.objects.exclude(b__a__flag=None), [c2])
 
     def test_ticket_20564_nullable_fk(self):
+        """
+
+        Tests the behavior of nullable foreign keys in query filters.
+
+        This function verifies that the correct results are returned when filtering
+        on models with nullable foreign keys. Specifically, it tests the following:
+
+        * Excluding objects with a null flag value
+        * Filtering objects with a null flag value
+        * Applying these filters across related models (B and D)
+
+        The test case covers various scenarios, including objects with and without
+        associated instances, to ensure that the query filters behave correctly.
+
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -287,6 +328,16 @@ class GenericRelationTests(TestCase):
         self.assertEqual(links.save_form_data_calls, 1)
 
     def test_ticket_22998(self):
+        """
+
+        Tests that deleting a related object instance raises a ProtectedError when it has associated content and nodes.
+
+        This test case ensures data integrity by verifying that the application prevents the deletion of related object instances that are referenced by other entities in the system, specifically content and nodes.
+
+        Raises:
+            ProtectedError: If the related object instance is deleted while having associated content and nodes.
+
+        """
         related = Related.objects.create()
         content = Content.objects.create(related_obj=related)
         Node.objects.create(content=content)

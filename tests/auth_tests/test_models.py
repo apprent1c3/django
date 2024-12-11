@@ -115,6 +115,15 @@ class UserManagerTestCase(TransactionTestCase):
     ]
 
     def test_create_user(self):
+        """
+
+        Tests the creation of a new user.
+
+        Checks that a user can be successfully created with a specified username and email address.
+        Validates that the user's email and username are stored correctly after creation.
+        Additionally, verifies that the newly created user does not have a usable password set by default.
+
+        """
         email_lowercase = "normal@normal.com"
         user = User.objects.create_user("user", email_lowercase)
         self.assertEqual(user.email, email_lowercase)
@@ -132,6 +141,13 @@ class UserManagerTestCase(TransactionTestCase):
         self.assertEqual(returned, "normal@domain.com")
 
     def test_create_user_email_domain_normalize_with_whitespace(self):
+        """
+        .. function:: test_create_user_email_domain_normalize_with_whitespace
+
+           Tests the normalization of an email address by the UserManager, specifically
+           handling a domain with whitespace in the local part and ensuring the domain
+           is converted to lowercase, while preserving escape sequences in the local part.
+        """
         returned = UserManager.normalize_email(r"email\ with_whitespace@D.COM")
         self.assertEqual(returned, r"email\ with_whitespace@d.com")
 
@@ -327,6 +343,20 @@ class CustomModelBackend(ModelBackend):
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
+        """
+        Restrict queryset of users based on certain permissions and conditions.
+
+         taped into user authentication to limit access to users with specific permissions. 
+         By default, it returns users whose usernames start with 'charlie'. However, if an object is provided and its username is 'charliebrown', 
+         the function returns a queryset containing only that specific user.
+
+         :param perm: permission to filter users by
+         :param is_active: whether to include only active users (default: True)
+         :param include_superusers: whether to include superusers in the queryset (default: True)
+         :param backend: optional authentication backend
+         :param obj: optional object to further restrict the queryset
+         :return: queryset of users
+        """
         if obj is not None and obj.username == "charliebrown":
             return User.objects.filter(pk=obj.pk)
         return User.objects.filter(username__startswith="charlie")
@@ -377,6 +407,16 @@ class UserWithPermTestCase(TestCase):
                 User.objects.with_perm(perm)
 
     def test_invalid_permission_type(self):
+        """
+
+        Test User.objects.with_perm when provided with invalid permission types.
+
+        This test case checks that the `with_perm` method correctly raises a TypeError when
+        the `perm` argument is not a string or a permission instance. The test covers various
+        scenarios where the permission type is invalid, including bytes, arbitrary objects,
+        and None values, to ensure robust error handling for this method.
+
+        """
         msg = "The `perm` argument must be a string or a permission instance."
         for perm in (b"auth.test", object(), None):
             with self.subTest(perm), self.assertRaisesMessage(TypeError, msg):
@@ -587,6 +627,14 @@ class AnonymousUserTests(SimpleTestCase):
 
 class GroupTests(SimpleTestCase):
     def test_str(self):
+        """
+        Tests the string representation of a Group instance.
+
+        This test case verifies that the string representation of a Group object is 
+        equal to its name, ensuring that the expected output is returned when 
+        converting a Group instance to a string. The test confirms that the 
+        custom string conversion is implemented correctly and functions as intended.
+        """
         g = Group(name="Users")
         self.assertEqual(str(g), "Users")
 

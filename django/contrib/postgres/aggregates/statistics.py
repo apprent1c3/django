@@ -20,6 +20,19 @@ class StatAggregate(Aggregate):
     output_field = FloatField()
 
     def __init__(self, y, x, output_field=None, filter=None, default=None):
+        """
+        Initializes an instance of the class.
+
+        :param y: The dependent variable.
+        :param x: The independent variable.
+        :param output_field: Optional field to specify the output.
+        :param filter: Optional filter to apply to the data.
+        :param default: Optional default value to use when necessary.
+
+        :raises ValueError: If either the independent or dependent variable is missing.
+
+        This initializer sets up the basic components required for the class to function, including the input data and any optional parameters for output, filtering, and default values. It ensures that both the independent and dependent variables are provided, raising an error if either is missing.
+        """
         if not x or not y:
             raise ValueError("Both y and x must be provided.")
         super().__init__(

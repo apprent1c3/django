@@ -106,6 +106,21 @@ class DatabaseCache(BaseDatabaseCache):
         return self._base_set("add", key, value, timeout)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+
+        Update the expiration time of a key.
+
+        This function \"touches\" a key, resetting its expiration time to the current time
+        plus the specified timeout. This is useful for keeping keys from expiring when
+        they are still being actively used.
+
+        :param key: The key to update.
+        :param timeout: The new expiration time in seconds; defaults to DEFAULT_TIMEOUT.
+        :param version: Optional version number for the key.
+
+        :return: The result of the touch operation.
+
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("touch", key, None, timeout)
 
@@ -211,6 +226,13 @@ class DatabaseCache(BaseDatabaseCache):
         self._base_delete_many(keys)
 
     def _base_delete_many(self, keys):
+        """
+        Delete multiple cache entries from the database.
+
+        This method takes a list of keys as input and removes the corresponding cache entries from the database.
+        It uses the database connection configured for the model to execute a SQL query that deletes the specified entries.
+        The method returns True if any entries were deleted, and False otherwise. It does not raise an error if no entries are deleted or if the input list is empty, but returns False in such cases.
+        """
         if not keys:
             return False
 

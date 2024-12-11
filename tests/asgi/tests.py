@@ -34,6 +34,15 @@ class SignalHandler:
     """Helper class to track threads and kwargs when signals are dispatched."""
 
     def __init__(self):
+        """
+        Initializes a new instance of the class.
+
+        This method is called when an object is created from the class and it sets up the basic state of the object.
+        It inherits the initialization behavior from its parent class and initializes an empty list to store calls made by the object.
+
+        :raises: No specific exceptions are raised by this method.
+        :note: This is a special method in Python classes, known as a constructor, and is not intended to be called directly.
+        """
         super().__init__()
         self.calls = []
 
@@ -46,6 +55,17 @@ class ASGITest(SimpleTestCase):
     async_request_factory = AsyncRequestFactory()
 
     def setUp(self):
+        """
+        Sets up the test environment by temporarily unregistering the database connection closer.
+
+        This method ensures that old database connections are not closed at the start of each request during the test. 
+        Instead, it delays the re-registration of the connection closer until the test is cleaned up, 
+        preventing any potential issues with connections being closed prematurely. 
+
+        This setup is necessary for tests that require a stable database connection throughout their execution.
+
+        Note: This method is typically used in a testing context, such as in a TestCase subclass.
+        """
         request_started.disconnect(close_old_connections)
         self.addCleanup(request_started.connect, close_old_connections)
 
@@ -133,6 +153,20 @@ class ASGITest(SimpleTestCase):
         ],
     )
     async def test_static_file_response(self):
+        """
+        ..:async:
+            Tests the response of a static file served by the ASGIStaticFilesHandler.
+
+            This test checks if the handler correctly serves a static file, verifying the 
+            HTTP response status, headers, and body. It also ensures that the response 
+            contains the correct 'Content-Length', 'Content-Type', 'Content-Disposition', 
+            and 'Last-Modified' headers. 
+
+            The test uses the ApplicationCommunicator to simulate an HTTP request and 
+            verify the response sent by the ASGIStaticFilesHandler. The test case covers 
+            the entire lifecycle of the request, from sending the request to receiving the 
+            response body.
+        """
         application = ASGIStaticFilesHandler(get_asgi_application())
         # Construct HTTP request.
         scope = self.async_request_factory._base_scope(path="/static/file.txt")
@@ -163,6 +197,18 @@ class ASGITest(SimpleTestCase):
         await communicator.wait()
 
     async def test_headers(self):
+        """
+
+        Test the handling of HTTP headers in an ASGI application.
+
+        Verifies that the application correctly processes and responds to HTTP requests
+        with multiple headers of the same name. Specifically, it checks that the response
+        status is 200, the Content-Type and Content-Length headers are correctly set,
+        and the response body contains the expected data. The test also ensures that
+        the application handles multiple 'Referer' headers correctly, by concatenating
+        their values in the response body.
+
+        """
         application = get_asgi_application()
         communicator = ApplicationCommunicator(
             application,
@@ -194,6 +240,16 @@ class ASGITest(SimpleTestCase):
         await communicator.wait()
 
     async def test_post_body(self):
+        """
+
+        Tests the handling of a POST request body.
+
+        This test checks that the application correctly echoes the body of a POST request.
+        It uses the ASGI application and a test request factory to simulate a POST request
+        to the '/post/' endpoint, then verifies that the response has a status code of 200
+        and a body that matches the original request body.
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(
             method="POST",
@@ -211,6 +267,18 @@ class ASGITest(SimpleTestCase):
 
     async def test_create_request_error(self):
         # Track request_finished signal.
+        """
+
+        Tests the error handling for creating a request when the request data is too large.
+
+        Verifies that the signal handler correctly captures the request finished signal when a 
+        RequestDataTooBig exception is raised during request creation, and confirms that the 
+        signal is not received by the same thread that initiated the request.
+
+        Ensures that the application correctly handles the request error by checking the 
+        number of calls to the signal handler and the thread in which the signal was received. 
+
+        """
         signal_handler = SignalHandler()
         request_finished.connect(signal_handler)
         self.addCleanup(request_finished.disconnect, signal_handler)
@@ -219,6 +287,22 @@ class ASGITest(SimpleTestCase):
         class TestASGIRequest(ASGIRequest):
 
             def __init__(self, scope, body_file):
+                """
+                Initializes an instance of the class, inheriting from a parent class.
+
+                Parameters
+                ----------
+                scope : 
+                    The scope of the instance.
+                body_file : 
+                    The body file associated with the instance.
+
+                Raises
+                ------
+                RequestDataTooBig
+                    The instance initialization always raises a RequestDataTooBig exception, indicating that the request data exceeds the allowed limit.
+
+                """
                 super().__init__(scope, body_file)
                 raise RequestDataTooBig()
 
@@ -261,6 +345,23 @@ class ASGITest(SimpleTestCase):
         @csrf_exempt
         @sync_to_async
         def post_view(request):
+            """
+
+            Handles an incoming HTTP POST request asynchronously.
+
+            This view processes the request, records its body, and returns a successful response.
+            In case of an exception, it captures the error and continues execution.
+            The view also triggers events to signal the start and completion of its processing.
+
+            The recorded request body and any exceptions that occur are stored for further analysis.
+            The response is always 'ok', unless an exception prevents it from being sent.
+
+            Events are triggered to notify other parts of the system when the view starts and finishes processing.
+            These events can be used to coordinate other tasks or monitor the view's execution.
+
+            :return: An HttpResponse object with the status 'ok'
+
+            """
             try:
                 loop.call_soon_threadsafe(view_started_event.set)
                 time.sleep(0.1)
@@ -314,6 +415,21 @@ class ASGITest(SimpleTestCase):
         await communicator.wait()
 
     async def test_get_query_string(self):
+        """
+        Tests the get query string functionality by sending an HTTP request with a query string.
+
+        This test ensures that the application correctly handles query strings, 
+        both in bytes and string formats, and returns the expected response.
+        The expected response is a 200 status code with a body of 'Hello Andrew!'.
+
+        The test covers the following scenarios:
+
+        * Query string in bytes format
+        * Query string in string format
+
+        It verifies that the application responds correctly to both scenarios.
+
+        """
         application = get_asgi_application()
         for query_string in (b"name=Andrew", "name=Andrew"):
             with self.subTest(query_string=query_string):
@@ -333,6 +449,17 @@ class ASGITest(SimpleTestCase):
                 await communicator.wait()
 
     async def test_disconnect(self):
+        """
+
+        Tests the disconnection of an ASGI application by sending an HTTP disconnect event.
+
+        This method simulates a disconnection scenario by creating an ApplicationCommunicator
+        instance with the ASGI application and a pre-defined scope. It then sends an HTTP
+        disconnect event to the communicator and verifies that a TimeoutError is raised
+        when attempting to receive output, indicating that the application has been
+        successfully disconnected.
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/")
         communicator = ApplicationCommunicator(application, scope)
@@ -366,6 +493,15 @@ class ASGITest(SimpleTestCase):
         await communicator.wait()
 
     async def test_disconnect_with_body(self):
+        """
+
+        Test that an ASGI application correctly handles a disconnect event when a request body has been sent.
+
+        This test verifies that the application raises an asyncio.TimeoutError when a disconnect event is received after
+        sending a request body. This ensures that the application properly handles disconnections and timeouts in
+        conjunction with request bodies, preventing potential issues with request processing and resource management.
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/")
         communicator = ApplicationCommunicator(application, scope)
@@ -385,6 +521,9 @@ class ASGITest(SimpleTestCase):
             await communicator.wait()
 
     async def test_delayed_disconnect_with_body(self):
+        """
+        Tests that a server handles a delayed disconnect with a request body correctly, ensuring it raises an asyncio.TimeoutError when attempting to receive output after the client has disconnected.
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/delayed_hello/")
         communicator = ApplicationCommunicator(application, scope)
@@ -394,6 +533,14 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output()
 
     async def test_wrong_connection_type(self):
+        """
+        Tests the behavior of the application when a wrong connection type is provided.
+
+        Verifies that attempting to establish a connection with a type other than ASGI/HTTP
+        results in a ValueError being raised, as Django only supports ASGI/HTTP connections.
+
+        The expected error message is 'Django can only handle ASGI/HTTP connections, not other.'
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/", type="other")
         communicator = ApplicationCommunicator(application, scope)
@@ -416,6 +563,25 @@ class ASGITest(SimpleTestCase):
 
     async def test_request_lifecycle_signals_dispatched_with_thread_sensitive(self):
         # Track request_started and request_finished signals.
+        """
+        Tests whether the request lifecycle signals are dispatched properly with thread sensitivity.
+
+        This test case verifies that the request_started and request_finished signals are 
+        sent during the lifecycle of an ASGI request. It checks that these signals are 
+        dispatched from the same thread and that the correct number of signals are sent.
+
+        The test simulates an HTTP request, sending the request and receiving the response, 
+        then verifies that the expected signals were dispatched. It ensures that the 
+        request_started signal is sent before the response is generated and that the 
+        request_finished signal is sent after the response has been sent.
+
+        It also checks that the thread on which the request_started and request_finished 
+        signals are dispatched is the same, which is an important aspect of thread 
+        sensitivity in the ASGI request lifecycle. 
+
+        This test case provides a way to validate the correct functioning of the signal 
+        dispatching mechanism in the context of ASGI requests.
+        """
         signal_handler = SignalHandler()
         request_started.connect(signal_handler)
         self.addCleanup(request_started.disconnect, signal_handler)
@@ -444,6 +610,21 @@ class ASGITest(SimpleTestCase):
         )
 
     async def test_concurrent_async_uses_multiple_thread_pools(self):
+        """
+
+        Tests that concurrent asynchronous requests utilize multiple thread pools.
+
+        This function sends two concurrent HTTP requests to an ASGI application and verifies 
+        that the requests are handled by separate thread pools. The test ensures that each 
+        request receives a successful response with the expected status code and response body.
+
+        The test uses the ApplicationCommunicator to send and receive messages to the ASGI 
+        application, and checks that the response messages have the correct type and content.
+
+        Finally, the test verifies that two separate threads were used to handle the requests, 
+        by checking the length of the active threads list.
+
+        """
         sync_waiter.active_threads.clear()
 
         # Send 2 requests concurrently
@@ -475,6 +656,19 @@ class ASGITest(SimpleTestCase):
         sync_waiter.active_threads.clear()
 
     async def test_asyncio_cancel_error(self):
+        """
+        Tests the asyncio cancel error behavior in an ASGI application.
+
+        This test case covers the scenario where an asynchronous view is cancelled
+        due to a client disconnect. It verifies that the view's `asyncio.CancelledError`
+        exception is properly raised and handled, and that the request is terminated
+        correctly. Additionally, it checks that the signal handler is called with the
+        correct arguments and from a different thread.
+
+        The test consists of two parts: the first part tests a successful request where
+        the view completes without cancellation, and the second part tests a cancelled
+        request where the client disconnects before the view completes.
+        """
         view_started = asyncio.Event()
         # Flag to check if the view was cancelled.
         view_did_cancel = False
@@ -551,6 +745,16 @@ class ASGITest(SimpleTestCase):
     async def test_asyncio_streaming_cancel_error(self):
         # Similar to test_asyncio_cancel_error(), but during a streaming
         # response.
+        """
+        Tests the cancellation of an asynchronous streaming response by an HTTP disconnect request.
+
+        The test checks two scenarios:
+
+        1. A successful streaming response where the client receives the full response body.
+        2. An interrupted streaming response where the client disconnects before receiving the full response body, triggering a `asyncio.CancelledError` exception.
+
+        Verifies that in both cases the `view_did_cancel` flag is updated correctly, the request finished signal is fired with the correct sender, and the signal handler is called with the expected arguments.
+        """
         view_did_cancel = False
         # Track request_finished signals.
         signal_handler = SignalHandler()
@@ -558,6 +762,21 @@ class ASGITest(SimpleTestCase):
         self.addCleanup(request_finished.disconnect, signal_handler)
 
         async def streaming_response():
+            """
+            Return a streaming response that yields a simple message.
+
+            This function is designed to be used in asynchronous contexts, providing a basic
+            example of how to generate a stream of data. The response will pause for a short
+            period of time before yielding the message 'Hello World!' as a bytes object.
+
+            In the event that the operation is cancelled, the function will set an internal
+            flag to indicate that cancellation occurred and then re-raise the cancellation
+            exception to propagate the error to the caller.
+
+            The returned response can be used directly in asynchronous views or other
+            contexts that support streaming data, providing a simple way to test or
+            demonstrate streaming functionality. 
+            """
             nonlocal view_did_cancel
             try:
                 await asyncio.sleep(0.2)
@@ -624,6 +843,15 @@ class ASGITest(SimpleTestCase):
         self.assertEqual(handler_call["kwargs"], {"sender": TestASGIHandler})
 
     async def test_streaming(self):
+        """
+
+        Tests the streaming functionality of the application.
+
+        This test case simulates an HTTP request to the '/streaming/' endpoint with a query string parameter 'sleep=0.001'.
+        It then verifies that the application sends a streaming response in the correct order, with the expected body content.
+        The test checks for the receipt of two messages, 'first' and 'last', followed by a timeout, indicating the end of the stream.
+
+        """
         scope = self.async_request_factory._base_scope(
             path="/streaming/", query_string=b"sleep=0.001"
         )
@@ -643,6 +871,17 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output(timeout=1)
 
     async def test_streaming_disconnect(self):
+        """
+
+        Tests the disconnection of a streaming request.
+
+        This test case simulates a streaming request and verifies that the connection is properly closed when a disconnect message is sent.
+        It checks that the server sends the initial response and then closes the connection after receiving the disconnect message.
+        The test uses the ASGI application and a communicator to send and receive messages, and it asserts that the expected responses are received and that the connection is closed as expected.
+
+        :raises: AssertionError if the test fails
+
+        """
         scope = self.async_request_factory._base_scope(
             path="/streaming/", query_string=b"sleep=0.1"
         )

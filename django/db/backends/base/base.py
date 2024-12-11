@@ -172,6 +172,17 @@ class BaseDatabaseWrapper:
 
     @property
     def queries(self):
+        """
+
+        Get a list of queries that have been logged.
+
+        The list of queries is capped at a maximum length. If this limit is exceeded, 
+        a warning is raised and only the most recent queries are returned.
+
+        :raises: UserWarning if the query logging limit is exceeded
+        :returns: List of logged queries
+
+        """
         if len(self.queries_log) == self.queries_log.maxlen:
             warnings.warn(
                 "Limit for query logging exceeded, only the last {} queries "
@@ -298,6 +309,17 @@ class BaseDatabaseWrapper:
             return self._prepare_cursor(self.create_cursor(name))
 
     def _commit(self):
+        """
+        Commits the current transaction to the database.
+
+        This method persists all changes made during the transaction to the database.
+        It ensures that either all changes are saved or none are, maintaining data integrity.
+        The commit operation is wrapped in a debug transaction for logging and error handling purposes.
+        If no connection to the database is established, this method does nothing.
+
+        :raises: Database errors if the commit operation fails, which are caught and re-raised as wrapped database errors.
+        :returns: The result of the commit operation, as returned by the underlying database connection.
+        """
         if self.connection is not None:
             with debug_transaction(self, "COMMIT"), self.wrap_database_errors:
                 return self.connection.commit()
@@ -371,6 +393,13 @@ class BaseDatabaseWrapper:
             cursor.execute(self.ops.savepoint_rollback_sql(sid))
 
     def _savepoint_commit(self, sid):
+        """
+        Commits a savepoint to the database.
+
+        :arg sid: The savepoint identifier to commit.
+        :returns: None
+        :description: This method releases a savepoint, committing all changes made since the savepoint was created, and allowing the transaction to continue normally. It uses a SQL query to commit the savepoint.
+        """
         with self.cursor() as cursor:
             cursor.execute(self.ops.savepoint_commit_sql(sid))
 

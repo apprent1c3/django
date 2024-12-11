@@ -35,6 +35,17 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         ]
 
     def __init__(self, verbose_name, is_stacked, attrs=None, choices=()):
+        """
+        Initializes a new instance of the class.
+
+        :param verbose_name: A human-readable name for the instance.
+        :param is_stacked: A boolean indicating whether the instance is stacked.
+        :param attrs: Optional attributes to be passed to the parent class.
+        :param choices: Optional choices to be passed to the parent class, defaults to an empty tuple.
+
+        This method sets up the basic properties of the instance, including its name and stacked status, 
+        and then calls the parent class's initializer with the provided attributes and choices. 
+        """
         self.verbose_name = verbose_name
         self.is_stacked = is_stacked
         super().__init__(attrs, choices)
@@ -472,6 +483,16 @@ SELECT2_TRANSLATIONS.update({"zh-hans": "zh-CN", "zh-hant": "zh-TW"})
 
 
 def get_select2_language():
+    """
+
+    Obtain the Select2 translation code for the current language.
+
+    This function determines the most suitable Select2 language code for the current language setting.
+    It first checks for an exact match, and if that is not found, it attempts to find a match for a more general language code by removing regional or country-specific suffixes.
+
+    :returns: The Select2 translation code, or None if no match is found.
+
+    """
     lang_code = get_language()
     supported_code = SELECT2_TRANSLATIONS.get(lang_code)
     if supported_code is None and lang_code is not None:
@@ -572,6 +593,15 @@ class AutocompleteMixin:
 
     @property
     def media(self):
+        """
+        Returns the media resources required by the widget.
+
+        This property generates a collection of JavaScript and CSS files necessary for the proper functioning of the widget. The resources include jQuery, Select2 library, and custom JavaScript files for initialization and autocomplete functionality. The CSS resources are also included for styling purposes.
+
+        The media files are retrieved based on the current debug mode. When debug mode is enabled, the uncompressed versions of the files are used; otherwise, the minified versions are used. Additionally, if an internationalization (i18n) name is specified, the corresponding i18n JavaScript file for Select2 is included in the media resources.
+
+        The returned media resources can be used to render the necessary HTML tags in the template, ensuring that the widget is properly loaded and functional.
+        """
         extra = "" if settings.DEBUG else ".min"
         i18n_file = (
             ("admin/js/vendor/select2/i18n/%s.js" % self.i18n_name,)

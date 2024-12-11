@@ -29,6 +29,13 @@ from django.utils.regex_helper import _lazy_re_compile
 
 class PositionRef(Ref):
     def __init__(self, ordinal, refs, source):
+        """
+        Initialize an instance of the class with an ordinal value, references, and a source.
+
+        :param ordinal: A unique or sequential identifier for the instance
+        :param refs: References or related data used by the instance
+        :param source: The origin or basis of the instance's data
+        """
         self.ordinal = ordinal
         super().__init__(refs, source)
 
@@ -295,6 +302,21 @@ class SQLCompiler:
             klass_info["related_klass_infos"] = related_klass_infos
 
             def get_select_from_parent(klass_info):
+                """
+
+                Recursively updates the select fields of related class info objects by 
+                inheriting select fields from their parent classes.
+
+                This function iterates through the related class info objects and checks 
+                if a class info object is a child of the current parent class. If so, 
+                it appends the parent's select fields to the child's select fields. 
+                It then recursively calls itself on each child class info object to 
+                propagate the select fields down the class hierarchy.
+
+                :param klass_info: A dictionary containing information about a class, 
+                    including its select fields and related class info objects.
+
+                """
                 for ki in klass_info["related_klass_infos"]:
                     if ki["from_parent"]:
                         ki["select_fields"] = (
@@ -647,6 +669,25 @@ class SQLCompiler:
         return part_sql, part_args
 
     def get_qualify_sql(self):
+        """
+
+        Generates the SQL for a QUALIFY clause.
+
+        The QUALIFY clause is used to filter the results of a window function.
+        This method takes into account the WHERE and HAVING conditions of the query,
+        as well as the ORDER BY clause, and generates the necessary SQL to qualify the results.
+
+        It first constructs an inner query that includes the WHERE and HAVING conditions,
+        and then generates the QUALIFY SQL based on the given qualify expression.
+        The method also handles the ordering of the results, if specified.
+
+        The returned result is a tuple containing the generated SQL as a list of strings,
+        and the parameters needed to execute the query.
+
+        The SQL generation takes into account the specific database connection being used,
+        and uses the appropriate quoting and formatting for the database's SQL dialect.
+
+        """
         where_parts = []
         if self.where:
             where_parts.append(self.where)
@@ -667,6 +708,19 @@ class SQLCompiler:
         replacements = {}
 
         def collect_replacements(expressions):
+            """
+
+            Collects replacements for given expressions by traversing through them and their dependencies.
+
+            This function iterates over the provided expressions, checking if they have existing aliases or if they need to be processed further.
+            It handles different types of expressions, such as Lookups and Refs, by recursively gathering their source expressions.
+            For expressions that don't have an existing alias, it generates a new one and stores it in the replacements dictionary.
+
+            The function modifies the replacements dictionary and inner query annotations as it collects replacements.
+
+            :param expressions: A list of expressions to collect replacements for
+
+            """
             while expressions:
                 expr = expressions.pop()
                 if expr in replacements:
@@ -1830,6 +1884,22 @@ class SQLInsertCompiler(SQLCompiler):
             ]
 
     def execute_sql(self, returning_fields=None):
+        """
+        Execute the SQL query associated with the object and return the resulting rows.
+
+        The query can be executed with or without specifying fields to be returned. If 
+        :obj:`returning_fields` is provided, the function will return the specified fields 
+        for each inserted row. Otherwise, an empty list is returned.
+
+        If the database supports returning rows from bulk insert operations and multiple 
+        objects are being inserted, the function will return the specified fields for each 
+        inserted row. For single object inserts, the function will return the specified 
+        fields if the database supports returning columns from insert operations. 
+        Otherwise, the function will return the primary key of the inserted row.
+
+        The returned rows are converted to the appropriate Python data types before being 
+        returned.
+        """
         assert not (
             returning_fields
             and len(self.query.objs) != 1

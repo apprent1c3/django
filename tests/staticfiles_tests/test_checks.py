@@ -15,6 +15,16 @@ class FindersCheckTests(CollectionTestCase):
     run_collectstatic_in_setUp = False
 
     def test_base_finder_check_not_implemented(self):
+        """
+        Tests that the BaseFinder class raises a NotImplementedError when its check method is invoked.
+
+        This test case verifies that the base implementation of the check method is not implemented and is 
+        intended to be overridden by subclasses to provide a custom configuration verification mechanism.
+
+        Raises:
+            AssertionError: If the NotImplementedError is not raised with the expected message.
+
+        """
         finder = BaseFinder()
         msg = (
             "subclasses may provide a check() method to verify the finder is "
@@ -30,6 +40,19 @@ class FindersCheckTests(CollectionTestCase):
         error3 = Error("3")
 
         def get_finders():
+            """
+            \\":\"\"\"
+            Returns a list of finder objects, which can be used to identify and report errors or issues.
+            Each finder object has a :meth:`check` method that, when called, returns a list of errors found.
+            The finders returned by this function can be used to perform various checks and validations,
+            although some may not implement the :meth:`check` method or may always return an empty list of errors.
+            The purpose of each finder is not explicitly defined, but they can be instantiated and used
+            to perform checks in a variety of contexts.
+
+            :returns: A list of finder objects
+            :rtype: list[Finder]
+
+            """
             class Finder1(BaseFinder):
                 def check(self, **kwargs):
                     return [error1]
@@ -68,6 +91,13 @@ class FindersCheckTests(CollectionTestCase):
         )
 
     def test_dirs_contains_static_root(self):
+        """
+        Tests that the STATICFILES_DIRS setting does not contain the STATIC_ROOT setting.
+
+        This check ensures that the static files directories and the static root directory are not conflicting, 
+        as including the static root in the directories can cause issues with static file serving. 
+        The test verifies that an error is raised when STATIC_ROOT is included in STATICFILES_DIRS.
+        """
         with self.settings(STATICFILES_DIRS=[settings.STATIC_ROOT]):
             self.assertEqual(
                 check_finders(None),
@@ -81,6 +111,12 @@ class FindersCheckTests(CollectionTestCase):
             )
 
     def test_dirs_contains_static_root_in_tuple(self):
+        """
+        Tests whether the STATICFILES_DIRS setting contains the STATIC_ROOT setting when the prefix is used in a tuple.
+
+        The test checks for a specific error condition where the STATICFILES_DIRS setting includes the STATIC_ROOT setting as part of a tuple.
+        This ensures that Django's static files finders behave correctly and raises an error when the settings are misconfigured, specifically reporting an Error with id 'staticfiles.E002'.
+        """
         with self.settings(STATICFILES_DIRS=[("prefix", settings.STATIC_ROOT)]):
             self.assertEqual(
                 check_finders(None),
@@ -94,6 +130,17 @@ class FindersCheckTests(CollectionTestCase):
             )
 
     def test_prefix_contains_trailing_slash(self):
+        """
+        Tests that the STATICFILES_DIRS setting's prefix does not end with a trailing slash.
+
+        Verifies that the :func:`check_finders` function correctly identifies and reports an error when the 'prefix' in the STATICFILES_DIRS setting contains a trailing slash. The test checks for the presence of a specific error message in the output of :func:`check_finders`, confirming that the function behaves as expected in this scenario.
+
+        The test uses a custom static directory path and a mocked settings object to simulate the error condition.
+
+        Returns:
+            None, but asserts that the :func:`check_finders` function returns an error indicating that the prefix must not end with a slash.
+
+        """
         static_dir = Path(TEST_ROOT) / "project" / "documents"
         with self.settings(STATICFILES_DIRS=[("prefix/", static_dir)]):
             self.assertEqual(
@@ -162,5 +209,14 @@ class StoragesCheckTests(SimpleTestCase):
         }
     )
     def test_staticfiles_no_errors(self):
+        """
+
+        Tests that no errors are reported when using the staticfiles storage backend.
+
+        Verifies that the :func:`check_storages` function returns an empty list of errors
+        when the staticfiles storage is properly configured, indicating that all
+        requirements for using the staticfiles storage are met.
+
+        """
         errors = check_storages(None)
         self.assertEqual(errors, [])

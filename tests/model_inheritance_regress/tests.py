@@ -51,6 +51,25 @@ class ModelInheritanceTest(TestCase):
         # 'narrow()' API would require a similar approach.
 
         # Create a child-parent-grandparent chain
+        """
+        test_model_inheritance
+        ------------------------
+
+        Testing the functionality of model inheritance in the application's database models.
+
+        This test case verifies that the Place, Restaurant, ItalianRestaurant, and ParkingLot models correctly inherit attributes and behaviors from their parent classes. It creates instances of these models, saves them to the database, and then checks that the data is correctly retrieved and updated.
+
+        The test covers scenarios such as creating and saving model instances, retrieving data using Django's ORM, and updating model instances. It also checks that the data is correctly propagated across the model hierarchy, ensuring that changes made to a parent model are reflected in its child models.
+
+        Specifically, this test case checks the following:
+
+        *   Model creation and saving
+        *   Data retrieval using Django's ORM
+        *   Model updates and changes
+        *   Inheritance of attributes and behaviors across the model hierarchy
+
+        The test case includes assertions to verify that the expected results match the actual results, ensuring that the model inheritance functionality is working as expected.
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -193,6 +212,21 @@ class ModelInheritanceTest(TestCase):
     def test_issue_7105(self):
         # Regressions tests for #7105: dates() queries should be able to use
         # fields from the parent model as easily as the child.
+        """
+        Tests the datetimes method of a QuerySet for extracting month-level datetime values.
+
+        Verifies that the datetimes method correctly truncates a datetime object to the first day of the month.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Asserts:
+            The test asserts that the extracted datetime values match the expected output.
+
+        """
         Child.objects.create(
             name="child", created=datetime.datetime(2008, 6, 26, 17, 0, 0)
         )
@@ -429,6 +463,20 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(InternalCertificationAudit._meta.verbose_name_plural, "Audits")
 
     def test_inherited_nullable_exclude(self):
+        """
+        Tests the exclusion of objects from querysets based on a nullable field.
+
+        This test case verifies that objects are correctly filtered out when using the 
+        exclude method on a queryset. It checks both the parent and child objects in a 
+        self-referential relationship to ensure that the exclusion works as expected.
+
+        The test focuses on a scenario where the excluded value (self_data=72) is not 
+        present in the created object, demonstrating that the exclude method correctly 
+        includes the object in the resulting queryset when the specified value is not 
+        found in the object's field. The test uses assertQuerySetEqual to compare the 
+        expected and actual results, checking that the object's primary key is correctly 
+        included in the queryset after exclusion.
+        """
         obj = SelfRefChild.objects.create(child_data=37, parent_data=42)
         self.assertQuerySetEqual(
             SelfRefParent.objects.exclude(self_data=72), [obj.pk], attrgetter("pk")
@@ -484,6 +532,12 @@ class ModelInheritanceTest(TestCase):
     def test_inheritance_joins(self):
         # Test for #17502 - check that filtering through two levels of
         # inheritance chain doesn't generate extra joins.
+        """
+        Tests that the inheritance-based joins are correctly generated in ORM queries for ItalianRestaurant objects.
+
+        The function verifies that the expected number of SQL joins (two) are included in the underlying database query, 
+        both when querying all objects and when filtering objects based on specific conditions.
+        """
         qs = ItalianRestaurant.objects.all()
         self.assertEqual(str(qs.query).count("JOIN"), 2)
         qs = ItalianRestaurant.objects.filter(name="foo")
@@ -494,6 +548,15 @@ class ModelInheritanceTest(TestCase):
         # It would be nice (but not too important) to skip the middle join in
         # this case. Skipping is possible as nothing from the middle model is
         # used in the qs and top contains direct pointer to the bottom model.
+        """
+        Tests that certain database queries utilize the correct number of joins when dealing with inheritance and values_list in the ORM.
+
+        This test case specifically checks the number of joins in the generated SQL query when filtering and retrieving a specific field from a model that inherits from another model.
+
+        The test passes if the generated SQL query contains exactly one join operation, indicating optimal database query performance.
+
+        This case is marked as an expected failure, as it may not pass under certain conditions or database backends, and its primary purpose is to track progress towards fixing the issue or to detect when the issue resurfaces after being fixed.
+        """
         qs = ItalianRestaurant.objects.values_list("serves_gnocchi").filter(name="foo")
         self.assertEqual(str(qs.query).count("JOIN"), 1)
 
@@ -505,6 +568,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(senator.state, "Y")
 
     def test_inheritance_resolve_columns(self):
+        """
+        Tests the proper resolution of inherited model columns in a database query, specifically verifying that the \"serves_pizza\" attribute is correctly identified as a boolean type when retrieved through a related object.
+        """
         Restaurant.objects.create(
             name="Bobs Cafe",
             address="Somewhere",
@@ -516,6 +582,22 @@ class ModelInheritanceTest(TestCase):
 
     def test_inheritance_select_related(self):
         # Regression test for #7246
+        """
+
+        Tests the proper inheritance of related objects using select_related.
+
+        This test case ensures that related objects are correctly retrieved and associated
+        with the primary object when using the select_related method. It creates two 
+        restaurants with suppliers, and then verifies that the suppliers can be correctly 
+        ordered and that their associated restaurant objects are properly loaded.
+
+        The test covers the following scenarios:
+        - Creation of restaurants and suppliers with specific attributes
+        - Ordering of suppliers by name
+        - Use of select_related to load related restaurant objects
+        - Verification of the correctness of the loaded related objects
+
+        """
         r1 = Restaurant.objects.create(
             name="Nobu", serves_hot_dogs=True, serves_pizza=False
         )
@@ -538,6 +620,15 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(jane.restaurant.name, "Craft")
 
     def test_filter_with_parent_fk(self):
+        """
+
+        Tests filtering Suppliers by a parent foreign key.
+
+        Verifies that Suppliers can be filtered based on a foreign key relation to their parent Restaurant, 
+        which itself is a Place. This ensures that the correct Suppliers are returned when filtering 
+        by the restaurant's parent Place.
+
+        """
         r = Restaurant.objects.create()
         s = Supplier.objects.create(restaurant=r)
         # The mismatch between Restaurant and Place is intentional (#28175).
@@ -564,6 +655,14 @@ class ModelInheritanceTest(TestCase):
             self.assertSequenceEqual(r.supplier_set.all(), [s])
 
     def test_queries_on_parent_access(self):
+        """
+        Tests the number of database queries performed when accessing parent models from an ItalianRestaurant instance.
+
+        This test case verifies the behavior of Django's ORM when navigating the relationship between an ItalianRestaurant and its parent models (Restaurant and Place).
+        It checks that the number of database queries is as expected, considering the use of select_related and deferred fields.
+        The test covers different scenarios, including fetching an ItalianRestaurant with all fields, only specific fields, or deferring certain fields, and then accessing its parent models.
+        It ensures that the relationship between models is correctly established and that the expected number of queries is performed in each case.
+        """
         italian_restaurant = ItalianRestaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",
@@ -600,6 +699,15 @@ class ModelInheritanceTest(TestCase):
             self.assertEqual(restaurant.italianrestaurant, italian_restaurant)
 
     def test_id_field_update_on_ancestor_change(self):
+        """
+        Tests the behavior of id fields when updating the ancestor pointer in a multi-table inheritance hierarchy.
+
+        This test creates several instances of different model classes (Place, Restaurant, ItalianRestaurant)
+        and changes the ancestor pointers to verify that the id fields are updated correctly.
+        It checks that the primary key (pk) and id fields are equal and match the ancestor's id after the update,
+        and that they become None when the ancestor pointer is set to None.
+        The test ensures that the id field updates are propagated correctly through the inheritance hierarchy.
+        """
         place1 = Place.objects.create(name="House of Pasta", address="944 Fullerton")
         place2 = Place.objects.create(name="House of Pizza", address="954 Fullerton")
         place3 = Place.objects.create(name="Burger house", address="964 Fullerton")
@@ -637,6 +745,14 @@ class ModelInheritanceTest(TestCase):
         self.assertIsNone(italian_restaurant.id)
 
     def test_create_new_instance_with_pk_equals_none(self):
+        """
+        Tests the creation of a new instance of a Profile object when its primary key is set to None.
+
+        Verifies that setting the primary key and user pointer id of an existing profile to None,
+        and then saving the profile with new attributes, results in a new instance being created.
+        The test also confirms that the original profile and user remain unchanged, and that the total
+        number of profiles is incremented by one.
+        """
         p1 = Profile.objects.create(username="john")
         p2 = User.objects.get(pk=p1.user_ptr_id).profile
         # Create a new profile by setting pk = None.

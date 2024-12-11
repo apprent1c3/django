@@ -75,11 +75,26 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(max_age_cookie["expires"], http_date(set_cookie_time + 10))
 
     def test_max_age_int(self):
+        """
+        Tests that the 'max-age' attribute of a cookie is set to an integer value.
+
+        Verifies that a floating-point value passed to the 'max_age' parameter of set_cookie
+        is truncated to the nearest integer when constructing the 'Set-Cookie' header.
+
+        This ensures that the resulting cookie is sent with a valid 'max-age' directive,
+        as required by the HTTP cookie specification.
+        """
         response = HttpResponse()
         response.set_cookie("max_age", max_age=10.6)
         self.assertEqual(response.cookies["max_age"]["max-age"], 10)
 
     def test_max_age_timedelta(self):
+        """
+        Tests that the max-age attribute of a cookie is correctly converted to seconds when a timedelta object is used.
+
+        The function verifies that setting a cookie with a max-age of 1 hour results in a 'max-age' value of 3600 seconds in the cookie.
+
+        """
         response = HttpResponse()
         response.set_cookie("max_age", max_age=timedelta(hours=1))
         self.assertEqual(response.cookies["max_age"]["max-age"], 3600)
@@ -93,6 +108,13 @@ class SetCookieTests(SimpleTestCase):
             )
 
     def test_httponly_cookie(self):
+        """
+        Tests that an HTTP-only cookie is correctly set in an HTTP response.
+
+        This function verifies that a cookie with the 'httponly' flag is properly included in an HttpResponse object.
+        It checks that the 'httponly' attribute is correctly added to the cookie and that its value is set to True.
+        The purpose of this test is to ensure that the 'httponly' flag is set as expected, which is a security feature that helps prevent JavaScript access to sensitive cookies.
+        """
         response = HttpResponse()
         response.set_cookie("example", httponly=True)
         example_cookie = response.cookies["example"]
@@ -109,6 +131,18 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["test"].value, cookie_value)
 
     def test_samesite(self):
+        """
+
+        Tests setting the 'SameSite' attribute of a cookie in an HTTP response.
+
+        The 'SameSite' attribute is used to declare whether a cookie should be restricted
+        to a first-party or same-site context. This test covers the three possible values
+        of the 'SameSite' attribute: 'None', 'Lax', and 'Strict'.
+
+        Verifies that each of these values can be successfully set on a cookie and that
+        the resulting cookie attribute matches the expected value.
+
+        """
         response = HttpResponse()
         response.set_cookie("example", samesite="None")
         self.assertEqual(response.cookies["example"]["samesite"], "None")
@@ -125,6 +159,16 @@ class SetCookieTests(SimpleTestCase):
 
 class DeleteCookieTests(SimpleTestCase):
     def test_default(self):
+        """
+
+        Tests the behavior of deleting a cookie using the HttpResponse object.
+
+        Specifically, this test verifies that when a cookie is deleted, its attributes
+        are set to the expected values, including the expiration date, maximum age,
+        path, security, domain, and same-site policy. The test ensures that the
+        deleted cookie is properly configured to be removed by the client.
+
+        """
         response = HttpResponse()
         response.delete_cookie("c")
         cookie = response.cookies["c"]
@@ -150,6 +194,14 @@ class DeleteCookieTests(SimpleTestCase):
 
     def test_delete_cookie_secure_samesite_none(self):
         # delete_cookie() sets the secure flag if samesite='none'.
+        """
+
+        Tests that deleting a cookie with SameSite=None sets the Secure attribute.
+
+        This test case verifies that when a cookie is deleted with the SameSite attribute set to 'none', 
+        the Secure attribute is automatically set to True to maintain the cookie's security.
+
+        """
         response = HttpResponse()
         response.delete_cookie("c", samesite="none")
         self.assertIs(response.cookies["c"]["secure"], True)

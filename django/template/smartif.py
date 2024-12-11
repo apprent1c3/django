@@ -38,6 +38,9 @@ class TokenBase:
         return self.id
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, containing its id, first, and second attributes, excluding any attributes that are None. The attributes are enclosed in parentheses and separated by spaces.
+        """
         out = [str(x) for x in [self.id, self.first, self.second] if x is not None]
         return "(" + " ".join(out) + ")"
 
@@ -201,6 +204,16 @@ class IfParser:
         return retval
 
     def expression(self, rbp=0):
+        """
+        Parse an expression based on the current token and its binding powers.
+
+        The function uses an operator precedence parsing strategy, where the right binding power (rbp) determines how the expression is evaluated.
+        It recursively applies the null denotation (nud) and left denotation (led) methods to the current token and its successors until it reaches a token with a lower left binding power (lbp).
+        The parsed expression is returned as a result, allowing for the construction of complex expressions from the input token stream.
+
+        :arg int rbp: The right binding power, defaulting to 0 if not specified
+        :returns: The parsed expression
+        """
         t = self.current_token
         self.current_token = self.next_token()
         left = t.nud(self)

@@ -50,6 +50,17 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n38_2(self):
+        """
+
+        Tests rendering of language info list with translated names.
+
+        This test case verifies that the language information is correctly rendered
+        for a given set of language codes. It checks that the language code, name,
+        local name, and translated name are properly displayed, along with the
+        bidirectional (bidi) flag. The test is run with the translation override
+        set to Czech, and it checks the output for the 'it' and 'fr' language codes.
+
+        """
         with translation.override("cs"):
             output = self.engine.render_to_string(
                 "i18n38_2", {"langcodes": ["it", "fr"]}

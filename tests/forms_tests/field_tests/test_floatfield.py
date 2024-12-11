@@ -11,6 +11,21 @@ from . import FormFieldAssertionsMixin
 
 class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_floatfield_1(self):
+        """
+        Tests the functionality of a FloatField.
+
+        This test case checks the rendering of the FloatField widget, ensuring it produces the expected HTML input element.
+
+        It also verifies the validation and cleaning behavior of the field, including:
+
+        * Required field validation, raising an error for empty or null inputs
+        * Successful parsing of valid float values from strings and numbers
+        * Validation errors for non-numeric inputs, such as strings containing letters
+        * Ignoring of leading and trailing whitespace in input strings
+        * Failure to parse special float values like Infinity and NaN
+
+        Additionally, it confirms that the field does not have any max or min value constraints by default.
+        """
         f = FloatField()
         self.assertWidgetRendersTo(
             f, '<input step="any" type="number" name="f" id="id_f" required>'
@@ -42,6 +57,11 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("-Inf")
 
     def test_floatfield_2(self):
+        """
+        Tests the functionality of the FloatField class, specifically its behavior when cleaning input values. 
+        This test case checks that the FloatField correctly handles empty strings, None values, and valid numeric strings, 
+        returning the expected cleaned values. It also verifies that the field's max and min value constraints are not set by default.
+        """
         f = FloatField(required=False)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))
@@ -113,6 +133,20 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertWidgetRendersTo(f, '<input id="id_f" name="f" type="text" required>')
 
     def test_floatfield_changed(self):
+        """
+
+        Checks if the value of a FloatField has changed.
+
+        This test verifies the functionality of the `has_changed` method of a FloatField.
+        It checks if the method correctly determines whether the field value has changed,
+        considering both non-localized and localized float values.
+
+        The test covers two scenarios: comparing a float value with its string representation,
+        and comparing a localized float value with its localized string representation.
+        The goal is to ensure that the `has_changed` method returns False when the values are
+        equivalent, regardless of the input format.
+
+        """
         f = FloatField()
         n = 4.35
         self.assertFalse(f.has_changed(n, "4.3500"))
@@ -124,6 +158,22 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     @override_settings(DECIMAL_SEPARATOR=",")
     def test_floatfield_support_decimal_separator(self):
+        """
+        Tests the FloatField support for decimal separators.
+
+        This test case checks if the FloatField can correctly parse decimal numbers
+        with different separator formats (e.g., commas or dots) and clean them into
+        a standardized float representation.
+
+        The test uses a localized FloatField and verifies its ability to handle
+        decimal numbers with commas as separators, ensuring that the cleaned output
+        is a correct float value. The test also checks the field's behavior with
+        dots as separators for consistency.
+
+        The expected outcome is that the FloatField correctly interprets and cleans
+        decimal numbers regardless of the separator used, resulting in a consistent
+        float value in the output.
+        """
         with translation.override(None):
             f = FloatField(localize=True)
             self.assertEqual(f.clean("1001,10"), 1001.10)

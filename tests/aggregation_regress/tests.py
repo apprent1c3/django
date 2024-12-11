@@ -595,6 +595,15 @@ class AggregationTests(TestCase):
 
     def test_field_error(self):
         # Bad field requests in aggregates are caught and reported
+        """
+        Tests that a FieldError is raised when attempting to reference a non-existent field in an aggregate or annotate operation.
+
+        This test case checks for two main scenarios: 
+        1. When an undefined field is used directly in an aggregate or annotate function.
+        2. When an undefined field is used in a subsequent aggregate operation after an annotation.
+
+        The test ensures that the expected error message is raised, which includes the valid field choices for the model, to assist with debugging and identifying the correct field name.
+        """
         msg = (
             "Cannot resolve keyword 'foo' into field. Choices are: authors, "
             "contact, contact_id, hardbackbook, id, isbn, name, pages, price, "
@@ -959,6 +968,23 @@ class AggregationTests(TestCase):
     def test_m2m_name_conflict(self):
         # Regression for #11256 - providing an aggregate name
         # that conflicts with an m2m name on the model raises ValueError
+        """
+
+        Tests that using an annotation name that conflicts with an existing field on the model raises a ValueError.
+
+        The test case checks that attempting to annotate a model with a field name that already exists on the model results in a validation error, 
+        preventing potential name conflicts and ensuring data integrity.
+
+        Args:
+            None
+
+        Raises:
+            ValueError: If an annotation name conflicts with an existing field on the model.
+
+        Returns:
+            None
+
+        """
         msg = "The annotation 'friends' conflicts with a field on the model."
         with self.assertRaisesMessage(ValueError, msg):
             Author.objects.annotate(friends=Count("friends"))
@@ -1239,6 +1265,24 @@ class AggregationTests(TestCase):
         self.assertEqual(books[0], ("Sams", 1, Decimal("23.09"), 45.0, 528.0))
 
     def test_annotation_disjunction(self):
+        """
+        Tests the usage of disjunctions in Django query filters.
+
+        This test case verifies that the Django ORM correctly handles disjunctions 
+        (the ``|`` operator) in filters, allowing for complex queries with multiple 
+        conditions. It covers various scenarios, including filtering based on annotated 
+        fields, combining filters with logical operators, and using disjunctions with 
+        null values.
+
+        The test checks the following scenarios:
+        - Filtering books based on the number of authors or a specific book name.
+        - Filtering books based on a combination of conditions, including the book name 
+          and the number of authors.
+        - Filtering publishers based on the sum of book ratings or the absence of ratings.
+        - Filtering publishers based on the sum of book ratings compared to the number 
+          of books or the absence of ratings.
+
+        """
         qs = (
             Book.objects.annotate(n_authors=Count("authors"))
             .filter(Q(n_authors=2) | Q(name="Python Web Development with Django"))
@@ -1482,6 +1526,19 @@ class AggregationTests(TestCase):
     @skipUnlessDBFeature("allows_group_by_selected_pks")
     def test_aggregate_duplicate_columns_select_related(self):
         # And select_related()
+        """
+
+        Tests the behavior of aggregate functions when duplicate columns are present in a query using select_related.
+
+        Verifies that when using the annotate function in conjunction with select_related,
+        the resulting query groups by the primary keys of the selected related object.
+        This ensures that duplicate columns are correctly handled and the aggregate function
+        returns the expected results.
+
+        The test checks the resulting SQL query to ensure that it groups by the correct
+        columns and verifies that the results of the query match the expected output.
+
+        """
         results = Book.objects.select_related("contact").annotate(
             num_authors=Count("authors")
         )
@@ -1707,6 +1764,19 @@ class AggregationTests(TestCase):
         )
 
     def test_filter_aggregates_negated_and_connector(self):
+        """
+
+        Test filtering of aggregates with negated and connector conditions.
+
+        This test case verifies that the filtering of objects based on aggregate conditions
+        works correctly when using a negated conjunction of conditionals. Specifically,
+        it checks that objects can be filtered out based on the combination of two conditions:
+        a numerical value greater than a certain threshold and an aggregate count greater
+        than one, using the logical AND operator and a negation to exclude matching records.
+        The test ensures that the resulting query set contains the expected objects, ordered
+        by their primary key.
+
+        """
         q1 = Q(price__gt=50)
         q2 = Q(authors__count__gt=1)
         query = (
@@ -1729,6 +1799,19 @@ class AggregationTests(TestCase):
         )
 
     def test_filter_aggregates_negated_xor_connector(self):
+        """
+        Tests the filter functionality using a negated XOR connector on aggregate values.
+
+        This test case evaluates a query that filters books based on a combination of conditions:
+        - The book price is greater than 50.
+        - The book has more than one author.
+        The query uses a negated XOR operator to select books that do not meet both conditions exclusively.
+        The expected result includes books for which the conditions are either both true or both false.
+
+        The query also demonstrates the use of annotation to count the number of authors for each book, 
+        and the application of the count in the filter condition.
+        The result is ordered by the book's primary key and compared to the expected set of books.
+        """
         q1 = Q(price__gt=50)
         q2 = Q(authors__count__gt=1)
         query = (

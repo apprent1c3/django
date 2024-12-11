@@ -10,6 +10,16 @@ from .models import TestModel
 @override_settings(ABSOLUTE_URL_OVERRIDES={})
 class GenericViewsSitemapTests(SitemapTestsBase):
     def test_generic_sitemap_attributes(self):
+        """
+
+        Test validation of generic sitemap attributes.
+
+        This function tests that a GenericSitemap object is correctly initialized with its attributes, 
+        including the queryset, date field, priority, changefreq, and protocol. It checks that each 
+        attribute is properly set to its expected value, ensuring that the sitemap is correctly configured.
+        The test also verifies that the queryset associated with the sitemap matches the original queryset.
+
+        """
         datetime_value = datetime.now()
         queryset = TestModel.objects.all()
         generic_sitemap = GenericSitemap(
@@ -48,6 +58,16 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_generic_sitemap_lastmod(self):
+        """
+        Tests the generic sitemap lastmod functionality.
+
+        Verifies that the sitemap.xml returns the correct 'lastmod' date for a given model instance.
+        The test case updates the 'lastmod' field of a TestModel instance, then makes a GET request to the sitemap endpoint.
+        It checks that the response content matches the expected XML structure, including the correct 'lastmod' date, and that the 'Last-Modified' header is set accordingly.
+
+        The test ensures that the sitemap generation accurately reflects the 'lastmod' date of the model instances, which is essential for search engine crawlers to determine the frequency of updates to the site's content.
+
+        """
         test_model = TestModel.objects.first()
         TestModel.objects.update(lastmod=datetime(2013, 3, 13, 10, 0, 0))
         response = self.client.get("/generic-lastmod/sitemap.xml")
@@ -67,6 +87,11 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         )
 
     def test_get_protocol_defined_in_constructor(self):
+        """
+        Tests the get_protocol method of the GenericSitemap class to ensure it returns the protocol defined in the constructor.
+
+        The test iterates over common HTTP protocols ('http' and 'https') and verifies that the get_protocol method returns the expected protocol after instantiating the GenericSitemap class with the respective protocol.
+        """
         for protocol in ["http", "https"]:
             with self.subTest(protocol=protocol):
                 sitemap = GenericSitemap({"queryset": None}, protocol=protocol)
@@ -83,6 +108,15 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         self.assertEqual(sitemap.get_protocol(), "https")
 
     def test_generic_sitemap_index(self):
+        """
+        Tests the rendering of a generic sitemap index.
+
+        This test case verifies that the sitemap index is generated correctly, including the last modification date.
+        It checks that the response from the server matches the expected XML content, which includes the sitemap location and last modification timestamp.
+
+        The test scenario involves updating the last modification date of a test model and then requesting the sitemap index via HTTP GET.
+        The expected output is a sitemap index XML document that conforms to the sitemaps.org schema, with the correct last modification date and sitemap URL.
+        """
         TestModel.objects.update(lastmod=datetime(2013, 3, 13, 10, 0, 0))
         response = self.client.get("/generic-lastmod/index.xml")
         expected_content = """<?xml version="1.0" encoding="UTF-8"?>

@@ -36,6 +36,16 @@ from .models import (
 )
 class SerializerRegistrationTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the testing environment by resetting the serializers registry.
+
+        This method saves the current serializers and clears the serializers dictionary,
+        providing a clean slate for testing purposes. The original serializers are stored
+        in the `self.old_serializers` attribute, allowing for potential restoration later.
+
+        Returns:
+            None
+        """
         self.old_serializers = serializers._serializers
         serializers._serializers = {}
 
@@ -65,6 +75,12 @@ class SerializerRegistrationTests(SimpleTestCase):
         self.assertIn("json3", public_formats)
 
     def test_unregister_unknown_serializer(self):
+        """
+        Tests that attempting to unregister a non-existent serializer raises an exception.
+
+        Verifies that the :class:`SerializerDoesNotExist` exception is properly raised when 
+        trying to unregister a serializer that has not been previously registered.
+        """
         with self.assertRaises(SerializerDoesNotExist):
             serializers.unregister_serializer("nonsense")
 
@@ -106,6 +122,26 @@ class SerializersTestBase:
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, including predefined categories and articles.
+
+         This class method creates three categories: 'Sports', 'Music', and 'Op-Ed'. It also 
+         creates two authors, 'Joe' and 'Jane', and two articles, each belonging to a different 
+         author and assigned to specific categories. The articles are saved to the database with 
+         their respective publication dates.
+
+         The test data established by this method can be used as a foundation for testing various 
+         aspects of the application, including data retrieval, filtering, and manipulation.
+
+         Attributes:
+            joe (Author): An author instance representing 'Joe'.
+            jane (Author): An author instance representing 'Jane'.
+            a1 (Article): An article instance representing 'Poker has no place on ESPN'.
+            a2 (Article): An article instance representing 'Time to reform copyright'.
+            sports (Category): A category instance representing 'Sports'.
+            music (Category): A category instance representing 'Music'.
+            op_ed (Category): A category instance representing 'Op-Ed'.
+        """
         sports = Category.objects.create(name="Sports")
         music = Category.objects.create(name="Music")
         op_ed = Category.objects.create(name="Op-Ed")
@@ -158,6 +194,17 @@ class SerializersTestBase:
                 self.assertEqual(string_data, stream.content.decode())
 
     def test_serialize_specific_fields(self):
+        """
+        Tests the serialization of specific fields in a model.
+
+        This test case checks that only the specified fields are included in the serialized data, 
+        while other fields are excluded or reset to their default values.
+
+        The test uses the :class:`ComplexModel` to create an object with multiple fields, 
+        serializes it using the specified serializer, and then deserializes the data to verify 
+        that the expected fields are present and have the correct values, while other fields 
+        are either missing or have their default values.
+        """
         obj = ComplexModel(field1="first", field2="second", field3="third")
         obj.save_base(raw=True)
 
@@ -241,6 +288,18 @@ class SerializersTestBase:
         self.assertEqual(mv_obj.title, movie_title)
 
     def test_unicode_serialization(self):
+        """
+        Tests the serialization and deserialization of Unicode data using the specified serializer.
+
+        Verifies that Unicode characters are correctly encoded and decoded during the
+        serialization process, ensuring data integrity and accuracy. The test checks
+        that the original Unicode data is present in the serialized output and that the
+        deserialized object contains the same Unicode data, demonstrating successful
+        round-trip serialization.
+
+        This test case helps ensure that the serializer correctly handles Unicode
+        characters, which is essential for working with diverse and internationalized data sets.
+        """
         unicode_name = "יוניקוד"
         data = serializers.serialize(self.serializer_name, [Author(name=unicode_name)])
         self.assertIn(unicode_name, data)
@@ -248,6 +307,19 @@ class SerializersTestBase:
         self.assertEqual(objs[0].object.name, unicode_name)
 
     def test_serialize_progressbar(self):
+        """
+        Tests serialization of data with a progress bar.
+
+        This function ensures that the serialization process displays a progress bar 
+        and correctly writes it to the specified output. 
+
+        The test utilizes a fake stdout to capture the output of the progress bar and 
+        then verifies that the output ends with the expected progress bar format, 
+        indicating successful serialization and display of the progress bar.
+
+        :param None:
+        :returns: None
+        """
         fake_stdout = StringIO()
         serializers.serialize(
             self.serializer_name,
@@ -277,6 +349,15 @@ class SerializersTestBase:
     def test_serialize_prefetch_related_m2m(self):
         # One query for the Article table and one for each prefetched m2m
         # field.
+        """
+
+        Test the performance of serializing Article objects with and without prefetching related objects.
+
+        This test case compares the number of database queries required to serialize Article objects when using prefetch_related to fetch related Many-To-Many fields (categories, meta_data, topics) versus fetching all Article objects without prefetching.
+
+        The test asserts that the number of queries is significantly lower when prefetching related objects, demonstrating the performance benefits of using prefetch_related in this scenario.
+
+        """
         with self.assertNumQueries(4):
             serializers.serialize(
                 self.serializer_name,
@@ -311,6 +392,20 @@ class SerializersTestBase:
         self.assertEqual(deserial_objs[0].object.score, Approximate(3.4, places=1))
 
     def test_deferred_field_serialization(self):
+        """
+
+        Tests the serialization and deserialization of a model instance with a deferred field.
+
+        This function checks that an Author instance with a deferred 'name' field can be properly
+        serialized and then deserialized back into a valid Author object. It verifies that the
+        deserialized object is an instance of the Author class.
+
+        The test case involves creating an Author instance, deferring the 'name' field, serializing
+        the instance, and then deserializing it back into a Python object. The function asserts that
+        the resulting object is of the correct type, ensuring that the serialization and deserialization
+        processes work correctly even when dealing with deferred fields.
+
+        """
         author = Author.objects.create(name="Victor Hugo")
         author = Author.objects.defer("name").get(pk=author.pk)
         serial_str = serializers.serialize(self.serializer_name, [author])
@@ -401,6 +496,20 @@ class SerializersTestBase:
         self.assertEqual(base_data, proxy_proxy_data.replace("proxy", ""))
 
     def test_serialize_inherited_fields(self):
+        """
+
+        Tests the serialization of inherited fields in model instances.
+
+        Verifies that the serialization process correctly handles model fields that are inherited 
+        from parent models, specifically many-to-many fields. The test ensures that these fields 
+        are properly excluded from the serialized output, as expected.
+
+        The test case covers the creation of model instances, their relationships, and the 
+        serialization of these instances using a specified serializer. It then asserts that the 
+        serialized output contains the expected field values, confirming the correct behavior 
+        of the serialization process.
+
+        """
         child_1 = Child.objects.create(parent_data="a", child_data="b")
         child_2 = Child.objects.create(parent_data="c", child_data="d")
         child_1.parent_m2m.add(child_2)

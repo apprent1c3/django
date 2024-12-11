@@ -22,6 +22,15 @@ class LexerTestMixin:
     ]
 
     def test_tokenize(self):
+        """
+        Test the tokenization of a template string.
+
+        This method verifies that the lexer correctly breaks down the template string into individual tokens.
+        It compares the resulting tokens with the expected output, checking their type, contents, line number, and position.
+
+        The test ensures that the tokenization process is working as expected, which is crucial for further processing and analysis of the template string.
+
+        """
         tokens = self.lexer_class(self.template_string).tokenize()
         token_tuples = [
             (t.token_type, t.contents, t.lineno, t.position) for t in tokens
@@ -53,6 +62,15 @@ class TemplateTests(SimpleTestCase):
         self.assertEqual(Template(template_string).render(Context()), template_string)
 
     def test_repr(self):
+        """
+
+        Tests the representation of a Template object.
+
+        Verifies that the repr function returns a string that accurately represents the 
+        template, including a truncated version of the template string. This ensures 
+        that the template can be easily identified and debugged when needed.
+
+        """
         template = Template(
             "<html><body>\n"
             "{% if test %}<h1>{{ varvalue }}</h1>{% endif %}"
@@ -66,6 +84,12 @@ class TemplateTests(SimpleTestCase):
 
 class VariableDoesNotExistTests(SimpleTestCase):
     def test_str(self):
+        """
+        Tests the string representation of a VariableDoesNotExist exception.
+
+        Verifies that the exception message correctly formats the failed lookup parameters, 
+        in this case a dictionary, into a human-readable string.
+        """
         exc = VariableDoesNotExist(msg="Failed lookup in %r", params=({"foo": "bar"},))
         self.assertEqual(str(exc), "Failed lookup in {'foo': 'bar'}")
 

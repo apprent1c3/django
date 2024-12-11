@@ -325,6 +325,13 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
+        """
+        Returns a dictionary representing the template context, used to render the password reset page.
+        The context includes a flag indicating whether the password reset link is valid.
+        If the link is valid, the flag is set to True.
+        If the link is invalid, additional context is provided, including an empty form, a title indicating an unsuccessful password reset, and the validity flag set to False.
+        This method extends the context data provided by the superclass, allowing for customization and addition of new context variables.
+        """
         context = super().get_context_data(**kwargs)
         if self.validlink:
             context["validlink"] = True

@@ -103,6 +103,22 @@ bbox_data = (
 class Geo3DLoadingHelper:
     def _load_interstate_data(self):
         # Interstate (2D / 3D and Geographic/Projected variants)
+        """
+
+        Load interstate data from a predefined dataset.
+
+        This function iterates over a collection of interstate data, which includes names and geographic lines,
+        and creates corresponding 2D and 3D representations in the database. Each interstate is stored in
+        four separate models: Interstate3D, InterstateProj3D, Interstate2D, and InterstateProj2D, 
+        enabling both geospatial and projected calculations.
+
+        The 3D lines are stored with their original z-coordinates, while the 2D lines are derived by projecting
+        the 3D lines onto a 2D plane, effectively stripping the z-coordinates.
+
+        The resulting database entries can be used for various geographic and spatial analysis tasks, 
+        such as calculating distances, intersections, and buffer zones.
+
+        """
         for name, line, exp_z in interstate_data:
             line_3d = GEOSGeometry(line, srid=4269)
             line_2d = LineString([coord[:2] for coord in line_3d.coords], srid=4269)
@@ -115,6 +131,14 @@ class Geo3DLoadingHelper:
             InterstateProj2D.objects.create(name=name, line=line_2d)
 
     def _load_city_data(self):
+        """
+        ..:noindex:
+        Load city data from a predefined dataset into the database.
+
+        This function creates 3D city objects, saving them to the database with their respective names and geographical points. 
+        The geographical points are stored in the Spatial Reference System Identifier (SRID) 4326, which represents the WGS 84 coordinate reference system used for GPS navigation. 
+        It assumes that the city_data is a collection of tuples containing the city name and its corresponding geographical coordinates.
+        """
         for name, pnt_data in city_data:
             City3D.objects.create(
                 name=name,
@@ -123,6 +147,16 @@ class Geo3DLoadingHelper:
             )
 
     def _load_polygon_data(self):
+        """
+
+        Load and create 2D and 3D polygon data from bounding box information.
+
+        This function takes the bounding box data, constructs 2D and 3D geometric objects,
+        and persists them in the database as separate Polygon2D and Polygon3D objects.
+
+        The resulting Polygons can be used for spatial queries and analysis.
+
+        """
         bbox_wkt, bbox_z = bbox_data
         bbox_2d = GEOSGeometry(bbox_wkt, srid=32140)
         bbox_3d = Polygon(

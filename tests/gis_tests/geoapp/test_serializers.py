@@ -21,6 +21,16 @@ class GeoJSONSerializerTests(TestCase):
         self.assertIn("geojson", public_formats)
 
     def test_serialization_base(self):
+        """
+
+        Tests the base serialization of City objects to GeoJSON format.
+
+        Verifies that the serialized data contains the correct number of features,
+        and that each feature has the expected geometry type, properties, and IDs.
+        Specifically, checks that the first feature in the serialized data matches
+        the first City object in the database, including its name, ID, and primary key.
+
+        """
         geojson = serializers.serialize("geojson", City.objects.order_by("name"))
         geodata = json.loads(geojson)
         self.assertEqual(len(geodata["features"]), len(City.objects.all()))

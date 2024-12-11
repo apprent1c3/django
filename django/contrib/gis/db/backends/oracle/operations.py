@@ -197,6 +197,17 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return [dist_param]
 
     def get_geom_placeholder(self, f, value, compiler):
+        """
+        Returns a placeholder for a geometry value in a database query.
+
+        This method handles the case where the geometry value is `None`, in which case it returns the string 'NULL'.
+        For non-`None` values, it delegates to the parent class's implementation. 
+
+        :param f: the field being processed
+        :param value: the geometry value to be placed in the query
+        :param compiler: the database compiler being used
+        :return: a string representing the placeholder for the geometry value in the query
+        """
         if value is None:
             return "NULL"
         return super().get_geom_placeholder(f, value, compiler)
@@ -210,6 +221,17 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
 
     # Routines for getting the OGC-compliant models.
     def geometry_columns(self):
+        """
+        Returns the Oracle geometry columns model.
+
+        This method provides access to the OracleGeometryColumns model, which contains information about 
+        the geometry columns in the Oracle database. It can be used to retrieve and manipulate spatial data 
+        stored in the database. The returned model instance can be used to query and interact with the 
+        geometry columns in the database, providing a convenient interface to the Oracle spatial data types.
+
+        :returns: OracleGeometryColumns model instance
+        :rtype: OracleGeometryColumns
+        """
         from django.contrib.gis.db.backends.oracle.models import OracleGeometryColumns
 
         return OracleGeometryColumns

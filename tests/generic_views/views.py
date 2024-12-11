@@ -38,6 +38,13 @@ class AuthorCustomDetail(generic.DetailView):
 
     def get(self, request, *args, **kwargs):
         # Ensures get_context_object_name() doesn't reference self.object.
+        """
+        Retrieves an object representing an author and renders a response with the author object as context.
+
+        The author object is obtained by calling the :meth:`get_object` method, and is then added to a context dictionary under a custom key that is generated based on the author object.
+
+        The context dictionary is then passed to the :meth:`render_to_response` method, which generates and returns a response containing the rendered template with the author object as context.
+        """
         author = self.get_object()
         context = {"custom_" + self.get_context_object_name(author): author}
         return self.render_to_response(context)

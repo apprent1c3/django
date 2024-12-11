@@ -55,6 +55,23 @@ class DistanceField(models.FloatField):
         return super().get_prep_value(value)
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+
+        Prepares a distance value for database storage.
+
+        Given a distance value, it checks if the value is an instance of Distance.
+        If it is, it retrieves the distance attribute for the specified geographic field 
+        from the database connection and returns the corresponding value from the Distance object.
+        If the value is not a Distance instance, it is returned as is.
+        If the distance attribute is unknown for the field, it raises a ValueError.
+
+        :param value: The distance value to prepare.
+        :param connection: The database connection.
+        :param prepared: Whether the value is already prepared for database storage.
+        :returns: The prepared distance value.
+        :raises ValueError: If the distance attribute is unknown for the field.
+
+        """
         if not isinstance(value, Distance):
             return value
         distance_att = connection.ops.get_distance_att_for_field(self.geo_field)

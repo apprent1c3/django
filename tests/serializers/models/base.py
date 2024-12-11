@@ -133,6 +133,19 @@ class TeamField(models.CharField):
         return str(value.title)
 
     def to_python(self, value):
+        """
+        Converts a given value to a Team object.
+
+        This method takes a value as input and checks if it is already an instance of Team.
+        If it is, the value is returned as is. If not, a new Team object is created with the given value and returned.
+
+        The purpose of this method is to ensure that the returned value is always a Team object,
+        providing a convenient way to standardize team data and avoid potential type inconsistencies.
+
+        :param value: The value to be converted to a Team object.
+        :rtype: Team
+        :return: A Team object representing the input value.
+        """
         if isinstance(value, Team):
             return value
         return Team(value)
@@ -144,6 +157,17 @@ class TeamField(models.CharField):
         return self.value_from_object(obj).to_string()
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, excluding the maximum length parameter.
+
+        This method is used to break down the object into a tuple containing its name, path, positional arguments, and keyword arguments, 
+        minus the 'max_length' keyword argument. The resulting tuple can be used to reconstruct the object or for serialization purposes.
+
+        Returns:
+            tuple: A tuple containing the name, path, positional arguments, and keyword arguments of the object, 
+                   excluding the 'max_length' keyword argument.
+
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["max_length"]
         return name, path, args, kwargs

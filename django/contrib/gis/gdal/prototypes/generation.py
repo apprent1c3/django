@@ -103,6 +103,20 @@ def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
         func.restype = c_char_p
 
     def _check_const(result, func, cargs):
+        """
+
+        Checks if the provided result matches the expected constant string.
+
+        This function verifies if the result string matches the constant expected by the given function with the provided constant arguments.
+        The verification process may consider additional parameters such as offset and code page length.
+        If decoding is enabled, the result is decoded accordingly before being returned.
+
+        :param result: The result string to be verified
+        :param func: The function that expects a constant string
+        :param cargs: The constant arguments associated with the function
+        :return: The verified result string, or None if verification fails
+
+        """
         res = check_const_string(result, func, cargs, offset=offset, cpl=cpl)
         if res and decoding:
             res = res.decode(decoding)

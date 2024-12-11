@@ -22,6 +22,17 @@ except ImportError:
 
 
 def no_pool_connection(alias=None):
+    """
+
+    Returns a new database connection with pooling disabled.
+
+    The new connection is a copy of the existing connection, with the specified alias.
+    It has the same settings as the original connection, but the pooling option is set to False.
+
+    :param alias: Optional alias to use for the new connection.
+    :rtype: Database connection object
+
+    """
     new_connection = connection.copy(alias)
     new_connection.settings_dict = copy.deepcopy(connection.settings_dict)
     # Ensure that the second connection circumvents the pool, this is kind
@@ -42,6 +53,17 @@ class Tests(TestCase):
         orig_connect = BaseDatabaseWrapper.connect
 
         def mocked_connect(self):
+            """
+
+            Simulates a database connection while ensuring that a database name is specified.
+
+            This method checks if a database name is provided in the settings dictionary.
+            If no database name is found, it raises a :exc:`DatabaseError`.
+            Otherwise, it proceeds with the original connection process.
+
+            :raises DatabaseError: If the database name is not specified in the settings.
+
+            """
             if self.settings_dict["NAME"] is None:
                 raise DatabaseError()
             return orig_connect(self)
@@ -136,6 +158,14 @@ class Tests(TestCase):
                 raise DatabaseError("exception")
 
     def test_database_name_too_long(self):
+        """
+
+        Tests that an ImproperlyConfigured exception is raised when the database name exceeds the maximum allowed length for PostgreSQL.
+
+        This test verifies that the function correctly handles database names that are too long, ensuring they do not exceed the PostgreSQL limit.
+        The test checks for the correct error message, which includes the problematic database name and the maximum allowed length.
+
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -150,6 +180,15 @@ class Tests(TestCase):
             DatabaseWrapper(settings).get_connection_params()
 
     def test_database_name_empty(self):
+        """
+
+        Tests that an ImproperlyConfigured exception is raised when the 'NAME' parameter 
+        in the database settings is empty. This ensures that the DatabaseWrapper correctly 
+        validates its input and provides a helpful error message when the configuration is 
+        incomplete. The test verifies that the expected error message is raised, which 
+        informs the user to supply either the 'NAME' or 'OPTIONS['service']' value. 
+
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -173,6 +212,16 @@ class Tests(TestCase):
 
     def test_service_name_default_db(self):
         # None is used to connect to the default 'postgres' db.
+        """
+
+        Test that the service name is not used when connecting to the default database.
+
+        This test case checks the behavior of the PostgreSQL database wrapper when
+        the 'NAME' setting is not specified and the 'service' option is provided.
+        It verifies that the connection is made to the default 'postgres' database
+        and that the 'service' option is not included in the connection parameters.
+
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -249,6 +298,14 @@ class Tests(TestCase):
 
         def get_connection():
             # copy() reuses the existing alias and as such the same pool.
+            """
+
+            Establishes a new database connection and adds it to the pool of active connections.
+
+            Returns:
+                The newly established connection object.
+
+            """
             conn = new_connection.copy()
             conn.connect()
             connections.append(conn)
@@ -285,6 +342,17 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_connect_pool_with_timezone(self):
+        """
+        Tests connection pooling with timezone awareness.
+
+        Verifies that a database connection's timezone is updated correctly when using a connection pool.
+        The test checks that the timezone of a new connection without pooling does not match the expected timezone,
+        and then confirms that the timezone is updated correctly when using a connection pool.
+
+        The test scenario involves setting a new timezone ('Africa/Nairobi') and verifying its application
+        through a connection pool, ensuring that the timezone is correctly reflected in the database connection.
+
+        """
         new_time_zone = "Africa/Nairobi"
         new_connection = no_pool_connection(alias="default_pool")
 
@@ -310,6 +378,20 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_pooling_health_checks(self):
+        """
+
+        Tests the behavior of the connection pool's health checks.
+
+        This test case verifies that the connection pool's health checks can be enabled or disabled
+        through the CONN_HEALTH_CHECKS setting in the connection's OPTIONS dictionary.
+        It checks that when health checks are disabled, the pool's _check attribute is None,
+        and when health checks are enabled, the _check attribute is not None.
+
+        The test covers the scenario where the connection pool is created with health checks
+        initially disabled, then enabled, to ensure the correct functionality of the health check
+        mechanism.
+
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         new_connection.settings_dict["CONN_HEALTH_CHECKS"] = False
@@ -327,6 +409,13 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_cannot_open_new_connection_in_atomic_block(self):
+        """
+        Tests the behavior of attempting to open a new connection within an atomic block.
+
+        This test verifies that a :exc:`ProgrammingError` is raised when trying to establish a new connection
+        while already inside an atomic block, as indicated by the error message \"Cannot open a new connection in an atomic block.\" 
+        The test covers the scenario where the connection is set to use a pool and is currently in an atomic block and closed in a transaction.
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
 
@@ -338,6 +427,20 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_pooling_not_support_persistent_connections(self):
+        """
+        Tests that pooling does not support persistent connections.
+
+        Verifies that attempting to use a connection pool with persistent connections
+        configured raises an ImproperlyConfigured exception. This ensures that the
+        pooling mechanism correctly handles incompatible settings.
+
+        The test checks for the specific error message indicating that pooling does not
+        support persistent connections. If the error message is raised as expected, the
+        test passes; otherwise, it fails.
+
+        This test is specific to psycopg3 and is skipped if the required conditions are
+        not met.
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         new_connection.settings_dict["CONN_MAX_AGE"] = 10
@@ -347,6 +450,16 @@ class Tests(TestCase):
 
     @unittest.skipIf(is_psycopg3, "psycopg2 specific test")
     def test_connect_pool_setting_ignored_for_psycopg2(self):
+        """
+        Tests that the pool setting is ignored when using psycopg2.
+
+        This test validates that when the 'pool' option is enabled in the database settings,
+        an ImproperlyConfigured exception is raised with a message indicating that
+        database pooling requires psycopg version 3 or higher. The test ensures that
+        psycopg2's limitation on connection pooling is handled correctly by raising an
+        informative error message instead of attempting to establish a pooled connection.
+
+        """
         new_connection = no_pool_connection()
         new_connection.settings_dict["OPTIONS"]["pool"] = True
         msg = "Database pooling requires psycopg >= 3"
@@ -445,6 +558,14 @@ class Tests(TestCase):
             new_connection.close()
 
     def test_connect_no_is_usable_checks(self):
+        """
+        Tests that the connect method of a database connection does not check if the connection is usable when no pooling is used. 
+
+        This test ensures that the connection is established without verifying its usability, 
+        and then properly closes the connection after the test is complete, regardless of the outcome. 
+
+        It validates that the is_usable method is not called during the connection process, confirming the expected behavior in a no-pooling scenario.
+        """
         new_connection = no_pool_connection()
         try:
             with mock.patch.object(new_connection, "is_usable") as is_usable:
@@ -471,11 +592,30 @@ class Tests(TestCase):
             return cursor.fetchone()[0]
 
     def test_select_ascii_array(self):
+        """
+
+        Tests the selection of an ASCII array.
+
+        This method verifies that the _select method correctly selects and returns an array containing ASCII characters.
+        It checks if the first element of the original array matches the first element of the selected array.
+
+        """
         a = ["awef"]
         b = self._select(a)
         self.assertEqual(a[0], b[0])
 
     def test_select_unicode_array(self):
+        """
+
+        Tests the selection of an array containing a single unicode string.
+
+        Verifies that the _select method correctly handles arrays with unicode characters,
+        returning a new array with the same string as the original.
+
+        This test ensures that the _select method preserves the original data, including
+        unicode characters, and does not modify or corrupt the string in the process.
+
+        """
         a = ["ᄲawef"]
         b = self._select(a)
         self.assertEqual(a[0], b[0])
@@ -500,6 +640,16 @@ class Tests(TestCase):
                 self.assertIn("::text", do.lookup_cast(lookup))
 
     def test_lookup_cast_isnull_noop(self):
+        """
+
+        Test that the lookup_cast method for 'isnull' operations returns the expected result for various field types.
+
+        The function checks the lookup_cast method of the DatabaseOperations class, specifically for the 'isnull' lookup type.
+        It verifies that the method returns '%s' for different field types, which indicates a no-op (no operation) behavior.
+
+        This test covers the following field types: CharField, EmailField, and TextField.
+
+        """
         from django.db.backends.postgresql.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
@@ -514,6 +664,16 @@ class Tests(TestCase):
                 self.assertEqual(do.lookup_cast("isnull", field_type), "%s")
 
     def test_correct_extraction_psycopg_version(self):
+        """
+        Test the extraction of Psycopg version.
+
+        This test case verifies that the psycopg_version function correctly extracts
+        the major and minor version numbers from the PostgreSQL database version string.
+
+        It covers two scenarios: one where the version string is a released version
+        and another where it is a development version. The test checks that the
+        major and minor version numbers are correctly extracted in both cases.
+        """
         from django.db.backends.postgresql.base import Database, psycopg_version
 
         with mock.patch.object(Database, "__version__", "4.2.1 (dt dec pq3 ext lo64)"):
@@ -539,6 +699,18 @@ class Tests(TestCase):
     @override_settings(DEBUG=True)
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_copy_cursors(self):
+        """
+
+        Tests the functionality of copying data from the database using a cursor.
+
+        Specifically, this test checks the behavior of the copy method in the context of
+        psychog2 database when DEBUG mode is enabled. It verifies that the SQL query
+        used for copying data from the 'django_session' table is correctly executed
+        and logged in the connection queries.
+
+        The test skips execution unless the psycopg3 library is being used.
+
+        """
         copy_sql = "COPY django_session TO STDOUT (FORMAT CSV, HEADER)"
         with connection.cursor() as cursor:
             with cursor.copy(copy_sql) as copy:
@@ -547,6 +719,9 @@ class Tests(TestCase):
         self.assertEqual([q["sql"] for q in connection.queries], [copy_sql])
 
     def test_get_database_version(self):
+        """
+        Tests the retrieval of the PostgreSQL database version using the get_database_version method, verifying it returns a tuple containing the major and minor version numbers in the format (major, minor).
+        """
         new_connection = no_pool_connection()
         new_connection.pg_version = 140009
         self.assertEqual(new_connection.get_database_version(), (14, 9))
@@ -559,6 +734,15 @@ class Tests(TestCase):
         self.assertTrue(mocked_get_database_version.called)
 
     def test_compose_sql_when_no_connection(self):
+        """
+        Tests the composition of SQL queries when no database connection pool is used.
+
+        Checks that the :meth:`compose_sql` method correctly inserts parameter values into a SQL string,
+        resulting in a valid SQL query. This test ensures the method works as expected without a connection pool.
+
+        The test verifies the output of the composed SQL query matches the expected result, 
+        and the connection is properly closed after use. 
+        """
         new_connection = no_pool_connection()
         try:
             self.assertEqual(

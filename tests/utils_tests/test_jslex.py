@@ -391,6 +391,18 @@ class JsToCForGettextTest(SimpleTestCase):
 
 
 def make_function(js, c):
+    """
+
+    Return a test function that checks if the JavaScript string is correctly prepared for gettext.
+
+    The returned function, when called, asserts that the result of preparing the given JavaScript string
+    for gettext matches the expected output.
+
+    :param js: The JavaScript string to be prepared for gettext.
+    :param c: The expected prepared JavaScript string.
+    :return: A test function that can be used to verify the preparation of the JavaScript string.
+
+    """
     def test_func(self):
         self.assertEqual(prepare_js_for_gettext(js), c)
 

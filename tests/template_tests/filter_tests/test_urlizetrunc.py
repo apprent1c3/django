@@ -50,6 +50,17 @@ class UrlizetruncTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_truncate(self):
+        """
+
+        Tests the functionality of truncating URLs using the urlizetrunc function.
+
+        This test case covers various scenarios, including when the URL is within the 
+        specified length, and when it needs to be truncated. It verifies that the 
+        truncated URLs are correctly converted to HTML links, with the rel attribute set 
+        to \"nofollow\". The test also checks that the truncation is done correctly, 
+        replacing the middle part of the URL with an ellipsis (\"…\") when necessary.
+
+        """
         uri = "http://31characteruri.com/test/"
         self.assertEqual(len(uri), 31)
 

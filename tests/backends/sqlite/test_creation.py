@@ -38,6 +38,11 @@ class TestDbSignatureTests(SimpleTestCase):
 
     @mock.patch.object(multiprocessing, "get_start_method", return_value="forkserver")
     def test_get_test_db_clone_settings_not_supported(self, *mocked_objects):
+        """
+        Tests the behavior of :func:`~connection.creation.get_test_db_clone_settings` when the multiprocessing start method is set to 'forkserver'. 
+
+        This test case verifies that attempting to clone a test database with the 'forkserver' start method raises a :exc:`~NotSupportedError` exception with a message indicating that cloning with this start method is not supported.
+        """
         msg = "Cloning with start method 'forkserver' is not supported."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.creation.get_test_db_clone_settings(1)

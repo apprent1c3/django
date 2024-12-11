@@ -436,6 +436,23 @@ class ExceptionReporter:
         return t.render(c)
 
     def _get_source(self, filename, loader, module_name):
+        """
+
+        Retrieves the source code of a Python module.
+
+        This function attempts to retrieve the source code of a module with the given name
+        from a loader, if it supports this functionality. If the source code cannot be
+        obtained from the loader, it falls back to reading the source from a file.
+
+        Args:
+            filename (str): The path to the module file.
+            loader: The loader object used to load the module.
+            module_name (str): The name of the module.
+
+        Returns:
+            list: A list of lines in the source code, or None if the source code cannot be retrieved.
+
+        """
         source = None
         if hasattr(loader, "get_source"):
             try:
@@ -496,6 +513,24 @@ class ExceptionReporter:
 
     def get_traceback_frames(self):
         # Get the exception and all its causes
+        """
+
+        Retrieves the traceback frames for a chain of exceptions.
+
+        This function traverses the exception chain, starting from the current exception value, 
+        and collects the traceback frames for each exception in the chain. 
+        If a cycle in the exception chain is detected (i.e., an exception is encountered again), 
+        a warning is raised and the function breaks the cycle to prevent infinite recursion.
+
+        The function returns a list of traceback frames, where each frame represents a point in the 
+        execution stack where an exception occurred. If there are no exceptions in the chain, 
+        an empty list is returned.
+
+        The returned frames can be used to provide detailed information about the sequence of 
+        events that led to the current exception, including the code locations where exceptions 
+        occurred and the state of the execution stack at those points.
+
+        """
         exceptions = []
         exc_value = self.exc_value
         while exc_value:

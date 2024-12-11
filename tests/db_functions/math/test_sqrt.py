@@ -16,6 +16,18 @@ class SqrtTests(TestCase):
         self.assertIsNone(obj.null_sqrt)
 
     def test_decimal(self):
+        """
+
+        Tests the calculation of square roots for decimal numbers.
+
+        This test case creates an instance of DecimalModel with two decimal fields,
+        computes their square roots using the Sqrt database function, and verifies
+        that the results are correct and of the expected Decimal type.
+
+        The test checks that the square roots of the decimal numbers are calculated
+        accurately, using the math library as a reference for the expected results.
+
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_sqrt=Sqrt("n1"), n2_sqrt=Sqrt("n2")
@@ -26,6 +38,19 @@ class SqrtTests(TestCase):
         self.assertAlmostEqual(obj.n2_sqrt, Decimal(math.sqrt(obj.n2)))
 
     def test_float(self):
+        """
+
+        Tests the calculation of square roots for float fields.
+
+        Verifies that the square root of float values can be correctly annotated and 
+        retrieved from the database, and that the results match the expected values 
+        calculated using the math library.
+
+        Checks the following conditions:
+        - The annotated square root values are of type float.
+        - The annotated square root values are numerically close to the expected values.
+
+        """
         FloatModel.objects.create(f1=27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_sqrt=Sqrt("f1"), f2_sqrt=Sqrt("f2")
@@ -50,6 +75,18 @@ class SqrtTests(TestCase):
         self.assertAlmostEqual(obj.big_sqrt, math.sqrt(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of a DecimalField using the Sqrt lookup type.
+
+        Verifies that a DecimalModel instance can be successfully filtered by applying
+        the square root operation to its 'n1' field, and then comparing the result
+        to a given value. The test creates sample DecimalModel instances, applies the
+        transformation, and asserts that the filtered object has the expected 'n1' value.
+
+        The purpose of this test is to ensure the correct functionality of the custom
+        Sqrt lookup type when used with DecimalField, enabling robust and accurate
+        querying of decimal data using mathematical transformations.
+        """
         with register_lookup(DecimalField, Sqrt):
             DecimalModel.objects.create(n1=Decimal("6.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

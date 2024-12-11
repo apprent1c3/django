@@ -42,6 +42,15 @@ class BaseEmailBackend:
         pass
 
     def __enter__(self):
+        """
+
+        Enters the runtime context of the object, ensuring it is properly initialized.
+
+        This method is used as part of a runtime context management protocol. It attempts to open a resource, and if successful, returns the object. If an error occurs during this process, the object is closed and the exception is re-raised. This ensures that resources are properly cleaned up, even in the event of an error.
+
+        The returned object can then be used within a 'with' statement, providing a guarantee that it will be properly closed when the block is exited.
+
+        """
         try:
             self.open()
         except Exception:

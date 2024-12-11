@@ -211,6 +211,17 @@ class UserModelChecksTests(SimpleTestCase):
 @override_system_checks([check_models_permissions])
 class ModelsPermissionsChecksTests(SimpleTestCase):
     def test_clashing_default_permissions(self):
+        """
+        #: Tests if a custom permission defined in a model clashes with a built-in Django permission.
+        #: 
+        #: This test checks for a specific error (auth.E005) raised when a custom permission
+        #: has the same codename as a built-in permission for the same model, ensuring that
+        #: the Django framework correctly identifies and reports permission naming conflicts.
+        #: 
+        #: The test case uses a sample model with a custom permission to verify that the 
+        #: framework raises the expected error when the permission codename duplicates a 
+        #: built-in permission codename for the model.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [("change_checked", "Can edit permission (duplicate)")]
@@ -229,6 +240,14 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_non_clashing_custom_permissions(self):
+        """
+        Tests that Django raises an error when custom permissions have clashing codes.
+
+        This test case verifies that when a model defines multiple custom permissions 
+        with the same codename, the checks system correctly identifies and reports 
+        this as an error. It ensures that models cannot have duplicate permission 
+        codes, which could lead to unexpected behavior in permission checks.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -265,6 +284,19 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_verbose_name_max_length(self):
+        """
+
+        Tests that the verbose name of a model does not exceed the maximum allowed length.
+
+        This check is performed to prevent errors when generating built-in permission names,
+        which have a character limit of 255. The test ensures that the verbose name of a model
+        is at most 244 characters, allowing for the addition of permission prefixes without
+        exceeding the character limit.
+
+        The test case verifies that a model with an excessively long verbose name raises the
+        correct error, providing a clear indication of the issue and the affected model.
+
+        """
         class Checked(models.Model):
             class Meta:
                 verbose_name = (
@@ -303,6 +335,15 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_custom_permission_name_max_length(self):
+        """
+        Tests that a custom permission name exceeding the maximum allowed length raises an error.
+
+        This check ensures that permission names longer than 255 characters are properly validated,
+        preventing potential issues with database storage or other system constraints.
+
+        The test case creates a custom model with a permission name that exceeds the maximum length,
+        then runs checks to verify that the expected error is raised with the correct details.
+        """
         custom_permission_name = (
             "some ridiculously long verbose name that is out of control" * 5
         )

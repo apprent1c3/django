@@ -27,6 +27,23 @@ class DefaultsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the application.
+
+        This method creates a set of test data, including an author, several articles with varying creation dates, 
+        and a URL article, to support testing of the application's functionality. 
+        It also sets up a test site with a domain and name.
+
+        The test data created includes:
+        - An author named 'Boris'
+        - Three articles with different creation dates: one in the past, one in the past but more recent, and one in the future
+        - A URL article with the same title and slug as the first article
+        - A test site with a domain and name of 'testserver'
+
+        These data are stored in the application's database and can be used to test various aspects of the application.
+
+        """
         author = Author.objects.create(name="Boris")
         Article.objects.create(
             title="Old Article",
@@ -98,6 +115,13 @@ class DefaultsTests(TestCase):
         self.assertContains(response, b"<h1>Server Error (500)</h1>", status_code=500)
 
     def test_bad_request(self):
+        """
+        Tests that the bad_request function correctly handles and responds to an invalid request.
+
+        This test verifies that the function returns a 400 Bad Request response with the expected error message when an exception occurs while processing the request.
+
+        :raises AssertionError: if the response status code or content does not match the expected values
+        """
         request = self.request_factory.get("/")
         response = bad_request(request, Exception())
         self.assertContains(response, b"<h1>Bad Request (400)</h1>", status_code=400)

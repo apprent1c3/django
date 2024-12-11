@@ -212,6 +212,16 @@ class LoopZ(models.Model):
 
 class CustomManager(models.Manager):
     def get_queryset(self):
+        """
+        Returns a filtered queryset containing only public items tagged with 't1'.
+
+        This method builds upon the parent class's queryset by applying additional filters.
+        It restricts the results to include only those items that are marked as public and
+        have a tag named 't1', making it useful for retrieving a specific subset of data.
+
+        :rtype: QuerySet
+        :returns: A queryset of filtered items
+        """
         qs = super().get_queryset()
         return qs.filter(public=True, tag__name="t1")
 

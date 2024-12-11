@@ -62,6 +62,16 @@ class BasicFieldTests(SimpleTestCase):
         self.assertFalse(hasattr(instance, "get_modelname_display"))
 
     def test_field_verbose_name(self):
+        """
+        Tests the verbose name of fields in the VerboseNameField model.
+
+        The test checks that the verbose names for 21 fields (field1 to field21) match the expected
+        pattern 'verbose fieldX', where X is the field number. Additionally, it verifies that the
+        verbose name for the primary key field 'id' is 'verbose pk'.
+
+        This test ensures that the verbose names are correctly set for all fields in the model,
+        which is crucial for providing user-friendly representations of the fields in the application.
+        """
         m = VerboseNameField
         for i in range(1, 22):
             self.assertEqual(
@@ -84,6 +94,16 @@ class BasicFieldTests(SimpleTestCase):
         self.assertIs(form_field.disabled, True)
 
     def test_field_str(self):
+        """
+
+        Tests the string representation of a model Field instance.
+
+        This test case checks that the string representation of a generic Field instance
+        and a specific model Field instance are correctly generated. It verifies that the
+        string representation includes the necessary information to identify the Field,
+        such as its model and field name.
+
+        """
         f = models.Field()
         self.assertEqual(str(f), "<django.db.models.fields.Field>")
         f = Foo._meta.get_field("a")
@@ -139,6 +159,14 @@ class BasicFieldTests(SimpleTestCase):
         self.assertLess(inherit1_model_field, inherit2_model_field)
 
     def test_hash_immutability(self):
+        """
+        ..:param self: instance of the test class
+            :return: None
+
+            Tests whether the hash of a model field remains the same after it has been assigned to a model.
+            This ensures that the field's hash is immutable, which is a required property for hashability.
+            The test creates an IntegerField, calculates its hash, assigns it to a model, and then checks if the hash remains unchanged.
+        """
         field = models.IntegerField()
         field_hash = hash(field)
 
@@ -151,6 +179,18 @@ class BasicFieldTests(SimpleTestCase):
 class ChoicesTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Set up the class for Choiceful model field testing.
+
+        This method prepares the class attributes for testing various scenarios of the Choiceful model field.
+        It sets up references to the model fields with different types of choices, including those with no choices,
+        empty choices, choices with boolean values, choices with text values, choices with dictionary values,
+        choices with nested dictionary values, choices from an enum, choices from an iterator, and choices from a callable.
+        These fields are used to test the functionality of the Choiceful model field under different conditions.
+
+        It is called once before running all tests in the class, allowing the test methods to access the prepared fields.
+
+        """
         super().setUpClass()
         cls.no_choices = Choiceful._meta.get_field("no_choices")
         cls.empty_choices = Choiceful._meta.get_field("empty_choices")
@@ -166,6 +206,21 @@ class ChoicesTests(SimpleTestCase):
         cls.choices_from_callable = Choiceful._meta.get_field("choices_from_callable")
 
     def test_choices(self):
+        """
+
+        Tests the implementation of choices for various scenarios.
+
+        This test suite covers different cases, including:
+        - Choices that are not set
+        - Empty choices lists
+        - Choices lists with different data types (e.g., integer, boolean, text)
+        - Choices lists populated from various sources (e.g., iterable, dictionary, nested dictionary)
+        - Choices lists generated from callable functions
+
+        The test ensures that the `choices` attribute behaves as expected in each of these scenarios,
+        validating its correctness and robustness.
+
+        """
         self.assertIsNone(self.no_choices.choices)
         self.assertEqual(self.empty_choices.choices, [])
         self.assertEqual(self.empty_choices_bool.choices, [])
@@ -184,6 +239,18 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_flatchoices(self):
+        """
+        Tests the flatchoices attribute of an object, ensuring it correctly handles various scenarios.
+
+        The test cases cover a range of choice configurations, including: no choices, empty choices, 
+        empty boolean choices, empty text choices, choices defined as a list, dictionary, or nested dictionary, 
+        and choices generated from an iterator or callable. The expected output is an empty list for 
+        no or empty choices, and a list of tuples containing the choice value and human-readable name for 
+        choices that are defined or generated.
+
+        The tests verify that the flatchoices attribute returns the expected results for each scenario, 
+        providing assurance that the attribute behaves as expected in different contexts.
+        """
         self.assertEqual(self.no_choices.flatchoices, [])
         self.assertEqual(self.empty_choices.flatchoices, [])
         self.assertEqual(self.empty_choices_bool.flatchoices, [])
@@ -202,6 +269,13 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Choiceful.check(), [])
 
     def test_invalid_choice(self):
+        """
+        Tests that validation fails when an invalid choice is provided.
+
+        Verifies that a :class:`ValidationError` is raised when validating a value that does not exist in the list of valid choices.
+
+        The test covers scenarios with an empty list of choices and a list containing specific values, ensuring that the validation logic behaves consistently across these cases.
+        """
         model_instance = None  # Actual model instance not needed.
         self.no_choices.validate(0, model_instance)
         msg = "['Value 99 is not a valid choice.']"
@@ -230,6 +304,13 @@ class ChoicesTests(SimpleTestCase):
 
     def test_choices_from_enum(self):
         # Choices class was transparently resolved when given as argument.
+        """
+        Tests the functionality of selecting choices from an enumeration.
+
+        Verifies that the generated choices and flat choices match the expected choices
+        defined in the Suit enumeration, ensuring consistency and correctness in the 
+        choice generation process.
+        """
         self.assertEqual(self.choices_from_enum.choices, Choiceful.Suit.choices)
         self.assertEqual(self.choices_from_enum.flatchoices, Choiceful.Suit.choices)
 
@@ -254,6 +335,11 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(val, "translated")
 
     def test_overriding_FIELD_display(self):
+        """
+        Tests that a custom implementation of the `get_FOO_display` method in a Django model overrides the default display value for a field.
+
+        The test case covers a scenario where a model has a field with choices and a custom method is defined to return a specific display value, ensuring that this custom value is returned instead of the default choice label. This helps verify that the model behaves as expected when displaying choice fields with custom display logic.
+        """
         class FooBar(models.Model):
             foo_bar = models.IntegerField(choices=[(1, "foo"), (2, "bar")])
 
@@ -309,6 +395,17 @@ class GetChoicesTests(SimpleTestCase):
         self.assertEqual(f.get_choices(include_blank=True), choices)
 
     def test_blank_in_grouped_choices(self):
+        """
+
+        Tests whether a model field's choices are correctly retrieved, including a blank 
+        option, when the choices are grouped with a single blank option provided within 
+        the group.
+
+        The function verifies that the 'get_choices' method of a CharField model instance 
+        includes the provided blank option in the returned choices when specified, 
+        regardless of the group structure of the provided choices.
+
+        """
         choices = [
             ("f", "Foo"),
             ("b", "Bar"),
@@ -343,6 +440,40 @@ class GetChoicesOrderingTests(TestCase):
         self.assertEqual(choices, [(obj.pk, str(obj)) for obj in objs])
 
     def test_get_choices(self):
+        """
+        Tests the get_choices method of the field.
+
+        This test case checks that the get_choices method returns the correct list of choices 
+        when include_blank is set to False and different ordering parameters are applied.
+
+        The test covers two scenarios: 
+        - ordering by 'a' in ascending order
+        - ordering by 'a' in descending order
+
+        The expected output is a list of choices in the specified order.\"\"\"
+        should be changed to 
+        \"\"\"Tests the get_choices method of the field.
+
+        This test case checks that the get_choices method returns the correct list of choices 
+        when include_blank is set to False and different ordering parameters are applied.
+
+        The test covers two scenarios: 
+        - ordering by 'a' in ascending order
+        - ordering by 'a' in descending order
+
+        The expected output is a list of choices in the specified order.\"\"\"
+        Here is the updated version.
+        \"\"\"Tests the get_choices method of the field.
+
+        This test case checks that the get_choices method returns the correct list of choices 
+        when include_blank is set to False and different ordering parameters are applied.
+
+        The test covers two scenarios: 
+        - ordering by 'a' in ascending order
+        - ordering by 'a' in descending order
+
+        The expected output is a list of choices in the specified order.
+        """
         self.assertChoicesEqual(
             self.field.get_choices(include_blank=False, ordering=("a",)),
             [self.foo1, self.foo2],
@@ -360,6 +491,26 @@ class GetChoicesOrderingTests(TestCase):
         )
 
     def test_get_choices_reverse_related_field(self):
+        """
+
+        Tests the retrieval of choices for a reverse related field, 
+        verifying that the results are ordered correctly.
+
+        The function checks that the options returned by the field's 
+        remote field are sorted in both ascending and descending 
+        order, based on the specified ordering criteria.
+
+        It ensures that the include_blank parameter is respected, 
+        excluding any blank options from the returned choices.
+
+        The test covers two specific ordering scenarios: 
+        1. Ascending order based on the 'a' attribute.
+        2. Descending order based on the 'a' attribute.
+
+        The results are compared against the expected choices, 
+        which are represented by the bar1 and bar2 objects.
+
+        """
         self.assertChoicesEqual(
             self.field.remote_field.get_choices(include_blank=False, ordering=("a",)),
             [self.bar1, self.bar2],
@@ -381,6 +532,13 @@ class GetChoicesOrderingTests(TestCase):
 class GetChoicesLimitChoicesToTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating instances of Foo and Bar models 
+        to be used in tests. The setup includes creating two Foo objects and two Bar 
+        objects with specific attribute values, as well as retrieving the 'a' field 
+        from the Bar model's metadata. These test data instances are stored as class 
+        attributes for use in subsequent tests.
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.34")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")
@@ -401,6 +559,19 @@ class GetChoicesLimitChoicesToTests(TestCase):
         )
 
     def test_get_choices_reverse_related_field(self):
+        """
+
+        Tests the get_choices method of a reverse related field.
+
+        This test ensures that the get_choices method returns the expected list of choices 
+        for a reverse related field, with and without filters applied. It checks that 
+        the method correctly limits the choices based on the provided filter criteria.
+
+        The test case covers two scenarios:
+        - When a filter is applied, it verifies that only the relevant choices are returned.
+        - When no filter is applied, it verifies that all available choices are returned.
+
+        """
         field = self.field.remote_field
         self.assertChoicesEqual(
             field.get_choices(include_blank=False, limit_choices_to={"b": "b"}),

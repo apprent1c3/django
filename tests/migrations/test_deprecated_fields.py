@@ -14,6 +14,15 @@ class Tests(MigrationTestBase):
     )
     def test_migrate(self):
         # Make sure no tables are created
+        """
+        Tests migration of the IPAddressField model.
+
+        This test case checks the migration process of the IPAddressField model by asserting its presence or absence in the database.
+        It first verifies that the table does not exist before migration, then runs the migration command to create the table.
+        After confirming the table's existence, it runs the migration command with the 'zero' option to delete the table and finally checks that the table is removed.
+        The test ensures that the migration process correctly creates and deletes the IPAddressField model's table in the database.
+
+        """
         self.assertTableNotExists("migrations_ipaddressfield")
         # Run migration
         call_command("migrate", verbosity=0)

@@ -39,6 +39,16 @@ class PasswordInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests that a form field is rendered correctly without a fieldset.
+
+        This test ensures that when the :attr:`use_fieldset` attribute of a widget is set to False,
+        the field is rendered as a simple label and input, wrapped in a div tag, rather than being enclosed in a fieldset.
+
+        The test case renders a form with a single field and verifies that the resulting HTML matches the expected output.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

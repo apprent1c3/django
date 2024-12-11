@@ -148,6 +148,27 @@ class Context(BaseContext):
 
     @contextmanager
     def bind_template(self, template):
+        """
+
+        Bind a template to the current context.
+
+        This context manager binds a template to the current context, allowing for
+        temporary modifications to the context's state. The binding is handled
+        automatically, and the context is restored to its original state when the
+        context manager exits.
+
+        Note:
+            The context can only be bound to one template at a time. Attempting to bind
+            a template while another template is already bound will result in a
+            RuntimeError.
+
+        Yields:
+            None
+
+        Raises:
+            RuntimeError: If the context is already bound to a template.
+
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
         self.template = template
@@ -157,6 +178,17 @@ class Context(BaseContext):
             self.template = None
 
     def __copy__(self):
+        """
+        Creates a shallow copy of the current object.
+
+        This method creates a new instance of the class with the same attributes as the original, 
+        except for the render_context attribute which is deeply copied to ensure modifications 
+        to the copied object do not affect the original. The copied object is then returned.
+
+        Returns:
+            A shallow copy of the current object with a deeply copied render_context.
+
+        """
         duplicate = super().__copy__()
         duplicate.render_context = copy(self.render_context)
         return duplicate

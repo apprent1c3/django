@@ -21,6 +21,15 @@ class SHA256Tests(TestCase):
         )
 
     def test_basic(self):
+        """
+        Test the basic functionality of the Author model's SHA256 annotation.
+
+        This test case checks if the SHA256 annotation is correctly applied to the Author model's 'alias' field.
+        It compares the expected SHA256 values of the author aliases with the actual values obtained from the database.
+        The expected SHA256 values are ordered by the primary key of the authors to ensure the correct sequence.
+        The test also considers the database connection's behavior regarding empty strings, which may be interpreted as NULL in some databases.
+
+        """
         authors = (
             Author.objects.annotate(
                 sha256_alias=SHA256("alias"),
@@ -44,6 +53,12 @@ class SHA256Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+        Tests the transformation of author aliases by checking if an author's alias matches 
+        its SHA256 hash. The test case specifically looks for an author with a hashed alias 
+         matching 'ef61a579c907bbed674c0dbcbcf7f7af8f851538eef7b8e58c5bee0b8cfdac4a', 
+         and verifies that the resulting author list contains the expected alias 'John Smith'.
+        """
         with register_lookup(CharField, SHA256):
             authors = Author.objects.filter(
                 alias__sha256=(

@@ -51,6 +51,14 @@ class CloseConnectionTestServer(ThreadedWSGIServer):
         self._connections_closed = threading.Event()
 
     def _close_connections(self):
+        """
+
+        Closes all existing connections and signals that the connections are closed.
+
+        This method extends the parent class's connection closure functionality by setting
+        an internal flag to indicate that all connections have been successfully closed.
+
+        """
         super()._close_connections()
         self._connections_closed.set()
 
@@ -91,6 +99,18 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
     def test_closes_connections(self):
         # The server's request thread sets this event after closing
         # its database connections.
+        """
+
+        Tests that the connection is properly closed after a request is made.
+
+        This test verifies that the connection to the server is established, 
+        a request is successfully made to the '/model_view/' endpoint, 
+        and that the connection is subsequently closed. 
+        The test checks for the connection status before and after the request, 
+        ensuring that the connection is active during the request and inactive afterwards. 
+        It also checks that the response from the server contains the expected data.
+
+        """
         closed_event = self.server_thread.httpd._connections_closed
         conn = self.conn
         # Open a connection to the database.
@@ -148,6 +168,16 @@ class LiveServerTestCaseSetupTest(LiveServerBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Set up the class for testing, handling potential runtime errors and ensuring allowed hosts.
+
+        This method initializes the test environment by checking the allowed hosts and calling the parent class's setup method.
+        If a RuntimeError occurs during setup, it cleans up the class and retries checking the allowed hosts.
+        The setup process is tracked by the 'set_up_called' flag, which is set to True upon successful execution.
+        Note that this method expects the setup to fail, and a RuntimeError is intentionally raised if the setup succeeds.
+
+        """
         cls.check_allowed_hosts(["testserver"])
         try:
             super().setUpClass()
@@ -166,11 +196,22 @@ class LiveServerTestCaseSetupTest(LiveServerBase):
 class LiveServerAddress(LiveServerBase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class-level test environment, initializing a new class-level attribute with the live server URL for testing purposes.
+        """
         super().setUpClass()
         # put it in a list to prevent descriptor lookups in test
         cls.live_server_url_test = [cls.live_server_url]
 
     def test_live_server_url_is_class_property(self):
+        """
+
+        Tests that the live server URL is a class property.
+
+        This function checks that the live server URL is correctly set as a class property by verifying its type and value.
+        It ensures that the URL is a string and matches the expected value, confirming that it can be accessed and used as intended.
+
+        """
         self.assertIsInstance(self.live_server_url_test[0], str)
         self.assertEqual(self.live_server_url_test[0], self.live_server_url)
 
@@ -258,6 +299,27 @@ class LiveServerViews(LiveServerBase):
             conn.close()
 
     def test_keep_alive_connection_clears_previous_request_data(self):
+        """
+        Tests that a keep-alive connection clears previous request data.
+
+        This test case verifies the functionality of a keep-alive connection by sending
+        two consecutive POST requests to a live server. It checks that the connection
+        remains open after the first request and that the response data from the first
+        request does not interfere with the response data of the second request. The
+        test also ensures that the connection is properly closed after the test is completed.
+
+        The test covers the following scenarios:
+
+        * Sending a POST request with a keep-alive connection
+        * Verifying that the connection remains open after the first request
+        * Sending a subsequent POST request
+        * Verifying that the response data from the first request does not affect the second request
+        * Ensuring that the connection is properly closed after the test
+
+        This test helps to ensure that the keep-alive connection is functioning correctly
+        and that previous request data is properly cleared, which is essential for maintaining
+        a stable and reliable connection to the server.
+        """
         conn = HTTPConnection(
             LiveServerViews.server_thread.host, LiveServerViews.server_thread.port
         )
@@ -281,12 +343,22 @@ class LiveServerViews(LiveServerBase):
             conn.close()
 
     def test_404(self):
+        """
+        Tests that a 404 HTTP error is raised when attempting to access the root URL ('/').
+
+         Verifies that the request fails as expected, with the correct error code and 
+         that the error object is properly closed after handling. This ensures the 
+         system behaves correctly when encountering a non-existent or unavailable resource.
+        """
         with self.assertRaises(HTTPError) as err:
             self.urlopen("/")
         err.exception.close()
         self.assertEqual(err.exception.code, 404, "Expected 404 response")
 
     def test_view(self):
+        """
+        Tests the response of the /example_view/ URL by asserting that its content is 'example view'. This test case ensures the view is correctly handled and the expected output is returned.
+        """
         with self.urlopen("/example_view/") as f:
             self.assertEqual(f.read(), b"example view")
 
@@ -306,6 +378,14 @@ class LiveServerViews(LiveServerBase):
         self.assertEqual(err.exception.code, 404, "Expected 404 response")
 
     def test_media_files(self):
+        """
+
+        Tests the retrieval of a media file.
+
+        This test case verifies that a media file can be successfully fetched and its contents match the expected value.
+        The test retrieves a sample media file, reads its contents, and asserts that the contents are as expected.
+
+        """
         with self.urlopen("/media/example_media_file.txt") as f:
             self.assertEqual(f.read().rstrip(b"\r\n"), b"example media file")
 
@@ -416,6 +496,11 @@ class LiveServerThreadedTests(LiveServerBase):
             self.assertEqual(f.read(), b"subview calling view: subview")
 
     def test_check_model_instance_from_subview(self):
+        """
+        检查模型实例从子视图测试用例。
+
+        此函数测试模型实例是否可以在子视图中正确检索和验证。它通过向指定的URL发送请求并检查响应体中是否包含特定数据来实现此目的。在本例中，函数检查响应体中是否包含字符串\"emily\"，以 доказ明模型实例已被成功检索和渲染。
+        """
         url = "/check_model_instance_from_subview/?%s" % urlencode(
             {
                 "url": self.live_server_url,

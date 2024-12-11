@@ -27,5 +27,18 @@ class FlatpageModelTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="flatpages_tests.absolute_urls")
     def test_get_absolute_url_with_hardcoded_url(self):
+        """
+
+        Tests the get_absolute_url method of a FlatPage instance with a hardcoded URL.
+
+        This test case verifies that the get_absolute_url method returns the correct URL 
+        for a FlatPage, even when the URL is hardcoded. It ensures that the method 
+        correctly resolves the URL to the root URL configuration.
+
+        The expected output is the URL that points to the flatpage, rather than the 
+        hardcoded URL. This test helps to ensure that the absolute URL resolution is 
+        working correctly in the context of the flatpages application.
+
+        """
         fp = FlatPage(title="Test", url="/hardcoded/")
         self.assertEqual(fp.get_absolute_url(), "/flatpage/")

@@ -22,6 +22,15 @@ class ExceptionHandlerTests(SimpleTestCase):
 
     @override_settings(DATA_UPLOAD_MAX_MEMORY_SIZE=12)
     def test_data_upload_max_memory_size_exceeded(self):
+        """
+        Tests the behavior when the maximum allowed memory size for data uploads is exceeded.
+
+        This test case verifies that the application properly handles large data uploads by checking the HTTP response status code.
+
+        The test scenario simulates an environment where the maximum allowed memory size for data uploads (DATA_UPLOAD_MAX_MEMORY_SIZE) is set to a certain threshold.
+
+        It then asserts that when a data upload exceeds this threshold, the application returns a \"Bad Request\" response (HTTP status code 400).
+        """
         response = WSGIHandler()(self.get_suspicious_environ(), lambda *a, **k: None)
         self.assertEqual(response.status_code, 400)
 
@@ -32,6 +41,14 @@ class ExceptionHandlerTests(SimpleTestCase):
 
     @override_settings(DATA_UPLOAD_MAX_NUMBER_FILES=2)
     def test_data_upload_max_number_files_exceeded(self):
+        """
+
+        Tests the behavior when the maximum allowed number of files is exceeded during a data upload.
+
+        This test case simulates a file upload with more files than the configured maximum, 
+         checking that the server correctly returns a \"Bad Request\" response with a 400 status code.
+
+        """
         payload = FakePayload(
             encode_multipart(
                 BOUNDARY,

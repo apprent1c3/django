@@ -20,6 +20,15 @@ class TestingHttpResponse(HttpResponse):
         self._cookies_set = []
 
     def set_cookie(self, key, value, **kwargs):
+        """
+        Sets a cookie with the given key and value, while also tracking the set cookie value internally.
+
+        :param key: The key of the cookie to be set.
+        :param value: The value of the cookie to be set.
+        :param kwargs: Additional keyword arguments to be passed to the parent set_cookie method.
+        :return: None 
+        :note: The set cookie value is also appended to the internal cookie tracking list.
+        """
         super().set_cookie(key, value, **kwargs)
         self._cookies_set.append(value)
 

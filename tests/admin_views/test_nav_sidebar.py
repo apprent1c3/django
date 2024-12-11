@@ -41,6 +41,13 @@ class AdminSidebarTests(TestCase):
         self.client.force_login(self.superuser)
 
     def test_sidebar_not_on_index(self):
+        """
+
+        Test that the sidebar is not displayed on the index page.
+
+        Verifies that the index page contains the main content area, but does not contain the sidebar navigation element.
+
+        """
         response = self.client.get(reverse("test_with_sidebar:index"))
         self.assertContains(response, '<div class="main" id="main">')
         self.assertNotContains(
@@ -48,12 +55,27 @@ class AdminSidebarTests(TestCase):
         )
 
     def test_sidebar_disabled(self):
+        """
+
+        Tests that the sidebar is disabled on the test_without_sidebar index page.
+
+        Verifies that the page response does not contain the HTML element for the sticky sidebar,
+        confirming that the sidebar is successfully disabled.
+
+        """
         response = self.client.get(reverse("test_without_sidebar:index"))
         self.assertNotContains(
             response, '<nav class="sticky" id="nav-sidebar" aria-label="Sidebar">'
         )
 
     def test_sidebar_unauthenticated(self):
+        """
+        Tests that the sidebar is not present in the login page when the user is unauthenticated.
+
+        This test ensures that the sidebar with navigation menu is not displayed to users who are not logged in, thus maintaining a secure and controlled access to sensitive features and information.
+
+        The test case involves logging out the client, accessing the login page, and verifying that the HTML response does not contain the sidebar element.
+        """
         self.client.logout()
         response = self.client.get(reverse("test_with_sidebar:login"))
         self.assertNotContains(
@@ -61,6 +83,17 @@ class AdminSidebarTests(TestCase):
         )
 
     def test_sidebar_aria_current_page(self):
+        """
+
+        Tests that the sidebar navigation contains the correct aria-current attribute.
+
+        Verifies that when the user is on the Users page, the corresponding link in the sidebar
+        has an aria-current attribute set to \"page\", indicating that it is the current page.
+
+        Ensures that the sidebar and its navigation links are accessible and follow best practices
+        for screen readers and other assistive technologies.
+
+        """
         url = reverse("test_with_sidebar:auth_user_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -86,6 +119,15 @@ class AdminSidebarTests(TestCase):
         ]
     )
     def test_sidebar_aria_current_page_missing_without_request_context_processor(self):
+        """
+
+        Tests the sidebar's accessibility features when the request context processor is missing.
+
+        This test case checks if the sidebar's navigation elements are correctly rendered without the 'request' context processor.
+        It verifies that the sidebar contains the expected links, has a correct aria-label attribute, and does not include an 'aria-current' attribute.
+        The test simulates a GET request to the 'auth_user_changelist' view and checks the response for the expected HTML elements.
+
+        """
         url = reverse("test_with_sidebar:auth_user_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -103,6 +145,9 @@ class AdminSidebarTests(TestCase):
             self.client.get(url)
 
     def test_sidebar_model_name_non_ascii(self):
+        """
+        Checks the rendering of the admin sidebar for a model with a non-ASCII name, verifying that the correct HTML elements and links are present in the response. The test confirms that the sidebar displays the model name correctly, including any special characters, and that the links to the model's changelist page are properly formatted and contain the expected text.
+        """
         url = reverse("test_with_sidebar:admin_views_héllo_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -123,6 +168,16 @@ class SeleniumTests(AdminSeleniumTestCase):
     available_apps = ["admin_views"] + AdminSeleniumTestCase.available_apps
 
     def setUp(self):
+        """
+
+        Set up the test environment by creating a superuser and logging them in.
+
+        This method creates a superuser account with a fixed username, password, and email, 
+        and then logs in to the application using these credentials. 
+        Additionally, it clears the local storage item that tracks the admin navigation sidebar state, 
+        ensuring a consistent starting point for subsequent tests.
+
+        """
         self.superuser = User.objects.create_superuser(
             username="super",
             password="secret",
@@ -147,6 +202,13 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_can_be_closed(self):
+        """
+        Tests that the sidebar can be successfully closed.
+
+        Verifies that the sidebar is initially displayed and can be toggled off using the navigation toggle button.
+        The test checks for the presence and state of the sidebar and its associated toggle button, ensuring the sidebar
+        is hidden and the main content area is not shifted after the toggle button is clicked.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -220,6 +282,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_filter_persists(self):
+        """
+        Checks that the filter value in the sidebar navigation persists by verifying that the filter value is initially unset, then sets the filter value to 'users' and checks that the value is correctly stored in session storage.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(

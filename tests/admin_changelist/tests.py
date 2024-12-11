@@ -103,11 +103,29 @@ class ChangeListTests(TestCase):
         )
 
     def _mocked_authenticated_request(self, url, user):
+        """
+        Creates a mocked authenticated HTTP request instance for testing purposes.
+
+        This function generates a request object for the specified URL and associates it with the provided user, simulating an authenticated request.
+
+        :param url: The URL of the request
+        :param user: The user to be associated with the request
+        :return: A request object with the user set
+        """
         request = self.factory.get(url)
         request.user = user
         return request
 
     def test_repr(self):
+        """
+
+        Tests the string representation of the ChangeList instance returned by the ChildAdmin model.
+
+        This test case verifies that the repr method of the ChangeList object returns the expected string format,
+        including the model and model admin information. It ensures that the ChangeList object can be properly
+        represented as a string for debugging and logging purposes.
+
+        """
         m = ChildAdmin(Child, custom_site)
         request = self.factory.get("/child/")
         request.user = self.superuser
@@ -115,6 +133,25 @@ class ChangeListTests(TestCase):
         self.assertEqual(repr(cl), "<ChangeList: model=Child model_admin=ChildAdmin>")
 
     def test_specified_ordering_by_f_expression(self):
+        """
+        Tests the specified ordering by F expression in the Django admin changelist view.
+
+        This test case verifies that the 'ordering' parameter in the ModelAdmin class 
+        is correctly applied when using F expressions for ordering fields. The ordering 
+        is specified as a tuple of F expressions, including 'desc' and 'asc' ordering 
+        with and without nulls_last parameter. The test checks if the changelist view 
+        correctly applies the specified ordering when the view is rendered. 
+
+        The test uses a custom ModelAdmin class 'OrderedByFBandAdmin' to test the 
+        ordering of the 'Band' model in the admin interface.
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the ordering is not correctly applied.
+
+        """
         class OrderedByFBandAdmin(admin.ModelAdmin):
             list_display = ["name", "genres", "nr_of_members"]
             ordering = (
@@ -130,6 +167,16 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.get_ordering_field_columns(), {3: "desc", 2: "asc"})
 
     def test_specified_ordering_by_f_expression_without_asc_desc(self):
+        """
+
+        Tests the specified ordering by F-expression in the model admin without explicit 'asc' or 'desc' parameters.
+
+        The ordering is defined by a combination of F-expressions and model fields. This test case verifies that the model admin 
+        applies the default ascending order to the specified fields when 'asc' or 'desc' is not explicitly provided in the ordering.
+
+        It checks if the resulting ordering field columns match the expected ascending order for all fields in the specified ordering.
+
+        """
         class OrderedByFBandAdmin(admin.ModelAdmin):
             list_display = ["name", "genres", "nr_of_members"]
             ordering = (F("nr_of_members"), Upper("name"), F("genres"))
@@ -152,6 +199,19 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"parent": {}})
 
     def test_select_related_preserved_when_multi_valued_in_search_fields(self):
+        """
+        Test that select_related preservation works correctly when a multi-valued search is performed.
+
+        This test case verifies that the select_related query optimization is preserved when a search query
+        contains multiple values, ensuring efficient database queries even in complex search scenarios.
+
+        The test scenario involves creating a parent object with multiple child objects, then performing a search
+        on the parent object using a query that matches multiple child objects. It asserts that the resulting
+        queryset count is correct and that the select_related optimization is applied to the queryset query.
+
+        The purpose of this test is to ensure that the django admin changelist view correctly handles search
+        queries with multiple values, maintaining optimal database performance while still returning accurate results.
+        """
         parent = Parent.objects.create(name="Mary")
         Child.objects.create(parent=parent, name="Danielle")
         Child.objects.create(parent=parent, name="Daniel")
@@ -166,6 +226,14 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"child": {}})
 
     def test_select_related_as_tuple(self):
+        """
+
+        Tests that the select_related query is correctly applied as a tuple in the InvitationAdmin changelist.
+
+        This test case verifies that the queryset used in the changelist view of the InvitationAdmin
+        includes the 'player' model in the select_related clause, optimizing database queries.
+
+        """
         ia = InvitationAdmin(Invitation, custom_site)
         request = self.factory.get("/invitation/")
         request.user = self.superuser
@@ -173,6 +241,13 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"player": {}})
 
     def test_select_related_as_empty_tuple(self):
+        """
+        Tests that when the list_select_related attribute is set to an empty tuple,
+        the changelist queryset does not use select_related, ensuring that no related
+        objects are joined in the query, thereby preventing unnecessary database queries.
+        This test case verifies the expected behavior of the InvitationAdmin class when
+        configured to not select related objects.
+        """
         ia = InvitationAdmin(Invitation, custom_site)
         ia.list_select_related = ()
         request = self.factory.get("/invitation/")
@@ -181,6 +256,16 @@ class ChangeListTests(TestCase):
         self.assertIs(cl.queryset.query.select_related, False)
 
     def test_get_select_related_custom_method(self):
+        """
+
+        Tests the get_list_select_related method of a custom ModelAdmin class.
+
+        This test case verifies that the get_list_select_related method correctly returns
+        a tuple of related fields to be used for select_related queries in the admin changelist view.
+        In this scenario, the test checks that the 'band' and 'player' fields are properly selected
+        for the Invitation model, optimizing the database query performance.
+
+        """
         class GetListSelectRelatedAdmin(admin.ModelAdmin):
             list_display = ("band", "player")
 
@@ -194,6 +279,20 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.query.select_related, {"player": {}, "band": {}})
 
     def test_many_search_terms(self):
+        """
+
+        Tests the ParentAdmin changelist view with many search terms.
+
+        This test case checks that the changelist view correctly filters results when
+        a large number of search terms are provided. It creates a Parent and two Children,
+        then simulates a GET request to the Parent changelist view with a query string
+        containing a large number of search terms.
+
+        The test verifies that the resulting queryset contains the expected number of
+        objects and that the database query uses the correct number of JOINs, ensuring
+        efficient query execution even with a large number of search terms.
+
+        """
         parent = Parent.objects.create(name="Mary")
         Child.objects.create(parent=parent, name="Danielle")
         Child.objects.create(parent=parent, name="Daniel")
@@ -365,6 +464,16 @@ class ChangeListTests(TestCase):
         )
 
     def test_action_checkbox_for_model_with_dunder_html(self):
+        """
+
+        Tests the rendering of action checkboxes for a model in the admin changelist view.
+
+        Verifies that the action checkbox is correctly displayed for a model instance
+        in the changelist table, ensuring that the checkbox is present and can be used
+        to select the instance for bulk actions. The test covers the case where the
+        model instance is a grandchild object with a custom admin site.
+
+        """
         grandchild = GrandChild.objects.create(name="name")
         request = self._mocked_authenticated_request("/grandchild/", self.superuser)
         m = GrandChildAdmin(GrandChild, custom_site)
@@ -459,6 +568,19 @@ class ChangeListTests(TestCase):
 
     @skipUnlessDBFeature("supports_transactions")
     def test_list_editable_atomicity(self):
+        """
+        Tests the atomicity of list editable views in the Django admin interface.
+
+        This test ensures that when saving multiple objects through the admin changelist view,
+        either all changes are saved or none are, in order to maintain data consistency.
+
+        It covers two scenarios:
+        - A `DatabaseError` occurs when saving both objects, in which case no changes should be applied.
+        - A `DatabaseError` occurs when saving the second object, after the first object has been saved successfully, 
+          in which case the changes to the first object should be rolled back. 
+
+        The test verifies that the original state of the objects is preserved in both cases.
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         b = Swallow.objects.create(origin="Swallow B", load=2, speed=2)
 
@@ -505,6 +627,15 @@ class ChangeListTests(TestCase):
         self.assertEqual(b.speed, 2)
 
     def test_custom_paginator(self):
+        """
+
+        Tests the custom paginator functionality in the admin interface.
+
+        This test case creates a parent object and 200 child objects associated with it.
+        It then simulates a GET request to the child changelist page with a superuser.
+        The test verifies that the changelist instance uses the custom paginator to paginate the results.
+
+        """
         new_parent = Parent.objects.create(name="parent")
         for i in range(1, 201):
             Child.objects.create(name="name %s" % i, parent=new_parent)
@@ -656,6 +787,17 @@ class ChangeListTests(TestCase):
         self.assertEqual(cl.queryset.count(), 0)
 
     def test_changelist_search_form_validation(self):
+        """
+
+        Tests the validation of the search form in the changelist view of the ConcertAdmin class.
+
+        Specifically, it checks that the search form correctly handles input containing null characters,
+        rejecting such input and displaying an appropriate error message to the user.
+
+        The test covers various cases of invalid input, ensuring that the validation logic is robust and
+        effective in preventing null characters from being processed.
+
+        """
         m = ConcertAdmin(Concert, custom_site)
         tests = [
             ({SEARCH_VAR: "\x00"}, "Null characters are not allowed."),
@@ -804,6 +946,18 @@ class ChangeListTests(TestCase):
         self.assertCountEqual(cl.queryset, [])
 
     def test_custom_lookup_in_search_fields(self):
+        """
+
+        Tests the functionality of a custom lookup in the search fields of the Concert admin interface.
+
+        The test creates a group and a concert, then sets up a custom search field on the Concert model's admin
+        interface to search the group name using a case-insensitive contains lookup. It then tests that searching 
+        for the group name returns the expected concert, and that searching for the concert name does not return 
+        any results when the search is not configured to search the concert name itself.
+
+        Verifies that the custom lookup is properly integrated with the admin interface's search functionality.
+
+        """
         band = Group.objects.create(name="The Hype")
         concert = Concert.objects.create(name="Woodstock", group=band)
 
@@ -842,6 +996,18 @@ class ChangeListTests(TestCase):
             self.assertCountEqual(cl.queryset, [])
 
     def test_custom_lookup_with_pk_shortcut(self):
+        """
+
+        Tests the custom lookup functionality with a primary key shortcut in the admin interface.
+
+        Verifies that searching for a specific primary key value returns the corresponding object.
+        The test covers the following scenarios:
+        - Searching for an object by its primary key using the 'pk__exact' lookup type.
+        - Ensuring that the search results are accurate and only return the object(s) with the matching primary key.
+
+        This test case checks the functionality of the admin interface's search feature with custom primary key fields.
+
+        """
         self.assertEqual(CharPK._meta.pk.name, "char_pk")  # Not equal to 'pk'.
         m = admin.ModelAdmin(CustomIdUser, custom_site)
 
@@ -959,6 +1125,18 @@ class ChangeListTests(TestCase):
         self.assertContains(response, "Parent object")
 
     def test_show_all(self):
+        """
+        Test the functionality of showing all objects in the changelist view.
+
+        This test verifies that the changelist view correctly handles the \"show all\" option
+        when the number of objects exceeds the default limit. It checks that all objects are
+        displayed when the limit is raised above the number of objects, and that only the
+        default number of objects are shown when the limit is set below the number of objects.
+
+        The test creates a large number of child objects, then tests the changelist view
+        with different settings for the maximum number of objects to show. It checks that
+        the correct number of objects are displayed in each case.
+        """
         parent = Parent.objects.create(name="anything")
         for i in range(1, 31):
             Child.objects.create(name="name %s" % i, parent=parent)
@@ -1017,6 +1195,12 @@ class ChangeListTests(TestCase):
         self.assertNotContains(response, '<a href="%s">' % link)
 
     def test_clear_all_filters_link(self):
+        """
+        Tests the functionality of the \"Clear all filters\" link in the admin user changelist view.
+
+        This test checks that the link is not present when no filters are applied, and that it is correctly displayed when various filters are applied.
+        The test covers different filtering scenarios, including exact matches, starts with searches, and popup searches, verifying that the link's href attribute is correctly constructed for each case.
+        """
         self.client.force_login(self.superuser)
         url = reverse("admin:auth_user_changelist")
         response = self.client.get(url)
@@ -1080,6 +1264,14 @@ class ChangeListTests(TestCase):
                 self.assertNotContains(response, link)
 
     def test_tuple_list_display(self):
+        """
+        Tests the display of a Swallow instance and its associated SwallowOneToOne instance in the admin changelist view.
+
+        Verifies that the changelist view correctly renders the origin, load, and speed attributes of a Swallow instance.
+        Additionally, checks that the SwallowOneToOne instance is properly displayed, with an empty value shown for Swallow instances without a one-to-one relationship.
+
+        Ensures that the admin view accurately represents the underlying data, providing a correct and user-friendly interface for administrators to manage Swallow instances and their associated relationships.
+        """
         swallow = Swallow.objects.create(origin="Africa", load="12.34", speed="22.2")
         swallow2 = Swallow.objects.create(origin="Africa", load="12.34", speed="22.2")
         swallow_o2o = SwallowOneToOne.objects.create(swallow=swallow2)
@@ -1168,6 +1360,22 @@ class ChangeListTests(TestCase):
         self.assertEqual(len(Swallow.objects.all()), 4)
 
     def test_get_edited_object_ids(self):
+        """
+
+        Test the retrieval of edited object IDs in the changelist view.
+
+        This test case verifies that the function correctly identifies and returns the IDs
+        of objects that have been modified through the changelist form.
+
+        The test creates multiple swallow objects and a superuser, then simulates a POST
+        request to the changelist view with modified data. It checks that the function
+        returns the IDs of all objects that were edited in the request.
+
+        The purpose of this test is to ensure that the function accurately determines
+        which objects have been changed, allowing for proper processing and saving of the
+        edited data.
+
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         b = Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         c = Swallow.objects.create(origin="Swallow C", load=5, speed=5)
@@ -1196,6 +1404,21 @@ class ChangeListTests(TestCase):
         self.assertEqual(sorted(pks), sorted([str(a.pk), str(b.pk), str(c.pk)]))
 
     def test_get_list_editable_queryset(self):
+        """
+        Tests the _get_list_editable_queryset method of the SwallowAdmin class.
+
+        This method is responsible for determining the queryset of objects that can be edited 
+        in the changelist view of the admin interface. The test checks two scenarios:
+
+        * When a valid primary key is provided, the queryset should only contain the 
+          corresponding object.
+        * When an invalid primary key is provided, the queryset should contain all objects, 
+          as no object can be edited.
+
+        The test creates a superuser, logs in, and then sends a POST request to the 
+        changelist URL with the provided data. It then checks the count of the resulting 
+        queryset to ensure it matches the expected behavior.
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1221,6 +1444,22 @@ class ChangeListTests(TestCase):
         self.assertEqual(queryset.count(), 2)
 
     def test_get_list_editable_queryset_with_regex_chars_in_prefix(self):
+        """
+        Tests the functionality of retrieving a queryset of list editable objects 
+        from the admin changelist view when the prefix contains regex characters.
+
+        Verifies that the _get_list_editable_queryset method correctly filters objects 
+        based on the provided prefix, returning a queryset that contains only the 
+        objects that match the specified criteria. This test case covers a scenario 
+        where the prefix includes regex characters, ensuring that the method handles 
+        such cases as expected.
+
+        The test scenario involves creating test data, including Swallow objects, 
+        and then simulating a POST request to the admin changelist view with a 
+        specific prefix containing regex characters. The method's result is then 
+        asserted to contain the expected number of objects, confirming its correctness 
+        in handling regex characters in the prefix.
+        """
         a = Swallow.objects.create(origin="Swallow A", load=4, speed=1)
         Swallow.objects.create(origin="Swallow B", load=2, speed=2)
         data = {
@@ -1279,6 +1518,17 @@ class ChangeListTests(TestCase):
             list_per_page = 10
 
         def check_results_order(ascending=False):
+            """
+
+            Checks the order of results in the changelist view.
+
+            This function verifies that the results are displayed in the correct order,
+            either ascending or descending, by iterating through multiple pages and
+            comparing the IDs of the objects with an expected counter value.
+
+            :param ascending: A boolean indicating whether to check for ascending order (True) or descending order (False). Defaults to False.
+
+            """
             custom_site.register(UnorderedObject, UnorderedObjectAdmin)
             model_admin = UnorderedObjectAdmin(UnorderedObject, custom_site)
             counter = 0 if ascending else 51
@@ -1359,6 +1609,24 @@ class ChangeListTests(TestCase):
 
     @isolate_apps("admin_changelist")
     def test_total_ordering_optimization(self):
+        """
+        Test the optimization of total ordering in the changelist view of the admin interface.
+
+        This test checks that the admin interface correctly handles various ordering scenarios,
+        including unique fields, nullable fields, and foreign key fields. It also tests the
+        optimization of total ordering, which is used to ensure that rows in the changelist view
+        are consistently ordered when there are multiple possible orderings.
+
+        The test covers a range of ordering scenarios, including ascending and descending order,
+        null and non-null fields, and fields with unique and non-unique constraints. It also tests
+        the behavior of total ordering optimization, which is used to eliminate unnecessary order
+        by clauses in the database query.
+
+        The expected output of the test is a list of ordering clauses that are used to determine
+        the final ordering of the rows in the changelist view. The test checks that the actual
+        output matches the expected output for each test case.
+
+        """
         class Related(models.Model):
             unique_field = models.BooleanField(unique=True)
 
@@ -1435,6 +1703,20 @@ class ChangeListTests(TestCase):
 
     @isolate_apps("admin_changelist")
     def test_total_ordering_optimization_meta_constraints(self):
+        """
+
+        Tests the optimization of meta constraints for models with unique fields and foreign keys.
+
+        This test case covers the following scenarios:
+        - Ordering by unique fields
+        - Ordering by nullable fields
+        - Ordering by related fields
+        - Ordering by fields with unique constraints
+        - Ordering by fields with check constraints
+
+        It ensures that the deterministic ordering is applied correctly in all cases.
+
+        """
         class Related(models.Model):
             unique_field = models.BooleanField(unique=True)
 
@@ -1636,6 +1918,17 @@ class ChangeListTests(TestCase):
         )
 
     def test_search_role(self):
+        """
+        Tests the search functionality for the Band model in the admin interface.
+
+        Verifies that the changelist view renders a search form with the role 'search' 
+        when the search fields are properly configured. This ensures that the search 
+        functionality is accessible and usable for administrators.
+
+        The test checks for the presence of a specific HTML form element in the 
+        response, confirming that the search form is correctly rendered with the 
+        expected role attribute.
+        """
         m = BandAdmin(Band, custom_site)
         m.search_fields = ["name"]
         request = self._mocked_authenticated_request("/band/", self.superuser)
@@ -1664,6 +1957,24 @@ class ChangeListTests(TestCase):
                 )
 
     def test_list_display_related_field(self):
+        """
+
+        Tests the display of related fields in the list view of the GrandChild admin interface.
+
+        Verifies that the names of the parent and grandparent objects are correctly displayed
+        in the changelist view of the GrandChild model. This ensures that the related fields
+        are properly rendered and visible to users with appropriate permissions.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the parent or child names are not found in the response.
+
+        """
         parent = Parent.objects.create(name="I am your father")
         child = Child.objects.create(name="I am your child", parent=parent)
         GrandChild.objects.create(name="I am your grandchild", parent=child)
@@ -1675,6 +1986,13 @@ class ChangeListTests(TestCase):
         self.assertContains(response, child.name)
 
     def test_list_display_related_field_null(self):
+        """
+        Tests that the changelist view of the GrandChildAdmin correctly displays null related fields. 
+
+        Specifically, it verifies that when a GrandChild object has no parent and no grandparent, the corresponding fields in the changelist view are displayed with a \"-\" symbol, indicating the null or empty value. 
+
+        This test ensures that the administration interface handles null related fields as expected, providing a correct representation of the data to the user.
+        """
         GrandChild.objects.create(name="I am parentless", parent=None)
         request = self._mocked_authenticated_request("/grandchild/", self.superuser)
 
@@ -1684,6 +2002,19 @@ class ChangeListTests(TestCase):
         self.assertContains(response, '<td class="field-parent__parent__name">-</td>')
 
     def test_list_display_related_field_ordering(self):
+        """
+
+        Tests the ordering of related fields in the admin list display.
+
+        This test case verifies that the ordering of related fields in the list display
+        of a ModelAdmin instance works as expected. It creates two parent objects and
+        two child objects, then tests that the list display of the child objects is
+        ordered correctly by the parent's name when the 'o' query parameter is used.
+
+        The test covers both ascending and descending ordering, ensuring that the
+        administration interface behaves as expected when sorting related fields.
+
+        """
         parent_a = Parent.objects.create(name="Alice")
         parent_z = Parent.objects.create(name="Zara")
         Child.objects.create(name="Alice's child", parent=parent_a)
@@ -1754,6 +2085,9 @@ class GetAdminLogTests(TestCase):
         self.assertEqual(t.render(context), "Added “jondoe”.")
 
     def test_missing_args(self):
+        """
+        Tests that the 'get_admin_log' template tag raises a TemplateSyntaxError when not provided with the required two arguments.
+        """
         msg = "'get_admin_log' statements require two arguments"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template("{% load log %}{% get_admin_log 10 as %}")
@@ -1766,11 +2100,25 @@ class GetAdminLogTests(TestCase):
             )
 
     def test_without_as(self):
+        """
+
+        Tests that the 'get_admin_log' template tag raises a TemplateSyntaxError when 
+        the second argument is not 'as'. This ensures that the template tag is used 
+        correctly and the results are assigned to a variable, following the expected syntax.
+
+        """
         msg = "Second argument to 'get_admin_log' must be 'as'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template("{% load log %}{% get_admin_log 10 ad admin_log for_user user %}")
 
     def test_without_for_user(self):
+        """
+
+        Tests that the 'get_admin_log' template tag raises a TemplateSyntaxError when the fourth argument is not 'for_user'.
+
+        This test ensures that the template tag is used correctly and that an error is raised when the 'for_user' keyword is not provided as the fourth argument. The error message checks for the correct syntax error message being raised.
+
+        """
         msg = "Fourth argument to 'get_admin_log' must be 'for_user'"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             Template("{% load log %}{% get_admin_log 10 as admin_log foruser user %}")
@@ -1857,6 +2205,14 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIs(checkboxes[-1].get_property("checked"), False)
 
     def test_selection_counter_is_synced_when_page_is_shown(self):
+        """
+        Tests whether the selection counter in the admin changelist page remains synchronized 
+        when the page is shown after navigating to another page and then returning.
+
+        This test case checks that the selection counter accurately reflects the number of rows 
+        selected after navigating away from the changelist page and then returning to it, 
+        ensuring that the selection state is preserved and the counter is updated correctly.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -1892,6 +2248,26 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(selection_indicator.text, f"{selected_rows} of 1 selected")
 
     def test_select_all_across_pages(self):
+        """
+
+        Tests the functionality of selecting all items across pages in the admin changelist view.
+
+        This test case covers the following scenarios:
+        - Initial state of the selection indicators and buttons
+        - Selecting all items on the current page
+        - Confirming selection across all pages
+        - Clearing the selection
+
+        It verifies the correct display and behavior of various UI elements, including:
+        - Selection indicator
+        - Select all checkbox
+        - Question button
+        - Clear button
+        - Select across pages hidden inputs
+
+        The test ensures that the selection functionality works as expected, including selecting and deselecting all items across multiple pages.
+
+        """
         from selenium.webdriver.common.by import By
 
         Parent.objects.bulk_create([Parent(name="parent%d" % i) for i in range(101)])
@@ -1950,6 +2326,17 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIs(select_all_indicator.is_displayed(), False)
 
     def test_actions_warn_on_pending_edits(self):
+        """
+
+        Tests that a warning is displayed when attempting to perform an action in the admin interface 
+        while there are pending edits to individual fields. 
+
+        This test scenario covers the case where a user makes changes to a field in the admin change list 
+        page, then attempts to run an action without saving those changes. It verifies that a warning 
+        prompt is displayed to the user, alerting them that their unsaved changes will be lost if the action 
+        is performed.
+
+        """
         from selenium.webdriver.common.by import By
 
         Parent.objects.create(name="foo")
@@ -2004,6 +2391,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_save_without_changes_warns_on_pending_action(self):
+        """
+        Tests that attempting to save a changelist in the admin interface without making any changes, when a pending action is selected, triggers an alert warning the user they likely intended to use the 'Go' button instead of 'Save'.
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
 
@@ -2030,6 +2420,15 @@ class SeleniumTests(AdminSeleniumTestCase):
             alert.dismiss()
 
     def test_collapse_filters(self):
+        """
+        Tests that filter sections on admin changelist pages can be collapsed and that the state of these sections is persisted across page reloads. 
+
+        The test logs into the admin interface, navigates to the user changelist page, and verifies that all filter sections are initially expanded. 
+
+        It then collapses two filter sections, reloads the page, and checks that the collapsed state is preserved for the specified sections, while ensuring that other sections remain expanded.
+
+        The test also verifies that filter state is preserved when navigating to a different admin changelist page and back.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2082,6 +2481,15 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_collapse_filter_with_unescaped_title(self):
+        """
+
+        Tests the collapsing functionality of a filter with an unescaped title in the admin changelist.
+
+        The test logs in as an admin, navigates to the changelist page for proxy users,
+        and locates a filter with the title 'It's OK'. It then collapses the filter and verifies that it remains closed
+        after a page refresh, ensuring that the filter's state is persisted correctly.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")

@@ -181,6 +181,18 @@ class ValidationError(Exception):
     def message_dict(self):
         # Trigger an AttributeError if this ValidationError
         # doesn't have an error_dict.
+        """
+        Returns a dictionary representation of the message.
+
+        This property provides a convenient way to access the message data as a dictionary.
+        It includes all the key-value pairs of the message, allowing for easy manipulation and
+        inspection of the data.
+
+        The returned dictionary is a copy of the internal data structure, making it safe to
+        modify without affecting the original message.
+
+        :rtype: dict
+        """
         getattr(self, "error_dict")
 
         return dict(self)
@@ -200,6 +212,17 @@ class ValidationError(Exception):
         return error_dict
 
     def __iter__(self):
+        """
+        Iterates over the validation errors occurring in the data.
+
+        This iterator yields tuples or strings, where each item represents an error.
+        When error details are structured, it yields tuples containing the field name and a list of validation error messages.
+        When error details are unstructured, it yields string messages describing each validation error.
+        The messages may include parameterized placeholders replaced with actual values where available.
+
+        Returns:
+            Iterator yielding tuples of (field name, list of error messages) or error messages as strings
+        """
         if hasattr(self, "error_dict"):
             for field, errors in self.error_dict.items():
                 yield field, list(ValidationError(errors))
@@ -219,6 +242,18 @@ class ValidationError(Exception):
         return "ValidationError(%s)" % self
 
     def __eq__(self, other):
+        """
+        Checks whether the current ValidationError instance is equal to another object.
+
+        This method compares the current instance with another object for equality.
+        It first checks if the other object is an instance of ValidationError.
+        If not, it returns NotImplemented, indicating that equality comparison is not supported.
+        If the other object is a ValidationError instance, it compares the hash values of the two objects.
+        If the hash values are equal, it returns True, indicating that the two instances are equal.
+        Otherwise, it returns False.
+
+        Note: This comparison is based on the hash values of the instances, which implies that two ValidationError instances with the same attributes will be considered equal if their hash values are equal.
+        """
         if not isinstance(other, ValidationError):
             return NotImplemented
         return hash(self) == hash(other)

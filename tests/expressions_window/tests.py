@@ -95,6 +95,19 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_dense_rank(self):
+        """
+
+        Tests the functionality of the dense rank operation in a database query.
+
+        The dense rank is calculated based on the hire date of employees, and it assigns a rank to each employee 
+        without gaps in the ranking. The test checks that the dense rank is correctly applied for various 
+        ordering methods, including ascending order by the hire date year extracted from the date, 
+        ascending order by the hire date year, and a string-based ordering.
+
+        The test verifies that the resulting query set contains the correct employee data with their 
+        corresponding dense ranks, and that the ranks are correctly assigned without gaps.
+
+        """
         tests = [
             ExtractYear(F("hire_date")).asc(),
             F("hire_date__year").asc(),
@@ -132,6 +145,19 @@ class WindowFunctionTests(TestCase):
                 )
 
     def test_department_salary(self):
+        """
+
+        Tests that the department salary calculation is correct.
+
+        This test verifies that the salary of each employee in a department
+        is calculated correctly and accumulated in the department sum.
+        The employees are ordered first by department and then by the cumulative sum of salaries
+        within each department, based on their hiring date.
+
+        The expected result includes a list of tuple entries, each containing
+        the employee's name, department, salary, and the cumulative department sum.
+
+        """
         qs = Employee.objects.annotate(
             department_sum=Window(
                 expression=Sum("salary"),
@@ -264,6 +290,15 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_avg_salary_department(self):
+        """
+        лює
+        Tests that the average salary is correctly calculated for each department.
+
+        This test annotates the Employee queryset with the average salary for each department
+        and then orders the results by department, salary in descending order, and employee name.
+        It then asserts that the resulting queryset matches the expected list of employee data,
+        including their name, salary, department, and calculated average department salary.
+        """
         qs = Employee.objects.annotate(
             avg_salary=Window(
                 expression=Avg("salary"),
@@ -328,6 +363,18 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_lag_decimalfield(self):
+        """
+
+        Tests the Window expression with Lag function on a DecimalField.
+
+        The test case verifies that the Lag function is applied correctly to a queryset of Employee objects, 
+        annotating each object with the bonus of the previous employee within the same department, 
+        ordered by bonus in ascending order and then by name in ascending order.
+
+        The expected result is a queryset where each employee's bonus is compared to the bonus of the previous employee 
+        in the same department, demonstrating the correct application of the Lag function.
+
+        """
         qs = Employee.objects.annotate(
             lag=Window(
                 expression=Lag(expression="bonus", offset=1),
@@ -517,6 +564,19 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_function_list_of_values(self):
+        """
+
+        Tests the generation of a list of employee values with lead salary information.
+
+        This function creates a database query that annotates employees with the next salary
+        value (lead) within their department, ordered by hire date and name.
+        It then verifies that the query does not include a GROUP BY clause and
+        asserts that the results match the expected sequence of employee data.
+
+        The expected output includes employee name, salary, department, hire date, and lead salary.
+        The lead salary is the next salary value within the same department, or None if there is no next value.
+
+        """
         qs = (
             Employee.objects.annotate(
                 lead=Window(
@@ -649,6 +709,18 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_nthvalue(self):
+        """
+
+        Test the NthValue window function to retrieve the nth value of a column.
+
+        This function tests the use of the NthValue window function in a database query.
+        The function annotates a QuerySet of Employee objects with the NthValue of the 'salary' column,
+        where the nth value is the 2nd value, ordered by 'hire_date' in ascending order and 'name' in descending order,
+        and partitioned by 'department'. The results are then ordered by 'department', 'hire_date', and 'name'.
+
+        The function asserts that the resulting QuerySet matches the expected values.
+
+        """
         qs = Employee.objects.annotate(
             nth_value=Window(
                 expression=NthValue(expression="salary", nth=2),
@@ -929,6 +1001,18 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_related_ordering_with_count(self):
+        """
+        Tests the related ordering functionality with aggregate count.
+
+        This test case verifies that the employees are correctly ordered by their
+        department and classification code, and that the total count of employees
+        matches the expected value. The test uses a window function to calculate
+        the sum of salaries for each department, partitioned by department and
+        ordered by classification code.
+
+        The test asserts that the total count of employees in the query set is 12,
+        indicating that all employees are correctly included and ordered in the result.
+        """
         qs = Employee.objects.annotate(
             department_sum=Window(
                 expression=Sum("salary"),
@@ -983,6 +1067,22 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_conditional_annotation(self):
+        """
+
+        Tests filtering of annotated querysets based on conditional annotations.
+
+        This function verifies that the result of filtering a queryset containing 
+        conditional annotations matches the expected output. The test case checks 
+        two types of annotations: a Case/When annotation and a Q object annotation, 
+        both of which are used to identify the first ranked employee in each department.
+
+        The filtering is performed on a queryset of employees, annotated with their 
+        rank within each department and a boolean indicating whether they are the 
+        first ranked employee in their department. The test asserts that the 
+        filtered results, ordered by employee name, match the expected sequence of 
+        names for the top ranked employees.
+
+        """
         qs = (
             Employee.objects.annotate(
                 rank=Window(Rank(), partition_by="department", order_by="-salary"),
@@ -1003,6 +1103,17 @@ class WindowFunctionTests(TestCase):
                 )
 
     def test_filter_conditional_expression(self):
+        """
+        Tests the filtering of a queryset using a conditional expression with window functions.
+
+        This test case verifies that the correct employees are retrieved when filtering 
+        based on an exact window rank. The function ensures that the highest-paid employee 
+        from each department is returned, with the results ordered by employee name. The 
+        expected output is a list of employee names, which is then compared to the actual 
+        queryset result to assert correctness.
+
+        :raises: AssertionError if the retrieved employee names do not match the expected list
+        """
         qs = (
             Employee.objects.filter(
                 Exact(Window(Rank(), partition_by="department", order_by="-salary"), 1)
@@ -1015,6 +1126,21 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_column_ref_rhs(self):
+        """
+
+        Tests filtering of a column reference on the right-hand side of a condition.
+
+        This function verifies that a database query correctly filters employees 
+        who have the highest salary within their respective departments. It checks 
+        if the result set contains the expected employee names, in alphabetical order.
+
+        Returns:
+            None
+
+        Asserts:
+            The function asserts that the filtered query result matches the expected sequence of employee names.
+
+        """
         qs = (
             Employee.objects.annotate(
                 max_dept_salary=Window(Max("salary"), partition_by="department")
@@ -1055,6 +1181,20 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_select_related(self):
+        """
+
+        Test the filtering of employees using select_related and window functions.
+
+        This test case checks if employees can be filtered based on the difference between
+        their age and the average age in their department. The filtering process utilizes
+        Django's ORM to select employees with an age greater than the average age in their
+        department, ordering the results by department and name.
+
+        The test also verifies that the 'classification' field is properly retrieved using
+        select_related, and that no additional database queries are executed when accessing
+        the classification of an employee in the filtered queryset.
+
+        """
         qs = (
             Employee.objects.alias(
                 department_avg_age_diff=(
@@ -1074,6 +1214,16 @@ class WindowFunctionTests(TestCase):
             qs[0].classification
 
     def test_exclude(self):
+        """
+
+        Tests the exclude method of a QuerySet.
+
+        This function verifies that the exclude method correctly filters out employees from a QuerySet 
+        based on various conditions, such as department salary rank and average age difference.
+        It checks the exclusion of employees with a rank greater than 1, an average age difference less than or equal to 0,
+        and combinations of these conditions using logical operators.
+
+        """
         qs = Employee.objects.annotate(
             department_salary_rank=Window(
                 Rank(), partition_by="department", order_by="-salary"
@@ -1120,6 +1270,20 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_heterogeneous_filter(self):
+        """
+        Tests the filtering of employees based on their salary rank within their department and other criteria.
+
+        The test checks the correctness of filtering employees using various conditions, such as the highest salary rank, department membership, 
+        and past department count. It verifies that the results match the expected list of employee names.
+
+        Specifically, it tests the following scenarios:
+        - Filtering employees with the highest salary rank in specific departments.
+        - Filtering employees with the highest salary rank or in specific departments.
+        - Filtering employees with the highest salary rank and a past department count greater than or equal to 1.
+        - Filtering employees with the highest salary rank or a past department count greater than or equal to 1.
+
+        These tests ensure that the filtering logic is correct and returns the expected results for different combinations of conditions.
+        """
         qs = (
             Employee.objects.annotate(
                 department_salary_rank=Window(
@@ -1184,6 +1348,13 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_count(self):
+        """
+
+        Tests the count method on a filtered queryset that uses window functions to rank employees by salary within their department.
+
+        The test ensures that the count is correct, that only a single database query is executed, and that the generated SQL query meets certain expectations.
+
+        """
         with CaptureQueriesContext(connection) as ctx:
             self.assertEqual(
                 Employee.objects.annotate(
@@ -1202,6 +1373,21 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_range_fixed_distance")
     def test_range_n_preceding_and_following(self):
+        """
+
+        Tests the Window frame range using the 'RANGE BETWEEN' clause with a fixed distance.
+
+        This test case checks if the 'RANGE BETWEEN 2 PRECEDING AND 2 FOLLOWING' clause is correctly applied
+        to a query that annotates a Window expression with a Sum of salaries. The Window is partitioned by
+        department and ordered by salary in ascending order.
+
+        The test verifies that the generated SQL query includes the 'RANGE BETWEEN 2 PRECEDING AND 2 FOLLOWING'
+        clause and that the resulting QuerySet matches the expected results.
+
+        The query results include the sum of salaries for each employee, considering the salaries of the 2 preceding
+        and 2 following employees in the same department, ordered by salary.
+
+        """
         qs = Employee.objects.annotate(
             sum=Window(
                 expression=Sum("salary"),
@@ -1241,6 +1427,21 @@ class WindowFunctionTests(TestCase):
         "supports_frame_exclusion", "supports_frame_range_fixed_distance"
     )
     def test_range_exclude_current(self):
+        """
+        Tests the annotation of a queryset with a window function that calculates the sum of salaries 
+        over a range of rows excluding the current row.
+
+        This test case checks that the generated SQL query includes the correct window frame exclusion 
+        and that the results match the expected output.
+
+        The window function is applied to a queryset of Employee objects, ordered by department and salary, 
+        and partitioned by department. The sum of salaries is calculated over a range of rows from the 
+        current row to 2 following rows, excluding the current row.
+
+        The test asserts that the generated SQL query includes the correct window frame exclusion and 
+        that the results match the expected output, which includes the name, salary, department, hire date, 
+        and sum of salaries for each employee.
+        """
         qs = Employee.objects.annotate(
             sum=Window(
                 expression=Sum("salary"),
@@ -1317,6 +1518,16 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_subquery_row_range_rank(self):
+        """
+
+        Tests the use of subqueries with row range and ranking to find the date of the highest average salary for each department.
+
+        This test case verifies that the query correctly annotates each employee with the date of the highest average salary in their department, 
+        taking into account the average salaries of the employee and their immediate neighbors in the ordering by hire date. 
+
+        The expected result is a queryset of employees, ordered by department and name, with each employee annotated with the date of the highest average salary in their department.
+
+        """
         qs = Employee.objects.annotate(
             highest_avg_salary_date=Subquery(
                 Employee.objects.filter(
@@ -1398,6 +1609,15 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_frame_exclusion")
     def test_row_range_rank_exclude_group(self):
+        """
+        Tests that a Window expression with a frame exclusion correctly generates SQL for a row-range ranking operation.
+
+        The test checks that the Window expression, which includes an average salary calculation over a frame of rows excluding the current group, produces the expected SQL and results.
+
+        The test case verifies the generated SQL includes the 'ROWS BETWEEN 1 PRECEDING AND 1 FOLLOWING EXCLUDE GROUP' frame specification, and that the QuerySet results match the expected average salary values for each employee.
+
+        This test requires a database backend that supports frame exclusion in Window expressions.
+        """
         qs = Employee.objects.annotate(
             avg_salary_cohort=Window(
                 expression=Avg("salary"),
@@ -1783,6 +2003,24 @@ class WindowFunctionTests(TestCase):
                 )
 
     def test_invalid_start_value_range(self):
+        """
+        Tests that an invalid start value range for a Window annotation raises a ValueError.
+
+        The function checks that attempting to create a Window with a start value that is not a negative integer, zero, or None results in a ValueError being raised.
+
+        Args:
+            None
+
+        Raises:
+            ValueError: If the start value is not a valid range value (negative integer, zero, or None).
+
+        Returns:
+            None
+
+        Notes:
+            This test case covers the scenario where the start value is a positive integer (in this case, 3), which is an invalid range value for a Window annotation.
+
+        """
         msg = "start argument must be a negative integer, zero, or None, but got '3'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1847,6 +2085,18 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_end_row_range(self):
+        """
+        Tests that a ValueError is raised when the end argument in the RowRange window frame is not a valid type.
+
+        The function checks that providing a non-integer, non-zero, and non-None value for the end argument results in a ValueError.
+        It verifies that the error message correctly identifies the invalid type and its value.
+
+        Args: None
+
+        Returns: None
+
+        Raises: ValueError if the end argument is not a valid type.
+        """
         msg = "end argument must be an integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1860,6 +2110,17 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("only_supports_unbounded_with_preceding_and_following")
     def test_unsupported_range_frame_start(self):
+        """
+
+        Tests that a database backend correctly raises an error when trying to use a
+        range frame start with a value other than UNBOUNDED, which is only allowed in
+        combination with PRECEDING and FOLLOWING.
+
+        Checks that the database connection correctly enforces this constraint and
+        raises a NotSupportedError with a descriptive message when an invalid range
+        frame start is specified.
+
+        """
         msg = (
             "%s only supports UNBOUNDED together with PRECEDING and FOLLOWING."
             % connection.display_name
@@ -1877,6 +2138,14 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("only_supports_unbounded_with_preceding_and_following")
     def test_unsupported_range_frame_end(self):
+        """
+
+        Tests the unsupported range frame end for window functions.
+
+        This test verifies that an error is raised when an unsupported range frame end is specified for a window function.
+        The test checks that the database connection does not support the specified frame end, and that a NotSupportedError is raised with a descriptive message.
+
+        """
         msg = (
             "%s only supports UNBOUNDED together with PRECEDING and FOLLOWING."
             % connection.display_name
@@ -1893,6 +2162,13 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_type_start_row_range(self):
+        """
+        Tests that a ValueError is raised when an invalid type is used for the start of a row range in a Window annotation.
+
+        The function verifies that attempting to use a non-integer, non-zero, and non-None value as the start argument results in a ValueError with a specific error message. This ensures that the Window annotation correctly validates its inputs and handles invalid types as expected.
+
+        This test case covers a specific scenario where the start argument is set to a string value, which is not a valid input type for this parameter. The expected error message is checked to ensure that it matches the expected output, providing confidence in the correct functioning of the Window annotation's input validation mechanism.
+        """
         msg = "start argument must be an integer, zero, or None, but got 'a'."
         with self.assertRaisesMessage(ValueError, msg):
             list(
@@ -1906,6 +2182,16 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_filter(self):
+        """
+
+        Tests that using heterogeneous disjunctive predicates against window functions
+        in conditional aggregation raises a NotImplementedError.
+
+        Verifies that both filter() and exclude() methods raise an error when attempting
+        to combine window function predicates with other conditions, due to the current
+        limitation in implementing this functionality.
+
+        """
         msg = (
             "Heterogeneous disjunctive predicates against window functions are not "
             "implemented when performing conditional aggregation."
@@ -1961,6 +2247,16 @@ class NonQueryWindowTests(SimpleTestCase):
         )
 
     def test_window_frame_repr(self):
+        """
+        Tests the string representation of window frame objects.
+
+        This function checks that the repr() method of RowRange and ValueRange objects
+        returns a string in the correct format, which reflects the frame's boundaries
+        and exclusion settings. It covers various scenarios, including frames with
+        preceding, following, and current row boundaries, as well as different
+        exclusion settings. The goal is to ensure that the string representation of
+        window frames is consistent and accurately conveys their definition. 
+        """
         self.assertEqual(
             repr(RowRange(start=-1)),
             "<RowRange: ROWS BETWEEN 1 PRECEDING AND UNBOUNDED FOLLOWING>",
@@ -1994,21 +2290,59 @@ class NonQueryWindowTests(SimpleTestCase):
         self.assertEqual(repr(WindowFrameExclusion.TIES), "WindowFrameExclusion.TIES")
 
     def test_empty_group_by_cols(self):
+        """
+        Tests that an empty group by columns list is returned for a Window with no group by clause.
+
+        Verifies that a Window instance with an aggregate expression but no group by columns
+        returns an empty list when get_group_by_cols is called and does not contain any aggregates.
+
+        """
         window = Window(expression=Sum("pk"))
         self.assertEqual(window.get_group_by_cols(), [])
         self.assertFalse(window.contains_aggregate)
 
     def test_frame_empty_group_by_cols(self):
+        """
+        Tests that an empty WindowFrame instance has no group by columns.
+
+        Verifies the correctness of the get_group_by_cols method when the WindowFrame
+        is newly created and no group by columns have been specified.
+
+        Expected result: an empty list is returned, indicating no group by columns
+        are defined for the frame.
+        """
         frame = WindowFrame()
         self.assertEqual(frame.get_group_by_cols(), [])
 
     def test_frame_window_frame_notimplemented(self):
+        """
+        Tests that calling window_frame_start_end on a WindowFrame instance raises a NotImplementedError.
+
+        This test ensures that subclasses of WindowFrame implement the window_frame_start_end method, 
+        which is expected to be overridden to provide a meaningful implementation.
+
+        The test verifies that the error message 'Subclasses must implement window_frame_start_end().' 
+        is correctly raised when window_frame_start_end is called on a WindowFrame instance without 
+        a custom implementation.
+
+        Note: This test does not validate the correctness of the implementation in any subclass, 
+        but rather enforces the requirement that the method must be implemented by subclasses.
+        """
         frame = WindowFrame()
         msg = "Subclasses must implement window_frame_start_end()."
         with self.assertRaisesMessage(NotImplementedError, msg):
             frame.window_frame_start_end(None, None, None)
 
     def test_invalid_order_by(self):
+        """
+        Tests that an invalid order_by parameter raises a ValueError.
+
+        The function verifies that passing an invalid value to the order_by parameter,
+        in this case a dictionary, results in a ValueError with a descriptive message.
+        This ensures that the Window object validates its order_by parameter correctly,
+        only allowing strings, expressions, or lists/tuples of them.
+
+        """
         msg = (
             "Window.order_by must be either a string reference to a field, an "
             "expression, or a list or tuple of them."

@@ -14,6 +14,18 @@ from django.utils.version import PY311
 class DateParseTests(unittest.TestCase):
     def test_parse_date(self):
         # Valid inputs
+        """
+
+        Tests the parse_date function to ensure it correctly interprets dates in various formats.
+
+        This test case checks the function's ability to parse dates in the following formats:
+        - ISO date format (YYYY-MM-DD)
+        - Short month and day format (YYYY-M-D)
+        - ISO date format without separation (YYYYMMDD), for supported Python versions
+        It also verifies that the function correctly handles invalid dates and returns None for ambiguous or unclear formats.
+        Furthermore, it checks that a ValueError is raised when attempting to parse a date with an invalid day value.
+
+        """
         self.assertEqual(parse_date("2012-04-23"), date(2012, 4, 23))
         self.assertEqual(parse_date("2012-4-9"), date(2012, 4, 9))
         if PY311:
@@ -98,6 +110,15 @@ class DateParseTests(unittest.TestCase):
 
 class DurationParseTests(unittest.TestCase):
     def test_parse_python_format(self):
+        """
+        .. method:: test_parse_python_format()
+
+            Verifies the correctness of the :func:`parse_duration` function in parsing time delta durations.
+
+            The test iterates over a variety of time delta scenarios, checking that the duration can be correctly converted to a string and then back to its original time delta, ensuring the round-trip conversion does not lose any information. 
+
+            The test cases cover different time delta combinations, including positive, negative, and zero values for days, hours, minutes, seconds, and milliseconds, to ensure the function handles all possible time delta scenarios.
+        """
         timedeltas = [
             timedelta(
                 days=4, minutes=15, seconds=30, milliseconds=100
@@ -114,6 +135,13 @@ class DurationParseTests(unittest.TestCase):
                 self.assertEqual(parse_duration(format(delta)), delta)
 
     def test_parse_postgresql_format(self):
+        """
+        Tests the parsing of PostgreSQL duration format strings into timedelta objects.
+
+        This test checks the correct interpretation of various duration formats, including days, hours, minutes, seconds, and fractional seconds, as well as negative values and different combinations of units.
+
+        The test cases cover a range of scenarios to ensure that the parse_duration function can handle various input formats and edge cases, producing the expected timedelta objects as output.
+        """
         test_values = (
             ("1 day", timedelta(1)),
             ("-1 day", timedelta(-1)),
@@ -143,6 +171,16 @@ class DurationParseTests(unittest.TestCase):
         self.assertEqual(parse_duration("5:30"), timedelta(minutes=5, seconds=30))
 
     def test_hours_minutes_seconds(self):
+        """
+
+        Tests the parse_duration function to ensure it correctly parses time durations 
+        in the format 'HH:MM:SS' into timedelta objects.
+
+        This test verifies that the function accurately handles a variety of input 
+        scenarios, including single-digit hours, minutes, and seconds, as well as 
+        larger values for hours, minutes, and seconds.
+
+        """
         self.assertEqual(
             parse_duration("10:15:30"), timedelta(hours=10, minutes=15, seconds=30)
         )
@@ -178,6 +216,9 @@ class DurationParseTests(unittest.TestCase):
                 self.assertEqual(parse_duration(source), expected)
 
     def test_negative(self):
+        """
+        Test the parsing of negative duration strings, verifying that the :func:`parse_duration` function correctly handles various formats and returns the expected :class:`timedelta` objects. The test cases cover a range of negative durations, including those specified in days, hours, minutes, and seconds, as well as edge cases such as leading zeros and decimal values.
+        """
         test_values = (
             ("-4 15:30", timedelta(days=-4, minutes=15, seconds=30)),
             ("-172800", timedelta(days=-2)),

@@ -16,6 +16,17 @@ class Numbers:
 
 class PreviousDjangoVersionQuerySet(models.QuerySet):
     def __getstate__(self):
+        """
+        Returns the object's state for pickling purposes, including the Django version.
+
+        This method is used by the Python pickle module to serialize the object's state. 
+        It extends the state returned by the superclass with a specific Django version key.
+
+        The addition of the Django version allows for proper deserialization and versioning of the object when it is unpickled.
+
+        :return: A dictionary representing the object's state, including the Django version.
+
+        """
         state = super().__getstate__()
         state[DJANGO_VERSION_PICKLE_KEY] = "1.0"
         return state

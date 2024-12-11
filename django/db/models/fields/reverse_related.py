@@ -227,6 +227,20 @@ class ForeignObjectRel(FieldCacheMixin):
         # but this can be overridden with the "related_name" option. Due to
         # backwards compatibility ModelForms need to be able to provide an
         # alternate model. See BaseInlineFormSet.get_default_prefix().
+        """
+        Returns the name of the accessor for the related model.
+
+        This accessor name is used to reference the related model from the current model.
+        If a related name is specified, it is returned. Otherwise, the accessor name is
+        generated based on the model name and whether the relationship is multiple or not.
+
+        If the relationship is symmetrical and the model is the same as the current model,
+        no accessor name is returned (i.e., None).
+
+        :param model: The model for which to generate the accessor name. If not provided,
+                      the related model is used.
+        :rtype: str or None
+        """
         opts = model._meta if model else self.related_model._meta
         model = model or self.related_model
         if self.multiple:
@@ -283,6 +297,24 @@ class ManyToOneRel(ForeignObjectRel):
         parent_link=False,
         on_delete=None,
     ):
+        """
+
+        Initializes a relationship field that establishes a link between the current model and another model.
+
+        The relationship is defined by specifying the field to use and the model to link to. Additional parameters can be used to customize the relationship, such as setting a custom field name, related name, or query name.
+
+         Parameters:
+            field (object): The field instance that the relationship is based on.
+            to (object): The model that this field is related to.
+            field_name (str): The name of the field on the related model.
+            related_name (str, optional): The name to use for the relationship on the related model.
+            related_query_name (str, optional): The name to use for the relationship when used in a query.
+            limit_choices_to (object, optional): A filter to apply to the choices available for this relationship.
+            parent_link (bool, optional): Whether this field represents a link to a parent model.
+            on_delete (object, optional): The action to take when the related model instance is deleted.
+
+
+        """
         super().__init__(
             field,
             to,

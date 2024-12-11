@@ -19,6 +19,15 @@ class FromDBValueTest(TestCase):
         self.assertIsInstance(values_list[0], Cash)
 
     def test_values(self):
+        """
+
+        Tests that the 'cash' values retrieved from the CashModel are indeed instances of Cash.
+
+        This test case ensures data consistency by verifying that the cash values stored in the database are of the expected type, i.e., Cash objects. If the test passes, it confirms that the data is being properly serialized and deserialized, allowing for reliable operations on cash values.
+
+        Note: This test assumes that the CashModel has at least one entry in the database.
+
+        """
         values = CashModel.objects.values("cash")
         self.assertIsInstance(values[0]["cash"], Cash)
 
@@ -31,5 +40,15 @@ class FromDBValueTest(TestCase):
         self.assertIsInstance(instance.cash, Cash)
 
     def test_connection(self):
+        """
+
+        Tests the connection by verifying that the vendor of the cash object
+        matches the vendor specified in the connection settings.
+
+        This function retrieves a CashModel instance from the database and
+        compares its vendor attribute with the vendor attribute of the
+        connection object, asserting that they are equal.
+
+        """
         instance = CashModel.objects.get()
         self.assertEqual(instance.cash.vendor, connection.vendor)

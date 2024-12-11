@@ -123,6 +123,14 @@ class SimpleTemplateResponse(HttpResponse):
         return self._is_rendered
 
     def __iter__(self):
+        """
+        Returns an iterator object for the response content, allowing it to be iterated over in a loop.
+
+        This method is only usable after the response content has been rendered. If the content has not been rendered, a :exc:`ContentNotRenderedError` is raised.
+
+        :raises ContentNotRenderedError: if the response content is not rendered before iteration.
+        :rtype: iterator
+        """
         if not self._is_rendered:
             raise ContentNotRenderedError(
                 "The response content must be rendered before it can be iterated over."

@@ -9,6 +9,16 @@ from django.views.csrf import CSRF_FAILURE_TEMPLATE_NAME, csrf_failure
 @override_settings(ROOT_URLCONF="view_tests.urls")
 class CsrfViewTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment by initializing the parent class and configuring a test client with CSRF checks enabled.\"\"\"
+
+        \"\"\" 
+            This method is used to prepare the test setup by calling the parent class's 
+            setup method and then creating a test client instance. The test client is 
+            configured to enforce CSRF checks, which helps to simulate a real-world 
+            scenario and ensures the security of the application is properly tested.
+
+        """
         super().setUp()
         self.client = Client(enforce_csrf_checks=True)
 
@@ -136,6 +146,18 @@ class CsrfViewTests(SimpleTestCase):
     @override_settings(DEBUG=True)
     @mock.patch("django.views.csrf.get_docs_version", return_value="4.2")
     def test_doc_links(self, mocked_get_complete_version):
+        """
+
+        Tests that the documentation links are correctly replaced in the error response.
+
+        The test verifies that when the DEBUG setting is enabled and a request is made
+        with missing or invalid CSRF token, the response contains a link to the Django
+        documentation for the version specified by the get_docs_version function, rather
+        than the development version. The test asserts that the response status code is
+        403 (Forbidden) and that it contains the expected documentation link, but not
+        the link to the development version.
+
+        """
         response = self.client.post("/")
         self.assertContains(response, "Forbidden", status_code=403)
         self.assertNotContains(

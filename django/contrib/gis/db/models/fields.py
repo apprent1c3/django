@@ -158,6 +158,11 @@ class BaseSpatialField(Field):
             return srid
 
     def get_db_prep_value(self, value, connection, *args, **kwargs):
+        """
+        Returns a value prepared for use with a database connection, handling geography-specific data if applicable. 
+
+        This method takes a value and a database connection as input, and returns a value that is suitable for storage or querying in the database. If the value is None, it is returned immediately. Otherwise, the method uses the database connection's adapter to prepare the value, optionally enabling geographic data handling if the field is configured as a geography field and the database connection supports it.
+        """
         if value is None:
             return None
         return connection.ops.Adapter(
@@ -398,6 +403,13 @@ class RasterField(BaseSpatialField):
 
     def _check_connection(self, connection):
         # Make sure raster fields are used only on backends with raster support.
+        """
+        Checks if a given database connection has the required capabilities for raster operations.
+
+        This method verifies that the database connection supports geographic information systems (GIS) and raster data types, 
+        which are necessary for working with raster fields. If the connection does not meet these requirements, 
+        it raises an :exc:`ImproperlyConfigured` exception to indicate that the configuration is invalid for raster operations.
+        """
         if (
             not connection.features.gis_enabled
             or not connection.features.supports_raster

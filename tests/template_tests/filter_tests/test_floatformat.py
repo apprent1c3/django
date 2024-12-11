@@ -18,6 +18,16 @@ class FloatformatTests(SimpleTestCase):
         }
     )
     def test_floatformat01(self):
+        """
+
+        Tests the floatformat filter in a template.
+
+        This test case checks if the floatformat filter correctly formats floating point numbers.
+        It provides two values, one as a string and the other as a marked safe string, to verify
+        if the filter works as expected in both cases. The test compares the rendered template
+        output with the expected result to ensure the filter is applied correctly.
+
+        """
         output = self.engine.render_to_string(
             "floatformat01", {"a": "1.42", "b": mark_safe("1.42")}
         )
@@ -25,6 +35,17 @@ class FloatformatTests(SimpleTestCase):
 
     @setup({"floatformat02": "{{ a|floatformat }} {{ b|floatformat }}"})
     def test_floatformat02(self):
+        """
+        },{
+            :param None: 
+            :return: None 
+            :raises: AssertionError if the rendered string does not match '1.4 1.4'
+
+            Test the functionality of floatformat filter in a templating engine. This function checks if the floatformat filter 
+            correctly formats the given floating point numbers to one decimal place. It also verifies that the filter works with 
+            both string and mark_safe inputs. The test case asserts that the formatted output is '1.4 1.4' for the given input 
+            values '1.42' and '1.42'.
+        """
         output = self.engine.render_to_string(
             "floatformat02", {"a": "1.42", "b": mark_safe("1.42")}
         )
@@ -33,6 +54,12 @@ class FloatformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_inputs(self):
+        """
+        ..: 
+            Test the function floatformat with a variety of inputs, including floating point numbers and Decimal objects.
+            It covers different cases such as numbers with and without decimal points, negative numbers, and numbers with a large or small number of decimal places.
+            The tests include checking the function's behavior with different precision settings and invalid input.
+        """
         self.assertEqual(floatformat(7.7), "7.7")
         self.assertEqual(floatformat(7.0), "7")
         self.assertEqual(floatformat(0.7), "0.7")
@@ -75,6 +102,17 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(1.00000000000000015, 16), "1.0000000000000002")
 
     def test_invalid_inputs(self):
+        """
+        Tests the floatformat function with a variety of invalid inputs.
+
+        Checks that the function correctly handles and returns an empty string for different types of invalid input values, including:
+        - None and empty data structures (lists, dictionaries)
+        - Objects and strings with non-numeric content
+        - Strings with unsupported exponential notation
+        - Strings containing special characters or Unicode
+
+        The test cases cover various edge cases, ensuring the floatformat function behaves as expected when given malformed or non-numeric input, with and without an optional argument.
+        """
         cases = [
             # Non-numeric strings.
             None,
@@ -126,6 +164,22 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(10000, "g2"), "10000")
 
     def test_unlocalize(self):
+        """
+
+        Test the unlocalization of float formatting.
+
+        This test case verifies that the float formatting behaves as expected when the
+        locale is overridden or deactivated. It checks the formatting of numbers with and
+        without thousand separators, and ensures that the correct decimal and thousand
+        separators are used based on the provided format specifiers and system settings.
+
+        The test covers various formatting options, including the use of a decimal point or
+        comma as the decimal separator, the handling of thousand separators, and the
+        application of number grouping rules. The expected outputs are validated to ensure
+        that the float formatting function produces the correct results in different
+        scenarios.
+
+        """
         with translation.override("de", deactivate=True):
             self.assertEqual(floatformat(66666.666, "2"), "66666,67")
             self.assertEqual(floatformat(66666.666, "2u"), "66666.67")
@@ -154,6 +208,27 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(Decimal("0.000000"), 4), "0.0000")
 
     def test_negative_zero_values(self):
+        """
+        Tests the functionality of floatformat with negative zero values.
+
+        This test case verifies that the floatformat function correctly handles negative numbers
+        close to zero, ensuring that they are formatted as expected with varying numbers of decimal places.
+
+        The test consists of multiple sub-tests, each covering a different scenario where a negative number
+        near zero is formatted with a specified number of decimal places, and the result is compared to an
+        expected output string. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If any of the test cases fail, indicating an issue with the floatformat function's 
+            handling of negative zero values.
+
+        """
         tests = [
             (-0.01, -1, "0.0"),
             (-0.001, 2, "0.00"),
@@ -171,6 +246,17 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(pos_inf / pos_inf), "nan")
 
     def test_float_dunder_method(self):
+        """
+
+        Tests the float dunder method by creating a custom FloatWrapper class.
+
+        This test case verifies that the floatformat function correctly formats the floating point value 
+        encapsulated within the FloatWrapper class, ensuring proper rounding and precision handling.
+
+        The test checks if the floatformat function can correctly extract the floating point value from 
+        the custom class and format it to the specified precision, in this case, two decimal places.
+
+        """
         class FloatWrapper:
             def __init__(self, value):
                 self.value = value

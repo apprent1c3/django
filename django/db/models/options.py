@@ -245,6 +245,20 @@ class Options:
         return new_objs
 
     def _get_default_pk_class(self):
+        """
+
+        Retrieves the default primary key class as specified in the application configuration.
+
+        The default primary key class is determined by the value of `default_auto_field` in the application configuration.
+        If this value is not set, it defaults to the global `DEFAULT_AUTO_FIELD` setting.
+
+        The function validates the primary key class by ensuring it is not empty, can be imported, and is a subclass of `AutoField`.
+        If any of these conditions are not met, it raises an `ImproperlyConfigured` or `ValueError` exception accordingly.
+
+        Returns:
+            The default primary key class.
+
+        """
         pk_class_path = getattr(
             self.app_config,
             "default_auto_field",
@@ -328,6 +342,17 @@ class Options:
         # the "creation_counter" attribute of the field.
         # Move many-to-many related fields from self.fields into
         # self.many_to_many.
+        """
+        Adds a field to the model, optionally marking it as private.
+
+        The field is added to the model's fields, either to the private fields or to the local fields, depending on the `private` parameter.
+        For fields that are many-to-many relationships, the field is added to the model's many-to-many fields.
+        If the field is a relation, the cache of the related model is expired.
+        Finally, the model's cache is expired to ensure that the new field is taken into account.
+
+        :param field: The field to add to the model.
+        :param private: Whether the field should be marked as private, defaults to False.
+        """
         if private:
             self.private_fields.append(field)
         elif field.is_relation and field.many_to_many:
@@ -624,6 +649,18 @@ class Options:
 
     @cached_property
     def _forward_fields_map(self):
+        """
+        Creates a mapping of field names and attribute names to their corresponding field objects.
+
+        This private method returns a dictionary containing all fields in the object, keyed by both their name and attribute name (if available). 
+
+        The returned dictionary can be used to look up field objects by their name or attribute name, allowing for easier access and manipulation of the object's fields. 
+
+        The mapping is cached to improve performance by avoiding repeated computation. 
+
+        :rtype: dict
+
+        """
         res = {}
         fields = self._get_fields(reverse=False)
         for field in fields:

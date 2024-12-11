@@ -96,6 +96,15 @@ class NestedForeignKeysTests(TestCase):
         )
 
     def test_null_exclude(self):
+        """
+        Tests that excluding screenings by movie ID successfully filters out screenings 
+        associated with the specified movie and returns the expected screening objects.
+
+        The test validates the functionality of the exclude() method in the ScreeningNullFK 
+        model by creating two screenings, one with a null movie association and another 
+        with a valid movie association. It then verifies that excluding the screening 
+        associated with a specific movie returns the screening with the null movie association.
+        """
         screening = ScreeningNullFK.objects.create(movie=None)
         ScreeningNullFK.objects.create(movie=self.movie)
         self.assertEqual(
@@ -134,6 +143,20 @@ class NestedForeignKeysTests(TestCase):
 
     # These all work because the second foreign key in the chain has null=True.
     def test_explicit_ForeignKey_NullFK(self):
+        """
+        Tests the behavior of explicit ForeignKeys with null values.
+
+        This test case creates objects with a null ForeignKey and verifies that various
+        Django ORM methods, such as `select_related`, `values`, `filter`, and `exclude`,
+        correctly handle these null values. It also checks that the expected number of
+        objects is returned by these methods. The goal is to ensure that the ORM behaves
+        as expected when working with models that have explicit ForeignKeys that can be null.
+
+        The test case covers a range of scenarios, including creating objects with and
+        without a related object, and querying these objects using different methods.
+        By verifying the expected results, this test case provides assurance that the
+        ORM is functioning correctly in the presence of null ForeignKeys.
+        """
         PackageNullFK.objects.create()
         screening = ScreeningNullFK.objects.create(movie=None)
         screening_with_movie = ScreeningNullFK.objects.create(movie=self.movie)

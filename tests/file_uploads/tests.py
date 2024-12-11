@@ -64,11 +64,30 @@ CANDIDATE_INVALID_FILE_NAMES = [
 class FileUploadTests(TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the test class by creating the media root directory if it does not exist.
+
+         The directory is created with the exist_ok flag set to True, meaning that if the directory already exists, no exception is raised.
+
+         Additionally, a class cleanup is added to remove the media root directory after all tests in the class have finished running, ensuring a clean environment for subsequent tests.
+        """
         super().setUpClass()
         os.makedirs(MEDIA_ROOT, exist_ok=True)
         cls.addClassCleanup(shutil.rmtree, MEDIA_ROOT)
 
     def test_upload_name_is_validated(self):
+        """
+        Tests the validation of uploaded file names to prevent suspicious operations.
+
+        Checks that UploadedFile raises a SuspiciousFileOperation exception when 
+        given file names that are likely to be used in unauthorized file access 
+        attempts, such as names that resolve to parent directory ('..') or the 
+        current directory ('.').
+
+        The test includes platform-specific file name examples for Windows and 
+        other operating systems to ensure validation works correctly across 
+        different platforms.
+        """
         candidates = [
             "/tmp/",
             "/tmp/..",
@@ -87,6 +106,14 @@ class FileUploadTests(TestCase):
                 self.assertRaises(SuspiciousFileOperation, UploadedFile, name=file_name)
 
     def test_simple_upload(self):
+        """
+        Tests a simple file upload to the '/upload/' endpoint.
+
+        Checks that a file can be successfully uploaded by sending a POST request
+        to the specified endpoint with a file attached to the 'file_field' form field.
+        The test verifies that the server responds with a 200 status code, indicating
+        a successful upload.
+        """
         with open(__file__, "rb") as fp:
             post_data = {
                 "name": "Ringo",
@@ -96,6 +123,16 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_large_upload(self):
+        """
+        Tests the successful upload of large files through the '/verify/' endpoint.
+
+        This test creates two temporary files of different sizes (2MB and 10MB), adds them to a POST request
+        along with a name field, calculates the SHA-1 hash of each file, and sends the request to the server.
+        The function then asserts that the server responds with a status code of 200, indicating a successful upload.
+
+        The purpose of this test is to ensure that the server can handle large file uploads without errors or
+        timeouts, and that the file hashing functionality works correctly for files of various sizes.
+        """
         file = tempfile.NamedTemporaryFile
         with file(suffix=".file1") as file1, file(suffix=".file2") as file2:
             file1.write(b"a" * (2**21))
@@ -126,6 +163,27 @@ class FileUploadTests(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def _test_base64_upload(self, content, encode=base64.b64encode):
+        """
+
+        Tests the upload of a file encoded in base64 via a multipart form request.
+
+        This method sends a POST request to the /echo_content/ endpoint with a base64 encoded file in the request body.
+        It then verifies that the server correctly decodes the file and returns its original content.
+
+        The test can be customized to use different encoding methods by passing an alternative encoding function via the `encode` parameter.
+
+        Parameters
+        ----------
+        content : str
+            The content of the file to be uploaded.
+        encode : function
+            The encoding function to use for the file content (defaults to base64.b64encode).
+
+        Returns
+        -------
+        None
+
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -159,6 +217,21 @@ class FileUploadTests(TestCase):
         self._test_base64_upload("Big data" * 68000, encode=base64.encodebytes)
 
     def test_base64_invalid_upload(self):
+        """
+        Tests the handling of an invalid base64 encoded file upload.
+
+        This test case simulates a POST request with a multipart/form-data payload containing
+        a file with a base64 content-transfer-encoding header. The file contents are intentionally
+        malformed, containing non-base64 characters, to verify that the server correctly handles
+        such errors. The response from the server is then validated to ensure that it returns an
+        empty file, indicating that the invalid upload was rejected.
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the server response does not match the expected result.
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -183,6 +256,14 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.json()["file"], "")
 
     def test_unicode_file_name(self):
+        """
+
+        Tests the handling of a file with a Unicode name.
+
+        This test case creates a temporary file with a Unicode name, writes data to it, and then submits it to the server via a POST request.
+        The test verifies that the server responds with a successful status code (200), indicating that the file was handled correctly.
+
+        """
         with sys_tempfile.TemporaryDirectory() as temp_dir:
             # This file contains Chinese symbols and an accented char in the name.
             with open(os.path.join(temp_dir, UNICODE_FILENAME), "w+b") as file1:
@@ -275,6 +356,15 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_unicode_name_rfc2231_with_double_quotes(self):
+        """
+
+        Tests handling of a Unicode filename with double quotes in the name according to RFC 2231.
+
+        This test sends a POST request with a multipart/form-data payload containing a file 
+        with a Unicode name that includes double quotes. It verifies that the server can 
+        parse the filename correctly and returns a successful response (200 status code).
+
+        """
         payload = client.FakePayload()
         payload.write(
             "\r\n".join(
@@ -344,6 +434,16 @@ class FileUploadTests(TestCase):
             self.assertIsNone(received.get("file%s" % i))
 
     def test_non_printable_chars_in_file_names(self):
+        """
+
+        Tests the handling of non-printable characters in file names during a multipart form-data request.
+
+        This test verifies that the server correctly processes a file with a name containing non-printable characters,
+        such as null bytes and newline characters, and that the received file name is sanitized to remove these characters.
+
+        The expected outcome is that the server receives the file and returns a response with the sanitized file name.
+
+        """
         file_name = "non-\x00printable\x00\n_chars.txt\x00"
         payload = client.FakePayload()
         payload.write(
@@ -451,6 +551,23 @@ class FileUploadTests(TestCase):
             )
 
     def test_file_content(self):
+        """
+
+        Test the functionality of handling different types of file content in a POST request.
+
+        This test creates temporary files with and without content types, as well as in-memory strings and binary data.
+        It then sends these files and data to a server endpoint using a POST request and verifies that the server
+        correctly receives and returns the content of each file and data stream.
+
+        The test checks for the following scenarios:
+        - A file without a content type
+        - A file with a content type (in this case, 'text/plain')
+        - A string sent as a file-like object
+        - Binary data sent as a file-like object
+
+        The test passes if the server correctly echoes back the content of each file and data stream.
+
+        """
         file = tempfile.NamedTemporaryFile
         with (
             file(suffix=".ctype_extra") as no_content_type,
@@ -575,6 +692,17 @@ class FileUploadTests(TestCase):
                 self.client.post("/quota/broken/", {"f": file})
 
     def test_stop_upload_temporary_file_handler(self):
+        """
+        Tests the functionality of stopping an upload of a temporary file.
+
+        This test case simulates an upload of a temporary file and verifies that the 
+        file is properly removed when the upload is stopped. It checks if the temporary 
+        file path returned in the response no longer corresponds to an existing file on 
+        the file system after the upload has been stopped. 
+
+        The test ensures that the server correctly handles the stop upload request and 
+        removes the temporary file as expected.
+        """
         with tempfile.NamedTemporaryFile() as temp_file:
             temp_file.write(b"a")
             temp_file.seek(0)
@@ -584,8 +712,29 @@ class FileUploadTests(TestCase):
 
     def test_upload_interrupted_temporary_file_handler(self):
         # Simulate an interrupted upload by omitting the closing boundary.
+        """
+        Tests the handling of interrupted file uploads by verifying that a temporary file created during the upload process is properly deleted when the upload is interrupted.
+
+        The test simulates a file upload with an interrupted request, and checks that the temporary file is not left behind on the server. It ensures that the system correctly cleans up after an interrupted upload operation.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the temporary file created during the interrupted upload still exists after the upload is completed.
+
+        This test case covers the scenario where a file upload is interrupted before completion, and verifies that the system's temporary file handling mechanism behaves as expected in such cases.
+        """
         class MockedParser(Parser):
             def __iter__(self):
+                """
+                .. method:: __iter__()
+
+                   Returns an iterator over the items in the object, yielding a tuple for each item containing its type, meta data, and field stream. The iteration stops when a file type item is encountered.
+                """
                 for item in super().__iter__():
                     item_type, meta_data, field_stream = item
                     yield item_type, meta_data, field_stream
@@ -607,6 +756,17 @@ class FileUploadTests(TestCase):
             self.assertIs(os.path.exists(temp_path), False)
 
     def test_upload_large_header_fields(self):
+        """
+        Tests the upload functionality when dealing with large header fields.
+
+        This test case simulates a POST request with a multipart/form-data payload containing a file,
+        where one of the header fields has a notably large value. It verifies that the request is
+        successfully processed and the response contains the expected data.
+
+        The test checks for a status code of 200 and ensures that the JSON response matches the
+        expected output, confirming that the large header field does not interfere with the
+        upload process or the parsing of the request contents.
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -633,6 +793,14 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.json(), {"my_file": "file contents"})
 
     def test_upload_header_fields_too_large(self):
+        """
+        Tests that uploading a file with header fields that exceed the maximum allowed size results in a bad request response (400 status code).
+
+        This test simulates an HTTP POST request with a multipart/form-data payload containing a file, where one of the header fields ('X-Long-Header') has a value that exceeds the maximum total header size.
+
+        The test verifies that the server correctly rejects the request and returns a 400 status code, indicating a bad request.
+
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -686,6 +854,24 @@ class FileUploadTests(TestCase):
             self.assertEqual(got.get("file2"), 2)
 
     def test_fileuploads_closed_at_request_end(self):
+        """
+
+        Tests whether file uploads are properly closed at the end of a request.
+
+        This test case simulates a file upload request with multiple files and 
+        verifies that all uploaded files are closed after the request has been processed.
+        It checks the request object's attributes to ensure that the uploaded files 
+        are no longer open, preventing potential resource leaks.
+
+        The test covers the following scenarios:
+
+        * Single file upload
+        * Multiple file upload with the same name
+
+        By verifying that all uploaded files are closed, this test ensures that 
+        the application behaves correctly and does not waste system resources.
+
+        """
         file = tempfile.NamedTemporaryFile
         with file() as f1, file() as f2a, file() as f2b:
             response = self.client.post(
@@ -734,6 +920,32 @@ class FileUploadTests(TestCase):
             """A handler that'll access POST during an exception."""
 
             def handle_uncaught_exception(self, request, resolver, exc_info):
+                """
+                Handles uncaught exceptions that occur during the resolution of a request.
+
+                This method is called when an exception is raised during the processing of a request.
+                It allows for additional handling and inspection of the exception, while also permitting
+                the base class to perform its standard exception handling.
+
+                The method provides access to the original request, the resolver that was being used,
+                and information about the exception that was raised, including its type, value, and traceback.
+
+                Parameters
+                ----------
+                request : object
+                    The request that was being processed when the exception occurred.
+                resolver : object
+                    The resolver that was being used to process the request.
+                exc_info : tuple
+                    A tuple containing information about the exception, including its type, value, and traceback.
+
+                Returns
+                -------
+                object
+                    The result of the base class's exception handling, which may or may not include additional
+                    information or modified behavior based on the specifics of the exception and request.
+
+                """
                 ret = super().handle_uncaught_exception(request, resolver, exc_info)
                 request.POST  # evaluate
                 return ret
@@ -799,6 +1011,23 @@ class FileUploadTests(TestCase):
         self.assertEqual(os.path.basename(obj.testfile.path), "MiXeD_cAsE.txt")
 
     def test_filename_traversal_upload(self):
+        """
+        Tests the filename traversal vulnerability in file uploads.
+
+        This test ensures that the server correctly handles filenames with 
+        directory traversal characters ('..' and '/\' or '\'') and prevents 
+        uploads from being written outside of the intended upload directory.
+
+        The test sends a POST request with a multipart/form-data payload 
+        containing a file with a specially crafted filename, and checks that 
+        the server responds with a 200 status code and writes the file to the 
+        correct location within the upload directory, without allowing the 
+        file to be written to an arbitrary location on the server's filesystem.
+
+        The test covers two types of directory traversal attempts: using 
+        '..' with a forward slash ('/'), and using '..' with a backslash 
+        ('\' or '\\').
+        """
         os.makedirs(UPLOAD_TO, exist_ok=True)
         tests = [
             "..&#x2F;test.txt",
@@ -850,6 +1079,15 @@ class DirectoryCreationTests(SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the class by creating a directory for media storage and schedules its removal after testing.
+
+        This method is used as a class-level setup, ensuring that the required media directory exists
+        before running any tests. After all tests have been executed, the directory and its contents
+        will be deleted to maintain a clean environment.
+
+        """
         super().setUpClass()
         os.makedirs(MEDIA_ROOT, exist_ok=True)
         cls.addClassCleanup(shutil.rmtree, MEDIA_ROOT)
@@ -877,6 +1115,17 @@ class DirectoryCreationTests(SimpleTestCase):
             )
 
     def test_not_a_directory(self):
+        """
+        Tests that a FileExistsError is raised when attempting to save a file to 
+        a location that exists but is not a directory.
+
+        Verifies that the testfile instance correctly handles cases where the 
+        destination is occupied by a non-directory file. The test ensures the 
+        expected error message is provided, indicating the path that exists and 
+        is not a directory. This check is crucial for maintaining data integrity 
+        and providing informative error messages in case of conflicts during file 
+        saving operations.
+        """
         default_storage.delete(UPLOAD_TO)
         # Create a file with the upload directory name
         with SimpleUploadedFile(UPLOAD_TO, b"x") as file:
@@ -903,6 +1152,18 @@ class MultiParserTests(SimpleTestCase):
         )
 
     def test_invalid_content_type(self):
+        """
+
+        Tests that a MultiPartParserError is raised when the content type is invalid.
+
+        This test case verifies that the MultiPartParser correctly handles requests with
+        an invalid Content-Type header. In this scenario, a 'text/plain' content type is
+        provided, which is not supported by the MultiPartParser. The test checks that
+        the expected error message 'Invalid Content-Type: text/plain' is raised.
+
+        :raises: MultiPartParserError
+
+        """
         with self.assertRaisesMessage(
             MultiPartParserError, "Invalid Content-Type: text/plain"
         ):
@@ -917,6 +1178,15 @@ class MultiParserTests(SimpleTestCase):
             )
 
     def test_negative_content_length(self):
+        """
+
+        Verify that a MultiPartParserError is raised when the content length is negative.
+
+        This test case checks that the parser correctly identifies and raises an error
+        when the content length is set to an invalid value, specifically a negative number.
+        The test ensures that the parser's error handling behaves as expected in this scenario.
+
+        """
         with self.assertRaisesMessage(
             MultiPartParserError, "Invalid content length: -1"
         ):
@@ -931,6 +1201,9 @@ class MultiParserTests(SimpleTestCase):
             )
 
     def test_bad_type_content_length(self):
+        """
+        Tests that the MultiPartParser correctly handles a request with a malformed CONTENT_LENGTH header, ensuring that the content length is set to 0 when the provided value cannot be converted to an integer.
+        """
         multipart_parser = MultiPartParser(
             {
                 "CONTENT_TYPE": "multipart/form-data; boundary=_foo",

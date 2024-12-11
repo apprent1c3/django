@@ -34,6 +34,15 @@ class GeneratedField(Field):
 
     @cached_property
     def cached_col(self):
+        """
+        Returns a cached Django database column reference.
+
+        This property provides a :class:`~django.db.models.expressions.Col` object, which represents a column in the database table associated with the model instance. The column is identified by the current object's instance and the output field, allowing for efficient data retrieval.
+
+        The cached result is stored as a property, reducing the overhead of repeated computations. This is useful when the column reference is accessed multiple times, providing a performance optimization for database queries and operations.
+
+        The returned :class:`~django.db.models.expressions.Col` object can be used in various Django database operations, such as filtering, ordering, and aggregation, to interact with the underlying database table.
+        """
         from django.db.models.expressions import Col
 
         return Col(self.model._meta.db_table, self, self.output_field)
@@ -109,6 +118,25 @@ class GeneratedField(Field):
         return errors
 
     def _check_supported(self, databases):
+        """
+        Checks if the specified databases support the model's generated fields.
+
+        This function verifies whether the target databases can handle generated fields
+        defined in the model. It checks for support of virtual and stored generated columns
+        in each database connection, taking into account the model's required database vendor
+        and features.
+
+        Args:
+            databases (list): List of database aliases to check.
+
+        Returns:
+            list: A list of errors if any database does not support generated fields, otherwise an empty list.
+
+        Note:
+            The function skips databases where migration is not allowed for the model or
+            where the database vendor does not match the model's required vendor.
+
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -179,6 +207,9 @@ class GeneratedField(Field):
         return errors
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple that can be used to recreate it, removing the 'blank' and 'editable' keyword arguments and adding 'db_persist', 'expression', and 'output_field' keyword arguments. This method is used to serialize the object's state for persistence or other purposes. The returned tuple contains the name, path, positional arguments, and keyword arguments required to reconstruct the object.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["blank"]
         del kwargs["editable"]

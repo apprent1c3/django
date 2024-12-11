@@ -17,6 +17,11 @@ class RecursiveM2MTests(TestCase):
         cls.d.friends.add(cls.a, cls.c)
 
     def test_recursive_m2m_all(self):
+        """
+        Checks that the many-to-many relationship between people and their friends is correctly established and can be recursively traversed. 
+
+        The test case iterates over several predefined person and friend pairs, verifying that each person's friends match the expected list. This ensures that the relationship is properly set up and can handle complex friendship networks.
+        """
         for person, friends in (
             (self.a, [self.b, self.c, self.d]),
             (self.b, [self.a]),
@@ -53,11 +58,25 @@ class RecursiveM2MTests(TestCase):
 
     def test_recursive_m2m_add_in_both_directions(self):
         # Adding the same relation twice results in a single relation.
+        """
+        Checks the consistency of a many-to-many relationship when adding related objects in both directions. This test ensures that when an object is added to a collection from one side of the relationship, it is correctly reflected in the corresponding collection on the other side.
+        """
         self.a.idols.add(self.d)
         self.d.stalkers.add(self.a)
         self.assertSequenceEqual(self.a.idols.all(), [self.d])
 
     def test_recursive_m2m_related_to_self(self):
+        """
+
+        Tests recursive many-to-many relationships where an instance is related to itself.
+
+        Verifies that an instance can be added to its own many-to-many field and that
+        the relationship is correctly reflected in both directions.
+
+        Ensures data consistency by checking that the instance is correctly retrieved
+        from the many-to-many relationship in both forward and reverse directions.
+
+        """
         self.a.idols.add(self.a)
         self.assertSequenceEqual(self.a.idols.all(), [self.a])
         self.assertSequenceEqual(self.a.stalkers.all(), [self.a])
@@ -114,6 +133,12 @@ class RecursiveSymmetricalM2MThroughTests(TestCase):
 
     def test_recursive_m2m_clear(self):
         # Clear m2m for Anne.
+        """
+        Tests that clearing a Many-To-Many relationship on one side correctly updates the related objects.
+
+        Verifies that when the colleagues of an object are cleared, the friends relationship is also updated, 
+        and that the inverse relationships are maintained correctly for the related objects.
+        """
         self.a.colleagues.clear()
         self.assertSequenceEqual(self.a.friends.all(), [])
         # Reverse m2m relationships is removed.

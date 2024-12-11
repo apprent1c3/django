@@ -74,6 +74,20 @@ class CheckboxSelectMultipleTest(WidgetTest):
         )
 
     def test_nested_choices(self):
+        """
+        cwd
+        .. method:: test_nested_choices
+
+            Tests the rendering of a widget with nested choices.
+
+            This test case verifies that the widget correctly handles a set of nested choices, 
+            where each choice may have a set of sub-choices. The test checks that the HTML 
+            output matches the expected structure, including the correct rendering of 
+            checkboxes, labels, and nesting.
+
+            :return: None 
+            :raises: AssertionError if the HTML output does not match the expected structure.
+        """
         nested_choices = (
             ("unknown", "Unknown"),
             ("Audio", (("vinyl", "Vinyl"), ("cd", "CD"))),
@@ -196,6 +210,20 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        Tests that the widget does not localize the input value when rendering checkboxes.
+
+            Verifies the output HTML for checkbox widgets with different types of choices, 
+            including integers and time objects, to ensure that the input values are not 
+            formatted according to locale settings. The test cases cover various scenarios, 
+            such as numbers with thousand separators and time values in 24-hour format.
+
+            The test checks the generated HTML against expected output, confirming that 
+            the widget produces the correct markup for the given choices and input values.
+
+            The test is run with USE_THOUSAND_SEPARATOR set to True to ensure that the 
+            localization setting does not affect the input values in the rendered HTML.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -227,6 +255,15 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.check_html(self.widget(choices=choices), "times", None, html=html)
 
     def test_use_required_attribute(self):
+        """
+        Tests the usage of the required attribute in a widget.
+
+        This test case verifies the behavior of the :meth:`use_required_attribute` method 
+        in a widget when provided with different input values. It checks if the method 
+        correctly returns False for various input scenarios, including None, an empty list, 
+        and a list containing values. The purpose of this test is to ensure the widget's 
+        required attribute is handled appropriately in different situations.
+        """
         widget = self.widget(choices=self.beatles)
         # Always False because browser validation would require all checkboxes
         # to be checked instead of at least one.
@@ -235,6 +272,14 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.assertIs(widget.use_required_attribute(["J", "P"]), False)
 
     def test_value_omitted_from_data(self):
+        """
+
+        Checks whether a value is omitted from the data in a widget.
+
+        The function determines whether a field is missing from the data by checking the presence of the field in the given data dictionaries. 
+        It returns False if the field is present in either dictionary, indicating the value is not omitted, and is used to test the behavior of the widget in different data scenarios.
+
+        """
         widget = self.widget(choices=self.beatles)
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), False)
         self.assertIs(

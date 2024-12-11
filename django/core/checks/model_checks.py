@@ -10,6 +10,23 @@ from django.core.checks import Error, Tags, Warning, register
 
 @register(Tags.models)
 def check_all_models(app_configs=None, **kwargs):
+    """
+    Checks all Django models for potential configuration errors or conflicts.
+
+    This function inspects each model's configuration, including database tables, indexes, and constraints, to identify issues such as:
+    - Duplicate database table names among models
+    - Duplicate index names among models
+    - Duplicate constraint names among models
+    - Incorrectly overridden `check` method
+    It returns a list of errors, each describing a specific problem and potentially providing a hint or an object identifier for further analysis. The checks can be performed for all models in the project or for a specified set of application configurations.
+
+    Args:
+        app_configs (list, optional): A list of application configurations to check. Defaults to None, which results in checking all models.
+        **kwargs: Additional keyword arguments to pass to each model's `check` method.
+
+    Returns:
+        list: A list of error objects, each representing a configuration issue or conflict found during the checks.
+    """
     db_table_models = defaultdict(list)
     indexes = defaultdict(list)
     constraints = defaultdict(list)
@@ -133,6 +150,17 @@ def _check_lazy_references(apps, ignore=None):
         return operation, args, keywords
 
     def app_model_error(model_key):
+        """
+
+        Retrieve an error message when a model cannot be found.
+
+        This function checks if an application is installed and if it provides a specific model.
+        It returns a human-readable error message indicating whether the application is not installed or if it does not provide the requested model.
+
+        :param model_key: A tuple containing the application name and model name.
+        :return: A string describing the error that occurred while trying to access the model.
+
+        """
         try:
             apps.get_app_config(model_key[0])
             model_error = "app '%s' doesn't provide model '%s'" % model_key

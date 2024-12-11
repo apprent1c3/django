@@ -33,6 +33,11 @@ else:
 
 class FileTests(unittest.TestCase):
     def test_unicode_uploadedfile_name(self):
+        """
+        Tests that the representation of an UploadedFile instance with a Unicode filename returns a string.
+
+        This test case ensures that the repr() function can handle uploaded files with names containing non-ASCII characters, such as accents and non-Latin scripts, and that the result is a valid string. This is important for debugging and logging purposes, where a meaningful string representation of the uploaded file is required.
+        """
         uf = UploadedFile(name="¿Cómo?", content_type="text")
         self.assertIs(type(repr(uf)), str)
 
@@ -56,6 +61,17 @@ class FileTests(unittest.TestCase):
             self.assertEqual(f.read(), b"content")
 
     def test_open_reopens_closed_file_and_returns_context_manager(self):
+        """
+        Tests that the open method of a File instance can reopen a previously closed file.
+
+        This method verifies that the open method returns a context manager that yields a file object,
+        and that the file object is not closed after the open method is called, even if the file was previously closed.
+
+        The test involves creating a temporary file, closing it, and then reopening it using the open method.
+        The reopened file is checked to ensure it is not closed, demonstrating the correct behavior of the open method.
+
+        This test is important to ensure that the File class behaves correctly when working with files that may need to be reopened after being closed.
+        """
         temporary_file = tempfile.NamedTemporaryFile(delete=False)
         file = File(temporary_file)
         try:
@@ -116,6 +132,13 @@ class FileTests(unittest.TestCase):
         self.assertEqual(list(f), [b"one\r", b"two\n", b"three\r\n", b"four"])
 
     def test_file_iteration_with_unix_newline_at_chunk_boundary(self):
+        """
+        Tests that a file can be iterated over in chunks when a Unix newline is present at a chunk boundary.
+
+        The function verifies that the file is correctly split into chunks, even when a newline character falls at the end of a chunk, ensuring that each chunk contains a complete line of text.
+
+        This test case is specific to the scenario where the file uses Unix-style newlines ('\n') and the chunk size is set to a value that causes a newline to be at the boundary between two chunks. The test checks that the resulting chunks are correctly generated and match the expected output. 
+        """
         f = File(BytesIO(b"one\ntwo\nthree"))
         # Set chunk size to create a boundary after \n:
         # b'one\n...
@@ -132,6 +155,12 @@ class FileTests(unittest.TestCase):
         self.assertEqual(list(f), [b"one\r\n", b"two\r\n", b"three"])
 
     def test_file_iteration_with_mac_newline_at_chunk_boundary(self):
+        """
+        Tests file iteration with a Mac newline character (\\r) positioned at a chunk boundary, 
+         ensuring that the file is split into chunks correctly and that all data is yielded. 
+         This test case verifies the file iteration functionality in the presence of Mac newlines 
+         at chunk boundaries, confirming that the resulting chunks are as expected.
+        """
         f = File(BytesIO(b"one\rtwo\rthree"))
         # Set chunk size to create a boundary after \r:
         # b'one\r...
@@ -144,6 +173,11 @@ class FileTests(unittest.TestCase):
         self.assertEqual(list(f), ["one\n", "two\n", "three"])
 
     def test_readable(self):
+        """
+        Test whether a file object is readable within its context and not readable after it's closed.
+
+        Checks if the file object returns True when its readability is queried while the file is open, and False after the context in which the file was opened has expired. This test verifies the expected behavior of file objects in regards to their lifecycle and readability status.
+        """
         with (
             tempfile.TemporaryFile() as temp,
             File(temp, name="something.txt") as test_file,
@@ -152,6 +186,17 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.readable())
 
     def test_writable(self):
+        """
+        Tests the writable status of a File object.
+
+        Verifies that a File object created from a writable temporary file is indeed 
+        writable, but becomes unwritable after the file is closed. Also checks that a 
+        File object created from a read-only binary temporary file is not writable.
+
+        This test ensures the correctness of the writable property of the File object 
+        in different scenarios, such as when the underlying file is open or closed, 
+        and when it is opened in read-only mode.
+        """
         with (
             tempfile.TemporaryFile() as temp,
             File(temp, name="something.txt") as test_file,
@@ -165,6 +210,14 @@ class FileTests(unittest.TestCase):
             self.assertFalse(test_file.writable())
 
     def test_seekable(self):
+        """
+        Checks the behavior of the seekable method in a File object.
+
+        This test case verifies that the seekable method returns True when a File object is open and associated with a seekable file,
+        and False when the File object is closed.
+
+        The test uses a temporary file to create a File object and checks its seekability in both open and closed states
+        """
         with (
             tempfile.TemporaryFile() as temp,
             File(temp, name="something.txt") as test_file,
@@ -173,6 +226,22 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.seekable())
 
     def test_io_wrapper(self):
+        """
+
+        Test the functionality of a text I/O wrapper.
+
+        This test ensures that the TextIOWrapper class correctly reads and writes text data
+        to and from an underlying file object, handling encoding and newline characters as
+        expected. It verifies that the wrapper can write data, read back the data, and then
+        detach from the underlying file object, leaving the data intact.
+
+        The test covers the following scenarios:
+        - Writing text data to the wrapper
+        - Reading text data from the wrapper
+        - Detaching the wrapper from the underlying file object
+        - Verifying the data integrity after detachment
+
+        """
         content = "vive l'été\n"
         with (
             tempfile.TemporaryFile() as temp,
@@ -190,6 +259,19 @@ class FileTests(unittest.TestCase):
             self.assertEqual(test_file.read(), (content * 2).encode())
 
     def test_exclusive_lock(self):
+        """
+
+        Tests the behavior of acquiring and releasing an exclusive lock on a file.
+
+        This test case validates the following scenarios:
+
+        * Acquiring an exclusive lock on a file returns True.
+        * Attempting to acquire an exclusive non-blocking lock on a file that is already locked returns False.
+        * Attempting to acquire a shared non-blocking lock on a file that is exclusively locked returns False.
+        * Releasing an exclusive lock on a file returns True.
+
+        The test ensures that the locking mechanism correctly handles concurrent access to a file and enforces exclusive locking semantics. 
+        """
         file_path = Path(__file__).parent / "test.png"
         with open(file_path) as f1, open(file_path) as f2:
             self.assertIs(locks.lock(f1, locks.LOCK_EX), True)
@@ -209,6 +291,18 @@ class FileTests(unittest.TestCase):
         called = False
 
         def opener(path, flags):
+            """
+
+            Opens a file and sets a flag indicating that the operation has been performed.
+
+            :param path: The path to the file to be opened.
+            :param flags: The flags to be used when opening the file, as specified by the os module.
+
+            :return: The file descriptor of the opened file.
+
+            :note: Also sets a non-local flag `called` to True, indicating that the open operation has been initiated.
+
+            """
             nonlocal called
             called = True
             return os.open(path, flags)
@@ -273,6 +367,17 @@ class ContentFileTestCase(unittest.TestCase):
 
 class InMemoryUploadedFileTests(unittest.TestCase):
     def test_open_resets_file_to_start_and_returns_context_manager(self):
+        """
+        Tests that opening an InMemoryUploadedFile resets its file pointer to the start 
+        and returns a context manager for reading the file's contents.
+
+        Verifies that a previously read file can be reopened and its contents retrieved 
+        again, ensuring that the file's state is properly reset. This is essential for 
+        handling files that need to be processed multiple times, such as during upload 
+        validation or processing. The test covers a key aspect of working with 
+        InMemoryUploadedFile instances, providing assurance that they behave as expected 
+        in common use cases.
+        """
         uf = InMemoryUploadedFile(StringIO("1"), "", "test", "text/plain", 1, "utf8")
         uf.read()
         with uf.open() as f:
@@ -415,6 +520,17 @@ class GetImageDimensionsTests(unittest.TestCase):
 
     @unittest.skipUnless(HAS_WEBP, "WEBP not installed")
     def test_webp(self):
+        """
+
+        Tests the functionality of getting image dimensions for a WEBP image file.
+
+        This test checks if the images module can successfully retrieve the dimensions
+        of a WEBP image. It uses a test image file named 'test.webp' and verifies that
+        the retrieved dimensions match the expected size.
+
+        The test is skipped if the WEBP library is not installed.
+
+        """
         img_path = os.path.join(os.path.dirname(__file__), "test.webp")
         with open(img_path, "rb") as fh:
             size = images.get_image_dimensions(fh)
@@ -423,6 +539,13 @@ class GetImageDimensionsTests(unittest.TestCase):
 
 class FileMoveSafeTests(unittest.TestCase):
     def test_file_move_overwrite(self):
+        """
+        Test that the file_move_safe function handles moving a file over an existing destination file with and without overwriting.
+
+        The function validates the behavior of file_move_safe in two scenarios:
+        - When allow_overwrite is False, it ensures a FileExistsError is raised when the destination file already exists.
+        - When allow_overwrite is True, it verifies that the function successfully overwrites the destination file without raising an exception.
+        """
         handle_a, self.file_a = tempfile.mkstemp()
         handle_b, self.file_b = tempfile.mkstemp()
 
@@ -505,6 +628,14 @@ class SpooledTempTests(unittest.TestCase):
             self.assertEqual(django_file.size, 17)
 
     def test_written_spooled_temp(self):
+        """
+        Tests if a written and spooled temporary file has the correct size when wrapped in a Django File object.
+
+        This test case checks the size of a temporary file after writing to it and ensures 
+        that the size is correctly calculated when the file is used as a Django File object.
+        The test verifies that the size property of the Django File object returns the 
+        expected number of bytes written to the temporary file.
+        """
         with tempfile.SpooledTemporaryFile(max_size=4) as temp:
             temp.write(b"foo bar baz quux\n")
             django_file = File(temp, name="something.txt")

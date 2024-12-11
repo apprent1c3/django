@@ -10,6 +10,17 @@ class Relation(models.Model):
 
 class InstanceOnlyDescriptor:
     def __get__(self, instance, cls=None):
+        """
+        Descriptor method which retrieves a value when accessed as an attribute of an instance.
+
+        This method is used by the Python interpreter to implement attribute access. It returns a fixed value of 1 when accessed through an instance of the class. If accessed through the class itself, it raises an AttributeError with the message 'Instance only'.
+
+        :param instance: The instance of the class through which this descriptor is being accessed.
+        :param cls: The class to which this descriptor belongs. Defaults to None.
+        :raises AttributeError: If this descriptor is accessed through the class itself rather than an instance.
+        :return: The value of the descriptor.
+
+        """
         if instance is None:
             raise AttributeError("Instance only")
         return 1

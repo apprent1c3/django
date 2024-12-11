@@ -45,6 +45,23 @@ from .settings import AUTH_TEMPLATES
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the User model.
+
+        This class method creates a set of test users with varying properties,
+        including active and inactive status, different password configurations,
+        and edge cases such as empty or unmanageable passwords.
+        The test data is stored as class attributes for use in subsequent tests.
+
+        The following test users are created:
+
+        - An active test client user
+        - An inactive user
+        - A staff user
+        - Users with unusual password configurations (empty, unmanageable, unknown, unusable)
+
+        This method provides a standardized setup for testing user-related functionality.
+        """
         cls.u1 = User.objects.create_user(
             username="testclient", password="password", email="testclient@example.com"
         )
@@ -62,6 +79,13 @@ class TestDataMixin:
 
 class ExtraValidationFormMixin:
     def __init__(self, *args, failing_fields=None, **kwargs):
+        """
+        Initializes the object with the given arguments and sets up the failing fields.
+
+        :param failing_fields: A dictionary to store fields that are failing, defaults to an empty dictionary if not provided.
+        :type failing_fields: dict or None
+        :note: The *args and **kwargs are passed to the parent class's __init__ method for initialization.
+        """
         super().__init__(*args, **kwargs)
         self.failing_fields = failing_fields or {}
 
@@ -77,6 +101,11 @@ class ExtraValidationFormMixin:
 
 class BaseUserCreationFormTest(TestDataMixin, TestCase):
     def test_user_already_exists(self):
+        """
+        Tests if the user creation form correctly handles the case when a user with the provided username already exists in the system.
+
+        The function verifies that the form is invalid when a duplicate username is submitted and checks that the appropriate error message is raised.
+        """
         data = {
             "username": "testclient",
             "password1": "test123",
@@ -119,6 +148,12 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
 
     def test_both_passwords(self):
         # One (or both) passwords weren't given
+        """
+        Tests that the password fields in the user creation form are properly validated, specifically 
+        when both password fields are missing and when only the first password field is missing. 
+        Verifies that the form is invalid in both cases and that the expected error messages are 
+        displayed for the password fields.
+        """
         data = {"username": "jsmith"}
         form = BaseUserCreationForm(data)
         required_error = [str(Field.default_error_messages["required"])]
@@ -149,6 +184,19 @@ class BaseUserCreationFormTest(TestDataMixin, TestCase):
         self.assertEqual(repr(u), "<User: jsmith@example.com>")
 
     def test_unicode_username(self):
+        """
+        Tests the normalization of usernames containing non-ASCII characters.
+
+        Verifies that when a user attempts to create an account with a username containing
+        special characters, the username is properly normalized before being saved to the
+        database. Specifically, this test checks that non-ASCII characters are replaced
+        with their closest ASCII equivalent, ensuring that the stored username is valid
+        and consistent with the application's username requirements.
+
+        The test covers the scenario where a user submits a registration form with a
+        username containing a special character, and verifies that the saved username is
+        correctly normalized, while the original username is not accepted as is.
+        """
         data = {
             "username": "宝",
             "password1": "test123",
@@ -621,6 +669,14 @@ class AuthenticationFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.non_field_errors(), [])
 
     def test_unicode_username(self):
+        """
+        Tests that the username field's maximum length matches the max_length set in the user model.
+
+        Verifies that the CustomEmailField's username field max_length attribute is correctly set to 255.
+        It also checks that this length limitation is enforced when creating a user and when using the AuthenticationForm.
+
+        Ensures that the form's username field has the correct max_length and also includes a maxlength attribute in its widget for client-side validation, confirming that there are no form errors when using the maximum allowed length.
+        """
         User.objects.create_user(username="Σαρα", password="pwd")
         data = {
             "username": "Σαρα",
@@ -762,6 +818,19 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
 
     @mock.patch("django.contrib.auth.password_validation.password_changed")
     def test_success(self, password_changed):
+        """
+
+        Tests the SetPasswordForm with a valid new password.
+
+        This test case verifies that the form successfully validates the new password and 
+        saves the changes without immediately triggering the password changed signal. 
+        The password changed signal should only be triggered after the form's save method 
+        is explicitly called.
+
+        The test case uses a mock object for the password changed signal to track the 
+        number of times it is called.
+
+        """
         user = User.objects.get(username="testclient")
         data = {
             "new_password1": "abc123",
@@ -873,6 +942,16 @@ class SetPasswordFormTest(TestDataMixin, TestCase):
         ]
     )
     def test_help_text_translation(self):
+        """
+        Tests the extra password validation functionality.
+
+        This test case verifies that the password change form correctly handles extra validation 
+        errors for the new password fields. It creates a test form that intentionally fails 
+        validation for one or both of the new password fields, then checks that the form 
+        returns the expected error messages. The test covers various scenarios where one or 
+        both password fields have validation errors, ensuring that the form behaves as expected 
+        in each case, returning False for form validity and the correct error messages. 
+        """
         french_help_texts = [
             "Votre mot de passe ne peut pas trop ressembler à vos autres informations "
             "personnelles.",
@@ -987,6 +1066,14 @@ class PasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.cleaned_data["new_password2"], data["new_password2"])
 
     def test_html_autocomplete_attributes(self):
+        """
+
+        Tests the HTML autocomplete attributes for the password change form.
+
+        Verifies that the autocomplete attribute for the old password field is set to 'current-password',
+        ensuring a smooth and secure user experience during password changes.
+
+        """
         user = User.objects.get(username="testclient")
         form = PasswordChangeForm(user)
         self.assertEqual(
@@ -1035,6 +1122,15 @@ class UserChangeFormTest(TestDataMixin, TestCase):
         self.assertIn(_("No password set."), form.as_table())
 
     def test_bug_17944_unmanageable_password(self):
+        """
+        Tests that the password field in the user change form is properly bounded.
+
+        Verifies that the initial password value in the form matches the current password
+        value of the user instance, ensuring that the form is correctly populated with
+        the user's existing password. This test case is specifically checking for bug #19349,
+        where the password field was not being properly initialized with the user's
+        existing password.
+        """
         user = User.objects.get(username="unmanageable_password")
         form = UserChangeForm(instance=user)
         self.assertIn(
@@ -1156,6 +1252,11 @@ class UserChangeFormTest(TestDataMixin, TestCase):
 class PasswordResetFormTest(TestDataMixin, TestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Set up the class by clearing the cache for Site objects.
+
+        This method is called once before running any tests in the class. It ensures that the cache for Site objects is cleared, providing a clean slate for testing. This is useful for preventing leftover data from affecting test results. The method also calls the parent class's setUpClass method to perform any additional setup required by the parent class.
+        """
         super().setUpClass()
         # This cleanup is necessary because contrib.sites cache
         # makes tests interfere with each other, see #11505
@@ -1301,6 +1402,15 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_unusable_password(self):
+        """
+
+        Verifies the behavior of the password reset functionality when a user has an unusable password.
+
+        This test creates a new user, sets their password to unusable, and then attempts to reset the password using the PasswordResetForm.
+        It checks that the form is valid both before and after the password is set to unusable, 
+        and that no email is sent when the password reset is attempted with an unusable password.
+
+        """
         user = User.objects.create_user("testuser", "test@example.com", "test")
         data = {"email": "test@example.com"}
         form = PasswordResetForm(data)
@@ -1371,6 +1481,13 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomEmailField")
     def test_custom_email_field(self):
+        """
+        Tests that the ReadOnlyPasswordHashField has not changed when comparing two values.
+
+        This test case verifies that the has_changed method of the ReadOnlyPasswordHashField
+        correctly returns False when the field is disabled and values are compared.
+
+        """
         email = "test@mail.com"
         CustomEmailField.objects.create_user("test name", "test password", email)
         form = PasswordResetForm({"email": email})
@@ -1381,6 +1498,9 @@ class PasswordResetFormTest(TestDataMixin, TestCase):
         self.assertEqual(mail.outbox[0].to, [email])
 
     def test_html_autocomplete_attributes(self):
+        """
+        Tests that the email field in the password reset form has the correct autocomplete attribute set to 'email', allowing for proper autocomplete functionality in browsers.
+        """
         form = PasswordResetForm()
         self.assertEqual(form.fields["email"].widget.attrs["autocomplete"], "email")
 
@@ -1389,6 +1509,14 @@ class ReadOnlyPasswordHashTest(SimpleTestCase):
     def test_bug_19349_render_with_none_value(self):
         # Rendering the widget with value set to None
         # mustn't raise an exception.
+        """
+
+        Tests the rendering of the ReadOnlyPasswordHashWidget when the value is None.
+
+        This test case verifies that when the password value is not set (i.e., None), 
+        the widget correctly displays a message indicating that no password has been set.
+
+        """
         widget = ReadOnlyPasswordHashWidget()
         html = widget.render(name="password", value=None, attrs={})
         self.assertIn(_("No password set."), html)
@@ -1509,6 +1637,16 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, ["password"])
 
     def test_password_extra_validations(self):
+        """
+
+        Tests the extra password validation functionality of the ExtraValidationForm.
+
+        This test case verifies that the form properly handles and reports errors when
+        extra validation is applied to the password fields. It checks the validation
+        of both password fields individually and together, ensuring that the form
+        correctly identifies invalid passwords and returns the expected error messages.
+
+        """
         class ExtraValidationForm(ExtraValidationFormMixin, AdminPasswordChangeForm):
             def clean_password1(self):
                 return self.failing_helper("password1")
@@ -1544,6 +1682,21 @@ class AdminPasswordChangeFormTest(TestDataMixin, TestCase):
         self.assertEqual(form.changed_data, [])
 
     def test_one_password(self):
+        """
+
+        Test the validation of password fields in the AdminPasswordChangeForm.
+
+        This test case checks the following scenarios:
+        - When the first password field is empty and the second password field is filled,
+          it verifies that an error is raised for the first password field, no error is raised for the second password field,
+          and no data is marked as changed.
+        - When the first password field is filled and the second password field is empty,
+          it verifies that an error is raised for the second password field, no error is raised for the first password field,
+          and no data is marked as changed.
+
+        These tests ensure that both password fields in the AdminPasswordChangeForm are validated correctly.
+
+        """
         user = User.objects.get(username="testclient")
         form1 = AdminPasswordChangeForm(user, {"password1": "", "password2": "test"})
         required_error = [Field.default_error_messages["required"]]

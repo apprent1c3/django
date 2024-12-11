@@ -42,6 +42,25 @@ class SimpleArrayField(forms.CharField):
         return value
 
     def to_python(self, value):
+        """
+
+        Converts a string or list of strings into a list of Python objects.
+
+        This function takes a value which can be either a string or a list of strings, 
+        and converts each string into a Python object using the base field's to_python method.
+
+        If a string is provided, it is split into substrings using the specified delimiter.
+        Each substring is then converted into a Python object. If any conversions fail, 
+        a ValidationError is raised with a list of all conversion errors.
+
+        The function returns a list of converted Python objects if all conversions are successful.
+
+        Raises:
+            ValidationError: If any conversion fails.
+        Returns:
+            list: A list of converted Python objects.
+
+        """
         if isinstance(value, list):
             items = value
         elif value:
@@ -139,6 +158,17 @@ class SplitArrayWidget(forms.Widget):
 
     def id_for_label(self, id_):
         # See the comment for RadioSelect.id_for_label()
+        """
+        Generate an identifier for a label by optionally appending a suffix.
+
+        If the provided identifier is not empty, a '_0' suffix is appended to it.
+        This can be useful for distinguishing or versioning identifiers.
+        The resulting identifier is then returned.
+
+        :param id_: The base identifier to be modified
+        :rtype: str
+        :return: The modified identifier or the original identifier if it was empty
+        """
         if id_:
             id_ += "_0"
         return id_
@@ -186,6 +216,33 @@ class SplitArrayField(forms.Field):
     }
 
     def __init__(self, base_field, size, *, remove_trailing_nulls=False, **kwargs):
+        """
+        Initializes a field for storing arrays of values.
+
+        This field is composed of a base field type that is repeated for a specified size.
+        It supports an optional feature to remove trailing null values from the array.
+
+        Parameters
+        ----------
+        base_field : Field
+            The base field type to be used for each element in the array.
+        size : int
+            The fixed size of the array.
+        remove_trailing_nulls : bool, optional
+            If True, trailing null values will be removed from the array (default is False).
+        **kwargs
+            Additional keyword arguments passed to the superclass.
+
+        Attributes
+        ----------
+        base_field : Field
+            The base field type used for each element in the array.
+        size : int
+            The fixed size of the array.
+        remove_trailing_nulls : bool
+            Whether trailing null values should be removed from the array.
+
+        """
         self.base_field = base_field
         self.size = size
         self.remove_trailing_nulls = remove_trailing_nulls
@@ -210,6 +267,21 @@ class SplitArrayField(forms.Field):
         return [self.base_field.to_python(item) for item in value]
 
     def clean(self, value):
+        """
+
+         Cleans a list of values according to the field's validation rules.
+
+         This method ensures that each item in the list is valid and returns a new list with cleaned data.
+         If any item fails validation, it is replaced with None and an error is recorded.
+         The method also removes any trailing null values from the cleaned list.
+
+         If the input list is empty and the field is required, a ValidationError is raised.
+         If any errors occur during validation, a ValidationError is raised with a list of all error messages.
+
+         :return: A list of cleaned values.
+         :raises ValidationError: If the input list is empty and the field is required, or if any items fail validation.
+
+        """
         cleaned_data = []
         errors = []
         if not any(value) and self.required:

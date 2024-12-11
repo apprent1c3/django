@@ -8,6 +8,22 @@ class Email(models.Model):
 
 class CustomUserWithFKManager(BaseUserManager):
     def create_superuser(self, username, email, group, password):
+        """
+        Create a superuser with the specified username, email, group, and password.
+
+        Args:
+            username (str): Unique identifier for the superuser.
+            email (str): Email address of the superuser.
+            group (str): Group to which the superuser belongs.
+            password (str): Password for the superuser account.
+
+        Returns:
+            User: The newly created superuser object.
+
+        Note:
+            This method also sets the password for the superuser and saves the new user to the database.
+
+        """
         user = self.model(username_id=username, email_id=email, group_id=group)
         user.set_password(password)
         user.save(using=self._db)

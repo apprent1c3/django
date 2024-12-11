@@ -5,6 +5,15 @@ from django.utils import translation
 
 class FunctionTests(SimpleTestCase):
     def test_formats(self):
+        """
+
+        Tests the filesizeformat function by checking its output against various input values.
+
+        The function verifies that the filesizeformat function correctly handles different units of file size measurement, including bytes, kilobytes (KB), megabytes (MB), gigabytes (GB), terabytes (TB), and petabytes (PB). It also checks the function's behavior with edge cases, such as zero, negative, and non-numeric input values.
+
+        Expected input values range from 0 to very large numbers, and the test checks that the output is correctly formatted as a string with the corresponding unit. The test also covers non-numeric inputs, including complex numbers and strings, to ensure the function raises no errors and returns a reasonable result.
+
+        """
         tests = [
             (0, "0\xa0bytes"),
             (1, "1\xa0byte"),
@@ -28,6 +37,12 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(filesizeformat(value), expected)
 
     def test_localized_formats(self):
+        """
+        Tests the `filesizeformat` function for correct formatting of file sizes in the locale 'de'. 
+        The test cases cover a wide range of file sizes, from 0 bytes to petabytes, 
+        as well as edge cases such as non-numeric input like complex numbers and strings.
+        Check if the function returns the expected localized string representations.
+        """
         tests = [
             (0, "0\xa0Bytes"),
             (1, "1\xa0Byte"),
@@ -52,6 +67,12 @@ class FunctionTests(SimpleTestCase):
                     self.assertEqual(filesizeformat(value), expected)
 
     def test_negative_numbers(self):
+        """
+        Tests the filesizeformat function with negative input values.
+
+        Verifies that the function correctly handles negative numbers and returns the expected formatted string. 
+        The test cases cover a range of negative values, from small integers to larger values representing megabytes.
+        """
         tests = [
             (-1, "-1\xa0byte"),
             (-100, "-100\xa0bytes"),

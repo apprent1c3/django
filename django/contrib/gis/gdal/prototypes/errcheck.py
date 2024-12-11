@@ -95,6 +95,25 @@ def check_geom_offset(result, func, cargs, offset=-1):
 
 # ### Spatial Reference error-checking routines ###
 def check_srs(result, func, cargs):
+    """
+    Verifies the validity of a spatial reference pointer returned from a function call.
+
+    Checks if the provided result is a valid spatial reference object, and raises an
+    SRSException if it is not. The function name associated with the result is used
+    in the exception message for better error identification.
+
+    Args:
+        result: The result to be validated, which can be either an integer or a
+            ctypes pointer object.
+        func: The function that returned the result, used for error reporting.
+        cargs: Additional function call arguments, currently not used in validation.
+
+    Returns:
+        A validated ctypes pointer object representing a spatial reference.
+
+    Raises:
+        SRSException: If the result is an invalid spatial reference pointer.
+    """
     if isinstance(result, int):
         result = c_void_p(result)
     if not result:

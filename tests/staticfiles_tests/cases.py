@@ -32,6 +32,21 @@ class BaseStaticFilesMixin:
         return template.render(Context(**kwargs)).strip()
 
     def static_template_snippet(self, path, asvar=False):
+        """
+
+        Generates a template snippet for loading a static file.
+
+        The snippet can be used directly in a Django template to include a static file.
+        It handles loading the static file system and rendering the static URL.
+
+        If :attr:`asvar` is True, the snippet assigns the static URL to a template variable
+        instead of directly rendering it. This allows for further manipulation of the URL within the template.
+
+        :param path: The path to the static file.
+        :param asvar: Whether to assign the static URL to a template variable (default: False).
+        :returns: A template snippet as a string.
+
+        """
         if asvar:
             return (
                 "{%% load static from static %%}{%% static '%s' as var %%}{{ var }}"
@@ -67,6 +82,15 @@ class CollectionTestCase(BaseStaticFilesMixin, SimpleTestCase):
     run_collectstatic_in_setUp = True
 
     def setUp(self):
+        """
+        Sets up the environment for testing by creating a temporary directory for static files,
+        overriding the STATIC_ROOT setting, and optionally running collectstatic.
+        The temporary directory and patched settings are cleaned up automatically after the test finishes.
+
+        Note:
+            The temporary directory is removed and the original settings are restored after the test, regardless of the test outcome.
+
+        """
         super().setUp()
         temp_dir = self.mkdtemp()
         # Override the STATIC_ROOT for all tests from setUp to tearDown
@@ -92,6 +116,17 @@ class CollectionTestCase(BaseStaticFilesMixin, SimpleTestCase):
         )
 
     def _get_file(self, filepath):
+        """
+        Retrieves the contents of a file from the static root directory.
+
+        This method takes a filepath as input, joins it with the static root directory,
+        and returns the contents of the file as a string. The file is assumed to be
+        encoded in UTF-8.
+
+        :param filepath: The path to the file relative to the static root directory
+        :returns: The contents of the file as a string
+        :raises AssertionError: If the filepath is empty
+        """
         assert filepath, "filepath is empty."
         filepath = os.path.join(settings.STATIC_ROOT, filepath)
         with open(filepath, encoding="utf-8") as f:

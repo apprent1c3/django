@@ -52,6 +52,16 @@ class KwargsOperation(TestOperation):
 
 class ArgsKwargsOperation(TestOperation):
     def __init__(self, arg1, arg2, kwarg1=None, kwarg2=None):
+        """
+        Initialize an instance of the class with required and optional parameters.
+
+        :param arg1: The first required argument.
+        :param arg2: The second required argument.
+        :param kwarg1: The first optional keyword argument, defaults to None.
+        :param kwarg2: The second optional keyword argument, defaults to None.
+
+        :returns: None
+        """
         self.arg1, self.arg2 = arg1, arg2
         self.kwarg1, self.kwarg2 = kwarg1, kwarg2
 

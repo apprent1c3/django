@@ -330,6 +330,23 @@ class BaseCache:
             self.delete(key, version=version)
 
     async def adelete_many(self, keys, version=None):
+        """
+        删除多个值。
+
+        参数
+        ----------
+        keys : list
+            要删除的键列表。
+        version : int, 可选
+            版本号，可以用来检查键的版本是否已经改变，以防止删除错误的版本。
+
+        注意
+        -----
+        此函数异步执行，使用时需要支持异步操作。
+        如果某个键在删除过程中出现错误，此函数不会停止执行，而是继续尝试删除剩余的键。
+
+        此函数是对 :meth:`adelete` 函数的批量操作，用于删除多个键。若要删除单个键，请使用 :meth:`adelete` 函数。
+        """
         for key in keys:
             await self.adelete(key, version=version)
 

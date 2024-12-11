@@ -233,6 +233,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     validation_class = DatabaseValidation
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the database interface object, inheriting from its parent class, and configures the ability to return columns from insert operations based on the 'use_returning_into' setting in the OPTIONS dictionary.
+        """
         super().__init__(*args, **kwargs)
         use_returning_into = self.settings_dict["OPTIONS"].get(
             "use_returning_into", True
@@ -593,6 +596,14 @@ class FormatStylePlaceholderCursor:
             )
 
     def close(self):
+        """
+
+        Closes the database cursor associated with this object.
+
+        This method releases any system resources held by the cursor, allowing them to be reused or garbage collected.
+        If an error occurs while attempting to close the cursor, it is silently ignored to prevent propagation of the exception.
+
+        """
         try:
             self.cursor.close()
         except Database.InterfaceError:

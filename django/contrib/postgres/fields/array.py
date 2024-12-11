@@ -40,6 +40,14 @@ class ArrayField(CheckFieldDefaultMixin, Field):
 
     @property
     def model(self):
+        """
+        The model associated with this object.
+
+        This property provides access to the model attribute of the object. If the model attribute does not exist, it raises an AttributeError indicating that the object does not have a 'model' attribute.
+
+        :raises: AttributeError if the 'model' attribute does not exist
+        :rtype: The type of the model attribute
+        """
         try:
             return self.__dict__["model"]
         except KeyError:
@@ -108,6 +116,16 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return "Array of %s" % self.base_field.description
 
     def db_type(self, connection):
+        """
+        Returns the database column type for the field.
+
+        This method constructs the database type by combining the base field type
+        with the field's size, if specified. The resulting string is in the format
+        'base_field_type[size]', where 'size' is only included if it is not empty.
+
+        :param connection: The database connection to determine the type for.
+        :returns: A string representing the database column type.
+        """
         size = self.size or ""
         return "%s[%s]" % (self.base_field.db_type(connection), size)
 
@@ -116,6 +134,15 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return "%s[%s]" % (self.base_field.cast_db_type(connection), size)
 
     def db_parameters(self, connection):
+        """
+        Returns a dictionary of database parameters for the current connection.
+
+        The returned dictionary includes all parameters from the parent class, with the addition of the 'collation' parameter, which is set to the database collation defined for this instance.
+
+        :param connection: The database connection.
+        :rtype: dict
+        :return: A dictionary of database parameters.
+        """
         db_params = super().db_parameters(connection)
         db_params["collation"] = self.db_collation
         return db_params
@@ -144,6 +171,16 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return name, path, args, kwargs
 
     def to_python(self, value):
+        """
+        Converts a value to a Python native representation.
+
+        This method takes an input value and, if it is a string, attempts to parse it as a JSON string.
+        If the input value is a JSON string, it is expected to contain a list of values, each of which is
+        then converted to its Python representation using the :meth:`to_python` method of the base field.
+        The resulting list of converted values is then returned.
+
+        If the input value is not a string, it is returned unchanged.
+        """
         if isinstance(value, str):
             # Assume we're deserializing
             vals = json.loads(value)
@@ -151,6 +188,19 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def _from_db_value(self, value, expression, connection):
+        """
+        Converts a database value to a Python object, handling lists of values.
+
+        This method takes a database value, an expression, and a connection as input.
+        If the value is None, it returns None. Otherwise, it applies the from_db_value
+        method of the base field to each item in the list, returning a new list with the converted values.
+
+        :param value: The value to convert from the database.
+        :param expression: The expression that was used to retrieve the value.
+        :param connection: The database connection that was used to retrieve the value.
+        :return: The converted value, or None if the input value is None.
+
+        """
         if value is None:
             return value
         return [
@@ -212,6 +262,15 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                 )
 
     def run_validators(self, value):
+        """
+
+        Runs validation on the provided value, including any nested parts.
+
+        This method first calls the parent class's validation method, then iterates over each part of the value.
+        Each part is validated using the base field's validation rules. If any part fails validation,
+        a :class:`~django.core.exceptions.ValidationError` is raised with a message indicating which part of the value is invalid.
+
+        """
         super().run_validators(value)
         for index, part in enumerate(value):
             try:
@@ -265,6 +324,13 @@ class ArrayRHSMixin:
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def _rhs_not_none_values(self, rhs):
+        """
+        Generate a sequence of boolean values indicating whether each element in the given iterable or nested iterables is not None.
+
+        Yields True for each non-None value encountered, recursively traversing any nested lists or tuples.
+
+        Note: This function is intended for internal use and its name starts with an underscore to indicate this.
+        """
         for x in rhs:
             if isinstance(x, (list, tuple)):
                 yield from self._rhs_not_none_values(x)
@@ -325,6 +391,16 @@ class ArrayInLookup(In):
 
 class IndexTransform(Transform):
     def __init__(self, index, base_field, *args, **kwargs):
+        """
+        Initializes an instance of the class.
+
+        :param index: The index of the instance.
+        :param base_field: The base field associated with the instance.
+        :param args: Variable length argument list.
+        :param kwargs: Arbitrary keyword arguments.
+
+        This initializer sets up the basic attributes of the class, including the index and base field, and then calls the parent class's initializer to complete the setup. The index and base field are stored as instance attributes for later use. 
+        """
         super().__init__(*args, **kwargs)
         self.index = index
         self.base_field = base_field
@@ -366,6 +442,15 @@ class SliceTransform(Transform):
 
 class SliceTransformFactory:
     def __init__(self, start, end):
+        """
+        Initializes a time interval with a start and end point.
+
+        :param start: The starting point of the time interval.
+        :param end: The ending point of the time interval.
+
+        This initializer sets the boundaries of a time interval, allowing for 
+        further operations and calculations to be performed on the defined range.
+        """
         self.start = start
         self.end = end
 

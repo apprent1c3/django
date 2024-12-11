@@ -15,6 +15,14 @@ class ProtectedError(IntegrityError):
 
 class RestrictedError(IntegrityError):
     def __init__(self, msg, restricted_objects):
+        """
+        )
+            Initializes a restriction exception with a message and a list of restricted objects.
+
+            :param msg: The message describing the reason for the restriction.
+            :param restricted_objects: A list of objects that are restricted.
+
+        """
         self.restricted_objects = restricted_objects
         super().__init__(msg, restricted_objects)
 
@@ -45,6 +53,18 @@ def PROTECT(collector, field, sub_objs, using):
 
 
 def RESTRICT(collector, field, sub_objs, using):
+    """
+    Restricts the set of objects to be collected, based on a given field and a list of sub-objects.
+
+    This function is used to add constraints to the collector, ensuring that only objects that are related to the specified sub-objects via the given field are included in the collection.
+
+    It also establishes a dependency between the models related by the given field, allowing for proper ordering and resolution of dependencies during the collection process.
+
+    :param collector: The collector instance used to manage the collection of objects.
+    :param field: The field that defines the relationship between the objects to be collected.
+    :param sub_objs: The list of sub-objects that the collection should be restricted to.
+    :param using: The database alias to use for the collection.
+    """
     collector.add_restricted_objects(field, sub_objs)
     collector.add_dependency(field.remote_field.model, field.model)
 
@@ -158,6 +178,16 @@ class Collector:
             self.restricted_objects[model][field].update(objs)
 
     def clear_restricted_objects_from_set(self, model, objs):
+        """
+        Remove specified objects from the set of restricted objects for a given model.
+
+        This method updates the internal mapping of restricted objects by removing the specified objects from the corresponding field values.
+
+        :param model: The model for which restricted objects should be updated
+        :param objs: The objects to be removed from the restricted set
+
+        :returns: None
+        """
         if model in self.restricted_objects:
             self.restricted_objects[model] = {
                 field: items - objs

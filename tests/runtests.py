@@ -342,6 +342,25 @@ class ActionSelenium(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+        Handles command line option to set the selenium browsers to use for testing.
+
+        This function is responsible for parsing the browser specifications from the command line arguments,
+        and ensuring that the corresponding selenium web drivers are properly imported.
+
+        It accepts a comma-separated string of browser names, validates each browser specification,
+        and stores the list of browsers in the `namespace` object.
+
+        If the selenium module cannot be loaded, or if an invalid browser specification is provided,
+        an error is raised with a corresponding error message.
+
+        :param parser: The parser object responsible for handling the command line arguments.
+        :param namespace: The object where the validated browser specifications will be stored.
+        :param values: The comma-separated string of browser names to be validated.
+        :param option_string: The command line option string that triggered this function call.
+        :raises argparse.ArgumentError: If a browser specification is not valid.
+        :raises ImproperlyConfigured: If the selenium module cannot be loaded.
+        """
         try:
             import selenium  # NOQA
         except ImportError as e:

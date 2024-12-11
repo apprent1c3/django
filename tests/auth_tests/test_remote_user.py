@@ -22,6 +22,14 @@ class RemoteUserTest(TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the class context for testing, modifying authentication backends and middleware settings.
+
+        This method is called once before all tests in the class, allowing for setup that is shared across all test methods.
+        It configures the authentication backends and middleware for the test class, and then calls the superclass's setUpClass method to perform any additional setup.
+
+        """
         cls.enterClassContext(
             modify_settings(
                 AUTHENTICATION_BACKENDS={"append": cls.backend},
@@ -185,6 +193,14 @@ class RemoteUserNoCreateTest(RemoteUserTest):
     backend = "auth_tests.test_remote_user.RemoteUserNoCreateBackend"
 
     def test_unknown_user(self):
+        """
+        Tests that an unknown user accessing the remote user page results in an anonymous user.
+
+        Verifies that the user count remains unchanged and the user is correctly identified as anonymous after the request.
+
+        :returns: None
+        :raises: AssertionError if the user is not anonymous or a new user is created
+        """
         num_users = User.objects.count()
         response = self.client.get("/remote_user/", **{self.header: "newuser"})
         self.assertTrue(response.context["user"].is_anonymous)
@@ -197,6 +213,13 @@ class AllowAllUsersRemoteUserBackendTest(RemoteUserTest):
     backend = "django.contrib.auth.backends.AllowAllUsersRemoteUserBackend"
 
     def test_inactive_user(self):
+        """
+        Tests the functionality of retrieving a user through a remote request when the user is inactive.
+
+        This test case creates an inactive user and then simulates a GET request to the '/remote_user/' endpoint with the user's credentials. It verifies that the retrieved user's username matches the one created at the beginning of the test.
+
+        The purpose of this test is to ensure that user data is correctly retrieved and populated in the response context, even when the user's account is marked as inactive.
+        """
         user = User.objects.create(username="knownuser", is_active=False)
         response = self.client.get("/remote_user/", **{self.header: self.known_user})
         self.assertEqual(response.context["user"].username, user.username)

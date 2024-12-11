@@ -14,6 +14,16 @@ class Command(BaseCommand):
         group.add_argument("--flag_true", action="store_true")
 
     def handle(self, *args, **options):
+        """
+        ..:param args: Additional positional arguments (not used)
+        :param options: Options to be processed
+        :returns: None
+        :rtype: None
+
+        Handles the provided options and prints their values to the standard output, 
+        ignoring any options with a value of None. Each option is printed in the format 
+        'option=value'.
+        """
         for option, value in options.items():
             if value is not None:
                 self.stdout.write("%s=%s" % (option, value))

@@ -48,6 +48,18 @@ class Operation:
 
     def __new__(cls, *args, **kwargs):
         # We capture the arguments to make returning them trivial
+        """
+        Creates a new instance of the class.
+
+        This method is a class constructor that initializes a new object, storing the
+        arguments used to create it for potential future use. It returns the newly
+        created instance, allowing for further initialization or customization in
+        subsequent methods.
+
+        :param args: Variable number of non-keyword arguments used to create the instance
+        :param kwargs: Variable number of keyword arguments used to create the instance
+        :return: The newly created instance of the class
+        """
         self = object.__new__(cls)
         self._constructor_args = (args, kwargs)
         return self

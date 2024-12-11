@@ -335,6 +335,17 @@ class SessionBase:
         return modification + timedelta(seconds=expiry)
 
     async def aget_expiry_date(self, **kwargs):
+        """
+        Returns the calculated expiry date for a session.
+
+        This function takes into account the session modification time and the specified expiry time.
+        The modification time defaults to the current time if not provided, and the expiry time defaults to the session expiry time if not provided.
+        The function accepts expiry times in various formats, including datetime objects, ISO-formatted strings, and integer seconds.
+        It returns a datetime object representing the calculated expiry date.
+
+        :param **kwargs: Optional keyword arguments, including 'modification' and 'expiry'.
+        :returns: A datetime object representing the calculated expiry date.
+        """
         try:
             modification = kwargs["modification"]
         except KeyError:
@@ -405,6 +416,14 @@ class SessionBase:
         return expiry == 0
 
     async def aget_expire_at_browser_close(self):
+        """
+        Returns whether the session expires when the browser is closed.
+
+        This function checks the session expiry setting stored in the session data.
+        If no expiry setting is found, it defaults to the application-wide setting
+        defined in settings.SESSION_EXPIRE_AT_BROWSER_CLOSE. The function returns
+        True if the session expires when the browser is closed and False otherwise.
+        """
         if (expiry := await self.aget("_session_expiry")) is None:
             return settings.SESSION_EXPIRE_AT_BROWSER_CLOSE
         return expiry == 0

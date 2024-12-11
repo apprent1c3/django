@@ -131,6 +131,14 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
     if is_psycopg3:
 
         def _register_type(self, pg_connection, typename):
+            """
+            Registers a PostgreSQL type with the given connection.
+
+            This function takes a PostgreSQL connection and a type name, and attempts to register the type with the connection.
+            It checks the internal registry for existing type information, and if not found, it fetches the type information from the PostgreSQL connection.
+            The type information is then registered with the connection, and loaders for the type are registered with the connection's adapters.
+            The function returns the OID of the registered type if successful, or None if the type could not be registered.
+            """
             registry = self._type_infos[typename]
             try:
                 info = registry[self.alias]

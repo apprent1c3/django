@@ -43,6 +43,9 @@ class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
         self.assertNotIn("X-View", response)
 
     def test_callable_object_view(self):
+        """
+        Checks the \"X-View\" header in the HTTP response from the '/xview/callable_object/' endpoint to ensure it correctly identifies the view function handling the request. The test authenticates as a superuser and uses a HEAD request to verify the view's identity without retrieving the full response body.
+        """
         self.client.force_login(self.superuser)
         response = self.client.head("/xview/callable_object/")
         self.assertEqual(
@@ -51,6 +54,16 @@ class XViewMiddlewareTest(TestDataMixin, AdminDocsTestCase):
 
     @override_settings(MIDDLEWARE=[])
     def test_no_auth_middleware(self):
+        """
+
+        Test that the XView middleware raises an ImproperlyConfigured exception when 
+        the authentication middleware is not installed in the MIDDLEWARE setting.
+
+        This test case checks that the proper error message is displayed when the 'django.contrib.auth.middleware.AuthenticationMiddleware'
+        is missing from the MIDDLEWARE setting, to ensure correct configuration of the 
+        XView middleware.
+
+        """
         msg = (
             "The XView middleware requires authentication middleware to be "
             "installed. Edit your MIDDLEWARE setting to insert "

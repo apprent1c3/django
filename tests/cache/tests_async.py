@@ -146,6 +146,15 @@ class AsyncDummyCacheTests(SimpleTestCase):
         await cache.adelete_many(["a", "b"])
 
     async def test_adelete_many_invalid_key(self):
+        """
+        Tests that attempting to delete multiple cache items with an invalid key raises a CacheKeyWarning.
+
+        The function verifies that the correct warning message is emitted when a key with spaces is passed to the adelete_many method.
+
+        :raises CacheKeyWarning: If an invalid key is provided.
+        :note: This test checks the handling of cache key validation and warning messages in the adelete_many method.
+
+        """
         msg = KEY_ERRORS_WITH_MEMCACHED_MSG % ":1:key with spaces"
         with self.assertWarnsMessage(CacheKeyWarning, msg):
             await cache.adelete_many({"key with spaces": "foo"})
@@ -179,6 +188,22 @@ class AsyncDummyCacheTests(SimpleTestCase):
             await cache.adecr_version("does_not_exist")
 
     async def test_aget_or_set(self):
+        """
+
+        Asynchronous test for retrieving or setting a value in the cache.
+
+        This test function checks the functionality of the cache's 'aget_or_set' method.
+        It verifies that when a key is not present in the cache, the method returns the provided default value.
+        Additionally, it confirms that when the default value is None, the method returns None as expected.
+
+        The test case covers two main scenarios:
+        - Retrieving a value when the key is not present in the cache, returning the default value instead.
+        - Retrieving a value when the default value is explicitly set to None.
+
+        The purpose of this test is to ensure the cache's 'aget_or_set' method behaves correctly in both cases, 
+        providing a reliable way to handle cache misses.
+
+        """
         self.assertEqual(await cache.aget_or_set("key", "default"), "default")
         self.assertIsNone(await cache.aget_or_set("key", None))
 

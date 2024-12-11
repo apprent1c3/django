@@ -25,6 +25,18 @@ class ChainingTests(SimpleTestCase):
         }
     )
     def test_chaining02(self):
+        """
+        Tests the chaining of filters in templates, specifically the capfirst and center filters.
+
+           Verifies that the filters are applied correctly to string variables, 
+           including those that may contain HTML special characters, and that the output 
+           is rendered as expected, without any unintended escaping or formatting issues.
+
+           The test case covers both a regular string variable and a variable marked as safe,
+           to ensure the filters behave consistently in both scenarios.
+
+           :return: None if the test passes, otherwise an assertion error is raised
+        """
         output = self.engine.render_to_string(
             "chaining02", {"a": "a < b", "b": mark_safe("a < b")}
         )
@@ -62,6 +74,11 @@ class ChainingTests(SimpleTestCase):
         {"chaining06": "{% autoescape off %}{{ a|escape|capfirst }}{% endautoescape %}"}
     )
     def test_chaining06(self):
+        """
+        Test the chaining of escape and capfirst filters in a Jinja2 template.
+
+        This test case checks if Jinja2 template engine correctly handles the chaining of filters when rendering a template. The expectation is that the string 'a < b' should be first escaped to replace special characters with their corresponding HTML entities, and then the 'capfirst' filter should capitalize the first letter of the resulting string, resulting in the output 'A &lt; b'. The test verifies that the output matches this expected outcome.
+        """
         output = self.engine.render_to_string("chaining06", {"a": "a < b"})
         self.assertEqual(output, "A &lt; b")
 
@@ -80,6 +97,16 @@ class ChainingTests(SimpleTestCase):
         }
     )
     def test_chaining08(self):
+        """
+
+        Tests the chaining of the 'force_escape' and 'cut' filters in a template.
+
+        The test case verifies that the 'force_escape' filter is applied to the input string,
+        transforming any HTML special characters into their corresponding escape sequences,
+        before the 'cut' filter is applied to remove any specified characters.
+        The test asserts that the output string is correctly escaped and filtered.
+
+        """
         output = self.engine.render_to_string("chaining08", {"a": "a < b"})
         self.assertEqual(output, "a &lt b")
 
@@ -96,11 +123,28 @@ class ChainingTests(SimpleTestCase):
         }
     )
     def test_chaining10(self):
+        """
+
+        Tests the chaining of filters in a template, ensuring that the output is correctly escaped.
+
+        This test case verifies that when the 'cut' and 'force_escape' filters are applied sequentially,
+        the resulting output is properly escaped, replacing special characters with their corresponding HTML entities.
+
+        """
         output = self.engine.render_to_string("chaining10", {"a": "a < b"})
         self.assertEqual(output, "a &lt; b")
 
     @setup({"chaining11": '{{ a|cut:"b"|safe }}'})
     def test_chaining11(self):
+        """
+        Tests the chaining of filters in template rendering, specifically the 'cut' filter followed by the 'safe' filter.
+
+        This test case checks if the 'cut' filter correctly removes the specified substring and the 'safe' filter prevents HTML escaping, resulting in the expected output string.
+
+        :param None:
+        :returns: None
+        :raises AssertionError: If the rendered output does not match the expected string
+        """
         output = self.engine.render_to_string("chaining11", {"a": "a < b"})
         self.assertEqual(output, "a < ")
 
@@ -113,6 +157,13 @@ class ChainingTests(SimpleTestCase):
 
     @setup({"chaining13": "{{ a|safe|force_escape }}"})
     def test_chaining13(self):
+        """
+        Tests the chaining of multiple filters in a template, specifically the application of both the \"safe\" and \"force_escape\" filters to a variable. 
+
+        This test case verifies that the \"force_escape\" filter, which typically converts special characters into HTML-safe equivalents, is applied even when the \"safe\" filter, which marks a string as safe to display without escaping, is also present in the chain. 
+
+        The expected outcome is that the special character \"<\" in the input string is correctly escaped to \"&lt;\" in the output.
+        """
         output = self.engine.render_to_string("chaining13", {"a": "a < b"})
         self.assertEqual(output, "a &lt; b")
 
@@ -124,5 +175,14 @@ class ChainingTests(SimpleTestCase):
         }
     )
     def test_chaining14(self):
+        """
+        Tests that the chaining of the 'safe' and 'force_escape' filters produces the expected output.
+
+         The 'safe' filter is used to mark a string as safe HTML, while the 'force_escape' filter escapes any special characters.
+
+         This test case checks that when a string is first marked as safe and then escaped, it results in the original string being escaped correctly.
+
+         :return: None
+        """
         output = self.engine.render_to_string("chaining14", {"a": "a < b"})
         self.assertEqual(output, "a &lt; b")

@@ -19,6 +19,23 @@ now = datetime.datetime(2012, 3, 9, 22, 30)
 class MockDateTime(datetime.datetime):
     @classmethod
     def now(cls, tz=None):
+        """
+        Return the current date and time.
+
+        If an optional timezone (tz) is provided, the returned datetime object is
+        converted to the specified timezone. If the timezone is not offset-aware or no
+        offset is available, the original datetime object is returned unchanged.
+
+        Parameters
+        ----------
+        tz : timezone, optional
+            The timezone in which to return the current date and time.
+
+        Returns
+        -------
+        datetime
+            The current date and time, optionally converted to the specified timezone.
+        """
         if tz is None or tz.utcoffset(now) is None:
             return now
         else:
@@ -31,6 +48,20 @@ class HumanizeTests(SimpleTestCase):
     def humanize_tester(
         self, test_list, result_list, method, normalize_result_func=escape
     ):
+        """
+
+        Test the humanize template filters with provided test data.
+
+        This method iterates over a list of test data and applies the specified humanize
+        template filter to each item. The result is then compared to the expected output
+        to ensure the filter is working correctly.
+
+        :param test_list: List of strings to be used as input to the humanize filter
+        :param result_list: List of expected outputs from the humanize filter
+        :param method: The name of the humanize template filter to be tested (e.g. 'apnumber', 'intcomma')
+        :param normalize_result_func: Optional function to normalize the result before comparison (defaults to escape)
+
+        """
         for test_content, result in zip(test_list, result_list):
             with self.subTest(test_content):
                 t = Template("{%% load humanize %%}{{ test_content|%s }}" % method)
@@ -278,11 +309,30 @@ class HumanizeTests(SimpleTestCase):
 
     def test_intcomma_without_number_grouping(self):
         # Regression for #17414
+        """
+        Tests the intcomma filter when the locale is set to Japanese, 
+        verifying that it correctly formats an integer without applying number grouping.
+        """
         with translation.override("ja"):
             self.humanize_tester([100], ["100"], "intcomma")
 
     def test_intword(self):
         # Positive integers.
+        """
+
+        Tests the conversion of integer values to words.
+
+        This function checks the humanization of a range of positive and negative integer values, 
+        including numbers in the millions, billions, trillions, and larger scales, to their word equivalents.
+
+        The test cases cover various numerical values, including edge cases such as very large numbers, 
+        to ensure that the intword function works as expected.
+
+        It also tests the functionality with negative numbers and None input value.
+
+        The function uses the English translation override to perform the tests.
+
+        """
         test_list_positive = (
             "100",
             "1000000",
@@ -386,6 +436,15 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_apnumber(self):
+        """
+        Tests the apnumber filter by passing a list of numbers and checking the output against the expected humanized values.
+
+        This test covers the conversion of numbers to their corresponding AP-style number words, including numbers from 1 to 9, which are written out in words, and numbers 10 and above, which are written in numeric form.
+
+        The test also checks the filter's behavior when given a None value, ensuring it handles empty or missing input correctly.
+
+        The test is run with the locale set to English to ensure consistent results. 
+        """
         test_list = [str(x) for x in range(1, 11)]
         test_list.append(None)
         result_list = (
@@ -405,6 +464,17 @@ class HumanizeTests(SimpleTestCase):
             self.humanize_tester(test_list, result_list, "apnumber")
 
     def test_naturalday(self):
+        """
+
+        Tests the naturalday filter of the humanize library.
+
+        The naturalday filter formats dates to be more human-friendly, such as 'today' or 'yesterday', 
+        when the date is within the current day or the day before. Otherwise, it returns the date 
+        in the format 'Month Day, Year'. This test checks the filter's functionality with various 
+        input dates, including today, yesterday, tomorrow, a date in the past, a non-date string, 
+        and None. It verifies that the filter behaves as expected in each case.
+
+        """
         today = datetime.date.today()
         yesterday = today - datetime.timedelta(days=1)
         tomorrow = today + datetime.timedelta(days=1)
@@ -424,6 +494,18 @@ class HumanizeTests(SimpleTestCase):
         self.humanize_tester(test_list, result_list, "naturalday")
 
     def test_naturalday_tz(self):
+        """
+        Tests the naturalday function's behavior with dates in different time zones.
+
+        This test case checks that the naturalday function, which returns a human-readable string
+        representing the day of a date, is sensitive to the time zone of the input date. It creates
+        two dates with the same calendar day but in different time zones and verifies that the
+        naturalday function returns different results for these dates.
+
+        The test covers the scenario where a date in different time zones may be perceived as
+        different days due to the time zone offset, ensuring that the naturalday function
+        accurately reflects this difference in its output.
+        """
         today = datetime.date.today()
         tz_one = get_fixed_timezone(-720)
         tz_two = get_fixed_timezone(720)
@@ -452,6 +534,17 @@ class HumanizeTests(SimpleTestCase):
             humanize.datetime = orig_humanize_datetime
 
     def test_naturaltime(self):
+        """
+
+        Tests the functionality of the naturaltime function, which returns a string representing the time difference between now and a given datetime object.
+
+        The function covers various test cases, including dates in the past and future, with different time intervals (seconds, minutes, hours, days, years) and timezone support.
+
+        The test data includes a wide range of datetime objects, and the expected output is verified against the result list. The test also ensures that the function behaves correctly when timezone support is enabled or disabled.
+
+        The naturaltime function is expected to handle timezone-aware datetime objects and return the correct time difference string, taking into account the timezone offset.
+
+        """
         class naive(datetime.tzinfo):
             def utcoffset(self, dt):
                 return None
@@ -554,6 +647,20 @@ class HumanizeTests(SimpleTestCase):
         class DocumentedMockDateTime(datetime.datetime):
             @classmethod
             def now(cls, tz=None):
+                """
+
+                Return the current time, optionally adjusted for a specific time zone.
+
+                Args:
+                    tz (timezone): The time zone to adjust the current time for. If None, the current time in UTC is returned.
+
+                Returns:
+                    datetime: The current time, either in UTC or adjusted for the specified time zone.
+
+                Note:
+                    If the provided time zone is not aware of its UTC offset, the UTC time is returned.
+
+                """
                 if tz is None or tz.utcoffset(documented_now) is None:
                     return documented_now
                 else:

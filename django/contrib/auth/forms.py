@@ -176,6 +176,24 @@ class SetPasswordMixin:
             self.add_error(password2_field_name, error)
 
     def validate_password_for_user(self, user, password_field_name="password2"):
+        """
+
+        Validate a password for a given user.
+
+        Checks if a provided password meets the validation requirements for the specified user.
+        The password is validated using the password validation rules defined in the system.
+        If the password is invalid, an error is added to the form.
+
+        The password to be validated is retrieved from the cleaned data using the specified 
+        password field name. By default, this is 'password2'.
+
+        The validation process only occurs if a password has been provided and the 
+        'set_usable_password' flag is True.
+
+        :param user: The user for whom the password is being validated.
+        :param password_field_name: The name of the field containing the password to be validated.
+
+        """
         password = self.cleaned_data.get(password_field_name)
         if password and self.cleaned_data["set_usable_password"]:
             try:
@@ -208,6 +226,11 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the form instance, setting up the necessary fields and attributes.
+
+        The initialization process extends the base form's initialization behavior, adding custom functionality specific to this form class. Notably, it automatically focuses the username field when the form is rendered, enhancing the user experience by streamlining the form submission process.
+        """
         super().__init__(*args, **kwargs)
         if self._meta.model.USERNAME_FIELD in self.fields:
             self.fields[self._meta.model.USERNAME_FIELD].widget.attrs[
@@ -322,6 +345,21 @@ class AuthenticationForm(forms.Form):
             self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
     def clean(self):
+        """
+        Validate and clean user authentication data.
+
+        This method retrieves the username and password from the cleaned data and attempts to authenticate the user.
+        If the authentication is successful, it caches the user object and checks if the login is allowed.
+        If the authentication fails, it raises an error indicating an invalid login.
+        The method returns the cleaned data if the authentication and login checks pass.
+
+        Raises:
+            InvalidLoginError: If the authentication fails or the login is not allowed.
+
+        Returns:
+            dict: The cleaned authentication data.
+
+        """
         username = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
 
@@ -477,6 +515,18 @@ class SetPasswordForm(SetPasswordMixin, forms.Form):
         super().__init__(*args, **kwargs)
 
     def clean(self):
+        """
+        Cleans and validates the form data before proceeding with further operations.
+
+        This method first checks if the new passwords match and meet the minimum requirements.
+        Then, it verifies if the new password is valid for the specified user, ensuring it doesn't 
+        violate any password policies or constraints. If all validations pass, it calls the 
+        parent class's clean method to perform any additional cleaning or validation tasks.
+
+        Returns:
+            None
+
+        """
         self.validate_passwords("new_password1", "new_password2")
         self.validate_password_for_user(self.user, "new_password2")
         return super().clean()

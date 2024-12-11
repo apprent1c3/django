@@ -28,6 +28,17 @@ class AdminActionsTests(TestCase):
             setattr(cls, username, user)
 
     def test_get_actions_respects_permissions(self):
+        """
+        Tests that the get_actions method of a ModelAdmin respects custom permissions.
+
+        The test ensures that the actions returned by get_actions are filtered based on the 
+        permissions of the requesting user. This includes both built-in actions like 
+        'delete_selected' and custom actions registered with the @admin.action decorator.
+
+        The test covers various scenarios, including different types of permissions 
+        ('add', 'change', 'delete', 'view', 'custom') and different types of users 
+        (superuser, viewuser, adduser, changeuser, deleteuser, customuser).
+        """
         class MockRequest:
             pass
 
@@ -65,6 +76,16 @@ class AdminActionsTests(TestCase):
                 self.assertEqual(list(actions.keys()), expected)
 
     def test_actions_inheritance(self):
+        """
+
+        Tests the inheritance of actions in Django admin classes.
+
+        This test case checks how actions defined in a base admin class are inherited
+        by its subclasses. It verifies that actions are properly inherited when the
+        subclass does not override the actions attribute, and that they are not
+        inherited when the subclass explicitly sets actions to None.
+
+        """
         class AdminBase(admin.ModelAdmin):
             actions = ["custom_action"]
 
@@ -88,6 +109,24 @@ class AdminActionsTests(TestCase):
 
     def test_global_actions_description(self):
         @admin.action(description="Site-wide admin action 1.")
+        """
+        Tests the description of global actions in the admin interface.
+
+        This test verifies that global actions added to an AdminSite are correctly displayed
+        in the admin interface, including their descriptions. It checks that actions with
+        explicit descriptions are displayed as specified, and that actions without explicit
+        descriptions are displayed with a default description.
+
+        The test covers the following scenarios:
+
+        * Global actions with explicit descriptions
+        * Global actions without explicit descriptions
+        * Actions added to a custom AdminSite instance
+
+        It ensures that the descriptions of global actions are correctly retrieved and
+        displayed in the admin interface, allowing administrators to understand the purpose
+        of each action.
+        """
         def global_action_1(modeladmin, request, queryset):
             pass
 

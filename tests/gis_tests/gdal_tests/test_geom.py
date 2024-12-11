@@ -251,6 +251,16 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
 
     def test_polygons_templates(self):
         # Accessing Polygon attributes in templates should work.
+        """
+
+        Tests rendering of polygon templates.
+
+        This function checks if the Engine can correctly render a template containing
+        polygon data. It creates a template that references the first polygon's WKT
+        (well-known text) representation, renders the template with sample polygon data,
+        and then verifies that the resulting content matches the expected format.
+
+        """
         engine = Engine()
         template = engine.from_string("{{ polygons.0.wkt }}")
         polygons = [OGRGeometry(p.wkt) for p in self.geometries.multipolygons[:2]]
@@ -536,6 +546,15 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_crosses(self):
+        """
+        Tests the crosses method of OGRGeometry object to determine if two geometries cross each other.
+
+        This method checks the spatial relationship between two geometries, returning True if they intersect at a single point and do not share any common boundary, and False otherwise.
+
+        The test includes scenarios where line strings intersect each other diagonally and where they are parallel to each other, thus not intersecting at a single point.
+
+        This is useful for applications that require analysis of spatial relationships between geometric objects, such as GIS or mapping tools.
+        """
         self.assertIs(
             OGRGeometry("LINESTRING(0 0, 1 1)").crosses(
                 OGRGeometry("LINESTRING(0 1, 1 0)")
@@ -550,6 +569,14 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_disjoint(self):
+        """
+        .. method:: test_disjoint()
+
+           Tests the :meth:`disjoint` method of the OGRGeometry class, 
+           verifying its correctness in identifying disjoint geometric shapes. 
+           A disjoint relationship is confirmed when two geometries do not intersect or touch. 
+           This test case ensures that the method correctly identifies geometries that do or do not share any part of their boundaries or interior.
+        """
         self.assertIs(
             OGRGeometry("LINESTRING(0 0, 1 1)").disjoint(
                 OGRGeometry("LINESTRING(0 1, 1 0)")
@@ -564,6 +591,11 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_equals(self):
+        """
+        Verify that a geometry contains another geometry.
+
+        The test checks the `contains` method of an `OGRGeometry` object, ensuring it correctly identifies when a geometry is fully enclosed within another. This is demonstrated with a point geometry, where a point located at the same coordinates as the reference point is considered contained, while a point at different coordinates is not.
+        """
         self.assertIs(
             OGRGeometry("POINT(0 0)").contains(OGRGeometry("POINT(0 0)")), True
         )
@@ -572,6 +604,12 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_intersects(self):
+        """
+        Tests the intersects method of OGRGeometry objects.
+
+        Checks if two geometric objects have any point in common. The test cases cover
+        scenarios where two line strings intersect and where they do not.””
+        """
         self.assertIs(
             OGRGeometry("LINESTRING(0 0, 1 1)").intersects(
                 OGRGeometry("LINESTRING(0 1, 1 0)")
@@ -597,6 +635,20 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_touches(self):
+        """
+
+        Determines if two geometric objects have at least one point in common but do not intersect.
+
+        This method checks if the boundaries of two geometric objects meet but the interiors do not intersect.
+        It returns True if the objects touch and False otherwise.
+
+        Examples of geometric relationships that are considered to be \"touches\" include:
+        - A line that intersects the boundary of a polygon at a single point
+        - A point that lies on the boundary of a line or polygon
+
+        This method is useful for identifying geometric objects that share a common boundary but do not overlap.
+
+        """
         self.assertIs(
             OGRGeometry("POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))").touches(
                 OGRGeometry("LINESTRING(0 2, 2 0)")
@@ -608,6 +660,20 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_within(self):
+        """
+
+        Check if a geometry is within another geometry.
+
+        The :meth:`within` method determines if one geometry is completely 
+        enclosed by another. This method is often used in spatial relationships 
+        between shapes, such as points, polygons, and lines.
+
+        This test case covers scenarios involving points and polygons, 
+        verifying that a point is correctly identified as being within 
+        or outside of a given polygon, and also checks the same operation 
+        between points.
+
+        """
         self.assertIs(
             OGRGeometry("POINT(0.5 0.5)").within(
                 OGRGeometry("POLYGON ((0 0, 0 1, 1 1, 1 0, 0 0))")
@@ -630,6 +696,18 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_empty(self):
+        """
+
+        Tests the detection of empty geometries in OGRGeometry objects.
+
+        Verifies the empty property of OGRGeometry instances to ensure correct identification
+        of geometries with and without spatial content, such as empty point geometries. 
+
+        This test case covers two scenarios:
+            - A non-empty point geometry at coordinates (0, 0).
+            - An explicitly defined empty point geometry.
+
+        """
         self.assertIs(OGRGeometry("POINT (0 0)").empty, False)
         self.assertIs(OGRGeometry("POINT EMPTY").empty, True)
 
@@ -717,6 +795,17 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
                         OGRGeometry(f"{geom_type} EMPTY")
 
     def test_is_3d_and_set_3d(self):
+        """
+        Tests the is_3d property and set_3d method of OGRGeometry objects.
+
+        Verifies that a 2D geometry initially reports is_3d as False, and that 
+        setting is_3d to True or False updates the geometry's dimensionality accordingly.
+        Also checks that the Well-Known Text (WKT) representation of the geometry 
+        is correctly updated when its dimensionality is changed.
+
+        Additionally, tests that attempting to set is_3d to a non-boolean value raises 
+        a ValueError with the expected error message.
+        """
         geom = OGRGeometry("POINT (1 2)")
         self.assertIs(geom.is_3d, False)
         geom.set_3d(True)
@@ -813,6 +902,19 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
                 self.assertEqual(g.wkb.hex(), wkb)
 
     def test_measure_is_measure_and_set_measure(self):
+        """
+        Tests the functionality of setting and checking measured status of a geometry.
+
+        This test case verifies that a geometry's measured status can be set to True or False,
+        and that the Well-Known Text (WKT) representation of the geometry is updated accordingly.
+        It also checks that attempting to set the measured status to a non-boolean value raises a ValueError.
+
+        The test covers the following scenarios:
+        - Creating a geometry with no measured status set
+        - Enabling and disabling the measured status of a geometry
+        - Verifying the WKT representation after setting the measured status
+        - Validating error handling for non-boolean input to the 'set_measured' method
+        """
         geom = OGRGeometry("POINT (1 2 3)")
         self.assertIs(geom.is_measured, False)
         geom.set_measured(True)
@@ -826,6 +928,15 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
             geom.set_measured(None)
 
     def test_point_m_coordinate(self):
+        """
+
+        Tests the 'm' coordinate (measure) of a point geometry.
+
+        Verifies that the 'm' coordinate is correctly extracted from different types of point geometries,
+        including POINT ZM, POINT, POINT M, and POINT Z. The function covers cases where the 'm' coordinate
+        is explicitly provided, implicitly assumed, or not applicable.
+
+        """
         geom = OGRGeometry("POINT ZM (1 2 3 4)")
         self.assertEqual(geom.m, 4)
         geom = OGRGeometry("POINT (1 2 3 4)")
@@ -863,6 +974,12 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_point_m_dimension_types(self):
+        """
+        Tests the creation of Point geometries with ZM (3D with measure) and M (2D with measure) dimension types.
+
+            Validates that the geom_type name and number are correctly set for both PointZM and PointM geometries.
+            The function ensures that the OGRGeometry class correctly handles the dimension types and returns the expected geometry type names and numbers.
+        """
         geom = OGRGeometry("POINT ZM (1 2 3 4)")
         self.assertEqual(geom.geom_type.name, "PointZM")
         self.assertEqual(geom.geom_type.num, 3001)
@@ -916,6 +1033,15 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertIs(geom.m, None)
 
     def test_polygon_m_dimension(self):
+        """
+        Tests the creation and manipulation of OGRGeometry polygon objects with measured dimensions.
+
+        Verifies the 'is_measured' attribute and Well-Known Text (WKT) representation of polygons with and without measured dimensions.
+        Checks the effect of setting 'is_measured' to False on the polygon's WKT representation.
+
+        Ensures correct behavior for polygons with Z (3D) and ZM (3D with measure) dimensions.
+        Validates the shell and polygon WKT representations for various polygon types and measure settings
+        """
         geom = OGRGeometry("POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))")
         self.assertIs(geom.is_measured, False)
         self.assertEqual(
@@ -944,6 +1070,13 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_multi_geometries_m_dimension(self):
+        """
+        Tests the creation of geometries with measured (M) or measured and z (ZM) dimensions from well-known text (WKT) strings.
+
+        A number of test cases are run, covering different geometric types including MULTIPOINT, MULTILINESTRING, MULTIPOLYGON, and GEOMETRYCOLLECTION, with both M and ZM dimensions.
+
+        The test verifies that each created geometry correctly reports whether it has measured dimensions, i.e., that the 'is_measured' property is True for all geometries in the test set.
+        """
         tests = [
             "MULTIPOINT M ((10 40 10), (40 30 10), (20 20 10))",
             "MULTIPOINT ZM ((10 40 0 10), (40 30 1 10), (20 20 1 10))",
@@ -970,6 +1103,17 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
 
 class DeprecationTests(SimpleTestCase):
     def test_coord_setter_deprecation(self):
+        """
+        Tests that the coord_dim setter for OGRGeometry objects triggers a deprecation warning, 
+        indicating that it will be removed in Django 6.0, and directs users to use set_3d() instead.
+
+        The test checks for the correct warning message and verifies that the coord_dim attribute 
+        is updated as expected, despite the deprecated setter being used.
+
+        This test ensures that the deprecation notice is correctly implemented, maintaining 
+        backward compatibility while encouraging users to adopt the recommended set_3d() method 
+        for setting the coordinate dimension of OGRGeometry objects.
+        """
         geom = OGRGeometry("POINT (1 2)")
         msg = "coord_dim setter is deprecated. Use set_3d() instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):

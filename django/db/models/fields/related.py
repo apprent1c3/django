@@ -112,6 +112,16 @@ class RelatedField(FieldCacheMixin, Field):
     @cached_property
     def related_model(self):
         # Can't cache this property until all the models are loaded.
+        """
+        Returns the related model instance associated with this object.
+
+        This property lazily loads the related model, which is useful for accessing
+        related data without incurring the overhead of an additional database query
+        until the data is actually needed.
+
+        :returns: The related model instance
+        :rtype: Model
+        """
         apps.check_models_ready()
         return self.remote_field.model
 
@@ -1100,6 +1110,17 @@ class ForeignKey(ForeignObject):
             )
 
     def resolve_related_fields(self):
+        """
+
+        Resolves related fields for the current model, ensuring that all referenced fields are local to the model.
+
+        This method checks the model's related fields and raises a FieldError if any field references a non-local field.
+        The purpose is to validate the integrity of the model's relationships and prevent errors due to misconfigured references.
+
+        Returns:
+            related_fields: A list of tuples containing the from_field and to_field for each related field.
+
+        """
         related_fields = super().resolve_related_fields()
         for from_field, to_field in related_fields:
             if (
@@ -1236,6 +1257,18 @@ class OneToOneField(ForeignKey):
         super().__init__(to, on_delete, to_field=to_field, **kwargs)
 
     def deconstruct(self):
+        """
+
+        Deconstructs the instance into its constituent parts.
+
+        This method breaks down the instance into the name, path, arguments, and keyword arguments 
+        that would be used to reconstruct it. It also removes any 'unique' keyword argument to 
+        ensure that the reconstructed instance does not enforce uniqueness.
+
+        Returns:
+            tuple: A tuple containing the name, path, arguments, and keyword arguments.
+
+        """
         name, path, args, kwargs = super().deconstruct()
         if "unique" in kwargs:
             del kwargs["unique"]
@@ -1418,6 +1451,17 @@ class ManyToManyField(RelatedField):
         return []
 
     def _check_ignored_options(self, **kwargs):
+        """
+        The _check_ignored_options function inspects the current ManyToManyField instance and checks for any ignored options that have been set but have no effect.
+
+        It verifies four specific conditions:
+        - Whether null has been specified, which does not apply to ManyToManyFields.
+        - If validators are defined, as ManyToManyFields do not support validation.
+        - If a related name is provided when the relationship is symmetrical, which does not have any effect.
+        - If a database comment is provided, which also has no effect.
+
+        The function returns a list of warnings corresponding to any ignored options it encounters, with each warning providing additional information about the issue, including an object reference and a unique identifier.
+        """
         warnings = []
 
         if self.has_null_arg:

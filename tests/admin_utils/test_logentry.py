@@ -18,6 +18,18 @@ from .models import Article, ArticleProxy, Car, InheritedLogEntryManager, Site
 class LogEntryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class.
+
+        This method creates a superuser, a site, and three articles associated with the site.
+        It also logs a change action for one of the articles, simulating a user modification.
+        The created data is stored as class attributes, making it available for use in subsequent tests.
+
+        Returns:
+            None
+
+        """
         cls.user = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -233,11 +245,25 @@ class LogEntryTests(TestCase):
         self.assertEqual(str(log_entry), "LogEntry Object")
 
     def test_logentry_repr(self):
+        """
+        Tests the representation of a LogEntry object.
+
+        Verifies that the string representation of a LogEntry instance, obtained via the repr() function, is equal to the string representation of its action_time attribute. This ensures that the repr() method is implemented correctly and provides a meaningful representation of the object. 
+        """
         logentry = LogEntry.objects.first()
         self.assertEqual(repr(logentry), str(logentry.action_time))
 
     # RemovedInDjango60Warning.
     def test_log_action(self):
+        """
+
+        Tests that the log_action method of LogEntryManager is properly deprecated.
+
+        Verifies that when log_action is called, it raises a RemovedInDjango60Warning with an appropriate message
+        suggesting the use of log_actions instead. Also checks that despite the deprecation, the log action is still
+        successfully recorded and can be retrieved as the latest log entry.
+
+        """
         msg = "LogEntryManager.log_action() is deprecated. Use log_actions() instead."
         content_type_val = ContentType.objects.get_for_model(Article).pk
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -252,6 +278,19 @@ class LogEntryTests(TestCase):
         self.assertEqual(log_entry, LogEntry.objects.latest("id"))
 
     def test_log_actions(self):
+        """
+
+        Tests logging of deletion actions on a set of objects.
+
+        This test function verifies that when a set of objects, in this case Articles, are deleted,
+        the corresponding log entries are created in the database. It checks that the log entries
+        contain the correct information, including the user who performed the action, the type of
+        objects being deleted, the objects themselves, and a custom message describing the change.
+
+        The test ensures that the log entries are created efficiently, in a single database query,
+        and that the resulting log entries match the expected values.
+
+        """
         queryset = Article.objects.all().order_by("-id")
         msg = "Deleted Something"
         content_type = ContentType.objects.get_for_model(self.a1)

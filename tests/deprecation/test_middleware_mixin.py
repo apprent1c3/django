@@ -57,6 +57,15 @@ class MiddlewareMixinTests(SimpleTestCase):
     ]
 
     def test_repr(self):
+        """
+        Tests the string representation of MiddlewareMixin and CsrfViewMiddleware instances.
+
+        Verifies that the repr() method correctly returns a string indicating the class type 
+        and the get_response callable, whether it is an instance of a class or a regular function.
+
+        Checks the output for both MiddlewareMixin and CsrfViewMiddleware with different types 
+        of get_response callables to ensure consistent string representation across different scenarios.
+        """
         class GetResponse:
             def __call__(self):
                 return HttpResponse()
@@ -84,6 +93,12 @@ class MiddlewareMixinTests(SimpleTestCase):
         )
 
     def test_passing_explicit_none(self):
+        """
+        Tests that each middleware raises a ValueError when get_response is explicitly set to None.
+
+         Verifies that all middlewares in the list enforce the requirement for a valid get_response callback, 
+         ensuring they handle invalid input correctly by raising an exception with a meaningful error message.
+        """
         msg = "get_response must be provided."
         for middleware in self.middlewares:
             with self.subTest(middleware=middleware):
@@ -91,6 +106,19 @@ class MiddlewareMixinTests(SimpleTestCase):
                     middleware(None)
 
     def test_coroutine(self):
+        """
+
+        Tests the behavior of the middlewares with both asynchronous and synchronous response functions.
+
+        This test iterates over each middleware in the list, applying it to both an asynchronous 
+        and synchronous response function. It verifies that when applied to an asynchronous function, 
+        the middleware returns a coroutine function, and when applied to a synchronous function, 
+        it returns a non-coroutine function.
+
+        The test ensures that the middlewares correctly handle both asynchronous and synchronous 
+        response functions, maintaining the expected behavior in different scenarios.
+
+        """
         async def async_get_response(request):
             return HttpResponse()
 
@@ -127,6 +155,13 @@ class MiddlewareMixinTests(SimpleTestCase):
                 request.thread_and_connection = request_lifecycle()
 
             def process_response(self, request, response):
+                """
+                Associates the request's lifecycle with the response, capturing thread and connection information.
+
+                This method takes a request and response object as input, and returns the modified response with additional attributes. 
+                The response's lifecycle is updated with the thread and connection details from the request, 
+                providing context for further processing or analysis.
+                """
                 response.thread_and_connection = request_lifecycle()
                 return response
 

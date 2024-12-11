@@ -45,6 +45,19 @@ def _contains_subclass(class_path, candidate_paths):
 
 
 def check_admin_app(app_configs, **kwargs):
+    """
+
+    Checks the admin applications for any errors.
+
+    This function iterates over all admin sites and runs their individual checks
+    on the provided application configurations. Any errors encountered are
+    collected and returned.
+
+    :param app_configs: Application configurations to check
+    :rtype: list
+    :return: A list of errors encountered during the checks
+
+    """
     from django.contrib.admin.sites import all_sites
 
     errors = []
@@ -772,6 +785,23 @@ class BaseModelAdminChecks:
             )
 
     def _check_readonly_fields_item(self, obj, field_name, label):
+        """
+        Checks whether a field name refers to a valid attribute or model field.
+
+        This function inspects the given object and its associated model to determine
+        if the specified field name represents a valid attribute or model field. If
+        the field name is not a callable, attribute of the object, or attribute of
+        the model, it checks if the field exists in the model's metadata.
+
+        If the field name is invalid, it returns a list containing an Error object
+        with a descriptive message. Otherwise, it returns an empty list.
+
+        :param obj: The object to check.
+        :param field_name: The name of the field to inspect.
+        :param label: The label associated with the field name.
+        :returns: A list of Error objects if the field name is invalid, otherwise an empty list.
+        :rtype: list
+        """
         if callable(field_name):
             return []
         elif hasattr(obj, field_name):
@@ -967,6 +997,18 @@ class ModelAdminChecks(BaseModelAdminChecks):
         return []
 
     def _check_list_display_links_item(self, obj, field_name, label):
+        """
+        .. method:: _check_list_display_links_item(obj, field_name, label)
+
+           Validates a list display links item by checking if the specified :paramref:`field_name` 
+           exists in the object's :attr:`list_display`. 
+
+           :param obj: The object being checked.
+           :param field_name: The name of the field to check.
+           :param label: The label associated with the field name.
+           :return: A list of errors if the field name is not defined in :attr:`list_display`, otherwise an empty list.
+           :raises: :class:`~checks.Error` with the error code 'admin.E111' if the field name is not defined.
+        """
         if field_name not in obj.list_display:
             return [
                 checks.Error(

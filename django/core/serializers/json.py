@@ -36,6 +36,16 @@ class Serializer(PythonSerializer):
         self.stream.write("[")
 
     def end_serialization(self):
+        """
+        Finalizes the serialization process by writing the closing bracket of the 
+        serialized data structure.
+
+        If indentation is enabled, a newline character is written before and after the 
+        closing bracket to maintain proper formatting. The serialized data is then 
+        complete and ready for use or transmission.
+
+        :returns: None
+        """
         if self.options.get("indent"):
             self.stream.write("\n")
         self.stream.write("]")

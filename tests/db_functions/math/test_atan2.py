@@ -9,6 +9,16 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ATan2Tests(TestCase):
     def test_null(self):
+        """
+
+        Tests the behavior of the ATan2 function when dealing with null values.
+
+        This test case creates an instance of IntegerModel and annotates it with 
+        ATan2 calculations involving different combinations of 'small', 'normal', 
+        and 'big' fields. The test then asserts that all resulting ATan2 values 
+        are None, verifying that the function correctly handles null inputs.
+
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_atan2_sn=ATan2("small", "normal"),
@@ -20,6 +30,13 @@ class ATan2Tests(TestCase):
         self.assertIsNone(obj.null_atan2_bn)
 
     def test_decimal(self):
+        """
+        Tests the ATan2 database function with Decimal values.
+
+        Verifies that the result of the ATan2 function, given two Decimal arguments,
+        is a Decimal instance and that its value matches the result of the math.atan2 function
+        for the same input values, within a small margin of error.
+        """
         DecimalModel.objects.create(n1=Decimal("-9.9"), n2=Decimal("4.6"))
         obj = DecimalModel.objects.annotate(n_atan2=ATan2("n1", "n2")).first()
         self.assertIsInstance(obj.n_atan2, Decimal)

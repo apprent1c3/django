@@ -163,6 +163,13 @@ class _AssertTemplateUsedContext:
         )
 
     def __enter__(self):
+        """
+        Enters the runtime context for the object, preparing it to receive notifications when a template is rendered.
+
+        This method sets up the object to listen for template rendering events, allowing it to respond accordingly.
+        It returns the object itself, making it suitable for use in 'with' statements.
+
+        """
         template_rendered.connect(self.on_template_render)
         return self
 
@@ -175,6 +182,15 @@ class _AssertTemplateUsedContext:
 
 class _AssertTemplateNotUsedContext(_AssertTemplateUsedContext):
     def test(self):
+        """
+        Tests that a specific template was not rendered during the response generation.
+
+        This test checks if the template with the name specified by :attr:`template_name` is present in the list of rendered templates.
+        If the template is found, the test fails and an error message is displayed, indicating that the template was used unexpectedly.
+
+        :param None:
+        :raises AssertionError: if the template was rendered unexpectedly
+        """
         rendered_template_names = [
             t.name for t in self.rendered_templates if t.name is not None
         ]
@@ -1166,6 +1182,19 @@ class TransactionTestCase(SimpleTestCase):
                             cursor.execute(sql)
 
     def _fixture_setup(self):
+        """
+
+        Setup fixtures for a test database.
+
+        This function initializes a test database environment by performing several steps:
+        - Optionally resetting auto-increment sequences in the database if the reset_sequences flag is True.
+        - Deserializing the database from a stored string representation if serialized_rollback is enabled, 
+          while taking care of available applications to prevent interference with the test environment.
+        - Optionally loading fixtures into the database if the fixtures list is not empty.
+
+        The setup is applied to all non-mirror databases specified in the internal list of database names.
+
+        """
         for db_name in self._databases_names(include_mirrors=False):
             # Reset sequences
             if self.reset_sequences:
@@ -1242,6 +1271,26 @@ class TransactionTestCase(SimpleTestCase):
             )
 
     def assertQuerySetEqual(self, qs, values, transform=None, ordered=True, msg=None):
+        """
+        Asserts that a QuerySet matches a given list of values.
+
+        Args:
+            qs: The QuerySet to be compared.
+            values: The list of values to compare with the QuerySet.
+            transform (callable, optional): An optional function to transform each item in the QuerySet before comparison. Defaults to None.
+            ordered (bool, optional): Whether the comparison should consider the order of items. Defaults to True.
+            msg (str, optional): An optional error message to display if the assertion fails. Defaults to None.
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If trying to compare a non-ordered QuerySet against more than one ordered value.
+
+        Note:
+            If ordered is False, the comparison is done by counting the occurrences of each item, regardless of order. Otherwise, the comparison is done by checking that the QuerySet and the list of values have the same items in the same order.
+
+        """
         values = list(values)
         items = qs
         if transform is not None:
@@ -1519,6 +1568,25 @@ class CheckCondition:
 
 def _deferredSkip(condition, reason, name):
     def decorator(test_func):
+        """
+
+        Decorator to conditionally skip a test function based on a given condition.
+
+        The decorator checks if the test function is allowed to run against a specific database. 
+        If not, it raises an error or skips the test with a provided reason. 
+        It can be applied to both test functions and test cases.
+
+        Args:
+            test_func: The test function or test case to be decorated.
+
+        Returns:
+            The decorated test function or test case.
+
+        Raises:
+            ValueError: If the test function is not allowed to run against the specified database.
+            unittest.SkipTest: If the condition to skip the test is met.
+
+        """
         nonlocal condition
         if not (
             isinstance(test_func, type) and issubclass(test_func, unittest.TestCase)

@@ -40,6 +40,16 @@ class SelectRelatedTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the class by creating a taxonomy tree for various organisms.
+
+        This method creates a hierarchical structure for several species, including
+        Drosophila melanogaster (fruit fly), Homo sapiens (human), Pisum sativum (pea),
+        and Amanita muscaria (fly agaric mushroom), each with their respective kingdoms,
+        phyla, classes, orders, families, and genera.
+
+        """
         cls.create_tree(
             "Eukaryota Animalia Anthropoda Insecta Diptera Drosophilidae Drosophila "
             "melanogaster"
@@ -78,6 +88,19 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(domain.name, "Eukaryota")
 
     def test_list_without_select_related(self):
+        """
+
+        Tests the retrieval of related model instances from a queryset without using select_related.
+
+        This test case verifies that the ORM issues the expected number of database queries when
+        fetching related objects from a queryset. It retrieves a list of species, and then extracts
+        the family names of the corresponding genera. The test asserts that the family names are
+        as expected and that the query count is within the anticipated range.
+
+        The expected query count of 9 reflects the initial query to retrieve the species, plus
+        additional queries to fetch the related genus and family instances for each species.
+
+        """
         with self.assertNumQueries(9):
             world = Species.objects.all()
             families = [o.genus.family.name for o in world]
@@ -120,6 +143,14 @@ class SelectRelatedTests(TestCase):
             )
 
     def test_select_related_with_extra(self):
+        """
+
+        Tests that the select_related queryset method functions correctly with extra select clauses.
+
+        Verifies that extra select clauses are properly applied to the results of a select_related query,
+        ensuring that the additional selected values are accurately calculated and returned in the query results.
+
+        """
         s = (
             Species.objects.all()
             .select_related()
@@ -156,6 +187,16 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(orders, ["Agaricales"])
 
     def test_field_traversal(self):
+        """
+        Tests the ability to traverse related fields in a single database query.
+
+        Verifies that using select_related() to prefetch related objects allows the
+        traversal of multiple levels of relationships without incurring additional
+        database queries. Specifically, this test checks that traversing from a Species
+        to its genus, family, and finally to the order name can be done with a single
+        query. The test also validates that the order name is correctly retrieved as
+        'Diptera'.
+        """
         with self.assertNumQueries(1):
             s = (
                 Species.objects.all()
@@ -167,10 +208,29 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(s, "Diptera")
 
     def test_none_clears_list(self):
+        """
+
+        Tests that passing None to select_related clears the list of related objects to be retrieved with the main query.
+
+        This ensures that when the select_related method is subsequently used, it will not attempt to fetch any related objects,
+        resulting in a simple query without any joins. The test verifies this by checking the state of the queryset's select_related attribute.
+
+        """
         queryset = Species.objects.select_related("genus").select_related(None)
         self.assertIs(queryset.query.select_related, False)
 
     def test_chaining(self):
+        """
+        Tests the efficient retrieval of related objects in a chained relationship.
+
+        This test case validates the use of select_related to fetch related objects
+        (parent species) in a hybrid species instance, ensuring that the data is 
+        retrieved in a single database query, thus optimizing performance.
+
+        Checks that the parent species instances are correctly retrieved and 
+        associated with the hybrid species instance, confirming the chaining of 
+        relationships works as expected.
+        """
         parent_1, parent_2 = Species.objects.all()[:2]
         HybridSpecies.objects.create(
             name="hybrid", parent_1=parent_1, parent_2=parent_2
@@ -225,6 +285,18 @@ class SelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_non_relational_field(self):
+        """
+
+        Tests the behavior of select_related when applied to non-relational fields.
+
+        The function checks that using select_related with fields that do not support 
+        relationships raises a FieldError with a meaningful error message. This ensures 
+        that the ORM correctly handles and reports invalid usage of select_related.
+
+        This test covers various scenarios, including attempting to select related 
+        fields on a non-relational field, and selecting the non-relational field itself.
+
+        """
         with self.assertRaisesMessage(
             FieldError, self.non_relational_error % ("name", "genus")
         ):
@@ -241,24 +313,55 @@ class SelectRelatedValidationTests(SimpleTestCase):
             list(Domain.objects.select_related("name"))
 
     def test_non_relational_field_nested(self):
+        """
+        Tests that attempting to use select_related on a non-relational field nested within a related field raises a FieldError.
+
+        The function checks that Django correctly handles the case when trying to select a field that is not related, even when it is nested inside a related field. It verifies that the expected error message is raised, including the names of the fields involved in the error.
+
+        This test case helps ensure that Django's ORM correctly handles and reports errors when attempting to use select_related with invalid field names, particularly in nested relationships.
+        """
         with self.assertRaisesMessage(
             FieldError, self.non_relational_error % ("name", "family")
         ):
             list(Species.objects.select_related("genus__name"))
 
     def test_many_to_many_field(self):
+        """
+
+        Tests that attempting to use select_related on a many-to-many field raises a FieldError.
+
+        This test case verifies that Django's ORM correctly handles many-to-many relationships
+        and prevents the use of select_related on such fields, which are not supported by this method.
+
+        The test expects a FieldError to be raised with a specific error message, indicating that
+        select_related cannot be applied to the 'toppings' field on the Pizza model.
+
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("toppings", "(none)")
         ):
             list(Pizza.objects.select_related("toppings"))
 
     def test_reverse_relational_field(self):
+        """
+        Tests the behavior of the `select_related` method when attempting to select a relational field that does not exist.
+
+        The test verifies that a `FieldError` exception is raised with an expected error message when trying to retrieve a list of `Species` objects that include the non-existent relationship `child_1` to `genus`. This ensures that the application correctly handles invalid relational field selections.
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("child_1", "genus")
         ):
             list(Species.objects.select_related("child_1"))
 
     def test_invalid_field(self):
+        """
+        Tests the behavior of the select_related method when an invalid field is specified.
+
+        Verifies that a FieldError is raised when attempting to select a non-existent field, 
+        either as a direct attribute or as a related field through a valid relationship. 
+        The test covers various scenarios, including selecting an invalid field from different models, 
+        such as Species and Domain, to ensure consistent error handling across the application.
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("invalid_field", "genus")
         ):
@@ -275,6 +378,16 @@ class SelectRelatedValidationTests(SimpleTestCase):
             list(Domain.objects.select_related("invalid_field"))
 
     def test_generic_relations(self):
+        """
+        Tests that generic relations are handled correctly by Django's ORM.
+
+        This test case checks that an error is raised when trying to use select_related on a generic foreign key field.
+        It specifically tests two cases: selecting related 'tags' in Bookmark objects and selecting related 'content_object'
+        in TaggedItem objects, without properly specifying the 'content_type' field for the generic relationship.
+
+        The test verifies that the expected FieldError is raised with the correct error message, ensuring that the ORM
+        correctly handles these generic relationships and raises informative errors when they are used incorrectly.
+        """
         with self.assertRaisesMessage(FieldError, self.invalid_error % ("tags", "")):
             list(Bookmark.objects.select_related("tags"))
 

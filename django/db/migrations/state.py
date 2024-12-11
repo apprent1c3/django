@@ -842,6 +842,19 @@ class ModelState:
             del options["order_with_respect_to"]
 
         def flatten_bases(model):
+            """
+
+            Flatten the base classes of a given model, excluding abstract bases.
+
+            This function recursively traverses the inheritance hierarchy of the model, 
+            adding non-abstract base classes to the result list. Abstract base classes 
+            are skipped, but their non-abstract base classes are included.
+
+            :arg model: The model whose base classes are to be flattened
+            :rtype: list
+            :return: A list of non-abstract base classes
+
+            """
             bases = []
             for base in model.__bases__:
                 if hasattr(base, "_meta") and base._meta.abstract:

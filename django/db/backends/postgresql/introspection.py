@@ -39,6 +39,24 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     ignored_tables = []
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the type of field based on the provided data type and description.
+
+        This function builds upon the field type determined by the parent class, and then
+        applies additional logic to handle auto-incrementing fields. If the description
+        indicates an auto-field or has a default value referencing 'nextval', it adjusts
+        the field type to 'AutoField', 'BigAutoField', or 'SmallAutoField' accordingly,
+        depending on the original field type.
+
+        Args:
+            data_type: The type of data the field represents.
+            description: A description of the field, which may include properties like
+                default values or auto-incrementing behavior.
+
+        Returns:
+            The determined field type, taking into account auto-incrementing behavior.
+
+        """
         field_type = super().get_field_type(data_type, description)
         if description.is_autofield or (
             # Required for pre-Django 4.1 serial columns.

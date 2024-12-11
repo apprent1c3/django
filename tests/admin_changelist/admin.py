@@ -87,6 +87,20 @@ class NrOfMembersFilter(admin.SimpleListFilter):
         ]
 
     def queryset(self, request, queryset):
+        """
+
+        Filters a queryset based on the number of members.
+
+        This function takes a request and a queryset as input, and returns a filtered queryset.
+        The filter criteria is determined by the value of a predefined setting.
+        If the value is '5', the queryset is filtered to include only items with 5 or fewer members.
+        If the value is 'more', the queryset is filtered to include only items with more than 5 members.
+
+        :param request: The current request object
+        :param queryset: The queryset to be filtered
+        :return: The filtered queryset
+
+        """
         value = self.value()
         if value == "5":
             return queryset.filter(nr_of_members__lte=5)
@@ -169,6 +183,16 @@ class DynamicListFilterChildAdmin(admin.ModelAdmin):
     list_filter = ("parent", "name", "age")
 
     def get_list_filter(self, request):
+        """
+
+        Retrieves a list of filters available for the current request, with modifications based on the requesting user.
+
+        If the requesting user's username is 'noparents', the 'parent' filter is removed from the list to restrict access to parent-related filtering.
+
+        Returns:
+            list: A list of available filters for the current request.
+
+        """
         my_list_filter = super().get_list_filter(request)
         if request.user.username == "noparents":
             my_list_filter = list(my_list_filter)
@@ -180,6 +204,17 @@ class DynamicSearchFieldsChildAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def get_search_fields(self, request):
+        """
+        Returns a tuple of field names that can be used for searching.
+
+        Extends the default search fields with the 'age' field, allowing it to be included
+        in search queries. This method is typically used in conjunction with a search
+        interface to filter results based on user input.
+
+        :param request: The current request object.
+        :returns: A tuple of field names that can be searched.
+        :rtype: tuple
+        """
         search_fields = super().get_search_fields(request)
         search_fields += ("age",)
         return search_fields
@@ -202,6 +237,19 @@ class UnescapedTitleFilter(admin.SimpleListFilter):
         return [("yes", "yes"), ("no", "no")]
 
     def queryset(self, request, queryset):
+        """
+        Filter a queryset based on the 'is_active' status.
+
+        This function takes a queryset and returns a filtered version of it, 
+        depending on the value of a specific setting. If the setting is 'yes', 
+        it returns only the records where 'is_active' is True. If the setting 
+        is not 'yes', it returns only the records where 'is_active' is False.
+
+        :param request: The current request object.
+        :param queryset: The queryset to be filtered.
+        :return: The filtered queryset.
+
+        """
         if self.value() == "yes":
             return queryset.filter(is_active=True)
         else:

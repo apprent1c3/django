@@ -6,6 +6,17 @@ from .models import Comment, Forum, Item, Post, PropertyValue, SystemDetails, Sy
 
 class NullFkTests(TestCase):
     def test_null_fk(self):
+        """
+
+        Tests the behavior of ForeignKey fields when null values are present.
+        This test case covers scenarios where the foreign key is null, 
+        verifying that the related object is correctly retrieved as None.
+        It also checks that the select_related method handles null foreign keys correctly,
+        ensuring that the result set is accurate and that the query is executed efficiently.
+        Additionally, it tests the transformation of query results to verify that 
+        null foreign keys are handled as expected.
+
+        """
         d = SystemDetails.objects.create(details="First details")
         s = SystemInfo.objects.create(system_name="First forum", system_details=d)
         f = Forum.objects.create(system_info=s, forum_name="First forum")

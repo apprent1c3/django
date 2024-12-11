@@ -38,6 +38,11 @@ class Node:
         return obj
 
     def __str__(self):
+        """
+        Returns a string representation of the current object, which is a logical expression.
+        The returned string is formatted as a parenthesized expression containing a connector and a list of child expressions.
+        If the expression is negated, the string representation will indicate this with a 'NOT' keyword.
+        """
         template = "(NOT (%s: %s))" if self.negated else "(%s: %s)"
         return template % (self.connector, ", ".join(str(c) for c in self.children))
 
@@ -45,6 +50,19 @@ class Node:
         return "<%s: %s>" % (self.__class__.__name__, self)
 
     def __copy__(self):
+        """
+        Creates a copy of the current object.
+
+        This method constructs a new object with the same properties as the original, 
+        including its connector and negation status, and then copies the children 
+        of the original object to the new one. The result is a deep copy of the 
+        original object, allowing for independent modification of the new object 
+        without affecting the original.
+
+        Returns:
+            A new object that is a copy of the current object.
+
+        """
         obj = self.create(connector=self.connector, negated=self.negated)
         obj.children = self.children  # Don't [:] as .__init__() via .create() does.
         return obj

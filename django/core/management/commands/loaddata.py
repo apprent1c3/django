@@ -49,6 +49,24 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Adds arguments to the parser for loading fixtures into a database.
+
+        The arguments added allow users to specify the fixtures to load, the database to load into,
+        and other options for customizing the loading process.
+
+        The following options are provided:
+        - Fixture labels: one or more labels specifying the fixtures to load
+        - Database: the database to load fixtures into, with a default of the 'default' database
+        - App label: an optional label to restrict fixture loading to a specific app
+        - Ignore non-existent fields: an option to ignore serialized data for fields that do not
+          exist on the current model
+        - Exclude: one or more app labels or model names to exclude from fixture loading
+        - Format: the format of the serialized data when reading from stdin
+
+        These options provide flexibility and control over the fixture loading process, allowing
+        users to customize the behavior to suit their needs.
+        """
         parser.add_argument(
             "args", metavar="fixture", nargs="+", help="Fixture labels."
         )
@@ -290,6 +308,17 @@ class Command(BaseCommand):
         return basename, fixture_dirs
 
     def get_targets(self, fixture_name, ser_fmt, cmp_fmt):
+        """
+        Generate a set of target file names based on specified formats and databases.
+
+        The function creates combinations of fixture name, serialization format, compression format, and database usage to produce a set of target file names.
+
+        :param fixture_name: The name of the fixture to generate targets for.
+        :param ser_fmt: The serialization format to use. If None, all serialization formats will be used.
+        :param cmp_fmt: The compression format to use. If None, all compression formats will be used.
+        :return: A set of target file names, including combinations of fixture name, serialization format, compression format, and database usage.
+
+        """
         databases = [self.using, None]
         cmp_fmts = self.compression_formats if cmp_fmt is None else [cmp_fmt]
         ser_fmts = self.serialization_formats if ser_fmt is None else [ser_fmt]
@@ -421,6 +450,21 @@ class Command(BaseCommand):
 
 class SingleZipReader(zipfile.ZipFile):
     def __init__(self, *args, **kwargs):
+        """
+
+        Initializes a new instance of the class.
+
+        This constructor overrides the default initialization behavior to enforce a specific constraint on zip-compressed fixtures.
+        It ensures that the fixture contains exactly one file, raising a ValueError if this condition is not met.
+
+        Args:
+            *args: Variable number of positional arguments.
+            **kwargs: Variable number of keyword arguments.
+
+        Raises:
+            ValueError: If the fixture does not contain exactly one file.
+
+        """
         super().__init__(*args, **kwargs)
         if len(self.namelist()) != 1:
             raise ValueError("Zip-compressed fixtures must contain one file.")

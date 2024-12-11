@@ -157,6 +157,26 @@ class UserManager(BaseUserManager):
         return user
 
     def create_user(self, username, email=None, password=None, **extra_fields):
+        """
+
+        Create a new user with the given username and optional email and password.
+
+        The newly created user will have default staff and superuser status set to False, 
+        unless explicitly overridden through the extra_fields parameter.
+
+        Any additional fields can be provided through the extra_fields parameter and 
+        will be applied to the new user.
+
+        Note: This method does not save the user to the database directly; instead, 
+        it delegates the actual creation to the _create_user method.
+
+        :param username: The username for the new user.
+        :param email: The email address for the new user (optional).
+        :param password: The password for the new user (optional).
+        :param extra_fields: Additional fields to be applied to the new user.
+        :return: The newly created user.
+
+        """
         extra_fields.setdefault("is_staff", False)
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(username, email, password, **extra_fields)
@@ -481,6 +501,16 @@ class AnonymousUser:
         return _user_has_perm(self, perm, obj=obj)
 
     def has_perms(self, perm_list, obj=None):
+        """
+
+        Checks if the current object has all the permissions in the given list.
+
+        :arg perm_list: An iterable of permissions to check.
+        :arg obj: An optional object to check permissions against. Defaults to None.
+        :return: True if all permissions are granted, False otherwise.
+        :raises ValueError: If perm_list is not an iterable (excluding strings).
+
+        """
         if not isinstance(perm_list, Iterable) or isinstance(perm_list, str):
             raise ValueError("perm_list must be an iterable of permissions.")
         return all(self.has_perm(perm, obj) for perm in perm_list)

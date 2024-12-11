@@ -24,6 +24,12 @@ class BlockContext:
             self.blocks[name].insert(0, block)
 
     def pop(self, name):
+        """
+        Removes and returns the last item from a block with the specified name.
+
+        :param name: The name of the block from which to remove the item
+        :return: The last item from the block, or None if the block is empty
+        """
         try:
             return self.blocks[name].pop()
         except IndexError:
@@ -131,6 +137,19 @@ class ExtendsNode(Node):
         return self.find_template(parent, context)
 
     def render(self, context):
+        """
+        ..: 
+            Render the current template within the given context, honoring any extends or blocks defined in the template.
+
+            This method first resolves the parent template and sets up the block context. It then adds the blocks defined in the current template to the block context, 
+            and adds any blocks defined in the parent template if they are not overridden in the current template.
+
+            The rendering of the parent template is then delegated to its own render method, with the current context and any blocks that have been defined.
+
+            :param context: The rendering context to use when rendering the template.
+            :return: The rendered template content.
+            :rtype: str
+        """
         compiled_parent = self.get_parent(context)
 
         if BLOCK_CONTEXT_KEY not in context.render_context:

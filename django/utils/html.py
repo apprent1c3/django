@@ -259,6 +259,14 @@ def smart_urlquote(url):
 
 class CountsDict(dict):
     def __init__(self, *args, word, **kwargs):
+        """
+        Initializes an instance of the class, setting the word attribute.
+
+        :param word: the word to be associated with the instance
+        :param args: additional positional arguments passed to the parent class
+        :param kwargs: additional keyword arguments passed to the parent class
+        :returns: None
+        """
         super().__init__(*args, *kwargs)
         self.word = word
 

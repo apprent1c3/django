@@ -107,6 +107,16 @@ def _cookie_signer_key(key):
 
 
 def get_cookie_signer(salt="django.core.signing.get_cookie_signer"):
+    """
+
+    Returns a cookie signer instance using the configured signing backend.
+
+    The signer is initialized with the secret key and fallback keys provided in the project settings.
+    The salt parameter determines the namespace of the signing process, defaulting to 'django.core.signing.get_cookie_signer' if not provided.
+
+    The returned signer can be used to sign and verify cookies.
+
+    """
     Signer = import_string(settings.SIGNING_BACKEND)
     return Signer(
         key=_cookie_signer_key(settings.SECRET_KEY),

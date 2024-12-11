@@ -18,6 +18,13 @@ from django.utils.regex_helper import _lazy_re_compile
 
 @lru_cache
 def get_json_dumps(encoder):
+    """
+    Returns a function that dumps objects to JSON format. 
+
+    The returned function behaves like :func:`json.dumps`, but can be customized with a provided JSON encoder class. 
+    If no encoder is provided, the default :func:`json.dumps` function is returned. 
+    This function uses memoization for performance optimization.
+    """
     if encoder is None:
         return json.dumps
     return partial(json.dumps, cls=encoder)
@@ -58,6 +65,21 @@ class DatabaseOperations(BaseDatabaseOperations):
         }
 
     def unification_cast_sql(self, output_field):
+        """
+
+        Generates a SQL string to perform a unification cast operation on a given output field.
+
+        The unification cast operation ensures that the output field is cast to its corresponding database type, 
+        enabling consistent data representation across different database systems. This is particularly useful 
+        for fields that may require specific casting, such as IP addresses, timestamps, or UUIDs.
+
+        The generated SQL string is in the format of a CAST operation, which is widely supported across various 
+        database systems. The actual database type is determined by the output field's internal type.
+
+        :param output_field: The output field for which the SQL string is to be generated.
+        :return: A SQL string representing the unification cast operation.
+
+        """
         internal_type = output_field.get_internal_type()
         if internal_type in (
             "GenericIPAddressField",
@@ -96,11 +118,39 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        Truncates a date in a SQL query to the specified level.
+
+        This function takes a date value represented as a SQL query string, along with the parameters and an optional timezone name.
+        It converts the SQL query to the specified timezone if provided, and then truncates the date to the specified level.
+        The truncated date is returned as a new SQL query string, along with the updated parameters.
+
+        The `lookup_type` parameter specifies the level at which to truncate the date, such as 'year', 'month', or 'day'.
+
+        The function returns a tuple containing the modified SQL query string and the updated parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-TRUNC
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
 
     def _prepare_tzname_delta(self, tzname):
+        """
+
+        Manipulates a time zone name to include the delta offset if present.
+
+        Parameters
+        ----------
+        tzname : str
+            The time zone name with an optional offset (e.g. 'UTC+2' or 'GMT-5').
+
+        Returns
+        -------
+        str
+            The time zone name with the offset inverted (if it exists), or the original time zone name if no offset was provided.
+
+        """
         tzname, sign, offset = split_tzname_delta(tzname)
         if offset:
             sign = "-" if sign == "+" else "+"
@@ -214,6 +264,18 @@ class DatabaseOperations(BaseDatabaseOperations):
     def sequence_reset_by_name_sql(self, style, sequences):
         # 'ALTER SEQUENCE sequence_name RESTART WITH 1;'... style SQL statements
         # to reset sequence indices
+        """
+
+        Generate SQL commands to reset sequences for the specified tables and columns.
+
+        :param style: The SQL style object to use for formatting the SQL commands.
+        :param sequences: A list of dictionaries, where each dictionary contains 'table' and optionally 'column' keys.
+            'table' specifies the name of the table for which the sequence should be reset, and
+            'column' specifies the name of the column (defaults to 'id' if not provided).
+
+        :return: A list of SQL commands to reset the sequences.
+
+        """
         sql = []
         for sequence_info in sequences:
             table_name = sequence_info["table"]
@@ -364,6 +426,19 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().subtract_temporals(internal_type, lhs, rhs)
 
     def explain_query_prefix(self, format=None, **options):
+        """
+
+        Generate a prefix string explaining the query with optional formatting and extra options.
+
+        The function accepts a format string and additional keyword arguments (options) 
+        to customize the generated prefix. Valid options are converted to uppercase and 
+        set to 'true' or 'false' based on their boolean value. The function then generates 
+        the prefix string, including the specified format and any applicable options.
+
+        Returns:
+            str: The generated prefix string explaining the query.
+
+        """
         extra = {}
         # Normalize options.
         if options:

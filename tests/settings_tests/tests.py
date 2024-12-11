@@ -27,6 +27,19 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
     available_apps = []
 
     def test_override(self):
+        """
+
+        Tests that certain setting values have been overridden correctly.
+
+        This test case verifies that the settings ITEMs, ITEMS_OUTER, TEST, and TEST_OUTER
+        have been overridden with the expected values. The test passes if the actual values
+        of these settings match the expected ones, which are 'b', 'c', 'd' for ITEMs, 
+        1, 2, 3 for ITEMS_OUTER, 'override' for TEST, and 'outer' for TEST_OUTER.
+
+        The purpose of this test is to ensure that the override mechanism is working as
+        expected, and that the settings are being updated correctly.
+
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
         self.assertEqual(settings.TEST, "override")
@@ -40,6 +53,15 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
         }
     )
     def test_method_list_override(self):
+        """
+
+        Override the ITEMS setting to test its modification.
+
+        This function tests that the ITEMS setting can be successfully modified by appending, prepending, and removing items.
+        It verifies that the resulting ITEMS list contains the expected elements after modification.
+        The test also confirms that the modification does not affect other unrelated settings, such as ITEMS_OUTER.
+
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "e", "f"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
 
@@ -70,6 +92,14 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
 
     @override_settings(TEST="override2")
     def test_method_override(self):
+        """
+
+        Tests that settings are correctly overridden using the @override_settings decorator.
+
+        This test checks if the TEST setting is overridden with the value 'override2' and 
+        verifies that other settings, like TEST_OUTER, remain unchanged.
+
+        """
         self.assertEqual(settings.TEST, "override2")
         self.assertEqual(settings.TEST_OUTER, "outer")
 
@@ -86,6 +116,18 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
 @override_settings(ITEMS=["a", "c", "e"], TEST="override")
 class FullyDecoratedTestCase(TestCase):
     def test_override(self):
+        """
+        Tests if default settings values have been correctly overridden.
+
+        Checks if the ITEMS list and the TEST value in the settings module have been 
+        successfully overridden with the expected values, ensuring that the default 
+        settings have been modified as intended.
+
+        This test verifies that the settings module is properly configured and 
+        that the overridden values are accessible and correct, which is essential 
+        for ensuring the correct behavior of the application in different environments.
+
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.TEST, "override")
 
@@ -98,6 +140,16 @@ class FullyDecoratedTestCase(TestCase):
     )
     @override_settings(TEST="override2")
     def test_method_override(self):
+        """
+
+        Tests the override of settings in the application.
+
+        This method verifies that settings can be successfully modified and overridden. 
+        It checks that the 'ITEMS' setting has been correctly updated by appending, 
+        prepending, and removing items, resulting in a list containing ['a', 'b', 'd', 'e']. 
+        Additionally, it confirms that the 'TEST' setting has been overridden to 'override2'.
+
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "d", "e"])
         self.assertEqual(settings.TEST, "override2")
 
@@ -116,6 +168,19 @@ class ClassDecoratedTestCaseSuper(TestCase):
 class ClassDecoratedTestCase(ClassDecoratedTestCaseSuper):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class-level state for testing purposes.
+
+        This method is called once for the entire test class, and is responsible for
+        initializing class-level attributes. Specifically, it retrieves the 'TEST'
+        setting from the application settings, defaulting to 'BUG' if the setting is
+        not found, and assigns it to the class attribute 'foo'.
+
+        This setup is performed after calling the parent class's setup method to ensure
+        proper inheritance of setup functionality. The resulting 'foo' attribute can be
+        used throughout the test class to customize test behavior or provide default
+        values. 
+        """
         super().setUpClass()
         cls.foo = getattr(settings, "TEST", "BUG")
 
@@ -148,21 +213,69 @@ class ParentDecoratedTestCase(TestCase):
 @override_settings(TEST="override-child")
 class ChildDecoratedTestCase(ParentDecoratedTestCase):
     def test_override_settings_inheritance(self):
+        """
+        Tests that the override settings are correctly inherited.
+
+        Verifies that the ITEMS setting is set to its expected value and that the TEST setting
+        is overridden with the 'override-child' value, demonstrating the correct inheritance
+        of settings from parent configurations.
+
+        This test ensures that the settings are properly configured and that the override
+        mechanism is functioning as expected, allowing for customization of settings in
+        child configurations while still inheriting base settings from parent configurations.
+        """
         self.assertEqual(settings.ITEMS, ["father", "mother", "child"])
         self.assertEqual(settings.TEST, "override-child")
 
 
 class SettingsTests(SimpleTestCase):
     def setUp(self):
+        """
+
+        Sets up the test environment by initializing test values and connecting a callback to the setting changed signal.
+        The callback is automatically disconnected after the test is completed to ensure a clean test setup.
+
+        """
         self.testvalue = None
         signals.setting_changed.connect(self.signal_callback)
         self.addCleanup(signals.setting_changed.disconnect, self.signal_callback)
 
     def signal_callback(self, sender, setting, value, **kwargs):
+        """
+        Handles a signal emitted by a sender when a setting is changed.
+
+        This callback function is invoked whenever a setting is modified, passing the
+        sender, setting name, new value, and any additional keyword arguments. It
+        currently listens for changes to the 'TEST' setting and updates the internal
+        test value accordingly.
+
+        :param sender: The object emitting the signal.
+        :param setting: The name of the setting that has been changed.
+        :param value: The new value of the setting.
+        :param kwargs: Any additional keyword arguments passed with the signal.
+
+        """
         if setting == "TEST":
             self.testvalue = value
 
     def test_override(self):
+        """
+
+        Tests that settings can be overridden within a specific context.
+
+        Verifies that the TEST setting can be overridden temporarily using the settings context manager,
+        and that the original value is restored after the context is exited.
+
+        The test follows this sequence:
+
+        * Set the initial value of the TEST setting to 'test'
+        * Override the TEST setting to 'override' within a context manager
+        * Verify that the value of TEST is restored to 'test' after the context manager is exited
+        * Clean up by deleting the TEST setting
+
+        This test ensures that settings can be safely overridden without affecting the global state.
+
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -180,6 +293,18 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_doesnt_leak(self):
+        """
+        Verifies that overriding a setting does not persist after the override context is exited.
+
+        This test checks that settings can be temporarily overridden without leaking into other parts of the application.
+        It ensures that attempting to access a non-existent setting raises an AttributeError, and that overriding a setting
+        only affects the current context. Once the override context is exited, the original setting behavior is restored,
+        and attempting to access the overridden setting again raises an AttributeError.
+
+        The test also confirms that manually setting a setting within an override context does not persist after the context
+        is exited, ensuring the isolation of the override context.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -193,6 +318,16 @@ class SettingsTests(SimpleTestCase):
         self.assertEqual("override", settings.TEST)
 
     def test_context_manager(self):
+        """
+
+        Tests the proper functionality of the context manager used to override settings.
+
+        The test case checks that an AttributeError is raised when attempting to access a setting that does not exist.
+        It then creates an instance of the override settings context manager, testing that the setting remains inaccessible 
+        until the context is enabled. Once enabled, the test verifies that the overridden setting value is correctly applied.
+        Finally, the test checks that the setting reverts to its original inaccessible state after the context is disabled.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         override = override_settings(TEST="override")
@@ -206,6 +341,21 @@ class SettingsTests(SimpleTestCase):
 
     def test_class_decorator(self):
         # SimpleTestCase can be decorated by override_settings, but not ut.TestCase
+        """
+
+        Test the functionality of the class decorator for overriding settings.
+
+        This test case verifies that the decorator correctly modifies a subclass of 
+        Django's SimpleTestCase, ensuring it remains a subclass after decoration. It 
+        also checks that an error is raised when attempting to decorate a subclass of 
+        Python's unittest.TestCase, as this is not a supported use case.
+
+        The test covers the following scenarios:
+        - Successful decoration of a SimpleTestCase subclass
+        - Validation that the decorated class remains a subclass of SimpleTestCase
+        - Error handling when decorating an unsupported subclass of unittest.TestCase
+
+        """
         class SimpleTestCaseSubclass(SimpleTestCase):
             pass
 
@@ -222,6 +372,13 @@ class SettingsTests(SimpleTestCase):
             decorated = override_settings(TEST="override")(UnittestTestCaseSubclass)
 
     def test_signal_callback_context_manager(self):
+        """
+        Tests the behavior of the signal callback context manager.
+
+        This test verifies that the context manager correctly overrides the 'TEST' setting in the settings module and reverts back to its original state after exiting the context.
+
+        The test first checks that the 'TEST' attribute does not exist in the settings module by default, then overrides it with the value 'override' within a context and checks that the override is reflected in the test value. Finally, it verifies that the value is reset to None after exiting the context, ensuring the original state is restored.
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -237,6 +394,18 @@ class SettingsTests(SimpleTestCase):
     #
 
     def test_settings_delete(self):
+        """
+        Tests that deleting a setting from the settings object correctly removes the attribute, raising an AttributeError when attempting to access the deleted attribute. 
+
+         Args:
+            None
+
+         Returns:
+            None
+
+         Raises:
+            AssertionError: If the test setting is not successfully deleted or the expected AttributeError is not raised.
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         del settings.TEST
@@ -297,6 +466,9 @@ class SettingsTests(SimpleTestCase):
 
     @override_settings(SECRET_KEY="")
     def test_no_secret_key(self):
+        """
+        Tests that attempting to access the SECRET_KEY setting when it is empty raises an ImproperlyConfigured exception with a descriptive message, ensuring that a valid secret key is configured for the application.
+        """
         msg = "The SECRET_KEY setting must not be empty."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             settings.SECRET_KEY
@@ -318,15 +490,43 @@ class SettingsTests(SimpleTestCase):
             os.environ[ENVIRONMENT_VARIABLE] = orig_settings
 
     def test_already_configured(self):
+        """
+        Tests that a RuntimeError is raised when attempting to configure settings 
+        that have already been configured.
+
+        Verifies the expected error message 'Settings already configured.' is 
+        displayed when the configure method is called on previously configured settings.
+
+        Raises:
+            RuntimeError: If settings configuration has already been applied.
+
+        """
         with self.assertRaisesMessage(RuntimeError, "Settings already configured."):
             settings.configure()
 
     def test_nonupper_settings_prohibited_in_configure(self):
+        """
+
+        Tests that settings names with non-uppercase characters are prohibited when configuring the application.
+
+        This test checks that a TypeError is raised when attempting to configure the application with a setting name that does not follow the standard naming convention of using uppercase characters.
+
+        The test verifies that the error message correctly identifies the problematic setting name and provides a clear indication of the expected naming convention.
+
+        """
         s = LazySettings()
         with self.assertRaisesMessage(TypeError, "Setting 'foo' must be uppercase."):
             s.configure(foo="bar")
 
     def test_nonupper_settings_ignored_in_default_settings(self):
+        """
+        Tests whether non-upper case settings are ignored in the default settings configuration.
+
+        This test verifies that only upper case settings are recognized and accessible 
+        in the default settings, while non-upper case settings are handled as not 
+        configured. It checks that attempting to access a non-upper case setting 
+        will result in an AttributeError being raised.
+        """
         s = LazySettings()
         s.configure(SimpleNamespace(foo="bar"))
         with self.assertRaises(AttributeError):
@@ -335,6 +535,13 @@ class SettingsTests(SimpleTestCase):
     @requires_tz_support
     @mock.patch("django.conf.global_settings.TIME_ZONE", "test")
     def test_incorrect_timezone(self):
+        """
+        :param self: Test instance
+        :raises: ValueError
+        :raisessetMessage: \"Incorrect timezone setting: test\"
+
+        Tests that a ValueError is raised when an invalid timezone setting is provided. This checks the handling of incorrect timezone configurations, ensuring that the application properly handles and reports such errors. The test utilizes a mock timezone setting to simulate an invalid configuration, verifying that the correct error message is generated.
+        """
         with self.assertRaisesMessage(ValueError, "Incorrect timezone setting: test"):
             settings._setup()
 
@@ -370,12 +577,27 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_wrong(self):
+        """
+        Tests the request's is_secure method when the SECURE_PROXY_SSL_HEADER setting is enabled and the 'HTTP_X_FORWARDED_PROTO' header has an incorrect value.
+
+        Verifies that the request is correctly identified as insecure when the 'HTTP_X_FORWARDED_PROTO' header contains an unexpected value, rather than the expected 'https' or 'http' value.
+
+        This ensures the security of the request is properly evaluated when behind a proxy server, and the 'HTTP_X_FORWARDED_PROTO' header is being used to determine the security of the request.
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "wrongvalue"
         self.assertIs(req.is_secure(), False)
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_right(self):
+        """
+
+        Tests that a request is correctly identified as secure when the 'X-Forwarded-Proto' header is set to 'https'.
+
+        This test case verifies the functionality of the :meth:`HttpRequest.is_secure` method when the request is made behind a proxy server.
+        It checks that the request is marked as secure when the 'HTTP_X_FORWARDED_PROTO' header is present and set to 'https', as per the configured SECURE_PROXY_SSL_HEADER setting.
+
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "https"
         self.assertIs(req.is_secure(), True)
@@ -421,6 +643,24 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertTrue(s.is_overridden("SECRET_KEY"))
 
     def test_module(self):
+        """
+
+        Tests the creation and behavior of the Settings class.
+
+        This test case verifies that the Settings class correctly identifies overridden
+        settings by checking the presence of specific settings in a simulated module.
+        It ensures that the 'is_overridden' method returns True for settings that are
+        defined in the module and False for settings that are not defined.
+
+        The test scenario involves setting up a fake settings module with a SECRET_KEY
+        and verifying that this setting is detected as overridden. Additionally, it
+        checks that a non-existent setting (ALLOWED_HOSTS) is correctly identified as
+        not overridden.
+
+        The test setup and teardown involve creating and removing the fake settings
+        module from the system modules to prevent any interference with other tests.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         settings_module.USE_TZ = False
@@ -434,11 +674,26 @@ class IsOverriddenTest(SimpleTestCase):
             del sys.modules["fake_settings_module"]
 
     def test_override(self):
+        """
+
+        Tests whether the override_settings context manager correctly overrides the ALLOWED_HOSTS setting.
+
+        This test case verifies that the setting is not initially overridden, then checks that the override_settings context manager successfully overrides it, and finally ensures that the setting is defaulted back after exiting the context manager.
+
+        The purpose of this test is to ensure that the override_settings functionality works as expected, allowing for safe and temporary modification of settings during testing.
+
+        """
         self.assertFalse(settings.is_overridden("ALLOWED_HOSTS"))
         with override_settings(ALLOWED_HOSTS=[]):
             self.assertTrue(settings.is_overridden("ALLOWED_HOSTS"))
 
     def test_unevaluated_lazysettings_repr(self):
+        """
+        Tests that the representation of a LazySettings instance that has not been evaluated is correctly formatted.
+
+        Checks that the string representation of an unevaluated LazySettings object matches the expected format, 
+        indicating its unevaluated state.
+        """
         lazy_settings = LazySettings()
         expected = "<LazySettings [Unevaluated]>"
         self.assertEqual(repr(lazy_settings), expected)
@@ -479,6 +734,20 @@ class TestListSettings(SimpleTestCase):
     )
 
     def test_tuple_settings(self):
+        """
+
+        Tests that tuple settings are correctly validated.
+
+        This test checks that settings which are expected to be lists or tuples raise an
+        ImproperlyConfigured exception when they are not. It iterates over a list of
+        settings which should be lists or tuples, sets each one to a non-list or tuple
+        value, and attempts to create a Settings object with the invalid setting.
+
+        The test verifies that the expected error message is raised, including the name
+        of the invalid setting. After each test, the fake settings module is cleaned
+        up to avoid interfering with other tests.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         msg = "The %s setting must be a list or a tuple."
@@ -510,6 +779,11 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by connecting the receiver and spy receiver functions to the setting_changed signal, 
+        ensuring they are properly disconnected after the test is completed to prevent interference with other tests. 
+        This allows for the monitoring and verification of the setting_changed signal during the test execution.
+        """
         signals.setting_changed.connect(self.receiver)
         self.addCleanup(signals.setting_changed.disconnect, self.receiver)
         # Create a spy that's connected to the `setting_changed` signal and

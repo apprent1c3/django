@@ -5,6 +5,15 @@ from django.contrib.gis.gdal import Envelope, GDALException
 
 class TestPoint:
     def __init__(self, x, y):
+        """
+        Initializes an object's position in a two-dimensional space.
+
+        :param x: The x-coordinate of the object's position.
+        :param y: The y-coordinate of the object's position.
+
+        This method sets the initial coordinates of an object, allowing it to be placed at a specific point in a 2D space.
+
+        """
         self.x = x
         self.y = y
 

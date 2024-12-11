@@ -17,6 +17,14 @@ class UnseekableBytesIO(io.BytesIO):
 
 class FileResponseTests(SimpleTestCase):
     def test_content_length_file(self):
+        """
+
+        Test that the Content-Length header of a FileResponse is correctly set to the size of the file.
+
+        This test case verifies that when a FileResponse is created for a given file, the Content-Length
+        header in the response is equal to the actual size of the file in bytes.
+
+        """
         response = FileResponse(open(__file__, "rb"))
         response.close()
         self.assertEqual(
@@ -24,10 +32,23 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_length_buffer(self):
+        """
+
+        Tests that the Content-Length header is correctly calculated for a FileResponse.
+
+        This test case verifies that when a FileResponse is created with a binary content,
+        the 'Content-Length' header in the response is set to the correct value, which is
+        the size of the content in bytes.
+
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(response.headers["Content-Length"], "14")
 
     def test_content_length_nonzero_starting_position_file(self):
+        """
+        Tests that the Content-Length header is correctly calculated when the starting position of a file is non-zero. 
+        This test case covers the scenario where a file is being served from a non-zero offset, verifying that the response includes an accurate Content-Length header based on the remaining size of the file from the specified starting position.
+        """
         file = open(__file__, "rb")
         file.seek(10)
         response = FileResponse(file)
@@ -49,6 +70,12 @@ class FileResponseTests(SimpleTestCase):
                 self.assertEqual(response.headers["Content-Length"], "4")
 
     def test_content_length_nonzero_starting_position_file_seekable_no_tell(self):
+        """
+
+        Tests that the Content-Length header is set correctly when a file is sent from a non-zero starting position.
+        The test uses a seekable file and checks that the Content-Length header reflects the remaining size of the file.
+
+        """
         class TestFile:
             def __init__(self, path, *args, **kwargs):
                 self._file = open(path, *args, **kwargs)
@@ -67,6 +94,15 @@ class FileResponseTests(SimpleTestCase):
                 return self._file.name
 
             def close(self):
+                """
+
+                Closes the associated file, releasing any system resources.
+
+                This method checks if a file is currently open and, if so, properly closes it to
+                prevent resource leaks. After closure, the file reference is reset to indicate
+                that the file is no longer available for operations.
+
+                """
                 if self._file:
                     self._file.close()
                     self._file = None
@@ -86,6 +122,12 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_type_file(self):
+        """
+        Tests that the Content-Type header of a FileResponse object is correctly set when serving a Python file.
+
+        The function verifies that the Content-Type header is either 'text/x-python' or 'text/plain', 
+        which are standard MIME types for Python files, after the response has been properly closed.
+        """
         response = FileResponse(open(__file__, "rb"))
         response.close()
         self.assertIn(response.headers["Content-Type"], ["text/x-python", "text/plain"])
@@ -95,6 +137,17 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Type"], "application/octet-stream")
 
     def test_content_type_buffer_explicit(self):
+        """
+        Tests that the content type is correctly set in the response headers when 
+        explicitly provided to the FileResponse object. 
+
+        This test case verifies the expected behavior of the content type buffer 
+        when a specific content type is explicitly defined. It ensures that the 
+        response headers accurately reflect the provided content type.
+
+        :raises AssertionError: If the response headers do not contain the expected 
+                                 content type.
+        """
         response = FileResponse(
             io.BytesIO(b"binary content"), content_type="video/webm"
         )
@@ -145,6 +198,17 @@ class FileResponseTests(SimpleTestCase):
 
     def test_content_disposition_escaping(self):
         # fmt: off
+        """
+        Tests the escaping of special characters in the Content-Disposition header of a FileResponse.
+
+        Verifies that the filename is correctly escaped according to the Content-Disposition specification
+        to prevent potential security vulnerabilities. The test checks different scenarios, including 
+        filenames with special characters and platform-specific escaping requirements.
+
+        The test covers various test cases with different filename patterns and verifies that the 
+        Content-Disposition header of the response contains the expected escaped filename.
+
+        """
         tests = [
             (
                 'multi-part-one";\" dummy".txt',
@@ -179,6 +243,12 @@ class FileResponseTests(SimpleTestCase):
                 )
 
     def test_content_disposition_buffer(self):
+        """
+        Tests the Content-Disposition header is not present in the response when 
+        a binary buffer is served without specifying a filename. This ensures 
+        the correct handling of binary content in the FileResponse class, 
+        preventing unnecessary headers from being sent to the client.
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertFalse(response.has_header("Content-Disposition"))
 
@@ -187,6 +257,18 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Disposition"], "attachment")
 
     def test_content_disposition_buffer_explicit_filename(self):
+        """
+        Tests the Content-Disposition header in the response for file downloads.
+
+        This function verifies that the Content-Disposition header is correctly set 
+        when generating a response for a file download, with and without specifying 
+        the file as an attachment. It checks that the filename specified in the 
+        response matches the filename provided to the FileResponse constructor.
+
+        The test covers two scenarios: when the file is sent inline and when it is 
+        sent as an attachment, ensuring that the Content-Disposition header is 
+        formatted correctly in both cases.
+        """
         dispositions = (
             (False, "inline"),
             (True, "attachment"),
@@ -232,6 +314,18 @@ class FileResponseTests(SimpleTestCase):
 
     @skipIf(sys.platform == "win32", "Named pipes are Unix-only.")
     def test_file_from_named_pipe_response(self):
+        """
+        Tests that a FileResponse created from a named pipe returns the correct content.
+
+        This test verifies that the FileResponse can handle reading from a named pipe and
+        that the Content-Length header is not included in the response, as the length of
+        the pipe's content is unknown.
+
+        The test case creates a temporary named pipe, writes binary content to it, and
+        then creates a FileResponse object from the pipe. It checks that the response
+        content matches the written binary content and that the response does not include
+        a Content-Length header.
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             pipe_file = os.path.join(temp_dir, "named_pipe")
             os.mkfifo(pipe_file)
@@ -281,6 +375,17 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+        Tests the representation of a FileResponse object.
+
+        Verifies that the string representation of a FileResponse instance is correctly formatted, 
+        including the status code and content type. The representation should be in the format 
+        '<FileResponse status_code=**statusCode**, \"**contentType**\">'.
+
+        This test ensures that the repr function of the FileResponse class provides a clear and 
+        informative string representation of the object, making it easier to debug and understand 
+        the object's state.
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(
             repr(response),

@@ -10,12 +10,38 @@ RECURSIVE = os.path.join(ROOT, "recursive_templates")
 
 class ExtendsBehaviorTests(SimpleTestCase):
     def test_normal_extend(self):
+        """
+        Tests that a template is extended normally by a child template.
+
+        This test case verifies that a base template can be extended by a child template,
+        and that the content is rendered in the correct order.
+
+        The output should be a concatenation of the child and parent template contents,
+        demonstrating a successful extension of the base template.
+
+        The expected output is a string containing the contents of the child and parent
+        templates, in the correct order, with no extra whitespace.
+
+        :raises AssertionError: if the rendered output does not match the expected string.
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("one.html")
         output = template.render(Context({}))
         self.assertEqual(output.strip(), "three two one")
 
     def test_extend_recursive(self):
+        """
+
+        Tests the recursive extension functionality by rendering a template by traversing multiple directories.
+
+        Checks that the rendering engine correctly extends templates in a recursive manner, 
+        overlaying templates from multiple directories to produce the expected output. 
+
+        This test case ensures that the rendering engine can traverse a set of directories 
+        and recursively extend templates, resulting in the combination of templates 
+        from each directory as specified, in the correct order. 
+
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),

@@ -246,5 +246,8 @@ class FilterSyntaxTests(SimpleTestCase):
 
     @setup({"template": "{{ var.type_error_attribute }}"})
     def test_type_error_attribute(self):
+        """
+        Tests that rendering a template with a variable of type SomeClass raises a TypeError when attempting to access the 'type_error_attribute' attribute.
+        """
         with self.assertRaises(TypeError):
             self.engine.render_to_string("template", {"var": SomeClass()})

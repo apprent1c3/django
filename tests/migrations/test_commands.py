@@ -97,6 +97,14 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_migrate_with_system_checks(self):
+        """
+        Tests that running migrations with system checks enabled applies all migrations in the migrated_app.
+
+        This test case verifies that the 'migrate' command successfully applies all migrations when system checks are performed.
+        It checks the output of the command for a specific message indicating that all migrations were applied.
+
+        :raises AssertionError: If the expected message is not found in the command output
+        """
         out = io.StringIO()
         call_command("migrate", skip_checks=False, no_color=True, stdout=out)
         self.assertIn("Apply all migrations: migrated_app", out.getvalue())
@@ -108,6 +116,13 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_app_without_migrations(self):
+        """
+
+        Tests the behavior of the 'migrate' command when attempting to migrate an application that does not have any migrations.
+
+        This function checks that the command raises a CommandError with a specific message when trying to migrate an unmigrated application.
+
+        """
         msg = "App 'unmigrated_app_syncdb' does not have migrations."
         with self.assertRaisesMessage(CommandError, msg):
             call_command("migrate", app_label="unmigrated_app_syncdb")
@@ -125,6 +140,16 @@ class MigrateTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_unknown_prefix(self):
+        """
+
+        Tests the behavior of the 'migrate' command when an unknown migration prefix is provided.
+
+        This test case checks that the command raises a CommandError with a meaningful message
+        when it cannot find a migration matching the given prefix from the specified app.
+
+        The test verifies the command's error handling for invalid migration inputs.
+
+        """
         msg = "Cannot find a migration matching 'nonexistent' from app 'migrations'."
         with self.assertRaisesMessage(CommandError, msg):
             call_command(
@@ -270,6 +295,20 @@ class MigrateTests(MigrationTestBase):
 
     @skipUnlessDBFeature("ignores_table_name_case")
     def test_migrate_fake_initial_case_insensitive(self):
+        """
+
+        Tests the migration functionality with case-insensitive table names.
+
+        This test case checks the behavior of the migration system when the initial migration
+        is applied with a fake flag, and then reapplied with the fake_initial flag. It verifies
+        that the migration is properly faked and reported as such in the migration output.
+
+        The test uses two different migration modules to simulate the fake initial migration
+        scenario, ensuring that the migration system correctly handles case-insensitive table
+        names. The test outcome confirms that the migration system ignores table name case
+        as expected.
+
+        """
         with override_settings(
             MIGRATION_MODULES={
                 "migrations": "migrations.test_fake_initial_case_insensitive.initial",
@@ -355,6 +394,16 @@ class MigrateTests(MigrationTestBase):
         }
     )
     def test_migrate_check(self):
+        """
+
+        Tests the migration check command to ensure that unapplied migrations are properly detected.
+
+        This test case verifies that running the migration command with the check_unapplied option
+        raises a SystemExit exception when there are unapplied migrations. Additionally, it checks
+        that the tables 'migrations_author', 'migrations_tribble', and 'migrations_book' do not
+        exist after the migration check, confirming that the migration did not apply changes.
+
+        """
         with self.assertRaises(SystemExit):
             call_command("migrate", "migrations", "0001", check_unapplied=True)
         self.assertTableNotExists("migrations_author")
@@ -367,6 +416,26 @@ class MigrateTests(MigrationTestBase):
         ]
     )
     def test_migrate_check_migrated_app(self):
+        """
+        Test the migration check for an already migrated app.
+
+        This test case checks if the migration check command correctly handles 
+        an application that has already been fully migrated. It simulates the 
+        migration process, runs the migration check, and verifies that no 
+        unapplied migrations are reported. The test resets the migration state 
+        to its initial position after completion, ensuring a clean environment 
+        for subsequent tests.
+
+         Args:
+            None
+
+         Returns:
+            None
+
+         Raises:
+            AssertionError: If the migration check reports any unapplied migrations.
+
+        """
         out = io.StringIO()
         try:
             call_command("migrate", "migrated_app", verbosity=0)
@@ -387,6 +456,24 @@ class MigrateTests(MigrationTestBase):
         }
     )
     def test_migrate_check_plan(self):
+        """
+
+        Test the migration plan for a set of migrations.
+
+        This test case checks the output of the migration plan when the 'migrate' command is executed with the 'check_unapplied' and 'plan' options.
+        It verifies that the planned operations are correctly identified and reported, including the creation of models and the execution of raw Python operations.
+        The test ensures that the migration plan accurately reflects the intended changes to the database schema.
+
+        Returns:
+            None
+
+        Raises:
+            SystemExit: When the 'migrate' command is executed with the 'check_unapplied' and 'plan' options.
+
+        Note:
+            This test case uses a custom migration module ('migrations.test_migrations_plan') and overrides the default migration settings.
+
+        """
         out = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command(
@@ -460,6 +547,13 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_showmigrations_list_squashed(self):
+        """
+
+        Tests the 'showmigrations' command to verify its behavior when migrations are squashed.
+        The test checks that the command correctly lists squashed migrations and applies them.
+        It also ensures that the applied migration is marked as applied in the list.
+
+        """
         out = io.StringIO()
         call_command(
             "showmigrations", format="list", stdout=out, verbosity=2, no_color=True
@@ -657,6 +751,13 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_empty"}
     )
     def test_showmigrations_no_migrations(self):
+        """
+        Tests that the showmigrations command correctly handles the case where there are no migrations available.
+
+        Verifies that the command output indicates that no migrations exist, providing a clear and informative message to the user.
+
+        This test ensures the robustness of the migration system by checking its behavior in a scenario with no migration history, helping to prevent potential issues or errors that might arise in similar situations.
+        """
         out = io.StringIO()
         call_command("showmigrations", stdout=out, no_color=True)
         self.assertEqual("migrations\n (no migrations)\n", out.getvalue().lower())
@@ -833,6 +934,13 @@ class MigrateTests(MigrationTestBase):
         INSTALLED_APPS=["migrations.migrations_test_apps.unmigrated_app"]
     )
     def test_showmigrations_plan_app_label_no_migrations(self):
+        """
+        Tests the 'showmigrations' command for an app with no migrations.
+
+        Verifies that the command correctly reports the migration plan for an app that has not been migrated.
+        The test checks the output of the command when run with the 'plan' format and a specific app label, 
+        ensuring it displays the expected message when there are no migrations to apply.
+        """
         out = io.StringIO()
         call_command(
             "showmigrations", "unmigrated_app", format="plan", stdout=out, no_color=True
@@ -1016,6 +1124,16 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_sqlmigrate_ambiguous_prefix_squashed_migrations(self):
+        """
+
+        Tests the sqlmigrate command's behavior with squashed migrations when an ambiguous prefix is provided.
+
+        Ensures that when multiple migrations in the 'migrations' app start with the same prefix (e.g., '0001'),
+        the command raises a CommandError, prompting the user to provide a more specific migration name.
+
+        Verifies the error message returned matches the expected message.
+
+        """
         msg = (
             "More than one migration matches '0001' in app 'migrations'. "
             "Please be more specific."
@@ -1027,6 +1145,23 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_sqlmigrate_squashed_migration(self):
+        """
+        Tests the sqlmigrate command for a squashed migration.
+
+        This test case verifies that the sqlmigrate command correctly generates SQL statements for a squashed migration.
+        It checks that the output includes the creation of the Author and Book models, but does not include the creation of the Tribble model.
+        The test uses a custom migration module specified by the MIGRATION_MODULES setting to ensure that the test migrations are used.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the output of the sqlmigrate command does not match the expected contents.
+
+        """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001_squashed_0002", stdout=out)
         output = out.getvalue().lower()
@@ -1038,6 +1173,18 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_sqlmigrate_replaced_migration(self):
+        """
+
+        Tests the sqlmigrate command with a replaced migration.
+
+        Verifies that the sqlmigrate command correctly generates SQL for a migration
+        that has been replaced by a squashed migration. The test checks that the
+        generated SQL includes the creation of the Author and Tribble models.
+
+        The test uses the test_migrations_squashed migration module and overrides the
+        MIGRATION_MODULES setting to ensure the correct migration is used.
+
+        """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001_initial", stdout=out)
         output = out.getvalue().lower()
@@ -1056,6 +1203,15 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_noop"}
     )
     def test_sqlmigrate_noop(self):
+        """
+
+        Tests the sqlmigrate command to ensure it produces the correct output for a no-op migration.
+
+        The test executes the sqlmigrate command on a specific migration and checks the generated SQL output.
+        It verifies that the output matches the expected result, which is a no-op migration with the correct number of lines and content.
+        The test also considers the capabilities of the database connection, adjusting the expected output accordingly.
+
+        """
         out = io.StringIO()
         call_command("sqlmigrate", "migrations", "0001", stdout=out)
         lines = out.getvalue().splitlines()
@@ -1265,6 +1421,17 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_migrate_backward_to_squashed_migration(self):
+        """
+
+        Tests the backward migration to a squashed migration.
+
+        This test case checks the migration process from a squashed migration to a previous migration by applying the following steps:
+        - Applies the migration up to the squashed migration '0001_squashed_0002' to ensure the tables are created correctly.
+        - Verifies the existence of the 'migrations_author' and 'migrations_book' tables after the migration.
+        - Then migrates backward to the initial migration '0001_initial' and verifies that the 'migrations_book' table is removed while the 'migrations_author' table remains.
+        Finally, the test resets the migration to the 'zero' state for cleanup purposes.
+
+        """
         try:
             call_command("migrate", "migrations", "0001_squashed_0002", verbosity=0)
             self.assertTableExists("migrations_author")
@@ -1368,6 +1535,19 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_prune_deleted_squashed_migrations_in_replaces(self):
+        """
+        Tests pruning of deleted squashed migrations when 'replaces' attributes are present.
+
+        This test case simulates the scenario where squashed migrations have their 'replaces' attributes
+        set, and verifies that the 'migrate' command with '--prune' option correctly handles such
+        migrations. It checks that the command outputs the expected warning message
+        when 'replaces' attributes are present and may not be recorded as applied.
+
+        The test case covers the migration pruning process in the context of squashed migrations,
+        ensuring that the command provides accurate feedback to the user when 'replaces' attributes
+        are involved, and guides the user to resolve the issue by re-running the 'migrate' command
+        or modifying the Migration classes accordingly.
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_squashed"
@@ -1405,6 +1585,13 @@ class MigrateTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_prune_no_migrations_to_prune(self):
+        """
+
+        Tests the prune functionality of the migrate command when there are no migrations to prune.
+
+        Verifies that the command outputs the correct message when run in both normal and quiet verbosity modes.
+
+        """
         out = io.StringIO()
         call_command("migrate", "migrations", prune=True, stdout=out, no_color=True)
         self.assertEqual(
@@ -1435,6 +1622,17 @@ class MigrateTests(MigrationTestBase):
         INSTALLED_APPS=["migrations", "migrations2"],
     )
     def test_prune_respect_app_label(self):
+        """
+
+        Tests if the prune option for the migrate command correctly removes 
+        previous migrations that have been squashed, while respecting the app label.
+
+        This test ensures that migrations are pruned as expected, and their 
+        applied status is updated accordingly, verifying that only the highest 
+        squashed migration remains marked as applied for the app, and all other 
+        migrations are correctly removed.
+
+        """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0001_initial")
         recorder.record_applied("migrations", "0002_second")
@@ -1481,16 +1679,45 @@ class MakeMigrationsTests(MigrationTestBase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by invoking the parent class's setup method and saving a copy of the current migration models, allowing for isolation and reset of the migration state during testing.
+        """
         super().setUp()
         self._old_models = apps.app_configs["migrations"].models.copy()
 
     def tearDown(self):
+        """
+        Reverts changes made to the application's model configuration after a test is completed.
+
+        This method restores the original model configuration by replacing the current models
+        with the ones stored before the test setup. It also clears the application's cache
+        to ensure a clean state for subsequent tests.
+
+        This is a cleanup step and should be called after each test to maintain test isolation
+        and prevent potential side effects from one test impacting another.
+
+        Note: This method should be used in conjunction with a corresponding setup method
+        that prepares the application's model configuration for testing.
+
+        """
         apps.app_configs["migrations"].models = self._old_models
         apps.all_models["migrations"] = self._old_models
         apps.clear_cache()
         super().tearDown()
 
     def test_files_content(self):
+        """
+
+        Tests the content of files generated by the 'makemigrations' command.
+
+        This test case checks that the '__init__.py' file is created and empty, 
+        and that the initial migration file contains the expected content, 
+        including the creation of the UnicodeModel and the correct handling of Unicode characters.
+
+        The test verifies the presence of specific Unicode characters in the 
+        generated migration file to ensure proper encoding and formatting.
+
+        """
         self.assertTableNotExists("migrations_unicodemodel")
         apps.register_model("migrations", UnicodeModel)
         with self.temporary_migration_module() as migration_dir:
@@ -1534,6 +1761,20 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertTrue(os.path.exists(os.path.join(migration_dir, "0002_a.py")))
 
     def test_makemigrations_empty_connections(self):
+        """
+
+        Tests the behavior of the 'makemigrations' command with empty database connections.
+
+        Verifies that when no database connections are defined, the command correctly reports 
+        'No changes detected' and does not attempt to create any migrations. Additionally, 
+        it checks that an empty migrations directory is properly initialized with an 
+        __init__.py file when the 'makemigrations' command is run with a verbosity of 0.
+
+        This test ensures the 'makemigrations' command handles edge cases where no database 
+        connections are available, providing a foundation for reliable migration management 
+        in various Django project scenarios.
+
+        """
         empty_connections = ConnectionHandler({"default": {}})
         with mock.patch(
             "django.core.management.commands.makemigrations.connections",
@@ -1557,6 +1798,18 @@ class MakeMigrationsTests(MigrationTestBase):
         """
 
         def patched_has_table(migration_recorder):
+            """
+
+            Determines whether a table exists in the database for the given migration recorder.
+
+            This function checks the connection associated with the migration recorder and returns 
+            the default mock value unless the connection is 'other', in which case it raises an exception.
+
+            :param migration_recorder: The migration recorder to check.
+            :raises Exception: If the migration recorder's connection is 'other'.
+            :return: The default mock value for table existence if the connection is valid.
+
+            """
             if migration_recorder.connection is connections["other"]:
                 raise Exception("Other connection")
             else:
@@ -1823,6 +2076,17 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("django.db.migrations.utils.datetime")
     def test_makemigrations_auto_merge_name(self, mock_datetime):
+        """
+
+        Tests the auto-merge functionality of the makemigrations command.
+
+        Verifies that the command correctly creates a new merge migration when run with
+        the --merge and --interactive options. The test mocks the current date and time
+        to ensure consistent naming of the generated merge file, and simulates user
+        input to approve the merge operation. It then checks that the expected merge
+        file has been created and that the command outputs a success message.
+
+        """
         mock_datetime.datetime.now.return_value = datetime.datetime(2016, 1, 2, 3, 4)
         with mock.patch("builtins.input", mock.Mock(return_value="y")):
             out = io.StringIO()
@@ -2028,6 +2292,16 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="Y")
     def test_makemigrations_model_rename_interactive(self, mock_input):
+        """
+
+        Tests the interactive model rename functionality of the makemigrations command.
+
+        Verifies that when a model is renamed, the command correctly identifies the change 
+        and prompts the user to confirm the rename operation. The test simulates a user 
+        response of 'Y' to the prompt, and checks that the correct rename message is 
+        output.
+
+        """
         class RenamedModel(models.Model):
             silly_field = models.BooleanField(default=False)
 
@@ -2043,6 +2317,15 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="Y")
     def test_makemigrations_field_rename_interactive(self, mock_input):
+        """
+        Tests the interactive mode of the makemigrations command when a model field is renamed.
+
+        This test case verifies that the command prompts the user for confirmation when a field rename is detected.
+        The test uses a mock input to simulate a user response, allowing the test to proceed without manual intervention.
+
+        The scenario being tested involves a model with a field that has been renamed, and the makemigrations command is called with the interactive option enabled.
+        The test checks the output of the command to ensure that it correctly identifies the field rename and prompts the user for confirmation.
+        """
         class SillyModel(models.Model):
             silly_rename = models.BooleanField(default=False)
 
@@ -2222,6 +2505,17 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="Y")
     def test_makemigrations_scriptable_merge(self, mock_input):
+        """
+
+        Tests the ability to create a new merge migration using the makemigrations command in scriptable mode.
+
+        This test case simulates the creation of a merge migration by calling the makemigrations command with the --merge and --scriptable options.
+        It verifies that the command produces the expected output and error messages, and that the merge file is created correctly.
+
+        The test uses a temporary migration module to isolate the test environment and ensure that the test does not interfere with other tests or the actual migration process.
+        The test checks that the merge file is created with the correct name and that the command outputs the expected success message.
+
+        """
         out = io.StringIO()
         err = io.StringIO()
         with self.temporary_migration_module(
@@ -2267,6 +2561,15 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "some.nonexistent.path"})
     def test_makemigrations_migrations_modules_nonexistent_toplevel_package(self):
+        """
+
+        Tests the behavior of the `makemigrations` command when the `MIGRATION_MODULES` setting specifies a top-level package that does not exist.
+
+        The test verifies that a `ValueError` is raised with a message indicating that the specified top-level package cannot be found, and provides guidance on resolving the issue.
+
+        This test case ensures that the `makemigrations` command handles invalid `MIGRATION_MODULES` settings correctly and provides informative error messages to aid in debugging.
+
+        """
         msg = (
             "Could not locate an appropriate location to create migrations "
             "package some.nonexistent.path. Make sure the toplevel package "
@@ -2388,6 +2691,30 @@ class MakeMigrationsTests(MigrationTestBase):
         with self.temporary_migration_module() as migration_dir:
 
             def cmd(migration_count, migration_name, *args):
+                """
+                Creates a new database migration with the given name and returns its content.
+
+                The function generates a new migration using the `makemigrations` command, then retrieves and returns the content of the generated migration file.
+
+                Parameters
+                ----------
+                migration_count : int
+                    The migration count to use in the migration file name.
+                migration_name : str
+                    The name of the migration to create.
+                *args
+                    Additional arguments to pass to the `makemigrations` command.
+
+                Returns
+                -------
+                str
+                    The content of the generated migration file, with spaces removed.
+
+                Note
+                ----
+                This function assumes that the migration directory is properly configured and accessible.
+
+                """
                 call_command(
                     "makemigrations",
                     "migrations",
@@ -2512,6 +2839,16 @@ class MakeMigrationsTests(MigrationTestBase):
                 call_command("makemigrations")
 
     def test_makemigrations_inconsistent_history_db_failure(self):
+        """
+
+        Tests that 'makemigrations' command handles database connection failure when checking for consistent migration history.
+
+        Checks that when a database connection error occurs while verifying the consistency of the migration history, 
+        the command raises a warning with the expected error message, instead of crashing. 
+
+        This test ensures that the 'makemigrations' command behaves robustly in the face of transient database connection issues.
+
+        """
         msg = (
             "Got an error checking a consistent migration history performed "
             "for database connection 'default': could not connect to server"
@@ -2571,6 +2908,15 @@ class MakeMigrationsTests(MigrationTestBase):
 
     @mock.patch("builtins.input", return_value="2")
     def test_makemigrations_auto_now_add_interactive_quit(self, mock_input):
+        """
+
+        Tests the behavior of the 'makemigrations' command when run interactively with a model field using 'auto_now_add=True'.
+
+        The test verifies that the command quits and raises a SystemExit exception when the user chooses to quit during an interactive prompt.
+
+        This test case covers the scenario where a user is prompted to create a new migration for a model with an 'auto_now_add=True' field, and then chooses to exit the interactive mode.
+
+        """
         class Author(models.Model):
             publishing_date = models.DateField(auto_now_add=True)
 
@@ -2660,6 +3006,13 @@ class MakeMigrationsTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"},
     )
     def test_makemigrations_continues_number_sequence_after_squash(self):
+        """
+        Tests that the makemigrations command correctly continues the migration number sequence after a squash operation.
+
+        Verifies that the migration number is incremented correctly, ensuring that the next migration created will have the expected sequence number.
+
+        Specifically, this test checks that after squashing migrations, the makemigrations command produces a new migration with the correct sequence number (in this case, 0003_auto), confirming that the numbering sequence is maintained correctly after a squash operation.
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations_squashed"
         ):
@@ -2674,6 +3027,11 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn("0003_auto", out_value)
 
     def test_makemigrations_update(self):
+        """
+        Test whether the 'makemigrations' command with the 'update' option successfully updates an existing migration file instead of creating a new one.
+
+        The test case checks that the original migration file is removed and replaced with a new file containing the updated migration operations, and that a message confirming the update is printed to the console.
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations"
         ) as migration_dir:
@@ -2699,6 +3057,15 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn(f"Deleted {migration_file}", out.getvalue())
 
     def test_makemigrations_update_existing_name(self):
+        """
+        Tests the functionality of the `makemigrations` command with the `--update` flag when an existing migration file name needs to be updated.
+
+        This test case verifies that when an existing migration file is updated, the original file is deleted and a new file with an updated name is created. The test also checks that the new migration file contains different content than the original file.
+
+        The test uses a temporary migration module and a captured output to validate the expected behavior of the `makemigrations` command. 
+
+        It asserts that the original migration file no longer exists and that a new file with the updated name has been created, containing updated content. The test also checks that a message indicating the deletion of the original file is printed to the console.
+        """
         with self.temporary_migration_module(
             module="migrations.test_auto_now_add"
         ) as migration_dir:
@@ -2744,6 +3111,13 @@ class MakeMigrationsTests(MigrationTestBase):
             self.assertIn(f"Deleted {old_migration_file}", out.getvalue())
 
     def test_makemigrations_update_applied_migration(self):
+        """
+        Test that the 'makemigrations' command with the '--update' option properly handles an attempt to update a migration that has already been applied.
+
+        Verifies that applying 'makemigrations --update' on a migration that has already been recorded as applied in the database results in the correct error message being raised, indicating that an update cannot be performed on an applied migration.
+
+        Checks that the command handles this scenario by raising a CommandError with an informative message, preventing unintended updates to applied migrations.
+        """
         recorder = MigrationRecorder(connection)
         recorder.record_applied("migrations", "0001_initial")
         recorder.record_applied("migrations", "0002_second")
@@ -2767,6 +3141,15 @@ class MakeMigrationsTests(MigrationTestBase):
                 call_command("makemigrations", "migrations", update=True)
 
     def test_makemigrations_update_manual_porting(self):
+        """
+        Tests that 'makemigrations' with the '--update' option correctly handles the update of existing migration files.
+
+        The test verifies that when a migration file is updated with the --update option, 
+        the previous migration file remains in place and a new updated migration file is created. 
+        Additionally, it checks that a warning message is printed to the console, 
+        indicating that the updated migration requires manual porting and that the previous 
+        migration file must be deleted after the porting is complete.
+        """
         with self.temporary_migration_module(
             module="migrations.test_migrations_plan"
         ) as migration_dir:
@@ -2793,6 +3176,18 @@ class MakeMigrationsTests(MigrationTestBase):
         ]
     )
     def test_makemigrations_update_dependency_migration(self):
+        """
+
+        Tests that makemigrations command fails when trying to update a migration that other apps depend on.
+
+        This test checks that the makemigrations command with the --update option does not allow updating a migration
+        that has dependencies from other apps. The test sets up a scenario where the author_app has a migration that
+        depends on the initial migration of the book_app. It then attempts to update the book_app's initial migration
+        and verifies that the command raises a CommandError with a descriptive message.
+
+        The expected error indicates that the migration cannot be updated because other migrations rely on it.
+
+        """
         with self.temporary_migration_module(app_label="book_app"):
             msg = (
                 "Cannot update migration 'book_app.0001_initial' that migrations "
@@ -2986,6 +3381,15 @@ class SquashMigrationsTests(MigrationTestBase):
             self.assertTrue(os.path.exists(squashed_migration_file))
 
     def test_squashed_name_exists(self):
+        """
+
+        Tests that attempting to squash migrations with a name that already exists raises a CommandError.
+
+        Checks that calling the squashmigrations command with a squashed name that is already in use
+        ('0001_initial' in this case) results in an error message indicating that the name is taken.
+        The error message suggests using a different name to resolve the issue.
+
+        """
         msg = "Migration 0001_initial already exists. Use a different name."
         with self.temporary_migration_module(module="migrations.test_migrations"):
             with self.assertRaisesMessage(CommandError, msg):
@@ -3000,6 +3404,20 @@ class SquashMigrationsTests(MigrationTestBase):
                 )
 
     def test_squashmigrations_manual_porting(self):
+        """
+
+        Tests the manual porting of migrations using the `squashmigrations` command.
+
+        This test case simulates squashing migrations and verifies that the resulting
+        squashed migration is correctly generated. It checks for the existence of the
+        squashed migration file and validates the output of the `squashmigrations` command,
+        including any warnings about manual porting requirements and optional formatting
+        using the \"black\" command.
+
+        The test ensures that the squashed migration is generated with the correct content
+        and that the necessary instructions for further manual processing are provided.
+
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_manual_porting",
@@ -3071,20 +3489,51 @@ class AppLabelErrorTests(TestCase):
         self.assertIn(self.did_you_mean_auth_error, err.getvalue())
 
     def test_migrate_nonexistent_app_label(self):
+        """
+        Tests that migrating a non-existent application label raises a CommandError.
+
+        Verifies that attempting to perform a database migration on an application that does not exist results in an error with the expected message. This ensures that the migration command handles invalid application labels correctly and provides informative error messages in such cases.
+        """
         with self.assertRaisesMessage(CommandError, self.nonexistent_app_error):
             call_command("migrate", "nonexistent_app")
 
     def test_migrate_app_name_specified_as_label(self):
+        """
+
+        Tests that an error is raised when the app name is specified as a label in the migrate command.
+
+        The test case checks that the CommandError exception is thrown with a specific error message 
+        suggesting the correct usage of the command when the app name is not provided as a valid argument.
+
+        This test ensures that the command correctly handles invalid input and provides helpful feedback 
+        to the user on how to fix the issue.
+
+        """
         with self.assertRaisesMessage(CommandError, self.did_you_mean_auth_error):
             call_command("migrate", "django.contrib.auth")
 
     def test_showmigrations_nonexistent_app_label(self):
+        """
+
+        Tests the showmigrations management command with a nonexistent app label.
+
+        Verifies that the command exits with an error when an app label that does not exist is provided.
+        Checks that the error message contains the expected text, indicating that the app label was not found.
+
+        """
         err = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command("showmigrations", "nonexistent_app", stderr=err)
         self.assertIn(self.nonexistent_app_error, err.getvalue())
 
     def test_showmigrations_app_name_specified_as_label(self):
+        """
+        Tests the showmigrations command when an app name is specified as a label.
+
+        Verifies that the command correctly handles the app name and provides a helpful error message when necessary, 
+        suggesting the correct way to specify the app name. The test checks for a SystemExit exception and 
+        the presence of a \"did you mean\" error message in the error output, indicating that the command is working as expected.
+        """
         err = io.StringIO()
         with self.assertRaises(SystemExit):
             call_command("showmigrations", "django.contrib.auth", stderr=err)
@@ -3095,6 +3544,14 @@ class AppLabelErrorTests(TestCase):
             call_command("sqlmigrate", "nonexistent_app", "0002")
 
     def test_sqlmigrate_app_name_specified_as_label(self):
+        """
+
+        Tests that providing the app name as a label in the sqlmigrate command raises a CommandError.
+
+        This test case checks that when the 'sqlmigrate' command is invoked with the app name and migration number,
+        but the app name is not correctly specified, it correctly raises a CommandError with a helpful error message.
+
+        """
         with self.assertRaisesMessage(CommandError, self.did_you_mean_auth_error):
             call_command("sqlmigrate", "django.contrib.auth", "0002")
 
@@ -3103,10 +3560,25 @@ class AppLabelErrorTests(TestCase):
             call_command("squashmigrations", "nonexistent_app", "0002")
 
     def test_squashmigrations_app_name_specified_as_label(self):
+        """
+        .raises :class:`CommandError`: Tests that the squashmigrations command raises an error when the application name is specified as a label instead of the actual application name.
+
+            The test checks if the command correctly identifies and reports the error with a helpful error message suggesting the correct syntax for the command. The expected error message is a \"did you mean\" style message indicating that the provided label should be replaced with the actual application name from the auth module.
+        """
         with self.assertRaisesMessage(CommandError, self.did_you_mean_auth_error):
             call_command("squashmigrations", "django.contrib.auth", "0002")
 
     def test_optimizemigration_nonexistent_app_label(self):
+        """
+
+        Tests that the optimizemigration command correctly raises a CommandError when 
+        given a nonexistent app label.
+
+        Verifies that attempting to optimize a migration for an application that does not 
+        exist results in the expected error message, ensuring the command handles this 
+        scenario as anticipated.
+
+        """
         with self.assertRaisesMessage(CommandError, self.nonexistent_app_error):
             call_command("optimizemigration", "nonexistent_app", "0002")
 
@@ -3117,6 +3589,11 @@ class AppLabelErrorTests(TestCase):
 
 class OptimizeMigrationTests(MigrationTestBase):
     def test_no_optimization_possible(self):
+        """
+        Tests whether the `optimizemigration` command correctly handles cases where no optimizations are possible.
+
+        This test case creates a temporary migration module, applies the `optimizemigration` command to a specific migration, and verifies that the command produces the expected output when no optimizations can be made. The test checks for the presence of the migration file and the output message indicating that no optimizations were possible.
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -3137,6 +3614,14 @@ class OptimizeMigrationTests(MigrationTestBase):
         self.assertEqual(out.getvalue(), "No optimizations possible.\n")
 
     def test_optimization(self):
+        """
+
+        Tests the optimization of a migration.
+
+        This function verifies that the optimization command correctly reduces the number of operations in a migration and generates the expected output.
+        It creates a temporary migration module, runs the optimization command, and checks that the resulting migration file contains the expected content and that the command output matches the expected message.
+
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations"
@@ -3190,6 +3675,16 @@ class OptimizeMigrationTests(MigrationTestBase):
         self.assertEqual(out.getvalue(), "")
 
     def test_creates_replace_migration_manual_porting(self):
+        """
+        Tests that the optimize migration command can create a replacement migration and 
+        handle manual porting of functions that cannot be safely copied over.
+
+        This test verifies that the command generates a new optimized migration file, 
+        replaces the original migration with the new one, and outputs a warning message 
+        indicating that manual porting is required. Additionally, it checks that the 
+        optimized migration file contains the necessary 'replaces' directive and that 
+        the 'black' formatting tool is notified if available.
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_manual_porting"
@@ -3222,6 +3717,17 @@ class OptimizeMigrationTests(MigrationTestBase):
         )
 
     def test_fails_squash_migration_manual_porting(self):
+        """
+
+        Tests that the optimizemigration command fails when attempting to squash a migration that requires manual porting.
+
+        The function simulates a scenario where a migration needs manual intervention but is already a squashed migration.
+        It checks that the command correctly identifies this situation and raises a CommandError with a helpful error message,
+        pointing the user to the Django documentation on squashing migrations.
+        It also verifies that the optimization process does not create any new files in this case.
+        The test ensures that the command output is as expected, indicating the attempted optimization.
+
+        """
         out = io.StringIO()
         with self.temporary_migration_module(
             module="migrations.test_migrations_manual_porting"
@@ -3245,6 +3751,20 @@ class OptimizeMigrationTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_optimizemigration_check(self):
+        """
+
+        Tests the optimization of migrations.
+
+        This test case checks that the 'optimizemigration' command functions correctly 
+        when verifying the optimization of migrations. It tests for the expected system 
+        exit when checking an unoptimized migration and verifies that no error occurs 
+        when checking an already optimized migration.
+
+        :param none:
+        :raises SystemExit: when checking an unoptimized migration
+        :return: none
+
+        """
         with self.assertRaises(SystemExit):
             call_command(
                 "optimizemigration", "--check", "migrations", "0001", verbosity=0
@@ -3264,6 +3784,16 @@ class OptimizeMigrationTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_clashing_prefix"},
     )
     def test_ambigious_prefix(self):
+        """
+
+        Tests handling of ambiguous prefix in migration optimization command.
+
+        Verifies that when multiple migrations match the provided prefix, an error is raised
+        with a message prompting the user to be more specific. This test case simulates a
+        scenario where multiple migrations in the 'migrations' app start with the same prefix 'a',
+        ensuring the command correctly handles such ambiguity and provides informative feedback.
+
+        """
         msg = (
             "More than one migration matches 'a' in app 'migrations'. Please "
             "be more specific."
@@ -3273,6 +3803,11 @@ class OptimizeMigrationTests(MigrationTestBase):
 
     @override_settings(MIGRATION_MODULES={"migrations": "migrations.test_migrations"})
     def test_unknown_prefix(self):
+        """
+        Tests that the optimizemigration command correctly handles unknown migration prefixes.
+
+         This test case verifies that when an unknown migration prefix is provided, the command raises a CommandError with a descriptive message, indicating that it cannot find a matching migration in the specified application. The test ensures that the command behaves as expected in cases where the migration prefix does not exist, providing a clear error message to the user.
+        """
         msg = "Cannot find a migration matching 'nonexistent' from app 'migrations'."
         with self.assertRaisesMessage(CommandError, msg):
             call_command("optimizemigration", "migrations", "nonexistent")

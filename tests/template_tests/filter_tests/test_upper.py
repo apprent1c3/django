@@ -19,6 +19,20 @@ class UpperTests(SimpleTestCase):
         }
     )
     def test_upper01(self):
+        """
+
+        Tests the upper filter functionality in template rendering.
+
+        This test case verifies that the upper filter correctly converts strings to
+        uppercase while respecting the autoescape and mark_safe parameters.
+        It checks the rendering of a template with two variables, one containing
+        special characters and the other marked as safe, to ensure proper escaping and
+        uppercase conversion.
+
+        The expected output is a string with both variables converted to uppercase,
+        while maintaining the original special characters and escaping.
+
+        """
         output = self.engine.render_to_string(
             "upper01", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -26,6 +40,18 @@ class UpperTests(SimpleTestCase):
 
     @setup({"upper02": "{{ a|upper }} {{ b|upper }}"})
     def test_upper02(self):
+        """
+
+        Tests the upper filter functionality when rendering a string template.
+
+        The test checks that the upper filter correctly converts strings to uppercase,
+        while also ensuring that HTML entities are handled correctly when using
+        the mark_safe function to bypass HTML escaping.
+
+        The expected output is a string with both input values converted to uppercase,
+        preserving the ampersand and HTML entity (&amp;) as required.
+
+        """
         output = self.engine.render_to_string(
             "upper02", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )

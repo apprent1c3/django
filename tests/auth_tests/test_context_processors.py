@@ -33,12 +33,29 @@ class PermWrapperTests(SimpleTestCase):
             self.eq_calls = 0
 
         def __eq__(self, other):
+            """
+            Override of the equality operator to implement a specific comparison logic.
+
+             Returns True only after the first comparison has been made, as tracked by the eq_calls counter.
+
+             Subsequent comparisons will return False, allowing for one-time equality check. This enables 
+             the object to be considered equal once, after which further comparisons will yield different results.
+            """
             if self.eq_calls > 0:
                 return True
             self.eq_calls += 1
             return False
 
     def test_repr(self):
+        """
+        Tests the string representation of a PermWrapper instance.
+
+        Verifies that the repr function returns a string that accurately reflects the creation of a PermWrapper instance, including its underlying user object.
+
+        The expected output is a string that could be used to recreate the PermWrapper instance, providing a useful debugging and logging tool.
+
+        This test case ensures that the representation of a PermWrapper instance is consistent and predictable, making it easier to understand and work with the class in various contexts.
+        """
         perms = PermWrapper(MockUser())
         self.assertEqual(repr(perms), "PermWrapper(MockUser())")
 
@@ -62,6 +79,11 @@ class PermWrapperTests(SimpleTestCase):
             self.EQLimiterObject() in pldict
 
     def test_iter(self):
+        """
+        Tests that attempting to iterate over a PermWrapper instance raises a TypeError.
+
+        Verifies that the PermWrapper class does not support iteration and provides a meaningful error message when iteration is attempted, indicating that it is not iterable.
+        """
         with self.assertRaisesMessage(TypeError, "PermWrapper is not iterable."):
             iter(PermWrapper(MockUser()))
 
@@ -97,6 +119,13 @@ class AuthContextProcessorTests(TestCase):
         self.assertContains(response, "Session accessed")
 
     def test_perms_attrs(self):
+        """
+        Tests that the auth_processor_perms view correctly displays user permissions.
+
+         Verifies that a user with specific permissions is correctly identified and 
+         that those permissions are displayed in the view. Checks for both the presence 
+         of expected permissions and the absence of unexpected ones.
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(
@@ -111,6 +140,17 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_perm_in_perms_attrs(self):
+        """
+
+        Test that a user's permissions are correctly indicated on the auth processor page.
+
+        This test case creates a new user, assigns a specific permission to them, logs them in,
+        and then checks that the page at '/auth_processor_perm_in_perms/' correctly identifies
+        their permissions. It verifies that the page indicates the presence of both general auth
+        permissions and the specific 'add_permission' permission, while also checking that a 
+        nonexistent permission is not mentioned.
+
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(
@@ -125,6 +165,13 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_message_attrs(self):
+        """
+        Test that the message attributes are correctly displayed.
+
+        Verifies that a superuser can view messages and that the message content is 
+        correctly rendered in the response. Specifically, checks that 'Message 1' 
+        is contained in the response from the '/auth_processor_messages/' endpoint.
+        """
         self.client.force_login(self.superuser)
         response = self.client.get("/auth_processor_messages/")
         self.assertContains(response, "Message 1")

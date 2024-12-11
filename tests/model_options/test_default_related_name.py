@@ -7,6 +7,15 @@ from .models.default_related_name import Author, Book, Editor
 class DefaultRelatedNameTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data as class attributes for use in tests.
+
+        This method creates a basic dataset consisting of an author, an editor, and a book,
+        with the author linked to the book and the editor. The created objects are stored
+        as class attributes to be reused across tests.
+
+        """
         cls.author = Author.objects.create(first_name="Dave", last_name="Loper")
         cls.editor = Editor.objects.create(
             name="Test Editions", bestselling_author=cls.author

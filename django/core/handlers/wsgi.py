@@ -85,6 +85,11 @@ class WSGIRequest(HttpRequest):
     @cached_property
     def GET(self):
         # The WSGI spec says 'QUERY_STRING' may be absent.
+        """
+        Returns a QueryDict object representing the query string of the current HTTP GET request.
+        The query string is parsed from the QUERY_STRING environment variable and decoded using the specified encoding.
+        This property is lazily evaluated and cached for subsequent accesses.
+        """
         raw_query_string = get_bytes_from_wsgi(self.environ, "QUERY_STRING", "")
         return QueryDict(raw_query_string, encoding=self._encoding)
 

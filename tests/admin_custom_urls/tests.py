@@ -21,6 +21,20 @@ class AdminCustomUrlsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating a superuser and a set of actions with various names and descriptions.
+
+        The superuser is created with a fixed username, password, and email address. The actions are created to cover a range of scenarios, including:
+
+        * Simple actions with common names (e.g. 'delete', 'rename', 'add')
+        * Actions with names containing special characters (e.g. '/')
+        * Actions with names that resemble file paths (e.g. 'path/to/html/document.html')
+        * Actions with names that may be suspected of being malicious (e.g. XSS attempts)
+
+        This data is used as a foundation for testing the application's functionality and security.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -80,6 +94,18 @@ class AdminCustomUrlsTest(TestCase):
     def test_admin_URLs_no_clash(self):
         # Should get the change_view for model instance with PK 'add', not show
         # the add_view
+        """
+        Tests that admin URLs do not clash with custom URLs.
+
+        Checks that the admin interface for changing actions can be accessed
+        successfully without encountering any URL conflicts, even when the action's
+        filename is similar to a URL path. Verifies that the change action page
+        contains the expected HTML content, including the action's filename.
+
+        Ensures that the admin URL reverse function generates correct URLs for
+        different action filenames, and that the resulting pages contain the
+        expected content and action details.
+        """
         url = reverse(
             "admin_custom_urls:%s_action_change" % Action._meta.app_label,
             args=(quote("add"),),

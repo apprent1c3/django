@@ -51,6 +51,13 @@ class CheckMessage:
         return self.level >= level
 
     def is_silenced(self):
+        """
+        Checks if the system check represented by this instance is silenced.
+
+        Silenced system checks are explicitly exempt from execution and reporting,
+        as defined in the project's settings. Returns True if this check is silenced,
+        False otherwise.
+        """
         from django.conf import settings
 
         return self.id in settings.SILENCED_SYSTEM_CHECKS

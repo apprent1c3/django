@@ -52,6 +52,16 @@ class SelectForUpdateTests(TransactionTestCase):
         self.new_connection = connection.copy()
 
     def tearDown(self):
+        """
+        Cleans up resources after a test has completed.
+
+        This method ensures that any pending database transactions are properly ended
+        and then closes the database connection to free up system resources.
+
+        Note that it catches and ignores any exceptions that occur during the cleanup
+        process to prevent them from interfering with the test result.
+
+        """
         try:
             self.end_blocking_transaction()
         except (DatabaseError, AttributeError):
@@ -59,6 +69,19 @@ class SelectForUpdateTests(TransactionTestCase):
         self.new_connection.close()
 
     def start_blocking_transaction(self):
+        """
+
+        Starts a blocking transaction on the database connection.
+
+        This method initiates a transaction that locks the specified database table,
+        preventing other processes from accessing it until the transaction is committed
+        or rolled back. The lock is acquired by executing a SELECT FOR UPDATE query
+        on the table, effectively blocking concurrent access.
+
+        Note that this method assumes a previously established database connection
+        and is intended to be used within the context of a larger database operation.
+
+        """
         self.new_connection.set_autocommit(False)
         # Start a blocking transaction. At some point,
         # end_blocking_transaction() should be called.
@@ -72,6 +95,17 @@ class SelectForUpdateTests(TransactionTestCase):
 
     def end_blocking_transaction(self):
         # Roll back the blocking transaction.
+        """
+
+        Ends a blocking transaction by rolling back any changes and resetting the connection to its default autocommit state.
+
+        This function is used to cancel a transaction that has been holding a lock on database resources, 
+        releasing those resources and allowing other transactions to proceed.
+
+        It closes the current cursor, rolls back the transaction, and sets the connection to autocommit mode,
+        ensuring that subsequent database operations are executed independently.
+
+        """
         self.cursor.close()
         self.new_connection.rollback()
         self.new_connection.set_autocommit(True)
@@ -79,6 +113,18 @@ class SelectForUpdateTests(TransactionTestCase):
     def has_for_update_sql(self, queries, **kwargs):
         # Examine the SQL that was executed to determine whether it
         # contains the 'SELECT..FOR UPDATE' stanza.
+        """
+        Check if any of the given SQL queries contain a FOR UPDATE statement.
+
+        This function iterates over a list of SQL queries and checks if any of them include 
+        the FOR UPDATE SQL syntax, which is used to lock rows in a database table until 
+        the end of a transaction. The presence of FOR UPDATE SQL is determined by the 
+        database backend's for_update_sql() method.
+
+        :param queries: A list of SQL queries to check.
+        :param kwargs: Additional keyword arguments to pass to the for_update_sql() method.
+        :returns: True if any of the queries contain a FOR UPDATE statement, False otherwise.
+        """
         for_update_sql = connection.ops.for_update_sql(**kwargs)
         return any(for_update_sql in query["sql"] for query in queries)
 
@@ -151,6 +197,18 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_sql_model_inheritance_generated_of(self):
+        """
+
+        Tests the generation of SQL for model inheritance when using `select_for_update` 
+        with the `of` parameter. Verifies that the correct SQL is generated for both 
+        databases that support selecting specific columns for update and those that do not.
+
+        The test checks that the generated SQL includes the `SELECT... FOR UPDATE OF` 
+        clause with the expected columns or table names, depending on the database 
+        features. This ensures that the model inheritance is handled correctly when 
+        using `select_for_update` with the `of` parameter.
+
+        """
         with transaction.atomic(), CaptureQueriesContext(connection) as ctx:
             list(EUCountry.objects.select_for_update(of=("self",)))
         if connection.features.select_for_update_of_column:
@@ -183,6 +241,18 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_sql_related_model_inheritance_generated_of(self):
+        """
+        Tests the SQL generation for select_for_update with related model inheritance.
+
+        This test case checks if the select_for_update method correctly generates SQL
+        when used with select_related on a model that has inherited fields. It verifies
+        that the produced SQL includes the 'FOR UPDATE' clause with the correct tables
+        or columns, depending on the database feature 'has_select_for_update_of'.
+
+        The test ensures that the 'FOR UPDATE OF' clause is correctly generated with the
+        expected tables or columns, taking into account the database's capabilities
+        regarding column-specific locking.
+        """
         with transaction.atomic(), CaptureQueriesContext(connection) as ctx:
             list(
                 EUCity.objects.select_related("country").select_for_update(
@@ -222,6 +292,17 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_sql_multilevel_model_inheritance_ptr_generated_of(self):
+        """
+
+        Tests the usage of the select_for_update method with multilevel model inheritance and a generated primary key reference (ptr).
+
+        This method checks that the select_for_update method can correctly handle multilevel model inheritance where a primary key reference is generated.
+        It tests that the SQL queries produced by the select_for_update method include the correct tables and columns for the \"of\" parameter.
+        The test covers different database features, specifically whether the database supports selecting specific columns for update.
+
+        The expected behavior is that the select_for_update method will produce SQL queries that lock the specified tables and columns, preventing concurrent updates.
+
+        """
         with transaction.atomic(), CaptureQueriesContext(connection) as ctx:
             list(
                 EUCountry.objects.select_for_update(
@@ -240,6 +321,22 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_sql_model_proxy_generated_of(self):
+        """
+
+        Tests the usage of the 'select_for_update' method on a SQL model proxy, 
+        specifically when selecting related objects and specifying columns to lock.
+
+        This test verifies that the generated SQL query correctly includes the 
+        'select for update' clause with the specified columns when the database 
+        supports this feature. It also checks the expected behavior when the 
+        database does not support selecting specific columns for update.
+
+        The test case covers a scenario where a CityCountryProxy object is queried 
+        with related 'country' objects, and the 'select_for_update' method is used 
+        to lock these related objects, either by specifying columns or by locking 
+        the entire table.
+
+        """
         with transaction.atomic(), CaptureQueriesContext(connection) as ctx:
             list(
                 CityCountryProxy.objects.select_related("country").select_for_update(
@@ -255,12 +352,54 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_of_followed_by_values(self):
+        """
+        Tests the usage of select_for_update with the 'of' argument to acquire a lock on the specified table, 
+        in this case, the current model instance (Person), and verifies that the locked object's values are 
+        correctly retrieved.
+
+        This test case checks that when select_for_update is used with 'of' to specify the rows to be locked, 
+        it successfully locks the specified object and returns its values, ensuring data consistency and 
+        preventing concurrent modifications.
+
+        Annotations:
+            skipUnlessDBFeature: This test is skipped unless the database feature 'has_select_for_update_of' 
+            is supported, ensuring the test only runs on compatible databases.
+
+        Parameters:
+            self (object): The test instance.
+
+        Asserts:
+            The test asserts that the values retrieved from the database match the expected values, 
+            specifically the primary key of the person object.
+
+        Note:
+            This test relies on a transactional context to ensure data consistency and atomicity.
+
+        """
         with transaction.atomic():
             values = list(Person.objects.select_for_update(of=("self",)).values("pk"))
         self.assertEqual(values, [{"pk": self.person.pk}])
 
     @skipUnlessDBFeature("has_select_for_update_of")
     def test_for_update_of_followed_by_values_list(self):
+        """
+
+        Tests if the 'select_for_update' method correctly locks the rows of a database table,
+        specifically when used in conjunction with 'values_list'.
+
+        The test checks if the query returns a list containing a single tuple with the primary key
+        of the object that was previously saved in the database. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the expected primary key is not returned by the query.
+
+        """
         with transaction.atomic():
             values = list(
                 Person.objects.select_for_update(of=("self",)).values_list("pk")
@@ -286,6 +425,17 @@ class SelectForUpdateTests(TransactionTestCase):
         "supports_select_for_update_with_limit",
     )
     def test_for_update_of_with_exists(self):
+        """
+
+        Tests the usage of `select_for_update` with `of` argument to specify the columns to lock and
+        existence check using `exists` method.
+
+        This test case verifies that the `select_for_update` method with the `of` parameter can be used to
+        lock specific columns (in this case, columns of the model instance itself ('self') and a related
+        object ('born')), and that the `exists` method correctly checks for the existence of objects in the
+        queryset while the lock is held.
+
+        """
         with transaction.atomic():
             qs = Person.objects.select_for_update(of=("self", "born"))
             self.assertIs(qs.exists(), True)
@@ -448,6 +598,16 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update", "has_select_for_update_of")
     def test_model_proxy_of_argument_raises_error_proxy_field_in_choices(self):
+        """
+
+        Tests that using a proxy model as an argument in select_for_update raises a FieldError when 
+        trying to select for update on a non-relational field that is not followed in the query.
+
+        The test checks that an error is raised when the 'of' argument in select_for_update contains 
+        a field name that is not a relational field, and ensures the error message includes the 
+        allowed relational field choices.
+
+        """
         msg = (
             "Invalid field name(s) given in select_for_update(of=(...)): "
             "name. Only relational fields followed in the query are allowed. "
@@ -478,6 +638,13 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipUnlessDBFeature("has_select_for_update")
     def test_for_update_after_from(self):
+        """
+        Tests the behavior of the :meth:`select_for_update` method on a QuerySet after a database operation, specifically when the database backend supports the \"SELECT... FOR UPDATE\" syntax.
+
+        This test case verifies that the \"FOR UPDATE\" clause is correctly appended to the SQL query when the `select_for_update` method is called, under the assumption that the database's \"for update after from\" feature is enabled. 
+
+        The test simulates the enabling of the \"for update after from\" feature by mocking the corresponding attribute of the database features class. The test is skipped if the database backend does not support the \"SELECT... FOR UPDATE\" syntax.
+        """
         features_class = connections["default"].features.__class__
         attribute_to_patch = "%s.%s.for_update_after_from" % (
             features_class.__module__,
@@ -521,6 +688,15 @@ class SelectForUpdateTests(TransactionTestCase):
 
     @skipIfDBFeature("supports_select_for_update_with_limit")
     def test_unsupported_select_for_update_with_limit(self):
+        """
+        Tests the behavior when using select_for_update with LIMIT/OFFSET on a database backend that does not support it.
+
+        This test case verifies that a NotSupportedError is raised when attempting to use select_for_update in conjunction with list slicing (which results in a LIMIT/OFFSET clause) on a database backend that does not support this operation.
+
+        The test is skipped on database backends that do support select_for_update with LIMIT/OFFSET, as the expected behavior is only observed on backends where this operation is not supported.
+
+        :raises NotSupportedError: When attempting to use select_for_update with LIMIT/OFFSET on an unsupported database backend.
+        """
         msg = (
             "LIMIT/OFFSET is not supported with select_for_update on this database "
             "backend."
@@ -607,6 +783,15 @@ class SelectForUpdateTests(TransactionTestCase):
         self.start_blocking_transaction()
 
         def raw(status):
+            """
+            Retrieves all rows from the database table associated with the Person model, locking the rows for update without waiting to prevent concurrent modifications.
+
+            The function executes a raw SQL query to select all records from the Person table and attempts to fetch the results as a list of Person objects.
+
+            If a database error occurs during the execution of the query, the error is caught and appended to the provided status list.
+
+            After the query execution, if the underlying database connection is not an Oracle connection, the database connection is closed.
+            """
             try:
                 list(
                     Person.objects.raw(

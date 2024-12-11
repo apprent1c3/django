@@ -13,6 +13,15 @@ from . import FormFieldAssertionsMixin
 @ignore_warnings(category=RemovedInDjango60Warning)
 class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_urlfield_widget(self):
+        """
+        Tests the rendering of the URLField widget.
+
+        Verifies that the URLField widget is correctly rendered as an HTML input field of type 'url', 
+        containing the expected attributes such as name and id, and that it is marked as required.
+
+        The test case ensures that the widget's output matches the expected HTML structure, 
+        which is crucial for proper form rendering and validation in web applications.
+        """
         f = URLField()
         self.assertWidgetRendersTo(f, '<input type="url" name="f" id="id_f" required>')
 
@@ -130,11 +139,27 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("")
 
     def test_urlfield_clean_not_required(self):
+        """
+
+        Tests the cleaning behavior of a URLField when the field is not required.
+
+        This test case verifies that when the field is not required, it correctly handles
+        None and empty string inputs by returning an empty string, effectively allowing
+        empty values to be stored.
+
+        """
         f = URLField(required=False)
         self.assertEqual(f.clean(None), "")
         self.assertEqual(f.clean(""), "")
 
     def test_urlfield_strip_on_none_value(self):
+        """
+
+        Tests the behavior of a URLField when its value is None or empty string.
+        Verifies that the field correctly returns None in both cases, 
+        ensuring that no URL is created or validated for empty or null values.
+
+        """
         f = URLField(required=False, empty_value=None)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))
@@ -145,6 +170,23 @@ class URLFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             URLField(strip=False)
 
     def test_urlfield_assume_scheme(self):
+        """
+
+        Tests the behavior of the URLField when assuming a scheme.
+
+        This function verifies that if a URL without a scheme is provided to the URLField,
+        it will correctly assume a scheme based on its configuration. The test covers
+        various configurations, including the default scheme and custom schemes set to
+        'http' and 'https'. 
+
+        The goal of this test is to ensure that the URLField behaves as expected when
+        given URLs with missing schemes, adding the assumed scheme to the input URL.
+
+        :param none:
+        :returns: none
+        :raises: AssertionError if the cleaning of the URL does not result in the expected output.
+
+        """
         f = URLField()
         # RemovedInDjango60Warning: When the deprecation ends, replace with:
         # "https://example.com"
@@ -169,6 +211,12 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_urlfield_forms_urlfield_assume_https(self):
+        """
+        Tests the behavior of URLField forms when assume_https is enabled.
+
+        Checks that when assume_https is True, a URLField will append 'https://' to the beginning of the URL if no scheme is provided.
+        Also verifies that if assume_scheme is explicitly set to 'http', the URLField will use 'http://' instead of 'https://'.
+        """
         with self.settings(FORMS_URLFIELD_ASSUME_HTTPS=True):
             f = URLField()
             self.assertEqual(f.clean("example.com"), "https://example.com")
@@ -184,6 +232,15 @@ class URLFieldAssumeSchemeDeprecationTest(FormFieldAssertionsMixin, SimpleTestCa
                 pass
 
     def test_settings_init_forms_urlfield_assume_https_warning(self):
+        """
+
+        Tests initialization of the Settings class with FORMS_URLFIELD_ASSUME_HTTPS set to True.
+
+        This test case verifies that a RemovedInDjango60Warning is raised when the deprecated 
+        FORMS_URLFIELD_ASSUME_HTTPS setting is used, to ensure proper deprecation handling and 
+        notification of users about the impending removal of this setting in Django 6.0.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.FORMS_URLFIELD_ASSUME_HTTPS = True
         sys.modules["fake_settings_module"] = settings_module

@@ -86,6 +86,17 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         )
 
     def test_user_keeps_same_permissions_after_migrating_backward(self):
+        """
+
+        Tests that a user's permissions remain unchanged after migrating backwards.
+
+        This function checks the user's permissions before and after reverting proxy model
+        permissions, ensuring that the user retains the correct permissions. It verifies
+        that the user has the assigned default and custom permissions for the 'auth' app
+        and does not have them for the 'auth_tests' app, confirming that the migration
+        does not affect the user's existing permissions.
+
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -146,6 +157,14 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         self.assertEqual(self.custom_permission.content_type, proxy_model_content_type)
 
     def test_user_still_has_proxy_model_permissions(self):
+        """
+        Tests whether a user retains proxy model permissions after updating the proxy model's permissions.
+
+        This test case checks that a user's permissions are preserved when the proxy model's permissions are updated.
+        It creates a test user, assigns default and custom permissions, and then verifies that the user has these permissions.
+        After updating the proxy model's permissions, it re-fetches the user and re-checks that the permissions are still present.
+        The test ensures that the update operation does not inadvertently remove or alter the user's existing permissions.
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -224,6 +243,17 @@ class MultiDBProxyModelAppLabelTests(TransactionTestCase):
     ]
 
     def setUp(self):
+        """
+
+        Sets up the test environment by clearing existing content types and permissions, 
+        then creates a new permission for adding proxy objects in the 'other' database.
+
+        This method is used to establish a clean state for testing purposes, ensuring that 
+        any previously created content types and permissions do not interfere with the test.
+        It specifically creates a permission with the codename 'add_proxy' and name 'Can add proxy', 
+        associated with the ContentType of the Proxy model in the 'other' database.
+
+        """
         ContentType.objects.all().delete()
         Permission.objects.using("other").delete()
         concrete_content_type = ContentType.objects.db_manager("other").get_for_model(
@@ -236,6 +266,23 @@ class MultiDBProxyModelAppLabelTests(TransactionTestCase):
         )
 
     def test_migrate_other_database(self):
+        """
+        Test the migration of permissions for a proxy model in a secondary database.
+
+        This test case ensures that the permissions for a proxy model are correctly updated
+        in the 'other' database. It retrieves the content type for the proxy model,
+        updates the permissions using the update_proxy_model_permissions function, and then
+        verifies that the permission's content type matches the one retrieved for the proxy
+        model.
+
+        The test case uses the 'other' database connection, which is assumed to be a
+        separate database from the default one, to test the migration of permissions in a
+        multi-database setup.
+
+        The update_proxy_model_permissions function is responsible for the actual
+        permission update, and this test case focuses on verifying the outcome of this
+        update in the context of the 'other' database.
+        """
         proxy_model_content_type = ContentType.objects.db_manager(
             "other"
         ).get_for_model(Proxy, for_concrete_model=False)

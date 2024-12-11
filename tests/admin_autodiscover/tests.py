@@ -10,6 +10,14 @@ class AdminAutoDiscoverTests(SimpleTestCase):
 
     def test_double_call_autodiscover(self):
         # The first time autodiscover is called, we should get our real error.
+        """
+        Tests that calling autodiscover twice raises an exception.
+
+        This test case verifies that the autodiscover function in the admin module
+        raises an Exception with a 'Bad admin module' message when called multiple times.
+        It ensures that the function behaves correctly when invoked in succession,
+        preventing potential issues with duplicate autodiscovery attempts.
+        """
         with self.assertRaisesMessage(Exception, "Bad admin module"):
             admin.autodiscover()
         # Calling autodiscover again should raise the very same error it did

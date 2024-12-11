@@ -146,11 +146,44 @@ class MultiDBOperationTests(OperationTestBase):
         self._test_run_sql("test_mltdb_runsql3", should_run=True, hints={"foo": True})
 
     def _test_run_python(self, app_label, should_run, hints=None):
+        """
+        Tests the execution of a Python migration operation.
+
+        This function tests the forward migration process of creating 'Pony' model instances 
+        via a RunPython operation, while considering the specified application label and hints.
+
+        It checks the model state and database state before and after applying the migration, 
+        verifying that the expected changes are applied or not, depending on the 'should_run' parameter.
+
+        The test covers the case where the migration should or should not create instances in the database.
+
+        :param app_label: The label of the application to test.
+        :param should_run: A flag indicating whether the migration should create instances.
+        :param hints: Optional hints to pass to the migration operation.
+
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
         # Create the operation
         def inner_method(models, schema_editor):
+            """
+
+            Creates initial data for the Pony model.
+
+            This function is used to populate the database with default Pony records.
+            It utilizes the provided models and schema editor to create two Pony objects,
+            each with specified attributes.
+
+            The created Pony objects have the following characteristics:
+            - The first Pony object has a 'pink' attribute set to 1 and a 'weight' of 3.55.
+            - The second Pony object has a 'weight' of 5, with the 'pink' attribute defaulting
+              to its model-defined default value.
+
+            :param models: A dictionary of models from the application
+            :param schema_editor: The schema editor used to create the database schema
+
+            """
             Pony = models.get_model(app_label, "Pony")
             Pony.objects.create(pink=1, weight=3.55)
             Pony.objects.create(weight=5)

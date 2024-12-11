@@ -41,6 +41,26 @@ class TemplateStrings(BaseEngine):
 
 class Template(string.Template):
     def render(self, context=None, request=None):
+        """
+
+        Render the template with optional context and request.
+
+        This method allows rendering of a template with a provided context dictionary.
+        If no context is given, an empty dictionary is used. The context values are
+        automatically escaped to prevent XSS attacks.
+
+        If a request object is provided, the template context will also include
+        the CSRF input field and token, as returned by the csrf_input_lazy and
+        csrf_token_lazy functions respectively.
+
+        The rendered template is then returned after safe substitution of the context
+        values.
+
+        :param context: Optional dictionary of context variables.
+        :param request: Optional request object.
+        :return: The rendered template string.
+
+        """
         if context is None:
             context = {}
         else:

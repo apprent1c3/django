@@ -21,6 +21,15 @@ from django.views.i18n import set_language
 
 class CustomRequestAuthenticationForm(AuthenticationForm):
     def __init__(self, request, *args, **kwargs):
+        """
+        Initializes a new instance of the class.
+
+        :param request: The HTTP request to be processed, must be an instance of HttpRequest.
+        :param args: Variable length argument list.
+        :param kwargs: Arbitrary keyword arguments.
+
+        This constructor ensures that the provided request is a valid HttpRequest and then calls the parent class constructor to perform any additional initialization.
+        """
         assert isinstance(request, HttpRequest)
         super().__init__(request, *args, **kwargs)
 
@@ -34,6 +43,17 @@ def remote_user_auth_view(request):
 
 
 def auth_processor_no_attr_access(request):
+    """
+
+    Processes authentication attributes without granting attribute access.
+
+    This function renders a template indicating no attribute access has been granted to the user.
+    It also tests and renders another template with information about session access status.
+
+    Returns:
+        HttpResponse: An HTTP response object containing the rendered template with session access status.
+
+    """
     render(request, "context_processors/auth_attrs_no_access.html")
     # *After* rendering, we check whether the session was accessed
     return render(

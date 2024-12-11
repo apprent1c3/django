@@ -27,6 +27,21 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_create_index = "CREATE INDEX %(name)s ON %(table)s (%(columns)s)%(extra)s"
 
     def quote_value(self, value):
+        """
+
+        Format the given value into a quoted string compatible with SQL syntax.
+
+        This function takes a value of various types, including dates, times, strings,
+        byte arrays, and booleans, and returns a string representation of that value
+        wrapped in single quotes. Date and time values are formatted as strings, while
+        byte arrays are presented as hexadecimal strings. Boolean values are represented
+        as '1' or '0'. All other types are converted to strings using their standard
+        string representation.
+
+        The returned value is suitable for direct use in SQL queries, with proper
+        escaping of special characters to prevent SQL injection vulnerabilities.
+
+        """
         if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
             return "'%s'" % value
         elif isinstance(value, datetime.timedelta):
@@ -43,6 +58,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def remove_field(self, model, field):
         # If the column is an identity column, drop the identity before
         # removing the field.
+        """
+        Removes a field from a model, handling identity columns specifically.
+
+        Special consideration is given to identity columns, where the identity 
+        property is dropped before the field is removed.
+
+        :param model: The model from which the field is to be removed.
+        :param field: The field to be removed from the model.
+
+        """
         if self._is_identity_column(model._meta.db_table, field.column):
             self._drop_identity(model._meta.db_table, field.column)
         super().remove_field(model, field)

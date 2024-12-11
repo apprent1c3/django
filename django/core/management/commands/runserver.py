@@ -170,6 +170,16 @@ class Command(BaseCommand):
             sys.exit(0)
 
     def on_bind(self, server_port):
+        """
+
+        Starts the development server and prints a message to the console indicating the server is running.
+
+        The message includes the current timestamp, Django version, and the address and port the server is bound to.
+        It also includes instructions on how to quit the server.
+
+        :param server_port: The port number the server is bound to
+
+        """
         quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
 
         if self._raw_ipv6:

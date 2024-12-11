@@ -31,6 +31,15 @@ class PoFileTests(MessageCompilationTests):
     MO_FILE_EN = "locale/en/LC_MESSAGES/django.mo"
 
     def test_bom_rejection(self):
+        """
+
+        Tests that a Byte Order Mark (BOM) in a file triggers an error when compiling messages.
+
+        Verifies that when using the compilemessages command, the presence of a BOM in a file
+        results in a CommandError with a descriptive error message and that the output file
+        is not generated.
+
+        """
         stderr = StringIO()
         with self.assertRaisesMessage(
             CommandError, "compilemessages generated one or more errors."
@@ -42,6 +51,15 @@ class PoFileTests(MessageCompilationTests):
         self.assertFalse(os.path.exists(self.MO_FILE))
 
     def test_no_write_access(self):
+        """
+        Tests that compilemessages command raises an error when trying to write to a non-writable location.
+
+        This test verifies that the compilemessages command correctly handles cases where the target 
+        location for compiled message files (.mo) does not have write access. It checks that a 
+        CommandError is raised with a suitable error message and that the error message includes 
+        details about the unwritable location. The original permissions of the location are restored 
+        after the test to ensure no side effects. 
+        """
         mo_file_en = Path(self.MO_FILE_EN)
         err_buffer = StringIO()
         # Put file in read-only mode.
@@ -85,12 +103,32 @@ class MultipleLocaleCompilationTests(MessageCompilationTests):
     MO_FILE_FR = None
 
     def setUp(self):
+        """
+        Sets up the test environment by initializing the base test class and defining 
+        MO file paths for different locales. 
+
+        The function creates paths to MO files for Croatian (hr) and French (fr) locales 
+        in the 'locale' directory within the test directory, which can be used for 
+        testing language translations.
+
+        Attributes:
+            MO_FILE_HR (str): Path to the Croatian MO file.
+            MO_FILE_FR (str): Path to the French MO file.
+
+        """
         super().setUp()
         localedir = os.path.join(self.test_dir, "locale")
         self.MO_FILE_HR = os.path.join(localedir, "hr/LC_MESSAGES/django.mo")
         self.MO_FILE_FR = os.path.join(localedir, "fr/LC_MESSAGES/django.mo")
 
     def test_one_locale(self):
+        """
+        Tests the compilation of translation messages for a single locale.
+
+        This test ensures that the locale-specific translation files can be successfully compiled.
+        It overrides the locale paths to use a test directory, compiles the messages for the 'hr' locale, 
+        and verifies that the compiled translation file exists.
+        """
         with override_settings(LOCALE_PATHS=[os.path.join(self.test_dir, "locale")]):
             call_command("compilemessages", locale=["hr"], verbosity=0)
 
@@ -114,6 +152,12 @@ class ExcludedLocaleCompilationTests(MessageCompilationTests):
         copytree("canned_locale", "locale")
 
     def test_command_help(self):
+        """
+        Tests the help functionality of the compilemessages command by executing it with the --help option.
+
+        Verifies that the command displays the correct help message when invoked with the help flag, 
+        without raising any errors or exceptions.
+        """
         with captured_stdout(), captured_stderr():
             # `call_command` bypasses the parser; by calling
             # `execute_from_command_line` with the help subcommand we
@@ -141,6 +185,18 @@ class ExcludedLocaleCompilationTests(MessageCompilationTests):
         self.assertFalse(os.path.exists(self.MO_FILE % "it"))
 
     def test_multiple_locales_excluded_with_locale(self):
+        """
+
+        Tests the compilation of messages for multiple locales with excluded locales.
+
+        This test verifies that the compilemessages command correctly compiles message files
+        for the specified locales while excluding others. It checks that the compiled message
+        files (.mo) exist for the included locales and do not exist for the excluded locales.
+
+        The test uses a combination of locales to compile and exclude, ensuring that the
+        command behaves as expected in different scenarios.
+
+        """
         call_command(
             "compilemessages",
             locale=["en", "fr", "it"],
@@ -160,6 +216,17 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
     NESTED_DIR = Path("outdated") / "v1" / "locale"
 
     def setUp(self):
+        """
+        Sets up the test environment by copying the canned locale directory to 
+        the locale, cache, and nested directories, ensuring a consistent test setup.
+
+        This method is called before each test, allowing for a clean and isolated test 
+        environment. It relies on the superclass's setUp method to perform any 
+        necessary initializations before setting up the locale directories.
+
+        The copied directories are used to provide a controlled set of locale data for 
+        testing purposes, ensuring that test results are consistent and reliable.
+        """
         super().setUp()
         copytree("canned_locale", "locale")
         copytree("canned_locale", self.CACHE_DIR)
@@ -182,6 +249,24 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
         self.assertAllExist(self.NESTED_DIR, ["en", "fr", "it"])
 
     def test_multiple_locale_dirs_ignored(self):
+        """
+        Tests that multiple locale directories are ignored during the compilation of messages.
+
+        This test case verifies that the `compilemessages` command correctly skips directories 
+        marked for ignoring, and that the compiled messages are generated only in the expected 
+        locale directories. The test asserts the existence of compiled messages in the locale 
+        directories and their absence in the ignored directories. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the expected locale directories or files do not exist or if 
+            the ignored directories contain compiled messages.
+        """
         call_command(
             "compilemessages", ignore=["cache/locale", "outdated"], verbosity=0
         )
@@ -190,12 +275,40 @@ class IgnoreDirectoryCompilationTests(MessageCompilationTests):
         self.assertNoneExist(self.NESTED_DIR, ["en", "fr", "it"])
 
     def test_ignores_based_on_pattern(self):
+        """
+        Tests if the compilemessages command ignores files based on the provided pattern.
+
+        This test case checks if the compilemessages command correctly excludes files from compilation 
+        when a pattern is specified. It verifies that the locales 'en', 'fr', and 'it' exist in the locale 
+        directory and are absent in the cache and nested directories, ensuring the pattern '*/locale' 
+        is applied correctly.
+
+        The test uses the 'compilemessages' command with the ignore option to skip the specified pattern, 
+        and then asserts the existence or absence of locales in different directories to validate the 
+        command's behavior. 
+
+        Parameters: 
+        None
+
+        Returns: 
+        None
+
+        Raises: 
+        AssertionError: If the compilemessages command does not correctly ignore files based on the pattern
+        """
         call_command("compilemessages", ignore=["*/locale"], verbosity=0)
         self.assertAllExist("locale", ["en", "fr", "it"])
         self.assertNoneExist(self.CACHE_DIR, ["en", "fr", "it"])
         self.assertNoneExist(self.NESTED_DIR, ["en", "fr", "it"])
 
     def test_no_dirs_accidentally_skipped(self):
+        """
+        Tests that the compilemessages command does not accidentally skip directories when compiling messages. 
+
+        The test simulates a directory structure with multiple locale directories containing message files and verifies that the command compiles messages from all expected directories. 
+
+        Specifically, it checks that the compile_messages method is called with the correct arguments for each locale directory. The test uses mocking to isolate the test from the actual file system and ensure consistent results.
+        """
         os_walk_results = [
             # To discover .po filepaths, compilemessages uses with a starting list of
             # basedirs to inspect, which in this scenario are:
@@ -290,10 +403,29 @@ class ProjectAndAppTests(MessageCompilationTests):
 
 class FuzzyTranslationTest(ProjectAndAppTests):
     def setUp(self):
+        """
+        Set up the testing environment by initializing the parent class and resetting the gettext translations cache.
+
+        This method is used to prepare the test setup, inheriting the initialization from the parent class. It also clears the gettext translations cache to ensure a clean start for each test, preventing any previous translations from interfering with the test results.
+
+        The purpose of this method is to provide a consistent and isolated environment for tests, allowing for reliable and reproducible test outcomes. It is typically called before each test case to reset the environment to a known state.
+        """
         super().setUp()
         gettext_module._translations = {}  # flush cache or test will be useless
 
     def test_nofuzzy_compiling(self):
+        """
+        Tests the compilation of translations without fuzzy matching.
+
+        This test ensures that the compilemessages command correctly compiles translation files
+        in the specified locale directory and that the translations are applied correctly.
+        It verifies that the gettext function returns the expected translated strings for a given locale.
+
+        The test covers the following scenarios:
+        - Compilation of translations using the compilemessages command
+        - Application of translations for a specific locale
+        - Verification of translated strings using the gettext function
+        """
         with override_settings(LOCALE_PATHS=[os.path.join(self.test_dir, "locale")]):
             call_command("compilemessages", locale=[self.LOCALE], verbosity=0)
             with translation.override(self.LOCALE):
@@ -301,6 +433,13 @@ class FuzzyTranslationTest(ProjectAndAppTests):
                 self.assertEqual(gettext("Vodka"), "Vodka")
 
     def test_fuzzy_compiling(self):
+        """
+        Test compiling of fuzzy translations for a specific locale.
+
+        This test ensures that fuzzy translations are correctly compiled and used in the application.
+        It first compiles the messages for the specified locale, including fuzzy translations,
+        and then verifies that the expected translations are returned for given strings.
+        """
         with override_settings(LOCALE_PATHS=[os.path.join(self.test_dir, "locale")]):
             call_command(
                 "compilemessages", locale=[self.LOCALE], fuzzy=True, verbosity=0
@@ -312,6 +451,26 @@ class FuzzyTranslationTest(ProjectAndAppTests):
 
 class AppCompilationTest(ProjectAndAppTests):
     def test_app_locale_compiled(self):
+        """
+
+        Tests that compiled locale files are generated successfully.
+
+        Verifies that running the compilemessages command with a specified locale
+        produces the expected compiled message files for the project and application.
+
+        The test checks for the existence of the project and application.mo files
+        in the locale directory after compilation.
+
+        Attributes:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the expected.mo files do not exist after compilation.
+
+        """
         call_command("compilemessages", locale=[self.LOCALE], verbosity=0)
         self.assertTrue(os.path.exists(self.PROJECT_MO_FILE))
         self.assertTrue(os.path.exists(self.APP_MO_FILE))

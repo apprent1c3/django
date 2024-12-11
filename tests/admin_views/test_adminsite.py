@@ -43,11 +43,26 @@ class SiteEachContextTest(TestCase):
         )
 
     def setUp(self):
+        """
+        Sets up the test environment by creating a request object for the test admin site index page, assigning a test user to the request, and generating the context for the page.
+        """
         request = self.request_factory.get(reverse("test_adminsite:index"))
         request.user = self.u1
         self.ctx = site.each_context(request)
 
     def test_each_context(self):
+        """
+        Tests the context variables used in the Django administration template.
+
+        Checks that the site header, title, and URL are set to their expected values,
+        and that the user has permission to access the site.
+
+        The expected values are:
+        - site_header: 'Django administration'
+        - site_title: 'Django site admin'
+        - site_url: '/'
+        - has_permission: True
+        """
         ctx = self.ctx
         self.assertEqual(ctx["site_header"], "Django administration")
         self.assertEqual(ctx["site_title"], "Django site admin")
@@ -62,6 +77,14 @@ class SiteEachContextTest(TestCase):
         self.assertEqual(ctx["site_header"], "Custom site")
 
     def test_each_context_site_url_with_script_name(self):
+        """
+
+        Checks that the site_url in the context is correctly set when the request's script name is provided.
+
+        Verifies that the site_url variable returned by the each_context function matches the script name specified in the request.
+        This ensures that the site URL is correctly resolved even when the application is hosted under a custom path.
+
+        """
         request = self.request_factory.get(
             reverse("test_adminsite:index"), SCRIPT_NAME="/my-script-name/"
         )
@@ -69,6 +92,25 @@ class SiteEachContextTest(TestCase):
         self.assertEqual(site.each_context(request)["site_url"], "/my-script-name/")
 
     def test_available_apps(self):
+        """
+
+        Test that available admin applications are properly configured.
+
+        Verifies the available admin applications, ensuring they have the correct
+        labels, models, and permissions. This test checks for the presence of the
+        admin_views and auth applications, along with their respective models (Article
+        and User). It also verifies that the application and model URLs, permissions,
+        and other relevant settings are correctly set.
+
+        The following key aspects are validated:
+
+        * Application labels and models
+        * Model object names and classes
+        * Application and model URLs
+        * Permissions for adding, changing, and deleting models
+        * Presence of module permissions for applications
+
+        """
         ctx = self.ctx
         apps = ctx["available_apps"]
         # we have registered two models from two different apps
@@ -114,6 +156,14 @@ class SiteActionsTests(SimpleTestCase):
         self.assertEqual(self.site.get_action("test_action"), test_action)
 
     def test_disable_action(self):
+        """
+        Tests the :meth:`disable_action` method by disabling an action and verifying that it can no longer be accessed.
+
+        This test case ensures that the :meth:`disable_action` method correctly removes an action from the available actions, resulting in a KeyError when attempting to access the disabled action.
+
+        :raises KeyError: When attempting to access the disabled action.
+
+        """
         action_name = "delete_selected"
         self.assertEqual(self.site._actions[action_name], delete_selected)
         self.site.disable_action(action_name)

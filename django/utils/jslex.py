@@ -12,6 +12,18 @@ class Tok:
     num = 0
 
     def __init__(self, name, regex, next=None):
+        """
+        :param str name: The name of the token
+        :param str regex: The regular expression pattern to match
+        :param object next: Optional reference to the next token in a sequence
+        :returns: None
+        :rtype: None
+        :raises: None
+
+        Initializes a new token object with the given name and regular expression pattern.
+        The token is uniquely identified by an automatically generated ID.
+        The next token in a sequence can be optionally specified for linking multiple tokens together.
+        """
         self.id = Tok.num
         Tok.num += 1
         self.name = name

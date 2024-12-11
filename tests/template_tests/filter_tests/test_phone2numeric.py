@@ -31,6 +31,13 @@ class Phone2numericTests(SimpleTestCase):
 
     @setup({"phone2numeric03": "{{ a|phone2numeric }}"})
     def test_phone2numeric03(self):
+        """
+        Test the phone2numeric function, which translates strings into a numeric equivalent using the standard telephone keypad mapping.
+
+        It checks if the provided input string can be correctly converted into its corresponding numeric representation, 
+        considering each letter as a specific digit on the phone keypad. The test case verifies the function's behavior 
+        with a specific string containing letters and punctuation, ensuring the output matches the expected numeric result.
+        """
         output = self.engine.render_to_string(
             "phone2numeric03",
             {"a": "How razorback-jumping frogs can level six piqued gymnasts!"},

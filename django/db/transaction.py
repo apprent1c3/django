@@ -174,6 +174,15 @@ class Atomic(ContextDecorator):
     """
 
     def __init__(self, using, savepoint, durable):
+        """
+        ..: 
+            Initialize a database transaction context.
+
+            :param using: Database connection or alias to use for the transaction.
+            :param savepoint: Name of the savepoint to use for the transaction.
+            :param durable: Flag indicating whether the transaction should be durable.
+            :note: This class is typically used internally by test cases, but can also be instantiated directly.
+        """
         self.using = using
         self.savepoint = savepoint
         self.durable = durable
@@ -332,6 +341,25 @@ def _non_atomic_requests(view, using):
 
 
 def non_atomic_requests(using=None):
+    """
+
+    Returns either a decorator or a context manager for running database operations 
+    non-atomically, which can be useful for performance-critical sections of code. 
+
+    If a callable is provided as the `using` argument, it returns the result of 
+    running that callable non-atomically. 
+
+    Otherwise, if `using` is a database alias, it returns a decorator that can be 
+    used to mark a view or function as non-atomic. If `using` is not provided, 
+    it defaults to the default database alias.
+
+    Args:
+        using: A database alias or a callable to be executed non-atomically.
+
+    Returns:
+        Either a decorator or the result of running the provided callable non-atomically.
+
+    """
     if callable(using):
         return _non_atomic_requests(using, DEFAULT_DB_ALIAS)
     else:

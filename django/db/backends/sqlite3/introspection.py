@@ -60,6 +60,15 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     data_types_reverse = FlexibleFieldLookupDict()
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the type of field based on the provided data type and description.
+
+        The function overrides the default field type determination to apply additional rules:
+        - If the description refers to a primary key and the default field type is an integer type, it returns 'AutoField'.
+        - If the description has a JSON constraint, it returns 'JSONField'.
+
+        Otherwise, it returns the default field type as determined by the parent class.
+        """
         field_type = super().get_field_type(data_type, description)
         if description.pk and field_type in {
             "BigIntegerField",

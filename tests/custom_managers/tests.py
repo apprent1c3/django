@@ -28,6 +28,15 @@ class CustomManagerTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing purposes.
+
+        This class method initializes a set of predefined test data, including books and people.
+        It creates two book instances with different publication statuses and two person instances with varying characteristics.
+        The test data is stored as class attributes, allowing for easy access and reuse throughout the testing process.
+        The created data includes books with titles, authors, and publication statuses, as well as people with names and personalities.
+        This setup enables comprehensive testing of the application's functionality and ensures consistency across tests.
+        """
         cls.b1 = Book.published_objects.create(
             title="How to program", author="Rodney Dangerfield", is_published=True
         )
@@ -148,6 +157,22 @@ class CustomManagerTests(TestCase):
         )
 
     def test_fk_related_manager(self):
+        """
+
+        Tests the functionality of foreign key related managers.
+
+        Verifies that the related objects are correctly retrieved and filtered 
+        based on the defined managers, including the default manager and custom 
+        managers for fun and boring people. The test covers both the 
+        `favorite_books` manager which retrieves all people who have the book 
+        as a favorite, and the `fun_people_favorite_books` and 
+        `boring_people_favorite_books` managers which filter people based on 
+        their 'fun' status.
+
+        The test ensures that the related objects are correctly ordered and 
+        retrieved, and that the custom managers return the expected results.
+
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -244,6 +269,23 @@ class CustomManagerTests(TestCase):
         )
 
     def test_m2m_related_manager(self):
+        """
+
+        Tests the functionality of many-to-many related managers.
+
+        This test case verifies the correctness of adding and querying related objects 
+        through multiple managers, including the default manager and custom managers 
+        ('fun_people' and 'boring_people'). It ensures that the related objects are 
+        properly filtered based on the 'fun' attribute, and that the results are 
+        returned in the expected order.
+
+        The test covers the following scenarios:
+        - Adding authors to an object through the default 'authors' manager
+        - Adding authors to an object through the 'fun_authors' manager
+        - Querying authors using the default manager, ordered by first name
+        - Querying authors using custom managers, ordered by first name
+
+        """
         bugs = Person.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.authors.add(bugs)
         droopy = Person.objects.create(first_name="Droopy", last_name="Dog", fun=False)
@@ -290,6 +332,23 @@ class CustomManagerTests(TestCase):
         )
 
     def test_removal_through_default_fk_related_manager(self, bulk=True):
+        """
+        Tests the removal of related objects through the default foreign key related manager.
+
+        This function checks the behavior of removing objects from a related manager, 
+        both individually and in bulk. It verifies that the related objects are 
+        correctly removed from the manager and that the underlying database queries 
+        are executed as expected.
+
+        Specifically, it tests the following scenarios:
+        - Removing a single object from the related manager
+        - Removing multiple objects from the related manager in bulk
+        - Clearing all objects from the related manager
+
+        The tests cover the case where related objects are managed through a default 
+        foreign key related manager, and verifies that the results match the expected 
+        outcome after each removal operation.
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -334,6 +393,21 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_default_fk_related_manager(bulk=False)
 
     def test_removal_through_specified_fk_related_manager(self, bulk=True):
+        """
+        Tests removal of objects from a related manager through a specified foreign key.
+
+        This function covers scenarios where an object is removed from a related manager
+        using the `remove` method and when the related manager is cleared using the `clear` method.
+        The test verifies the correctness of the removal operation in both bulk and non-bulk modes.
+
+        The test case involves creating two `Person` objects, 'Bugs' and 'Droopy', with different
+        'fun' attributes, and associating them with a `Book` object. It then tests the removal of
+        'Droopy' from the 'boring_people' and 'fun_people' related managers, and finally clears
+        the 'fun_people' related manager.
+
+        The function asserts that the removal and clearing operations are successful by checking
+        the resulting query sets and verifying that the expected objects are removed or retained.
+        """
         Person.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_book=self.b1
         )
@@ -383,6 +457,22 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_specified_fk_related_manager(bulk=False)
 
     def test_removal_through_default_gfk_related_manager(self, bulk=True):
+        """
+        Tests the removal of related objects through a default Generic Foreign Key (GFK) related manager.
+
+        This function creates test instances of FunPerson, adds them to a favorite thing, and then tests the removal
+        of these instances using the remove method of the related manager. It also tests the removal of an object that
+        has been reassigned to a different favorite thing.
+
+        The test covers different removal scenarios, including removing one or multiple objects at once, and verifies
+        that the changes are correctly reflected in the database.
+
+        The `bulk` parameter determines whether the removal should be performed in bulk or not. The test is designed
+        to ensure that the related manager correctly handles both bulk and non-bulk removals.
+
+        The function uses assertions to verify that the expected results are obtained after each removal operation,
+        providing a robust test of the related manager's functionality.
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -483,6 +573,19 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_specified_gfk_related_manager(bulk=False)
 
     def test_removal_through_default_m2m_related_manager(self):
+        """
+
+        Tests the removal of related objects through the default many-to-many related manager.
+
+        This test case exercises the functionality of adding, removing, and clearing related objects
+        using the default manager for a many-to-many relationship. It verifies that the expected
+        objects are present or absent after these operations, ensuring the correctness of the removal
+        and clearing functionality.
+
+        The test scenario involves creating objects, adding them to and removing them from a many-to-many
+        relationship, and validating the resulting state of the relationship.
+
+        """
         bugs = FunPerson.objects.create(first_name="Bugs", last_name="Bunny", fun=True)
         self.b1.fun_authors.add(bugs)
         droopy = FunPerson.objects.create(
@@ -567,6 +670,14 @@ class CustomManagerTests(TestCase):
         )
 
     def test_deconstruct_default(self):
+        """
+        ..: Tests the deconstruction of the default Django model Manager instance.
+
+            Verifies that the deconstructed values match the expected output, ensuring
+            the manager can be correctly reconstructed. The test checks that the 
+            manager is not used as a queryset, its import path is correct, and it has 
+            no positional or keyword arguments.
+        """
         mgr = models.Manager()
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)
@@ -581,6 +692,23 @@ class CustomManagerTests(TestCase):
         self.assertEqual(qs_path, "custom_managers.models.CustomQuerySet")
 
     def test_deconstruct_from_queryset(self):
+        """
+
+        Test the deconstruction of a DeconstructibleCustomManager instance from a queryset.
+
+        This test case verifies that the deconstruct() method returns the correct manager path,
+        queryset path, positional arguments, and keyword arguments. It checks the deconstruction
+        with and without keyword arguments.
+
+        The test covers the following scenarios:
+
+        - Deconstruction with only positional arguments
+        - Deconstruction with both positional and keyword arguments
+
+        It ensures that the returned values are correctly identified as not being a manager instance,
+        and that the manager path, positional arguments, and keyword arguments match the expected values.
+
+        """
         mgr = DeconstructibleCustomManager("a", "b")
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)
@@ -612,6 +740,13 @@ class CustomManagerTests(TestCase):
         self.assertEqual(kwargs, {"c": 3, "d": 4})
 
     def test_deconstruct_from_queryset_failing(self):
+        """
+
+        Tests whether deconstructing a custom manager instance fails as expected when the manager class was dynamically generated with 'from_queryset()' but does not inherit from the base custom manager class.
+
+        The test verifies that the deconstruct method raises a ValueError with a specific error message, indicating that the manager class could not be found in the django.db.models.manager module. This ensures that the correct exception is raised when a dynamically generated manager class is not properly defined.
+
+        """
         mgr = CustomManager("arg")
         msg = (
             "Could not find manager BaseCustomManagerFromCustomQuerySet in "
@@ -639,6 +774,20 @@ class TestCars(TestCase):
     def test_managers(self):
         # Each model class gets a "_default_manager" attribute, which is a
         # reference to the first manager defined in the class.
+        """
+        .. method:: test_managers(self)
+
+           Tests the custom model managers for the Car model.
+
+           This test creates instances of Cars with different attributes and then 
+           verifies that the custom managers return the correct results. It checks 
+           the default manager, a custom manager named 'cars', and a custom manager 
+           'fast_cars' that filters cars based on their top speed. The test also 
+           checks the behavior of custom managers when used as the default manager 
+           for a model, with both a custom manager named 'cars' for the 
+           FastCarAsDefault model and a custom base manager named '_base_manager' 
+           for the FastCarAsBase model.
+        """
         Car.cars.create(name="Corvette", mileage=21, top_speed=180)
         Car.cars.create(name="Neon", mileage=31, top_speed=100)
 

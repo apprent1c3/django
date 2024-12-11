@@ -92,6 +92,27 @@ ERRORFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
 def error_h(fmt, lst):
+    """
+    Log a GEOS error message.
+
+    The error message is constructed by formatting the provided format string `fmt`
+    with the given list `lst` of values. If the formatting fails due to a type mismatch,
+    the original format string is logged instead.
+
+    Parameters
+    ----------
+    fmt : bytes
+        The format string for the error message.
+    lst : bytes
+        The list of values to be used for formatting the error message.
+
+    Notes
+    -----
+    The input format string and list are expected to be bytes, which are decoded
+    to strings before formatting. The resulting error message is logged at the
+    error level.
+
+    """
     fmt, lst = fmt.decode(), lst.decode()
     try:
         err_msg = fmt % lst

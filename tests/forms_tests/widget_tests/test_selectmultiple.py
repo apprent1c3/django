@@ -8,6 +8,16 @@ class SelectMultipleTest(WidgetTest):
     numeric_choices = (("0", "0"), ("1", "1"), ("2", "2"), ("3", "3"), ("0", "extra"))
 
     def test_format_value(self):
+        """
+        Tests the format_value method of a widget to ensure it correctly handles different input types.
+
+        The method is tested with None, an empty string, and a list of numeric choices to verify that it returns the expected formatted values.
+
+        The expected outputs are:
+        - An empty list when the input is None.
+        - A list containing an empty string when the input is an empty string.
+        - A list of string representations of the input values when the input is a list of numeric choices.
+        """
         widget = self.widget(choices=self.numeric_choices)
         self.assertEqual(widget.format_value(None), [])
         self.assertEqual(widget.format_value(""), [""])
@@ -121,6 +131,17 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_compare_string(self):
+        """
+
+        Tests the rendering of a multiple select widget with string values.
+
+        Verifies that the widget correctly generates HTML for a multiple select input,
+        including the selection of options based on the provided values.
+
+        The test checks for both integer and string values, ensuring that the widget
+        behaves consistently regardless of the input type.
+
+        """
         choices = [("1", "1"), ("2", "2"), ("3", "3")]
 
         self.check_html(
@@ -163,6 +184,15 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_optgroup_select_multiple(self):
+        """
+        Tests the rendering of a SelectMultiple widget with nested choices.
+
+        The function verifies that the widget correctly generates HTML for a select element with multiple options, 
+        including an optgroup element for nested choices. It checks that selected options are properly marked 
+        and that the HTML structure is as expected.
+
+        :returns: None
+        """
         widget = SelectMultiple(
             choices=(
                 ("outer1", "Outer 1"),
@@ -192,6 +222,19 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests rendering of a form field using a choice field widget.
+
+        This test case creates a form with a single choice field and verifies that the 
+        field is rendered correctly in HTML, without using a fieldset. The expected 
+        output is compared to the actual rendered HTML to ensure consistency.
+
+        The test covers the basic functionality of rendering a choice field with 
+        multiple options and checks if the correct HTML structure is generated. It 
+        also verifies that the use_fieldset attribute of the widget is set to False 
+        as expected.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

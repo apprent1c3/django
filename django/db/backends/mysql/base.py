@@ -213,6 +213,30 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.mysql_version
 
     def get_connection_params(self):
+        """
+        Get the connection parameters for a database connection.
+
+        Returns a dictionary of keyword arguments that can be used to establish a
+        database connection. The dictionary includes settings such as the database
+        username, name, password, host, port, and charset, as well as other options
+        like transaction isolation level and client flags.
+
+        The connection parameters are derived from the settings dictionary, which is
+        expected to contain the following keys: USER, NAME, PASSWORD, HOST, PORT, and
+        OPTIONS. The OPTIONS dictionary can contain additional settings, including the
+        transaction isolation level.
+
+        The function validates the transaction isolation level and raises an exception
+        if it is not one of the supported levels. The supported levels are stored in the
+        isolation_levels attribute of the class instance.
+
+        The returned dictionary can be used to connect to a database using a library
+        like MySQLdb or psycopg2. The connection parameters are tailored to work with
+        Django's database API, but can be used with other libraries as well.
+
+        :rtype: dict
+        :return: A dictionary of keyword arguments for establishing a database connection
+        """
         kwargs = {
             "conv": django_conversions,
             "charset": "utf8",
@@ -431,6 +455,19 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def mysql_version(self):
+        """
+        Determines the MySQL server version from the version string.
+
+        Returns:
+            tuple: A tuple of integers representing the MySQL version, e.g. (5, 7, 32).
+
+        Raises:
+            Exception: If the MySQL version cannot be determined from the version string.
+
+        Notes:
+            This property is cached to avoid repeated parsing of the version string.
+
+        """
         match = server_version_re.match(self.mysql_server_info)
         if not match:
             raise Exception(

@@ -15,6 +15,18 @@ lorem_ipsum = """
 
 class NowTests(TestCase):
     def test_basic(self):
+        """
+        Tests basic functionality of the Article model's publish feature.
+
+        Checks that marking an unpublished article as published works correctly, 
+        and that attempting to publish an already published article has no effect. 
+        Verifies that the published attribute is updated correctly in the database. 
+        Also tests filtering of articles by their publication date, ensuring that 
+        published articles are retrieved correctly based on their publication time.
+
+        Validates that articles can be saved with a future publication date, 
+        and that these articles are not included in queries for currently published articles.
+        """
         a1 = Article.objects.create(
             title="How to Django",
             text=lorem_ipsum,
@@ -51,6 +63,19 @@ class NowTests(TestCase):
         )
 
     def test_microseconds(self):
+        """
+
+        Tests the precision of microseconds in the current timestamp.
+
+        Verifies that the 'now()' database function returns a string representation 
+        of the current timestamp with the correct number of microseconds, as defined 
+        by the database connection's time cast precision.
+
+        The test creates a temporary Article object, annotates it with the current 
+        timestamp as a string, and then checks if the resulting string matches the 
+        expected format, including the correct number of microseconds.
+
+        """
         Article.objects.create(
             title="How to Django",
             text=lorem_ipsum,

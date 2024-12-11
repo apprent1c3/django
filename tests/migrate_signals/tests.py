@@ -39,6 +39,9 @@ class OneTimeReceiver:
     """
 
     def __init__(self, signal):
+        """
+        Initializes a signal receiver object, connecting it to the specified signal emitted by the application configuration (APP_CONFIG) and preparing it to track signal calls, including the number of calls and the arguments passed during the last call.
+        """
         self.signal = signal
         self.call_counter = 0
         self.call_args = None
@@ -47,6 +50,22 @@ class OneTimeReceiver:
     def __call__(self, signal, sender, **kwargs):
         # Although test runner calls migrate for several databases,
         # testing for only one of them is quite sufficient.
+        """
+
+        Handles a signal by disconnecting it from the application configuration 
+        when a specific migration database operation is being performed.
+
+        Args:
+            signal: The signal being handled.
+            sender: The object that sent the signal.
+            **kwargs: Additional keyword arguments.
+
+        Notes:
+            This function is only triggered when the 'using' keyword argument is set 
+            to migrate the database. It keeps track of the number of times it has 
+            been called and stores the keyword arguments passed to it.
+
+        """
         if kwargs["using"] == MIGRATE_DATABASE:
             self.call_counter += 1
             self.call_args = kwargs

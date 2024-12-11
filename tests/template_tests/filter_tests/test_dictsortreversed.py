@@ -4,6 +4,17 @@ from django.test import SimpleTestCase
 
 class FunctionTests(SimpleTestCase):
     def test_sort(self):
+        """
+
+        Tests the functionality of sorting a list of dictionaries in descending order based on a specified key.
+
+        The test case verifies that the dictionaries are sorted correctly by the 'age' key and returns the expected list of sorted dictionaries.
+
+        The sorting is done in descending order, meaning the dictionary with the highest value for the specified key comes first in the sorted list.
+
+        The test includes dictionaries with varying key-value pairs to ensure the sorting function works correctly even when the dictionaries have different structures, as long as they contain the specified key.
+
+        """
         sorted_dicts = dictsortreversed(
             [
                 {"age": 23, "name": "Barbara-Ann"},

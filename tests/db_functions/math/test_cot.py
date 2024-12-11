@@ -11,6 +11,14 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CotTests(TestCase):
     def test_null(self):
+        """
+
+        Tests the handling of null values in the Cot annotation.
+
+        Verifies that when a Cot annotation is applied to a model instance with a null value,
+        the resulting annotation value is correctly set to None.
+
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_cot=Cot("normal")).first()
         self.assertIsNone(obj.null_cot)
@@ -32,6 +40,20 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.f2_cot, 1 / math.tan(obj.f2))
 
     def test_integer(self):
+        """
+
+        Tests the calculation of cotangent values for integer fields in a model.
+
+        Verifies that the cotangent values are correctly annotated and retrieved 
+        from the database, and that they match the expected mathematical results.
+
+        Specifically, it checks that:
+
+        * The annotated cotangent values are浮点 numbers
+        * The calculated cotangent values for small, normal, and big integers are accurate
+        * The results are consistent with the mathematical definition of cotangent (1/tan)
+
+        """
         IntegerModel.objects.create(small=-5, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_cot=Cot("small"),
@@ -46,6 +68,20 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.big_cot, 1 / math.tan(obj.big))
 
     def test_transform(self):
+        """
+
+        Test the transformation functionality using the cot lookup.
+
+        This function tests the cot transformation by creating instances of DecimalModel, 
+        then applies the cot lookup to filter the instances and verifies the result.
+        It ensures that the transformation works correctly by comparing the expected 
+        value with the actual value retrieved from the database.
+
+        The test case involves creating two DecimalModel objects with different values, 
+        then applying the cot lookup to filter objects where the cot of n1 is greater 
+        than 0, and finally asserting that the result matches the expected value.
+
+        """
         with register_lookup(DecimalField, Cot):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

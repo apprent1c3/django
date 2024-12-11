@@ -47,6 +47,31 @@ def setup(templates, *args, test_once=False):
         # are properly isolated from Django's global settings.
         @override_settings(TEMPLATES=None)
         @wraps(func)
+        """
+
+        Decorator to ensure a function is executed with varying Django template engine configurations.
+
+        The decorated function will be called multiple times with different template engine settings, 
+        allowing for the testing of various scenarios. This includes testing with and without 
+        string_if_invalid and debug mode enabled. The function's execution is repeated for each 
+        template engine configuration to ensure consistent results. 
+
+        Parameters
+        ----------
+        func : function
+            The function to be decorated.
+
+        Returns
+        -------
+        function
+            The decorated function.
+
+        Note
+        ----
+        The function is called multiple times with different template engine settings. 
+        If test_once is True, the function will only be called once. 
+
+        """
         def inner(self):
             # Set up custom template tag libraries if specified
             libraries = getattr(self, "libraries", {})
@@ -116,6 +141,24 @@ class SomeClass:
         raise TypeError
 
     def __getitem__(self, key):
+        """
+        Retrieve an item using the provided key.
+
+        This method allows access to items using a key. However, certain keys are
+        reserved and will result in exceptions being raised. Specifically, 
+        attempting to access 'silent_fail_key' will raise a :class:`SomeException`, 
+        while accessing 'noisy_fail_key' will raise a :class:`SomeOtherException`. 
+        If the key is not recognized, a :class:`KeyError` will be raised.
+
+        Args:
+            key: The key used to access the item.
+
+        Raises:
+            SomeException: If the key is 'silent_fail_key'.
+            SomeOtherException: If the key is 'noisy_fail_key'.
+            KeyError: If the key is not recognized.
+
+        """
         if key == "silent_fail_key":
             raise SomeException
         elif key == "noisy_fail_key":

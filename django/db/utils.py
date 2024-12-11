@@ -238,6 +238,31 @@ class ConnectionRouter:
     db_for_write = _router_func("db_for_write")
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+        Determine whether a relation between two objects is allowed.
+
+        This method checks each router in the list to see if they have an 
+        :func:`allow_relation` method. If a router defines this method, it 
+        is called with the two objects and any additional hints. If the 
+        method returns a value (i.e., it is not :const:`None`), this value 
+        is returned. If no routers define an :func:`allow_relation` method 
+        or return :const:`None`, the method returns :const:`True` if both 
+        objects are associated with the same database and :const:`False` 
+        otherwise.
+
+        The purpose of this check is to determine whether a relation between 
+        two objects should be allowed to exist. It is typically used in the 
+        context of a multi-database setup, where relations between objects 
+        in different databases may not be valid or may require special 
+        handling.
+
+        :arg obj1: The first object in the proposed relation.
+        :arg obj2: The second object in the proposed relation.
+        :arg hints: Additional hints that may be used by routers when 
+            determining whether the relation is allowed.
+        :returns: :const:`True` if the relation is allowed, :const:`False` 
+            otherwise.
+        """
         for router in self.routers:
             try:
                 method = router.allow_relation

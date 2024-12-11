@@ -361,6 +361,27 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
 
 
 def deserialize_fk_value(field, field_value, using, handle_forward_references):
+    """
+
+    Deserializes a foreign key value to its Python representation.
+
+    This function handles both natural key and primary key deserialization.
+    For models with a natural key, it attempts to retrieve the object using the provided value.
+    If the object does not exist and forward references are allowed, it returns a special defer value.
+    Otherwise, it raises an ObjectDoesNotExist exception.
+
+    The function takes into account the database connection and field metadata to correctly deserialize the value.
+
+    Parameters:
+        field (models.Field): The foreign key field to deserialize.
+        field_value: The value to deserialize.
+        using (str): The database connection to use.
+        handle_forward_references (bool): Whether to handle forward references.
+
+    Returns:
+        The deserialized foreign key value, or None if the input value is None.
+
+    """
     if field_value is None:
         return None
     model = field.remote_field.model

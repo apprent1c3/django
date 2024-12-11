@@ -275,6 +275,21 @@ class QuerySet(AltersData):
     """Represent a lazy database lookup for a set of objects."""
 
     def __init__(self, model=None, query=None, using=None, hints=None):
+        """
+
+        Initializes a database query object.
+
+        This constructor sets up the necessary attributes for a database query, including
+        the model being queried, the database connection to use, and any hints for query
+        optimization. It also initializes various flags and caches used to control the
+        query execution and result processing.
+
+        :param model: The model class being queried.
+        :param query: The query object to use, or None to create a default query.
+        :param using: The database connection to use for the query.
+        :param hints: Optional hints for query optimization.
+
+        """
         self.model = model
         self._db = using
         self._hints = hints or {}
@@ -448,6 +463,19 @@ class QuerySet(AltersData):
         return combined
 
     def __or__(self, other):
+        """
+
+        Performs a logical OR operation between the current QuerySet and another.
+
+        Combines the elements of this QuerySet with those of the `other` QuerySet,
+        returning a new QuerySet containing all elements from both sets.
+
+        Special cases are handled for `EmptyQuerySet` instances, where the non-empty set
+        is returned directly.
+
+        Returns a new QuerySet representing the combined result of the OR operation.
+
+        """
         self._check_operator_queryset(other, "|")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -1298,6 +1326,15 @@ class QuerySet(AltersData):
 
     def _prefetch_related_objects(self):
         # This method can only be called once the result cache has been filled.
+        """
+
+        Performs prefetching of related objects for the current query result.
+
+        This method uses the provided prefetch related lookups to cache related objects,
+        improving performance by reducing the number of database queries. Once this method
+        has been called, it sets a flag to indicate that prefetching is complete.
+
+        """
         prefetch_related_objects(self._result_cache, *self._prefetch_related_lookups)
         self._prefetch_done = True
 
@@ -1533,6 +1570,18 @@ class QuerySet(AltersData):
 
     def difference(self, *other_qs):
         # If the query is an EmptyQuerySet, return it.
+        """
+
+        Returns a new QuerySet containing objects that are present in the current QuerySet but not in any of the given QuerySets.
+
+        This method performs a set difference operation, effectively excluding from the current QuerySet all objects that are also found in the provided QuerySets.
+
+        The result is a new QuerySet that preserves the original order of objects. If the current QuerySet is empty, the operation has no effect and the empty QuerySet is returned as is.
+
+        :param other_qs: One or more QuerySets to subtract from the current QuerySet
+        :return: A new QuerySet containing the difference between the current QuerySet and the given QuerySets
+
+        """
         if isinstance(self, EmptyQuerySet):
             return self
         return self._combinator_query("difference", *other_qs)
@@ -1971,6 +2020,14 @@ class QuerySet(AltersData):
 
     @staticmethod
     def _validate_values_are_expressions(values, method_name):
+        """
+        Validate that all provided values are expressions.
+
+        This method checks each value in the given list to ensure it has a `resolve_expression` attribute.
+        If any values are not expressions, a `TypeError` is raised, specifying the invalid arguments
+        and the name of the method that was called. This ensures that methods that expect expressions,
+        such as those in QuerySet, receive only valid input.
+        """
         invalid_args = sorted(
             str(arg) for arg in values if not hasattr(arg, "resolve_expression")
         )
@@ -2091,6 +2148,22 @@ class RawQuerySet:
         return c
 
     def _fetch_all(self):
+        """
+        Fetches all results for the current query, storing them in the result cache.
+
+        If the result cache has not been populated, this method iterates over the query
+        and stores the results. Additionally, if prefetch related lookups are enabled
+        and have not yet been performed, this method will prefetch the related objects
+        to improve query performance.
+
+        Returns:
+            None
+
+        Notes:
+            This method is intended for internal use and should not be called directly.
+            It is used to populate the result cache and perform prefetching as needed.
+
+        """
         if self._result_cache is None:
             self._result_cache = list(self.iterator())
         if self._prefetch_related_lookups and not self._prefetch_done:
@@ -2196,6 +2269,11 @@ class Prefetch:
         self.to_attr = to_attr
 
     def __getstate__(self):
+        """
+        Returns a dictionary representing the current state of the object, suitable for serialization or pickling. 
+        The returned dictionary includes a copy of the object's attributes, with special handling for the queryset attribute to ensure it can be properly reconstructed later.
+        The queryset is updated to include an empty result cache and marks prefetching as done to avoid redundant operations when the object is reconstructed.
+        """
         obj_dict = self.__dict__.copy()
         if self.queryset is not None:
             queryset = self.queryset._chain()
@@ -2237,6 +2315,20 @@ class Prefetch:
         return None
 
     def __eq__(self, other):
+        """
+        Checks if the current Prefetch instance is equal to another instance.
+
+        Two Prefetch instances are considered equal if they prefetch to the same location.
+
+        Args:
+            other: The Prefetch instance to compare with.
+
+        Returns:
+            True if the instances are equal, NotImplemented otherwise.
+
+        Note:
+            This method is used for comparing two Prefetch instances using the equality operator (==).
+        """
         if not isinstance(other, Prefetch):
             return NotImplemented
         return self.prefetch_to == other.prefetch_to
@@ -2635,6 +2727,38 @@ class RelatedPopulator:
     """
 
     def __init__(self, klass_info, select, db):
+        """
+        Initialize a database population object for a given class.
+
+        This initializer takes in class information, a database selection, and a database object.
+        It sets up the necessary parameters for population, including column start and end points,
+        initialization lists, and reorder functions.
+
+        If the class is not a child of another class, it sets up the column start and end points based
+        on the provided select fields and initializes the list of columns to be populated.
+
+        If the class is a child, it maps attribute names to their corresponding indexes in the selection,
+        reorders them according to their definition in the class, and sets up the list of columns to be populated.
+
+        It also determines the primary key index, identifies related populators, and sets up local and remote setters.
+
+        Parameters:
+            klass_info (dict): Class information, including select fields, from parent, model, local setter, and remote setter.
+            select (list): Database selection.
+            db (object): Database object.
+
+        Attributes:
+            db (object): Database object.
+            cols_start (int): Starting column index.
+            cols_end (int): Ending column index.
+            init_list (list): List of columns to be populated.
+            reorder_for_init (function): Reorder function for initialization.
+            model_cls (class): Class being populated.
+            pk_idx (int): Primary key index.
+            related_populators (list): List of related populators.
+            local_setter (function): Local setter function.
+            remote_setter (function): Remote setter function.
+        """
         self.db = db
         # Pre-compute needed attributes. The attributes are:
         #  - model_cls: the possibly deferred model class to instantiate

@@ -7,6 +7,17 @@ from .base import Operation, OperationCategory
 
 class FieldOperation(Operation):
     def __init__(self, model_name, name, field=None):
+        """
+
+        Initializes a new instance of the class.
+
+        :param model_name: The name of the model associated with this instance.
+        :param name: A unique identifier for this instance.
+        :param field: An optional field related to this instance, defaults to None.
+
+        This constructor sets up the basic attributes of the class, providing a foundation for further configuration and usage.
+
+        """
         self.model_name = model_name
         self.name = name
         self.field = field
@@ -292,6 +303,13 @@ class RenameField(FieldOperation):
         return self.new_name.lower()
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a tuple containing the class name, a list of positional arguments (which is empty in this case), and a dictionary of keyword arguments.
+
+        The keyword arguments dictionary includes information about the model, such as the model name and any name changes, and can be used to recreate the object or for further processing. 
+
+        :returns: A tuple containing the class name, positional arguments, and keyword arguments.
+        """
         kwargs = {
             "model_name": self.model_name,
             "old_name": self.old_name,

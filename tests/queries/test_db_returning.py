@@ -22,6 +22,14 @@ class ReturningValuesTests(TestCase):
         )
 
     def test_insert_returning_non_integer(self):
+        """
+        Tests that a non-integer primary key model instance returns a datetime object when created.
+
+        This test verifies that the \"created\" attribute of a NonIntegerPKReturningModel instance
+        is set to a datetime object after the instance is created. It checks that the \"created\"
+        attribute is not only truthy, but also specifically an instance of datetime.datetime, 
+        ensuring the correct data type is returned.
+        """
         obj = NonIntegerPKReturningModel.objects.create()
         self.assertTrue(obj.created)
         self.assertIsInstance(obj.created, datetime.datetime)
@@ -47,6 +55,19 @@ class ReturningValuesTests(TestCase):
 
     @skipUnlessDBFeature("can_return_rows_from_bulk_insert")
     def test_bulk_insert(self):
+        """
+
+        Tests the bulk insert functionality of the ORM.
+
+        This test case creates a list of model objects, performs a bulk insert operation, 
+        and then verifies that each object has been assigned a primary key and has a 
+        valid creation date.
+
+        The test requires a database feature that supports returning rows from bulk 
+        insert operations. It uses a sub-test for each object to ensure that all objects 
+        are properly created and have the expected attributes.
+
+        """
         objs = [ReturningModel(), ReturningModel(pk=2**11), ReturningModel()]
         ReturningModel.objects.bulk_create(objs)
         for obj in objs:

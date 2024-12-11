@@ -21,6 +21,20 @@ class ArticleFormView(UpdateView):
 
 
 def form_view(request):
+    """
+
+    Renders an HTML page containing a simple form with a single FloatField.
+
+    This view generates a basic form that accepts a floating-point number as input. 
+    The form is rendered within a minimal HTML template and returned as an HTTP response.
+
+    Request Parameters:
+        request (HttpRequest): The incoming HTTP request object.
+
+    Returns:
+        HttpResponse: An HTTP response containing the rendered HTML form.
+
+    """
     class Form(forms.Form):
         number = forms.FloatField()
 

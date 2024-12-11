@@ -106,6 +106,21 @@ class BaseManager:
 
     @classmethod
     def from_queryset(cls, queryset_class, class_name=None):
+        """
+
+        Create a new subclass of the current class, bound to a specific queryset class.
+
+        This method generates a new class that inherits from the current class and customizes
+        it to work with the specified queryset class. The new class includes all the necessary
+        methods to interact with the queryset.
+
+        :param queryset_class: The queryset class to bind the new class to.
+        :param class_name: Optional name for the new class. If not provided, a default name
+            will be generated based on the names of the current class and the queryset class.
+
+        :return: A new class bound to the specified queryset class.
+
+        """
         if class_name is None:
             class_name = "%sFrom%s" % (cls.__name__, queryset_class.__name__)
         return type(
@@ -134,6 +149,12 @@ class BaseManager:
         BaseManager.creation_counter += 1
 
     def db_manager(self, using=None, hints=None):
+        """
+        ..:param using: The database to use for this object. If None, the object's default database will be used.
+        ..:param hints: Additional hints for the database. If None, the object's default hints will be used.
+        ..:return: A new object with the specified database and hints.
+        :.. description: Returns a new database manager object with the specified database and hints. This allows for easy switching between different databases or adding additional hints for a specific query. The original object remains unchanged.
+        """
         obj = copy.copy(self)
         obj._db = using or self._db
         obj._hints = hints or self._hints

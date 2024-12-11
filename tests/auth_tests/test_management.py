@@ -49,6 +49,17 @@ def mock_inputs(inputs):
     """
 
     def inner(test_func):
+        """
+        A decorator to mock user input for testing purposes.
+
+        This decorator temporarily overrides the built-in input and getpass functions to return predefined responses, allowing you to test functions that would normally prompt the user for input. The responses are defined in the inputs dictionary, which should be set up before calling the decorated function.
+
+        The decorator supports mocking of both getpass and input functions, including support for callable responses and lists of possible prompts. If a prompt is not found in the inputs dictionary, a ValueError is raised.
+
+        After the decorated function has completed, the original input and getpass functions are restored to their original state, ensuring that the decorator does not have any side effects on subsequent code execution.
+
+        Use this decorator to write unit tests for functions that normally require user input, allowing you to test these functions in a controlled and repeatable manner. 
+        """
         def wrapper(*args):
             class mock_getpass:
                 @staticmethod
@@ -58,6 +69,22 @@ def mock_inputs(inputs):
                     return inputs["password"]
 
             def mock_input(prompt):
+                """
+
+                Return a mock response for a given input prompt.
+
+                This function simulates user input by looking up the given prompt in a predefined mapping of prompts to responses.
+                If a matching prompt is found, it returns the corresponding response. If the response is callable, it calls the function and returns its result.
+                If no matching prompt is found, it raises a ValueError. If a prompt is associated with a KeyboardInterrupt, it raises a KeyboardInterrupt exception.
+
+                Args:
+                    prompt (str): The input prompt to simulate.
+
+                Raises:
+                    ValueError: If a mock input for the given prompt is not found.
+                    KeyboardInterrupt: If the prompt is associated with a KeyboardInterrupt.
+
+                """
                 assert "__proxy__" not in prompt
                 response = None
                 for key, val in inputs.items():
@@ -127,6 +154,12 @@ class GetDefaultUsernameTestCase(TestCase):
         self.assertIsInstance(management.get_system_username(), str)
 
     def test_simple(self):
+        """
+        Tests that the get_default_username function returns the system username when it is available.
+
+        Checks that the default username is correctly retrieved from the system, 
+        ensuring it matches the expected username 'joe' in this test scenario.
+        """
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "joe")
 
@@ -142,6 +175,18 @@ class GetDefaultUsernameTestCase(TestCase):
         self.assertEqual(management.get_default_username(), "julia")
 
     def test_with_database(self):
+        """
+
+        Tests the functionality of getting the default username with and without database specification.
+
+        This test case covers the following scenarios:
+        - Creating a user in the default database and verifying the default username is empty.
+        - Creating a user in a non-default database and verifying the default username is returned when the database is specified.
+        - Verifying that the default username is empty when a user exists in the non-default database but the database is not specified.
+
+        The test ensures that the default username is correctly retrieved based on the database context.
+
+        """
         User.objects.create(username="joe")
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "")
@@ -354,6 +399,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_verbosity_zero(self):
         # We can suppress output on the management command
+        """
+        Tests the createsuperuser command with verbosity set to zero.
+
+        This test checks the functionality of the createsuperuser command when run in non-interactive mode with verbosity set to zero. 
+        It verifies that the command's output is empty, that a new superuser with the specified username and email is created successfully, 
+        and that the password for the new superuser is not set as the command does not prompt for it in non-interactive mode.
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -435,6 +487,16 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def createsuperuser():
+            """
+
+            Creates a superuser with predefined credentials.
+
+            This function tests the creation of a superuser by simulating an interactive command call.
+            It verifies that the superuser is created successfully by checking the output of the command.
+            The test uses mock inputs for the username and password, and an email address is also provided.
+            The expected outcome is a confirmation message indicating that the superuser has been created.
+
+            """
             new_io = StringIO()
             call_command(
                 "createsuperuser",
@@ -548,6 +610,23 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+
+            Tests the creation of a superuser through the createsuperuser command.
+
+            This test simulates an interactive command-line session where the user is prompted
+            to input their password, username (email), and group. The function verifies that
+            the superuser is created successfully and that their details are correctly stored.
+
+            The test checks for the following conditions:
+            - The command output message indicates that the superuser was created successfully.
+            - The created user's username matches the provided email address.
+            - The created user's group matches the provided group.
+
+            This test case ensures that the createsuperuser command functions correctly in an
+            interactive environment and that the resulting superuser's data is accurate.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -565,12 +644,38 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_via_option_interactive(self):
+        """
+
+        Tests the creation of a superuser with foreign key fields via the interactive option.
+
+        Verifies that the createsuperuser command can successfully create a superuser when
+        foreign key fields are provided as arguments. The test case checks the output of
+        the command and the resulting user object to ensure that the username and group
+        values are correctly set.
+
+        The test uses a custom user model (CustomUserWithFK) that includes foreign key
+        fields for username and group, and simulates an interactive command execution
+        using mock inputs.
+
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
 
         @mock_inputs({"password": "nopasswd"})
         def test(self):
+            """
+
+            Tests the functionality of creating a superuser with many-to-many field assignments.
+
+            This test case verifies that the createsuperuser command can handle many-to-many field assignments,
+            specifically assigning multiple organizations to a newly created superuser.
+            It checks the command's output for success and validates that the assigned organizations are correctly
+            associated with the new superuser.
+
+            The test uses a custom user model (CustomUserWithM2M) with a many-to-many relationship to organizations.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -682,6 +787,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            Test the successful creation of a superuser with the 'createsuperuser' command.
+
+            This test case simulates interactive input to the command, providing required information such as username and password, 
+            as well as organization IDs to test the many-to-many relationship between users and organizations. The test verifies that 
+            the command completes with a success message and that the newly created user has the correct number of associated organizations.
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -878,6 +990,18 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+
+            Tests if a superuser can be created with a blank email address in non-interactive mode.
+
+            This test case verifies that the createsuperuser command allows the creation of a superuser
+            without specifying an email address when running in non-interactive mode. It checks that
+            the command completes successfully and that the created user has an empty email address.
+
+            The test ensures that the expected output is printed to the console, and that the user
+            is created with the specified username and empty email address.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -955,6 +1079,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_blank_username_non_interactive(self):
+        """
+        Tests that attempting to create a superuser with a blank username in non-interactive mode raises a CommandError, ensuring that the username field cannot be left empty.
+        """
         new_io = StringIO()
         with self.assertRaisesMessage(CommandError, "Username cannot be blank."):
             call_command(
@@ -1247,6 +1374,18 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            Tests the createsuperuser command with invalid blank passwords and then a valid password.
+
+            The test case simulates a superuser creation process by providing a series of blank passwords followed by a valid one.
+            It verifies that the command correctly handles the invalid input and eventually creates a superuser successfully.
+
+            The expected output is an error message indicating that blank passwords are not allowed, followed by a confirmation message
+            indicating that the superuser has been created successfully.
+
+            This test ensures that the createsuperuser command behaves correctly in the face of invalid input and provides
+            useful feedback to the user.
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -1343,6 +1482,17 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_ignore_environment_variable_non_interactive(self):
         # Environment variables are ignored in non-interactive mode, if
         # provided by a command line arguments.
+        """
+
+        Tests that the createsuperuser command ignores environment variables when running in non-interactive mode.
+
+        This test ensures that when the createsuperuser command is run with the interactive flag set to False, 
+        it uses the provided command line arguments for username and email instead of the values defined in 
+        the environment variables DJANGO_SUPERUSER_USERNAME and DJANGO_SUPERUSER_EMAIL.
+
+        The test also verifies that the created superuser does not have a usable password.
+
+        """
         call_command(
             "createsuperuser",
             interactive=False,
@@ -1403,6 +1553,18 @@ class MultiDBCreatesuperuserTestCase(TestCase):
         self.assertEqual(user.email, "joe@somewhere.org")
 
     def test_createsuperuser_command_suggested_username_with_database_option(self):
+        """
+
+        Tests the createsuperuser command when the --database option is specified.
+
+        The test checks two scenarios:
+
+        * When the username is left blank, the command suggests a default username based on the database specified.
+        * When a custom username is provided, the command creates a superuser with that username.
+
+        The test verifies that a superuser is created successfully in both cases, with the expected username.
+
+        """
         default_username = get_default_username(database="other")
         qs = User.objects.using("other")
 

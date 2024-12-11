@@ -7,6 +7,20 @@ from django.utils.numberformat import format as nformat
 
 class TestNumberFormat(SimpleTestCase):
     def test_format_number(self):
+        """
+        Tests the nformat function for correctly formatting numbers.
+
+        The function nformat is used to format numbers into strings, with options for decimal places, thousand separators, and grouping.
+        It handles various cases including integers, floats, and negative numbers.
+
+        The test cases cover different scenarios such as:
+        - Formatting numbers with and without decimal places
+        - Using thousand separators with or without forced grouping
+        - Handling negative numbers
+        - Applying locale settings for thousand separators
+
+        These tests ensure that the nformat function behaves as expected in different situations and produces the correct output.
+        """
         self.assertEqual(nformat(1234, "."), "1234")
         self.assertEqual(nformat(1234.2, "."), "1234.2")
         self.assertEqual(nformat(1234, ".", decimal_pos=2), "1234.00")
@@ -43,6 +57,15 @@ class TestNumberFormat(SimpleTestCase):
         )
 
     def test_large_number(self):
+        """
+        Test the formatting of very large numbers.
+
+        This test case checks that the nformat function correctly handles numbers at or near the maximum value that can be represented by the system.
+
+        It verifies the formatted output of several large numbers, including the maximum integer value, the maximum integer value plus one, twice the maximum integer value, and their negative counterparts.
+
+        The test ensures that the formatted output is as expected, with correct handling of leading plus or minus signs and the decimal point.
+        """
         most_max = (
             "{}179769313486231570814527423731704356798070567525844996"
             "598917476803157260780028538760589558632766878171540458953"
@@ -68,6 +91,21 @@ class TestNumberFormat(SimpleTestCase):
         self.assertEqual(nformat(-2 * int_max, "."), most_max2.format("-"))
 
     def test_float_numbers(self):
+        """
+        परमeters
+            ----------
+            None
+
+            Returns
+            -------
+            None
+
+            Tests the number formatting function for floating point numbers.
+            It checks that the function correctly formats numbers with various decimal places, 
+            including very small and large numbers, with and without thousand separators. 
+            The tests cover a range of scenarios, including rounding to a specified number of decimal places, 
+            and using thousand separators with forced grouping.
+        """
         tests = [
             (9e-10, 10, "0.0000000009"),
             (9e-19, 2, "0.00"),
@@ -101,6 +139,22 @@ class TestNumberFormat(SimpleTestCase):
         )
 
     def test_decimal_numbers(self):
+        """
+        Tests the formatting of decimal numbers using the nformat function.
+
+        Verifies that the function correctly handles various decimal number formats, 
+        including integers, floating point numbers, exponential notation, and edge cases.
+        Validates the output with and without decimal separators, thousand separators, 
+        and different decimal positions. Ensures that the function behaves correctly 
+        for negative numbers, zero, and extremely large or small values.
+
+        The tests cover a wide range of scenarios, including:
+        - Formatting integers and decimal numbers with and without decimal separators
+        - Using thousand separators and differing decimal positions
+        - Handling exponential notation and extremely large or small values
+        - Formatting negative numbers, zero, and edge cases
+
+        """
         self.assertEqual(nformat(Decimal("1234"), "."), "1234")
         self.assertEqual(nformat(Decimal("1234.2"), "."), "1234.2")
         self.assertEqual(nformat(Decimal("1234"), ".", decimal_pos=2), "1234.00")
@@ -167,6 +221,11 @@ class TestNumberFormat(SimpleTestCase):
             """
 
             def __format__(self, specifier, **kwargs):
+                """
+                Formats the object as a monetary value in Euros, prefixing the amount with the Euro symbol (€). 
+
+                The function takes a format specifier and additional keyword arguments, applies the standard formatting to the object, and then appends the Euro symbol to the result, indicating the amount is in Euros.
+                """
                 amount = super().__format__(specifier, **kwargs)
                 return "€ {}".format(amount)
 
@@ -174,5 +233,10 @@ class TestNumberFormat(SimpleTestCase):
         self.assertEqual(nformat(price, ","), "€ 1,23")
 
     def test_empty(self):
+        """
+        Tests the handling of empty input values by the nformat function.
+
+        Verifies that an empty string is formatted as an empty string and that a None value is formatted as the string 'None'. This ensures that the function behaves correctly when given empty or undefined input values.
+        """
         self.assertEqual(nformat("", "."), "")
         self.assertEqual(nformat(None, "."), "None")

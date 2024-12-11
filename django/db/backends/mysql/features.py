@@ -238,6 +238,17 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def has_select_for_update_skip_locked(self):
+        """
+
+        Determines whether the database connection supports the 'SKIP LOCKED' option in 'SELECT FOR UPDATE' statements.
+
+        This option allows the database to skip rows that are already locked by another transaction, 
+        instead of waiting for the lock to be released. The availability of this feature depends on 
+        the database management system being used and its version.
+
+        :return: True if the 'SKIP LOCKED' option is supported, False otherwise.
+
+        """
         if self.connection.mysql_is_mariadb:
             return self.connection.mysql_version >= (10, 6)
         return True
@@ -258,6 +269,16 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     def supported_explain_formats(self):
         # Alias MySQL's TRADITIONAL to TEXT for consistency with other
         # backends.
+        """
+        Returns a set of supported explain formats for the current database connection.
+
+        The supported formats include 'JSON', 'TEXT', and 'TRADITIONAL'. If the database is
+        MySQL version 8.0.16 or later and not MariaDB, 'TREE' format is also supported.
+
+        The returned set can be used to determine the available formats for explaining query
+        execution plans.
+
+        """
         formats = {"JSON", "TEXT", "TRADITIONAL"}
         if not self.connection.mysql_is_mariadb and self.connection.mysql_version >= (
             8,

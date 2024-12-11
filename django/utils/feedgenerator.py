@@ -39,6 +39,19 @@ def rfc2822_date(date):
 
 
 def rfc3339_date(date):
+    """
+
+    Returns a string representing the given date in RFC 3339 format.
+
+    This function takes a date as input, which can be either a datetime.datetime object or a date object, and returns a string in the format specified by RFC 3339. If the input date is naive (i.e., it does not have any timezone information), the function appends 'Z' to the output string to indicate UTC time. If the input date is aware (i.e., it has timezone information), the function does not append 'Z'.
+
+    The returned string is in the format 'YYYY-MM-DDTHH:MM:SS[.mmm][+HHMM|-HHMM|Z]', where 'mmm' represents microseconds, and the timezone offset is included if available.
+
+    Examples of input and output formats include:
+    - Input: datetime.date object or datetime.datetime object
+    - Output: String in RFC 3339 format, such as '2022-07-25T14:30:00Z'
+
+    """
     if not isinstance(date, datetime.datetime):
         date = datetime.datetime.combine(date, datetime.time())
     return date.isoformat() + ("Z" if date.utcoffset() is None else "")

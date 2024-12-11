@@ -55,10 +55,29 @@ class DetailViewTest(TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_detail_object_does_not_exist(self):
+        """
+        \Tests that a 404 error is raised when attempting to retrieve a detail object that does not exist.
+
+        This test case verifies the application's behavior when a user tries to access a non-existent detail object via the '/detail/<object_name>/<id>/' endpoint. The expected outcome is that the application raises an ObjectDoesNotExist exception, indicating that the requested object does not exist in the system.
+        """
         with self.assertRaises(ObjectDoesNotExist):
             self.client.get("/detail/doesnotexist/1/")
 
     def test_detail_by_custom_pk(self):
+        """
+
+        Tests the detail view of an author by custom primary key.
+
+        Verifies that the view returns a successful response, contains the expected author
+        object, and uses the correct template.
+
+        Checks the following conditions:
+            - A GET request to the detail view URL with a custom primary key returns a 200 status code.
+            - The response context contains the expected author object.
+            - The response context contains the author object under the 'author' key.
+            - The response uses the 'generic_views/author_detail.html' template.
+
+        """
         res = self.client.get("/detail/author/bycustompk/%s/" % self.author1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author1)
@@ -77,6 +96,16 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_custom_slug(self):
+        """
+
+        Tests the detail view for an author object retrieved by a custom slug.
+
+        This test case ensures that the detail view returns a successful HTTP response
+        (200 status code) when an author object is accessed via a custom slug.
+        It verifies that the correct author object is retrieved from the database
+        and passed to the template context, and that the expected template is rendered.
+
+        """
         res = self.client.get("/detail/author/bycustomslug/scott-rosenberg/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(
@@ -97,6 +126,15 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_ignore_slug_mismatch(self):
+        """
+
+        Tests that the author detail view correctly retrieves an author by primary key, 
+        ignoring any mismatch in the slug.
+
+        Verifies that the HTTP request is successful, the correct author object is 
+        retrieved, and the expected template is used to render the response.
+
+        """
         res = self.client.get(
             "/detail/author/bypkignoreslug/%s-scott-rosenberg/" % self.author1.pk
         )
@@ -106,6 +144,13 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_and_slug(self):
+        """
+        Tests the retrieval of an author's detail page using both the primary key and slug.
+
+            This test case verifies that the author detail page can be accessed using a URL that combines 
+            the primary key and slug of the author. It checks that the HTTP request is successful (200 status code), 
+            that the correct author object is retrieved, and that the correct template is used to render the page.
+        """
         res = self.client.get(
             "/detail/author/bypkandslug/%s-roberto-bolano/" % self.author1.pk
         )
@@ -128,6 +173,17 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/artist_detail.html")
 
     def test_template_name(self):
+        """
+        Tests that the template name view for an author returns the correct status code, 
+        context and template.
+
+        The view is expected to respond with a 200 status code and the context should 
+        contain the author object under both 'object' and 'author' keys. Additionally, 
+        the view should render the 'generic_views/about.html' template.
+
+        This test case ensures that the author's detail page with the template name 
+        is correctly displayed and the required data is passed to the template.
+        """
         res = self.client.get("/detail/author/%s/template_name/" % self.author1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author1)
@@ -135,6 +191,19 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/about.html")
 
     def test_template_name_suffix(self):
+        """
+        Tests the template name suffix in the author detail view.
+
+            Verifies that the view returns a successful response, renders the correct
+            template, and passes the expected context variables. The test checks the
+            HTTP status code, the object and author context variables, and the
+            template used to render the view.
+
+            This test case ensures that the author detail view functions as expected
+            when the template name suffix is used, providing a solid foundation for
+            further testing and development of the view.
+
+        """
         res = self.client.get(
             "/detail/author/%s/template_name_suffix/" % self.author1.pk
         )
@@ -151,6 +220,16 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/page_template.html")
 
     def test_context_object_name(self):
+        """
+
+        Tests the context object name for an author detail view.
+
+        Verifies that the view returns a successful response, and that the context
+        contains the expected author object and variables, while ensuring that
+        unnecessary context variables are not present. Also checks that the correct
+        template is used for rendering the response.
+
+        """
         res = self.client.get(
             "/detail/author/%s/context_object_name/" % self.author1.pk
         )
@@ -204,10 +283,30 @@ class DetailViewTest(TestCase):
         self.assertEqual(form_context_data["author"], self.author1)
 
     def test_invalid_url(self):
+        """
+        Tests that an AttributeError is raised when attempting to retrieve an author's detail page with an invalid URL.
+
+        This test case verifies that the client correctly handles invalid URLs and raises the expected exception, ensuring the system's robustness and error handling capabilities.
+
+        Args: None
+
+        Returns: None
+
+        Raises: 
+            AttributeError: When an invalid URL is provided to the client's get method.
+        """
         with self.assertRaises(AttributeError):
             self.client.get("/detail/author/invalid/url/")
 
     def test_invalid_queryset(self):
+        """
+        Tests that a proper error is raised when an invalid queryset is used in the AuthorDetail view.
+
+        Checks that an ImproperlyConfigured exception is raised with a specific error message when the view is missing a QuerySet.
+        The error message instructs the developer to define AuthorDetail.model, AuthorDetail.queryset, or override AuthorDetail.get_queryset().
+
+        This test case ensures that the application provides clear guidance to users when a common configuration mistake is made, helping to prevent and diagnose issues with the view.
+        """
         msg = (
             "AuthorDetail is missing a QuerySet. Define AuthorDetail.model, "
             "AuthorDetail.queryset, or override AuthorDetail.get_queryset()."
@@ -216,6 +315,13 @@ class DetailViewTest(TestCase):
             self.client.get("/detail/author/invalid/qs/")
 
     def test_non_model_object_with_meta(self):
+        """
+        Tests the response of a non-model object view with metadata.
+
+        This test checks that a GET request to the detail view of a non-model object
+        results in a successful response (200 status code) and verifies that the 
+        object retrieved in the response context has the expected identifier. 
+        """
         res = self.client.get("/detail/nonmodel/1/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"].id, "non_model_1")

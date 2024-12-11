@@ -39,6 +39,23 @@ site.register(Site, SiteAdmin)
 
 class CustomAdminSite(admin.AdminSite):
     def get_log_entries(self, request):
+        """
+
+        Retrieve log entries for objects registered in the current instance.
+
+        This method extends the default log entry retrieval by filtering the results
+        to only include entries related to the content types of the objects registered
+        in this instance. The registered objects are determined by the keys in the
+        internal registry.
+
+        The method returns a filtered queryset of log entries that are associated with
+        the content types of the registered objects, providing a more focused view of
+        the logging data relevant to the current context.
+
+        :param request: The current request object
+        :rtype: QuerySet
+
+        """
         from django.contrib.contenttypes.models import ContentType
 
         log_entries = super().get_log_entries(request)

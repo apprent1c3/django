@@ -44,6 +44,18 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Extracts primary key values from a serialized string of JSON objects.
+
+        The input string is expected to contain multiple JSON objects, one per line.
+        Each JSON object should have a 'pk' key representing the primary key value.
+        The function parses the input string, extracts the 'pk' values from each object,
+        and returns them as a list.
+
+        :raises: json.JSONDecodeError if the input string contains invalid JSON.
+        :returns: List of primary key values extracted from the input string.
+        :rtype: list
+        """
         serial_list = [json.loads(line) for line in serial_str.split("\n") if line]
         return [obj_dict["pk"] for obj_dict in serial_list]
 
@@ -57,6 +69,13 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
         ]
 
     def test_no_indentation(self):
+        """
+
+        Tests that the JSONL serializer does not add trailing commas at the end of lines when indenting JSON output.
+
+        This test ensures that the serialized JSON data is formatted correctly, with no trailing commas after the last key-value pair in each line, when indentation is used to pretty-print the output.
+
+        """
         s = serializers.jsonl.Serializer()
         json_data = s.serialize([Score(score=5.0), Score(score=6.0)], indent=2)
         for line in json_data.splitlines():
@@ -64,6 +83,20 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+
+        Tests the usage of a custom JSON encoder with the JSONL serializer.
+
+        This test verifies that a custom JSON encoder can be used to serialize
+        DecimalField values to a string representation, ensuring they are
+        properly encoded in the output JSON data.
+
+        The test creates a model instance with a DecimalField, serializes it
+        using the JSONL serializer with a custom encoder, and checks that the
+        serialized output contains the expected string representation of the
+        DecimalField value.
+
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 
@@ -81,6 +114,14 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
         self.assertIn('"fields": {"score": "1"}', json_data)
 
     def test_json_deserializer_exception(self):
+        """
+        ..: Test that an exception is raised when deserializing malformed JSON data.
+
+            This test checks that a DeserializationError is thrown when attempting to 
+            deserialize a JSON string that is not properly formatted. It verifies that 
+            the jsonl deserializer correctly handles invalid input and raises an 
+            exception as expected.
+        """
         with self.assertRaises(DeserializationError):
             for obj in serializers.deserialize("jsonl", """[{"pk":1}"""):
                 pass

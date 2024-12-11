@@ -56,6 +56,17 @@ class WSGITest(SimpleTestCase):
 
         class FileWrapper:
             def __init__(self, filelike, block_size=None):
+                """
+                Initializes the object with a given file-like object and optional block size.
+
+                The file-like object is expected to be a readable and closeable file.
+                The block size parameter determines the chunk size for subsequent file operations.
+                Upon initialization, the file-like object is immediately closed.
+
+                :param filelike: A readable and closeable file-like object.
+                :param block_size: The desired block size for file operations, defaults to None.
+                :raises: None
+                """
                 self.block_size = block_size
                 filelike.close()
 
@@ -68,6 +79,14 @@ class WSGITest(SimpleTestCase):
         response_data = {}
 
         def start_response(status, headers):
+            """
+            Initializes the response object with the given status and headers.
+
+            :param status: The HTTP status code to be included in the response
+            :param headers: A collection of HTTP headers to be included in the response
+
+            This function sets the status and headers of the response data, which can then be used to construct an HTTP response. The status should be a valid HTTP status code, and the headers should be a collection of key-value pairs representing the HTTP headers to be included in the response. The function stores this data in a central location, making it accessible for further processing or transmission as part of an HTTP response.
+            """
             response_data["status"] = status
             response_data["headers"] = headers
 
@@ -122,6 +141,11 @@ class GetInternalWSGIApplicationTest(SimpleTestCase):
 
     @override_settings(WSGI_APPLICATION="wsgi.wsgi.noexist")
     def test_bad_name(self):
+        """
+        Tests that a properly configured error message is raised when attempting to load a non-existent WSGI application.
+
+        The test simulates a scenario where the WSGI application is misconfigured, ensuring that the get_internal_wsgi_application function correctly handles this situation and raises an ImproperlyConfigured exception with a descriptive error message. This ensures that users are provided with useful feedback when encountering issues with their WSGI application configuration.
+        """
         msg = (
             "WSGI application 'wsgi.wsgi.noexist' could not be loaded; Error importing"
         )

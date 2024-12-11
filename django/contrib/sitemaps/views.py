@@ -20,6 +20,19 @@ class SitemapIndexItem:
 def x_robots_tag(func):
     @wraps(func)
     def inner(request, *args, **kwargs):
+        """
+        Decorator function to prevent search engine indexing.
+
+        This decorator adds a 'X-Robots-Tag' header to the HTTP response, instructing 
+        search engines not to index the page, follow links, or store cached copies.
+        It wraps the original function without modifying its behavior, ensuring a 
+        transparent way to control search engine crawling and indexing of web pages.
+
+        :param request: The incoming request object
+        :param args: Variable number of positional arguments
+        :param kwargs: Variable number of keyword arguments
+        :return: The HTTP response object with modified headers
+        """
         response = func(request, *args, **kwargs)
         response.headers["X-Robots-Tag"] = "noindex, noodp, noarchive"
         return response

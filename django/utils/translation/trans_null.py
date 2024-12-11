@@ -13,6 +13,19 @@ gettext_noop = gettext_lazy = _ = gettext
 
 
 def ngettext(singular, plural, number):
+    """
+
+    Return the correct grammatical form of a string based on the given number.
+
+    This function is used for pluralization, allowing you to provide both singular and plural forms of a string.
+    It returns the singular form if the number is 1, and the plural form otherwise.
+
+    :param singular: The singular form of the string
+    :param plural: The plural form of the string
+    :param number: The number that determines whether to use the singular or plural form
+    :return: The correct grammatical form of the string
+
+    """
     if number == 1:
         return singular
     return plural

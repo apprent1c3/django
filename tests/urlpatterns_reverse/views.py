@@ -27,6 +27,21 @@ def erroneous_view(request):
 
 
 def pass_resolver_match_view(request, *args, **kwargs):
+    """
+
+    Passes the resolver match of the current request to the response.
+
+    This view function returns an HttpResponse object with the resolver match
+    from the request attached to it. This allows the resolver match to be
+    accessed in the response, which can be useful in certain scenarios such as
+    testing or debugging.
+
+    The request's resolver match is stored in the response's resolver_match
+    attribute.
+
+    :returns: An HttpResponse object with the request's resolver match attached.
+
+    """
     response = HttpResponse()
     response.resolver_match = request.resolver_match
     return response

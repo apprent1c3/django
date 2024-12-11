@@ -34,6 +34,14 @@ class TestObj:
     """
 
     def __init__(self, **kwargs):
+        """
+
+        Initializes the object with arbitrary keyword arguments.
+
+        The constructor dynamically sets instance attributes based on the provided keyword arguments.
+        Any keyword arguments passed to the constructor will become attributes of the object, allowing for flexible and dynamic initialization.
+
+        """
         for key, value in kwargs.items():
             setattr(self, key, value)
 
@@ -45,6 +53,20 @@ class TestDS(TestObj):
 
     def __init__(self, name, *, ext="shp", **kwargs):
         # Shapefile is default extension, unless specified otherwise.
+        """
+        Initializes a new instance of the class.
+
+        Parameters
+        ----------
+        name : str
+            The name of the instance.
+        ext : str, optional
+            The file extension (default is 'shp').
+
+        Additional keyword arguments are passed to the parent class's initializer.
+
+        This method sets up the basic attributes of the instance, including the name and a dataset file object, which is retrieved using the provided name and extension.
+        """
         self.name = name
         self.ds = get_ds_file(name, ext)
         super().__init__(**kwargs)
@@ -60,6 +82,21 @@ class TestGeom(TestObj):
         # Converting lists to tuples of certain keyword args
         # so coordinate test cases will match (JSON has no
         # concept of tuple).
+        """
+
+        Initialize the object with optional coordinate and centroid data.
+
+        The initializer can accept coordinates, a centroid, and an exterior ring coordinate system.
+        If coordinates are provided, they are converted into a tuple for internal use.
+        Similarly, the centroid is stored as a tuple and the exterior ring coordinate system is
+        converted and stored if provided. Any additional keyword arguments are passed to the parent
+        class initializer.
+
+        :param coords: Optional coordinate data
+        :param centroid: Optional centroid data
+        :param ext_ring_cs: Optional exterior ring coordinate system
+
+        """
         if coords:
             self.coords = tuplize(coords)
         if centroid:
@@ -87,6 +124,18 @@ class TestDataMixin:
     @cached_property
     def geometries(self):
         # Load up the test geometry data from fixture into global.
+        """
+        Returns a set of geometries from a predefined JSON file.
+
+        This property loads the geometries from a JSON file located at a test data path and
+        returns them as a :class:`TestGeomSet` object. The data is loaded and converted to
+        the appropriate formats, allowing for easy access to the geometries.
+
+        The geometries are cached to improve performance, meaning they are only loaded from
+        the file once and subsequent calls to this property will return the cached result.
+
+        :rtype: TestGeomSet
+        """
         with open(os.path.join(TEST_DATA, "geometries.json")) as f:
             geometries = json.load(f)
         return TestGeomSet(**strconvert(geometries))

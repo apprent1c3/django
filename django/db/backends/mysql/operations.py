@@ -103,6 +103,18 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"DATE({sql})", params
 
     def datetime_cast_time_sql(self, sql, params, tzname):
+        """
+        Casts a SQL query to a time data type.
+
+        This function takes a SQL query, its corresponding parameters, and a time zone name,
+        converts the query to the specified time zone, and then casts the result to a time type.
+
+        :param sql: The SQL query to be casted
+        :param params: The parameters associated with the SQL query
+        :param tzname: The name of the time zone to which the query should be converted
+
+        :return: A tuple containing the SQL query with the TIME function applied and the updated parameters
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"TIME({sql})", params
 
@@ -316,6 +328,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return converters
 
     def convert_booleanfield_value(self, value, expression, connection):
+        """
+        Converts a boolean field value to a Python boolean type.
+
+        This function takes a value, an SQL expression and a database connection as input, 
+        coerces the value into a boolean if it is represented as an integer (0 or 1), 
+        and returns the resulting boolean value. The SQL expression and connection are 
+        not used in the conversion process.
+        """
         if value in (0, 1):
             value = bool(value)
         return value

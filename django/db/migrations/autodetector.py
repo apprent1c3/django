@@ -1436,6 +1436,14 @@ class MigrationAutodetector:
                 )
 
     def generate_renamed_indexes(self):
+        """
+        Generates a list of operations to rename indexes that have been altered.
+
+        This function iterates over a collection of altered indexes, specifically those that have been renamed, 
+        and creates a new operation for each one to apply the name change. The resulting operations can then 
+        be applied to the relevant models to update their indexes. The renamed indexes are identified by their 
+        original name, new name, and the fields that they cover.
+        """
         for (app_label, model_name), alt_indexes in self.altered_indexes.items():
             for old_index_name, new_index_name, old_fields in alt_indexes[
                 "renamed_indexes"
@@ -1681,6 +1689,13 @@ class MigrationAutodetector:
         self._generate_altered_foo_together(operations.AlterUniqueTogether)
 
     def generate_altered_db_table(self):
+        """
+        Generates altered database table operations.
+
+        Checks all kept models (including proxied and unmanaged ones) for changes in their database table names between two states.
+        For each model with a changed table name, an :class:`~operations.AlterModelTable` operation is added to modify the table name to the new value.
+        The operation is performed for each application and model that has undergone a table name change.
+        """
         models_to_check = self.kept_model_keys.union(
             self.kept_proxy_keys, self.kept_unmanaged_keys
         )
@@ -1798,6 +1813,19 @@ class MigrationAutodetector:
                 )
 
     def generate_altered_managers(self):
+        """
+
+        Generates operations to alter model managers for the given application models.
+
+        This method iterates through the models that need to be modified and checks if their managers have changed.
+        If a change is detected, it creates an AlterModelManagers operation to update the managers to their new state.
+
+        The method relies on the comparison of the model states between the old and new states to determine which models require manager updates.
+
+        Returns:
+            None
+
+        """
         for app_label, model_name in sorted(self.kept_model_keys):
             old_model_name = self.renamed_models.get(
                 (app_label, model_name), model_name

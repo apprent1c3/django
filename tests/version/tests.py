@@ -12,6 +12,9 @@ from django.utils.version import (
 
 class VersionTests(SimpleTestCase):
     def test_development(self):
+        """
+        Tests the development version of the package by clearing the git changeset cache, generating a version string from a version tuple, and asserting that the version string matches the expected development version pattern.
+        """
         get_git_changeset.cache_clear()
         ver_tuple = (1, 4, 0, "alpha", 0)
         # This will return a different result when it's run within or outside
@@ -46,6 +49,21 @@ class VersionTests(SimpleTestCase):
             self.assertEqual(get_version(ver_tuple), ver_string)
 
     def test_get_version_tuple(self):
+        """
+        Tests the functionality of the get_version_tuple function.
+
+        This test ensures that the get_version_tuple function correctly extracts the major, minor, and micro version numbers from a given version string, ignoring any suffixes such as beta or development releases. The test covers various version string formats to verify the function's robustness.
+
+        Args:
+            None, this is a test case.
+
+        Returns:
+            None, this is a test case. The test asserts that the get_version_tuple function returns the expected version tuple for different input version strings.
+
+        Note:
+            The get_version_tuple function's output is compared to the expected version tuple for each test case, with assertions ensuring that the actual output matches the expected output.
+
+        """
         self.assertEqual(get_version_tuple("1.2.3"), (1, 2, 3))
         self.assertEqual(get_version_tuple("1.2.3b2"), (1, 2, 3))
         self.assertEqual(get_version_tuple("1.2.3b2.dev0"), (1, 2, 3))

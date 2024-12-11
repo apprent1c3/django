@@ -324,6 +324,19 @@ class NonInteractiveMigrationQuestioner(MigrationQuestioner):
 
     def ask_not_null_alteration(self, field_name, model_name):
         # We can't ask the user, so set as not provided.
+        """
+        Handles the situation when a field is given a default value of NOT PROVIDED and must be corrected.
+
+        Args:
+            field_name (str): The name of the field that requires correction.
+            model_name (str): The name of the model that the field belongs to.
+
+        Returns:
+            object: A constant indicating that the field's value was not provided and needs alteration.
+
+        Logs a message indicating the field and model that needs correction, and returns a constant to signal that the field's value must be updated.
+
+        """
         self.log(
             f"Field '{field_name}' on model '{model_name}' given a default of "
             f"NOT PROVIDED and must be corrected."

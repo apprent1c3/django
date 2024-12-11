@@ -155,6 +155,11 @@ class NamedURL(models.Model):
 
 class Mixin:
     def __init__(self):
+        """
+        Initializes a new instance of the class.
+
+        This method is called when an object is created from the class, setting up initial state by assigning a default value to other_attr. It also invokes the constructor of the parent class to perform any necessary initialization.
+        """
         self.other_attr = 1
         super().__init__()
 

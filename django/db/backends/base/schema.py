@@ -146,6 +146,30 @@ class BaseDatabaseSchemaEditor:
     sql_alter_column_comment = "COMMENT ON COLUMN %(table)s.%(column)s IS %(comment)s"
 
     def __init__(self, connection, collect_sql=False, atomic=True):
+        """
+
+        Initialize a migration session.
+
+        This method sets up a migration session with the provided database connection.
+        It also configures whether to collect SQL statements executed during the migration
+        and whether to perform the migration as a single, atomic operation.
+
+        Parameters
+        ----------
+        connection : object
+            The database connection to use for the migration.
+        collect_sql : bool, optional
+            Whether to collect SQL statements executed during the migration (default: False).
+        atomic : bool, optional
+            Whether to perform the migration as a single, atomic operation (default: True).
+
+        Note
+        ----
+        The atomic migration behavior depends on the capabilities of the database connection.
+        If the connection supports rolling back DDL statements and atomic is True, the migration
+        will be performed as a single, atomic operation.
+
+        """
         self.connection = connection
         self.collect_sql = collect_sql
         if self.collect_sql:
@@ -1910,6 +1934,22 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+
+        Deletes a unique constraint from a database table.
+
+        :param model: The model of the table from which to delete the constraint.
+        :param name: The name of the unique constraint to delete.
+        :param condition: An optional condition for the unique constraint.
+        :param deferrable: Specifies whether the constraint can be deferred.
+        :param include: Optional columns to include in the unique constraint.
+        :param opclasses: Optional operator classes for the unique constraint.
+        :param expressions: Optional expressions to use for the unique constraint.
+        :param nulls_distinct: Specifies whether null values should be considered distinct.
+
+        :returns: The SQL string to delete the unique constraint, or None if the unique constraint is not supported with the given parameters.
+
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,
@@ -1941,6 +1981,15 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _delete_check_sql(self, model, name):
+        """
+
+        Deletes a check constraint for a given model and name if the database connection supports table check constraints.
+
+        :param model: The model for which the check constraint is to be deleted.
+        :param name: The name of the check constraint to be deleted.
+        :return: The SQL to delete the check constraint, or None if the database connection does not support table check constraints.
+
+        """
         if not self.connection.features.supports_table_check_constraints:
             return None
         return self._delete_constraint_sql(self.sql_delete_check, model, name)
@@ -2000,6 +2049,19 @@ class BaseDatabaseSchemaEditor:
         return result
 
     def _delete_primary_key(self, model, strict=False):
+        """
+        Deletes the primary key constraint from the specified database model.
+
+        Args:
+            model: The database model from which to delete the primary key constraint.
+            strict (bool): If True, a ValueError will be raised if the model has a number of primary key constraints other than 1. Defaults to False.
+
+        Raises:
+            ValueError: If strict is True and the model has an unexpected number of primary key constraints.
+
+        Note:
+            This method assumes that the model has already been defined and is accessible. The deletion of the primary key constraint is performed by executing a SQL query generated based on the model and the constraint name.
+        """
         constraint_names = self._constraint_names(model, primary_key=True)
         if strict and len(constraint_names) != 1:
             raise ValueError(

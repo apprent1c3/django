@@ -16,6 +16,19 @@ class TextareaTest(WidgetTest):
         )
 
     def test_render_required(self):
+        """
+        Tests the rendering of a Textarea widget when it is marked as required.
+
+        Checks that the widget is rendered with a 'required' attribute and that the
+        textarea HTML element is correctly generated. The test includes a message, value,
+        and the expected HTML output to verify the rendering process.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         widget = Textarea()
         widget.is_required = True
         self.check_html(
@@ -64,6 +77,15 @@ class TextareaTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form field with a custom widget, specifically checking that fieldsets are not used by default.
+
+        This test creates a simple form with a single CharField using the provided widget, and verifies that the rendered HTML does not include a fieldset element. The test also ensures that the widget's use_fieldset attribute is correctly set to False.
+
+        The expected output is a div element containing a label and a textarea, without any fieldset markup.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

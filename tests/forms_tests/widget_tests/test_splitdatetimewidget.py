@@ -105,6 +105,16 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a form fieldset with a SplitDateTimeField widget.
+
+        Verifies that the fieldset is correctly rendered with a legend and input fields,
+        and checks that the widget's use_fieldset attribute is set to True. The test
+        form uses a custom template to display the fieldset.
+
+        The expected output is a HTML representation of the fieldset, containing the
+        legend and input fields for the SplitDateTimeField. 
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = SplitDateTimeField(widget=self.widget)

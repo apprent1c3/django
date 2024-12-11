@@ -90,6 +90,13 @@ class DateTimesTests(TestCase):
 
     @override_settings(USE_TZ=True)
     def test_21432(self):
+        """
+        Tests the expected behavior of the Article model's datetimes method when retrieving datetimes with second precision.
+
+        Verifies that the method correctly fetches the publication dates of articles, truncated to the second, and matches the expected datetime content.
+
+        This test ensures accurate datetime retrieval and comparison, accounting for timezone-aware behavior when USE_TZ is enabled.
+        """
         now = timezone.localtime(timezone.now().replace(microsecond=0))
         Article.objects.create(title="First one", pub_date=now)
         qs = Article.objects.datetimes("pub_date", "second")
@@ -146,6 +153,19 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_has_lazy_iterator(self):
+        """
+        ```    
+            \"\"\"
+            Tests that the datetimes method of the Article model's manager returns a lazy iterator.
+
+            The test first creates several Article instances with unique publication dates.
+            It then uses the datetimes method to retrieve the publication dates of all articles,
+            grouped by day in descending order, and checks that this query is executed lazily,
+            i.e., that no database query is executed until the iterator is actually used.
+            Finally, it checks that the retrieved dates match the expected dates.
+            \"\"\"
+        ```
+        """
         pub_dates = [
             datetime.datetime(2005, 7, 28, 12, 15),
             datetime.datetime(2005, 7, 29, 2, 15),
@@ -176,6 +196,14 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_disallows_date_fields(self):
+        """
+        Test that datetimes() method disallows date fields.
+
+        This test ensures that attempting to retrieve date and time information from a DateField using the datetimes() method raises a ValueError.
+        The test checks that a DateField, which only contains date information, cannot be truncated to a DateTimeField.
+
+        :raises: ValueError if a DateField is passed to datetimes() method.
+        """
         dt = datetime.datetime(2005, 7, 28, 12, 15)
         Article.objects.create(
             pub_date=dt,

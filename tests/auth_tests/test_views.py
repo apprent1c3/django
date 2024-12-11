@@ -69,6 +69,11 @@ class AuthViewsTestCase(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Initializes test data for the class by creating default user instances with predefined attributes, allowing for consistent testing scenarios. 
+
+        This method creates two user objects: one for a standard client with username 'testclient' and another for staff with username 'staff', both having default password and email addresses.
+        """
         cls.u1 = User.objects.create_user(
             username="testclient", password="password", email="testclient@example.com"
         )
@@ -235,6 +240,15 @@ class PasswordResetTest(AuthViewsTestCase):
 
     def _test_confirm_start(self):
         # Start by creating the email
+        """
+
+        Tests the password reset confirmation process by simulating a password reset request 
+        for a staff member and verifying that a confirmation email is sent.
+
+        Returns:
+            The content of the confirmation email sent to the staff member.
+
+        """
         self.client.post("/password_reset/", {"email": "staffmember@example.com"})
         self.assertEqual(len(mail.outbox), 1)
         return self._read_signup_email(mail.outbox[0])

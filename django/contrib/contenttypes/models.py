@@ -10,6 +10,9 @@ class ContentTypeManager(models.Manager):
     use_in_migrations = True
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, inheriting behavior from its parent class, and sets up an internal cache to store data for efficient retrieval.
+        """
         super().__init__(*args, **kwargs)
         # Cache shared by all the get_for_* methods to speed up
         # ContentType retrieval.
@@ -24,6 +27,16 @@ class ContentTypeManager(models.Manager):
         return ct
 
     def _get_opts(self, model, for_concrete_model):
+        """
+        Retrieves the meta options for a given model, optionally resolving to its concrete model if requested.
+
+        Args:
+            model: The model to retrieve meta options from.
+            for_concrete_model: A flag indicating whether to resolve the model to its concrete model.
+
+        Returns:
+            The meta options for the specified model or its concrete equivalent if requested.
+        """
         if for_concrete_model:
             model = model._meta.concrete_model
         return model._meta
@@ -147,6 +160,13 @@ class ContentType(models.Model):
 
     @property
     def name(self):
+        """
+        ..:property:
+            Returns the human-readable name of the model.
+
+            If the model class can be instantiated, returns the verbose name as defined in the model's metadata.
+            Otherwise, returns the model name as a fallback.
+        """
         model = self.model_class()
         if not model:
             return self.model

@@ -54,6 +54,11 @@ class Formatter:
 
 class TimeFormat(Formatter):
     def __init__(self, obj):
+        """
+        Initializes the object with the provided data and determines its timezone.
+
+        The timezone is automatically detected based on the input data. If the input data is a datetime object, the timezone is inferred from the object itself if it is timezone-aware. Otherwise, the default timezone is used. The input data is stored in the :attr:`data` attribute, and the determined timezone is stored in the :attr:`timezone` attribute if it is not ambiguous or imaginary.
+        """
         self.data = obj
         self.timezone = None
 

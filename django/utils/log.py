@@ -179,6 +179,21 @@ class ServerFormatter(logging.Formatter):
     default_time_format = "%d/%b/%Y %H:%M:%S"
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the class instance.
+
+        This constructor sets up the basic attributes of the class, including its visual style.
+        It uses the color_style function to determine the style and then calls the parent class's constructor
+        to perform any additional setup. 
+
+        Args:
+            *args: Variable length argument list, passed to the parent class.
+            **kwargs: Arbitrary keyword arguments, passed to the parent class.
+
+        Note:
+            The actual arguments accepted by this constructor may vary depending on the parent class.
+
+        """
         self.style = color_style()
         super().__init__(*args, **kwargs)
 

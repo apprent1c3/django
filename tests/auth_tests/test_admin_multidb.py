@@ -34,6 +34,16 @@ class MultiDatabaseTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class, creating a superuser for each database.
+
+        This method is a class method and is intended to be used as a setup method for testing purposes.
+        It creates a dictionary of superusers, where each key is a database and the corresponding value is a superuser object.
+        The superusers are created with the username 'admin', password 'something', and email 'test@test.org'.
+        The method ensures that a superuser is created for each database in the class's databases attribute.
+
+        """
         cls.superusers = {}
         for db in cls.databases:
             Router.target_db = db
@@ -49,6 +59,21 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.auth.admin.transaction")
     def test_add_view(self, mock):
+        """
+
+        Tests the add view functionality in the admin site for various databases.
+
+        This test ensures that the add view for creating a new user is successful and that 
+        the transaction is properly handled using themocked atomic function from Django's 
+        transaction module. It checks the view's response status code and verifies that 
+        the transaction is started using the correct database connection.
+
+        The test uses the client to simulate a POST request to the add view with valid user 
+        credentials and checks for a successful redirect (302 status code). It also 
+        verifies that the atomic function is called with the correct database connection 
+        for each test database.
+
+        """
         for db in self.databases:
             with self.subTest(db_connection=db):
                 Router.target_db = db

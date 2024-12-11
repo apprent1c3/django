@@ -21,6 +21,13 @@ class TestMultiDBChecks(SimpleTestCase):
         return mock.patch.object(connections[db].validation, "check_field")
 
     def test_checks_called_on_the_default_database(self):
+        """
+        UnitTest that verifies model checks are executed on the default database.
+
+        Checks that when a model instance is validated, the model check is called on the default database, 
+        but not on other databases. This ensures that checks run appropriately when a model is validated 
+        across multiple databases.
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100)
 
@@ -32,6 +39,17 @@ class TestMultiDBChecks(SimpleTestCase):
                 self.assertFalse(mock_check_field_other.called)
 
     def test_checks_called_on_the_other_database(self):
+        """
+
+        Verifies that the model validation checks are performed on the alternative database.
+
+        This test ensures that when a model instance is validated, the checks specific to the other database are executed, 
+        while the checks for the default database are skipped.
+
+        It checks the behavior of the :meth:`check` method when multiple databases are specified, 
+        confirming that the correct validation logic is applied based on the database context.
+
+        """
         class OtherModel(models.Model):
             field = models.CharField(max_length=100)
 

@@ -124,6 +124,18 @@ class JavaScriptCatalog(View):
         return self.render_to_response(context)
 
     def get_paths(self, packages):
+        """
+
+        Get the paths for the locale directories of the specified packages.
+
+        This function takes a list of package names and returns a list of paths to their corresponding locale directories.
+        Only packages that are configured in the application are allowed.
+
+        :arg list packages: A list of package names to retrieve locale paths for
+        :returns: A list of paths to the locale directories of the specified packages
+        :raises ValueError: If any invalid package names are provided
+
+        """
         allowable_packages = {
             app_config.name: app_config for app_config in apps.get_app_configs()
         }

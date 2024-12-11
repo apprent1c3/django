@@ -67,6 +67,14 @@ class ViewTest(SimpleTestCase):
     rf = RequestFactory()
 
     def _assert_simple(self, response):
+        """
+        Checks if a response from a simple view is valid.
+
+        Verifies that the HTTP status code of the response is 200 (OK) and 
+        the response content matches the expected simple view message.
+
+        :raises AssertionError: If the status code or content does not match the expected values
+        """
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, b"This is a simple view")
 
@@ -254,6 +262,24 @@ class ViewTest(SimpleTestCase):
     def test_overridden_setup(self):
         class SetAttributeMixin:
             def setup(self, request, *args, **kwargs):
+                """
+                Setup the test environment with additional custom settings.
+
+                This method prepares the necessary setup for the test, enables a specific attribute, and then proceeds with the default setup procedure. 
+
+                Parameters
+                ----------
+                request : object
+                    The test request object.
+                *args : variable
+                    Variable number of positional arguments.
+                **kwargs : variable
+                    Variable number of keyword arguments.
+
+                Note
+                ----
+                This method should be called before running the test to ensure the test environment is properly configured.
+                """
                 self.attr = True
                 super().setup(request, *args, **kwargs)
 
@@ -420,6 +446,13 @@ class TemplateViewTest(SimpleTestCase):
         self.assertIs(match.func.view_class, TemplateView)
 
     def test_extra_context(self):
+        """
+
+        Tests that the extra context is correctly passed to the template.
+
+        Verifies that the 'title' variable in the template context has the expected value.
+
+        """
         response = self.client.get("/template/extra_context/")
         self.assertEqual(response.context["title"], "Title")
 
@@ -492,6 +525,17 @@ class RedirectViewTest(SimpleTestCase):
         self.assertEqual(response.headers["Location"], "/detail/artist/1/")
 
     def test_named_url_pattern_using_args(self):
+        """
+
+        Tests that a named URL pattern can be correctly resolved using URL arguments.
+
+        Verifies that a redirect response is generated with the correct status code
+        and the 'Location' header is set to the URL that matches the named pattern.
+
+        This test case ensures that the RedirectView class functions as expected when
+        used with a named URL pattern and URL arguments.
+
+        """
         response = RedirectView.as_view(pattern_name="artist_detail")(
             self.rf.get("/foo/"), 1
         )
@@ -552,6 +596,20 @@ class RedirectViewTest(SimpleTestCase):
 
 class GetContextDataTest(SimpleTestCase):
     def test_get_context_data_super(self):
+        """
+
+        Tests the overriding of the get_context_data method to include custom context variables.
+
+        This test case verifies that the CustomContextView class correctly merges keyword arguments
+        and instance variables to create the context data. It checks for the presence of a required
+        variable 'test_name' and ensures that keyword arguments are properly incorporated into the
+        context data. Additionally, it confirms that instance variables are also correctly included
+        in the context.
+
+        The test covers different scenarios to ensure the get_context_data method behaves as expected,
+        including passing keyword arguments directly and relying on instance variables for default values.
+
+        """
         test_view = views.CustomContextView()
         context = test_view.get_context_data(kwarg_test="kwarg_value")
 

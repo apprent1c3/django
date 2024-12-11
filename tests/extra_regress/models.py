@@ -11,6 +11,30 @@ class RevisionableModel(models.Model):
     when = models.DateTimeField(default=datetime.datetime.now)
 
     def save(self, *args, force_insert=False, force_update=False, **kwargs):
+        """
+        Saves the current object instance to the database.
+
+        This method overrides the default save behavior to handle a specific case where the object's base attribute is not set.
+        When the base attribute is empty, it sets the base attribute to the current object instance and then saves the object again
+        to ensure the base attribute is persisted to the database.
+
+        Parameters
+        ----------
+        *args
+            Variable length non-keyword arguments.
+        force_insert : bool, optional
+            Forces the object to be inserted as a new record, rather than updating an existing one (default is False).
+        force_update : bool, optional
+            Forces the object to be updated, rather than inserting a new record (default is False).
+        **kwargs
+            Variable length keyword arguments.
+
+        Note
+        ----
+        The actual saving of the object is delegated to the superclass's save method, which handles the underlying database operation.
+        This method provides an additional layer of logic to handle the special case of an unset base attribute.
+
+        """
         super().save(
             *args, force_insert=force_insert, force_update=force_update, **kwargs
         )

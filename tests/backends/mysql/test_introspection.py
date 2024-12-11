@@ -7,6 +7,17 @@ from django.test import TestCase
 @skipUnless(connection.vendor == "mysql", "MySQL tests")
 class ParsingTests(TestCase):
     def test_parse_constraint_columns(self):
+        """
+
+        Test the _parse_constraint_columns function to ensure it correctly identifies the columns involved in a given check constraint clause.
+
+        The function is tested with various check constraint clauses and table columns to verify that the columns involved in the constraint are accurately extracted.
+
+        The test cases cover a range of scenarios, including comparisons, null checks, JSON validation, and string manipulation, to ensure the function behaves correctly in different situations.
+
+        The expected output for each test case is a list of column names that should be involved in the check constraint, which is compared to the actual output of the _parse_constraint_columns function.
+
+        """
         _parse_constraint_columns = connection.introspection._parse_constraint_columns
         tests = (
             ("`height` >= 0", ["height"], ["height"]),
@@ -68,6 +79,21 @@ class TestCrossDatabaseRelations(TestCase):
     databases = {"default", "other"}
 
     def test_omit_cross_database_relations(self):
+        """
+        Tests the behavior of omitting cross-database relations in schema introspection.
+
+        Checks that a foreign key constraint referencing a table in a different database
+        schema does not result in a relation being detected. The test creates two tables,
+        one in the default schema and another in a different schema, where the table in
+        the default schema has a foreign key referencing the table in the other schema.
+
+        Verifies that the introspection methods do not report any relations or foreign key
+        constraints for the table in the default schema, demonstrating that cross-database
+        relations are properly omitted.
+
+        Ensures that the test tables are dropped after the test, regardless of the test
+        outcome, to maintain a clean database state.
+        """
         default_connection = connections["default"]
         other_connection = connections["other"]
         main_table = "cross_schema_get_relations_main_table"

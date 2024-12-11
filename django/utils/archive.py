@@ -115,6 +115,16 @@ class BaseArchive:
             os.chmod(filename, mode)
 
     def split_leading_dir(self, path):
+        """
+        Split the leading directory from a given path.
+
+            This function takes a path as input and separates it into its leading directory and the rest of the path.
+            It handles both Unix-style (/) and Windows-style (\\) directory separators, and returns a tuple containing
+            the leading directory and the remaining path. If the input path does not contain any directory separators,
+            the function returns a tuple with the original path and an empty string.
+
+            :return: A tuple containing the leading directory and the remaining path.
+        """
         path = str(path)
         path = path.lstrip("/").lstrip("\\")
         if "/" in path and (

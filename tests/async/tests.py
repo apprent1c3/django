@@ -29,6 +29,15 @@ class DatabaseConnectionTest(SimpleTestCase):
     """A database connection cannot be used in an async context."""
 
     async def test_get_async_connection(self):
+        """
+        Tests that attempting to retrieve an asynchronous connection results in a SynchronousOnlyOperation exception.
+
+        This test ensures that the asynchronous connection retrieval is properly handled and 
+        raises the expected exception when attempting to use synchronous operations.
+
+        Raises:
+            SynchronousOnlyOperation: When trying to retrieve an asynchronous connection synchronously.
+        """
         with self.assertRaises(SynchronousOnlyOperation):
             list(SimpleModel.objects.all())
 
@@ -76,6 +85,17 @@ class AsyncView(View):
 
 class ViewTests(SimpleTestCase):
     def test_views_are_correctly_marked(self):
+        """
+        Tests that views are correctly marked as asynchronous or synchronous.
+
+        This test case checks if the `view_is_async` attribute of a view class and the 
+        resulting view function from `as_view()` match the expected asynchronous 
+        behavior. It verifies this for both synchronous and asynchronous view classes.
+
+        The test iterates over a series of view classes, each with an expected 
+        asynchronous behavior, and asserts that the `view_is_async` attribute and the 
+        view function's coroutine status are consistent with the expected behavior.
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -87,6 +107,14 @@ class ViewTests(SimpleTestCase):
                 self.assertIs(iscoroutinefunction(callback), is_async)
 
     def test_mixed_views_raise_error(self):
+        """
+
+        Tests that a view class with a mix of synchronous and asynchronous HTTP handlers raises an error.
+
+        This test case checks that the view class must have either all synchronous or all asynchronous handlers.
+        If a mix of both is used, it raises an ImproperlyConfigured exception with a descriptive error message.
+
+        """
         class MixedView(View):
             def get(self, request, *args, **kwargs):
                 return HttpResponse("Hello (mixed) world!")
@@ -102,6 +130,17 @@ class ViewTests(SimpleTestCase):
             MixedView.as_view()
 
     def test_options_handler_responds_correctly(self):
+        """
+        Tests the OPTIONS handler in different view classes to ensure it responds correctly.
+
+        This test function verifies that the OPTIONS handler in both synchronous and asynchronous views 
+        returns the correct type of response. It checks that asynchronous views return a coroutine and 
+        synchronous views return a response directly. The response is also verified to be an instance of 
+        HttpResponse.
+
+        The test covers two scenarios: one for synchronous views and one for asynchronous views, 
+        providing a comprehensive check of the OPTIONS handler's behavior in different contexts.
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -120,6 +159,19 @@ class ViewTests(SimpleTestCase):
                 self.assertIsInstance(response, HttpResponse)
 
     def test_http_method_not_allowed_responds_correctly(self):
+        """
+
+        Tests if views correctly handle HTTP method not allowed requests.
+
+        The function verifies that SyncView and AsyncView instances return the 
+        correct response type when an HTTP method not allowed request is made.
+        It checks if the response is a coroutine for AsyncView and not for SyncView.
+        The response is then evaluated to ensure it is an instance of HttpResponseNotAllowed.
+
+        This test covers both synchronous and asynchronous views, providing assurance
+        that the application handles invalid HTTP methods as expected.
+
+        """
         request_factory = RequestFactory()
         tests = [
             (SyncView, False),

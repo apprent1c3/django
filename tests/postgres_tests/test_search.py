@@ -26,6 +26,20 @@ except ImportError:
 class GrailTestData:
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Setup test data for the application.
+
+        This method creates a set of test scenes, characters, and dialogue lines to be used in testing.
+        It initializes scenes, characters, and verses from the story of Sir Robin and other scenes.
+        The created data includes scenes with their settings, characters, and lines of dialogue.
+        The method also creates specific lines of dialogue for certain characters and scenes, 
+        including English and French dialogue configurations.
+
+        The created test data can be accessed through class attributes, such as `robin`, `minstrel`, 
+        `verses`, `witch_scene`, `bedemir0`, `bedemir1`, `duck`, `crowd`, `witch`, and `french`.
+
+        """
         cls.robin = Scene.objects.create(
             scene="Scene 10", setting="The dark forest of Ewing"
         )
@@ -104,10 +118,26 @@ class GrailTestData:
 
 class SimpleSearchTest(GrailTestData, PostgreSQLTestCase):
     def test_simple(self):
+        """
+        Tests that a simple search query returns the expected results.
+
+        This test case checks if the `Line` objects are correctly filtered based on a search term.
+        It verifies that searching for the term 'elbows' returns the `verse1` object as the only result.
+        """
         searched = Line.objects.filter(dialogue__search="elbows")
         self.assertSequenceEqual(searched, [self.verse1])
 
     def test_non_exact_match(self):
+        """
+        Tests a non-exact text search query.
+
+        Verifies that the default text search configuration returns the expected results 
+        when searching for a word that is part of a phrase in the dialogue.
+
+        The search query 'hearts' is used to test this functionality. The function checks 
+        that only the verse containing the word 'hearts' is returned in the search results, 
+        even if it's not an exact match for the entire dialogue text.
+        """
         self.check_default_text_search_config()
         searched = Line.objects.filter(dialogue__search="hearts")
         self.assertSequenceEqual(searched, [self.verse2])
@@ -118,10 +148,26 @@ class SimpleSearchTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2])
 
     def test_search_two_terms_with_partial_match(self):
+        """
+        Tests searching for lines containing two terms with a partial match.
+
+        Verifies that the search functionality correctly returns a line when the search query contains multiple terms, 
+        and at least one term partially matches the dialogue. 
+
+        The expected outcome is that only the line with the dialogue containing the partial match is returned in the search results.
+        """
         searched = Line.objects.filter(dialogue__search="Robin killed")
         self.assertSequenceEqual(searched, [self.verse0])
 
     def test_search_query_config(self):
+        """
+        Tests the search query configuration for a specific keyword.
+
+        Verifies that the search query function returns the expected results when 
+        configured with the 'simple' configuration and searching for the term 'nostrils'.
+        The function checks if the search query correctly filters objects and returns 
+        the matching sequence of results.
+        """
         searched = Line.objects.filter(
             dialogue__search=SearchQuery("nostrils", config="simple"),
         )
@@ -142,6 +188,19 @@ class SimpleSearchTest(GrailTestData, PostgreSQLTestCase):
 
 class SearchVectorFieldTest(GrailTestData, PostgreSQLTestCase):
     def test_existing_vector(self):
+        """
+
+        Tests the search functionality using an existing vector.
+
+        This test case updates the search vector for all Line objects based on their dialogue field,
+        then filters the objects using a specific search query. It asserts that the filtered results
+        match the expected sequence of objects.
+
+        The search query is performed using the 'dialogue_search_vector' field, which indexes the
+        'dialogue' field of each Line object. The test verifies that the search functionality correctly
+        returns the objects that match the given search query.
+
+        """
         Line.objects.update(dialogue_search_vector=SearchVector("dialogue"))
         searched = Line.objects.filter(
             dialogue_search_vector=SearchQuery("Robin killed")
@@ -149,6 +208,14 @@ class SearchVectorFieldTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse0])
 
     def test_existing_vector_config_explicit(self):
+        """
+        Tests the existing vector database configuration for searching dialogue lines.
+
+        This test case verifies that an explicit search configuration can be applied 
+        to the dialogue search vector, allowing for searching in different languages. 
+        In this scenario, the search is performed in French, and the test asserts that 
+        the result matches the expected outcome.
+        """
         Line.objects.update(dialogue_search_vector=SearchVector("dialogue"))
         searched = Line.objects.filter(
             dialogue_search_vector=SearchQuery("cadeaux", config="french")
@@ -170,6 +237,15 @@ class SearchVectorFieldTest(GrailTestData, PostgreSQLTestCase):
 
 class SearchConfigTests(PostgreSQLSimpleTestCase):
     def test_from_parameter(self):
+        """
+        Returns an instance of SearchConfig based on the provided parameter.
+
+        If the parameter is None, returns None. If the parameter is a string,
+        constructs a new SearchConfig instance with the given string. If the
+        parameter is already a SearchConfig instance, returns the instance
+        unchanged. This allows for convenient conversion from various input
+        types to a standard SearchConfig representation.
+        """
         self.assertIsNone(SearchConfig.from_parameter(None))
         self.assertEqual(SearchConfig.from_parameter("foo"), SearchConfig("foo"))
         self.assertEqual(
@@ -179,12 +255,43 @@ class SearchConfigTests(PostgreSQLSimpleTestCase):
 
 class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
     def test_simple_on_dialogue(self):
+        """
+        Tests the simple full-text search functionality on dialogue content.
+
+        This test case verifies that the search functionality can correctly identify and retrieve lines of dialogue 
+        containing a specific search term. It checks if the search result matches the expected outcome, ensuring 
+        the accuracy of the search functionality. The test is case-sensitive and searches for exact matches of the 
+        specified term within the dialogue content.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        This test case is part of the unit testing suite and should be run to ensure the search functionality is 
+        working as expected. The test assumes that the database is populated with the necessary data, including 
+        lines of dialogue and their corresponding scenes and settings. The test result is a boolean value indicating 
+        whether the search result matches the expected outcome.
+        """
         searched = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue"),
         ).filter(search="elbows")
         self.assertSequenceEqual(searched, [self.verse1])
 
     def test_simple_on_scene(self):
+        """
+        Tests simple full-text search functionality on a scene.
+
+        Checks if the function can correctly find and retrieve lines from the database 
+        where the scene setting or dialogue contains the specified search term, in this case 'Forest'. 
+
+        The test verifies that the results match the expected set of verses.
+        """
         searched = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue"),
         ).filter(search="Forest")
@@ -203,6 +310,13 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2])
 
     def test_terms_adjacent(self):
+        """
+        Checks that search functionality correctly handles adjacent terms in search queries.
+
+        This test verifies that the search vector can find objects containing a single search term, 
+        and that it handles cases where multiple terms are adjacent in the search query, ensuring 
+        that the returned results are correct and empty when no matches are found.
+        """
         searched = Line.objects.annotate(
             search=SearchVector("character__name", "dialogue"),
         ).filter(search="minstrel")
@@ -213,6 +327,17 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [])
 
     def test_search_with_null(self):
+        """
+
+        Tests the search functionality with a specific query.
+
+        This test case verifies that searching for the term 'bedemir' returns the expected results, 
+        including scenes and characters associated with the search term.
+
+        The search is performed across the 'setting' and 'dialogue' attributes of the Line model, 
+        and the results are compared to a predefined set of expected matches.
+
+        """
         searched = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue"),
         ).filter(search="bedemir")
@@ -221,12 +346,30 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_search_with_non_text(self):
+        """
+        Tests the search functionality with non-text data by annotating a search vector on the 'id' field of Line objects and filtering the results based on a specific crowd id, verifying that the returned sequence matches the expected crowd object.
+        """
         searched = Line.objects.annotate(
             search=SearchVector("id"),
         ).filter(search=str(self.crowd.id))
         self.assertSequenceEqual(searched, [self.crowd])
 
     def test_phrase_search(self):
+        """
+        Tests the functionality of phrase searching in the Line model.
+
+        This test case verifies that phrase searches are executed correctly, ensuring that 
+        exact phrase matches are returned, while non-matching phrases are not. The test 
+        cases cover both exact and non-exact phrase matching, demonstrating the 
+        functionality of the SearchVector and SearchQuery mechanisms in filtering Line 
+        objects based on specific phrases in their dialogue field.
+
+        The test also checks for the absence of results when the search phrase does not 
+        match any dialogue, confirming the precision of the search mechanism. 
+
+        A successful test run indicates that the phrase search functionality is working 
+        as expected, providing reliable results for both exact and non-exact phrase queries.
+        """
         line_qs = Line.objects.annotate(search=SearchVector("dialogue"))
         searched = line_qs.filter(
             search=SearchQuery("burned body his away", search_type="phrase")
@@ -238,6 +381,21 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse1])
 
     def test_phrase_search_with_config(self):
+        """
+
+        Tests the functionality of searching phrases in text using a specific language configuration.
+
+        This test case checks the phrase search functionality with a custom configuration, 
+        in this case, French. It verifies that the search correctly identifies phrases 
+        and that the order of words in the search query matters, as it should match 
+        the exact phrase. If the phrase is found, it should return the corresponding 
+        results; otherwise, it should return an empty list.
+
+        The search query uses a specific configuration, which determines the language 
+        and grammar rules used for searching, allowing for more accurate results in 
+        different languages.
+
+        """
         line_qs = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue", config="french"),
         )
@@ -260,6 +418,17 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse1])
 
     def test_raw_search_with_config(self):
+        """
+        Tests raw search functionality on database entries using a custom search configuration.
+
+        This test case verifies that the SearchVector and SearchQuery functions can be used together to find matching entries based on a raw search query, and that the search results are filtered correctly according to the specified search configuration.
+
+        The test searches for lines that contain both 'cadeaux' and 'beaux' using the French search configuration, and checks that the result matches the expected line.
+
+        :param none:
+        :return: none
+        :raises AssertionError: If the search result does not match the expected line.
+        """
         line_qs = Line.objects.annotate(
             search=SearchVector("dialogue", config="french")
         )
@@ -271,6 +440,18 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.french])
 
     def test_web_search(self):
+        """
+        Tests the functionality of full-text search using websearch syntax.
+
+        This test case checks the correctness of search queries using various websearch 
+        operators, including phrase searching, negation, and OR operations. It verifies 
+        that search results match the expected sequences of objects.
+
+        The test scenario covers the following use cases:
+        - Searching for multiple phrases
+        - Searching for phrases with negation
+        - Searching using the OR operator with phrases and parentheses for grouping
+        """
         line_qs = Line.objects.annotate(search=SearchVector("dialogue"))
         searched = line_qs.filter(
             search=SearchQuery(
@@ -295,6 +476,14 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse0, self.verse1])
 
     def test_web_search_with_config(self):
+        """
+        Tests the web search functionality with a custom configuration.
+
+        This test case verifies that the search functionality returns the expected results when using a specific configuration.
+        It checks that the search query with a negated term returns no results and that the search query with a phrase returns the expected result.
+        The test uses a French configuration to annotate and filter objects based on their scene setting and dialogue.
+        The expected results are validated using assertions to ensure the correctness of the search functionality.
+        """
         line_qs = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue", config="french"),
         )
@@ -328,6 +517,17 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.french])
 
     def test_config_from_field_explicit(self):
+        """
+        Tests configuring the search query from a field explicitly.
+
+        This test ensures that search queries can be successfully configured 
+        using explicit field settings, allowing for precise control over 
+        the search process. It verifies that the search results are 
+        correctly filtered according to the specified configuration.
+
+        :raises AssertionError: if the search results do not match the expected sequence
+
+        """
         searched = Line.objects.annotate(
             search=SearchVector(
                 "scene__setting", "dialogue", config=F("dialogue_config")
@@ -336,6 +536,15 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.french])
 
     def test_config_from_field_implicit(self):
+        """
+        Tests that a config is correctly loaded from a field when searching with an implicit config.
+
+        This test ensures that the SearchVector is correctly annotated with the 
+        dialogue_config when the search query is applied, and that the expected 
+        result is returned. In this case, it checks that searching for 'cadeaux' 
+        returns the expected object, verifying that the implicit config is 
+        applied as expected during the search operation.
+        """
         searched = Line.objects.annotate(
             search=SearchVector(
                 "scene__setting", "dialogue", config=F("dialogue_config")
@@ -346,6 +555,13 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
 
 class TestCombinations(GrailTestData, PostgreSQLTestCase):
     def test_vector_add(self):
+        """
+        Test the vector addition feature of the database search functionality.
+
+        This test case annotates a queryset of Line objects with a SearchVector that combines two fields: the setting of the scene and the name of the character.
+        It then filters the results to include only those where the search vector matches the term 'bedemir'.
+        The test verifies that the resulting queryset contains the expected Line objects, demonstrating the correct functionality of the search vector addition.
+        """
         searched = Line.objects.annotate(
             search=SearchVector("scene__setting") + SearchVector("character__name"),
         ).filter(search="bedemir")
@@ -366,6 +582,9 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_vector_combined_mismatch(self):
+        """
+        Tests that attempting to combine a SearchVector with a None value raises a TypeError, as SearchVectors can only be combined with other SearchVector instances.
+        """
         msg = (
             "SearchVector can only be combined with other SearchVector "
             "instances, got NoneType."
@@ -374,6 +593,15 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
             Line.objects.filter(dialogue__search=None + SearchVector("character__name"))
 
     def test_combine_different_vector_configs(self):
+        """
+
+        Tests combining different vector configurations for text search.
+
+        This test checks if search queries can be executed using multiple search vector configurations.
+        It verifies that the search results match the expected list of objects when using both English and French search configurations.
+        The test case covers searching for terms in multiple languages and ensures that the results are correctly filtered and returned.
+
+        """
         self.check_default_text_search_config()
         searched = Line.objects.annotate(
             search=(
@@ -386,6 +614,15 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         self.assertCountEqual(searched, [self.french, self.verse2])
 
     def test_query_and(self):
+        """
+        Test the query functionality with 'and' operator.
+
+        This function verifies that the full-text search functionality is working correctly when searching for multiple terms using the 'and' operator.
+        It searches for lines that contain both 'bedemir' and 'scales' in their scene setting or dialogue, 
+        and checks that the result matches the expected outcome, which is a single line containing the term 'bedemir0'. 
+
+        This test case ensures that the correct results are returned when filtering using multiple search queries joined by the 'and' operator.
+        """
         searched = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue"),
         ).filter(search=SearchQuery("bedemir") & SearchQuery("scales"))
@@ -415,6 +652,16 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         self.assertCountEqual(searched, [self.verse1, self.verse2])
 
     def test_query_multiple_or(self):
+        """
+        Tests the functionality of querying multiple search terms using an OR operator.
+
+        This function verifies that the database is properly searched when given a 
+        disjunction of search queries, confirming that all relevant records are 
+        retrieved as expected. The test case specifically checks for the presence of 
+        multiple search terms ('kneecaps', 'nostrils', 'Sir Robin') in the dialogue 
+        of Line objects, ensuring the result set matches the anticipated list of 
+        objects.
+        """
         searched = Line.objects.filter(
             dialogue__search=SearchQuery("kneecaps")
             | SearchQuery("nostrils")
@@ -423,6 +670,15 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         self.assertCountEqual(searched, [self.verse1, self.verse2, self.verse0])
 
     def test_query_invert(self):
+        """
+
+         Tests that querying with an inverted SearchQuery correctly retrieves matching objects.
+
+         This test case verifies that searching for dialogue that does not contain the specified term ('kneecaps') 
+         returns the expected results. The function checks if the count of objects returned by the query 
+         is equal to the count of expected objects, ensuring that the query behaves as expected.
+
+        """
         searched = Line.objects.filter(
             character=self.minstrel, dialogue__search=~SearchQuery("kneecaps")
         )
@@ -447,6 +703,17 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2])
 
     def test_combine_raw_phrase(self):
+        """
+
+        Tests the combination of a raw phrase search query with a simple search configuration.
+
+        This test case verifies that the search functionality correctly retrieves objects 
+        -containing a raw phrase 'burn:*' or a phrase 'rode forth from Camelot' by 
+        combining the results of both search queries using the default text search 
+        configuration. The expected outcome is a list of objects containing the 
+        combined search results.
+
+        """
         self.check_default_text_search_config()
         searched = Line.objects.filter(
             dialogue__search=(
@@ -470,6 +737,15 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
 
 class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
     def test_ranking(self):
+        """
+
+        Tests the ranking of search results for a specific character's dialogue.
+
+        Verifies that the search results are ordered by relevance, with the most relevant
+        result appearing first. In this case, the search query is 'brave sir robin' and
+        the character is the minstrel.
+
+        """
         searched = (
             Line.objects.filter(character=self.minstrel)
             .annotate(
@@ -492,6 +768,21 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2, self.verse1, self.verse0])
 
     def test_weights_in_vector(self):
+        """
+
+        Test weighting of vectors in search queries.
+
+        This test case examines how different weightings of search vectors impact the ranking of search results.
+        Two search vectors are created, each combining 'dialogue' and 'character__name' fields with different weightings.
+        The test verifies that the weighted search correctly orders the results based on the assigned weights.
+
+        The test covers two scenarios:
+        - One where 'dialogue' is weighted higher than 'character__name'
+        - One where 'character__name' is weighted higher than 'dialogue'
+
+        In each scenario, the test checks that the top results match the expected ordering based on the weights assigned.
+
+        """
         vector = SearchVector("dialogue", weight="A") + SearchVector(
             "character__name", weight="D"
         )
@@ -517,6 +808,22 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.witch, self.crowd])
 
     def test_ranked_custom_weights(self):
+        """
+        Tests the ranking of search results using custom weights.
+
+        This test case checks if the ranking of search results is correctly applied
+        when using custom weights for different fields in the search vector.
+        It verifies that the results are ordered by their rank in descending order
+        and that the correct objects are returned.
+
+        The test queries the database for lines in a specific scene, using a search
+        query with custom weights assigned to the 'dialogue' and 'character__name' fields.
+        The weights are used to influence the ranking of the search results, with higher
+        weights giving more importance to the corresponding field.
+
+        The test then asserts that the top-ranked results match the expected objects,
+        demonstrating that the custom weights are correctly applied to the search ranking.
+        """
         vector = SearchVector("dialogue", weight="D") + SearchVector(
             "character__name", weight="A"
         )
@@ -531,6 +838,14 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.crowd, self.witch])
 
     def test_ranking_chaining(self):
+        """
+        Test the ranking and chaining of search results for a specific query.
+
+        This test case verifies that the search functionality correctly ranks and filters results based on the relevance to the search query.
+        In this scenario, the query is 'brave sir robin' and the test checks that the function returns the expected sequence of search results that have a rank greater than 0.3, ensuring the most relevant results are returned.
+
+        The test uses a specific character (the minstrel) and a predefined verse (verse0) to validate the correctness of the search functionality.
+        """
         searched = (
             Line.objects.filter(character=self.minstrel)
             .annotate(
@@ -568,6 +883,18 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_ranking_with_normalization(self):
+        """
+
+        Tests the ranking functionality with normalization.
+
+        This test case creates a new verse with dialogue containing the search query,
+        then searches for lines spoken by a specific character using a search query with normalization.
+        The result set is ordered by the relevance rank and verified to match the expected sequence.
+
+        The test ensures that the ranking function correctly calculates the relevance of each line
+        based on the search query and normalization factor, and returns them in the correct order.
+
+        """
         short_verse = Line.objects.create(
             scene=self.robin,
             character=self.minstrel,
@@ -617,6 +944,19 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
 
 class SearchQueryTests(PostgreSQLSimpleTestCase):
     def test_str(self):
+        """
+        ..:Tests the string representation of various search queries, including negations, conjunctions, and disjunctions, to ensure they are converted to the expected string format.
+
+
+            Args:
+                None
+
+            Returns:
+                None
+
+            Raises:
+                AssertionError: If any of the search query string representations do not match the expected format.
+        """
         tests = (
             (~SearchQuery("a"), "~SearchQuery(Value('a'))"),
             (
@@ -665,6 +1005,15 @@ class SearchHeadlineTests(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_headline_untyped_args(self):
+        """
+
+        Tests the SearchHeadline functionality with untyped arguments.
+
+        Verifies that the headline search functionality correctly annotates and retrieves
+        a Line object based on a given search term. The test checks that the annotated
+        headline field matches the expected text with the searched term highlighted.
+
+        """
         self.check_default_text_search_config()
         searched = Line.objects.annotate(
             headline=SearchHeadline("dialogue", "killed", config="english"),
@@ -676,6 +1025,19 @@ class SearchHeadlineTests(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_headline_with_config(self):
+        """
+
+        Tests the SearchHeadline feature with a specified configuration.
+
+        This test case verifies that the SearchHeadline functionality correctly annotates
+        a Line object with a highlighted headline, based on a provided search query and
+        language configuration. It checks if the resulting headline matches the expected
+        output.
+
+        The test focuses on the French configuration, ensuring that the search query and
+        highlighting rules are applied correctly for this language.
+
+        """
         searched = Line.objects.annotate(
             headline=SearchHeadline(
                 "dialogue",
@@ -702,6 +1064,17 @@ class SearchHeadlineTests(GrailTestData, PostgreSQLTestCase):
         )
 
     def test_headline_separator_options(self):
+        """
+
+        Tests the options for the headline separator feature.
+
+        This test checks that the SearchHeadline annotation correctly highlights search terms 
+        in a dialogue. It verifies that the start and stop selectors, such as HTML span tags, 
+        are properly applied to the highlighted terms in the resulting headline. The test 
+        ensures that the headline accurately reflects the search query and the specified 
+        formatting options.
+
+        """
         searched = Line.objects.annotate(
             headline=SearchHeadline(
                 "dialogue",

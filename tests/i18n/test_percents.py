@@ -39,6 +39,13 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
     """
 
     def setUp(self):
+        """
+        Set up the test environment by initializing the parent class and loading the contents of a gettext portable object (PO) file.
+
+        This method is called before each test to ensure a clean and consistent state. It reads the PO file specified by `self.PO_FILE` and stores its contents in the `self.po_contents` attribute, making it available for use in subsequent tests.
+
+        The PO file contents are loaded from disk to facilitate testing of functionality that relies on the file's contents, allowing for more accurate and reliable test results.
+        """
         super().setUp()
         with open(self.PO_FILE) as fp:
             self.po_contents = fp.read()
@@ -55,6 +62,13 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
         self.assertMsgId("It is 100%%", self.po_contents)
 
     def test_trans_tag_with_string_that_look_like_fmt_spec(self):
+        """
+        Tests translation tags containing strings that resemble format specifications.
+
+        Verifies that translation tags with contents similar to string format specifications
+        (e.g. '%s', '% o') are not misinterpreted as actual format specifiers, ensuring
+        correct translation handling in such edge cases.
+        """
         self.assertMsgId(
             "Looks like a str fmt spec %%s but should not be interpreted as such",
             self.po_contents,
@@ -65,6 +79,9 @@ class ExtractingStringsWithPercentSigns(POFileAssertionMixin, FrenchTestCase):
         )
 
     def test_adds_python_format_to_all_percent_signs(self):
+        """
+        Tests if the function correctly escapes all percent signs in a string by replacing them with the appropriate Python format to prevent incorrect string formatting. This includes checking for a single percent sign, multiple consecutive percent signs, and percent signs within a string that uses Python's named placeholders.
+        """
         self.assertMsgId(
             "1 percent sign %%, 2 percent signs %%%%, 3 percent signs %%%%%%",
             self.po_contents,
@@ -133,6 +150,20 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
 
     def test_translates_with_string_that_look_like_fmt_spec_with_trans(self):
         # tests "%s"
+        """
+        Tests translation functionality with strings that resemble format specification.
+
+        Verifies that translation templates correctly interpret strings containing format specifiers,
+        ensuring they are not mistakenly treated as actual format specifiers.
+
+        Checks the functionality of both the ``translate`` and ``blocktranslate`` template tags,
+        confirming they produce the expected translated output when given strings that contain percentage
+        symbols followed by characters, such as ``%s`` or ``% o``.
+
+        Ensures that the translation process preserves these sequences, translating the surrounding text
+        while leaving the format-like sequences intact, thus maintaining the original intent and meaning
+        of the text being translated.
+        """
         expected = (
             "On dirait un spec str fmt %s mais ne devrait pas être interprété comme "
             "plus disponible"

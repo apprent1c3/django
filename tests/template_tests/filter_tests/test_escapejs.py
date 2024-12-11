@@ -20,6 +20,18 @@ class EscapejsTests(SimpleTestCase):
 
     @setup({"escapejs02": "{% autoescape off %}{{ a|escapejs }}{% endautoescape %}"})
     def test_escapejs02(self):
+        """
+
+        Tests the escapejs template filter to ensure it properly escapes JavaScript strings.
+
+        This test verifies that the filter correctly escapes special characters in a string,
+        including newline characters, single and double quotes, and HTML tags, to prevent
+        JavaScript errors or security vulnerabilities.
+
+        The expected output is a string with special characters replaced by their corresponding
+        Unicode escape sequences.
+
+        """
         output = self.engine.render_to_string(
             "escapejs02", {"a": "testing\r\njavascript 'string\" <b>escaping</b>"}
         )
@@ -62,6 +74,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_lazy_string(self):
+        """
+        Tests the lazy string functionality of the escapejs_filter by appending a script tag to a string containing various whitespace characters and verifying that the output is correctly escaped as a JavaScript string.
+        """
         append_script = lazy(lambda string: r"<script>this</script>" + string, str)
         self.assertEqual(
             escapejs_filter(append_script("whitespace: \r\n\t\v\f\b")),

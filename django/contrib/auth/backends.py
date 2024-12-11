@@ -34,6 +34,21 @@ class ModelBackend(BaseBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        """
+        Authenticate a user based on the provided username and password.
+
+        Params:
+            request: The current request object.
+            username (str): The username to authenticate. If not provided, it will be looked up in the keyword arguments.
+            password (str): The password to authenticate.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            The authenticated user object if the authentication is successful, otherwise None.
+
+        Notes:
+            The function first attempts to retrieve a user with the given username. If the user exists, it checks the password and ensures the user is allowed to authenticate. If the user does not exist, it creates a new user with the given password.
+        """
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         if username is None or password is None:
@@ -99,6 +114,16 @@ class ModelBackend(BaseBackend):
         return self._get_permissions(user_obj, obj, "group")
 
     def get_all_permissions(self, user_obj, obj=None):
+        """
+        Returns a set of all permissions for the given user.
+
+        This method checks if the user is active and not anonymous. 
+        If the user is inactive, anonymous, or an object is provided, it returns an empty set of permissions.
+        Otherwise, it retrieves the user's permissions from the cache if available, or 
+        constructs and caches the set of permissions for the user. The object parameter is 
+        used to filter permissions, but in this implementation, it always returns an empty 
+        set when provided, effectively disabling object-specific permission filtering.
+        """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
         if not hasattr(user_obj, "_perm_cache"):
@@ -153,6 +178,20 @@ class ModelBackend(BaseBackend):
         return UserModel._default_manager.filter(user_q)
 
     def get_user(self, user_id):
+        """
+
+        Retrieve a user instance by their ID.
+
+        Args:
+            user_id (int): The primary key of the user to retrieve.
+
+        Returns:
+            UserModel: The user instance if it exists and the current user is authorized to access it, otherwise None.
+
+        Note:
+            The function checks if the user can be authenticated by the current user before returning the user instance.
+
+        """
         try:
             user = UserModel._default_manager.get(pk=user_id)
         except UserModel.DoesNotExist:

@@ -13,6 +13,17 @@ class CodeLocator(ast.NodeVisitor):
 
     @classmethod
     def from_code(cls, code):
+        """
+        Creates an instance of the locator class from a given Python code string.
+
+        This method parses the provided code into an abstract syntax tree (AST) and then
+        traverses the tree to initialize the locator instance. The resulting locator
+        instance contains information extracted from the code.
+
+        :param code: A string of valid Python code.
+        :returns: An instance of the locator class initialized with the extracted information.
+
+        """
         tree = ast.parse(code)
         locator = cls()
         locator.visit(tree)
@@ -31,6 +42,17 @@ class CodeLocator(ast.NodeVisitor):
         self.visit_node(node)
 
     def visit_ImportFrom(self, node):
+        """
+        ..: 
+            Visit an ImportFrom node to track imported module locations.
+
+            This method iterates over alias names in the import statement, handling wildcard imports and named imports separately.
+            For wildcard imports, it reads the imported module's file contents and extracts import locations using a CodeLocator.
+            Named imports are directly tracked with their corresponding module path.
+
+            :param node: The ImportFrom node to visit
+            :return: None
+        """
         for alias in node.names:
             if alias.asname:
                 # Exclude linking aliases (`import x as y`) to avoid confusion
@@ -76,6 +98,19 @@ def module_name_to_file_path(module_name):
 
 
 def get_path_and_line(module, fullname):
+    """
+    Get the file path and line number of a given object in a module.
+
+    :param module: The module to search in.
+    :param fullname: The full name of the object, including any namespaces or classes.
+
+    :raise CodeNotFound: If the object is not found in the module or any of its imports.
+    :raise ImportError: If an import fails while trying to locate the object.
+
+    :return: A tuple containing the file path and line number of the object, or raises an exception if not found.
+
+    :note: This function recursively searches for the object in the module's imports if it is not found directly.
+    """
     path = module_name_to_file_path(module_name=module)
 
     locator = get_locator(path)

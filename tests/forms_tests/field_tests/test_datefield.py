@@ -134,10 +134,39 @@ class DateFieldTest(SimpleTestCase):
     @translation.override("nl")
     def test_form_label_association(self):
         # label tag is correctly associated with first rendered dropdown
+        """
+
+        Tests whether the form date field is properly associated with its corresponding label.
+
+        This test case ensures that the label for the day component of a date field
+        is correctly linked to the input field, as per HTML accessibility standards.
+        It verifies this by checking if the label's 'for' attribute matches the id
+        of the day input field in the rendered HTML form.
+
+        The test is performed using a sample date ('2010-01-01') and asserts that
+        the expected label is present in the form's paragraph representation.
+
+        """
         a = GetDate({"mydate_month": "1", "mydate_day": "1", "mydate_year": "2010"})
         self.assertIn('<label for="id_mydate_day">', a.as_p())
 
     def test_datefield_1(self):
+        """
+        Test that DateField correctly cleans and validates various date formats.
+
+        This test checks the following:
+
+        * It can handle various input formats: date objects, datetime objects, and strings in different formats (YYYY-MM-DD, MM/DD/YYYY, MM/DD/YY, Month DD YYYY, etc.)
+        * It can extract the date from a datetime object, ignoring the time component
+        * It correctly raises a ValidationError for invalid dates (e.g. February 31, invalid date strings)
+        * It correctly raises a ValidationError when the input is None, as this field is required
+
+        Returns:
+            None
+
+        Raises:
+            ValidationError: if the input is an invalid date or None
+        """
         f = DateField()
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))
@@ -174,6 +203,24 @@ class DateFieldTest(SimpleTestCase):
         self.assertEqual("None", repr(f.clean("")))
 
     def test_datefield_3(self):
+        """
+
+        Tests the validation and cleaning functionality of the DateField.
+
+        The function verifies that DateField correctly validates and cleans different date formats.
+        It checks if the field can handle date objects, datetime objects, and string representations of dates.
+        Additionally, it ensures that the field raises a ValidationError for invalid date formats.
+
+        The expected output formats and validation rules are based on the input formats specified for the DateField.
+        In this case, the field is configured to accept dates in the format '%Y %m %d'.
+
+        The test cases cover a variety of scenarios, including:
+
+        * Valid date objects and datetime objects
+        * Valid string representations of dates
+        * Invalid date formats that should raise a ValidationError
+
+        """
         f = DateField(input_formats=["%Y %m %d"])
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))
@@ -187,6 +234,20 @@ class DateFieldTest(SimpleTestCase):
 
     def test_datefield_4(self):
         # Test whitespace stripping behavior (#5714)
+        """
+
+        Tests the functionality of the DateField class for cleaning and validating date inputs.
+
+        Checks that the clean method correctly parses various date formats, including:
+            - mm/dd/yyyy
+            - mm/dd/yy
+            - Month dd yyyy
+            - Month dd, yyyy
+            - dd Month yyyy
+
+        Verifies that the clean method raises a ValidationError when an empty or invalid date string is provided.
+
+        """
         f = DateField()
         self.assertEqual(date(2006, 10, 25), f.clean(" 10/25/2006 "))
         self.assertEqual(date(2006, 10, 25), f.clean(" 10/25/06 "))
@@ -204,6 +265,16 @@ class DateFieldTest(SimpleTestCase):
             f.clean("a\x00b")
 
     def test_datefield_changed(self):
+        """
+        Tests whether a DateField has changed when the input date matches the stored date.
+
+        Checks that the 'has_changed' method of a DateField returns False when the input date
+        and the stored date are the same, when the date is provided in a specific format.
+
+        :param: None
+        :return: None (asserts the False condition)
+        :raises: AssertionError if the 'has_changed' method returns True when dates are the same
+        """
         format = "%d/%m/%Y"
         f = DateField(input_formats=[format])
         d = date(2007, 9, 17)

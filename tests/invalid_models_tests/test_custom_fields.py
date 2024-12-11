@@ -6,6 +6,19 @@ from django.test.utils import isolate_apps
 @isolate_apps("invalid_models_tests")
 class CustomFieldTest(SimpleTestCase):
     def test_none_column(self):
+        """
+
+        Tests the case when a model field does not have a corresponding column in the database.
+
+        This test checks if a field that returns None as its database type can be successfully
+        instantiated and validated without raising any errors.
+
+        The test uses a custom AutoField subclass that overrides the db_type method to return None,
+        simulating a field without a corresponding database column. The test then creates a model
+        with this field and another field, and verifies that the validation of the model fields
+        does not produce any errors.
+
+        """
         class NoColumnField(models.AutoField):
             def db_type(self, connection):
                 # None indicates not to create a column in the database.

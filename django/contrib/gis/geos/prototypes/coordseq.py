@@ -33,6 +33,15 @@ class CsOperation(GEOSFuncFactory):
     restype = c_int
 
     def __init__(self, *args, ordinate=False, get=False, **kwargs):
+        """
+        Initialize an instance of the class.
+
+        The constructor accepts a variable number of positional and keyword arguments. 
+        Key optional parameters include ``ordinate`` and ``get``, which modify the function's behavior. 
+        When ``ordinate`` is ``True``, the function expects an additional unsigned integer parameter. 
+        The ``get`` parameter determines the error checking and parameter type for floating point numbers used in the function. 
+        All other keyword arguments are passed to the parent class's constructor.
+        """
         if get:
             # Get routines have double parameter passed-in by reference.
             errcheck = check_cs_get

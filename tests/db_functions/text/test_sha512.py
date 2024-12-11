@@ -49,6 +49,15 @@ class SHA512Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+
+        Test transformation of alias field in Author model to SHA512 hash.
+
+        This test case verifies that the alias field in the Author model can be correctly transformed to its SHA512 hash equivalent, 
+        and then queried using the hashed value. It checks if the transformation and lookup are working as expected by 
+        filtering authors with a specific hashed alias and asserting that the result matches the expected author alias.
+
+        """
         with register_lookup(CharField, SHA512):
             authors = Author.objects.filter(
                 alias__sha512=(

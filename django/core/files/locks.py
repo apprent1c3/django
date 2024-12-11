@@ -117,6 +117,25 @@ else:
     else:
 
         def lock(f, flags):
+            """
+            Acquires or releases a lock on an open file descriptor.
+
+            Parameters
+            ----------
+            f : file object
+                The file object to acquire or release the lock on.
+            flags : int
+                The flags to use for the lock operation, as defined by the fcntl module.
+
+            Returns
+            -------
+            bool
+                True if the lock operation was successful, False if it would block and cannot be acquired immediately.
+
+            Note
+            ----
+            This function uses the flock system call to acquire or release an advisory lock on the file descriptor. The flags parameter should be one of the constants defined in the fcntl module, such as LOCK_EX, LOCK_SH, LOCK_UN, etc. If the lock cannot be acquired immediately, a BlockingIOError is raised and the function returns False.
+            """
             try:
                 fcntl.flock(_fd(f), flags)
                 return True

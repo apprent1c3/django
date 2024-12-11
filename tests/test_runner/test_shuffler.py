@@ -10,6 +10,17 @@ class ShufflerTests(SimpleTestCase):
         self.assertEqual(actual, "e2fc714c4727ee9395f324cd2e7f331f")
 
     def test_hash_text_hash_algorithm(self):
+        """
+
+        Tests the consistency of the hash text algorithm used by the Shuffler class.
+
+        Verifies that the hash text algorithm specified by the Shuffler class, in this case SHA-1,
+        produces the expected hash value for a given input string.
+
+        The test ensures that the resulting hash value matches the known hash value for the input string 'abcd',
+        which is '81fe8bfe87576c3ecb22426f8e57847382917acf'.
+
+        """
         class MyShuffler(Shuffler):
             hash_algorithm = "sha1"
 
@@ -17,6 +28,12 @@ class ShufflerTests(SimpleTestCase):
         self.assertEqual(actual, "81fe8bfe87576c3ecb22426f8e57847382917acf")
 
     def test_init(self):
+        """
+        Tests the initialization of the Shuffler class.
+
+        Verifies that the Shuffler object is properly created with a given seed value,
+        and that the seed and seed source are correctly set as attributes of the object.
+        """
         shuffler = Shuffler(100)
         self.assertEqual(shuffler.seed, 100)
         self.assertEqual(shuffler.seed_source, "given")
@@ -28,6 +45,11 @@ class ShufflerTests(SimpleTestCase):
         self.assertEqual(shuffler.seed_source, "generated")
 
     def test_init_no_seed_argument(self):
+        """
+        Tests that the Shuffler class initializes correctly when no seed argument is provided. 
+         It verifies that a random seed is generated and assigned to the object, 
+         and that the seed source is correctly identified as generated.
+        """
         with mock.patch("random.randint", return_value=300):
             shuffler = Shuffler()
         self.assertEqual(shuffler.seed, 300)
@@ -74,6 +96,16 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_consistency(self):
+        """
+        Tests the consistency of the shuffle operation performed by the Shuffler class.
+
+        This test case verifies that the Shuffler class produces the expected shuffled sequence 
+        for various input sequences and indices, using a fixed seed for reproducibility.
+
+        The test checks the shuffle operation with and without removing elements at specific indices.
+        It ensures that the shuffled sequence matches the expected output for each test case, 
+        providing confidence in the correctness and consistency of the Shuffler class's shuffle method.
+        """
         seq = [str(n) for n in range(5)]
         cases = [
             (None, ["3", "0", "2", "4", "1"]),
@@ -95,6 +127,14 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_same_hash(self):
+        """
+
+        Tests that the shuffle method raises an exception when it encounters items with the same hash value.
+
+        This test case verifies that the shuffler correctly identifies and reports collisions between items 
+        with different original values but identical hash values, ensuring data integrity during the shuffling process.
+
+        """
         shuffler = Shuffler(seed=1234)
         msg = "item 'A' has same hash 'a56ce89262959e151ee2266552f1819c' as item 'a'"
         with self.assertRaisesMessage(RuntimeError, msg):

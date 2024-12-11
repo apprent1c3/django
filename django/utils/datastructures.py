@@ -108,6 +108,19 @@ class MultiValueDict(dict):
         return {**self.__dict__, "_data": {k: self._getlist(k) for k in self}}
 
     def __setstate__(self, obj_dict):
+        """
+        Reconstructs the object state from a serialized dictionary.
+
+        This method is used for deserialization and reconstruction of the object's internal state.
+        It restores the object's data and attributes from the provided dictionary, ensuring proper
+        initialization and configuration of the object.
+
+        The deserialization process involves setting the object's internal data structures using
+        the :meth:`setlist` method and updating its attributes directly from the input dictionary.
+
+        :param obj_dict: A dictionary containing the serialized object state.
+
+        """
         data = obj_dict.pop("_data", {})
         for k, v in data.items():
             self.setlist(k, v)
@@ -329,6 +342,20 @@ class CaseInsensitiveMapping(Mapping):
         # Explicitly test for dict first as the common case for performance,
         # avoiding abc's __instancecheck__ and _abc_instancecheck for the
         # general Mapping case.
+        """
+
+        Unpacks data into key-value pairs.
+
+        This method takes an input data structure, which can be a dictionary or a list-like object containing dictionary update sequences.
+        It yields each key-value pair from the input data.
+
+        If the input data is a dictionary, it directly yields all key-value pairs.
+        If the input data is a list-like object, it expects each element to be a tuple or list of length 2, where the first element is a string key and the second element is the corresponding value.
+        Any invalid input (e.g., non-string keys, tuples/lists of incorrect length) raises a ValueError.
+
+        Use this method to normalize and iterate over data from various sources, ensuring it's in a consistent key-value pair format.
+
+        """
         if isinstance(data, (dict, Mapping)):
             yield from data.items()
             return

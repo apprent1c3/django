@@ -62,6 +62,16 @@ class Table(Reference):
         return self.references_table(table) and str(self) == index
 
     def rename_table_references(self, old_table, new_table):
+        """
+
+        Renames references to a table in the current object.
+
+        If the current object's table matches the old table name, it is updated to use the new table name instead.
+
+        :param old_table: The existing table name to be replaced.
+        :param new_table: The new table name to use in place of the old one.
+
+        """
         if self.table == old_table:
             self.table = new_table
 
@@ -157,6 +167,20 @@ class ForeignKeyName(TableColumns):
         suffix_template,
         create_fk_name,
     ):
+        """
+
+        Initializes a relationship between two tables in a database.
+
+        This initializer sets up a relationship by defining the columns in the source table (:param from_table) 
+        and the columns in the destination table (:param to_table) that participate in this relationship.
+        The :param from_columns and :param to_columns parameters specify the respective columns involved.
+        A suffix template (:param suffix_template) can be used to customize the naming of the foreign key columns.
+        Additionally, a flag (:param create_fk_name) is used to control the creation of a foreign key name.
+
+        The resulting relationship object encapsulates the source and destination tables and their respective columns,
+        as well as the suffix template and foreign key creation flag.
+
+        """
         self.to_reference = TableColumns(to_table, to_columns)
         self.suffix_template = suffix_template
         self.create_fk_name = create_fk_name
@@ -176,6 +200,17 @@ class ForeignKeyName(TableColumns):
         ) or self.to_reference.references_column(table, column)
 
     def rename_table_references(self, old_table, new_table):
+        """
+        Rename all references to an old table name with a new table name.
+
+        This method updates all references to the specified old table name with the new table name.
+        It ensures that all dependencies and related objects, including the 'to_reference' object,
+        are updated to reflect the new table name, maintaining data consistency.
+
+        :param old_table: The current name of the table to be renamed.
+        :param new_table: The new name for the table.
+
+        """
         super().rename_table_references(old_table, new_table)
         self.to_reference.rename_table_references(old_table, new_table)
 
@@ -184,6 +219,11 @@ class ForeignKeyName(TableColumns):
         self.to_reference.rename_column_references(table, old_column, new_column)
 
     def __str__(self):
+        """
+        Returns a string representation of the foreign key constraint.
+
+        This method generates a unique and descriptive name for the foreign key based on the table, columns, and referenced table and column. The name is constructed by combining the table and column names with a suffix that includes the referenced table and column, providing a clear and concise identification of the foreign key constraint. The generated name follows a standardized format to facilitate readability and maintainability of the database schema.
+        """
         suffix = self.suffix_template % {
             "to_table": self.to_reference.table,
             "to_column": self.to_reference.columns[0],
@@ -223,6 +263,18 @@ class Statement(Reference):
         )
 
     def rename_table_references(self, old_table, new_table):
+        """
+
+        Recursively rename references to a database table in the object's components.
+
+        This method updates all occurrences of the old table name to the new table name 
+        in the object's parts and their sub-parts. It is used to maintain data integrity 
+        and consistency after renaming a database table.
+
+        :param old_table: The current name of the table to be renamed.
+        :param new_table: The new name for the table.
+
+        """
         for part in self.parts.values():
             if hasattr(part, "rename_table_references"):
                 part.rename_table_references(old_table, new_table)

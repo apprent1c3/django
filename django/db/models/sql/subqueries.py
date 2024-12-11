@@ -15,6 +15,17 @@ class DeleteQuery(Query):
     compiler = "SQLDeleteCompiler"
 
     def do_query(self, table, where, using):
+        """
+        Execute a query on a database table.
+
+        This method queries a specified database table based on given conditions and returns the number of rows affected.
+
+        :param table: The name of the table to query.
+        :param where: The conditions for the query.
+        :param using: The database connection to use for the query.
+        :returns: The number of rows affected by the query.
+
+        """
         self.alias_map = {table: self.alias_map[table]}
         self.where = where
         cursor = self.get_compiler(using).execute_sql(CURSOR)
@@ -170,5 +181,16 @@ class AggregateQuery(Query):
     compiler = "SQLAggregateCompiler"
 
     def __init__(self, model, inner_query):
+        """
+        Initializes an instance of the class.
+
+        This constructor takes two parameters: a model and an inner query. The model is passed to the parent class's constructor, 
+        while the inner query is stored as an instance attribute for later use. This allows for the creation of a new instance 
+        that is tied to a specific model and inner query, providing a foundation for further operations or processing.
+
+        :param model: The model to be used by the instance.
+        :param inner_query: The inner query associated with the instance.
+
+        """
         self.inner_query = inner_query
         super().__init__(model)

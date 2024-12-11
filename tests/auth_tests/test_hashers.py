@@ -47,6 +47,21 @@ class PBKDF2SingleIterationHasher(PBKDF2PasswordHasher):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPass(SimpleTestCase):
     def test_simple(self):
+        """
+        Tests the functionality of password creation and verification.
+
+        This test case covers the creation of passwords using the make_password function,
+        verifies that the generated passwords are in the correct format and usable,
+        and checks that the check_password function correctly validates passwords.
+
+        It also tests edge cases such as empty passwords to ensure the password
+        management system behaves as expected.
+
+        The test covers the following scenarios:
+        - Password creation with a non-empty string
+        - Password creation with an empty string
+        - Verification of valid and invalid passwords against the created passwords
+        """
         encoded = make_password("lètmein")
         self.assertTrue(encoded.startswith("pbkdf2_sha256$"))
         self.assertTrue(is_password_usable(encoded))
@@ -60,6 +75,22 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertFalse(check_password(" ", blank_encoded))
 
     async def test_acheck_password(self):
+        """
+
+        Checks the functionality of asynchronous password verification.
+
+        This test function verifies that the acheck_password function correctly validates 
+        user-provided passwords against their stored encrypted versions. It checks the 
+        following scenarios:
+
+        - Valid password matching the stored encoded password
+        - Invalid password not matching the stored encoded password
+        - Empty password matching the stored encoded empty password
+        - Non-empty password not matching the stored encoded empty password
+
+        Ensures that the acheck_password function behaves as expected in various cases.
+
+        """
         encoded = make_password("lètmein")
         self.assertIs(await acheck_password("lètmein", encoded), True)
         self.assertIs(await acheck_password("lètmeinz", encoded), False)
@@ -69,6 +100,16 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertIs(await acheck_password(" ", blank_encoded), False)
 
     def test_bytes(self):
+        """
+        Tests the functionality of password creation and verification when using bytes as input.
+
+        This test case covers the following scenarios:
+        - Password encoding: Verifies that a password encoded from bytes input starts with the expected prefix.
+        - Password usability: Checks if the encoded password is usable.
+        - Password verification: Confirms that the original bytes password matches the encoded password.
+
+        Ensures that the password management system correctly handles bytes input and produces the expected results for encoded password verification and usability checks.
+        """
         encoded = make_password(b"bytes_password")
         self.assertTrue(encoded.startswith("pbkdf2_sha256$"))
         self.assertIs(is_password_usable(encoded), True)
@@ -80,6 +121,23 @@ class TestUtilsHashPass(SimpleTestCase):
             make_password(1)
 
     def test_pbkdf2(self):
+        """
+
+        Test the functionality of the PBKDF2 password hashing algorithm.
+
+        This test case verifies the correctness of the PBKDF2 password hashing algorithm 
+        by checking the following scenarios:
+
+        - Encoding a password with a given salt and algorithm
+        - Verifying the usability of the encoded password
+        - Checking the correctness of password verification
+        - Identifying the hashing algorithm used for a given encoded password
+        - Handling of empty passwords and different salts
+
+        The test also checks the 'must_update' method of the password hasher to ensure 
+        that weak salts are correctly identified and updated to stronger ones.
+
+        """
         encoded = make_password("lètmein", "seasalt", "pbkdf2_sha256")
         self.assertEqual(
             encoded,
@@ -107,6 +165,24 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
     )
     def test_md5(self):
+        """
+
+        Tests the functionality of the MD5 password hasher.
+
+        This test case ensures that the MD5 password hasher correctly encodes and verifies passwords.
+        It checks the following:
+
+        * Passwords are encoded correctly with the MD5 algorithm and a provided salt.
+        * Encoded passwords can be verified using the correct password.
+        * Incorrect passwords are rejected.
+        * The MD5 algorithm is correctly identified from an encoded password.
+        * Blank passwords are handled correctly and can be verified.
+        * Passwords with weak salts are flagged for update.
+        * Passwords with strong salts are not flagged for update.
+
+        The test uses various helper functions, including `make_password`, `is_password_usable`, `check_password`, `identify_hasher`, and `get_hasher`, to verify the correctness of the MD5 password hasher.
+
+        """
         encoded = make_password("lètmein", "seasalt", "md5")
         self.assertEqual(encoded, "md5$seasalt$3f86d0d3d465b7b458c231bf3555c0e3")
         self.assertTrue(is_password_usable(encoded))
@@ -128,6 +204,23 @@ class TestUtilsHashPass(SimpleTestCase):
 
     @skipUnless(bcrypt, "bcrypt not installed")
     def test_bcrypt_sha256(self):
+        """
+        Tests the bcrypt_sha256 password hashing algorithm.
+
+        This test suite verifies the functionality of the bcrypt_sha256 hasher, including
+        password encoding, usability checking, and authentication. It ensures that the 
+        hasher produces the expected output format and can correctly validate passwords.
+
+        The tests cover various scenarios, such as:
+        - Encoding and checking passwords with special characters
+        - Verifying that the encoded password starts with the expected prefix
+        - Checking that the correct hashing algorithm is identified
+        - Authenticating passwords of varying lengths
+        - Handling empty passwords
+
+        These tests provide confidence that the bcrypt_sha256 hasher is working as expected
+        and can be relied upon for secure password storage and verification.
+        """
         encoded = make_password("lètmein", hasher="bcrypt_sha256")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("bcrypt_sha256$"))
@@ -257,6 +350,15 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertFalse(check_password(None, make_password("lètmein")))
 
     def test_bad_algorithm(self):
+        """
+        Tests that specifying an unknown password hashing algorithm raises a ValueError.
+
+        This test covers two scenarios: 
+        1. When attempting to create a password using an unknown hashing algorithm via the 'make_password' function.
+        2. When attempting to identify the hashing algorithm used in a given password string via the 'identify_hasher' function.
+
+        In both cases, the test expects a ValueError to be raised with a message indicating that the specified algorithm is unknown and instructing the user to check the PASSWORD_HASHERS setting.
+        """
         msg = (
             "Unknown password hashing algorithm '%s'. Did you specify it in "
             "the PASSWORD_HASHERS setting?"
@@ -298,6 +400,13 @@ class TestUtilsHashPass(SimpleTestCase):
 
     @skipUnless(bcrypt, "bcrypt not installed")
     def test_bcryptsha256_salt_check(self):
+        """
+        Tests the correctness of the BCryptSHA256PasswordHasher's salt generation functionality.
+
+        This test checks whether the BCryptSHA256PasswordHasher correctly determines if a password needs to be updated after being encoded with a generated salt.
+
+        The test case verifies that the encoded password does not require an immediate update by the hasher.
+        """
         hasher = BCryptSHA256PasswordHasher()
         encoded = hasher.encode("lètmein", hasher.salt())
         self.assertIs(hasher.must_update(encoded), False)
@@ -526,6 +635,14 @@ class BasePasswordHasherTests(SimpleTestCase):
             self.hasher._load_library()
 
     def test_load_library_importerror(self):
+        """
+        Tests that a ValueError is raised with a meaningful message when the library for a password hashing algorithm cannot be loaded.
+
+        This test case specifically targets the situation where the algorithm's library is not a valid Python module, resulting in an Import Error.
+
+        The expected error message includes the name of the algorithm and the reason for the failure, providing helpful feedback for users and developers.
+
+        """
         PlainHasher = type(
             "PlainHasher",
             (BasePasswordHasher,),
@@ -574,6 +691,22 @@ class BasePasswordHasherTests(SimpleTestCase):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPassArgon2(SimpleTestCase):
     def test_argon2(self):
+        """
+
+        Tests the functionality of the Argon2 password hasher.
+
+        The Argon2 hasher is a secure password hashing algorithm that is designed to be
+        resistant to GPU-based attacks and other forms of brute force attacks. This test
+        ensures that the Argon2 hasher is working correctly by checking the following:
+
+        * That passwords can be hashed and verified correctly
+        * That the hashed password starts with the expected prefix
+        * That the password verification function returns the correct result
+        * That the password identification function can correctly identify the hashing algorithm used
+        * That the password hasher can handle blank passwords and passwords with special characters
+        * That the password hasher can correctly update passwords with weak salts
+
+        """
         encoded = make_password("lètmein", hasher="argon2")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("argon2$argon2id$"))
@@ -680,6 +813,20 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPassScrypt(SimpleTestCase):
     def test_scrypt(self):
+        """
+        Tests the functionality of the scrypt password hashing algorithm.
+
+        This test case verifies that passwords can be successfully hashed and verified using the scrypt algorithm.
+        It checks the following scenarios:
+
+        * Hashing and verifying a non-empty password
+        * Hashing and verifying an empty password
+        * Identifying the hashing algorithm used for a given password
+
+        The test ensures that the scrypt algorithm correctly handles password hashing, verification, and identification,
+        including edge cases such as empty passwords. It validates the correctness of the hashed password format and
+        the ability to check passwords against the hashed value.
+        """
         encoded = make_password("lètmein", "seasalt", "scrypt")
         self.assertEqual(
             encoded,

@@ -112,10 +112,37 @@ class TimezoneNode(Node):
     """
 
     def __init__(self, nodelist, tz):
+        """
+
+        Initialize the object with a list of nodes and a time zone.
+
+        Parameters
+        ----------
+        nodelist : list
+            A list of nodes to be associated with the object.
+        tz : str
+            The time zone to be used for date and time operations.
+
+        Notes
+        -----
+        This is a constructor method, typically used to create a new instance of the class.
+        The provided time zone is stored as an attribute for future use.
+
+        """
         self.nodelist = nodelist
         self.tz = tz
 
     def render(self, context):
+        """
+        Renders the template with the given context.
+
+        This method overrides the timezone to the one resolved from the provided context,
+        ensures proper timezone-aware rendering of the template, and then renders the 
+        nodelist with the given context.
+
+        :param context: The context to render the template with
+        :return: The rendered output of the template
+        """
         with timezone.override(self.tz.resolve(context)):
             output = self.nodelist.render(context)
         return output

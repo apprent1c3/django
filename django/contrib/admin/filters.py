@@ -273,6 +273,16 @@ class RelatedFieldListFilter(FieldListFilter):
         return field.get_choices(include_blank=False, ordering=ordering)
 
     def get_facet_counts(self, pk_attname, filtered_qs):
+        """
+        Return a dictionary of facet counts for a given attribute.
+
+        The function generates a count of the number of instances for each unique value of the specified primary key attribute.
+        It returns a dictionary where the keys are the unique primary key values followed by '__c' and the values are the corresponding counts.
+        If :attr:`include_empty_choice` is True, an additional key '__c' is included in the dictionary, representing the count of instances with a null value for the specified attribute.
+
+        :returns: A dictionary of facet counts.
+        :type: dict
+        """
         counts = {
             f"{pk_val}__c": models.Count(
                 pk_attname, filter=models.Q(**{self.lookup_kwarg: pk_val})
@@ -358,6 +368,15 @@ class BooleanFieldListFilter(FieldListFilter):
         }
 
     def choices(self, changelist):
+        """
+        Returns a list of choices for a given field, including \"All\", \"Yes\", \"No\", and \"Unknown\" (if the field is nullable).
+        Each choice is represented as a dictionary with the following keys:
+            - `selected`: a boolean indicating whether the choice is currently selected.
+            - `query_string`: the query string to use when selecting this choice.
+            - `display`: the display title for the choice, which may include a count of items in the choice if facet counts are enabled.
+        The choices are generated based on the field's flat choices and the current changelist, and may be filtered by the current lookup value. 
+        If facet counts are enabled, the display title for each choice will include the count of items in that choice.
+        """
         field_choices = dict(self.field.flatchoices)
         add_facets = changelist.add_facets
         facet_counts = self.get_facet_queryset(changelist) if add_facets else None
@@ -675,6 +694,18 @@ class EmptyFieldListFilter(FieldListFilter):
         return models.Q.create(lookup_conditions, connector=models.Q.OR)
 
     def queryset(self, request, queryset):
+        """
+
+        Filters a queryset based on the lookup value.
+
+        This function filters the provided queryset if the lookup value is '1' or excludes
+        it if the lookup value is '0'. If the lookup value is neither '0' nor '1', it
+        raises an IncorrectLookupParameters exception. The function only applies the
+        filter if the lookup key word argument is present in the used parameters.
+
+        :raises IncorrectLookupParameters: If the lookup value is not '0' or '1'.
+
+        """
         if self.lookup_kwarg not in self.used_parameters:
             return queryset
         if self.lookup_val not in ("0", "1"):

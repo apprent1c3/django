@@ -5,6 +5,16 @@ class Command(BaseCommand):
     help = "Useless command."
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to the parser.
+
+        This function extends the parser with two arguments: 
+        : 
+        * One or more positional arguments for specifying app labels. 
+        * An optional flag to indicate whether to perform a \"no operation\" or \"empty\" action. 
+
+        These arguments can be used to customize the behavior of the command and target specific applications.
+        """
         parser.add_argument(
             "args",
             metavar="app_label",

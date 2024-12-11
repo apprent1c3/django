@@ -17,6 +17,16 @@ class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
     def __init__(self, params):
+        """
+        Initializes a template engine instance.
+
+        This constructor takes in a dictionary of parameters, extracts and processes 
+        template engine options, and then passes the updated parameters to the parent 
+        class. The options are set to default values if not provided, including autoescape, 
+        debug mode, and file character encoding. The function also resolves template 
+        tag libraries and creates an Engine instance with the specified directories and 
+        options. This allows for flexible and customizable template engine setup.
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         options.setdefault("autoescape", True)
@@ -100,6 +110,22 @@ class Template:
         return self.template.origin
 
     def render(self, context=None, request=None):
+        """
+
+        Render the template using the provided context and request.
+
+        This method takes an optional context and request object, combines them into a 
+        single context object, and then uses this context to render the associated 
+        template. If the template does not exist, it raises a TemplateDoesNotExist 
+        exception.
+
+        :param context: The context to use when rendering the template. If not provided, 
+                        a default context will be created.
+        :param request: The request object to use when rendering the template. If not 
+                        provided, the request will be inferred from the context.
+        :return: The rendered template as a string.
+
+        """
         context = make_context(
             context, request, autoescape=self.backend.engine.autoescape
         )

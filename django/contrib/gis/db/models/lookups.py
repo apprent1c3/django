@@ -19,6 +19,15 @@ class GISLookup(Lookup):
     band_lhs = None
 
     def __init__(self, lhs, rhs):
+        """
+        _initializes a new instance of the class with left-hand side and right-hand side components._
+
+        **:param lhs:** The left-hand side component of the instance.
+        **:param rhs:** The right-hand side component, which can be a single value or a list/tuple of values.
+        _:param rhs_params (optional):_ Additional parameters associated with the right-hand side component, extracted from the rhs if it is a list or tuple.
+
+        _The initialization process involves setting up the template parameters and processing any additional right-hand side parameters._
+        """
         rhs, *self.rhs_params = rhs if isinstance(rhs, (list, tuple)) else [rhs]
         super().__init__(lhs, rhs)
         self.template_params = {}
@@ -277,6 +286,19 @@ class RelateLookup(GISLookup):
 
     def process_rhs(self, compiler, connection):
         # Check the pattern argument
+        """
+        Process the right-hand side of the SQL expression for intersection matrix pattern.
+
+        This method validates the intersection matrix pattern against the database backend's
+        GIS operators and ensures it conforms to the required format. If the pattern is invalid,
+        it raises a ValueError. It then delegates the processing of the right-hand side to the
+        parent class and appends the validated pattern to the SQL parameters.
+
+        :param compiler: The compiler object used to process the SQL expression.
+        :param connection: The database connection object.
+        :returns: A tuple containing the processed SQL string and the updated parameters.
+
+        """
         pattern = self.rhs_params[0]
         backend_op = connection.ops.gis_operators[self.lookup_name]
         if hasattr(backend_op, "check_relate_argument"):
@@ -349,6 +371,12 @@ class DWithinLookup(DistanceLookupBase):
         return super().process_distance(compiler, connection)
 
     def process_rhs(self, compiler, connection):
+        """
+        Processes the right-hand side of a query, incorporating distance calculations into the SQL generation.
+
+        This method extends the default right-hand side processing behavior to include the processing of distance calculations.
+        It returns a tuple containing the generated SQL for the right-hand side and the corresponding parameters, which include both the default parameters and those generated for the distance calculation.
+        """
         dist_sql, dist_params = self.process_distance(compiler, connection)
         self.template_params["value"] = dist_sql
         rhs_sql, params = super().process_rhs(compiler, connection)

@@ -19,6 +19,18 @@ class NaturalKeySerializerTests(TestCase):
 
 def natural_key_serializer_test(self, format):
     # Create all the objects defined in the test data
+    """
+
+    Tests the serialization and deserialization of objects using natural keys.
+
+    This test creates a set of objects, including those with foreign key relationships,
+    serializes them to the specified format, and then deserializes the data back into
+    objects. It then verifies that the original and deserialized objects are equal,
+    including their attributes and relationships.
+
+    :param format: The format to use for serialization and deserialization.
+
+    """
     with connection.constraint_checks_disabled():
         objects = [
             NaturalKeyAnchor.objects.create(id=1100, data="Natural Key Anghor"),
@@ -115,6 +127,16 @@ def natural_pk_mti_test(self, format):
 
 
 def forward_ref_fk_test(self, format):
+    """
+    Tests serializing and deserializing objects with forward references using natural keys.
+
+    This test case creates two objects with a circular foreign key relationship, 
+    serializes them to a specified format, and then deserializes the data back into objects.
+    It verifies that the deserialized objects have the correct relationships and that deferred fields are properly saved.
+
+    The test ensures that the serialization and deserialization process preserves the object relationships,
+    even when using natural primary and foreign keys. The test format is provided as an input parameter.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -194,6 +216,25 @@ def forward_ref_m2m_test(self, format):
 
 
 def forward_ref_m2m_with_error_test(self, format):
+    """
+    Tests deserialization of forward references in many-to-many fields with errors.
+
+    This test case verifies that deserialization of data containing forward references
+    to objects that will be created later succeeds, and that subsequent attempts to
+    save deferred fields on objects with missing dependencies correctly raise a
+    DeserializationError.
+
+    It uses natural key serialization to test the scenario with a many-to-many
+    relationship, ensuring that the correct error message is raised when an object
+    is referenced before it exists.
+
+    The test covers the following steps:
+    - Creating objects with many-to-many relationships using natural keys.
+    - Serializing these objects.
+    - Deserializing the data and handling forward references.
+    - Verifying that attempting to save deferred fields with unresolved dependencies
+      raises the expected error message.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")

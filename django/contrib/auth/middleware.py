@@ -19,6 +19,16 @@ def get_user(request):
 
 
 async def auser(request):
+    """
+
+    Fetches the user associated with the given request, caching the result to avoid redundant
+    lookups. If the user has not been previously retrieved for this request, it will be fetched
+    from the authentication system. 
+
+    :param request: The request object to retrieve the user for
+    :returns: The user associated with the request
+
+    """
     if not hasattr(request, "_acached_user"):
         request._acached_user = await auth.aget_user(request)
     return request._acached_user
@@ -26,6 +36,17 @@ async def auser(request):
 
 class AuthenticationMiddleware(MiddlewareMixin):
     def process_request(self, request):
+        """
+
+        Configure a Django request object with the necessary attributes for authentication.
+
+        This function checks if the request object has a session attribute, raising an exception if it does not, as the Django authentication middleware requires session middleware to be installed.
+
+        If the request is valid, it sets the 'user' attribute of the request to a lazy object that resolves to the authenticated user, and the 'auser' attribute to a partial function that provides additional user information.
+
+        This function is typically used in the context of Django's authentication middleware to prepare the request object for further processing.
+
+        """
         if not hasattr(request, "session"):
             raise ImproperlyConfigured(
                 "The Django authentication middleware requires session "

@@ -41,6 +41,21 @@ class SessionStore(SessionBase):
             self._session_key = None
 
     async def _aget_session_from_db(self):
+        """
+
+        Retrieves a session from the database using the provided session key.
+
+        The function fetches the session object from the database, checking that the 
+        session has not expired. If the session does not exist or a suspicious operation 
+        is detected, the function catches the exception, logs a warning if necessary, 
+        and resets the session key.
+
+        :raises: None, but catches and handles :class:`~self.model.DoesNotExist` and 
+            :class:`~SuspiciousOperation` exceptions internally
+        :returns: The session object from the database if it exists and has not expired, 
+            otherwise None
+
+        """
         try:
             return await self.model.objects.aget(
                 session_key=self.session_key, expire_date__gt=timezone.now()

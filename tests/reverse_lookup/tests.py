@@ -20,6 +20,14 @@ class ReverseLookupTests(TestCase):
         )
 
     def test_reverse_by_field(self):
+        """
+        Tests the reversal of users based on their associated poll questions.
+
+        This test case verifies that users can be correctly retrieved and identified 
+        by the question in their associated poll. It checks the name of the users 
+        retrieved for two different poll questions, ensuring that the correct users 
+        are matched to their respective polls.
+        """
         u1 = User.objects.get(poll__question__exact="What's the first question?")
         self.assertEqual(u1.name, "John Doe")
 

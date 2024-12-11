@@ -87,6 +87,16 @@ from django.utils.functional import cached_property
 
 class ForeignKeyDeferredAttribute(DeferredAttribute):
     def __set__(self, instance, value):
+        """
+        Sets the value of the field's attribute on the given instance.
+
+        This method updates the instance's attribute value, and if the new value differs
+        from the existing one and the field is cached, it first removes the cached value.
+
+        :param instance: The instance on which to set the attribute value.
+        :param value: The new value to be assigned to the attribute.
+
+        """
         if instance.__dict__.get(self.field.attname) != value and self.field.is_cached(
             instance
         ):
@@ -459,6 +469,28 @@ class ReverseOneToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+
+        Retrieves querysets for prefetching related objects.
+
+        This method returns a queryset and additional metadata necessary for prefetching 
+        related objects. It filters the queryset based on the provided instances, 
+        ensuring that only relevant objects are retrieved. The returned queryset is 
+        also configured to maintain the original ordering of the instances.
+
+        The method accepts a list of instances for which related objects should be 
+        prefetched. Optionally, a queryset can be provided; if not, the default 
+        queryset is used.
+
+        Raises:
+            ValueError: If the querysets argument has a length other than 1.
+
+        Returns:
+            A tuple containing the filtered queryset, attribute names for the related 
+            object and instance, and flags indicating whether the cache was populated 
+            and should be used.
+
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -890,6 +922,22 @@ def create_reverse_many_to_one_manager(superclass, rel):
         if rel.field.null:
 
             def remove(self, *objs, bulk=True):
+                """
+
+                Remove the specified objects from the relationship.
+
+                This method removes the provided objects from the related objects of the current instance.
+                Before removal, it checks if the objects are instances of the expected model and if they are related to the current instance.
+
+                If no objects are provided, the method does nothing.
+                The removal can be performed in bulk, which is the default behavior, or individually by setting the `bulk` parameter to `False`.
+
+                The method raises a `TypeError` if an object of an unexpected type is provided, and a `DoesNotExist` exception if an object is not related to the current instance.
+
+                :param \*objs: The objects to be removed from the relationship
+                :param bulk: Whether to perform the removal in bulk (default: True)
+
+                """
                 if not objs:
                     return
                 self._check_fk_val()
@@ -921,6 +969,18 @@ def create_reverse_many_to_one_manager(superclass, rel):
             aremove.alters_data = True
 
             def clear(self, *, bulk=True):
+                """
+                Clears the current object, optionally performing a bulk clearance.
+
+                Args:
+                    bulk (bool): Whether to perform a bulk clearance (default is True).
+
+                Notes:
+                    This method checks foreign key values before proceeding with the clearance operation.
+
+                Returns:
+                    None
+                """
                 self._check_fk_val()
                 self._clear(self, bulk)
 
@@ -947,6 +1007,21 @@ def create_reverse_many_to_one_manager(superclass, rel):
             _clear.alters_data = True
 
         def set(self, objs, *, bulk=True, clear=False):
+            """
+            Sets the related objects for the given field.
+
+            Args:
+                objs: An iterable of objects to set as related objects.
+                bulk (bool): Whether to perform the operation in bulk. Defaults to True.
+                clear (bool): Whether to clear existing related objects before setting new ones. Defaults to False.
+
+            Note:
+                If the field allows null values, this method will perform a smart set operation, 
+                removing any existing related objects that are not present in the new set and adding 
+                any new objects that are not already related. If clear is True, all existing related 
+                objects will be removed before setting the new ones. If the field does not allow null 
+                values, this method will simply add the new objects to the existing set.
+            """
             self._check_fk_val()
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
@@ -1098,6 +1173,17 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         do_not_call_in_templates = True
 
         def _build_remove_filters(self, removed_vals):
+            """
+            ..:param removed_vals: The values to be removed from the filter
+                :return: A filter object that represents the conditions for removing values
+                :rtype: Q
+
+                Construct a filter that excludes specific values based on the provided removed values.
+                The filter considers the source and target field names, as well as the related value.
+                If the removed values have filters applied or are not a QuerySet, they are used to create a filter.
+                If the relationship is symmetrical, an additional filter is created to account for the reverse relationship.
+                The resulting filter combines these conditions using logical operators.
+            """
             filters = Q.create([(self.source_field_name, self.related_val)])
             # No need to add a subquery condition if removed_vals is a QuerySet without
             # filters.
@@ -1322,6 +1408,25 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         def set(self, objs, *, clear=False, through_defaults=None):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
+            """
+            Set the related objects for this instance.
+
+            This method sets the related objects for the current instance, optionally clearing any existing relationships.
+            It takes a sequence of objects to set, and optionally a flag to clear existing relationships before setting the new ones.
+
+            The relationship setting process occurs within a database transaction to ensure atomicity.
+            If the `clear` flag is True, all existing relationships are removed before setting the new ones.
+            Otherwise, the method removes any existing relationships that are not in the new set of objects and adds any new ones.
+
+            Args:
+                objs: A sequence of objects to set as related.
+                clear (bool): If True, clear existing relationships before setting the new ones. Defaults to False.
+                through_defaults (dict): Default values to use when creating intermediate model instances for many-to-many relationships. Defaults to None.
+
+            Note:
+                The `through_defaults` parameter is only applicable for many-to-many relationships with an intermediate model.
+
+            """
             objs = tuple(objs)
 
             db = router.db_for_write(self.through, instance=self.instance)

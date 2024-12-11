@@ -155,6 +155,15 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_any_iterable_allowed_as_argument_to_exclude(self):
         # Regression test for #9171.
+        """
+
+        Tests that any iterable can be used as an argument to the exclude parameter of inlineformset_factory.
+
+        This function verifies that the exclude parameter accepts various types of iterables, 
+        such as lists and tuples, allowing for flexible specification of fields to be excluded 
+        from the inline formset.
+
+        """
         inlineformset_factory(Parent, Child, exclude=["school"], fk_name="mother")
 
         inlineformset_factory(Parent, Child, exclude=("school",), fk_name="mother")

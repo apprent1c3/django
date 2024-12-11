@@ -40,10 +40,25 @@ class TestEncodingUtils(SimpleTestCase):
             force_str(MyString())
 
     def test_force_str_lazy(self):
+        """
+        Tests that the force_str function correctly converts a SimpleLazyObject to a string.
+
+        Verifies that the type of the returned value is a string, ensuring that the 
+        force_str function can handle lazy objects and force their evaluation to a 
+        string representation.
+        """
         s = SimpleLazyObject(lambda: "x")
         self.assertIs(type(force_str(s)), str)
 
     def test_force_str_DjangoUnicodeDecodeError(self):
+        """
+        Tests that force_str correctly raises a DjangoUnicodeDecodeError when 
+        given a bytes object that cannot be decoded to a string using UTF-8 encoding.
+
+        Specifically, this test checks that the error message raised by 
+        force_str contains the expected details about the decoding failure, 
+        including the reason for the failure and the invalid byte that caused it.
+        """
         reason = "unexpected end of data" if PYPY else "invalid start byte"
         msg = (
             f"'utf-8' codec can't decode byte 0xff in position 0: {reason}. "
@@ -70,11 +85,29 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(force_bytes(today, strings_only=True), today)
 
     def test_force_bytes_encoding(self):
+        """
+
+        Tests the force_bytes function's handling of encoding errors.
+
+        This test case verifies that the function correctly encodes a bytes object with non-ASCII characters, ignoring unencodable characters.
+
+        """
         error_msg = "This is an exception, voilà".encode()
         result = force_bytes(error_msg, encoding="ascii", errors="ignore")
         self.assertEqual(result, b"This is an exception, voil")
 
     def test_force_bytes_memory_view(self):
+        """
+
+        Tests the functionality of the force_bytes function when passed a memory view object.
+
+        This test case verifies that when a memory view of a bytes object is passed to the force_bytes function,
+        it correctly returns a bytes object that matches the original data.
+
+        The test confirms that the returned result is of type bytes and is equal to the original bytes data,
+        ensuring the force_bytes function behaves as expected with memory view inputs.
+
+        """
         data = b"abc"
         result = force_bytes(memoryview(data))
         # Type check is needed because memoryview(bytes) == bytes.
@@ -82,6 +115,22 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(result, data)
 
     def test_smart_bytes(self):
+        """
+
+        Converts the input object to bytes, handling various types and encodings.
+
+        Handles the conversion of different data types, including lazy gettext objects,
+        custom objects with a string representation, integers, and strings, to bytes.
+
+        The conversion process ensures that the output remains consistent with the input,
+        preserving the original data when possible, while applying the necessary encoding
+        for string-based inputs.
+
+        The function is particularly useful when working with international characters and
+        mixed data types, providing a reliable way to obtain byte representations of the
+        input objects.
+
+        """
         class Test:
             def __str__(self):
                 return "ŠĐĆŽćžšđ"
@@ -96,6 +145,16 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_bytes("foo"), b"foo")
 
     def test_smart_str(self):
+        """
+
+        Checks the functionality of the smart_str function.
+
+        The smart_str function is designed to handle the conversion of different data types to strings.
+        It is tested with various inputs, including a lazy function, a custom class instance with a defined __str__ method,
+        an integer, and a string. The function should return the original object when it is a lazy function,
+        and a string representation of the object for other input types, handling non-ASCII characters correctly.
+
+        """
         class Test:
             def __str__(self):
                 return "ŠĐĆŽćžšđ"
@@ -109,6 +168,9 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_str("foo"), "foo")
 
     def test_get_default_encoding(self):
+        """
+        Tests the get_system_encoding function to ensure it returns 'ascii' when locale.getlocale raises an exception, effectively handling failure to retrieve the system's default encoding.
+        """
         with mock.patch("locale.getlocale", side_effect=Exception):
             self.assertEqual(get_system_encoding(), "ascii")
 
@@ -144,6 +206,18 @@ class TestEncodingUtils(SimpleTestCase):
 
 class TestRFC3987IEncodingUtils(unittest.TestCase):
     def test_filepath_to_uri(self):
+        """
+
+        Convert a file path to a valid URI.
+
+        This function takes a file path as input and returns its equivalent URI representation.
+        It handles both string and Path object inputs, and properly encodes non-ASCII characters.
+        The resulting URI is suitable for use in URLs and other contexts where a valid URI is required.
+
+        The function supports various input formats, including Windows-style backslashes and POSIX-style forward slashes.
+        It also correctly handles null input, returning None in such cases.
+
+        """
         self.assertIsNone(filepath_to_uri(None))
         self.assertEqual(
             filepath_to_uri("upload\\чубака.mp4"),
@@ -153,6 +227,13 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
         self.assertEqual(filepath_to_uri(Path("upload\\test.png")), "upload/test.png")
 
     def test_iri_to_uri(self):
+        """
+        Tests the conversion of Internationalized Resource Identifiers (IRIs) to Uniform Resource Identifiers (URIs).
+
+        The test covers various cases, including IRIs with Unicode characters, URL encoded characters, and non-ASCII characters.
+
+        Each test case checks that the IRI is correctly converted to a URI, and that re-converting the resulting URI does not alter its value.
+        """
         cases = [
             # Valid UTF-8 sequences are encoded.
             ("red%09rosé#red", "red%09ros%C3%A9#red"),
@@ -175,6 +256,16 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(iri_to_uri(iri_to_uri(iri)), uri)
 
     def test_uri_to_iri(self):
+        """
+
+        Tests the conversion of a URI to an IRI.
+
+        This test case covers various input scenarios, including URIs with encoded characters,
+        to ensure the correctness of the uri_to_iri function. It verifies that the conversion
+        produces the expected IRI output and also checks the idempotence of the function,
+        i.e., applying the conversion twice yields the same result as applying it once.
+
+        """
         cases = [
             (None, None),
             # Valid UTF-8 sequences are decoded.
@@ -202,6 +293,11 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(uri_to_iri(uri_to_iri(uri)), iri)
 
     def test_complementarity(self):
+        """
+        Test the complementarity of the URI to IRI and IRI to URI conversion functions by verifying that a round-trip conversion between the two formats results in the original input.
+
+        This test case checks the conversion for a variety of URI and IRI inputs, including those containing non-ASCII characters, percent-encoded characters, and edge cases. The test ensures that the conversion functions are working correctly by comparing the results of the round-trip conversions with the original inputs.
+        """
         cases = [
             (
                 "/blog/for/J%C3%BCrgen%20M%C3%BCnster/",

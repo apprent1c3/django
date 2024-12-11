@@ -305,6 +305,21 @@ class StateTests(SimpleTestCase):
         self.assertEqual(author_state.managers, [("manager2", Author.manager1)])
 
     def test_custom_base_manager(self):
+        """
+        '''
+        Tests the functionality of setting a custom base manager for a model.
+
+        This test case covers the scenario where a model has multiple managers defined,
+        and a specific manager is designated as the base manager. The test verifies that
+        the base manager name is correctly set in the model's metadata and that all
+        managers are properly registered.
+
+        The test includes two example models, Author and Author2, each with two managers:
+        manager1 and manager2. The base manager name is set to 'manager2' for Author and
+        'manager1' for Author2. The test then checks the model state to ensure that the
+        base manager name and all managers are correctly configured.
+        '''
+        """
         new_apps = Apps(["migrations"])
 
         class Author(models.Model):
@@ -471,6 +486,15 @@ class StateTests(SimpleTestCase):
         ModelState.from_model(Novel).render(apps)
 
     def test_render_model_with_multiple_inheritance(self):
+        """
+        \\":Test to ensure that rendering models with multiple inheritance results in the expected base models.
+
+            This test verifies the correct rendering of models that inherit from multiple base models, including 
+            abstract models and models with multiple levels of inheritance. It checks that the `ModelState` 
+            correctly identifies the base models for each model, handling cases where multiple inheritance 
+            and abstract models are involved. The test also checks that an `InvalidBasesError` is raised when 
+            attempting to render a model with an invalid base model configuration.\\"
+        """
         class Foo(models.Model):
             class Meta:
                 app_label = "migrations"
@@ -647,6 +671,13 @@ class StateTests(SimpleTestCase):
         self.assertIs(D._meta.get_field("a").related_model, A)
 
     def test_reload_model_relationship_consistency(self):
+        """
+        Tests the consistency of model relationships after reloading a model.
+
+        This test case creates a project state with three models, A, B, and C, where B has a foreign key to A, and C has a foreign key to B.
+        It verifies that the related objects for each model are correctly set before and after reloading model A.
+        The test ensures that the related objects for each model remain consistent, even after the model is reloaded, to prevent any potential inconsistencies or errors in the relationships between models.
+        """
         project_state = ProjectState()
         project_state.add_model(ModelState("migrations", "A", []))
         project_state.add_model(
@@ -1059,6 +1090,14 @@ class StateTests(SimpleTestCase):
         )
 
     def test_real_apps_non_set(self):
+        """
+
+        Tests that an AssertionError is raised when trying to create a ProjectState instance with real applications that are not sets.
+
+        This test ensures that the ProjectState class correctly validates its input, specifically that the real_apps parameter must be a set of application names.
+
+        :raises: AssertionError if the real_apps parameter is not a set.
+        """
         with self.assertRaises(AssertionError):
             ProjectState(real_apps=["contenttypes"])
 
@@ -1117,6 +1156,13 @@ class StateTests(SimpleTestCase):
         self.assertEqual(order_wrt_field.related_model, "migrations.author")
 
     def test_modelstate_get_field_no_order_wrt_order_field(self):
+        """
+
+        Tests the ModelState's get_field method when retrieving a field that does not participate in an order_with_respect_to relationship.
+
+        Verifies that the retrieved field is an instance of PositiveSmallIntegerField and does not have a related model.
+
+        """
         new_apps = Apps()
 
         class HistoricalRecord(models.Model):
@@ -1132,6 +1178,13 @@ class StateTests(SimpleTestCase):
         self.assertIsInstance(order_field, models.PositiveSmallIntegerField)
 
     def test_get_order_field_after_removed_order_with_respect_to_field(self):
+        """
+        Tests the behavior of the get_order_field method after an order_with_respect_to field has been removed.
+
+        This test case verifies that the _order field is still correctly retrieved and that it no longer has a related model, as expected after the removal of the order_with_respect_to field.
+
+        It ensures the timely update and correct functionality of the get_order_field method in the presence of changes to the model's ordering configuration, providing a robust test of the method's behavior under specific conditions.
+        """
         new_apps = Apps()
 
         class HistoricalRecord(models.Model):
@@ -1209,6 +1262,11 @@ class StateTests(SimpleTestCase):
 
 class StateRelationsTests(SimpleTestCase):
     def get_base_project_state(self):
+        """
+        Returns a :class:`ProjectState` object representing the base state of a project, including three models: User, Comment, and Post.
+        The User model represents a user, the Comment model represents a comment with a foreign key to the User model and a many-to-many relationship to itself, and the Post model represents a post with a many-to-many relationship to the User model.
+        This state can be used as a foundation for testing or comparison purposes.
+        """
         new_apps = Apps()
 
         class User(models.Model):
@@ -1240,6 +1298,25 @@ class StateRelationsTests(SimpleTestCase):
         return project_state
 
     def test_relations_population(self):
+        """
+
+        Tests the population of relations in a project state for various model operations.
+
+        Checks the relations are correctly updated after performing different operations
+        such as adding/removing models, adding/removing fields, renaming models and fields,
+        and altering fields. The operations tested include:
+        - Adding a model
+        - Removing a model
+        - Renaming a model
+        - Adding a field
+        - Removing a field
+        - Renaming a field
+        - Altering a field
+
+        For each operation, it verifies that the relations are initially empty and
+        subsequently populated as expected.
+
+        """
         tests = [
             (
                 "add_model",
@@ -1286,6 +1363,15 @@ class StateRelationsTests(SimpleTestCase):
                 self.assertIsNotNone(project_state._relations)
 
     def test_add_model(self):
+        """
+
+        Tests that the model relations are correctly defined in the project state.
+
+        This test case verifies the existence and accuracy of relationships between different models, 
+        such as 'tests', 'user', 'comment', and 'post', in the project's state. It checks for 
+        specific relationships and ensures that certain relationships do not exist.
+
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1298,6 +1384,22 @@ class StateRelationsTests(SimpleTestCase):
         self.assertNotIn(("tests", "post"), project_state.relations)
 
     def test_add_model_no_relations(self):
+        """
+        Tests adding a model with no relations to the project state.
+
+        Verifies that a model can be successfully added to the project state when it does not have any relationships defined.
+        The test checks that the project state's relations dictionary remains empty after adding the model.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the project state's relations dictionary is not empty after adding the model.
+
+        """
         project_state = ProjectState()
         project_state.add_model(
             ModelState(
@@ -1309,6 +1411,18 @@ class StateRelationsTests(SimpleTestCase):
         self.assertEqual(project_state.relations, {})
 
     def test_add_model_other_app(self):
+        """
+        Tests adding a model from another application affects the project state's relations.
+
+        This test case verifies that when a new model with a foreign key to an existing model
+        is added, the project state's relations are updated accordingly. It ensures that the
+        relations between models are correctly tracked, even when the models belong to
+        different applications.
+
+        The test covers the scenario where a model from another application ('tests_other')
+        has a foreign key to a model in the current application ('tests'), and checks that
+        the project state's relations reflect this new relationship.
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1406,6 +1520,23 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_add_field(self):
+        """
+        Tests the addition of fields to a project state.
+
+        This test case checks that fields can be successfully added to a project state,
+        including foreign key relationships between models. It verifies that the added
+        fields are correctly stored in the project state's relations dictionary and that
+        the relationships between models are properly established.
+
+        The test covers different scenarios, including adding a foreign key to the same
+        model and adding a foreign key to a different model. It ensures that the
+        preserve_default parameter is handled correctly, allowing default values to be
+        preserved when adding new fields.
+
+        The test validates the expected behavior of the add_field method by checking the
+        project state's relations after adding fields and verifying that the relationships
+        between models are correctly established.
+        """
         project_state = self.get_base_project_state()
         self.assertNotIn(("tests", "post"), project_state.relations)
         # Add a self-referential foreign key.
@@ -1494,6 +1625,20 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_remove_field(self):
+        """
+
+        Tests the removal of fields from a project state.
+
+        Verifies that the remove_field method correctly updates relations between entities
+        in the project state when a field is deleted. Specifically, it checks that:
+
+        * The initial relations between entities are correctly identified
+        * Removing a field from an entity updates the relations accordingly
+        * Removing a second field from the same entity further updates the relations
+
+        Ensures that the project state remains consistent after multiple field removals.
+
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1510,6 +1655,15 @@ class StateRelationsTests(SimpleTestCase):
         self.assertEqual(project_state.relations["tests", "user"], {})
 
     def test_remove_field_no_relations(self):
+        """
+        Tests the removal of a field from a project state that has no relations to other fields.
+
+        This test case verifies that the removal of a field ('text') from a model ('post') in the 'tests' app does not affect the existing relations between 'tests' and 'user'. 
+
+        It ensures that the `remove_field` method of the project state does not alter the relations when there are no direct dependencies between the field being removed and other related fields.
+
+        The test relies on the initial project state established by `get_base_project_state`, which includes predefined relations between 'tests' and 'user' via 'comment' and 'post'.
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1588,6 +1742,20 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_alter_field_m2m_to_fk(self):
+        """
+        Tests the alteration of a many-to-many field to a foreign key.
+
+         This test case verifies that the relations dictionary is updated correctly 
+         when a many-to-many field is altered to a foreign key field, and ensures 
+         that the default value is preserved during the alteration process.
+
+         The test covers the successful removal of the many-to-many relation and 
+         the establishment of a new foreign key relation between the models.
+
+         The expected outcome is that the original many-to-many relation is removed 
+         from the project state's relations and the new foreign key relation is added.
+
+        """
         project_state = self.get_base_project_state()
         project_state.add_model(
             ModelState(
@@ -1624,6 +1792,22 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_many_relations_to_same_model(self):
+        """
+
+        Tests the handling of multiple relations from the same model.
+
+        Verifies that the project state correctly manages multiple foreign key fields
+        that point to the same model, including adding, renaming, and removing fields.
+        Ensures that the relations are properly updated and maintained in the project state.
+
+        Specifically, this test checks:
+
+        * Adding a new field with a relation to an existing model
+        * Verifying the correct number and names of relations
+        * Renaming a field and checking that the relation is updated
+        * Removing a field and checking that the relation is updated
+
+        """
         project_state = self.get_base_project_state()
         new_field = models.ForeignKey("tests.user", models.CASCADE)
         project_state.add_field(
@@ -1652,6 +1836,17 @@ class StateRelationsTests(SimpleTestCase):
 
 class ModelStateTests(SimpleTestCase):
     def test_custom_model_base(self):
+        """
+        Test that a custom model with a custom base class is correctly identified and its base classes are retrieved.
+
+        This test case verifies that the from_model function in ModelState correctly handles 
+        models that inherit from a custom base class, checking specifically that the 
+        bases attribute of the resulting ModelState instance contains the expected base classes.
+
+        The expected outcome is that the custom model's base classes are correctly identified 
+        as the original Model base class from the models module, ensuring proper 
+        functionality and inheritance in the model hierarchy. 
+        """
         state = ModelState.from_model(ModelWithCustomBase)
         self.assertEqual(state.bases, (models.Model,))
 
@@ -1664,6 +1859,9 @@ class ModelStateTests(SimpleTestCase):
             ModelState("app", "Model", [("field", field)])
 
     def test_sanity_check_to(self):
+        """
+        Tests a sanity check for model state fields, ensuring that they do not directly reference a model class. Instead, they should use a string representation of the model, following the 'app.ModelName' format. This check prevents potential issues with model state fields and enforces consistency in model references. The test expects a ValueError to be raised with a specific error message when an invalid model field is provided.
+        """
         field = models.ForeignKey(UnicodeModel, models.CASCADE)
         with self.assertRaisesMessage(
             ValueError,
@@ -1673,6 +1871,17 @@ class ModelStateTests(SimpleTestCase):
             ModelState("app", "Model", [("field", field)])
 
     def test_sanity_check_through(self):
+        """
+        Tests the sanity check for ManyToManyField through model references.
+
+        This test case verifies that a ValueError is raised when the 'through' attribute
+        of a ManyToManyField references a model class directly, rather than using a string
+        reference. This is to prevent potential errors in ModelState fields.
+
+        The test checks that the error message is correctly raised with a descriptive message,
+        indicating that model fields cannot refer to a model class directly in the ModelState.fields.
+
+        """
         field = models.ManyToManyField("UnicodeModel")
         field.remote_field.through = UnicodeModel
         with self.assertRaisesMessage(
@@ -1703,6 +1912,16 @@ class ModelStateTests(SimpleTestCase):
         self.assertNotEqual(Model._meta.get_field("name"), field)
 
     def test_repr(self):
+        """
+
+        Tests the representation of a ModelState object and ensures it properly handles invalid bases.
+
+        This test case creates a ModelState object for a model with a single character field,
+        then verifies that its string representation is correctly formatted.
+        Additionally, it checks that attempting to resolve bases for a model with
+        unresolvable bases raises an InvalidBasesError with the expected message.
+
+        """
         field = models.CharField(max_length=1)
         state = ModelState(
             "app", "Model", [("name", field)], bases=["app.A", "app.B", "app.C"]
@@ -1717,6 +1936,11 @@ class ModelStateTests(SimpleTestCase):
             project_state.apps
 
     def test_fields_ordering_equality(self):
+        """
+        Tests whether two ModelState instances with the same fields but in a different order are considered equal.
+
+        This test case verifies that the equality check for ModelState instances is order-independent, meaning that the order in which fields are defined does not affect the comparison result. It ensures that ModelState instances with identical fields, regardless of their ordering, are treated as equal.
+        """
         state = ModelState(
             "migrations",
             "Tag",
@@ -1901,6 +2125,14 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations")
     def test_from_model_constraints(self):
+        """
+        Tests the transformation of model constraints from a Django model to a ModelState object.
+
+        The model constraints tested here include a check constraint that ensures a field value is greater than a certain threshold.
+
+        The test verifies that the original model constraints and the transformed state constraints are equal but not the same object, 
+        and also checks that individual constraints within the lists are distinct objects.
+        """
         class ModelWithConstraints(models.Model):
             size = models.IntegerField()
 
@@ -1960,6 +2192,14 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [])
 
     def test_direct_fk(self):
+        """
+        /tests/test_direct_fk: Tests the functionality of direct foreign key relationships between two models.
+
+            This test case verifies that a direct foreign key relationship is correctly established 
+            between two models, 'A' and 'B', where 'A' has a foreign key referencing 'B'. It checks 
+            that 'A' is related to 'B' and 'B' is related back to 'A', ensuring the relationship is 
+            properly defined in both directions.
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE)]
         )
@@ -1968,6 +2208,18 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A])
 
     def test_direct_hidden_fk(self):
+        """
+
+        Tests that a direct foreign key relationship is correctly established 
+        between two models, even if the relationship is hidden on the related model.
+
+        The test creates two models, A and B, where A has a foreign key to B. 
+        The foreign key is defined with a related_name of '+', which hides the 
+        relationship from the B model. The test then asserts that the relationship 
+        is correctly established in both directions, i.e., that A is related to B 
+        and B is related to A.
+
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE, related_name="+")]
         )
@@ -2000,6 +2252,16 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_two_sided(self):
+        """
+
+        Tests the creation of two-sided relationships between two models.
+
+        Verifies that when two models, A and B, reference each other through foreign keys,
+        the relationships are correctly established in both directions. This test ensures
+        that the models can be related to each other as expected, allowing for bidirectional
+        navigation between instances of A and B.
+
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("B", models.CASCADE)]
         )
@@ -2024,6 +2286,17 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_base(self):
+        """
+
+        Tests the basic relationship between a base model and its subclass.
+
+        Verifies that a base model is correctly associated with its derived classes and
+        that the derived classes are correctly associated with their base model.
+
+        This test case ensures that the fundamental inheritance relationships are properly
+        established and can be accurately retrieved.
+
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,))
         self.assertRelated(A, [B])
@@ -2052,6 +2325,25 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_multiple_nested_bases(self):
+        """
+        Tests whether the model inheritance relationships are correctly 
+        resolved within a complex hierarchy of nested base classes.
+
+        Checks the related models for each of the created models in a 
+        scenarios with multiple levels of inheritance, ensuring that 
+        all parent and child relationships are accurately identified and 
+        returned. This includes verifying the relationships between models 
+        at different levels of the hierarchy, such as great-grandparents 
+        and great-grandchildren, as well as between models in separate 
+        branches of the hierarchy.
+
+        Models A through F are used to test relationships with multiple 
+        nested base classes, while models Y and Z are used to verify 
+        relationships in a simpler, separate hierarchy. The test asserts 
+        that each model's related models are correctly identified, 
+        covering various inheritance scenarios and confirming the 
+        accurate resolution of complex relationships between models.
+        """
         A = self.create_model("A")
         B = self.create_model("B")
         C = self.create_model(
@@ -2082,6 +2374,17 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(Z, [Y])
 
     def test_base_to_base_fk(self):
+        """
+
+
+        Tests the foreign key relationship between base models and their related instances.
+
+        This test case checks the correctness of foreign key relationships 
+        when a model inherits from another model with a foreign key.
+        It verifies that the related objects are correctly resolved 
+        between the base model, the inherited model, and their related instances.
+
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("Y", models.CASCADE)]
         )
@@ -2094,6 +2397,24 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(Z, [A, B, Y])
 
     def test_base_to_subclass_fk(self):
+        """
+
+        Tests the foreign key relationship between a base model and its subclass, 
+        and the relationships between the models and their parents or children.
+
+        This test case verifies that the foreign key relationship is correctly 
+        established between the base model and its subclass, and that the 
+        relationships between the models are properly resolved.
+
+        In this test, four models (A, B, Y, Z) are created with specific 
+        inheritance relationships: model B inherits from model A, and model Z 
+        inherits from model Y. Model A has a foreign key to model Z. The test 
+        then checks that the relationships between these models are correctly 
+        established, including the relationships between the base models and 
+        their subclasses, as well as between the models and their parents or 
+        children.
+
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ForeignKey("Z", models.CASCADE)]
         )
@@ -2112,10 +2433,26 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A, A.a_1.rel.through])
 
     def test_direct_m2m_self(self):
+        """
+        Tests direct many-to-many relationship with self-referential model.
+
+        Verifies that a model with a many-to-many field referencing itself is correctly
+        established and can be queried. This test ensures that the relationship is
+        properly defined and the through model is correctly identified.
+        """
         A = self.create_model("A", foreign_keys=[models.ManyToManyField("A")])
         self.assertRelated(A, [A.a_1.rel.through])
 
     def test_intermediate_m2m_self(self):
+        """
+        Tests the intermediate many-to-many relationship with self-referential models.
+
+        This test case verifies the correct establishment of relationships between two models, 
+        'A' and 'T', where 'A' has a many-to-many relationship with itself through the intermediate model 'T'. 
+        It checks that model 'A' is related to model 'T' and vice versa, ensuring the expected associations 
+        are correctly defined in the model definitions. The purpose is to validate the self-referential many-to-many 
+        relationship in a model, ensuring proper relation setup and accessibility through the intermediate model 'T'.
+        """
         A = self.create_model(
             "A", foreign_keys=[models.ManyToManyField("A", through="T")]
         )
@@ -2184,6 +2521,18 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(T, [A, B, S])
 
     def test_generic_fk(self):
+        """
+        Verifies the functionality of generic foreign keys in model relationships.
+
+        This function tests the establishment of relationships between models using foreign keys, 
+        specifically focusing on the interaction between a model with a generic foreign key and another model. 
+
+        It checks if the relationships between models 'A' and 'B' are correctly established, 
+        including the cascading effect on related models, by asserting that 'A' is related to 'B' and vice versa.
+
+        This test ensures that the generic foreign key in model 'A' can correctly link to model 'B', 
+        and that model 'B' can also be associated with model 'A' through its own foreign key, demonstrating a bidirectional relationship.
+        """
         A = self.create_model(
             "A",
             foreign_keys=[
@@ -2215,12 +2564,32 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [])
 
     def test_proxy_base(self):
+        """
+
+        Tests the base class functionality of a proxy model.
+
+        Verifies that a proxy model correctly establishes relationships with its base class.
+        This includes checking that the base class recognizes the proxy model as a related object,
+        and that the proxy model does not have any related objects of its own.
+
+        Ensures that the proxy model is properly linked to its base class, and that this relationship
+        is correctly reflected in the model's relationships.
+
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,), proxy=True)
         self.assertRelated(A, [B])
         self.assertRelated(B, [])
 
     def test_nested_proxy_base(self):
+        """
+
+        Tests the behavior of nested proxy models, verifying the relationships between base models and their proxies.
+
+        This test case creates a hierarchical relationship between models A, B, and C, where B is a proxy model of A and C is a proxy model of B.
+        It then asserts that the related models are correctly identified for each model in the hierarchy.
+
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,), proxy=True)
         C = self.create_model("C", bases=(B,), proxy=True)
@@ -2229,6 +2598,17 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [])
 
     def test_multiple_mixed_bases(self):
+        """
+
+        Tests the relationships between models with multiple and mixed bases, 
+        including abstract, proxy, and inherited models.
+
+        This test case verifies that the relationships between the models are 
+        correctly established, specifically testing the connections between 
+        a model with multiple bases (including an abstract model, a normal model, 
+        and a proxy model) and its related models.
+
+        """
         A = self.create_model("A", abstract=True)
         M = self.create_model("M")
         P = self.create_model("P")

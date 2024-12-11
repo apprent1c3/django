@@ -36,6 +36,19 @@ class ActionAdmin(admin.ModelAdmin):
         from django.urls import re_path
 
         def wrap(view):
+            """
+            #: 
+                Decorates a view function to run it within the admin interface.
+
+                This decorator is designed to integrate non-admin views into the admin site,
+                providing the same functionality and security features as built-in admin views.
+
+                It wraps the provided view in the admin site's view decorator, which handles
+                tasks such as authentication, authorization, and error handling.
+
+                :param view: The view function to be decorated.
+                :return: A decorated version of the view function, integrated with the admin site.
+            """
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
 

@@ -62,6 +62,15 @@ class DriverTest(unittest.TestCase):
         """
 
         def check(count_val):
+            """
+            -check
+              Verify the registration behavior of the Driver class based on a count value.
+
+              :param count_val: The count value to simulate the registration condition.
+              :return: None
+
+              This function tests the registration mechanism by mimicking different count values and checking if the registration function is called accordingly. If the count value is truthy, it asserts that the registration function is not called. Otherwise, it verifies that the registration function is called once.
+            """
             reg.reset_mock()
             count.return_value = count_val
             Driver.ensure_registered()

@@ -257,6 +257,15 @@ class BaseFormSet(RenderableFormMixin):
 
     @property
     def empty_form(self):
+        """
+        ..:property:
+            Get an instance of the form with no bound data, fields and other attributes configured.
+
+            This property returns a new form object each time it is accessed. The returned form is initialized with default
+            settings, including auto ID generation, prefixing and rendering configuration. No validation is performed on this form,
+            as it doesn't contain any user-submitted data. The purpose of this form is to provide a representation of the form
+            structure, including all fields and their properties, which can be used for rendering or other purposes.
+        """
         form_kwargs = {
             **self.get_form_kwargs(None),
             "auto_id": self.auto_id,

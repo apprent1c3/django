@@ -143,6 +143,23 @@ class ContinuousRangeField(RangeField):
     """
 
     def __init__(self, *args, default_bounds=CANONICAL_RANGE_BOUNDS, **kwargs):
+        """
+        Initializes the object with the given arguments and keyword arguments.
+
+        The initialization also sets the default bounds for the object, which determines
+        how the object behaves at its boundaries. The default bounds can be one of the
+        following modes: '[)', '(]', '()', or '[]', where '[' and ']' denote inclusion
+        and '(' and ')' denote exclusion.
+
+        Args:
+            *args: Variable number of positional arguments.
+            default_bounds (str, optional): The default bounds mode. Defaults to CANONICAL_RANGE_BOUNDS.
+            **kwargs: Variable number of keyword arguments.
+
+        Raises:
+            ValueError: If the default_bounds is not one of the allowed modes.
+
+        """
         if default_bounds not in ("[)", "(]", "()", "[]"):
             raise ValueError("default_bounds must be one of '[)', '(]', '()', or '[]'.")
         self.default_bounds = default_bounds
@@ -154,6 +171,11 @@ class ContinuousRangeField(RangeField):
         return super().get_prep_value(value)
 
     def formfield(self, **kwargs):
+        """
+        Returns a form field for this object, using the default bounds if not specified in the keyword arguments.
+
+        The returned form field is initialized with the object's default bounds unless 'default_bounds' is explicitly provided in kwargs. Additional keyword arguments are passed to the parent class's formfield method, allowing for further customization of the returned form field.
+        """
         kwargs.setdefault("default_bounds", self.default_bounds)
         return super().formfield(**kwargs)
 

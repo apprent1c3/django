@@ -52,6 +52,20 @@ class AbsoluteUrlOverrideTests(SimpleTestCase):
             self.assertEqual("/test-c/%s/" % obj.pk, obj.get_absolute_url())
 
     def _create_model_class(self, class_name, get_absolute_url_method=None):
+        """
+
+        Creates a new model class dynamically.
+
+        This function generates a model class with the specified name and attributes.
+        The created model class has a 'name' field with a maximum length of 50 characters.
+        Optionally, a custom 'get_absolute_url' method can be provided to override the default behavior.
+        The resulting model class is returned and can be used for further operations.
+
+        :param class_name: The name of the model class to be created.
+        :param get_absolute_url_method: An optional method to override the default 'get_absolute_url' behavior.
+        :return: A dynamically created model class.
+
+        """
         attrs = {
             "name": models.CharField(max_length=50),
             "__module__": "absolute_url_overrides",

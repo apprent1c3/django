@@ -59,6 +59,18 @@ class FlatpageAdminFormTests(TestCase):
         )
 
     def test_flatpage_requires_leading_slash(self):
+        """
+
+        Tests that the FlatpageForm validation fails for a URL without a leading slash.
+
+        Verifies that when a URL is submitted without a leading slash, the form is
+        marked as invalid and returns a corresponding error message.
+
+        This ensures that URLs for flatpages are always properly formatted, helping
+        to prevent potential routing issues or other problems that could arise from
+        inconsistent URL structures.
+
+        """
         form = FlatpageForm(data=dict(url="no_leading_slash/", **self.form_data))
         with translation.override("en"):
             self.assertFalse(form.is_valid())
@@ -82,6 +94,13 @@ class FlatpageAdminFormTests(TestCase):
         APPEND_SLASH=False, MIDDLEWARE=["django.middleware.common.CommonMiddleware"]
     )
     def test_flatpage_doesnt_requires_trailing_slash_without_append_slash(self):
+        """
+
+        Tests that a flatpage can be created without a trailing slash when APPEND_SLASH is set to False.
+
+        Checks that the FlatpageForm is valid when the URL does not end with a slash and that the help text for the URL field correctly indicates that a leading slash is required but a trailing slash is not necessary.
+
+        """
         form = FlatpageForm(data=dict(url="/no_trailing_slash", **self.form_data))
         self.assertTrue(form.is_valid())
         with translation.override("en"):

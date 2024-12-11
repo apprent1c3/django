@@ -39,6 +39,19 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s2.gender, "M")
 
     def test_update_fields_only_1(self):
+        """
+        Tests that updating a model instance using only() updates the changed fields.
+
+        This test case verifies that when retrieving a model instance with only()
+        and modifying its fields, the changes are persisted in the database.
+        It checks that the update operation only updates the fields that were
+        modified, without affecting other fields. The test also ensures that
+        the update is performed efficiently, using only a single database query.
+
+        It validates that the updated fields are correctly persisted and 
+        retrieved, demonstrating the correctness of the model's update behavior 
+        when using only().
+        """
         s = Person.objects.create(name="Sara", gender="F")
         self.assertEqual(s.gender, "F")
 
@@ -82,6 +95,14 @@ class UpdateOnlyFieldsTests(TestCase):
             s1.save()
 
     def test_update_fields_inheritance_defer(self):
+        """
+        Tests the update fields functionality when using inheritance and deferred fields.
+
+        Verifies that updating a deferred field, in this case the employee's name, 
+        results in a single database query when saving the object. 
+
+        Ensures that the changes are persisted correctly and can be retrieved from the database.
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         e1 = Employee.objects.create(
             name="Sara", gender="F", employee_num=1, profile=profile_boss
@@ -93,6 +114,21 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(Employee.objects.get(pk=e1.pk).name, "Linda")
 
     def test_update_fields_fk_defer(self):
+        """
+
+        Tests the update of fields with foreign key defer.
+
+        This test case checks whether updating a foreign key field
+        on an existing model instance results in the expected database queries
+        and outcome. It creates two profiles, sets a foreign key reference to one of them,
+        updates it to the other, and then back to the first, verifying in each case
+        that the correct profile is associated with the employee instance and that the
+        update is performed with the expected number of database queries.
+
+        The purpose of this test is to ensure that the foreign key deferral functionality
+        is working as expected, allowing for efficient updates of related fields.
+
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = Employee.objects.create(
@@ -142,6 +178,15 @@ class UpdateOnlyFieldsTests(TestCase):
             e1.save(update_fields=["accounts"])
 
     def test_update_fields_inheritance(self):
+        """
+
+        Tests the behavior of updating specific fields in the Employee model while inheriting from the Profile model.
+
+        Verifies that only the specified fields are updated when using the update_fields parameter in the save method.
+        Validates that changes to an Employee instance's profile and other attributes are persisted correctly.
+        Also checks that the number of database queries is optimized when updating the profile field by its id.
+
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = Employee.objects.create(
@@ -198,6 +243,15 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(e3.profile, profile_receptionist)
 
     def test_update_fields_signals(self):
+        """
+        Tests that the update_fields argument is correctly passed to pre_save and post_save signals when saving a model instance.
+
+        This test creates a Person instance, connects to the pre_save and post_save signals, saves the instance with the update_fields argument set to ['name'], and then checks that the update_fields argument is correctly received by the signal receivers.
+
+        The test verifies that the update_fields argument contains the expected field name ('name') and that the signal receivers are called the expected number of times.
+
+        By testing the update_fields argument in this way, this test ensures that the signals are sent correctly and can be relied upon by other parts of the application that need to respond to model instance updates.
+        """
         p = Person.objects.create(name="Sara", gender="F")
         pre_save_data = []
 
@@ -258,6 +312,13 @@ class UpdateOnlyFieldsTests(TestCase):
         post_save.disconnect(post_save_receiver)
 
     def test_empty_update_fields_positional_save(self):
+        """
+        Tests that passing positional arguments to the save method raises a RemovedInDjango60Warning.
+
+        Checks that an update_fields positional argument passed to save() correctly triggers a deprecation warning when using the default update_fields behavior, without issuing any database queries.
+
+        This test case verifies the deprecation of positional arguments in the save() method, ensuring that users are notified of the upcoming change in a future Django release.
+        """
         s = Person.objects.create(name="Sara", gender="F")
 
         msg = "Passing positional arguments to save() is deprecated"
@@ -281,6 +342,17 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(s.name, "Sara")
 
     def test_num_queries_inheritance(self):
+        """
+
+        Tests the number of database queries performed when updating fields of an Employee object
+        using model inheritance, ensuring that the update_fields parameter of the save method
+        optimizes the number of queries.
+
+        Verifies that updating a single field of the Employee model results in a single query,
+        and that updating multiple fields results in the expected number of queries.
+        Additionally, confirms that the data is correctly updated in the database.
+
+        """
         s = Employee.objects.create(name="Sara", gender="F")
         s.employee_num = 1
         s.name = "Emily"
@@ -303,6 +375,14 @@ class UpdateOnlyFieldsTests(TestCase):
             s.save(update_fields=["name", "employee_num"])
 
     def test_update_non_concrete_field(self):
+        """
+
+        Tests that attempting to update a non-concrete field raises a ValueError.
+
+        This test case verifies that when trying to update a field that is not a concrete field,
+        the expected error message is raised, preventing incorrect updates to the model instance.
+
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         with self.assertRaisesMessage(ValueError, self.msg % "non_concrete"):
             profile_boss.save(update_fields=["non_concrete"])

@@ -840,6 +840,14 @@ class BooleanField(Field):
             raise ValidationError(self.error_messages["required"], code="required")
 
     def has_changed(self, initial, data):
+        """
+        Checks whether the provided data has changed relative to the initial data.
+
+         This comparison is done after converting both the initial and current data to a Python representation.
+
+         Returns:
+             bool: True if the data has changed, False otherwise. If the object is disabled, it always returns False.
+        """
         if self.disabled:
             return False
         # Sometimes data or initial may be a string equivalent of a boolean
@@ -935,6 +943,18 @@ class ChoiceField(Field):
 
 class TypedChoiceField(ChoiceField):
     def __init__(self, *, coerce=lambda val: val, empty_value="", **kwargs):
+        """
+
+        Initializes a class instance with optional value coercion and empty value settings.
+
+        The instance can be customized with a coercion function that transforms input values.
+        Additionally, an empty value can be specified to represent an unset or null state.
+        Other keyword arguments are passed to the parent class for further initialization.
+
+        :param coerce: A function to apply to input values for coercion (default: identity function)
+        :param empty_value: The value representing an empty or unset state (default: empty string)
+
+        """
         self.coerce = coerce
         self.empty_value = empty_value
         super().__init__(**kwargs)
@@ -1008,6 +1028,20 @@ class MultipleChoiceField(ChoiceField):
 
 class TypedMultipleChoiceField(MultipleChoiceField):
     def __init__(self, *, coerce=lambda val: val, **kwargs):
+        """
+
+        Initializes the object.
+
+        This method sets up the object with a coercion function and an empty value.
+        The coercion function is used to transform values, and it defaults to a simple identity function.
+        The empty value is used to represent an empty or unspecified state, and it defaults to an empty list.
+
+        Any additional keyword arguments are passed to the parent class's initialization method.
+
+        :param coerce: A function that takes a value and returns a transformed value. Defaults to an identity function.
+        :param empty_value: The value to use when representing an empty or unspecified state. Defaults to an empty list.
+
+        """
         self.coerce = coerce
         self.empty_value = kwargs.pop("empty_value", [])
         super().__init__(**kwargs)
@@ -1036,6 +1070,13 @@ class TypedMultipleChoiceField(MultipleChoiceField):
         return self._coerce(value)
 
     def validate(self, value):
+        """
+        Validate the given value according to the field's requirements.
+
+        This validation checks if the value is not empty. If it's not empty, 
+        the parent class validation is called. If the value is empty and the field 
+        is required, a :class:`~ValidationError` is raised with a 'required' message.
+        """
         if value != self.empty_value:
             super().validate(value)
         elif self.required:
@@ -1048,6 +1089,18 @@ class ComboField(Field):
     """
 
     def __init__(self, fields, **kwargs):
+        """
+        Initialize an instance of the class.
+
+        The constructor accepts a list of fields and additional keyword arguments.
+        It inherits from its parent class using the provided keyword arguments.
+        The function then iterates over each field, setting its required attribute to False.
+        The list of fields is stored as an instance attribute.
+
+        :param fields: A list of fields to be associated with the instance
+        :param **kwargs: Additional keyword arguments to be passed to the parent class constructor
+
+        """
         super().__init__(**kwargs)
         # Set 'required' to False on the individual fields, because the
         # required validation will be handled by ComboField, not by those
@@ -1262,6 +1315,20 @@ class SplitDateTimeField(MultiValueField):
     }
 
     def __init__(self, *, input_date_formats=None, input_time_formats=None, **kwargs):
+        """
+        Initializes a date and time field with customizable input formats and error messages.
+
+         Args:
+            input_date_formats (list): A list of date formats to accept as input.
+            input_time_formats (list): A list of time formats to accept as input.
+            localize (bool): Whether to localize the date and time fields. Defaults to False.
+            error_messages (dict): A dictionary of custom error messages to display when the input is invalid.
+                Can contain 'invalid_date' and 'invalid_time' keys.
+
+         The field will validate the input date and time based on the provided formats and display
+         error messages if the input is invalid. The localize option can be used to adapt the field
+         to the user's locale. 
+        """
         errors = self.default_error_messages.copy()
         if "error_messages" in kwargs:
             errors.update(kwargs["error_messages"])
@@ -1299,6 +1366,12 @@ class SplitDateTimeField(MultiValueField):
 
 class GenericIPAddressField(CharField):
     def __init__(self, *, protocol="both", unpack_ipv4=False, **kwargs):
+        """
+        ..:param str protocol: The protocol to use for validation, defaults to 'both' which implies both IPv4 and IPv6.  
+        ..:param bool unpack_ipv4: If True, unpacks the IPv4 address into separate components.  
+        ..:param kwargs: Additional keyword arguments passed to the parent class initializer.  
+        :Initializes the object, setting up the IP address validation protocol and default validators.
+        """
         self.unpack_ipv4 = unpack_ipv4
         self.default_validators = validators.ip_address_validators(
             protocol, unpack_ipv4
@@ -1318,6 +1391,16 @@ class SlugField(CharField):
     default_validators = [validators.validate_slug]
 
     def __init__(self, *, allow_unicode=False, **kwargs):
+        """
+        Initializes the class instance.
+
+        This initializer sets up the instance with an optional parameter to allow unicode characters.
+        If :paramref:`allow_unicode` is True, the instance will use a unicode-aware slug validation.
+        Additional keyword arguments are passed to the parent class initializer.
+
+        :param allow_unicode: Whether to allow unicode characters in the slug validation.
+        :type allow_unicode: bool
+        """
         self.allow_unicode = allow_unicode
         if self.allow_unicode:
             self.default_validators = [validators.validate_unicode_slug]

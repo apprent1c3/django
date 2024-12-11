@@ -34,6 +34,15 @@ from django.utils.html import conditional_escape
 )
 class PasswordValidationTest(SimpleTestCase):
     def test_get_default_password_validators(self):
+        """
+        Tests the retrieval of default password validators.
+
+        This test case verifies that the get_default_password_validators function returns a list of 
+        password validators with the expected types and settings. Specifically, it checks that the 
+        function returns two validators: a CommonPasswordValidator and a MinimumLengthValidator 
+        with a minimum length of 12 characters. The test ensures that the default password validation 
+        mechanism is properly configured and functioning as intended.
+        """
         validators = get_default_password_validators()
         self.assertEqual(len(validators), 2)
         self.assertEqual(validators[0].__class__.__name__, "CommonPasswordValidator")
@@ -41,6 +50,12 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(validators[1].min_length, 12)
 
     def test_get_password_validators_custom(self):
+        """
+        Tests the functionality of the get_password_validators function with custom validator configuration.
+        It checks if the function correctly loads and returns a list of password validators based on the provided configuration.
+        The test case verifies that a single validator is successfully loaded and identified when a valid configuration is provided, 
+        and that an empty list is returned when no validators are specified.
+        """
         validator_config = [
             {"NAME": "django.contrib.auth.password_validation.CommonPasswordValidator"}
         ]

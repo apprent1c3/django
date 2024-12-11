@@ -25,12 +25,33 @@ except ImportError:
 
 class TestArchive(unittest.TestCase):
     def setUp(self):
+        """
+        Sets up the testing environment by changing the current working directory to the archives directory.
+
+        This method is used to prepare the environment for subsequent tests, ensuring that all file operations are performed within the archives directory.
+        It also ensures that the original working directory is restored after the test is completed, regardless of the test outcome, by adding a cleanup operation.
+
+        The archives directory is assumed to be located in the same directory as the current test file.
+
+        """
         self.testdir = os.path.join(os.path.dirname(__file__), "archives")
         old_cwd = os.getcwd()
         os.chdir(self.testdir)
         self.addCleanup(os.chdir, old_cwd)
 
     def test_extract_function(self):
+        """
+        Tests the extraction functionality of archives.
+
+        This test iterates over a directory of test archives, extracts each one to a temporary directory, 
+        and verifies that the expected files are present in the extracted archive.
+
+        The test supports multiple compression formats, but skips tests for formats that are not supported 
+        by the current environment (e.g. bz2 or lzma/xz if the required libraries are not available).
+
+        The expected files and directory structure are hardcoded in the test, ensuring that the extracted 
+        archive has the correct layout and contents.
+        """
         with os.scandir(self.testdir) as entries:
             for entry in entries:
                 with self.subTest(entry.name), tempfile.TemporaryDirectory() as tmpdir:

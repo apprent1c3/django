@@ -113,6 +113,17 @@ def reset_template_engines(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def storages_changed(*, setting, **kwargs):
+    """
+
+    Reset and reinitialize storage backends when specific Django settings are modified.
+
+    This function is triggered when the 'STORAGES', 'STATIC_ROOT', or 'STATIC_URL' settings are changed.
+    It resets the storage backends by clearing the cached storages and reinitializing the default storage and static files storage.
+    This ensures that any changes to these settings take effect immediately, allowing for seamless updates to storage configurations.
+
+    :param setting: The name of the setting that was changed.
+
+    """
     from django.contrib.staticfiles.storage import staticfiles_storage
     from django.core.files.storage import default_storage, storages
 
@@ -142,6 +153,27 @@ def clear_serializers_cache(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def language_changed(*, setting, **kwargs):
+    """
+
+    Handles changes to language-related settings.
+
+    Listens for changes to settings such as languages, language code, and locale paths.
+    When a change is detected, it resets the translation settings to ensure that the
+    new settings take effect.
+
+    Specifically, it resets the default translation, active translation, and cached
+    translations. This ensures that the application uses the updated language settings
+    for all subsequent translations.
+
+    The settings that trigger this function are:
+    - LANGUAGES
+    - LANGUAGE_CODE
+    - LOCALE_PATHS
+
+    This function is used internally by the application to maintain consistency and
+    accuracy in language translations.
+
+    """
     if setting in {"LANGUAGES", "LANGUAGE_CODE", "LOCALE_PATHS"}:
         from django.utils.translation import trans_real
 
@@ -193,6 +225,11 @@ def static_storage_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def static_finders_changed(*, setting, **kwargs):
+    """
+    Clears the cache of static file finders when relevant settings are changed.
+
+    This function listens for changes to specific Django settings, namely `STATICFILES_DIRS` and `STATIC_ROOT`. When a change is detected, it invalidates the cache of the static file finder to ensure that changes to static files are properly reflected. This is useful to prevent outdated static files from being served after modifications have been made to the project's configuration.
+    """
     if setting in {
         "STATICFILES_DIRS",
         "STATIC_ROOT",

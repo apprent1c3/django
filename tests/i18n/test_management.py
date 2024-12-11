@@ -6,6 +6,10 @@ from django.test import SimpleTestCase
 
 class TranslatableFileTests(SimpleTestCase):
     def test_repr(self):
+        """
+        Tests the string representation of a TranslatableFile object to ensure it is correctly formatted. 
+        The test verifies that the repr function returns a string in the format '<TranslatableFile: path>' where 'path' is the full path to the translatable file.
+        """
         dirpath = "dir"
         file_name = "example"
         trans_file = TranslatableFile(

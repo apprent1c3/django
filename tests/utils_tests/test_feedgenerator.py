@@ -133,16 +133,36 @@ class FeedgeneratorTests(SimpleTestCase):
 
     def test_atom_add_item(self):
         # Not providing any optional arguments to Atom1Feed.add_item()
+        """
+        Tests the addition of an item to an Atom feed.
+
+        This test case verifies that an item can be successfully added to an Atom feed,
+        including its title, link, and description.
+
+        :returns: None
+        :raises: AssertionError if the item is not added correctly to the feed
+        """
         feed = feedgenerator.Atom1Feed("title", "/link/", "descr")
         feed.add_item("item_title", "item_link", "item_description")
         feed.writeString("utf-8")
 
     def test_deterministic_attribute_order(self):
+        """
+        Tests whether the Atom feed generator produces output with deterministic attribute order, 
+        ensuring that the 'href' and 'rel' attributes in the link tag appear in a consistent order.
+        """
         feed = feedgenerator.Atom1Feed("title", "/link/", "desc")
         feed_content = feed.writeString("utf-8")
         self.assertIn('href="/link/" rel="alternate"', feed_content)
 
     def test_latest_post_date_returns_utc_time(self):
+        """
+        Tests that the latest post date returned by the RSS feed is in UTC time.
+
+            This test checks for both cases when timezone support is enabled and disabled.
+            It verifies that the latest post date is always returned in UTC, 
+            regardless of the timezone settings used in the application.
+        """
         for use_tz in (True, False):
             with self.settings(USE_TZ=use_tz):
                 rss_feed = feedgenerator.Rss201rev2Feed("title", "link", "description")
@@ -152,6 +172,17 @@ class FeedgeneratorTests(SimpleTestCase):
                 )
 
     def test_stylesheet_keeps_lazy_urls(self):
+        """
+
+        Test that the Stylesheet class correctly handles lazy URLs.
+
+        This test case verifies that the Stylesheet class does not immediately call the 
+        lazy URL object when it is initialized, but instead waits until the Stylesheet 
+        object is used (in this case, when its string representation is requested). The 
+        correct string representation of the Stylesheet object is then checked to ensure 
+        it matches the expected output.
+
+        """
         m = mock.Mock(return_value="test.css")
         stylesheet = feedgenerator.Stylesheet(SimpleLazyObject(m))
         m.assert_not_called()

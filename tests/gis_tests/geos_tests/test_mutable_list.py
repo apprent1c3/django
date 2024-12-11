@@ -13,6 +13,13 @@ class UserListA(ListMixin):
     _mytype = tuple
 
     def __init__(self, i_list, *args, **kwargs):
+        """
+        Initializes the object with a given list and additional keyword arguments.
+
+        The list provided is converted to a specific type using the :meth:`_mytype` method and stored as an instance attribute.
+        The :class:`super` class is then initialized with any additional positional and keyword arguments.
+        This method is typically called when creating a new instance of the class and is responsible for setting up its initial state.
+        """
         self._list = self._mytype(i_list)
         super().__init__(*args, **kwargs)
 
@@ -29,6 +36,16 @@ class UserListA(ListMixin):
         # this would work:
         # self._list = self._mytype(items)
         # but then we wouldn't be testing length parameter
+        """
+        Sets an internal list of a specified length with provided items.
+
+        The function initializes a list of a given length filled with default values, then replaces the corresponding elements with the provided items. The resulting list is then converted to the object's specific type and stored internally.
+
+        :param length: The desired length of the list.
+        :param items: A list of items to populate the internal list.
+        :type length: int
+        :type items: list
+        """
         itemList = ["x"] * length
         for i, v in enumerate(items):
             itemList[i] = v
@@ -47,6 +64,15 @@ class UserListB(UserListA):
 
 
 def nextRange(length):
+    """
+    Returns a range object that represents a sequence of numbers with the specified length.
+
+    The range starts from the current start value, which is incremented by 100 each time this function is called. This allows for generating a series of non-overlapping ranges.
+
+    :param length: The length of the range to be generated.
+    :return: A range object representing the generated sequence of numbers.
+    :note: The start value of the range is shared across all calls to this function, and is incremented automatically. 
+    """
     nextRange.start += 100
     return range(nextRange.start, nextRange.start + length)
 

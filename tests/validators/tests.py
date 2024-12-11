@@ -662,6 +662,18 @@ TEST_DATA.extend((URLValidator(), url, ValidationError) for url in INVALID_URLS)
 
 class TestValidators(SimpleTestCase):
     def test_validators(self):
+        """
+
+        Tests the functionality of various validators.
+
+        This function iterates over a set of test data, applying each validator to the provided value and checking the result against the expected outcome.
+        The test covers both successful validation and cases where an exception is expected to be raised.
+        Each validator is tested individually, with the test name including the validator's name and the value being tested.
+        The function also handles the case where a required library (Pillow) is not installed, skipping the relevant test accordingly.
+
+        The test data is defined externally as `TEST_DATA`, which should contain tuples of the validator, value, and expected result.
+
+        """
         for validator, value, expected in TEST_DATA:
             name = (
                 validator.__name__
@@ -686,11 +698,27 @@ class TestValidators(SimpleTestCase):
                     self.assertEqual(expected, validator(value))
 
     def test_single_message(self):
+        """
+        Tests the string representation of a single ValidationError instance.
+
+        Verifies that the string representation is a list containing the error message,
+        and the repr representation is a ValidationError object with the error message,
+        to ensure proper formatting and debugging information are provided.
+        """
         v = ValidationError("Not Valid")
         self.assertEqual(str(v), "['Not Valid']")
         self.assertEqual(repr(v), "ValidationError(['Not Valid'])")
 
     def test_message_list(self):
+        """
+
+        Tests the string representation and repr of a ValidationError instance containing a list of messages.
+
+        This test case verifies that the string representation of a ValidationError 
+        returns a stringified list of error messages, while the repr returns a 
+        formatted string that could be used to recreate the ValidationError instance.
+
+        """
         v = ValidationError(["First Problem", "Second Problem"])
         self.assertEqual(str(v), "['First Problem', 'Second Problem']")
         self.assertEqual(
@@ -698,6 +726,13 @@ class TestValidators(SimpleTestCase):
         )
 
     def test_message_dict(self):
+        """
+        .. method:: test_message_dict()
+
+           Verifies the string representation and object representation of a ValidationError instance.
+           This test covers the toString and repr functions in cases of an error with a single field and error message.
+           It ensures that both string representations correctly reflect the error details, confirming proper functionality of error handling and logging mechanisms.
+        """
         v = ValidationError({"first": ["First Problem"]})
         self.assertEqual(str(v), "{'first': ['First Problem']}")
         self.assertEqual(repr(v), "ValidationError({'first': ['First Problem']})")
@@ -708,6 +743,9 @@ class TestValidators(SimpleTestCase):
             RegexValidator(re.compile("a"), flags=re.IGNORECASE)
 
     def test_max_length_validator_message(self):
+        """
+        Tests the MaxLengthValidator to ensure it correctly raises a ValidationError with a custom message when the input value exceeds the specified maximum length. The test validates that the error message is formatted as expected, including the input value and the maximum allowed length.
+        """
         v = MaxLengthValidator(
             16, message='"%(value)s" has more than %(limit_value)d characters.'
         )
@@ -723,6 +761,13 @@ class TestValidatorEquality(TestCase):
     """
 
     def test_regex_equality(self):
+        """
+        Tests equality of RegexValidator instances based on their regular expression patterns and optional parameters, such as error messages and flags.
+
+         The function checks for equality when patterns and parameters match, and checks for inequality when patterns or parameters differ.
+
+         It covers various scenarios, including matching and non-matching patterns, identical and different error messages, and different flags.
+        """
         self.assertEqual(
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
@@ -772,6 +817,15 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_email_equality(self):
+        """
+        Tests the equality of EmailValidator instances.
+
+        This test case verifies that EmailValidator instances are considered equal when they have the same properties, such as message and code, 
+        and that they are considered unequal when these properties differ. It also checks that the order of items in the allowlist does not affect equality.
+
+        The test covers various scenarios, including instances with default properties, instances with custom message and code, and instances with allowlists.
+
+        """
         self.assertEqual(
             EmailValidator(),
             EmailValidator(),
@@ -831,6 +885,16 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_file_extension_equality(self):
+        """
+
+        Tests the equality of FileExtensionValidator instances.
+
+        This function checks if instances of FileExtensionValidator are considered equal based on their allowed file extensions and other parameters.
+        It verifies that instances with the same set of extensions, regardless of case or order, are considered equal.
+        Additionally, it tests instances that have different extensions, custom error codes, or custom error messages, confirming that they are not equal.
+        The goal is to ensure that FileExtensionValidator instances are compared correctly, considering the nuances of file extension validation.
+
+        """
         self.assertEqual(FileExtensionValidator(), FileExtensionValidator())
         self.assertEqual(
             FileExtensionValidator(["txt"]), FileExtensionValidator(["txt"])
@@ -866,6 +930,14 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_prohibit_null_characters_validator_equality(self):
+        """
+
+        Tests the equality of ProhibitNullCharactersValidator instances.
+
+        This test case checks if instances of ProhibitNullCharactersValidator are considered equal when they have the same attributes, 
+        and not equal when their attributes differ. The tests cover scenarios where instances have the same or different messages and codes.
+
+        """
         self.assertEqual(
             ProhibitNullCharactersValidator(message="message", code="code"),
             ProhibitNullCharactersValidator(message="message", code="code"),

@@ -53,6 +53,18 @@ class CheckFieldDefaultMixin:
     _default_hint = ("<valid default>", "<invalid default>")
 
     def _check_default(self):
+        """
+
+        Checks if the default value for this field is properly defined.
+
+        If the field has a default value and it is not callable (i.e., a function or lambda),
+        a warning is raised to prevent shared default values among all field instances.
+        The warning suggests using a callable instead to ensure each field instance has its own default value.
+
+        Returns:
+            list: A list of warnings (or an empty list if the default value is properly defined)
+
+        """
         if (
             self.has_default()
             and self.default is not None
@@ -75,6 +87,21 @@ class CheckFieldDefaultMixin:
             return []
 
     def check(self, **kwargs):
+        """
+        Perform a comprehensive check on the object, validating its state and configuration.
+
+        This method extends the base check functionality by including additional validation
+        specific to this class. It returns a list of error messages for any issues encountered
+        during the checking process.
+
+        The check is performed with the following steps:
+          - Base check: Validate the object's state using the parent class's check method.
+          - Default check: Perform class-specific validation using the _check_default method.
+
+        Returns:
+            list: A list of error messages. If the object is valid, an empty list is returned.
+
+        """
         errors = super().check(**kwargs)
         errors.extend(self._check_default())
         return errors

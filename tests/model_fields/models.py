@@ -396,6 +396,15 @@ class CustomJSONDecoder(json.JSONDecoder):
         return super().__init__(object_hook=self.as_uuid, *args, **kwargs)
 
     def as_uuid(self, dct):
+        """
+        Converts a UUID string in a dictionary to a UUID object if present.
+
+         Args:
+            dct (dict): Dictionary that may contain a 'uuid' key with a string value.
+
+         Returns:
+            dict: The input dictionary with the 'uuid' value converted to a UUID object if it exists.
+        """
         if "uuid" in dct:
             dct["uuid"] = uuid.UUID(dct["uuid"])
         return dct

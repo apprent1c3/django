@@ -241,6 +241,22 @@ class GeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_empty_geometries")
     def test_empty_geometries(self):
+        """
+
+        Test the creation and persistence of empty geometric shapes in the database.
+
+        This test checks that each type of geometric shape, including points, lines, polygons,
+        and collections, can be created with an empty geometry and stored in the database.
+        It also verifies that the geometry is correctly retrieved from the database and
+        matches the original geometry used for creation.
+
+        The test covers both two-dimensional and three-dimensional geometric shapes,
+        skipping the latter if the database does not support 3D storage.
+
+        The following geometric shape classes are tested: Point, LineString, LinearRing,
+        Polygon, MultiPoint, MultiLineString, MultiPolygon, and GeometryCollection.
+
+        """
         geometry_classes = [
             Point,
             LineString,
@@ -333,6 +349,18 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_crosses_lookup")
     def test_crosses_lookup(self):
+        """
+
+        Verify the functionality of the 'crosses' spatial lookup for geometric fields.
+
+        This test checks if the 'crosses' lookup correctly identifies intersecting lines.
+        It creates a track with a specific line and then uses the 'crosses' lookup to filter
+        tracks that intersect with given lines, verifying that the expected number of tracks
+        are returned.
+
+        The test relies on the 'supports_crosses_lookup' database feature being supported.
+
+        """
         Track.objects.create(name="Line1", line=LineString([(-95, 29), (-60, 0)]))
         self.assertEqual(
             Track.objects.filter(
@@ -349,6 +377,17 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_isvalid_lookup")
     def test_isvalid_lookup(self):
+        """
+
+        Tests the 'isvalid' lookup type on geometric fields.
+
+        The 'isvalid' lookup checks if a geometric object is valid according to
+        the geometry's definition. This test creates an invalid polygon and
+        stores it in the database, then queries the database for valid and
+        invalid geometric objects. The test ensures that the 'isvalid' lookup
+        correctly identifies valid and invalid geometric objects.
+
+        """
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="invalid", poly=invalid_geom)
         qs = State.objects.all()
@@ -704,6 +743,19 @@ class GeoQuerySetTest(TestCase):
 
     @skipUnlessDBFeature("supports_tolerance_parameter")
     def test_unionagg_tolerance(self):
+        """
+
+        Tests the union aggregation with tolerance parameter.
+
+        This test case creates a city object with a point location within the boundaries of Texas, USA.
+        It then performs a union aggregation of points of cities within Texas, using a specified tolerance.
+        The result is compared to a manually defined multi-point geometry, ensuring that the aggregation
+        is performed accurately within the given tolerance.
+
+        The test verifies that the equality of the aggregated result and the expected geometry can be
+        determined with a high degree of precision, using the exact equality method with a small tolerance.
+
+        """
         City.objects.create(
             point=fromstr("POINT(-96.467222 32.751389)", srid=4326),
             name="Forney",
@@ -727,6 +779,15 @@ class GeoQuerySetTest(TestCase):
 
     @skipUnlessDBFeature("supports_tolerance_parameter")
     def test_unionagg_tolerance_escaping(self):
+        """
+
+        Tests the aggregate union function with a tolerance parameter, specifically checking that it correctly handles escaping of tolerance values.
+
+        This test case simulates a scenario where a malformed tolerance value is passed to the union aggregation function, and verifies that the database raises a DatabaseError.
+
+        The test uses a geographic query to find cities within a specific region (Texas) and attempts to aggregate their point locations using a union operation with a tolerance value that contains an escape sequence.
+
+        """
         tx = Country.objects.get(name="Texas").mpoly
         with self.assertRaises(DatabaseError):
             City.objects.filter(point__within=tx).aggregate(
@@ -746,6 +807,15 @@ class GeoQuerySetTest(TestCase):
         )
 
     def test_non_concrete_field(self):
+        """
+        Tests the functionality of non-concrete fields in a model.
+
+        This method creates a new instance of NonConcreteModel with a point and name, 
+        then retrieves all instances of the model to verify the data is stored correctly.
+
+        Returns:
+            None
+        """
         NonConcreteModel.objects.create(point=Point(0, 0), name="name")
         list(NonConcreteModel.objects.all())
 

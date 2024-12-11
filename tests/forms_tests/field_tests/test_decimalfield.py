@@ -10,6 +10,25 @@ from . import FormFieldAssertionsMixin
 
 class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_decimalfield_1(self):
+        """
+
+        Test DecimalField validation and rendering.
+
+        This test suite checks the functionality of a DecimalField with specific constraints.
+        The DecimalField has a maximum of 4 digits, with 2 of those digits allowed after the decimal point.
+        The tests cover various scenarios, including required field validation, cleaning of different input types,
+        and validation against the field's constraints.
+
+        The test ensures that:
+
+        * The field is rendered as an HTML number input with the correct attributes.
+        * The field raises a ValidationError when not provided (i.e., it is required).
+        * The field correctly cleans and converts input values to decimal numbers.
+        * The field validates input values against the specified constraints, including maximum digits and decimal places.
+
+        Overall, this test ensures that the DecimalField behaves as expected and provides accurate and helpful error messages.
+
+        """
         f = DecimalField(max_digits=4, decimal_places=2)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" step="0.01" type="number" name="f" required>'
@@ -97,6 +116,24 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_decimalfield_3(self):
+        """
+
+        Tests the functionality of a DecimalField with specified constraints.
+
+        This test case covers the rendering of the DecimalField widget as an HTML input
+        element with correct attributes, such as step, min, max, and type. It also verifies
+        that the field enforces its constraints, including maximum and minimum values,
+        through validation. The test checks that valid decimal values are correctly
+        parsed and cleaned, while invalid values raise a ValidationError with a
+        meaningful error message. Additionally, it ensures that the field's properties,
+        such as max_digits, decimal_places, max_value, and min_value, are correctly set
+        and accessible.
+
+        The test exercises various input scenarios, including values at the boundaries of
+        the allowed range, to guarantee the robustness and correctness of the DecimalField
+        implementation.
+
+        """
         f = DecimalField(
             max_digits=4,
             decimal_places=2,
@@ -147,6 +184,19 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.clean(".002"), decimal.Decimal("0.002"))
 
     def test_decimalfield_6(self):
+        """
+
+        Checks the validation behavior of a DecimalField instance.
+
+        This test ensures that the DecimalField correctly cleans decimal input and raises
+        a ValidationError when the input exceeds the maximum allowed digits before the
+        decimal point.
+
+        The test covers two scenarios:
+            * Successful cleaning of a decimal string with a single digit before the decimal point
+            * Raising a ValidationError for input with more digits before the decimal point than allowed
+
+        """
         f = DecimalField(max_digits=2, decimal_places=2)
         self.assertEqual(f.clean(".01"), decimal.Decimal(".01"))
         msg = "'Ensure that there are no more than 0 digits before the decimal point.'"
@@ -154,6 +204,19 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("1.1")
 
     def test_decimalfield_step_size_min_value(self):
+        """
+        #: Tests the :class:`DecimalField` widget's step size and minimum value validation.
+        #: 
+        #: Verifies that the widget is rendered with the correct HTML attributes, and that 
+        #: it validates user input against the specified step size and minimum value.
+        #: 
+        #: The step size defines the interval between valid values, and input values that 
+        #: are not multiples of this step size raise a :class:`ValidationError`.
+        #: 
+        #: The function tests both valid and invalid input values, ensuring that the 
+        #: widget correctly handles various input scenarios and returns the expected 
+        #: errors or cleaned values.
+        """
         f = DecimalField(
             step_size=decimal.Decimal("0.3"),
             min_value=decimal.Decimal("-0.4"),
@@ -204,6 +267,14 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertWidgetRendersTo(f, '<input id="id_f" name="f" type="text" required>')
 
     def test_decimalfield_changed(self):
+        """
+        Tests the has_changed method of a DecimalField.
+
+        This test case checks if the has_changed method correctly identifies whether the value of a DecimalField has changed.
+        It covers different scenarios, including when the decimal places are the same and when they are different.
+        Additionally, it tests the method with localization enabled, ensuring that the comparison is done correctly even when the input is localized.
+
+        """
         f = DecimalField(max_digits=2, decimal_places=2)
         d = decimal.Decimal("0.1")
         self.assertFalse(f.has_changed(d, "0.10"))
@@ -216,6 +287,17 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     @override_settings(DECIMAL_SEPARATOR=",")
     def test_decimalfield_support_decimal_separator(self):
+        """
+        Tests that a DecimalField correctly handles decimal values with a comma separator.
+
+        The function verifies that the decimal field can parse strings with both comma and dot separators,
+        and ensures that the output is a Decimal object with a dot separator.
+
+        The test is performed with the DECIMAL_SEPARATOR setting overridden to use a comma.
+        This allows the function to verify that the field behaves correctly in a locale that uses commas as decimal separators.
+        The test checks for both localized and non-localized decimal values, ensuring that the field handles both cases correctly.
+
+        """
         with translation.override(None):
             f = DecimalField(localize=True)
             self.assertEqual(f.clean("1001,10"), decimal.Decimal("1001.10"))
@@ -227,6 +309,14 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         THOUSAND_SEPARATOR=".",
     )
     def test_decimalfield_support_thousands_separator(self):
+        """
+        Tests the DecimalField with localization settings to ensure it correctly handles values with thousand separators.
+
+        The function verifies that the DecimalField can parse and validate decimal numbers 
+        with thousand separators and decimal points correctly, according to the specified localization settings.
+
+        It also checks that the field raises a ValidationError when the input value is not a valid number.
+        """
         with translation.override(None):
             f = DecimalField(localize=True)
             self.assertEqual(f.clean("1.001,10"), decimal.Decimal("1001.10"))

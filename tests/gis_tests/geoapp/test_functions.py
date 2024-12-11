@@ -25,6 +25,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     fixtures = ["initial"]
 
     def test_asgeojson(self):
+        """
+        Tests the AsGeoJSON function, which converts a geographic object into a GeoJSON string.
+
+         The test covers various scenarios, including:
+
+         * Ensures that the AsGeoJSON function raises a NotSupportedError if it is not supported by the database backend.
+         * Verifies that the function correctly converts a point geographic object into a GeoJSON string with and without additional options such as CRS and bounding box information.
+         * Checks that the function raises a TypeError if an invalid precision value is provided.
+         * Tests the function with different options, including precision, CRS, and bounding box, to ensure that the resulting GeoJSON string is as expected.
+
+         Note that the test takes into account the supported and unsupported GeoJSON options of the database backend, and adjusts the expected output accordingly.
+        """
         if not connection.features.has_AsGeoJSON_function:
             with self.assertRaises(NotSupportedError):
                 list(Country.objects.annotate(json=functions.AsGeoJSON("mpoly")))
@@ -121,6 +133,19 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_AsGeoJSON_function")
     def test_asgeojson_option_0(self):
+        """
+        Tests the AsGeoJSON function with SRID transformation.
+
+        This test checks if the AsGeoJSON function correctly converts a Point object
+        to a GeoJSON representation when the point's SRID is different from the one
+        used for serialization. It creates a model instance with points in different
+        SRIDs, transforms one of the points to a different SRID, and then checks if
+        the AsGeoJSON function produces the correct GeoJSON output.
+
+        The test verifies that the output matches the expected GeoJSON format for
+        a Point object with the correct coordinates in the target SRID (3857).
+
+        """
         p1 = Point(1, 1, srid=4326)
         p2 = Point(-87.65018, 41.85039, srid=4326)
         obj = ManyPointModel.objects.create(
@@ -188,6 +213,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_AsSVG_function")
     def test_assvg(self):
+        """
+        Tests the AsSVG function for PostgreSQL-specific GIS operations.
+
+            This test suite checks the AsSVG function's behavior in annotating querysets
+            with SVG representations of geometric data. It validates that:
+
+            * Passing invalid precision values raises a TypeError.
+            * Default AsSVG behavior generates correct SVG strings for city locations.
+            * Relative precision can be applied to modify the generated SVG output.
+
+            The tests are skipped if the database does not support the AsSVG function.
+        """
         with self.assertRaises(TypeError):
             City.objects.annotate(svg=functions.AsSVG("point", precision="foo"))
         # SELECT AsSVG(geoapp_city.point, 0, 8) FROM geoapp_city WHERE name = 'Pueblo';
@@ -242,6 +279,16 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Azimuth_function")
     def test_azimuth(self):
         # Returns the azimuth in radians.
+        """
+
+        Tests the Azimuth function to calculate the compass direction from one point to another.
+
+        The Azimuth function is used to determine the bearing between two geographic points.
+        The test case covers two scenarios: 
+        - calculating the azimuth between two distinct points, and 
+        - handling the case where both points are the same (which results in None).
+
+        """
         azimuth_expr = functions.Azimuth(Point(0, 0, srid=4326), Point(1, 1, srid=4326))
         self.assertAlmostEqual(
             City.objects.annotate(azimuth=azimuth_expr).first().azimuth,
@@ -325,12 +372,47 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Envelope_function")
     def test_envelope(self):
+        """
+        Tests the functionality of the Envelope function from the database.
+
+        This test case checks if the envelope of a country's multipolygon (mpoly) is correctly calculated using the Envelope function
+        provided by the database. It queries the database for all countries, annotates each country with its envelope, and
+        then verifies that the calculated envelope matches the expected envelope for each country's multipolygon.
+
+        The test requires the database to support the Envelope function, and will be skipped if this feature is not available.
+
+        The function tests the accuracy of the Envelope function by comparing the results with the expected envelopes,
+        ensuring that the function is working correctly and providing reliable results.
+        """
         countries = Country.objects.annotate(envelope=functions.Envelope("mpoly"))
         for country in countries:
             self.assertTrue(country.envelope.equals(country.mpoly.envelope))
 
     @skipUnlessDBFeature("has_ForcePolygonCW_function")
     def test_force_polygon_cw(self):
+        """
+
+        Test the ForcePolygonCW function to ensure it correctly orients polygon rings.
+
+        This test creates a State object with a polygon attribute, then applies the
+        ForcePolygonCW function to it. The function should reorder the coordinates of
+        the polygon's rings to follow a clockwise direction. The test verifies that the
+        resulting coordinates match the expected output.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AssertionError: If the coordinates of the polygon's rings after applying
+            ForcePolygonCW do not match the expected clockwise direction.
+
+        """
         rings = (
             ((0, 0), (5, 0), (0, 5), (0, 0)),
             ((1, 1), (1, 3), (3, 1), (1, 1)),
@@ -372,6 +454,19 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
         # Reference query:
         # SELECT ST_GeoHash(point) FROM geoapp_city WHERE name='Houston';
         # SELECT ST_GeoHash(point, 5) FROM geoapp_city WHERE name='Houston';
+        """
+
+        Tests the functionality of the GeoHash function.
+
+        This test checks the GeoHash function with default and specified precision.
+        It uses a City object to generate a geohash and compares it with a reference value.
+        The reference hash is expected to match the generated hash up to a certain length.
+
+        The test verifies that:
+        - The default precision geohash matches the reference hash up to its full length.
+        - The specified precision geohash matches the reference hash up to the specified precision.
+
+        """
         ref_hash = "9vk1mfq8jx0c8e0386z6"
         h1 = City.objects.annotate(geohash=functions.GeoHash("point")).get(
             name="Houston"
@@ -384,6 +479,19 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_GeometryDistance_function")
     def test_geometry_distance(self):
+        """
+
+        Tests the database's geometry distance function by annotating a :class:`~City` queryset
+        with the distance from a given point and ordering the results by distance.
+
+        Verifies that the calculated distances match the expected values for a set of cities.
+        The test relies on the database's ``GeometryDistance`` function and the SRID 4326 spatial
+        reference system.
+
+        The test case ensures correct ordering and accurate distance calculations, providing a
+        basic sanity check for geospatial queries in the database.
+
+        """
         point = Point(-90, 40, srid=4326)
         qs = City.objects.annotate(
             distance=functions.GeometryDistance("point", point)
@@ -404,6 +512,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Intersection_function")
     def test_intersection(self):
+        """
+
+        Tests the usage of the Intersection function in a geographic database query.
+
+        This test case creates a query set of Country objects that have been annotated
+        with the intersection of their mpoly field and a Point object. It then checks
+        the result of the intersection operation, handling the cases where the
+        intersection is empty, depending on the database's behavior. The test covers
+        both scenarios where the database returns None for an empty intersection and
+        where it returns an empty geometry object.
+
+        """
         geom = Point(5, 23, srid=4326)
         qs = Country.objects.annotate(inter=functions.Intersection("mpoly", geom))
         for c in qs:
@@ -414,6 +534,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("supports_empty_geometries", "has_IsEmpty_function")
     def test_isempty(self):
+        """
+
+        Test the IsEmpty function for geometric fields.
+
+        Checks if the IsEmpty function correctly identifies empty geometric objects.
+        The test creates an empty geometric object and a non-empty one, then uses the
+        IsEmpty function in a query both as an annotation and as a filter. It verifies
+        that the empty object is correctly identified in both cases.
+
+        Requires a database that supports empty geometries and has the IsEmpty function.
+
+        """
         empty = City.objects.create(name="Nowhere", point=Point(srid=4326))
         City.objects.create(name="Somewhere", point=Point(6.825, 47.1, srid=4326))
         self.assertSequenceEqual(
@@ -426,6 +558,15 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_IsValid_function")
     def test_isvalid(self):
+        """
+
+        Tests the IsValid database function on geographic objects.
+
+        This test case checks the IsValid function's correctness by applying it to both valid and invalid polygons.
+        The test uses two example polygons: a valid one with a simple closed boundary, and an invalid one with a self-intersection.
+        It then uses Django's ORM to create model instances for these polygons, applies the IsValid function, and asserts that the function correctly identifies the validity of each polygon.
+
+        """
         valid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 0 0))")
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="valid", poly=valid_geom)
@@ -446,6 +587,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function")
     def test_area_with_regular_aggregate(self):
         # Create projected country objects, for this test to work on all backends.
+        """
+
+        Test the accuracy of calculating area using the Area function from the database.
+
+        This test creates a set of CountryWebMercator objects, annotates them with their area,
+        and then checks the calculated area against the expected area for each object.
+        The test skips if the database does not support the Area function.
+
+        The test verifies that the calculated area matches the expected area, allowing for
+        a small margin of error due to floating point precision issues.
+
+        """
         for c in Country.objects.all():
             CountryWebMercator.objects.create(
                 name=c.name, mpoly=c.mpoly.transform(3857, clone=True)
@@ -464,6 +617,16 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Area_function")
     def test_area_lookups(self):
         # Create projected countries so the test works on all backends.
+        """
+
+        Tests area lookups on geometric fields.
+
+        This test case checks the functionality of area-based queries on spatial models.
+        It verifies that area measurements are correctly calculated and used in query filters.
+        Additionally, it ensures that invalid input types (e.g. numeric values) raise the expected error.
+        The test uses the `CountryWebMercator` model to perform bulk creation, annotation, and querying of areas.
+
+        """
         CountryWebMercator.objects.bulk_create(
             CountryWebMercator(name=c.name, mpoly=c.mpoly.transform(3857, clone=True))
             for c in Country.objects.all()
@@ -493,6 +656,18 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_LineLocatePoint_function")
     def test_line_locate_point(self):
+        """
+
+        Tests the functionality of the LineLocatePoint function in a spatial context.
+
+        This test case verifies that the LineLocatePoint function correctly calculates 
+        the relative position of a given point along a LineString. It utilizes a 
+        LineString defined by two points and a Point to be located, ensuring both 
+        geometries are in the same spatial reference system (SRID 4326). The test 
+        validates the result by checking if the calculated position matches the 
+        expected relative distance from the start of the LineString.
+
+        """
         pos_expr = functions.LineLocatePoint(
             LineString((0, 0), (0, 3), srid=4326), Point(0, 1, srid=4326)
         )
@@ -545,6 +720,13 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     def test_make_valid_output_field(self):
         # output_field is GeometryField instance because different geometry
         # types can be returned.
+        """
+        Tests the output field of the MakeValid function to ensure it returns a valid GeometryField.
+
+        This test case verifies that the output field is an instance of GeometryField and 
+        that its spatial reference system identifier (SRID) matches the expected value.
+
+        """
         output_field = functions.MakeValid(
             Value(Polygon(), PolygonField(srid=42)),
         ).output_field
@@ -553,6 +735,15 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_MemSize_function")
     def test_memsize(self):
+        """
+
+        Test the MemSize database function by annotating a City object with the size of its point attribute.
+
+        This test case verifies that the MemSize function correctly calculates the memory size of a geometry field.
+        The test retrieves a City object with the name 'Pueblo', annotates it with the memory size of its point attribute,
+        and asserts that the calculated size falls within an expected range.
+
+        """
         ptown = City.objects.annotate(size=functions.MemSize("point")).get(
             name="Pueblo"
         )
@@ -562,6 +753,19 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_NumGeom_function")
     def test_num_geom(self):
         # Both 'countries' only have two geometries.
+        """
+
+        Tests the functionality of the NumGeometries database function.
+
+        This test annotates the Country and City models with the number of geometries 
+        associated with each instance, and verifies that the results match the expected values.
+
+        For Country instances, it checks that the number of geometries is 2.
+        For City instances with a non-null point geometry, it checks that the number of 
+        geometries is 1 for databases that support the NumGeometries function, and 
+        None for MySQL and MariaDB databases which do not support this function.
+
+        """
         for c in Country.objects.annotate(num_geom=functions.NumGeometries("mpoly")):
             self.assertEqual(2, c.num_geom)
 
@@ -614,6 +818,17 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Scale_function")
     def test_scale(self):
+        """
+        Tests the geographic Scale function by scaling the 'mpoly' field of Country objects.
+
+        The test checks that the x and y coordinates of the scaled polygon are correctly scaled by the given factors.
+        It also verifies that the area of the scaled polygon is greater than the area of the original polygon when scaled by non-integer factors.
+
+        The test case iterates over the coordinates of the original and scaled polygons, comparing the expected and actual scaled values within a certain tolerance.
+        It covers both integer and non-integer scale factors, ensuring the function works as expected in different scenarios.
+
+        This test requires the database to support the Scale function, and will be skipped if this feature is not available.
+        """
         xfac, yfac = 2, 3
         tol = 5  # The low precision tolerance is for SpatiaLite
         qs = Country.objects.annotate(scaled=functions.Scale("mpoly", xfac, yfac))
@@ -632,6 +847,24 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_SnapToGrid_function")
     def test_snap_to_grid(self):
         # Let's try and break snap_to_grid() with bad combinations of arguments.
+        """
+
+        Tests the SnapToGrid function to ensure it snaps the coordinates of a multipolygon to a grid.
+
+        The test first checks that the function raises the correct exceptions when given
+        invalid arguments, including incorrect argument counts and types.
+
+        It then creates a country object with a multipolygon field and tests that the
+        SnapToGrid function correctly snaps the coordinates to the specified grid.
+
+        The function takes a multipolygon field name and any number of snap values, 
+        which define the grid to which the coordinates are snapped. The test checks 
+        that the function behaves correctly with different numbers of snap values.
+
+        The results of the SnapToGrid function are compared to expected results using 
+        the equals_exact method, with a specified tolerance.
+
+        """
         for bad_args in ((), range(3), range(5)):
             with self.assertRaises(ValueError):
                 Country.objects.annotate(snap=functions.SnapToGrid("mpoly", *bad_args))
@@ -734,6 +967,21 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Translate_function")
     def test_translate(self):
+        """
+
+        Tests the functionality of the database's Translate function.
+
+        This test checks if the Translate function correctly translates geographic data.
+        It annotates a queryset of Country objects with a new 'translated' attribute,
+        which contains the translated 'mpoly' (multipolygon) data using the provided translation factors.
+        The test then verifies that each coordinate in the original 'mpoly' data
+        has been correctly translated by the specified x and y factors.
+
+        The translation is checked by comparing the original and translated coordinates,
+        ensuring that the x and y values have been shifted by the expected amounts.
+        The test uses a delta of 5 decimal places to account for potential floating-point precision errors.
+
+        """
         xfac, yfac = 5, -23
         qs = Country.objects.annotate(
             translated=functions.Translate("mpoly", xfac, yfac)
@@ -831,6 +1079,17 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
             self.assertEqual(city.union.srid, 3857)
 
     def test_argument_validation(self):
+        """
+        Test that the GeoFunc function validates its arguments correctly.
+
+        This function checks for several potential errors when using the GeoFunc function:
+        - That a Spatial Reference System Identifier (SRID) is provided for all geometries.
+        - That the first argument passed to the GeoFunc function is a GeometryField.
+        - That the first argument passed to the GeoFunc function is a geometric argument.
+
+        It verifies that the expected error messages are raised when these conditions are not met, ensuring the function is used correctly and helping to prevent common mistakes.
+
+        """
         with self.assertRaisesMessage(
             ValueError, "SRID is required for all geometries."
         ):

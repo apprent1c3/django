@@ -53,6 +53,21 @@ class QueryOtherDatabaseCursorAppConfig(CursorQueryAppConfig):
 
 class CursorQueryManyAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+
+        Performs a database query to insert data into a specific table.
+
+        This function establishes a connection to the database and uses the database
+        cursor to execute an INSERT query. The query inserts values into the 'name'
+        column of the table associated with the TotallyNormal model.
+
+        The results of the query are stored in the instance variable `query_results`,
+        which is initialized as an empty list after the query is executed.
+
+        Note:
+            This function is intended for internal use and is not part of the public API.
+
+        """
         from ..models import TotallyNormal
 
         connection = connections[self.database]

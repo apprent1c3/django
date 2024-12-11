@@ -27,6 +27,16 @@ class LeftTests(TestCase):
             Author.objects.annotate(raises=Left("name", 0))
 
     def test_expressions(self):
+        """
+
+        Test the use of expressions in database queries.
+
+        This test case verifies that the Left database function can be used to extract a specified number of characters from the left side of a text field.
+        It checks that the extracted values are correctly annotated and can be used for ordering the query results.
+
+        The test focuses on the 'name' field of the Author model, extracting the first 3 characters of each author's name and comparing the results.
+
+        """
         authors = Author.objects.annotate(
             name_part=Left("name", Value(3, output_field=IntegerField()))
         )

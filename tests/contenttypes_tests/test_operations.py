@@ -25,6 +25,16 @@ class ContentTypeOperationsTests(TransactionTestCase):
             return "default"
 
     def setUp(self):
+        """
+
+        Set up the test environment by connecting a signal handler to the post-migrate event.
+
+        The handler, `assertOperationsInjected`, is triggered after the migration of the 'contenttypes_tests' app and 
+        verifies that the necessary database operations have been successfully injected. 
+
+        To ensure proper cleanup, the handler is automatically disconnected after the test is completed.
+
+        """
         app_config = apps.get_app_config("contenttypes_tests")
         models.signals.post_migrate.connect(
             self.assertOperationsInjected, sender=app_config
@@ -36,6 +46,18 @@ class ContentTypeOperationsTests(TransactionTestCase):
         )
 
     def assertOperationsInjected(self, plan, **kwargs):
+        """
+        Assert that content type rename operations are correctly injected into the migration plan.
+
+        This function verifies that for each RenameModel operation in the given migration plan,
+        a corresponding RenameContentType operation is present and correctly configured.
+        It checks that the RenameContentType operation immediately follows the RenameModel operation,
+        and that its app label, old model, and new model match the corresponding attributes of the RenameModel operation.
+
+        :param plan: The migration plan to check.
+        :param **kwargs: Additional keyword arguments (not used).
+        :raises AssertionError: If the content type rename operations are not correctly injected into the plan.
+        """
         for migration, _backward in plan:
             operations = iter(migration.operations)
             for operation in operations:
@@ -49,6 +71,23 @@ class ContentTypeOperationsTests(TransactionTestCase):
                     self.assertEqual(next_operation.new_model, operation.new_name_lower)
 
     def test_existing_content_type_rename(self):
+        """
+
+        Tests renaming of an existing content type.
+
+        This test case covers the scenario where a content type is renamed and the corresponding changes are applied to the database.
+        It verifies that the content type is correctly renamed and that the changes can be successfully reversed.
+
+        The test performs the following steps:
+        - Creates a content type with a specific app label and model.
+        - Applies migrations to rename the content type.
+        - Verifies that the content type has been renamed by checking its existence in the database.
+        - Reverts the migrations to restore the original content type name.
+        - Verifies that the content type has been restored to its original name.
+
+        This test ensures that the content type renaming functionality works as expected and that the database remains consistent after applying and reversing migrations.
+
+        """
         ContentType.objects.create(app_label="contenttypes_tests", model="foo")
         call_command(
             "migrate",
@@ -88,6 +127,12 @@ class ContentTypeOperationsTests(TransactionTestCase):
 
     @override_settings(DATABASE_ROUTERS=[TestRouter()])
     def test_existing_content_type_rename_other_database(self):
+        """
+        Tests the renaming of existing content types in the 'other' database by creating a content type, 
+        applying and then reversing a migration that renames the content type, verifying that the rename 
+        and subsequent reversal were successful. This test case ensures that database migrations can 
+        handle content type renames correctly and that the changes can be reverted.
+        """
         ContentType.objects.using("other").create(
             app_label="contenttypes_tests", model="foo"
         )
@@ -115,6 +160,16 @@ class ContentTypeOperationsTests(TransactionTestCase):
         self.assertFalse(other_content_types.filter(model="renamedfoo").exists())
 
     def test_missing_content_type_rename_ignore(self):
+        """
+
+        Tests the case where the content type is missing and the migration renames a model, 
+        then checks that the rename is ignored if the original content type does exist.
+
+        This test covers a migration scenario where a model is renamed and then 
+        the migration is reversed. It verifies that the content type is correctly 
+        updated in both the forward and reverse migration directions.
+
+        """
         call_command(
             "migrate",
             "contenttypes_tests",

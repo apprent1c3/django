@@ -75,6 +75,13 @@ class HttpRequest:
         self.content_params = None
 
     def __repr__(self):
+        """
+        Return a string representation of the object.
+
+        The representation includes the class name and, if applicable, the HTTP method and full path of the object. If no method or path is available, only the class name is returned.
+
+        :rtype: str
+        """
         if self.method is None or not self.get_full_path():
             return "<%s>" % self.__class__.__name__
         return "<%s: %s %r>" % (
@@ -295,6 +302,9 @@ class HttpRequest:
 
     @property
     def upload_handlers(self):
+        """
+        Returns a list of upload handlers associated with the object. If the handlers have not been initialized, this method will trigger their initialization before returning them. The upload handlers are used to manage and process file uploads, and can be customized to accommodate specific requirements.
+        """
         if not self._upload_handlers:
             # If there are no upload handlers defined, initialize them from settings.
             self._initialize_handlers()
@@ -502,6 +512,21 @@ class QueryDict(MultiValueDict):
     _encoding = None
 
     def __init__(self, query_string=None, mutable=False, encoding=None):
+        """
+        Initializes a new query string parser.
+
+            :param query_string: The query string to parse, defaults to an empty string if not provided.
+            :param mutable: Whether the parsed query string is mutable, defaults to False.
+            :param encoding: The encoding to use for decoding the query string, defaults to the value of settings.DEFAULT_CHARSET.
+
+            This function initializes a new query string parser, parsing the given query string into key-value pairs.
+            It handles decoding of the query string using the specified encoding, and raises an error if the number of
+            fields exceeds the maximum allowed by settings.DATA_UPLOAD_MAX_NUMBER_FILES.
+
+            The parsed query string is stored internally, and can be accessed and modified based on the mutable flag.
+            If the query string cannot be decoded using the specified encoding, it falls back to iso-8859-1 encoding.
+
+        """
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
         query_string = query_string or ""

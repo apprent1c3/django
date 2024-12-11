@@ -8,6 +8,11 @@ class VariableResolveLoggingTests(SimpleTestCase):
     loglevel = logging.DEBUG
 
     def test_log_on_variable_does_not_exist_silent(self):
+        """
+        Tests that resolving a variable that does not exist on an object raises a silent exception and logs an error message at the specified log level.
+
+        The test case verifies that the log message correctly identifies the variable and template involved, and that the exception is properly recorded in the log record.
+        """
         class TestObject:
             class SilentDoesNotExist(Exception):
                 silent_variable_failure = True
@@ -62,5 +67,10 @@ class VariableResolveLoggingTests(SimpleTestCase):
         )
 
     def test_no_log_when_variable_exists(self):
+        """
+        Tests that no log messages are emitted when a Variable is resolved and the variable exists in the context.
+
+        This test case ensures that the templating engine does not generate unnecessary log output when a variable is successfully resolved from the provided context. The test verifies that the 'django.template' logger at the specified log level remains silent during the resolution process.
+        """
         with self.assertNoLogs("django.template", self.loglevel):
             Variable("article.section").resolve({"article": {"section": "News"}})

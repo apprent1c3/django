@@ -7,6 +7,13 @@ from django.test.utils import extend_sys_path
 
 class EggLoadingTest(SimpleTestCase):
     def setUp(self):
+        """
+        Setup method executed prior to running tests, preparing the environment.
+
+            Initializes the directory path for eggs, relative to the current file's location.
+            Additionally, schedules a cleanup action to clear the cache after the test completion,
+            ensuring a clean state for subsequent tests.
+        """
         self.egg_dir = "%s/eggs" % os.path.dirname(__file__)
         self.addCleanup(apps.clear_cache)
 
@@ -69,6 +76,13 @@ class EggLoadingTest(SimpleTestCase):
 
 class GetModelsTest(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment by importing the necessary models from the not_installed module.
+
+        This method initializes the not_installed_module attribute with the imported models, making them available for use in subsequent tests.
+
+        Note: This method is intended to be called before executing tests to ensure proper setup of the testing environment.
+        """
         from .not_installed import models
 
         self.not_installed_module = models

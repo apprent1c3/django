@@ -28,6 +28,15 @@ class NonConcreteField(models.IntegerField):
         return None
 
     def get_attname_column(self):
+        """
+        Returns the attribute name and column information.
+
+        This method overrides the parent class's implementation to return a tuple
+        containing the attribute name and a column value of None.
+
+        :return: A tuple of (attribute name, column), where column is always None.
+        :rtype: tuple
+        """
         attname, _ = super().get_attname_column()
         return attname, None
 

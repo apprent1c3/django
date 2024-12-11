@@ -14,6 +14,18 @@ class FallbackTests(BaseTests, SimpleTestCase):
     storage_class = FallbackStorage
 
     def get_request(self):
+        """
+
+        Override the default request retrieval to initialize and attach a session object.
+
+        This method ensures that every incoming request is associated with a new, empty session.
+        The session is stored in the instance's `session` attribute and also attached to the request object.
+        This allows for easy access to the session data throughout the request's lifecycle.
+
+         Returns:
+            The request object with an initialized session attached.
+
+        """
         self.session = {}
         request = super().get_request()
         request.session = self.session
@@ -40,6 +52,15 @@ class FallbackTests(BaseTests, SimpleTestCase):
         ) + self.stored_session_messages_count(storage, response)
 
     def test_get(self):
+        """
+
+        Tests the retrieval of data from storage.
+
+        Verifies that the function correctly fetches and returns the stored data.
+        The test sets up a storage instance, stores some example messages, and then checks
+        that the stored data can be successfully retrieved and matches the expected output.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -52,6 +73,14 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_get_empty(self):
+        """
+
+        Tests the retrieval of an empty storage.
+
+        Verifies that when the storage is queried, an empty list is returned, 
+        indicating that the storage contains no items.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         # Overwrite the _get method of the fallback storage to prove it is not
@@ -60,6 +89,16 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), [])
 
     def test_get_fallback(self):
+        """
+
+        Tests the retrieval of data using a fallback mechanism.
+
+        This test case simulates a scenario where data is stored in both cookie and session storage.
+        It verifies that the storage class can correctly retrieve data from both sources, 
+        prioritizing cookie storage when available, and falling back to session storage when necessary.
+        The test checks that the retrieved data matches the expected combined result from both storages.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -74,6 +113,18 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_get_fallback_only(self):
+        """
+
+        Tests the functionality of retrieving messages when only fallback storage is available.
+
+        This test case verifies that the storage system correctly retrieves messages from the session storage 
+        when no cookie storage is available or incomplete, and that the returned messages match the expected output.
+
+        The test involves setting up a request, initializing storage objects, and then storing example messages 
+        in the session storage while marking the cookie storage as incomplete. The test then asserts that the 
+        storage system returns the expected messages when retrieved.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)

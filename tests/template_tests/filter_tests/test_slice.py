@@ -22,6 +22,24 @@ class SliceTests(SimpleTestCase):
         }
     )
     def test_slice02(self):
+        """
+        Tests the slice filter in a template, with autoescaping disabled.
+
+        This function checks that the slice filter correctly extracts a subset of characters
+        from a string and that autoescaping is properly handled for both regular strings
+        and strings marked as safe. The test verifies that the slice filter behaves as
+        expected when applied to strings containing special characters, such as '&', and
+        ensures the output is as expected when autoescaping is disabled.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the rendered output does not match the expected result.
+        """
         output = self.engine.render_to_string(
             "slice02", {"a": "a&b", "b": mark_safe("a&b")}
         )

@@ -34,6 +34,22 @@ class InspectDbTests(TestCase):
 
     @skipUnlessDBFeature("supports_3d_storage")
     def test_3d_columns(self):
+        """
+
+        Tests the ability of the 'inspectdb' command to correctly introspect 3D geometry columns.
+
+        This test checks that the 'inspectdb' command can properly identify and describe
+        3D geometry fields (point, line, polygon) in a database table. The test is
+        skipped if the database backend does not support 3D storage.
+
+        The test verifies that the output of the 'inspectdb' command includes the correct
+        field definitions for 3D geometry fields, depending on the capabilities of the
+        database backend. If the backend supports geometry field introspection, the test
+        checks for specific field types (PointField, LineStringField, PolygonField) with
+        the correct dimension (3D). If the backend does not support geometry field
+        introspection, the test checks for generic GeometryField definitions.
+
+        """
         out = StringIO()
         call_command(
             "inspectdb",
@@ -92,6 +108,20 @@ class OGRInspectTest(SimpleTestCase):
         self.assertIn("geom = models.MultiLineStringField(srid=31253)", model_def)
 
     def test_date_field(self):
+        """
+
+        Tests the generation of a Django model module for a shapefile with a date field.
+
+        This test case checks if the ogrinspect function correctly creates a model 
+        definition string that corresponds to the expected Django model, including 
+        a DateField for storing date values.
+
+        The test case uses a shapefile containing city data and verifies that the 
+        generated model definition matches the expected output, which includes 
+        fields for city name, population, density, creation date, and geographic 
+        location.
+
+        """
         shp_file = os.path.join(TEST_DATA, "cities", "cities.shp")
         model_def = ogrinspect(shp_file, "City")
 
@@ -113,6 +143,19 @@ class OGRInspectTest(SimpleTestCase):
     def test_time_field(self):
         # Getting the database identifier used by OGR, if None returned
         # GDAL does not have the support compiled in.
+        """
+
+        Tests the time field in an OGR database connection.
+
+        This test case checks if the ogrinspect function can correctly generate a Django model
+        from a given OGR database connection string. It verifies that the generated model
+        definition contains the expected fields, including time, decimal, integer, float, 
+        character, and date fields, with their respective data types and constraints.
+
+        The test also accounts for differences in field definitions based on the database
+        vendor and GDAL version, ensuring compatibility with various environments.
+
+        """
         ogr_db = get_ogr_db_string()
         if not ogr_db:
             self.skipTest("Unable to setup an OGR connection to your database")
@@ -178,6 +221,20 @@ class OGRInspectTest(SimpleTestCase):
         self.assertIn("class City(models.Model):", output)
 
     def test_mapping_option(self):
+        """
+        Tests the mapping option of the ogrinspect command.
+
+        This test case verifies that the ogrinspect command correctly generates a LayerMapping dictionary 
+        for a given shapefile. The test uses a sample shapefile containing city data and checks if the 
+        generated dictionary matches the expected output.
+
+        The expected output is a dictionary that maps the shapefile's fields to the corresponding fields 
+        in the City model, including the geometry field. The test passes if the generated dictionary 
+        contains the expected mappings.
+
+        This test ensures that the ogrinspect command works as expected and provides a valid mapping 
+        between the shapefile's data and the City model, allowing for seamless data import and processing. 
+        """
         expected = (
             "    geom = models.PointField()\n"
             "\n"
@@ -239,6 +296,16 @@ def get_ogr_db_string():
     params = [db_str % {"db_name": db["NAME"]}]
 
     def add(key, template):
+        """
+        Appends a formatted template string to the params list if a value associated with the given key exists in the database.
+
+        Args:
+            key (str): The key to look up in the database.
+            template (str): A string template that will be formatted with the retrieved value.
+
+        Note:
+            The retrieved value from the database is used to format the template string using the modulus operator (%). If no value is found for the given key, no action is taken.
+        """
         value = db.get(key, None)
         # Don't add the parameter if it is not in django's settings
         if value:

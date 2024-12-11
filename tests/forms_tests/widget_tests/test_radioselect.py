@@ -13,6 +13,20 @@ class RadioSelectTest(ChoiceWidgetTest):
     widget = RadioSelect
 
     def test_render(self):
+        """
+
+        Tests the rendering of a radio input field for selecting a Beatle.
+
+        This test case verifies that the radio input field is correctly rendered
+        with a blank choice dash and the expected HTML structure. The test covers
+        two scenarios: one where the choices are provided as a list and another
+        where they are provided as a dictionary.
+
+        The expected HTML output includes a radio input field for each Beatle,
+        with the \"John\" option selected by default. The test ensures that the
+        rendered HTML matches the expected structure and content.
+
+        """
         html = """
         <div>
           <div>
@@ -38,6 +52,21 @@ class RadioSelectTest(ChoiceWidgetTest):
                 self.check_html(self.widget(choices=choices), "beatle", "J", html=html)
 
     def test_nested_choices(self):
+        """
+
+        Tests the rendering of a widget with nested choices.
+
+        This function verifies that a widget can correctly display a nested list of choices, 
+        including top-level options and sub-options, and that the resulting HTML matches the expected output.
+
+        The test case includes a mix of single and nested options, with the nested options 
+        grouped under categories (e.g. \"Audio\" and \"Video\").
+
+        The function checks that the widget produces the correct HTML structure, including 
+        labels, input fields, and any required attributes, and that the pre-selected option 
+        is correctly marked as checked.
+
+        """
         nested_choices = (
             ("unknown", "Unknown"),
             ("Audio", (("vinyl", "Vinyl"), ("cd", "CD"))),
@@ -233,6 +262,17 @@ class RadioSelectTest(ChoiceWidgetTest):
         """
 
         def get_choices():
+            """
+
+            Generates a sequence of tuples, where each tuple contains a pair of identical integers.
+
+            The sequence is limited to four elements, numbered from 0 to 3. This function can be used
+            to create a list of choices where the value and the display value are the same.
+
+            Returns:
+                Iterator[tuple[int, int]]: A sequence of tuples, each containing a pair of identical integers.
+
+            """
             for i in range(4):
                 yield (i, i)
 
@@ -343,6 +383,14 @@ class RadioSelectTest(ChoiceWidgetTest):
                 self.check_html(widget, "nestchoice", "outer1", html=html)
 
     def test_choices_select_inner(self):
+        """
+
+        Tests the selection of inner choices within a group of nested radio button widgets.
+
+        Verifies that the correct inner radio button option is selected when rendering the HTML.
+        The test iterates over a collection of nested widgets, checking each one against the expected HTML output.
+
+        """
         html = """
         <div>
           <div>
@@ -427,6 +475,11 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        Tests that the widget does not localize the input value when rendering radio button choices.
+
+        This test case ensures that the widget correctly displays choices without applying any locale-specific formatting to the input values. It checks this behavior for both integer and time values, verifying that the rendered HTML matches the expected output.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -492,6 +545,17 @@ class RadioSelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests whether a fieldset is properly rendered around a field in a form.
+
+        This test case verifies that when a widget is configured to use a fieldset,
+        the form rendering includes the fieldset element with a legend and the
+        field's widgets are contained within it.
+
+        The test simulates a form with a single choice field, rendered as a set of
+        radio buttons, and checks that the HTML output matches the expected
+        structure with the fieldset and its contents correctly rendered.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

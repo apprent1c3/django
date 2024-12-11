@@ -187,6 +187,28 @@ class AsGeoJSON(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, bbox=False, crs=False, precision=8, **extra):
+        """
+
+        Initializes an object with a spatial expression and additional parameters for bounding box and coordinate reference system.
+
+        The initialization process takes in an expression, and optional parameters for including a bounding box, a coordinate reference system, and the precision of the output.
+
+        Parameters
+        ----------
+        expression : str
+            The spatial expression to be evaluated.
+        bbox : bool, optional
+            If True, include a bounding box in the output (default is False).
+        crs : bool, optional
+            If True, include a coordinate reference system in the output (default is False).
+        precision : int, optional
+            The precision of the output (default is 8).
+
+        Additional keyword arguments (**extra) can be passed to the parent class's initializer.
+
+        The object is then initialized with the provided expression, precision (if specified), and a set of options that determine the inclusion of the bounding box and coordinate reference system in the output.
+
+        """
         expressions = [expression]
         if precision is not None:
             expressions.append(self._handle_param(precision, "precision", int))
@@ -201,6 +223,17 @@ class AsGeoJSON(GeoFunc):
         super().__init__(*expressions, **extra)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+
+        Return the SQL representation of this AsGeoJSON object, formatted as an Oracle database query.
+
+        The function generates a SQL string by copying the current AsGeoJSON object, 
+        modifying its source expressions to only include the first expression, 
+        and then using the parent class's as_sql method to generate the SQL string.
+
+        This allows the resulting SQL query to be compatible with Oracle syntax.
+
+        """
         source_expressions = self.get_source_expressions()
         clone = self.copy()
         clone.set_source_expressions(source_expressions[:1])
@@ -218,6 +251,25 @@ class AsGML(GeoFunc):
         super().__init__(*expressions, **extra)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        .. method:: as_oracle(self, compiler, connection, **extra_context)
+            :noindex:
+
+            Compile the AsGML SQL expression for an Oracle database.
+
+            This method adapts the AsGML expression to the Oracle database dialect, 
+            specifically generating a SQL statement using the SDO_UTIL.TO_GMLGEOMETRY or 
+            SDO_UTIL.TO_GML311GEOMETRY function depending on the geometry version.
+
+            It returns the compiled SQL expression as a string, incorporating any 
+            additional context provided through the **extra_context parameter.
+
+            :param compiler: The SQL compiler to use for the compilation process.
+            :param connection: The database connection to use for compilation.
+            :param extra_context: Additional context to incorporate into the compilation 
+                                  process.
+            :return: The compiled SQL expression as a string.
+        """
         source_expressions = self.get_source_expressions()
         version = source_expressions[0]
         clone = self.copy()
@@ -234,6 +286,18 @@ class AsKML(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, precision=8, **extra):
+        """
+
+        Initializes the object with a given mathematical expression and optional precision.
+
+        The expression is the core component that will be used by the object.
+        The precision parameter (defaulting to 8) controls the level of detail or rounding applied to the expression.
+        Any additional keyword arguments are passed to the parent class for further initialization.
+
+        :param expression: The mathematical expression to be used by the object.
+        :param precision: The desired level of precision, defaults to 8.
+
+        """
         expressions = [expression]
         if precision is not None:
             expressions.append(self._handle_param(precision, "precision", int))
@@ -244,6 +308,18 @@ class AsSVG(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, relative=False, precision=8, **extra):
+        """
+
+        Initialize the object with a mathematical expression, relative comparison option, and precision setting.
+
+        The expression is the primary input to be evaluated. The relative parameter determines whether the comparison is relative or absolute.
+        If relative is provided as a boolean value, it will be converted to an integer. Alternatively, it can be an object with a resolve_expression method.
+
+        The precision parameter sets the number of decimal places to consider during calculations, defaulting to 8 if not specified.
+
+        Additional keyword arguments can be passed via the extra parameter to further customize the object's initialization.
+
+        """
         relative = (
             relative if hasattr(relative, "resolve_expression") else int(relative)
         )
@@ -349,6 +425,20 @@ class Distance(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         )
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Converts the expression to an SQLite-compatible SQL string.
+
+        This method takes into account the geodetic nature of the field and adjusts the SQL
+        template accordingly. If the field is geodetic, it uses the COALESCE function to
+        handle cases where the expression evaluates to null, and includes the spheroid
+        parameter if it is specified. The generated SQL string is then passed to the
+        parent class for further processing.
+
+        :param compiler: The SQL compiler object.
+        :param connection: The database connection object.
+        :param extra_context: Additional context parameters.
+        :return: The SQLite-compatible SQL string representation of the expression.
+        """
         if self.geo_field.geodetic(connection):
             # SpatiaLite returns NULL instead of zero on geodetic coordinates
             extra_context["template"] = (
@@ -395,6 +485,15 @@ class GeoHash(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, precision=None, **extra):
+        """
+        Initializes a new instance of the class, setting up the expression and optional precision.
+
+        :param expression: The expression to be used by the instance.
+        :param precision: The precision to be applied, defaults to None.
+        :param extra: Additional keyword arguments to be passed to the parent class.
+
+        The precision is processed and converted to an integer, if provided. The instance is then initialized with the expression and precision, using the parent class's initialization method.
+        """
         expressions = [expression]
         if precision is not None:
             expressions.append(self._handle_param(precision, "precision", int))

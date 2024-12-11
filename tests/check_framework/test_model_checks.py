@@ -20,6 +20,22 @@ class EmptyRouter:
 @override_system_checks([checks.model_checks.check_all_models])
 class DuplicateDBTableTests(SimpleTestCase):
     def test_collision_in_same_app(self):
+        """
+        Tests that the system correctly identifies and reports collisions when two models 
+        in the same application use the same database table name.
+
+        This checks the functionality of the model validation system, specifically the 
+        ability to detect and handle duplicate table names across different models, 
+        ensuring data integrity and preventing potential conflicts at the database level.
+
+        The test is expected to return a specific error indicating that the database 
+        table 'test_table' is being used by more than one model, thereby confirming 
+        the detection of the collision and the proper functioning of the validation mechanism.
+
+        Raises:
+            Error: If the system fails to correctly identify and report the table name collision.
+
+        """
         class Model1(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -44,6 +60,19 @@ class DuplicateDBTableTests(SimpleTestCase):
         DATABASE_ROUTERS=["check_framework.test_model_checks.EmptyRouter"]
     )
     def test_collision_in_same_app_database_routers_installed(self):
+        """
+
+        Tests for collision detection in database table names when using DATABASE_ROUTERS.
+
+        This test case checks that a warning is raised when two models in the same app
+        attempt to use the same database table name, and DATABASE_ROUTERS are installed.
+        The test verifies that the warning message accurately identifies the conflicting
+        models and provides a hint to check the database routing configuration.
+
+        The expected warning includes the names of the conflicting models and suggests
+        verifying that they are correctly routed to separate databases.
+
+        """
         class Model1(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -72,6 +101,16 @@ class DuplicateDBTableTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+
+        Tests that Django's system check framework correctly identifies and reports
+        collisions between model database tables across different applications.
+
+        Verifies that when two models from different apps share the same database table name,
+        the checks system returns an error indicating the table name collision and lists the
+        involved models.
+
+        """
         class Model1(models.Model):
             class Meta:
                 app_label = "basic"
@@ -128,6 +167,11 @@ class DuplicateDBTableTests(SimpleTestCase):
         )
 
     def test_no_collision_for_unmanaged_models(self):
+        """
+        Tests that no collision errors occur when checking the database for models that are explicitly marked as unmanaged. 
+
+        This test case creates two models: one that is unmanaged and another that is managed, both mapping to the same database table. It then runs the check system to ensure that no errors are raised due to the duplicate table mapping, confirming that the unmanaged model is properly handled and does not conflict with the managed model.
+        """
         class Unmanaged(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -156,6 +200,12 @@ class DuplicateDBTableTests(SimpleTestCase):
 @override_system_checks([checks.model_checks.check_all_models])
 class IndexNameTests(SimpleTestCase):
     def test_collision_in_same_model(self):
+        """
+        Checks for duplicate index names in a model.
+
+        This test verifies that a model with multiple indexes having the same name will raise a warning, 
+        ensuring index name uniqueness within a model to prevent potential conflicts.
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model(models.Model):
@@ -173,6 +223,13 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_collision_in_different_models(self):
+        """
+
+        Tests whether a check is raised when the same index name is used in different models.
+
+        This test verifies that a unique index name is enforced across models, ensuring data integrity and preventing potential conflicts.
+
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model1(models.Model):
@@ -218,6 +275,9 @@ class IndexNameTests(SimpleTestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+        Test that no collision occurs when inheriting from an abstract model with a predefined index and no additional fields in the concrete models.
+        """
         class AbstractModel(models.Model):
             name = models.CharField(max_length=20)
 
@@ -238,6 +298,15 @@ class IndexNameTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_collision_across_apps(self, apps):
+        """
+
+        Tests that the system correctly identifies and reports collisions of index names across different applications.
+
+        This test case verifies that when two models from separate applications have an index with the same name, the system raises an error. The error message should include the names of the models that have the conflicting index name.
+
+        The test creates two models, one in the 'basic' application and one in the 'check_framework' application, each with an index named 'foo'. It then runs the framework's checks on the applications and asserts that the expected error is raised, confirming that the system correctly detects and reports the index name collision.
+
+        """
         index = models.Index(fields=["id"], name="foo")
 
         class Model1(models.Model):
@@ -264,6 +333,19 @@ class IndexNameTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "check_framework", kwarg_name="apps")
     def test_no_collision_across_apps_interpolation(self, apps):
+        """
+
+        Tests that there are no collisions across different Django apps when using interpolated names for model indices.
+
+        This test ensures that when two models in separate apps define an index with the same name using
+        interpolation (e.g. '%(app_label)s_%(class)s_foo'), Django does not raise any errors or warnings.
+        Instead, the actual index names are correctly generated based on the app label and model class,
+        preventing any potential naming conflicts.
+
+        The test case involves creating two models, each in a different app, with an index defined using
+        interpolation. It then runs Django's system checks to verify that no errors or warnings are raised.
+
+        """
         index = models.Index(fields=["id"], name="%(app_label)s_%(class)s_foo")
 
         class Model1(models.Model):
@@ -284,6 +366,16 @@ class IndexNameTests(SimpleTestCase):
 @skipUnlessDBFeature("supports_table_check_constraints")
 class ConstraintNameTests(TestCase):
     def test_collision_in_same_model(self):
+        """
+
+        Tests that a collision occurs when two CheckConstraints in the same model have the same name.
+
+        This function verifies that the checks system correctly identifies and reports a naming conflict 
+        between two CheckConstraints defined in a single model. It ensures that the error message is 
+        triggered when the check_constraints command is run, indicating that the constraint name 'foo' 
+        is not unique for the model.
+
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -303,6 +395,16 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_collision_in_different_models(self):
+        """
+
+        Tests that Django raises a validation error when a CheckConstraint with a 
+        non-unique name is defined across multiple models.
+
+        This test ensures that the framework correctly identifies and reports 
+        constraint name collisions, helping prevent potential data inconsistencies 
+        and errors.
+
+        """
         constraint = models.CheckConstraint(condition=models.Q(id__gt=0), name="foo")
 
         class Model1(models.Model):
@@ -350,6 +452,17 @@ class ConstraintNameTests(TestCase):
         )
 
     def test_no_collision_abstract_model_interpolation(self):
+        """
+
+        Tests that abstract model interpolation does not cause collisions when 
+        multiple concrete models inherit from the same abstract model with 
+        database constraints.
+
+        This test case verifies that the checks system correctly handles 
+        inherited constraints from abstract models, ensuring that the constraints 
+        are properly interpolated and do not conflict with each other.
+
+        """
         class AbstractModel(models.Model):
             class Meta:
                 constraints = [
@@ -449,6 +562,13 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_explicit_inherited_pk(self):
+        """
+        Tests that explicitly defining a primary key in a parent model results in no errors when running model checks on a child model that inherits from it.
+
+        This test case ensures that the child model correctly inherits the primary key from its parent and that the model validation checks pass without any issues.
+
+        :raises: AssertionError if model checks fail
+        """
         class Parent(models.Model):
             id = models.AutoField(primary_key=True)
 
@@ -496,6 +616,13 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_auto_created_inherited_parent_link(self):
+        """
+        Tests the automatic creation of inherited parent links when a child model inherits from a parent model.
+
+        Checks that a warning is raised when a child model defines its own parent link, as Django automatically creates a parent link for inherited models.
+        The test verifies that the warning is correctly raised with the expected message, hint, and object reference to the parent model.
+        This ensures that Django's model inheritance behavior is correctly validated and reported during system checks.
+        """
         class Parent(models.Model):
             pass
 
@@ -510,6 +637,15 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         )
 
     def test_auto_created_pk_inherited_abstract_parent(self):
+        """
+
+        Tests that a warning is raised when an abstract parent model does not explicitly define a primary key field,
+        and Django automatically creates one, which is then inherited by its child models.
+
+        The test case creates an abstract parent model and a child model that inherits from it.
+        It then checks that running model checks raises the expected warning (models.W042) due to the auto-created primary key.
+
+        """
         class Parent(models.Model):
             class Meta:
                 abstract = True
@@ -526,12 +662,34 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
 
     @override_settings(DEFAULT_AUTO_FIELD="django.db.models.BigAutoField")
     def test_default_auto_field_setting(self):
+        """
+
+        Test the default auto field setting in Django models.
+
+        Verifies that the default auto field setting is correctly applied when creating a model.
+        It checks if the model passes the system checks without raising any errors.
+
+        This test ensures that the model configuration is valid and the auto field is properly defined,
+        without explicitly specifying the auto field type in the model definition.
+
+        """
         class Model(models.Model):
             pass
 
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_explicit_pk(self):
+        """
+        Tests that a model with an explicit primary key definition passes model checks.
+
+        This test case verifies that a model with a primary key explicitly defined using the
+        BigAutoField does not raise any errors when running model checks. The test creates a
+        model with an explicit primary key and then runs model checks to ensure that no
+        checks fail.
+
+        :raises AssertionError: If model checks fail for the model with an explicit primary key
+
+        """
         class Model(models.Model):
             id = models.BigAutoField(primary_key=True)
 
@@ -539,6 +697,27 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
 
     @isolate_apps("check_framework.apps.CheckPKConfig", kwarg_name="apps")
     def test_app_default_auto_field(self, apps):
+        """
+        Test the default auto field functionality in a model.
+
+        This test case ensures that the default auto field is correctly applied to a model when the model is defined with an app_label that corresponds to a specific application configuration.
+
+        It verifies that the framework's checks do not report any errors when the model is created with the default auto field and the given application configuration. 
+
+        Parameters
+        ----------
+        apps : dict
+            A dictionary containing the application configurations to be used for testing.
+
+        Returns
+        -------
+        None 
+
+        Raises
+        ------
+        AssertionError
+            If the framework's checks report any errors.
+        """
         class ModelWithPkViaAppConfig(models.Model):
             class Meta:
                 app_label = "check_framework.apps.CheckPKConfig"

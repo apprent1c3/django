@@ -255,6 +255,14 @@ class WKBWriter(IOBase):
         self.outdim = dim
 
     def _handle_empty_point(self, geom):
+        """
+        ..: Handles an empty point geometry by either replacing it with a NaN point for a geospatial reference system or raising a ValueError for Well-Known Binary (WKB) representation.
+
+            :param geom: The geometry object to be processed
+            :return: The processed geometry object
+            :raises ValueError: If an empty point is encountered without a spatial reference system (SRID)
+            :note: This method returns a NaN point for geospatial reference systems and raises an error for WKB to maintain representation consistency.
+        """
         from django.contrib.gis.geos import Point
 
         if isinstance(geom, Point) and geom.empty:
@@ -301,6 +309,14 @@ class WKBWriter(IOBase):
 
     @outdim.setter
     def outdim(self, new_dim):
+        """
+        Sets the output dimension for WKB writing.
+
+        The output dimension determines the number of spatial dimensions to be written in the WKB format. 
+        It must be either 2 (2D) or 3 (3D). Setting this value to any other number will result in a ValueError.
+
+        :raises ValueError: If the output dimension is not 2 or 3.
+        """
         if new_dim not in (2, 3):
             raise ValueError("WKB output dimension must be 2 or 3")
         wkb_writer_set_outdim(self.ptr, new_dim)
@@ -338,6 +354,28 @@ def wkt_r():
 
 
 def wkt_w(dim=2, trim=False, precision=None):
+    """
+
+    Initialize or configure a WKT writer object.
+
+    The WKT writer is used to generate Well-Known Text (WKT) representations of geometric objects.
+    This function ensures that a WKT writer instance is available and configured according to the provided parameters.
+
+    Parameters
+    ----------
+    dim : int, optional
+        The output dimension of the WKT writer (default is 2).
+    trim : bool, optional
+        Whether to trim the WKT output (default is False).
+    precision : int, optional
+        The precision of the WKT output (default is None).
+
+    Returns
+    -------
+    WKTWriter
+        The configured WKT writer instance.
+
+    """
     if not thread_context.wkt_w:
         thread_context.wkt_w = WKTWriter(dim=dim, trim=trim, precision=precision)
     else:

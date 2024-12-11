@@ -31,6 +31,19 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_warning_when_unique_true_on_fk(self):
+        """
+        Tests that a warning is raised when a ForeignKey field has unique=True.
+
+        This test ensures that the system correctly identifies and reports when a ForeignKey
+        field is defined with the unique=True parameter, which has the same effect as using
+        a OneToOneField. The test verifies that the expected warning is generated when
+        checking the model, and that the warning message and hint are as expected.
+
+        The warning is raised because setting unique=True on a ForeignKey is typically
+        better served by using a OneToOneField, and the test checks that this warning is
+        correctly raised with the correct id and object reference.
+
+        """
         class Foo(models.Model):
             pass
 
@@ -114,6 +127,15 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_fk_to_fk_get_col_output_field(self):
+        """
+
+        Tests that a foreign key to a foreign key field returns the correct output field.
+
+        This test case verifies that when a model has a foreign key to another model which also has a foreign key,
+        the `get_col` method returns a column object with an output field that corresponds to the primary key
+        of the original model, not the intermediate model.
+
+        """
         class Foo(models.Model):
             pass
 
@@ -139,6 +161,11 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_non_local_to_field(self):
+        """
+        Tests that a FieldError is raised when a foreign key references a field that is not local to the model it is referencing. 
+
+        This check ensures that the field specified in the `to_field` argument of a ForeignKey is a field on the model that the ForeignKey is referencing, rather than a field inherited from a parent model.
+        """
         class Parent(models.Model):
             key = models.IntegerField(unique=True)
 
@@ -156,6 +183,12 @@ class ForeignKeyTests(TestCase):
             Related._meta.get_field("child").related_fields
 
     def test_invalid_to_parameter(self):
+        """
+        Tests that creating a ForeignKey with an invalid 'to' parameter raises a TypeError.
+
+        The 'to' parameter should be either a model, a model name, or the string 'self'. 
+        The test ensures that passing an invalid value, such as an integer, results in a TypeError with a descriptive error message.
+        """
         msg = (
             "ForeignKey(1) is invalid. First parameter to ForeignKey must be "
             "either a model, a model name, or the string 'self'"

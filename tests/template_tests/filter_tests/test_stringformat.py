@@ -20,6 +20,9 @@ class StringformatTests(SimpleTestCase):
         }
     )
     def test_stringformat01(self):
+        """
+        Tests the stringformat filter with autoescape disabled, using a format string to render two input strings with a fixed width of 5 characters, and verifies that the output matches the expected result, ensuring that HTML tags in the input are not escaped when using mark_safe.
+        """
         output = self.engine.render_to_string(
             "stringformat01", {"a": "a<b", "b": mark_safe("a<b")}
         )
@@ -29,6 +32,16 @@ class StringformatTests(SimpleTestCase):
         {"stringformat02": '.{{ a|stringformat:"5s" }}. .{{ b|stringformat:"5s" }}.'}
     )
     def test_stringformat02(self):
+        """
+
+        Tests the stringformat filter with HTML-unsafe and HTML-safe input values.
+
+        This test case verifies that the stringformat filter correctly handles HTML-unsafe strings
+        by escaping special characters and HTML-safe strings by leaving them unescaped.
+        The test checks if the output string is formatted as expected and if the HTML-safe
+        value is not escaped, while the HTML-unsafe value is properly escaped.
+
+        """
         output = self.engine.render_to_string(
             "stringformat02", {"a": "a<b", "b": mark_safe("a<b")}
         )

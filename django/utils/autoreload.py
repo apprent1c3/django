@@ -468,6 +468,23 @@ class WatchmanReloader(BaseReloader):
         return self.client.query("clock", root)["clock"]
 
     def _subscribe(self, directory, name, expression):
+        """
+        Subscribes to a Watchman subscription for the specified directory and file expression.
+
+        This method initiates a subscription to a Watchman query, allowing the client to receive notifications when files matching the provided expression change. The subscription is limited to files within the specified directory, and only files (regular and symbolic links) are considered.
+
+        The subscription query includes options for deduplicating results and tracking changes since the last clock value. If a relative path is provided, it is used to scope the query.
+
+        The method does not return any value, but logs a debug message with the subscription details, including the name, root directory, and query parameters. The actual subscription is handled by the Watchman client.
+
+        Parameters:
+            directory (str): The directory to subscribe to.
+            name (str): The name of the subscription.
+            expression (list): A Watchman expression specifying the files to subscribe to.
+
+        Returns:
+            None
+        """
         root, rel_path = self._watch_root(directory)
         # Only receive notifications of files changing, filtering out other types
         # like special files: https://facebook.github.io/watchman/docs/type
@@ -568,6 +585,16 @@ class WatchmanReloader(BaseReloader):
                 raise
 
     def _check_subscription(self, sub):
+        """
+        Checks a watchman subscription and notifies about changed files.
+
+            Retrieves a subscription from the client and iterates over its results.
+            For each result, it extracts the root directory and iterates over the changed files.
+            If files are found, it triggers a notification for each file by calling the notify_file_changed method.
+
+            :param sub: The subscription to check.
+
+        """
         subscription = self.client.getSubscription(sub)
         if not subscription:
             return
@@ -621,6 +648,19 @@ class WatchmanReloader(BaseReloader):
 
     @classmethod
     def check_availability(cls):
+        """
+
+        Checks the availability of the Watchman service.
+
+        This method verifies that the Watchman client library (pywatchman) is installed and
+        that the Watchman service is running and can be connected to. It also checks that
+        the Watchman version is compatible, requiring version 4.9 or later.
+
+        Raises:
+            WatchmanUnavailable: If pywatchman is not installed, if the Watchman service
+                cannot be connected to, or if the Watchman version is not compatible.
+
+        """
         if not pywatchman:
             raise WatchmanUnavailable("pywatchman not installed.")
         client = pywatchman.client(timeout=0.1)

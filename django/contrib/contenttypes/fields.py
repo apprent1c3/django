@@ -42,6 +42,15 @@ class GenericForeignKey(FieldCacheMixin, Field):
     def __init__(
         self, ct_field="content_type", fk_field="object_id", for_concrete_model=True
     ):
+        """
+        Initializes a generic foreign key field, enabling relationships with other models.
+
+        :param ct_field: The name of the field used to store the content type of the related object.
+        :param fk_field: The name of the field used to store the foreign key value of the related object.
+        :param for_concrete_model: A boolean indicating whether the generic foreign key is for a concrete model.
+        :note: This field is not editable by default.
+        :ivar is_relation: A boolean indicating whether this field represents a relationship with another model.
+        """
         super().__init__(editable=False)
         self.ct_field = ct_field
         self.fk_field = fk_field
@@ -49,6 +58,23 @@ class GenericForeignKey(FieldCacheMixin, Field):
         self.is_relation = True
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contributes the attribute to the given class.
+
+        This method is responsible for registering the attribute on the class,
+        making it accessible through the class instance. The attribute is set
+        on the class with the name specified by the attribute's internal name.
+
+        :param cls: The class to contribute the attribute to.
+        :param name: The name of the attribute on the class.
+        :param kwargs: Additional keyword arguments to pass to the superclass's method.
+
+        The attribute is set as a private attribute on the class, meaning it will
+        not be visible in the class's public interface. Nevertheless, it can be
+        accessed directly via its internal name. This method is typically used
+        internally by the class's metaclass or other framework components to
+        configure the attribute's behavior on the class instance.
+        """
         super().contribute_to_class(cls, name, private_only=True, **kwargs)
         # GenericForeignKey is its own descriptor.
         setattr(cls, self.attname, self)
@@ -160,6 +186,22 @@ class GenericForeignKey(FieldCacheMixin, Field):
             raise Exception("Impossible arguments to GFK.get_content_type!")
 
     def get_prefetch_queryset(self, instances, queryset=None):
+        """
+
+        Fetches a queryset for prefetching related objects.
+
+        This method is deprecated and will be removed in Django 6.0. It is recommended to use
+        :func:`get_prefetch_querysets` instead.
+
+        It returns a queryset that can be used to prefetch related objects for the given instances.
+        If a queryset is provided, it will be used to fetch the related objects. Otherwise, the default
+        queryset will be used.
+
+        :param instances: The instances for which to fetch related objects.
+        :param queryset: Optional queryset to use for fetching related objects.
+        :returns: A queryset that can be used to prefetch related objects.
+
+        """
         warnings.warn(
             "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
             "instead.",
@@ -268,6 +310,20 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return rel_obj
 
     def __set__(self, instance, value):
+        """
+
+        Sets the value of a generic foreign key relationship.
+
+        This method is responsible for setting the value of a generic foreign key on an instance.
+        When a value is provided, it identifies the content type of the object and retrieves its primary key.
+        The method then sets the content type and foreign key fields on the instance accordingly.
+        If no value is provided, the content type and foreign key fields are set to None.
+        The method also caches the value for future reference.
+
+        :param instance: The instance on which to set the generic foreign key relationship
+        :param value: The object to which the generic foreign key relationship should point
+
+        """
         ct = None
         fk = None
         if value is not None:
@@ -330,6 +386,19 @@ class GenericRelation(ForeignObject):
         limit_choices_to=None,
         **kwargs,
     ):
+        """
+        Initializes a generic foreign key field that can reference any object, providing a flexible way to create relationships between models.
+
+        :param to: The model to which this field is related.
+        :param object_id_field: The name of the field that will store the ID of the related object. Defaults to 'object_id'.
+        :param content_type_field: The name of the field that will store the content type of the related object. Defaults to 'content_type'.
+        :param for_concrete_model: A flag indicating whether this field should reference the concrete model (True) or the abstract model (False). Defaults to True.
+        :param related_query_name: The name to use for the reverse query. Defaults to None.
+        :param limit_choices_to: A dictionary of lookup parameters to limit the choices of related objects. Defaults to None.
+        :param **kwargs: Additional keyword arguments to be passed to the parent class.
+
+        This field is designed to be used with Django's generic foreign key mechanism, allowing for flexible and dynamic relationships between models. The `object_id_field` and `content_type_field` parameters control the naming of the underlying fields, while the `for_concrete_model` parameter determines whether the field references the concrete or abstract model.
+        """
         kwargs["rel"] = self.rel_class(
             self,
             to,
@@ -375,6 +444,13 @@ class GenericRelation(ForeignObject):
         )
 
     def _check_generic_foreign_key_existence(self):
+        """
+        Check if a GenericForeignKey exists on the related model of a GenericRelation.
+
+        This method verifies that the model to which a GenericRelation is established actually contains a GenericForeignKey.
+        If the related model is a valid Django model and it does not contain a matching GenericForeignKey, 
+        it returns an error indicating the missing GenericForeignKey; otherwise, it returns no errors.
+        """
         target = self.remote_field.model
         if isinstance(target, ModelBase):
             fields = target._meta.private_fields
@@ -800,6 +876,15 @@ def create_generic_related_manager(superclass, rel):
         acreate.alters_data = True
 
         def get_or_create(self, **kwargs):
+            """
+            Retrieves or creates an instance of the associated model, ensuring that the content type and object ID are correctly set to reference the current instance.
+
+            The function takes arbitrary keyword arguments, which are used to filter or create the associated instance. It automatically sets the content type and object ID fields based on the current instance's configuration.
+
+            The retrieval or creation operation is performed on the database alias determined by the router, ensuring that the correct database is used for write operations. 
+
+            Returns a tuple containing the retrieved or created instance and a boolean indicating whether the instance was newly created.
+            """
             kwargs[self.content_type_field_name] = self.content_type
             kwargs[self.object_id_field_name] = self.pk_val
             db = router.db_for_write(self.model, instance=self.instance)
@@ -813,6 +898,15 @@ def create_generic_related_manager(superclass, rel):
         aget_or_create.alters_data = True
 
         def update_or_create(self, **kwargs):
+            """
+            Update or create an instance of the associated model, setting the content type and object ID fields based on the current instance.
+
+            The function uses the database router to determine the correct database to write to, and then calls the parent class's update_or_create method to perform the actual update or creation.
+
+            :param kwargs: Additional keyword arguments to pass to the update_or_create method.
+            :returns: A tuple containing the newly created or updated instance, and a boolean indicating whether the instance was created.
+            :raises: May raise exceptions related to database operations, such as integrity errors or connection errors.
+            """
             kwargs[self.content_type_field_name] = self.content_type
             kwargs[self.object_id_field_name] = self.pk_val
             db = router.db_for_write(self.model, instance=self.instance)

@@ -57,6 +57,11 @@ class CheckCacheLocationTest(SimpleTestCase):
         }
 
     def test_cache_path_matches_media_static_setting(self):
+        """
+        Checks if the cache path is not exposed through Django's MEDIA_ROOT, STATIC_ROOT, or STATICFILES_DIRS settings.
+
+        This test verifies that the cache location does not overlap with any of the specified media and static file settings to prevent unintended exposure. It iterates over each setting, generates a warning message, and asserts that the warning is raised with the correct message and identifier. This ensures that the cache path is properly configured to maintain security and prevent information disclosure.
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root, root)
@@ -70,6 +75,14 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_inside_media_static_setting(self):
+        """
+        Tests whether a cache path set inside a media or static setting raises the expected warning.
+
+        This test case iterates over various Django settings (MEDIA_ROOT, STATIC_ROOT, STATICFILES_DIRS) 
+        and checks if the check_cache_location_not_exposed function correctly identifies 
+        when a cache path is located inside one of these settings, which could expose sensitive data.
+        The test verifies that a warning with the appropriate message and ID is raised in such cases.
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root)
@@ -96,6 +109,16 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_not_conflict(self):
+        """
+
+        Tests that the cache path does not conflict with significant project settings.
+
+        This test ensures that the cache location is not exposed in the project's 
+        MEDIA_ROOT, STATIC_ROOT, or STATICFILES_DIRS settings, which could potentially
+        lead to security issues or conflicts. It iterates over these project settings, 
+        checks the cache location, and verifies that no conflicts are found.
+
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root / "other")
@@ -103,6 +126,18 @@ class CheckCacheLocationTest(SimpleTestCase):
                 self.assertEqual(check_cache_location_not_exposed(None), [])
 
     def test_staticfiles_dirs_prefix(self):
+        """
+
+        Test the prefix setting in STATICFILES_DIRS to ensure cache locations are not exposed.
+
+        This test case verifies that the cache directory is correctly checked against the
+        STATICFILES_DIRS setting to prevent exposure of cache locations. It checks three
+        different scenarios: when the cache directory matches the STATICFILES_DIRS prefix,
+        when the cache directory is inside the STATICFILES_DIRS prefix, and when the
+        STATICFILES_DIRS prefix contains the cache directory. In each case, it expects a
+        warning to be raised when the cache location is exposed.
+
+        """
         root = pathlib.Path.cwd()
         tests = [
             (root, root, "matches"),
@@ -125,6 +160,13 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_staticfiles_dirs_prefix_not_conflict(self):
+        """
+
+        Verifies that the 'STATICFILES_DIRS' setting does not conflict with the cache directory when a prefix is specified.
+        Checks that the cache location is not exposed when the static files directories and cache directory have overlapping paths.
+        Ensures the integrity of the cache system by testing for potential directory conflicts.
+
+        """
         root = pathlib.Path.cwd()
         settings = self.get_settings(
             "STATICFILES_DIRS",
@@ -137,6 +179,16 @@ class CheckCacheLocationTest(SimpleTestCase):
 
 class CheckCacheAbsolutePath(SimpleTestCase):
     def test_absolute_path(self):
+        """
+
+        Tests that the absolute path validation for file-based cache returns an empty list when the cache location is absolute.
+
+        This test verifies the correctness of the check_file_based_cache_is_absolute function when it receives a None value, 
+        which triggers the function to check the default cache location.
+        The test ensures that the function behaves as expected when the cache location is set to an absolute path, 
+        in this case, the current working directory.
+
+        """
         with self.settings(
             CACHES={
                 "default": {
@@ -148,6 +200,18 @@ class CheckCacheAbsolutePath(SimpleTestCase):
             self.assertEqual(check_file_based_cache_is_absolute(None), [])
 
     def test_relative_path(self):
+        """
+        Tests that a relative path in the default cache location triggers a warning.
+
+        This test case ensures that when the default cache location is set to a relative path,
+        a suitable warning is raised to encourage the use of an absolute path instead.
+        The test verifies that the check for absolute paths in the cache location settings correctly identifies
+        relative paths and issues the expected warning message.
+
+        Returns:
+            A list containing a warning indicating that the cache location path is relative.
+
+        """
         with self.settings(
             CACHES={
                 "default": {

@@ -8,6 +8,14 @@ from ..utils import setup
 class FirstTests(SimpleTestCase):
     @setup({"first01": "{{ a|first }} {{ b|first }}"})
     def test_first01(self):
+        """
+
+        Test rendering of the 'first' filter on a list of strings and mark_safe objects.
+
+        This test ensures that the 'first' filter is applied correctly to extract the first element from lists,
+        handling HTML-safe strings and regular strings, and properly escaping HTML special characters.
+
+        """
         output = self.engine.render_to_string(
             "first01", {"a": ["a&b", "x"], "b": [mark_safe("a&b"), "x"]}
         )

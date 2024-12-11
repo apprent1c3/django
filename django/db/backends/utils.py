@@ -35,6 +35,11 @@ class CursorWrapper:
             return cursor_attr
 
     def __iter__(self):
+        """
+        Returns an iterator over the results of the current database query.
+
+        This method allows the object to be used in a loop, where each iteration yields a row from the query results. The iteration process is wrapped in error handling to catch and handle any database-related exceptions that may occur during the iteration.
+        """
         with self.db.wrap_database_errors:
             yield from self.cursor
 
@@ -45,6 +50,11 @@ class CursorWrapper:
         # Close instead of passing through to avoid backend-specific behavior
         # (#17671). Catch errors liberally because errors in cleanup code
         # aren't useful.
+        """
+        Exits the runtime context, handling any potential exceptions during closure.
+
+        Closes the database connection when leaving the context, ignoring any database-related errors that may occur during the closure process. This ensures a clean exit, even in cases where the database connection cannot be properly closed. 
+        """
         try:
             self.close()
         except self.db.Database.Error:

@@ -15,6 +15,14 @@ class TestModelsWithValidators(ValidationAssertions, SimpleTestCase):
         self.assertIsNone(mtv.full_clean())
 
     def test_custom_validator_raises_error_for_incorrect_value(self):
+        """
+
+        Tests that a custom validator raises an error for an incorrect value.
+
+        Checks that the validation of a model instance with a custom validator field 
+        set to an invalid value fails and produces the expected error message.
+
+        """
         mtv = ModelToValidate(
             number=10,
             name="Some Name",

@@ -35,6 +35,29 @@ class LogEntryManager(models.Manager):
         action_flag,
         change_message="",
     ):
+        """
+
+        Log a specific action performed by a user on an object.
+
+        This method creates a new log entry in the database with details about the action,
+        including the user who performed it, the type of object affected, and a description
+        of the action.
+
+        Note:
+            This method is deprecated and will be removed in Django 6.0. Use `log_actions()` instead.
+
+        It takes the following parameters:
+            user_id: The ID of the user who performed the action.
+            content_type_id: The ID of the content type of the object affected.
+            object_id: The ID of the object affected by the action.
+            object_repr: A string representation of the object.
+            action_flag: A flag indicating the type of action performed.
+            change_message: An optional message describing the changes made.
+
+        The message can be a string or a list of changes, which will be serialized to JSON.
+        The object representation is truncated to 200 characters.
+
+        """
         warnings.warn(
             "LogEntryManager.log_action() is deprecated. Use log_actions() instead.",
             RemovedInDjango60Warning,

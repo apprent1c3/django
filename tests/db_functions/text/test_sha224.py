@@ -46,6 +46,21 @@ class SHA224Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+        Tests the transformation of data using the SHA224 hash function.
+
+        This test case verifies that the SHA224 hash function correctly transforms
+        the alias of an Author object, allowing for efficient lookup of authors
+        by their hashed alias.
+
+        It checks that the transformation produces the expected result by filtering
+        a list of Author objects based on their hashed alias and asserting that
+        the resulting list contains the expected author entry.
+
+        The test ensures that the lookup is properly registered and that the
+        SHA224 hash function is correctly applied to the alias field of the
+        Author object, enabling secure and efficient data retrieval.
+        """
         with register_lookup(CharField, SHA224):
             authors = Author.objects.filter(
                 alias__sha224=(

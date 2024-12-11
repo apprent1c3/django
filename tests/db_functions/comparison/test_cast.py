@@ -16,6 +16,15 @@ class CastTests(TestCase):
         Author.objects.create(name="Bob", age=1, alias="1")
 
     def test_cast_from_value(self):
+        """
+        Tests the casting of a value to an integer field using the Cast database function.
+
+        This test ensures that the Cast function correctly converts a string value to an integer, 
+        and that the resulting annotated field is accessible and returns the expected value.
+
+        It verifies that the annotation is applied correctly to the Author model's query, 
+        and the result is as expected, with the cast_integer field having the value 0.
+        """
         numbers = Author.objects.annotate(
             cast_integer=Cast(models.Value("0"), models.IntegerField())
         )
@@ -28,6 +37,13 @@ class CastTests(TestCase):
         self.assertEqual(numbers.get().cast_string, "1")
 
     def test_cast_to_char_field_without_max_length(self):
+        """
+
+        Tests that casting an integer field to a character field without specifying a max length results in a string representation of the integer value.
+
+        Verifies that the annotated \"cast_string\" field contains the expected string value for an author object, demonstrating the correctness of the casting operation.
+
+        """
         numbers = Author.objects.annotate(cast_string=Cast("age", models.CharField()))
         self.assertEqual(numbers.get().cast_string, "1")
 
@@ -35,6 +51,17 @@ class CastTests(TestCase):
     @ignore_warnings(module="django.db.backends.mysql.base")
     @skipUnlessDBFeature("supports_cast_with_precision")
     def test_cast_to_char_field_with_max_length(self):
+        """
+
+        Tests that casting a field to a CharField with a maximum length correctly truncates the result.
+
+        This test ensures that when using the Cast function to convert a field to a CharField with a specified max_length,
+        the resulting string is truncated to the specified length.
+
+        The test uses the Author model's name field as an example, casting it to a CharField with a maximum length of 1.
+        It then verifies that the resulting cast string is correctly truncated to a single character.
+
+        """
         names = Author.objects.annotate(
             cast_string=Cast("name", models.CharField(max_length=1))
         )
@@ -42,6 +69,16 @@ class CastTests(TestCase):
 
     @skipUnlessDBFeature("supports_cast_with_precision")
     def test_cast_to_decimal_field(self):
+        """
+
+        Tests the behavior of casting float fields to decimal fields.
+
+        This test checks if the :class:`Cast` database function can correctly convert float fields to decimal fields with specified precision.
+        It covers two cases: casting a float field to a decimal field with different precision for each field, and casting an alias to a decimal field.
+
+        The test verifies that the cast values match the expected decimal values, ensuring correct rounding and precision handling.
+
+        """
         FloatModel.objects.create(f1=-1.934, f2=3.467)
         float_obj = FloatModel.objects.annotate(
             cast_f1_decimal=Cast(
@@ -61,6 +98,9 @@ class CastTests(TestCase):
         self.assertEqual(author_obj.cast_alias_decimal, decimal.Decimal("1"))
 
     def test_cast_to_integer(self):
+        """
+        Tests the ability to cast various integer field types in a model to an integer value, ensuring the correctness of the casting process for different field classes, including AutoFields, BigAutoFields, SmallAutoFields, IntegerFields, BigIntegerFields, SmallIntegerFields, PositiveBigIntegerFields, PositiveIntegerFields, and PositiveSmallIntegerFields.
+        """
         for field_class in (
             models.AutoField,
             models.BigAutoField,
@@ -86,6 +126,13 @@ class CastTests(TestCase):
         self.assertEqual(numbers.get().cast_fk, 0)
 
     def test_cast_to_duration(self):
+        """
+        .. function:: test_cast_to_duration
+
+           Tests the casting of a datetime timedelta object to a DurationField in a Django model.
+
+           Verifies that both positive and negative duration values can be successfully cast and retrieved from the database, ensuring that the ORM correctly handles the conversion between the two data types.
+        """
         duration = datetime.timedelta(days=1, seconds=2, microseconds=3)
         DTModel.objects.create(duration=duration)
         dtm = DTModel.objects.annotate(
@@ -117,6 +164,15 @@ class CastTests(TestCase):
         )
 
     def test_cast_from_db_date_to_datetime(self):
+        """
+        Tests the casting of a date field from the database to a datetime object.
+
+        Verifies that a date stored in the database can be successfully converted to a datetime object,
+        with the time component defaulting to midnight (00:00:00), when retrieved from the database.
+
+        This test case covers the functionality of using the Cast database function to transform date fields
+        into datetime fields, ensuring correct datetime representation and comparison in the application.
+        """
         dt_value = datetime.date(2018, 9, 28)
         DTModel.objects.create(start_date=dt_value)
         dtm = DTModel.objects.annotate(
@@ -127,6 +183,15 @@ class CastTests(TestCase):
         )
 
     def test_cast_from_db_datetime_to_date_group_by(self):
+        """
+
+        Tests the capability to cast a DateTimeField from the database to a DateField, 
+        grouping by the author of a fan, and annotating with the count of fans for each day.
+
+        The test checks that the 'fan_since' DateTimeField is correctly cast to a DateField, 
+        and verifies that the count of fans for a specific date is accurate.
+
+        """
         author = Author.objects.create(name="John Smith", age=45)
         dt_value = datetime.datetime(2018, 9, 28, 12, 42, 10, 234567)
         Fan.objects.create(name="Margaret", age=50, author=author, fan_since=dt_value)
@@ -155,6 +220,15 @@ class CastTests(TestCase):
         self.assertAlmostEqual(dates.get().cast_datetime, now, delta=time_precision)
 
     def test_cast_from_python(self):
+        """
+
+        Tests whether the Cast function can correctly cast a decimal value from a python Decimal object to a FloatField.
+
+        The function verifies that the casted value is an instance of float and that its value is equal to the expected result.
+
+        This ensures that the Cast function behaves as expected when converting decimal values to floating point numbers, allowing for safe and accurate data type conversions in database queries.
+
+        """
         numbers = Author.objects.annotate(
             cast_float=Cast(decimal.Decimal(0.125), models.FloatField())
         )

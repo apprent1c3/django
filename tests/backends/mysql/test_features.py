@@ -24,6 +24,19 @@ class TestFeatures(TestCase):
         del connection.features.supports_transactions
 
     def test_allows_auto_pk_0(self):
+        """
+
+        Tests if the database allows auto-incrementing primary keys to start from 0.
+
+        The test evaluates the database's SQL mode to determine if it permits the
+        auto-incrementing of primary keys starting from 0, which is the case when the
+        'NO_AUTO_VALUE_ON_ZERO' mode is enabled.
+
+         pinnacle:
+             This function is expected to return True if the database allows zero-based
+             auto-incrementing of primary keys.
+
+        """
         with mock.MagicMock() as _connection:
             _connection.sql_mode = {"NO_AUTO_VALUE_ON_ZERO"}
             database_features = DatabaseFeatures(_connection)

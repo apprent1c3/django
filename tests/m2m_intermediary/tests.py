@@ -7,6 +7,19 @@ from .models import Article, Reporter, Writer
 
 class M2MIntermediaryTests(TestCase):
     def test_intermediary(self):
+        """
+
+        Tests the intermediary model Writer, which connects Reporters to Articles.
+
+        This test ensures that the Writer model correctly establishes relationships between
+        Reporters and Articles, and that queries on these relationships return the expected results.
+        It verifies that the correct writers are associated with an article, and that the
+        positions of the writers are ordered correctly.
+
+        The test also checks the reverse relationships, ensuring that a reporter's writer set
+        contains the correct articles and positions.
+
+        """
         r1 = Reporter.objects.create(first_name="John", last_name="Smith")
         r2 = Reporter.objects.create(first_name="Jane", last_name="Doe")
 

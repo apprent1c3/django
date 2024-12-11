@@ -21,6 +21,16 @@ class SHA1Tests(TestCase):
         )
 
     def test_basic(self):
+        """
+
+        Tests the basic functionality of author annotation.
+
+        This test case verifies that authors are correctly annotated with their corresponding SHA1 hashes.
+        The test retrieves a list of authors, annotates each author with the SHA1 hash of their alias, 
+        and then checks if the resulting list of hashes matches the expected values.
+        The expected values are predefined SHA1 hashes, with a special case for databases that interpret empty strings as nulls.
+
+        """
         authors = (
             Author.objects.annotate(
                 sha1_alias=SHA1("alias"),
@@ -44,6 +54,18 @@ class SHA1Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+
+        Tests the transformation of alias values to their SHA1 hash equivalents.
+
+        This test case verifies that the alias 'John Smith' is correctly identified
+        when filtered by its SHA1 hash value, demonstrating the successful registration
+        of the SHA1 lookup function for CharFields.
+
+        The test queries the Author objects with the specified SHA1 hash and asserts
+        that the resulting aliases match the expected value.
+
+        """
         with register_lookup(CharField, SHA1):
             authors = Author.objects.filter(
                 alias__sha1="e61a3587b3f7a142b8c7b9263c82f8119398ecb7",

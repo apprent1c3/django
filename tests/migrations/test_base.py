@@ -29,10 +29,27 @@ class MigrationTestBase(TransactionTestCase):
             recorder.migration_qs.filter(app="migrations").delete()
 
     def get_table_description(self, table, using="default"):
+        """
+        Get the description of a database table.
+
+        :param table: The name of the table to retrieve the description for.
+        :param using: The database alias to use for the connection, defaults to 'default'.
+        :return: A description of the table, including its columns and data types.
+        :rtype: list
+        """
         with connections[using].cursor() as cursor:
             return connections[using].introspection.get_table_description(cursor, table)
 
     def assertTableExists(self, table, using="default"):
+        """
+        Asserts that a given database table exists.
+
+        Args:
+            table (str): The name of the table to check.
+            using (str, optional): The alias of the database connection to use. Defaults to 'default'.
+
+        This method checks if a table exists in the specified database by querying the database's table names. It raises an AssertionError if the table does not exist.
+        """
         with connections[using].cursor() as cursor:
             self.assertIn(table, connections[using].introspection.table_names(cursor))
 
@@ -76,6 +93,19 @@ class MigrationTestBase(TransactionTestCase):
         self.assertEqual(self._get_column_collation(table, column, using), collation)
 
     def _get_table_comment(self, table, using):
+        """
+        Get the comment associated with a specific database table.
+
+        This method retrieves the comment for a given table name using the 
+        provided database connection. It leverages the database's introspection 
+        capabilities to fetch the table list and then identifies the comment 
+        for the specified table.
+
+         :param table: The name of the table for which to retrieve the comment.
+         :param using: The alias of the database connection to use for the query.
+         :return: The comment associated with the specified table, or None if not found.
+
+        """
         with connections[using].cursor() as cursor:
             return next(
                 t.comment
@@ -92,6 +122,20 @@ class MigrationTestBase(TransactionTestCase):
     def assertIndexExists(
         self, table, columns, value=True, using="default", index_type=None
     ):
+        """
+        Asserts that an index exists on the specified table and columns.
+
+        Args:
+            table (str): The name of the table to check.
+            columns (list): A list of column names to check the index for.
+            value (bool, optional): Whether the index should exist. Defaults to True.
+            using (str, optional): The database connection to use. Defaults to 'default'.
+            index_type (str, optional): The type of index to check for. If None, any non-unique index is accepted.
+
+        This assertion checks if an index exists on the specified table and columns, 
+        and verifies its type and uniqueness according to the provided parameters.
+        It uses the specified database connection to perform the check.
+        """
         with connections[using].cursor() as cursor:
             self.assertEqual(
                 value,
@@ -112,6 +156,30 @@ class MigrationTestBase(TransactionTestCase):
         return self.assertIndexExists(table, columns, False)
 
     def assertIndexNameExists(self, table, index, using="default"):
+        """
+        Asserts that a given index exists on a specific database table.
+
+        Parameters
+        ----------
+        table : str
+            The name of the database table to check.
+        index : str
+            The name of the index to look for.
+        using : str, optional
+            The database connection to use (defaults to 'default').
+
+        Raises
+        ------
+        AssertionError
+            If the specified index does not exist on the given table.
+
+        Notes
+        -----
+        This method uses the database connection's introspection capabilities to retrieve
+        the constraints (including indexes) defined on the specified table. It then checks
+        if the given index is among the retrieved constraints, raising an AssertionError
+        if it is not found. 
+        """
         with connections[using].cursor() as cursor:
             self.assertIn(
                 index,
@@ -119,6 +187,17 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertIndexNameNotExists(self, table, index, using="default"):
+        """
+        Assert that the specified index does not exist on the given table.
+
+        Args:
+            table (str): The name of the table to check.
+            index (str): The name of the index to verify does not exist.
+            using (str, optional): The database connection to use. Defaults to 'default'.
+
+        Raises:
+            AssertionError: If the index exists on the table.
+        """
         with connections[using].cursor() as cursor:
             self.assertNotIn(
                 index,
@@ -126,6 +205,19 @@ class MigrationTestBase(TransactionTestCase):
             )
 
     def assertConstraintExists(self, table, name, value=True, using="default"):
+        """
+
+        Asserts the existence of a constraint in a specified database table.
+
+        This method checks if a constraint with the given name exists in the table.
+        It returns True if the constraint exists and matches the expected value, and False otherwise.
+
+        :param table: The name of the database table to check.
+        :param name: The name of the constraint to look for.
+        :param value: A boolean indicating whether the constraint should exist (default: True).
+        :param using: The name of the database connection to use (default: 'default').
+
+        """
         with connections[using].cursor() as cursor:
             constraints = (
                 connections[using].introspection.get_constraints(cursor, table).items()
@@ -211,10 +303,25 @@ class OperationTestBase(MigrationTestBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class by initializing the necessary state for the test class.
+
+        This method is called once before running all tests in the class. It saves the initial set of table names in the database, 
+        so that tests can inspect or restore the initial database state later on. This helps to ensure that each test 
+        starts with a clean and consistent database setup. 
+        """
         super().setUpClass()
         cls._initial_table_names = frozenset(connection.introspection.table_names())
 
     def tearDown(self):
+        """
+
+        Teardown method to clean up after a test.
+
+        This method is called after each test to release any resources and restore the state to its original condition.
+        It removes temporary test tables and then calls the parent class's teardown method to ensure any additional cleanup is performed.
+
+        """
         self.cleanup_test_tables()
         super().tearDown()
 
@@ -240,6 +347,23 @@ class OperationTestBase(MigrationTestBase):
             return migration.apply(project_state, editor)
 
     def unapply_operations(self, app_label, project_state, operations, atomic=True):
+        """
+
+        Reverses a series of migration operations.
+
+        This function takes a set of operations, wraps them in a migration object, 
+        and then applies the reversal of those operations to the specified project state.
+
+        Parameters:
+            app_label (str): The label of the application to which the migration belongs.
+            project_state (ProjectState): The current state of the project.
+            operations (list): A list of operations to be unapplied.
+            atomic (bool): Whether the unapply operation should be executed as a single, atomic transaction. Defaults to True.
+
+        Returns:
+            The result of unapplying the operations to the project state.
+
+        """
         migration = Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor(atomic=atomic) as editor:

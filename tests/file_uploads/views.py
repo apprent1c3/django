@@ -91,6 +91,28 @@ def file_upload_echo_content(request):
     """
 
     def read_and_close(f):
+        """
+        Read the contents of a file object and close it after reading.
+
+        This function takes a file object as input, reads its entire contents, 
+        decodes the bytes to a string, and then closes the file. It provides 
+        a convenient way to read a file's contents in a single operation, 
+        ensuring the file is properly closed regardless of whether an exception 
+        is thrown or not.
+
+        Args:
+            f: A file object that has been opened in binary mode.
+
+        Returns:
+            A string representing the contents of the file.
+
+        Note:
+            The file object must be opened in binary mode ('rb') for this function 
+            to work correctly, as it decodes the bytes to a string using the 
+            default encoding. If the file object is not opened in binary mode, 
+            the function may not work as expected.
+
+        """
         with f:
             return f.read().decode()
 
@@ -116,6 +138,22 @@ def file_upload_quota_broken(request):
 
 
 def file_stop_upload_temporary_file(request):
+    """
+
+    Stops the upload of a temporary file and returns its temporary file path.
+
+    This function modifies the request's upload handlers to use a custom handler that 
+    stops the upload process, allowing the temporary file to be accessed before it is 
+    fully uploaded. The function then returns a JSON response containing the path to 
+    the temporary file.
+
+    The returned temporary file path can be used for further processing or verification 
+    before deciding whether to complete the upload or discard the file.
+
+    Returns:
+        JsonResponse: A JSON response containing the temporary file path.
+
+    """
     request.upload_handlers.insert(0, StopUploadTemporaryFileHandler())
     request.upload_handlers.pop(2)
     request.FILES  # Trigger file parsing.
@@ -125,6 +163,16 @@ def file_stop_upload_temporary_file(request):
 
 
 def file_upload_interrupted_temporary_file(request):
+    """
+    Handles a file upload interruption by modifying the request's upload handlers.
+
+    This function inserts a TemporaryFileUploadHandler at the beginning of the request's upload handlers and removes the third handler.
+    It then returns a JSON response containing the temporary file path of the first upload handler, which can be used to resume the upload process.
+
+    :param request: The current HTTP request object.
+    :returns: A JsonResponse object with the temporary file path.
+
+    """
     request.upload_handlers.insert(0, TemporaryFileUploadHandler())
     request.upload_handlers.pop(2)
     request.FILES  # Trigger file parsing.
@@ -145,6 +193,17 @@ def file_upload_getlist_count(request):
 
 
 def file_upload_errors(request):
+    """
+
+    Simulates file upload errors by modifying the request to use an error-prone upload handler.
+
+    This function alters the incoming request by inserting a custom upload handler that intentionally introduces errors during the file upload process.
+    It then delegates the modified request to a file upload echo function to handle the upload, allowing for testing and debugging of file upload error scenarios.
+
+    :param request: The incoming request object containing the file to be uploaded
+    :return: The result of the file upload echo function with the modified request
+
+    """
     request.upload_handlers.insert(0, ErroringUploadHandler())
     return file_upload_echo(request)
 
@@ -172,6 +231,27 @@ def file_upload_content_type_extra(request):
 
 
 def file_upload_fd_closing(request, access):
+    """
+    Handles file uploads and returns an HTTP response.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The incoming HTTP request containing the file to be uploaded.
+    access : str
+        Specifies the access level, where 't' indicates a trusted access.
+
+    Returns
+    -------
+    HttpResponse
+        An HTTP response indicating the outcome of the file upload operation.
+
+    Note
+    ----
+    The function only processes the request when the access level is 't'.
+    In such cases, it accesses the uploaded files through the request's FILES attribute.
+
+    """
     if access == "t":
         request.FILES  # Trigger file parsing.
     return HttpResponse()

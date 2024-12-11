@@ -18,6 +18,15 @@ class NumberInputTests(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form field with a widget.
+
+        Verifies that the widget does not use a fieldset by default and that the
+        rendered HTML matches the expected output. The test checks for the correct
+        inclusion of the input field, its attributes, and the surrounding label.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

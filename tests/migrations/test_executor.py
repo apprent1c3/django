@@ -124,6 +124,22 @@ class ExecutorTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"},
     )
     def test_migrate_backward_to_squashed_migration(self):
+        """
+
+        Tests migration in a backward direction to a squashed migration.
+
+        This test case examines the behavior of migrating to a squashed migration and then
+        rolling back to a previous migration state. It verifies the existence of specific
+        tables before and after the migration, ensuring that the database schema is
+        correctly modified as expected.
+
+        The test covers the following migration scenarios:
+        - Migrating to a squashed migration ('0001_squashed_0002') and verifying the creation of tables.
+        - Rolling back to a previous migration state ('0001_initial') and confirming the expected changes in table existence.
+
+        The test also ensures that the database is restored to its original state after the test is completed.
+
+        """
         executor = MigrationExecutor(connection)
         try:
             self.assertTableNotExists("migrations_author")
