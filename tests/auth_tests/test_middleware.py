@@ -109,6 +109,15 @@ class TestLoginRequiredMiddleware(TestCase):
         )
 
     def test_non_existent_path(self):
+        """
+        Tests the handling of a non-existent path.
+
+        Verifies that a GET request to a path that does not exist returns a 404 status code,
+        indicating that the requested resource could not be found.
+
+        This test ensures the application behaves correctly when encountering unknown or 
+        missing URLs, providing a standard HTTP response for such scenarios.
+        """
         response = self.client.get("/non_existent/")
         self.assertEqual(response.status_code, 404)
 
@@ -136,6 +145,17 @@ class TestLoginRequiredMiddleware(TestCase):
 
     @override_settings(LOGIN_URL="/settings_login/")
     def test_get_login_url_from_settings(self):
+        """
+        Tests that the get_login_url method of the middleware returns the correct login URL as defined in the settings.
+
+        This test case verifies that the middleware retrieves the login URL from the project settings, specifically the LOGIN_URL variable, and returns it as expected. The test overrides the default LOGIN_URL setting to ensure the middleware uses the correct value.
+
+        Returns:
+            None
+
+        Asserts:
+            The login URL retrieved from the middleware matches the value defined in the settings.
+        """
         login_url = self.middleware.get_login_url(lambda: None)
         self.assertEqual(login_url, "/settings_login/")
 

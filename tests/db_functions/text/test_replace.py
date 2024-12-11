@@ -12,6 +12,14 @@ class ReplaceTests(TestCase):
         Author.objects.create(name="J. R. R. Tolkien")
 
     def test_replace_with_empty_string(self):
+        """
+
+        Test the replacement of a middle name in author names with an empty string.
+
+        Verifies that the Replace function correctly removes a specified substring from
+        author names, and that the resulting annotated queryset is as expected.
+
+        """
         qs = Author.objects.annotate(
             without_middlename=Replace(F("name"), Value("R. R. "), Value("")),
         )

@@ -52,6 +52,20 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def get_test_db_clone_settings(self, suffix):
+        """
+
+        Generates a clone of the current database settings with a modified name.
+
+        :arg suffix: The suffix to append to the original database name.
+        :returns: A dictionary containing the modified database settings.
+        :raises NotSupportedError: If the current multiprocessing start method does not support cloning.
+
+        This function creates a new database settings dictionary based on the current connection settings.
+        The new settings have a modified database name that includes the provided suffix.
+        The function takes into account the type of database (in-memory or file-based) and the current multiprocessing start method.
+        It returns the modified settings dictionary, or raises an error if cloning is not supported with the current start method.
+
+        """
         orig_settings_dict = self.connection.settings_dict
         source_database_name = orig_settings_dict["NAME"] or ":memory:"
 

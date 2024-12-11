@@ -122,6 +122,17 @@ class BaseTests:
         self.assertEqual(storing, 2)
 
     def test_existing_add_read_update(self):
+        """
+        .\"\"\"
+        Tests the workflow of adding a message to an existing storage, 
+        reading from it, updating the storage based on a response, and verifying 
+        that the stored message count matches the expected value.
+
+        The test case utilizes an existing storage instance, adds a new message, 
+        then updates the storage based on a response. It asserts that after the 
+        update, the count of stored messages matches the expected count.
+
+        """
         storage = self.get_existing_storage()
         response = self.get_response()
 

@@ -69,6 +69,14 @@ class PerformConstraintChecksTest(TestCase):
                 )
 
     def test_full_clean_with_unique_constraints_disabled(self):
+        """
+
+        Tests that full cleaning of a UniqueConstraintProduct instance succeeds when unique constraints are disabled.
+
+        This test case checks the functionality of the full_clean method when the validate_constraints parameter is set to False, 
+        allowing for the creation of duplicate products without triggering a validation error.
+
+        """
         UniqueConstraintProduct.objects.create(name="product", color="yellow", rank=1)
         product = UniqueConstraintProduct(name="product", color="yellow", rank=1)
         product.full_clean(validate_constraints=False)
@@ -90,6 +98,16 @@ class PerformConstraintChecksTest(TestCase):
 
     @skipUnlessDBFeature("supports_partial_indexes")
     def test_full_clean_with_partial_unique_constraints_disabled(self):
+        """
+
+        Tests the full_clean method of a model instance when partial unique constraints are disabled.
+
+        This test case creates an instance of UniqueConstraintConditionProduct with a duplicate name,
+        then calls the full_clean method with validate_constraints set to False. The goal of this test
+        is to verify that the model instance can be cleaned without raising any errors related to
+        unique constraints when this validation is explicitly disabled.
+
+        """
         UniqueConstraintConditionProduct.objects.create(name="product")
         product = UniqueConstraintConditionProduct(name="product")
         product.full_clean(validate_constraints=False)

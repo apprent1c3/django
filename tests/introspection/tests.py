@@ -46,6 +46,22 @@ class IntrospectionTests(TransactionTestCase):
 
     def test_django_table_names_retval_type(self):
         # Table name is a list #15216
+        """
+        Tests that the django_table_names function returns a list.
+
+        This test ensures that the function is correctly returning a list type, 
+        regardless of whether only existing tables are requested or not. 
+
+        It validates the return type of the function under different scenarios, 
+        providing assurance that the output is consistent and can be safely 
+        handled by downstream code that expects a list. 
+
+        The test covers two cases: when only existing tables are requested, 
+        and when all tables are requested, including non-existent ones. 
+
+        The test passes if the return type is a list in both cases, and fails 
+        otherwise.
+        """
         tl = connection.introspection.django_table_names(only_existing=True)
         self.assertIs(type(tl), list)
         tl = connection.introspection.django_table_names(only_existing=False)
@@ -170,6 +186,14 @@ class IntrospectionTests(TransactionTestCase):
         )
 
     def test_smallautofield(self):
+        """
+
+        Verifies the correct introspection of SmallAutoField in the Country model.
+
+        This test ensures that the introspected field type for the SmallAutoField in the Country model's database table matches the expected type.
+        The test uses the database connection's introspection functionality to retrieve the table description and then checks if the field type of the SmallAutoField is correctly identified.
+
+        """
         with connection.cursor() as cursor:
             desc = connection.introspection.get_table_description(
                 cursor, Country._meta.db_table
@@ -323,6 +347,26 @@ class IntrospectionTests(TransactionTestCase):
             # MySQL      pk=1 uniq=1 idx=1  pk=0 uniq=1 idx=1  pk=0 uniq=1 idx=1
             # PostgreSQL pk=1 uniq=1 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
             # SQLite     pk=1 uniq=0 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
+            """
+
+            Asserts the details of a database table or column definition.
+
+            This function checks if the provided details match the expected values for a set of columns.
+            It verifies the primary key, unique constraint, index, check constraint, and foreign key.
+            If primary key is True, it also implicitly sets unique to True. If unique is True, it sets index to False.
+
+            The function takes in the following parameters:
+            - details: A dictionary containing the table or column definition details.
+            - cols: The expected columns.
+            - primary_key: A boolean indicating whether the column is a primary key.
+            - unique: A boolean indicating whether the column has a unique constraint.
+            - index: A boolean indicating whether the column has an index.
+            - check: A boolean indicating whether the column has a check constraint.
+            - foreign_key: The expected foreign key designation.
+
+            Raises an AssertionError if any of the provided details do not match the expected values.
+
+            """
             if details["primary_key"]:
                 details["unique"] = True
             if details["unique"]:

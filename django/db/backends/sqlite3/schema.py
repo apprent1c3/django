@@ -272,6 +272,20 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             restore_pk_field.primary_key = True
 
     def delete_model(self, model, handle_autom2m=True):
+        """
+        Delete a model from the database.
+
+        This function removes the specified model from the database. It can be used with or without handling 
+        automatic many-to-many relationships (m2m). 
+
+        When handling automatic m2m relationships, it will use the parent class's method to remove the model. 
+        If not handling m2m relationships, it will directly remove the model's table and any associated 
+        deferred SQL statements that reference the model.
+
+        :param model: The model to delete
+        :param handle_autom2m: Whether to handle automatic many-to-many relationships, defaults to True
+        :return: None
+        """
         if handle_autom2m:
             super().delete_model(model)
         else:
@@ -468,6 +482,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         self.delete_model(old_field.remote_field.through)
 
     def add_constraint(self, model, constraint):
+        """
+
+        Adds a constraint to the given model.
+
+        If the constraint is a :class:`UniqueConstraint` with additional properties 
+        (such as a condition, contains expressions, includes, or is deferrable), 
+        it delegates the addition to its superclass. 
+        Otherwise, it rebuilds the table associated with the model.
+
+        """
         if isinstance(constraint, UniqueConstraint) and (
             constraint.condition
             or constraint.contains_expressions

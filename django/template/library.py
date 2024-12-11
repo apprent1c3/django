@@ -109,6 +109,19 @@ class Library:
         """
 
         def dec(func):
+            """
+
+            Decorator to compile a function into a templating tag.
+
+            This decorator takes a function, extracts its argument specifications, and compiles it into a templating tag.
+            The compiled tag can then be used to parse and execute the function within a templating context.
+
+            The decorator supports both positional and keyword arguments, as well as variable argument lists and keyword-only arguments.
+            It also allows for an optional \"as\" keyword to specify a target variable for the function's output.
+
+            Once decorated, the function can be used as a templating tag, with its arguments and options passed in as part of the templating syntax.
+
+            """
             (
                 params,
                 varargs,
@@ -164,6 +177,24 @@ class Library:
         """
 
         def dec(func):
+            """
+            Decorator that converts a Python function into a template tag.
+
+            This decorator inspects the function's signature and wraps it in a compile function,
+            allowing it to be used as a template tag. The compile function parses the tag's
+            arguments and keyword arguments, and returns an InclusionNode that can be used to
+            render the tag.
+
+            The decorated function should take positional and keyword arguments that can be
+            passed from the template tag. The function's name will be used as the name of the
+            template tag, unless a custom name is provided.
+
+            The resulting template tag can be used in templates to perform custom logic and
+            render dynamic content.
+
+            :param func: The Python function to be converted into a template tag
+            :returns: The decorated function, which can be used as a template tag
+            """
             (
                 params,
                 varargs,
@@ -218,6 +249,20 @@ class TagHelperNode(Node):
         self.kwargs = kwargs
 
     def get_resolved_arguments(self, context):
+        """
+        Resolves the arguments and keyword arguments for a function call, 
+        given a specific context.
+
+        The function iterates over the provided arguments and keyword arguments,
+        resolving any variable values according to the given context. If the 
+        function takes a context itself, it prepends this context to the 
+        resolved arguments.
+
+         Returns:
+            A tuple containing two elements: 
+            - a list of resolved argument values, 
+            - a dictionary of resolved keyword argument values.
+        """
         resolved_args = [var.resolve(context) for var in self.args]
         if self.takes_context:
             resolved_args = [context] + resolved_args

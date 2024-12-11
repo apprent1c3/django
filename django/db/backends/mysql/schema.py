@@ -36,6 +36,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     @property
     def sql_delete_check(self):
+        """
+        Returns the SQL command string used to delete a check constraint from a table.
+
+        The returned string is dependent on the type of database being used. For Mariadb databases, the command to drop a constraint is used, while for other MySQL databases, the command to drop a check is used.
+
+        The command string contains placeholders for the table name (`table`) and the constraint name (`name`), which should be replaced with the actual values when the command is executed.
+        """
         if self.connection.mysql_is_mariadb:
             # The name of the column check constraint is the same as the field
             # name on MariaDB. Adding IF EXISTS clause prevents migrations
@@ -241,6 +248,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def _field_db_check(self, field, field_db_params):
+        """
+        Checks if a given field complies with the database constraints, handling differences between MySQL and MariaDB versions.
+
+        Args:
+            field: The field to be checked against database constraints.
+            field_db_params: A dictionary containing database parameters for the field, including a 'check' value.
+
+        Returns:
+            The result of the field check, which may be influenced by the MySQL version and whether it is a MariaDB instance.
+        """
         if self.connection.mysql_is_mariadb and self.connection.mysql_version >= (
             10,
             5,

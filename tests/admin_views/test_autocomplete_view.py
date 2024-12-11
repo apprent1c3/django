@@ -112,6 +112,18 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_custom_to_field(self):
+        """
+
+        Tests the custom \"to_field\" functionality of the autocomplete view.
+
+        This test case checks that an autocomplete query with a custom \"to_field\" parameter returns the expected results.
+        It verifies that the response status code is 200 and that the returned data matches the expected format,
+        containing the id and text of the matching question object.
+
+        The test uses a sample question object and a custom \"to_field\" parameter to retrieve the question text,
+        demonstrating the view's ability to handle custom field mappings.
+
+        """
         q = Question.objects.create(question="Is this a question?")
         request = self.factory.get(
             self.url,
@@ -231,6 +243,18 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
             AutocompleteJsonView.as_view(**self.as_view_args)(request)
 
     def test_field_does_not_allowed(self):
+        """
+
+        Tests that a specific field is not allowed to be queried through the autocomplete view.
+
+        This test sends a GET request to the autocomplete view with a term and a field name,
+        then verifies that a PermissionDenied exception is raised, indicating that the field
+        is not allowed to be accessed.
+
+        The test is performed with a superuser, ensuring that the permission denial is not
+        due to a lack of privileges, but rather because the field is explicitly not allowed.
+
+        """
         request = self.factory.get(
             self.url, {"term": "is", **self.opts, "field_name": "related_questions"}
         )
@@ -310,6 +334,13 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         self.assertEqual(len(data["results"]), 3)
 
     def test_missing_search_fields(self):
+        """
+        Test that an autocomplete view raises a 404 error when the model admin class has no search fields defined.
+
+        :raises: Http404 if the model admin class does not specify any search fields. 
+        :params: None
+        :returns: None
+        """
         class EmptySearchAdmin(QuestionAdmin):
             search_fields = []
 
@@ -365,6 +396,21 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_serialize_result(self):
+        """
+
+        Tests the serialization of autocomplete results.
+
+        This test case ensures that the autocomplete view correctly serializes the results
+        of a query into a JSON response. Specifically, it verifies that the 'posted' field
+        is included in the serialized data and that the results are ordered by the
+        'posted' date in descending order.
+
+        The test creates sample data, sends a GET request to the autocomplete view, and
+        then checks the status code and content of the response. It asserts that the
+        response contains the expected data, including the 'id', 'text', and 'posted'
+        fields for each result, as well as pagination information.
+
+        """
         class AutocompleteJsonSerializeResultView(AutocompleteJsonView):
             def serialize_result(self, obj, to_field_name):
                 return {
@@ -493,6 +539,21 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_select_multiple(self):
+        """
+        Test for selecting multiple options using the select2 dropdown.
+
+        This test ensures that the select2 dropdown functionality works correctly, including 
+        searching, selecting and displaying multiple options. It covers various scenarios such 
+        as displaying no results, searching for specific questions, and selecting multiple options.
+
+        The test checks the display of the dropdown results, the count of options displayed, 
+        and the selection of options using keyboard navigation and search functionality. It also 
+        verifies that the selected options are correctly displayed and that the dropdown closes 
+        after an option is selected.
+
+        The test uses Selenium to interact with the select2 dropdown on the 'admin views question add' page.
+
+        """
         from selenium.common import NoSuchElementException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys

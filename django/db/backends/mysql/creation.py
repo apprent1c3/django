@@ -18,6 +18,22 @@ class DatabaseCreation(BaseDatabaseCreation):
         return " ".join(suffix)
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+
+        Execute creation of a test database, handling potential exceptions.
+
+        This method attempts to create a test database by calling the parent class's
+        implementation. If an exception occurs, it checks if the error is related to a
+        database already existing (MySQL error code 1007). If so, it re-raises the
+        exception; otherwise, it logs the error and exits the program with a status code
+        of 2. The :param keepdb: parameter allows controlling whether the test database
+        should be kept after the test run.
+
+        :param cursor: Database cursor object
+        :param parameters: Parameters for creating the test database
+        :param keepdb: Flag indicating whether to keep the test database
+
+        """
         try:
             super()._execute_create_test_db(cursor, parameters, keepdb)
         except Exception as e:
@@ -60,6 +76,16 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._clone_db(source_database_name, target_database_name)
 
     def _clone_db(self, source_database_name, target_database_name):
+        """
+
+        Clone a MySQL database from a source to a target database.
+
+        :param source_database_name: The name of the source database to clone from.
+        :param target_database_name: The name of the target database to clone to.
+        :rtype: None
+        :note: This function utilizes the mysqldump command to clone the database, including routines and events.
+
+        """
         cmd_args, cmd_env = DatabaseClient.settings_to_cmd_args_env(
             self.connection.settings_dict, []
         )

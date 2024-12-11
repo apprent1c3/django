@@ -29,6 +29,15 @@ class Command(BaseCommand):
     stealth_options = ("stdin",)
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting up the user model and username field for further use.
+
+         Args:
+             *args: Variable length argument list.
+             **kwargs: Arbitrary keyword arguments.
+
+         The initialization process involves retrieving the user model and extracting the username field from it, storing them as instance attributes `UserModel` and `username_field` respectively.
+        """
         super().__init__(*args, **kwargs)
         self.UserModel = get_user_model()
         self.username_field = self.UserModel._meta.get_field(

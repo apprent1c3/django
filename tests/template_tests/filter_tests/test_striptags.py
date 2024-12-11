@@ -27,6 +27,15 @@ class StriptagsTests(SimpleTestCase):
         }
     )
     def test_striptags02(self):
+        """
+
+        Tests the striptags filter in a template.
+
+        This test renders a template with the striptags filter applied to two variables.
+        The first variable contains HTML tags and the second variable contains HTML tags wrapped in a mark_safe call.
+        It verifies that the filter correctly removes HTML tags from both variables and produces the expected output.
+
+        """
         output = self.engine.render_to_string(
             "striptags02",
             {

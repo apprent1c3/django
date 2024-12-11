@@ -53,6 +53,15 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")  # [1]
     def test_stdin_read_globals(self, select):
+        """
+        .. function:: test_stdin_read_globals
+
+           Tests the Django shell command with input read from standard input.
+
+           This test verifies that the Django shell command correctly reads input from standard input and sets the global variables accordingly.
+           The test passes a set of predefined global variables through standard input and checks that the shell command outputs the expected result, indicating successful execution.
+           Note that this test is skipped on Windows platforms due to limitations in the select() system call.
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write(self.script_globals)
             stdin.seek(0)
@@ -108,6 +117,13 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="bpython")
 
     def test_python(self):
+        """
+        Tests that the python command functions as expected when invoked with the 'no_startup' option.
+
+        The test case verifies that the python command correctly utilizes the code module's interact function
+        with the local dictionary as an argument. It checks if the interact function from the code module 
+        is called once with an empty local dictionary.
+        """
         cmd = shell.Command()
         mock_code = mock.Mock(interact=mock.MagicMock())
 

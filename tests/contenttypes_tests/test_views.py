@@ -27,6 +27,18 @@ class ContentTypesViewsTests(TestCase):
     def setUpTestData(cls):
         # Don't use the manager to ensure the site exists with pk=1, regardless
         # of whether or not it already exists.
+        """
+        Sets up test data for the class, including a site, authors, articles, and scheme-included URLs.
+
+        This method creates and saves a test site, an author, and three articles with different creation dates.
+        It also creates and saves three scheme-included URLs with different schemes (HTTP, HTTPS, and default).
+
+        The test data is created as class attributes, allowing it to be accessed and used by other test methods.
+        The data is designed to cover various scenarios and edge cases, enabling comprehensive testing of the class's functionality.
+
+        :note: The test data is created in a way that allows for easy modification and extension, if needed.
+
+        """
         cls.site1 = Site(pk=1, domain="testserver", name="testserver")
         cls.site1.save()
         cls.author1 = Author.objects.create(name="Boris")
@@ -107,6 +119,13 @@ class ContentTypesViewsTests(TestCase):
                 self.assertEqual(response.status_code, 404)
 
     def test_wrong_type_pk(self):
+        """
+
+        Tests the behavior of shortcut lookup when the primary key in the URL is of the wrong type.
+
+        Verifies that a 404 status code is returned when a non-integer value is provided for the primary key.
+
+        """
         short_url = "/shortcut/%s/%s/" % (
             ContentType.objects.get_for_model(Author).id,
             "nobody/expects",
@@ -115,6 +134,14 @@ class ContentTypesViewsTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_shortcut_bad_pk(self):
+        """
+        Tests that a shortcut URL with a valid content type but invalid primary key returns a 404 response.
+
+            This test ensures that the system handles cases where a shortcut URL is
+            correctly formatted but references a non-existent object, providing a
+            robust and user-friendly experience by returning a \"Not Found\" status
+            code instead of raising an error. 
+        """
         short_url = "/shortcut/%s/%s/" % (
             ContentType.objects.get_for_model(Author).id,
             "42424242",
@@ -123,6 +150,17 @@ class ContentTypesViewsTests(TestCase):
         self.assertEqual(response.status_code, 404)
 
     def test_nonint_content_type(self):
+        """
+
+        Tests that a 404 status code is returned when attempting to access a shortcut URL with a non-integer content type.
+
+        This test ensures that the application correctly handles invalid or malformed shortcut URLs, 
+        preventing potential security vulnerabilities or unexpected behavior.
+
+        Verifies the HTTP status code of the response from a GET request to a shortcut URL 
+        constructed with a non-integer content type, expecting a Not Found (404) response.
+
+        """
         an_author = Author.objects.all()[0]
         short_url = "/shortcut/%s/%s/" % ("spam", an_author.pk)
         response = self.client.get(short_url)
@@ -224,6 +262,17 @@ class ContentTypesViewsSiteRelTests(TestCase):
 
 class ShortcutViewTests(TestCase):
     def setUp(self):
+        """
+        Sets up the test environment by initializing an HttpRequest object and configuring its META attributes.
+
+        This method prepares the request object with basic server information, including the server name and port. 
+        It is typically used as a setup step for unit tests to establish a consistent and predictable request context.
+
+        Attributes:
+            self.request (HttpRequest): The initialized request object.
+            self.request.META (dict): A dictionary containing the request's metadata, including the server name and port.
+
+        """
         self.request = HttpRequest()
         self.request.META = {"SERVER_NAME": "Example.com", "SERVER_PORT": "80"}
 

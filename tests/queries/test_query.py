@@ -133,6 +133,19 @@ class TestQuery(SimpleTestCase):
         self.assertEqual(query.select_related, {"creator": {}})
 
     def test_iterable_lookup_value(self):
+        """
+        Tests the lookup functionality for iterable values in a query.
+
+        Verifies that a query with an iterable lookup value (e.g. a list of names)
+        is correctly translated into an Exact query, with the iterable value
+        properly represented as the right-hand side of the query.
+
+        Ensures that the resulting query has the expected structure and parameters,
+        including an Exact operator with the correct iterable value. This test
+        covers the scenario where an iterable value is used in a lookup query,
+        providing a basis for ensuring that such queries are executed accurately
+        and as intended.
+        """
         query = Query(Item)
         where = query.build_where(Q(name=["a", "b"]))
         name_exact = where.children[0]
@@ -155,6 +168,14 @@ class TestQuery(SimpleTestCase):
             query.build_where(filter_expr)
 
     def test_filter_non_conditional(self):
+        """
+
+        Tests that attempting to filter a query with a non-conditional expression raises a TypeError.
+
+        The test verifies that a query cannot be filtered using a function that does not evaluate to a conditional expression,
+        and that an informative error message is provided when such an attempt is made.
+
+        """
         query = Query(Item)
         msg = "Cannot filter against a non-conditional expression."
         with self.assertRaisesMessage(TypeError, msg):

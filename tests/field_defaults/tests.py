@@ -127,6 +127,15 @@ class DefaultTests(TestCase):
     @skipIfDBFeature("can_return_columns_from_insert")
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_case_when_db_default_no_returning(self):
+        """
+
+        Tests the case when a database default value is used in a model and the
+        database does not support returning columns from an insert statement.
+
+        Verifies that the :attr:`case_when` attribute of the created model instance
+        is correctly set to its default value when the model is refreshed from the database.
+
+        """
         m = DBDefaultsFunction.objects.create()
         m.refresh_from_db()
         self.assertEqual(m.case_when, 3)

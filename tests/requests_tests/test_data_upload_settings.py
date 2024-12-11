@@ -20,6 +20,20 @@ TOO_MUCH_DATA_MSG = "Request body exceeded settings.DATA_UPLOAD_MAX_MEMORY_SIZE.
 
 class DataUploadMaxMemorySizeFormPostTests(SimpleTestCase):
     def setUp(self):
+        """
+
+        Set up a test request with a fake payload for a POST request.
+
+        This method initializes a WSGIRequest object with a payload containing 
+        URL-encoded data. The payload includes a parameter 'a' with multiple values.
+        The resulting request object is stored as an instance attribute for further testing.
+
+        The payload is formatted as 'application/x-www-form-urlencoded' with the following structure:
+        - a parameter 'a' with values 1, 2, and 3.
+
+        The created request object is ready to be used in subsequent tests.
+
+        """
         payload = FakePayload("a=1&a=2&a=3\r\n")
         self.request = WSGIRequest(
             {
@@ -31,6 +45,12 @@ class DataUploadMaxMemorySizeFormPostTests(SimpleTestCase):
         )
 
     def test_size_exceeded(self):
+        """
+        Tests that an exception is raised when the size of the uploaded data exceeds the maximum allowed memory size.
+
+        The test simulates a scenario where the uploaded data is larger than the configured maximum size, 
+        verifying that the RequestDataTooBig exception is raised with the appropriate error message.
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=12):
             with self.assertRaisesMessage(RequestDataTooBig, TOO_MUCH_DATA_MSG):
                 self.request._load_post_and_files()
@@ -125,6 +145,16 @@ class DataUploadMaxMemorySizeGetTests(SimpleTestCase):
             self.request.body
 
     def test_no_limit(self):
+        """
+        Tests that the application handles file uploads without a memory size limit.
+
+        Verifies the behavior when the DATA_UPLOAD_MAX_MEMORY_SIZE setting is disabled,
+        allowing file uploads to be handled without memory constraints.
+
+        This test case covers the scenario where large files can be uploaded without
+        hitting the default memory size limit, ensuring that the application can handle
+        such cases as expected.
+        """
         with self.settings(DATA_UPLOAD_MAX_MEMORY_SIZE=None):
             self.request.body
 
@@ -185,6 +215,9 @@ class DataUploadMaxNumberOfFieldsMultipartPost(SimpleTestCase):
         )
 
     def test_number_exceeded(self):
+        """
+        Checks if the request raises an error when the maximum number of fields is exceeded during data upload. Specifically, it verifies that a TooManyFieldsSent exception is raised with the expected error message when the number of fields in the request exceeds the configured DATA_UPLOAD_MAX_NUMBER_FIELDS limit.
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=1):
             with self.assertRaisesMessage(TooManyFieldsSent, TOO_MANY_FIELDS_MSG):
                 self.request._load_post_and_files()
@@ -200,6 +233,17 @@ class DataUploadMaxNumberOfFieldsMultipartPost(SimpleTestCase):
 
 class DataUploadMaxNumberOfFilesMultipartPost(SimpleTestCase):
     def setUp(self):
+        """
+
+        Sets up a test request object with a multipart/form-data payload.
+
+        This method initializes a request object with a payload containing two form fields (name1 and name2) 
+        each with a file attachment (name1.txt and name2.txt respectively). The request method is set to POST 
+        and the content type is set to multipart/form-data with a specified boundary.
+
+        The resulting request object is stored in the instance variable `self.request`.
+
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -257,6 +301,9 @@ class DataUploadMaxNumberOfFieldsFormPost(SimpleTestCase):
         )
 
     def test_number_exceeded(self):
+        """
+        Tests that an exception is raised when the number of fields in a request exceeds the maximum allowed, as specified by the DATA_UPLOAD_MAX_NUMBER_FIELDS setting.
+        """
         with self.settings(DATA_UPLOAD_MAX_NUMBER_FIELDS=2):
             with self.assertRaisesMessage(TooManyFieldsSent, TOO_MANY_FIELDS_MSG):
                 self.request._load_post_and_files()

@@ -35,6 +35,18 @@ class Lexer:
     """
 
     def __init__(self, states, first):
+        """
+        Initialize a state machine with a set of rules and an initial state.
+
+        The state machine is defined by a dictionary of states, where each state is associated
+        with a list of rules. Each rule is a token with a regular expression pattern.
+        The initializer compiles the regular expressions for each state and stores them
+        in the `regexes` dictionary. It also creates a dictionary of tokens for easy access.
+        The state machine is then set to the specified initial state.
+
+        :param states: A dictionary of states, where each state is a list of rules
+        :param first: The initial state of the state machine
+        """
         self.regexes = {}
         self.toks = {}
 

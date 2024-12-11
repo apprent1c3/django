@@ -199,6 +199,20 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_form_cleaned_data(self):
+        """
+        Tests the cleaned data of a form with complex fields.
+
+        Verifies that the form's cleaned_data dictionary contains the expected output
+        when the form is validated with sample input data. The test checks if the 
+        cleaned data for the 'field1' key is correctly formatted as a comma-separated 
+        string containing text, option values, and a datetime value.
+
+        The test case assumes a specific structure for the input data, including 
+        text, multiple choice options, and datetime components, and confirms that 
+        these values are properly processed and combined in the cleaned data.
+
+        :raises AssertionError: if the cleaned data does not match the expected output
+        """
         form = ComplexFieldForm(
             {
                 "field1_0": "some text",

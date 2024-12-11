@@ -159,6 +159,15 @@ class FileUploadTests(TestCase):
         self._test_base64_upload("Big data" * 68000, encode=base64.encodebytes)
 
     def test_base64_invalid_upload(self):
+        """
+
+        Test that an invalid base64 encoded file upload is handled correctly.
+
+        This test case simulates an HTTP POST request with a multipart/form-data payload, 
+        where the file content is claimed to be base64 encoded but is actually invalid.
+        It verifies that the server properly handles this invalid input and returns an empty file in the response.
+
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -850,6 +859,15 @@ class DirectoryCreationTests(SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Set up the test class by creating the media root directory and scheduling its removal after the class tests have finished.
+
+        This method is called once before running any test methods in the class.
+        It ensures the media root directory exists and arranges for its deletion after all tests in the class have completed, 
+        regardless of whether the tests pass or fail, to maintain a clean test environment.
+
+        """
         super().setUpClass()
         os.makedirs(MEDIA_ROOT, exist_ok=True)
         cls.addClassCleanup(shutil.rmtree, MEDIA_ROOT)

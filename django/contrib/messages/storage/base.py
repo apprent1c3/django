@@ -26,6 +26,17 @@ class Message:
         self.extra_tags = str(self.extra_tags) if self.extra_tags is not None else None
 
     def __eq__(self, other):
+        """
+        Checks if two Message objects are equal.
+
+        This comparison is based on two key attributes: the message level and the message itself.
+        Two messages are considered equal if they have the same level and the same message content.
+
+        If the object being compared is not an instance of the Message class, the comparison is not supported.
+
+        Returns:
+            bool: True if the messages are equal, otherwise NotImplemented if the comparison is not supported.
+        """
         if not isinstance(other, Message):
             return NotImplemented
         return self.level == other.level and self.message == other.message
@@ -34,6 +45,14 @@ class Message:
         return str(self.message)
 
     def __repr__(self):
+        """
+        Returns a string representation of the Message object, including its level, message, and any extra tags if present.
+
+        The returned string is formatted to resemble a constructor call, making it easy to inspect and recreate the Message object.
+
+        :type: str
+        :rtype: str
+        """
         extra_tags = f", extra_tags={self.extra_tags!r}" if self.extra_tags else ""
         return f"Message(level={self.level}, message={self.message!r}{extra_tags})"
 
@@ -65,6 +84,17 @@ class BaseStorage:
         return len(self._loaded_messages) + len(self._queued_messages)
 
     def __iter__(self):
+        """
+
+        Returns an iterator over the loaded messages.
+
+        This method allows iterating over the collection of messages that have been loaded. 
+        It first checks if there are any queued messages and if so, it adds them to the loaded messages and clears the queue. 
+        The iterator returned yields each of the loaded messages, enabling you to process them one by one.
+
+        Note: After calling this method, the object is marked as used.
+
+        """
         self.used = True
         if self._queued_messages:
             self._loaded_messages.extend(self._queued_messages)

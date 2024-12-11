@@ -193,6 +193,13 @@ class SessionStore(SessionBase):
         return self.exists(session_key)
 
     def delete(self, session_key=None):
+        """
+        Deletes a session file associated with the given session key.
+
+        :param session_key: The key of the session to delete. If not provided, the session key stored in the instance is used.
+        :note: If neither the provided session key nor the instance's session key is set, no action is taken.
+        :raises OSError: If an error occurs while attempting to delete the file, it is silently ignored.
+        """
         if session_key is None:
             if self.session_key is None:
                 return

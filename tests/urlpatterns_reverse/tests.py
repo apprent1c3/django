@@ -445,6 +445,9 @@ class URLPatternReverse(SimpleTestCase):
             reverse(None)
 
     def test_mixing_args_and_kwargs(self):
+        """
+        Tests that calling the reverse function with both positional and keyword arguments raises a ValueError, as mixing *args and **kwargs is not supported. The error message \"Don't mix *args and **kwargs in call to reverse()\" is expected to be raised in this scenario.
+        """
         msg = "Don't mix *args and **kwargs in call to reverse()!"
         with self.assertRaisesMessage(ValueError, msg):
             reverse("name", args=["a"], kwargs={"b": "c"})
@@ -502,6 +505,9 @@ class URLPatternReverse(SimpleTestCase):
             reverse("nonexistent-view")
 
     def test_no_args_message(self):
+        """
+        Tests that reversing the 'places' URL pattern with no arguments raises a NoReverseMatch exception with the expected error message, ensuring that the expected error handling behavior is triggered when the URL pattern is invoked without required arguments.
+        """
         msg = "Reverse for 'places' with no arguments not found. 1 pattern(s) tried:"
         with self.assertRaisesMessage(NoReverseMatch, msg):
             reverse("places")
@@ -745,6 +751,18 @@ class ReverseShortcutTests(SimpleTestCase):
         self.assertEqual(res.url, "/hi-there/")
 
     def test_redirect_to_view_name(self):
+        """
+
+        Tests the redirect function to ensure it correctly generates URLs for given view names.
+
+        This function verifies that redirects to named views produce the expected URLs, 
+        including cases with and without parameters. It also checks that an error is raised 
+        when attempting to redirect to a non-existent view.
+
+        The test cases cover various scenarios, including redirects with hardcoded view names, 
+        numeric parameters, and keyword arguments for date-based URLs. 
+
+        """
         res = redirect("hardcoded2")
         self.assertEqual(res.url, "/hardcoded/doc.pdf")
         res = redirect("places", 1)
@@ -1465,11 +1483,25 @@ class ErrorHandlerResolutionTests(SimpleTestCase):
         self.callable_resolver = URLResolver(RegexPattern(r"^$"), urlconf_callables)
 
     def test_named_handlers(self):
+        """
+        Tests the named handlers for error codes.
+
+        Verifies that the resolver correctly maps error codes to their corresponding handlers.
+        Specifically, it checks that error codes 400, 403, 404, and 500 are handled by the empty view handler.
+
+        The test ensures that the resolver resolves each error code to the expected handler, validating its functionality.
+
+        """
         for code in [400, 403, 404, 500]:
             with self.subTest(code=code):
                 self.assertEqual(self.resolver.resolve_error_handler(code), empty_view)
 
     def test_callable_handlers(self):
+        """
+        Tests that the callable resolver correctly identifies error handlers for various HTTP status codes.
+
+        Verifies that the resolver returns the expected empty view for a range of error codes, including those indicating client errors (400, 403, 404) and server errors (500).
+        """
         for code in [400, 403, 404, 500]:
             with self.subTest(code=code):
                 self.assertEqual(
@@ -1544,6 +1576,9 @@ class ResolverMatchTests(SimpleTestCase):
         self.assertEqual(resolver_match.url_name, "test-resolver-match")
 
     def test_resolver_match_on_request_before_resolution(self):
+        """
+        Tests that the resolver match attribute is initially None for a new HttpRequest object before any resolution occurs.
+        """
         request = HttpRequest()
         self.assertIsNone(request.resolver_match)
 
@@ -1596,6 +1631,15 @@ class ResolverMatchTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_urls")
     def test_pickling(self):
+        """
+        Tests that attempting to pickle a ResolverMatch object raises a PicklingError.
+
+        This test ensures that the ResolverMatch object, which is returned by the resolve function,
+        cannot be serialized using the pickle module. The test checks that a PicklingError is
+        raised with a specific error message when trying to pickle the ResolverMatch object.
+
+        :raises: pickle.PicklingError
+        """
         msg = "Cannot pickle ResolverMatch."
         with self.assertRaisesMessage(pickle.PicklingError, msg):
             pickle.dumps(resolve("/users/"))
@@ -1638,6 +1682,14 @@ class ViewLoadingTests(SimpleTestCase):
             get_callable(1)
 
     def test_string_without_dot(self):
+        """
+
+        Tests that attempting to retrieve a callable from a string without a dot notation raises an ImportError.
+
+        The function verifies that a fully qualified path is required for successful import.
+        It checks that the expected error message is raised when the path is not fully qualified.
+
+        """
         msg = "Could not import 'test'. The path must be fully qualified."
         with self.assertRaisesMessage(ImportError, msg):
             get_callable("test")
@@ -1759,6 +1811,18 @@ class LookaheadTests(SimpleTestCase):
                 self.assertEqual(reverse(name, kwargs=kwargs), expected)
 
     def test_invalid_reverse(self):
+        """
+
+        Test invalid reverse URL resolution.
+
+        This function verifies that Django's reverse URL resolution function raises a NoReverseMatch exception
+        when attempting to reverse URLs with invalid patterns. The test covers various scenarios, including
+        lookahead and lookbehind assertions with both positive and negative matches.
+
+        The test cases are parameterized, with each case specifying a URL pattern name and keyword arguments.
+        The function asserts that a NoReverseMatch exception is raised for each invalid test case.
+
+        """
         test_urls = [
             ("lookahead-positive", {"city": "other-city"}),
             ("lookahead-negative", {"city": "not-a-city"}),

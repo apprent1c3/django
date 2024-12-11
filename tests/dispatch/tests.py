@@ -58,6 +58,16 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_no_receivers(self):
+        """
+
+        Tests the behavior of a signal when there are no receivers registered.
+
+        This test case verifies that when a signal is sent without any receivers,
+        it returns an empty list, indicating that no actions were taken in response
+        to the signal. The test helps ensure the signal's behavior is correct in
+        scenarios where no listeners are attached.
+
+        """
         result = a_signal.send(sender=self, val="test")
         self.assertEqual(result, [])
 

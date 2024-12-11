@@ -3,6 +3,20 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        """
+
+        Adds required command-line arguments to the parser.
+
+        This method defines the following arguments:
+            - --append_const: Appends a constant value to a list
+            - --const: Stores a constant value
+            - --count: Increments a counter
+            - --flag_false: Sets a flag to False
+            - --flag_true: Sets a flag to True
+
+        All arguments are required for proper functionality.
+
+        """
         parser.add_argument(
             "--append_const",
             action="append_const",

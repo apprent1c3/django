@@ -193,6 +193,23 @@ def common_roots(paths):
 
     # Turn the tree into a list of Path instances.
     def _walk(node, path):
+        """
+
+        Walks through a nested data structure recursively, yielding paths to all leaf nodes.
+
+        This function iterates over each child node in the given data structure, 
+        building a path as it traverses the tree. When a leaf node (i.e., an empty node) 
+        is encountered, the corresponding path is yielded.
+
+        Args:
+            node: The current node in the data structure.
+            path: The path to the current node.
+
+        Yields:
+            Path: A path to a leaf node in the data structure, composed of the 
+            prefix values that led to the leaf node.
+
+        """
         for prefix, child in node.items():
             yield from _walk(child, path + (prefix,))
         if not node:
@@ -493,6 +510,26 @@ class WatchmanReloader(BaseReloader):
         self.client.query("subscribe", root, name, query)
 
     def _subscribe_dir(self, directory, filenames):
+        """
+
+        Subscribe to a directory for file events.
+
+        This function sets up a subscription to monitor a specified directory for changes to files.
+        If the directory does not exist, the function will attempt to subscribe to its parent directory instead.
+        The subscription will track changes to the specified filenames within the monitored directory.
+
+        Parameters
+        ----------
+        directory : path
+            The directory to subscribe to for file events
+        filenames : list of str
+            The names of files to track within the directory
+
+        Note
+        ----
+        The function will log a warning if neither the specified directory nor its parent exist.
+
+        """
         if not directory.exists():
             if not directory.parent.exists():
                 logger.warning(

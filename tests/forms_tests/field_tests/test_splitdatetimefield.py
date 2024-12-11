@@ -81,6 +81,15 @@ class SplitDateTimeFieldTest(SimpleTestCase):
         )
 
     def test_form_as_table(self):
+        """
+
+        Tests rendering of a Django form as an HTML table.
+
+        This test case verifies that a form containing a SplitDateTimeField is correctly
+        rendered as an HTML table, with the field displayed as two input boxes for date
+        and time. The test checks that the generated HTML matches the expected output.
+
+        """
         class TestForm(Form):
             datetime = SplitDateTimeField()
 

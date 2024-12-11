@@ -106,6 +106,25 @@ class MultiDBOperationTests(OperationTestBase):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
 
     def _test_run_sql(self, app_label, should_run, hints=None):
+        """
+
+        Testing utility function to verify the proper execution of a SQL operation.
+
+        This function tests the application of a RunSQL migration operation by inserting
+        records into a database table. The function separates the testing into two stages:
+        applying the migration operation to the project state and then executing the
+        operation on the database.
+
+        The function takes the following parameters:
+            - app_label: The label of the application containing the model to be tested.
+            - should_run: A boolean flag indicating whether the SQL operation is expected to run.
+            - hints: Optional hints to be passed to the RunSQL operation.
+
+        The function checks that the model state remains unchanged after applying the
+        migration operation and that the expected number of records are inserted into the
+        database table when the operation is executed.
+
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
@@ -151,6 +170,19 @@ class MultiDBOperationTests(OperationTestBase):
 
         # Create the operation
         def inner_method(models, schema_editor):
+            """
+
+            Creates default pony entries in the database.
+
+            This method populates the Pony model with initial data. It creates two pony instances 
+            with specific attributes: one with a pink value of 1 and weight of 3.55, and another 
+            with a weight of 5. The pink attribute is not specified for the second pony, 
+            implying it will be set to a default value.
+
+            :param models: The models module containing the Pony model.
+            :param schema_editor: The schema editor instance used to interact with the database.
+
+            """
             Pony = models.get_model(app_label, "Pony")
             Pony.objects.create(pink=1, weight=3.55)
             Pony.objects.create(weight=5)

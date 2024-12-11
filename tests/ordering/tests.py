@@ -139,6 +139,16 @@ class OrderingTests(TestCase):
             )
 
     def assertQuerySetEqualReversible(self, queryset, sequence):
+        """
+        Asserts that a queryset is equal to a given sequence and that both are reversible.
+
+        This method checks that the elements of the queryset are equal to the elements of the sequence in the same order.
+        Additionally, it verifies that reversing the queryset produces the same result as reversing the sequence.
+
+        :param queryset: The queryset to be compared with the sequence.
+        :param sequence: The sequence to be compared with the queryset.
+
+        """
         self.assertSequenceEqual(queryset, sequence)
         self.assertSequenceEqual(queryset.reverse(), list(reversed(sequence)))
 
@@ -441,6 +451,19 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_f_expression(self):
+        """
+
+        Tests the ordering of Article objects using F-expressions.
+
+        This test case verifies that the `order_by` method correctly sorts Article objects based on their headline attribute.
+        It checks the ordering in both ascending and descending directions, ensuring that the results are as expected.
+
+        The test covers the following scenarios:
+            * Ordering by headline in ascending order (default)
+            * Ordering by headline in ascending order (explicitly specified)
+            * Ordering by headline in descending order
+
+        """
         self.assertQuerySetEqual(
             Article.objects.order_by(F("headline")),
             [
@@ -599,6 +622,14 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_grandparent_fk_with_expression_in_default_ordering(self):
+        """
+        Tests the ordering of OrderedByExpressionGrandChild objects by their grandparent's foreign key.
+
+        This test creates a hierarchy of objects including grandparents (OrderedByExpression), parents (OrderedByExpressionChild), and children (OrderedByExpressionGrandChild).
+        It then checks if the OrderedByExpressionGrandChild objects are ordered correctly by their grandparent's name when retrieved from the database.
+
+        The expected ordering is by the grandparent's name in ascending order, regardless of the case of the name. The test ensures that the ordering is done correctly, from 'obj 1' to 'OBJ 2' to 'oBJ 3'.
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")

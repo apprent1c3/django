@@ -39,6 +39,16 @@ class RecursiveM2MTests(TestCase):
 
     def test_recursive_m2m_clear(self):
         # Clear m2m for Anne.
+        """
+        Tests the clearing of a recursive many-to-many relationship. 
+
+        Verifies that when one side of the relationship is cleared, the opposite side remains unchanged in a self-referential many-to-many relationship. 
+
+        This test case covers the following scenarios: 
+        - Clearing one side of the relationship does not affect the other side.
+        - The cleared side is verified to be empty after the operation.
+        - The non-cleared sides of other related objects are verified to remain unchanged.
+        """
         self.a.friends.clear()
         self.assertSequenceEqual(self.a.friends.all(), [])
         # Reverse m2m relationships should be removed.

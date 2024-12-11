@@ -12,6 +12,9 @@ class TitleTests(SimpleTestCase):
 
     @setup({"title2": "{{ a|title }}"})
     def test_title2(self):
+        """
+        Tests the title filter in the template engine, verifying that it correctly converts a string to title case, capitalizing the first letter of each word and making the rest lowercase. The test input string is an address in all uppercase letters, and the expected output is the same address in title case.
+        """
         output = self.engine.render_to_string("title2", {"a": "555 WEST 53RD STREET"})
         self.assertEqual(output, "555 West 53rd Street")
 

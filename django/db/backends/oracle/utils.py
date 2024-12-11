@@ -93,6 +93,20 @@ class BulkInsertMapper:
 
 
 def dsn(settings_dict):
+    """
+
+    Constructs a Database Source Name (DSN) string based on the provided settings dictionary.
+
+    The DSN string is created using the host, port, and database name from the settings dictionary.
+    If a port is specified, it is used to create a full DSN string; otherwise, only the database name is returned.
+
+    Args:
+        settings_dict (dict): Dictionary containing database connection settings, including 'HOST', 'PORT', and 'NAME'.
+
+    Returns:
+        str: A Database Source Name (DSN) string or the database name if no port is specified.
+
+    """
     if settings_dict["PORT"]:
         host = settings_dict["HOST"].strip() or "localhost"
         return Database.makedsn(host, int(settings_dict["PORT"]), settings_dict["NAME"])

@@ -7,6 +7,15 @@ from django.test import SimpleTestCase
 
 class BooleanFieldTest(SimpleTestCase):
     def test_booleanfield_clean_1(self):
+        """
+        Tests the cleaning functionality of a BooleanField.
+
+        This test case verifies that the BooleanField correctly handles various input values and raises 
+        the appropriate validation errors. It checks that the field requires a truthy value and raises 
+        a ValidationError for empty, null, or falsy values. The test covers different input types, 
+        including boolean values, integers, and strings, to ensure the field behaves as expected in 
+        different scenarios.
+        """
         f = BooleanField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")

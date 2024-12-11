@@ -53,6 +53,12 @@ class TemplateReloadTests(SimpleTestCase):
     )
     @mock.patch("django.template.autoreload.reset_loaders")
     def test_non_template_changed_in_template_directory(self, mock_reset):
+        """
+        Test that a non-template file in the template directory does not trigger a template reload.
+
+        Checks if the template_changed function correctly identifies when a non-template file is modified and does not call the reset_loaders function.
+        This ensures that the autoreload mechanism does not restart unnecessarily when a non-template file is changed.
+        """
         self.assertIsNone(autoreload.template_changed(None, Path(__file__)))
         mock_reset.assert_not_called()
 
@@ -79,6 +85,14 @@ class TemplateReloadTests(SimpleTestCase):
 
     @mock.patch("django.forms.renderers.get_default_renderer")
     def test_form_template_reset_non_template_change(self, mock_renderer):
+        """
+
+        Tests the template change detection functionality during autoreload.
+
+        This function verifies that when no template change is detected, 
+        the function returns None and the default renderer is not called.
+
+        """
         self.assertIsNone(autoreload.template_changed(None, Path(__file__)))
         mock_renderer.assert_not_called()
 
@@ -104,6 +118,12 @@ class TemplateReloadTests(SimpleTestCase):
 
     @mock.patch("django.template.loaders.base.Loader.reset")
     def test_reset_all_loaders(self, mock_reset):
+        """
+        Tests the autoreload.reset_loaders function to ensure it correctly resets all template loaders.
+
+        The test verifies that the reset method is called on each loader, and that the total number of calls matches the expected number of loaders.
+
+        """
         autoreload.reset_loaders()
         self.assertEqual(mock_reset.call_count, 2)
 

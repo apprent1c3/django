@@ -24,6 +24,16 @@ class EngineTest(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+
+        Tests the string representation of the Engine instance.
+
+        This test ensures that the repr() method of the Engine class returns a string
+        that accurately reflects the configuration of the Engine instance, including
+        template directories, context processors, debug mode, template loaders,
+        character encoding, custom libraries, and autoescaping settings.
+
+        """
         engine = Engine(
             dirs=[TEMPLATE_DIR],
             context_processors=["django.template.context_processors.debug"],
@@ -58,6 +68,16 @@ class RenderToStringTest(SimpleTestCase):
         )
 
     def test_autoescape_off(self):
+        """
+        Test rendering with auto-escaping disabled.
+
+        Verifies that when auto-escaping is turned off in the template engine, HTML
+        special characters in template variables are not escaped in the rendered output.
+
+        This test ensures that the engine correctly handles the autoescape option,
+        allowing for raw HTML output when necessary. The expected result is a rendered
+        string that includes the original HTML tag without any modifications.
+        """
         engine = Engine(dirs=[TEMPLATE_DIR], autoescape=False)
         self.assertEqual(
             engine.render_to_string("test_context.html", {"obj": "<script>"}),
@@ -68,6 +88,16 @@ class RenderToStringTest(SimpleTestCase):
 class GetDefaultTests(SimpleTestCase):
     @override_settings(TEMPLATES=[])
     def test_no_engines_configured(self):
+        """
+        Tests the behavior of the Engine class when no template engines are configured.
+
+        Verifies that requesting the default engine raises an ImproperlyConfigured exception
+        with a message indicating that no DjangoTemplates backend is configured.
+
+        This test ensures that the Engine class properly handles the absence of template engine
+        configurations, providing a clear error message instead of failing silently or
+        exhibiting undefined behavior.
+        """
         msg = "No DjangoTemplates backend is configured."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             Engine.get_default()

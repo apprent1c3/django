@@ -57,6 +57,20 @@ class NowUTC(Now):
     output_field = DateTimeField()
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+
+        Generates the SQL for the current query, incorporating any additional context.
+
+        This method checks the database connection features to determine if a custom 
+        now-UTC template is required. If so, it adds this template to the extra context 
+        before delegating to the parent class to generate the SQL.
+
+        :param compiler: The query compiler to use.
+        :param connection: The database connection.
+        :param extra_context: Additional context to incorporate into the SQL generation.
+        :return: The generated SQL as a string.
+
+        """
         if connection.features.test_now_utc_template:
             extra_context["template"] = connection.features.test_now_utc_template
         return super().as_sql(compiler, connection, **extra_context)
@@ -65,6 +79,21 @@ class NowUTC(Now):
 class AggregateTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for use in testing Django applications.
+
+        This method creates a set of authors, publishers, and books, and establishes relationships between them.
+        It also creates a set of stores with associated books.
+
+        The test data includes:
+        - 9 authors with specified names and ages, and friendships between some of them.
+        - 5 publishers with specified names and number of awards, and a duration for some of them.
+        - 6 books with specified ISBNs, names, pages, ratings, prices, publication dates, contacts, and publishers.
+        - Each book is associated with one or more authors.
+        - 3 stores with specified names, original opening times, and friday night closing times, each with a selection of books.
+
+        This data can be used as a starting point for testing Django models and applications.
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -344,6 +373,18 @@ class AggregateTestCase(TestCase):
         )
 
     def test_backwards_m2m_annotate(self):
+        """
+
+        Test the backwards many-to-many annotation functionality in Django querysets.
+
+        This test case verifies the correct operation of annotating related model instances 
+        with aggregate values (e.g., average rating) or counts (e.g., number of books) 
+        in a backwards many-to-many relationship.
+
+        It checks that the annotation is applied correctly by comparing the 
+        resulting queryset to an expected set of values, ordered by author name.
+
+        """
         authors = (
             Author.objects.filter(name__contains="a")
             .annotate(Avg("book__rating"))
@@ -380,6 +421,20 @@ class AggregateTestCase(TestCase):
         )
 
     def test_reverse_fkey_annotate(self):
+        """
+
+        Tests the behavior of reverse foreign key annotations.
+
+        This test case checks if the annotation of a reverse foreign key relationship
+        is correctly applied to both the parent and child models. It verifies that the
+        summation of related objects' field values is accurately calculated and ordered.
+
+        Specifically, it tests the annotation of the 'num_awards' field on the Publisher
+        model from the Book model, and the annotation of the 'price' field on the Book
+        model from the Publisher model. The test ensures that the annotated values are
+        correctly summed and ordered by the model's name.
+
+        """
         books = Book.objects.annotate(Sum("publisher__num_awards")).order_by("name")
         self.assertQuerySetEqual(
             books,
@@ -412,6 +467,18 @@ class AggregateTestCase(TestCase):
         )
 
     def test_annotate_values(self):
+        """
+
+        Tests the annotation of values in queries.
+
+        This test case covers various scenarios of annotating values in Django ORM queries, 
+        including calculating aggregate values such as mean age and count of authors, 
+        and ordering the results by specific fields.
+
+        The test checks the correctness of the annotated values and the ordering of the results, 
+        ensuring that the queries return the expected data.
+
+        """
         books = list(
             Book.objects.filter(pk=self.b1.pk)
             .annotate(mean_age=Avg("authors__age"))
@@ -547,6 +614,13 @@ class AggregateTestCase(TestCase):
         self.assertIn("SELECT COUNT(*) ", sql)
 
     def test_count_distinct_expression(self):
+        """
+
+        Tests the count of distinct ratings for books with more than 300 pages.
+
+        Verifies that the 'distinct_ratings' aggregation returns the expected number of unique ratings.
+
+        """
         aggs = Book.objects.aggregate(
             distinct_ratings=Count(
                 Case(When(pages__gt=300, then="rating")), distinct=True
@@ -1249,6 +1323,17 @@ class AggregateTestCase(TestCase):
         self.assertEqual(alias_age["sum_age"], age["sum_age"])
 
     def test_annotate_over_annotate(self):
+        """
+        Test that the annotate method can handle being called multiple times, aliasing the same field, without producing incorrect results.
+
+        This test verifies that when an annotation is applied multiple times to the same field, the final result is consistent with a single application of the annotation.
+
+        It checks this by comparing the sum of the 'age' field for an author, 'Adrian Holovaty', calculated in two different ways:
+        - By annotating the 'age' field with an alias, and then annotating the sum of this alias.
+        - By directly annotating the sum of the 'age' field.
+
+        The test passes if the results of these two methods are equal, demonstrating that the annotate method can be safely chained without affecting the accuracy of the results.
+        """
         author = (
             Author.objects.annotate(age_alias=F("age"))
             .annotate(sum_age=Sum("age_alias"))
@@ -1305,6 +1390,23 @@ class AggregateTestCase(TestCase):
         Book.objects.aggregate(max_field=MyMax("pages", "price"))
 
     def test_add_implementation(self):
+        """
+        Tests the implementation of the Sum annotation function.
+
+        This test case covers various scenarios where the Sum function is overridden
+        to check its behavior with different custom implementations. It verifies that
+        the function can be successfully overridden and that the results of the
+        annotation are correctly computed.
+
+        Specifically, it checks the following cases:
+        - Overriding the function name to lowercase
+        - Overriding the function using the superclass
+        - Simulating a malicious override by replacing the function with a constant value
+
+        In each case, it validates the correctness of the query generated by the
+        annotation and the results returned by the database. The test ensures that
+        the Sum function can be reliably extended and customized for different use cases.
+        """
         class MySum(Sum):
             pass
 
@@ -1364,6 +1466,19 @@ class AggregateTestCase(TestCase):
         self.assertEqual(b1.sums, 2)
 
     def test_complex_values_aggregation(self):
+        """
+
+        Tests the aggregation of complex values.
+
+        This test case verifies that the aggregation of maximum ratings and counts
+        per rating can be calculated correctly. Specifically, it checks that:
+        - the maximum rating doubled equals the expected value
+        - the maximum count of books per rating (plus an offset) equals the expected value
+
+        The test uses the Max and Count aggregation functions on the Book model's 'rating' and 'id' fields,
+        respectively, to validate the correctness of the calculated results.
+
+        """
         max_rating = Book.objects.values("rating").aggregate(
             double_max_rating=Max("rating") + Max("rating")
         )
@@ -1828,6 +1943,11 @@ class AggregateTestCase(TestCase):
                 self.assertIsNone(result["value"])
 
     def test_aggregation_default_zero(self):
+        """
+        Tests the default behavior of various aggregation functions (Avg, Max, Min, StdDev, Sum, Variance) 
+        when the input set is empty. Specifically, verifies that when the default value is set to 0, 
+        the aggregation functions return 0 when the filtered queryset (in this case, authors with age greater than 100) is empty.
+        """
         for Aggregate in [Avg, Max, Min, StdDev, Sum, Variance]:
             with self.subTest(Aggregate):
                 result = Author.objects.filter(age__gt=100).aggregate(
@@ -1909,6 +2029,14 @@ class AggregateTestCase(TestCase):
         )
 
     def test_aggregation_default_using_time_from_database(self):
+        """
+        Test that the aggregation default functionality works as expected when using time from the database.
+
+        This test checks that the default value for an aggregation is used when there are no values to aggregate over.
+        The test specifically checks the Min aggregation with a filter and a default value set to the truncated hour of the current time in UTC.
+        It verifies that the resulting queryset contains the correct minimum opening time for each book, falling back to the current hour if no stores are available.
+        The test also ensures that the results are ordered correctly by ISBN and that the expected output matches the actual queryset values.
+        """
         now = timezone.now().astimezone(datetime.timezone.utc)
         expr = Min(
             "store__friday_night_closing",
@@ -2022,6 +2150,17 @@ class AggregateTestCase(TestCase):
         )
 
     def test_aggregation_default_using_datetime_from_database(self):
+        """
+        .\"\"\" 
+        Tests the aggregation of the oldest store opening date for a book, 
+        excluding stores named 'Amazon.com', and using the current UTC date 
+        and time as a default when no valid date is found. The result is 
+        ordered by the book's ISBN and the expected output is a list of 
+        dictionaries containing the ISBN and the corresponding oldest store 
+        opening date, truncated to the hour. The test verifies that the 
+        aggregation is correct and the default value is applied as expected. 
+
+        """
         now = timezone.now().astimezone(datetime.timezone.utc)
         expr = Min(
             "store__original_opening",
@@ -2080,6 +2219,18 @@ class AggregateTestCase(TestCase):
         self.assertEqual(result["value"], Decimal("0.00"))
 
     def test_aggregation_default_using_decimal_from_database(self):
+        """
+
+        Tests the aggregation functionality when using a default value of type Decimal.
+        Verifies that the aggregate Sum function correctly handles a default value 
+        obtained from the database when no rows match the filter condition.
+
+        The test case filters books with a rating less than 3.0 and calculates the sum 
+        of their prices. Since no books are expected to match this condition, the 
+        default value used is Pi, which is obtained as a Decimal from the database. 
+        The result is then compared to the expected Decimal value of Pi.
+
+        """
         result = Book.objects.filter(rating__lt=3.0).aggregate(
             value=Sum("price", default=Pi()),
         )
@@ -2162,6 +2313,20 @@ class AggregateTestCase(TestCase):
 class AggregateAnnotationPruningTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating instances of Author, Publisher, and Book models.
+
+        This class method initializes test data by creating two authors, two publishers, and two books,
+        with associated relationships between authors and books.
+
+        The created test data includes:
+        - Two authors with different ages
+        - Two publishers with varying numbers of awards
+        - Two books with distinct attributes, such as name, publisher, pages, rating, price, and publication date
+        - Books are associated with authors and publishers, demonstrating many-to-one and many-to-many relationships
+
+        """
         cls.a1 = Author.objects.create(age=1)
         cls.a2 = Author.objects.create(age=2)
         cls.p1 = Publisher.objects.create(num_awards=1)
@@ -2248,6 +2413,18 @@ class AggregateAnnotationPruningTests(TestCase):
         self.assertNotIn("name_lower", sql)
 
     def test_unreferenced_aggregate_annotation_pruned(self):
+        """
+
+        Test to verify that unreferenced aggregate annotations are pruned from SQL queries.
+
+        This test case checks that when an aggregate annotation (in this case, a count of authors)
+        is added to a QuerySet but not actually used in the query, it does not result in an
+        unnecessary subquery or additional columns being selected in the SQL query.
+
+        The test verifies that the count of objects is correct and that the generated SQL query
+        is optimized to only include the necessary columns.
+
+        """
         with CaptureQueriesContext(connection) as ctx:
             cnt = Book.objects.annotate(
                 authors_count=Count("authors"),
@@ -2293,6 +2470,16 @@ class AggregateAnnotationPruningTests(TestCase):
         self.assertEqual(aggregate, {"sum_total_books": 3})
 
     def test_referenced_composed_subquery_requires_wrapping(self):
+        """
+
+        Tests the requirement for wrapping subqueries when referencing composed subqueries in a query.
+
+        This test ensures that when a subquery is annotated and then referenced in a subsequent annotation,
+        the database query is correctly optimized by wrapping the subquery.
+
+        The test validates the number of select statements generated in the SQL query and the result of the aggregate operation.
+
+        """
         total_books_qs = (
             Author.book_set.through.objects.values("author")
             .filter(author=OuterRef("pk"))

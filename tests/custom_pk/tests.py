@@ -171,6 +171,14 @@ class CustomPKTests(TestCase):
     def test_unique_pk(self):
         # The primary key must also be unique, so trying to create a new object
         # with the same primary key will fail.
+        """
+
+        Tests that the employee_code field in the Employee model has a unique primary key constraint.
+
+        Verifies that attempting to create a second Employee instance with the same employee_code
+        will raise an IntegrityError, ensuring data integrity by preventing duplicate employee codes.
+
+        """
         Employee.objects.create(
             employee_code=123, first_name="Frank", last_name="Jones"
         )
@@ -205,6 +213,15 @@ class CustomPKTests(TestCase):
     def test_required_pk(self):
         # The primary key must be specified, so an error is raised if you
         # try to create an object without it.
+        """
+        Tests that a primary key is required when creating a new instance of Employee.
+
+            This test ensures that an IntegrityError is raised when attempting to create an Employee
+            without specifying a primary key, if the database does not support unspecified primary keys.
+
+            The test creates an Employee instance with only the first_name and last_name fields populated,
+            and verifies that the expected IntegrityError is raised as a result.
+        """
         with self.assertRaises(IntegrityError):
             with transaction.atomic():
                 Employee.objects.create(first_name="Tom", last_name="Smith")

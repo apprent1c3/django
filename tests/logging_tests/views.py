@@ -33,6 +33,18 @@ def uncaught_exception(request):
 
 
 def internal_server_error(request):
+    """
+
+    Return an HTTP 500 Internal Server Error response to the client.
+
+    This function handles internal server errors by returning an HTTP response with a 500 status code.
+    The status code to be used can be optionally specified as a query parameter 'status' in the request,
+    defaulting to 500 if not provided.
+
+    :param request: The incoming HTTP request object
+    :return: An HttpResponseServerError object with the specified status code
+
+    """
     status = request.GET.get("status", 500)
     return HttpResponseServerError("Server Error", status=int(status))
 

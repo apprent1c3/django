@@ -31,6 +31,14 @@ class SitesFrameworkTests(TestCase):
 
     def test_site_manager(self):
         # Make sure that get_current() does not return a deleted Site object.
+        """
+        Tests the functionality of the site manager.
+
+        Verifies that the current site can be successfully retrieved and that it is an instance of the Site class.
+        Then, deletes the current site and checks that attempting to retrieve it again raises an ObjectDoesNotExist exception, confirming that the site was properly removed.
+
+        This test ensures the site manager behaves as expected under normal and edge-case conditions, providing a basic level of assurance that site management functionality is working correctly.
+        """
         s = Site.objects.get_current()
         self.assertIsInstance(s, Site)
         s.delete()
@@ -82,6 +90,15 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_no_site_id(self):
+        """
+
+        Tests the retrieval of the current site when the SITE_ID setting is not specified.
+
+        This test case verifies that the get_current_site function correctly determines the current site
+        based on the request's server name when SITE_ID is not set. It simulates a request to 'example.com'
+        and checks that the returned site's name matches the server name.
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -194,12 +211,28 @@ class SitesFrameworkTests(TestCase):
         self.assertEqual(models.SITE_CACHE, {})
 
     def test_unique_domain(self):
+        """
+
+        Tests that attempting to create a site with a domain name that already exists raises a validation error.
+
+        The function checks that the validation process correctly identifies and prevents duplicate domain names,
+        ensuring data consistency and preventing potential conflicts.
+
+        """
         site = Site(domain=self.site.domain)
         msg = "Site with this Domain name already exists."
         with self.assertRaisesMessage(ValidationError, msg):
             site.validate_unique()
 
     def test_site_natural_key(self):
+        """
+
+        Tests the natural key functionality of the Site model.
+
+        Verifies that a Site instance can be correctly retrieved by its natural key
+        (the domain) and that the natural_key method returns the expected value.
+
+        """
         self.assertEqual(Site.objects.get_by_natural_key(self.site.domain), self.site)
         self.assertEqual(self.site.natural_key(), (self.site.domain,))
 

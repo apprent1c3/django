@@ -162,6 +162,13 @@ class ToFieldThroughTests(TestCase):
         )
 
     def test_m2m_relations_unusable_on_null_to_field(self):
+        """
+
+        Tests that many-to-many relationships cannot be used on an object with a null foreign key field.
+
+        Checks that attempting to access the many-to-many relationship on an object with a null value for the field that the relationship depends on raises a ValueError with a descriptive error message.
+
+        """
         nullcar = Car(make=None)
         msg = (
             '"<Car: None>" needs to have a value for field "make" before this '
@@ -211,6 +218,15 @@ class ToFieldThroughTests(TestCase):
         self.assertSequenceEqual(self.car.drivers.all(), [])
 
     def test_remove_reverse(self):
+        """
+
+        Tests the removal of a car from a driver's car set in reverse.
+
+        Verifies that the car is successfully removed from the driver's car set.
+        The test first checks if the car is present in the driver's car set, 
+        then removes it using the _remove_items method, and finally checks if the car set is empty.
+
+        """
         self.assertSequenceEqual(self.driver.car_set.all(), [self.car])
         self.driver.car_set._remove_items("driver", "car", self.car)
         self.assertSequenceEqual(self.driver.car_set.all(), [])

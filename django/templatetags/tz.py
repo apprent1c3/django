@@ -112,6 +112,21 @@ class TimezoneNode(Node):
     """
 
     def __init__(self, nodelist, tz):
+        """
+        Initialize the object with a list of nodes and a timezone.
+
+        Parameters
+        ----------
+        nodelist : list
+            A list of nodes to be used in the object.
+        tz : str
+            The timezone to be used for date and time calculations.
+
+        Note
+        ----
+        This method is a special method in Python classes, known as a constructor, and is called when an object is instantiated from the class.
+
+        """
         self.nodelist = nodelist
         self.tz = tz
 

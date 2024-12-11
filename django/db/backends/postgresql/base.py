@@ -241,6 +241,16 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self._connection_pools[self.alias]
 
     def close_pool(self):
+        """
+        Closes the database connection pool associated with this instance.
+
+        Removes the pool from the internal connection pool registry and releases any system resources held by the pool.
+
+        Note: This method only has an effect if a connection pool is currently active for this instance. Once closed, the pool cannot be reused and a new pool will need to be created if required.
+
+         Args: None
+         Returns: None
+        """
         if self.pool:
             self.pool.close()
             del self._connection_pools[self.alias]
@@ -487,6 +497,19 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
     def is_usable(self):
+        """
+        Checks if the database connection is usable.
+
+        This function verifies that the database connection is established and 
+        can execute a query successfully. It returns True if the connection is 
+        usable and False otherwise. The check is performed by attempting to 
+        execute a simple query on the database. If the query succeeds, the 
+        connection is considered usable. If an error occurs during query 
+        execution, the connection is considered unusable.
+
+        Returns:
+            bool: True if the connection is usable, False otherwise
+        """
         if self.connection is None:
             return False
         try:

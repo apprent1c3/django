@@ -51,6 +51,11 @@ class DummyHandler:
 
 class FileWrapperHandler(ServerHandler):
     def __init__(self, *args, **kwargs):
+        """
+        Initializes a new instance of the class.
+
+        This constructor method is responsible for setting up the initial state of the object. It takes any positional and keyword arguments, passing them to the parent class's constructor for handling. Following initialization, it configures a request handler using a DummyHandler instance and tracks whether the sendfile functionality has been utilized.
+        """
         super().__init__(*args, **kwargs)
         self.request_handler = DummyHandler()
         self._used_sendfile = False

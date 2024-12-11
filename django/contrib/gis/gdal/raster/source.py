@@ -62,6 +62,17 @@ class TransformPoint(list):
 
     @y.setter
     def y(self, value):
+        """
+        Sets the y value of the geotransform.
+
+        This property setter updates the y component of the geotransform, which defines the
+        coordinate transformation between pixel coordinates and geographic coordinates.
+        The new value is applied to the internal raster object, effectively changing its
+        spatial reference.
+
+        :param value: The new y value to be set in the geotransform
+
+        """
         gtf = self._raster.geotransform
         gtf[self.indices[self._prop][1]] = value
         self._raster.geotransform = gtf

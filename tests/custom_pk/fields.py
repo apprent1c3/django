@@ -33,6 +33,20 @@ class MyWrapperField(models.CharField):
         return value
 
     def to_python(self, value):
+        """
+        Converts a value to a Python-compatible format.
+
+        This method takes an input value and ensures it is wrapped in a :class:`MyWrapper` object,
+        which provides a standardized interface for Python interactions.
+
+        If the input value is empty or already an instance of :class:`MyWrapper`, this method
+        will either return nothing or the original value, respectively.
+
+        The returned value can be safely used in Python contexts, with the wrapper providing
+        any necessary adapter logic to facilitate seamless integration.
+
+        :returns: The wrapped input value, or None if the input value is empty.
+        """
         if not value:
             return
         if not isinstance(value, MyWrapper):
@@ -52,6 +66,19 @@ class MyWrapperField(models.CharField):
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Return a value prepared for database insertion.
+
+        This method takes an input value and prepares it for use in a database query.
+        It handles a specific type of wrapper object, converting it to a string representation.
+        If the input value is empty or None, this method returns None.
+        Otherwise, it returns the input value with any necessary transformations applied.
+
+        :param value: The value to be prepared for database insertion
+        :param connection: The database connection being used
+        :param prepared: A flag indicating whether the value is already prepared
+        :return: The prepared value, or None if the input value is empty
+        """
         if not value:
             return
         if isinstance(value, MyWrapper):

@@ -454,6 +454,19 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_condition_with_lookups(self):
+        """
+
+        Tests the behavior of the Case database function with lookup types.
+
+        Verifies that the annotation using Case and When clauses correctly evaluates
+        conditions based on the values of the model fields and returns the expected
+        Boolean result.
+
+        It checks a specific condition where the model instance with integer value 1
+        has its 'test' field annotated as True if the integer2 value equals 1 and
+        string value equals '1', and False otherwise.
+
+        """
         qs = CaseTestModel.objects.annotate(
             test=Case(
                 When(Q(integer2=1), string="2", then=Value(False)),
@@ -939,6 +952,13 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_duration(self):
+        """
+        Updates the duration of CaseTestModel instances based on their integer values and asserts that the resulting query set matches the expected output.
+
+        The function uses a conditional update to set the duration to a time delta of one day for instances with an integer value of 1, and a time delta of two days for instances with an integer value of 2. The function then checks that the updated instances are correctly ordered by primary key and have the expected integer and duration values. 
+
+        This test case covers the update functionality of the CaseTestModel and ensures that the conditional updates are applied correctly.
+        """
         CaseTestModel.objects.update(
             duration=Case(
                 When(integer=1, then=timedelta(1)),
@@ -982,6 +1002,18 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_file(self):
+        """
+
+        Updates a set of model objects with conditional logic and verifies the result.
+
+        This function applies a conditional update to a queryset of objects using a Case statement, 
+        setting the 'file' attribute based on the value of the 'integer' attribute. 
+        It then checks if the updated objects match the expected output, ensuring the update was applied correctly.
+
+        The test covers different cases, including when the condition is met and when it is not, 
+        verifying that the update is applied as expected in both scenarios.
+
+        """
         CaseTestModel.objects.update(
             file=Case(
                 When(integer=1, then=Value("~/1")),
@@ -1172,6 +1204,11 @@ class CaseExpressionTests(TestCase):
         )
 
     def test_update_time(self):
+        """
+        Updates the 'time' field of CaseTestModel instances based on the value of the 'integer' field and verifies the updated values.
+
+        The update operation uses a conditional approach to set the 'time' field to specific values when the 'integer' field matches certain conditions. The test then asserts that the updated queryset matches the expected results, ordered by primary key.
+        """
         CaseTestModel.objects.update(
             time=Case(
                 When(integer=1, then=time(1)),
@@ -1669,6 +1706,15 @@ class CaseWhenTests(SimpleTestCase):
             When()
 
     def test_empty_q_object(self):
+        """
+        Test that an empty Q object cannot be used as a condition in When.
+
+        This test checks that a ValueError is raised when attempting to use an empty Q object
+        as a condition in a When statement. The error message indicates that an empty Q object
+        is not a valid condition, ensuring that the When statement is used correctly.
+
+        :raises ValueError: If an empty Q object is used as a condition in When.
+        """
         msg = "An empty Q() can't be used as a When() condition."
         with self.assertRaisesMessage(ValueError, msg):
             When(Q(), then=Value(True))

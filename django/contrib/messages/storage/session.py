@@ -43,6 +43,20 @@ class SessionStorage(BaseStorage):
         return []
 
     def serialize_messages(self, messages):
+        """
+        Serialize a collection of messages into an encoded format.
+
+        This method takes a list of messages as input, encodes them using a MessageEncoder,
+        and returns the resulting encoded data. The encoding process transforms the 
+        messages into a format suitable for storage or transmission.
+
+        Args:
+            messages (list): A list of messages to be serialized.
+
+        Returns:
+            The encoded messages in a serialized format.
+
+        """
         encoder = MessageEncoder()
         return encoder.encode(messages)
 

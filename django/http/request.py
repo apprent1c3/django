@@ -502,6 +502,23 @@ class QueryDict(MultiValueDict):
     _encoding = None
 
     def __init__(self, query_string=None, mutable=False, encoding=None):
+        """
+
+        Initializes a query string parser.
+
+        The parser takes an optional query string, which can be a string or bytes object, and optional
+        parameters to control mutability and encoding. If the query string is None, an empty string is used.
+        If the encoding is not specified, it defaults to the value of settings.DEFAULT_CHARSET.
+
+        The query string is then parsed into key-value pairs, which are stored in the parser. The parser
+        also checks for excessive numbers of fields, raising an error if the limit specified by
+        settings.DATA_UPLOAD_MAX_NUMBER_FIELDS is exceeded.
+
+        The parser's mutability can be controlled with the mutable parameter, which defaults to False.
+
+        :raises TooManyFieldsSent: If the number of GET/POST parameters exceeds the maximum allowed.
+
+        """
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
         query_string = query_string or ""
@@ -582,6 +599,9 @@ class QueryDict(MultiValueDict):
         return result
 
     def setlist(self, key, list_):
+        """
+        Sets a list value in the object for the given key, ensuring that both the key and list elements are properly decoded from bytes to text using the object's specified encoding. The operation fails if the object is immutable.
+        """
         self._assert_mutable()
         key = bytes_to_text(key, self.encoding)
         list_ = [bytes_to_text(elt, self.encoding) for elt in list_]
@@ -675,6 +695,15 @@ class MediaType:
         return self.main_type == "*" and self.sub_type == "*"
 
     def match(self, other):
+        """
+        Determines if the current media type matches the provided media type.
+
+        This function checks for compatibility between the current media type and the given `other` type. 
+        It returns True if the types match and False otherwise. The match is considered successful 
+        if the main types are identical and the sub-type of the current instance is either '*' (wildcard) 
+        or exactly matches the sub-type of the `other` instance. If the current instance represents all types, 
+        the function immediately returns True without further checks.
+        """
         if self.is_all_types:
             return True
         other = MediaType(other)

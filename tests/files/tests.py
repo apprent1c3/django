@@ -56,6 +56,15 @@ class FileTests(unittest.TestCase):
             self.assertEqual(f.read(), b"content")
 
     def test_open_reopens_closed_file_and_returns_context_manager(self):
+        """
+        Tests that the open method of a File object can reopen a closed file and returns a context manager.
+
+        The open method is expected to successfully retrieve the file again after it has been closed, ensuring that the file is accessible within the context manager block.
+
+        This test covers the scenario where a file is closed and then reopened using the open method, verifying that the file remains accessible and usable within the given context.
+
+        The test utilizes a temporary file for this purpose, ensuring that the file is properly cleaned up after the test is completed.
+        """
         temporary_file = tempfile.NamedTemporaryFile(delete=False)
         file = File(temporary_file)
         try:
@@ -132,6 +141,17 @@ class FileTests(unittest.TestCase):
         self.assertEqual(list(f), [b"one\r\n", b"two\r\n", b"three"])
 
     def test_file_iteration_with_mac_newline_at_chunk_boundary(self):
+        """
+
+        Tests the iteration of a file when a newline character is encountered at a chunk boundary, 
+        specifically using Mac-style newlines (\r). The function verifies that the file object 
+        correctly splits the content into chunks based on the specified chunk size, even when 
+        newline characters coincide with chunk boundaries. 
+
+        The expected output is a list of chunks, each ending with a Mac-style newline character, 
+        except possibly for the last chunk which may or may not have a newline at the end.
+
+        """
         f = File(BytesIO(b"one\rtwo\rthree"))
         # Set chunk size to create a boundary after \r:
         # b'one\r...
@@ -165,6 +185,25 @@ class FileTests(unittest.TestCase):
             self.assertFalse(test_file.writable())
 
     def test_seekable(self):
+        """
+        Tests whether a File object is seekable, both within and outside the context of its parent temporary file.
+
+        The test checks that the File object is seekable when the underlying temporary file is open, and not seekable when the temporary file is closed.
+
+        This ensures the correct behavior of the seekable method in different file states, ensuring data integrity and proper file handling.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        AssertionError : If the seekable method does not return the expected result
+        """
         with (
             tempfile.TemporaryFile() as temp,
             File(temp, name="something.txt") as test_file,
@@ -209,6 +248,18 @@ class FileTests(unittest.TestCase):
         called = False
 
         def opener(path, flags):
+            """
+
+            Opens a file at the specified path and returns its file descriptor.
+
+            :param path: The path to the file to be opened
+            :param flags: The flags to be used when opening the file
+            :rtype: int
+            :returns: The file descriptor of the opened file
+
+            Note: This function also sets a flag indicating that it has been called.
+
+            """
             nonlocal called
             called = True
             return os.open(path, flags)
@@ -273,6 +324,16 @@ class ContentFileTestCase(unittest.TestCase):
 
 class InMemoryUploadedFileTests(unittest.TestCase):
     def test_open_resets_file_to_start_and_returns_context_manager(self):
+        """
+        Tests that opening a file resets the file pointer to the start and returns a context manager.
+
+        This test ensures that when an InMemoryUploadedFile is opened, the file pointer is reset to the beginning of the file, 
+        allowing the contents to be read from the start. The test also verifies that the file object is returned as a context manager, 
+        which allows for safe handling of the file and ensures it is properly closed after use.
+
+        The test uploads a file with the content '1', reads the file to move the file pointer to the end, 
+        then opens the file and reads its content again to verify that the file pointer has been reset to the start.
+        """
         uf = InMemoryUploadedFile(StringIO("1"), "", "test", "text/plain", 1, "utf8")
         uf.read()
         with uf.open() as f:
@@ -286,6 +347,15 @@ class TemporaryUploadedFileTests(unittest.TestCase):
             self.assertTrue(temp_file.file.name.endswith(".upload.txt"))
 
     def test_file_upload_temp_dir_pathlib(self):
+        """
+        Tests that uploaded files are stored in a temporary directory specified by FILE_UPLOAD_TEMP_DIR setting.
+
+        This test creates a temporary directory, sets it as the temporary upload directory,
+        uploads a test file, and verifies that the uploaded file exists in the temporary directory.
+
+        The test ensures that the file upload mechanism correctly utilizes the specified temporary directory
+        for storing uploaded files, which is essential for maintaining a clean and secure file upload process.
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(FILE_UPLOAD_TEMP_DIR=Path(tmp_dir)):
                 with TemporaryUploadedFile(
@@ -415,6 +485,16 @@ class GetImageDimensionsTests(unittest.TestCase):
 
     @unittest.skipUnless(HAS_WEBP, "WEBP not installed")
     def test_webp(self):
+        """
+
+        Tests the functionality of getting image dimensions for WebP images.
+
+        This test case checks if the :func:`images.get_image_dimensions` function can 
+        correctly retrieve the dimensions of a WebP image. It uses a test image 
+        ('test.webp') and verifies that the retrieved dimensions match the expected 
+        values.
+
+        """
         img_path = os.path.join(os.path.dirname(__file__), "test.webp")
         with open(img_path, "rb") as fh:
             size = images.get_image_dimensions(fh)

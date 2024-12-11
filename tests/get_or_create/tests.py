@@ -191,6 +191,18 @@ class GetOrCreateTests(TestCase):
         self.assertEqual(date(1943, 2, 25), obj.birthday)
 
     def test_callable_defaults_not_called(self):
+        """
+
+        Tests that callable defaults are not called when a matching object is found.
+
+        Verifies that when using get_or_create with callable default values, 
+        the default values are only executed when creating a new object, 
+        not when retrieving an existing one.
+
+        This ensures that potentially expensive or side-effect-prone functions 
+        used as defaults are not unnecessarily executed, preventing unexpected behavior.
+
+        """
         def raise_exception():
             raise AssertionError
 
@@ -317,6 +329,13 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(p.birthday, date(1940, 10, 10))
 
     def test_create_twice(self):
+        """
+        Checks the correct functionality of the `update_or_create` method when attempting to create the same object twice. 
+
+        The test verifies that when creating a new object, it is correctly created with the specified default values. 
+        When attempting to create the same object again, it checks that the object is not recreated and that the existing object's fields are updated with the provided values. 
+        The test also ensures that the `created` flag returned by the `update_or_create` method accurately reflects whether a new object was created or an existing one was updated.
+        """
         p, created = Person.objects.update_or_create(
             first_name="John",
             last_name="Lennon",
@@ -769,6 +788,14 @@ class InvalidCreateArgumentsTests(TransactionTestCase):
             Thing.objects.update_or_create(name="a", nonexistent="b")
 
     def test_multiple_invalid_fields(self):
+        """
+        Tests that updating or creating an instance of Thing with multiple invalid fields raises a FieldError.
+
+        The test validates that providing non-existent fields, both in the query parameters and in the defaults dictionary, results in an exception being raised with the expected error message, ensuring data integrity and preventing unexpected behavior.
+
+        :raises FieldError: When attempting to update or create an instance with invalid fields.
+
+        """
         with self.assertRaisesMessage(FieldError, self.bad_field_msg):
             Thing.objects.update_or_create(
                 name="a", nonexistent="b", defaults={"invalid": "c"}

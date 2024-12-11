@@ -27,5 +27,13 @@ class RandomTests(SimpleTestCase):
 
     @setup({"empty_list": "{{ list|random }}"})
     def test_empty_list(self):
+        """
+        Tests rendering of a template with an empty list.
+
+        Verifies that when a template is rendered with an empty list, the output is an empty string.
+        It checks the engine's behavior in handling empty lists to ensure correct rendering of templates in such cases.
+        The test covers the scenario where the template 'empty_list' is rendered with an empty list as input data.
+
+        """
         output = self.engine.render_to_string("empty_list", {"list": []})
         self.assertEqual(output, "")

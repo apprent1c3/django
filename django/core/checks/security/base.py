@@ -225,6 +225,15 @@ def check_secret_key(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_secret_key_fallbacks(app_configs, **kwargs):
+    """
+    Checks if the SECRET_KEY_FALLBACKS configuration is properly set and if all the keys in the fallback list are secure.
+
+        It verifies the existence of SECRET_KEY_FALLBACKS in the project settings and checks each key in the list.
+        If the configuration is missing or any of the keys are insecure, it raises a warning for each issue found.
+
+        :return: A list of warnings for any problems encountered with SECRET_KEY_FALLBACKS.
+        :rtype: list[Warning]
+    """
     warnings = []
     try:
         fallbacks = settings.SECRET_KEY_FALLBACKS

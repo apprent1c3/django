@@ -97,6 +97,13 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_skip_link_with_RTL_language_doesnt_create_horizontal_scrolling(self):
+        """
+        Tests that when the language is set to a right-to-left language (RTL), 
+        the skip link functionality does not introduce horizontal scrolling on the page.
+
+        Verifies that the skip link is properly displayed and that the page body 
+        is vertically scrollable but not horizontally scrollable after tabbing to the link.\"
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
 

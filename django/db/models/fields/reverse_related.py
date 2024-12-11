@@ -296,6 +296,11 @@ class ManyToOneRel(ForeignObjectRel):
         self.field_name = field_name
 
     def __getstate__(self):
+        """
+        Overrides the default state retrieval to exclude the 'related_model' attribute.
+
+        Returns a dictionary representing the object's state, with the 'related_model' key removed if present. This is used for serialization purposes, allowing the object to be pickled without including the related model reference.
+        """
         state = super().__getstate__()
         state.pop("related_model", None)
         return state

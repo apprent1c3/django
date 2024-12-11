@@ -19,6 +19,18 @@ class NaturalKeySerializerTests(TestCase):
 
 def natural_key_serializer_test(self, format):
     # Create all the objects defined in the test data
+    """
+
+    Tests the serialization of objects that use natural keys, ensuring that the data is properly preserved during the serialization and deserialization process.
+
+    This function creates test objects, including anchors and related objects with foreign keys,
+    serializes them to the specified format, and then deserializes the data back into objects.
+    It then checks that the original objects and the deserialized objects have the same data,
+    verifying that the serialization and deserialization process did not modify the data.
+
+    :param format: The format to use for serialization, such as 'json' or 'xml'.
+
+    """
     with connection.constraint_checks_disabled():
         objects = [
             NaturalKeyAnchor.objects.create(id=1100, data="Natural Key Anghor"),
@@ -194,6 +206,20 @@ def forward_ref_m2m_test(self, format):
 
 
 def forward_ref_m2m_with_error_test(self, format):
+    """
+
+     Tests deserialization of forward m2m references with error handling.
+
+     This test checks the behavior of deserializing a many-to-many relationship
+     where a related object does not exist. The test data includes a primary
+     object with two related objects. The deserialization process is expected
+     to raise a DeserializationError when it encounters a reference to a
+     non-existent object.
+
+     The test verifies that the error message is correctly raised and that
+     the deserialization process handles forward references as expected.
+
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")

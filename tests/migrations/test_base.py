@@ -33,6 +33,18 @@ class MigrationTestBase(TransactionTestCase):
             return connections[using].introspection.get_table_description(cursor, table)
 
     def assertTableExists(self, table, using="default"):
+        """
+
+        Asserts that a specified database table exists.
+
+        Args:
+            table (str): The name of the table to check for existence.
+            using (str, optional): The database connection to use. Defaults to 'default'.
+
+        Raises:
+            AssertionError: If the table does not exist in the specified database.
+
+        """
         with connections[using].cursor() as cursor:
             self.assertIn(table, connections[using].introspection.table_names(cursor))
 
@@ -211,10 +223,27 @@ class OperationTestBase(MigrationTestBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class-level test environment.
+
+        This method is called once before all tests in the class are executed.
+        It retrieves the names of all existing tables in the database connection
+        and stores them in the class attribute `_initial_table_names`.
+        This allows tests to track changes to the database schema during execution.
+
+        """
         super().setUpClass()
         cls._initial_table_names = frozenset(connection.introspection.table_names())
 
     def tearDown(self):
+        """
+
+        Teardown method to clean up after the test.
+
+        This method is responsible for removing any test-related data that may have been created during the test execution.
+        It ensures that the test tables are cleaned up and then calls the parent class's teardown method to perform any additional cleanup.
+
+        """
         self.cleanup_test_tables()
         super().tearDown()
 
@@ -240,6 +269,18 @@ class OperationTestBase(MigrationTestBase):
             return migration.apply(project_state, editor)
 
     def unapply_operations(self, app_label, project_state, operations, atomic=True):
+        """
+        ```   
+        Unapplies a list of operations to the project state.
+
+        :param app_label: The label of the application to which the operations belong
+        :param project_state: The current state of the project
+        :param operations: A list of operations to be unapplied
+        :param atomic: Whether the unapplication of operations should be treated as a single, atomic operation
+
+        :return: The result of unapplying the operations to the project state
+        ```
+        """
         migration = Migration("name", app_label)
         migration.operations = operations
         with connection.schema_editor(atomic=atomic) as editor:

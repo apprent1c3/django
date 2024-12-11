@@ -317,6 +317,27 @@ class DistanceLookupBase(GISLookup):
             self.process_band_indices()
 
     def process_distance(self, compiler, connection):
+        """
+
+        Process a distance query by compiling the expression or resolving the database operation.
+
+        This method is responsible for handling distance-related queries by either compiling the 
+        expression for evaluation or determining the database operation required to calculate 
+        the distance.
+
+        It takes into account the right-hand side parameters and the lookup name to determine 
+        the appropriate course of action. If the parameter has a resolvable expression, it will 
+        be compiled using the provided compiler. Otherwise, it will use the database operation 
+        to calculate the distance.
+
+        The result is either the compiled expression or a string representing the distance 
+        operation along with the connection's operation to get the distance.
+
+        :param compiler: The compiler used for expression evaluation
+        :param connection: The database connection
+        :return: The compiled expression or the distance operation as a string
+
+        """
         dist_param = self.rhs_params[0]
         return (
             compiler.compile(dist_param.resolve_expression(compiler.query))
@@ -357,6 +378,23 @@ class DWithinLookup(DistanceLookupBase):
 
 class DistanceLookupFromFunction(DistanceLookupBase):
     def as_sql(self, compiler, connection):
+        """
+
+        Generates the SQL representation of a distance lookup operation.
+
+        This method takes into account the type of operation and the parameters provided,
+        constructing a SQL expression that represents the distance calculation. If the
+        operation is performed on a spheroid, this is also considered when generating the
+        SQL expression.
+
+        The generated SQL is returned as a string, along with a list of parameters that
+        should be used in conjunction with the SQL expression.
+
+        :param compiler: The compiler object used to compile the expression.
+        :param connection: The database connection object.
+        :return: A tuple containing the generated SQL string and a list of parameters.
+
+        """
         spheroid = (
             len(self.rhs_params) == 2 and self.rhs_params[-1] == "spheroid"
         ) or None

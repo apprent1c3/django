@@ -148,6 +148,28 @@ def non_sensitive_view(request):
     # Do not just use plain strings for the variables' values in the code
     # so that the tests don't return false positives when the function's source
     # is displayed in the exception report.
+    """
+
+    Handles a non-sensitive view request.
+
+    This view function intentionally triggers an exception to simulate an error scenario.
+    It then catches the exception, logs the error information, and returns a technical 500 response.
+
+    Parameters
+    ----------
+    request : HttpRequest
+        The incoming HTTP request object.
+
+    Returns
+    -------
+    HttpResponse
+        A technical 500 response with error details.
+
+    Notes
+    -----
+    The function is designed for testing and demonstration purposes, and should not be used in production environments without modifications.
+
+    """
     cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
     sauce = "".join(  # NOQA
         ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -259,6 +281,16 @@ def sensitive_args_function(sauce):
 
 
 def sensitive_kwargs_function_caller(request):
+    """
+    Invokes a function with sensitive keyword arguments (kwargs) and handles potential exceptions.
+
+    This function attempts to call another function with a specific set of keyword arguments, 
+    which are considered sensitive and not explicitly defined here for security reasons. 
+    If the function call is successful, no explicit result is returned. 
+    However, if an exception occurs during the function call, the exception details are logged 
+    using the provided request and the function sends a technical 500 response back 
+    along with the exception information for further error handling and diagnosis.
+    """
     try:
         sensitive_kwargs_function(
             "".join(
@@ -338,6 +370,21 @@ class Klass:
         # Do not just use plain strings for the variables' values in the code
         # so that the tests don't return false positives when the function's
         # source is displayed in the exception report.
+        """
+
+        Handles incoming requests and returns a technical 500 response in case of an error.
+
+        This method simulates a cooking process by creating strings representing cooked eggs and a sauce.
+        In the event of an exception, it captures the error information, sends a log of the exception, 
+        and returns a technical 500 response to the client.
+
+        The method takes a single parameter :param request: The incoming request object.
+
+        It returns a technical 500 response in case of an error, which includes information about the exception.
+
+        Note: The method intentionally raises an exception to test the error handling mechanism.
+
+        """
         cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
         sauce = "".join(  # NOQA
             ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]

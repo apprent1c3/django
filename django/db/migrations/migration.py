@@ -229,6 +229,23 @@ class SwappableTuple(tuple):
     """
 
     def __new__(cls, value, setting):
+        """
+
+        Create a new instance of a subclass of tuple with an additional setting attribute.
+
+        Parameters
+        ----------
+        value : 
+            The value used to initialize the tuple.
+        setting : 
+            An additional setting associated with the tuple instance.
+
+        Returns
+        -------
+        An instance of the subclass, with the given value and setting.
+        \"\"\"
+        Note: The original function was defined with a docstring in the __new__ method which is unorthodox because the __new__ method in Python is generally used for instance creation and not used for documentation purposes. Instead, this docstring should probably be applied at the class level, describing how to create an instance and what it represents.
+        """
         self = tuple.__new__(cls, value)
         self.setting = setting
         return self

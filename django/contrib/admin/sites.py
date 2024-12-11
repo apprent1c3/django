@@ -161,6 +161,22 @@ class AdminSite:
         return model in self._registry
 
     def get_model_admin(self, model):
+        """
+        Retrieves the admin interface for a given model.
+
+        Args:
+            model: The model for which to retrieve the admin interface.
+
+        Returns:
+            The admin interface associated with the given model.
+
+        Raises:
+            NotRegistered: If the model is not registered.
+
+        Note:
+            This method provides a convenient way to access the admin interface for a model, 
+            and will raise an exception if the model does not have a registered admin interface.
+        """
         try:
             return self._registry[model]
         except KeyError:

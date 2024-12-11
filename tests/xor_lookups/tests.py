@@ -41,6 +41,20 @@ class XorLookupsTests(TestCase):
         )
 
     def test_filter_negated(self):
+        """
+
+        Tests the filtering of Number objects using negated Q objects and XOR operations.
+
+        This test case verifies the correctness of filtering Number objects based on various
+        conditions, including negated Q objects and XOR operations between them.
+        The tested conditions include filtering numbers less than or equal to 7 and not less
+        than 3, numbers not greater than 7 and not less than 3, and combinations of these
+        conditions with additional filtering criteria.
+
+        The tests ensure that the filtering produces the expected results, including the
+        correct exclusion and inclusion of Number objects based on the specified conditions.
+
+        """
         self.assertCountEqual(
             Number.objects.filter(Q(num__lte=7) ^ ~Q(num__lt=3)),
             self.numbers[:3] + self.numbers[8:],

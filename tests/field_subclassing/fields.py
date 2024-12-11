@@ -17,6 +17,13 @@ class CustomDeferredAttribute(DeferredAttribute):
         instance.__dict__[self.field.attname] = value
 
     def _count_call(self, instance, get_or_set):
+        """
+        Increments a counter specific to the field and the type of call (get or set) on the given instance.
+
+        The counter is stored as an attribute on the instance, with a name derived from the field name and the type of call. If the counter does not exist, it is initialized to 0.
+
+        This method is used internally to track the number of get or set operations performed on the field for a particular instance.
+        """
         count_attr = "_%s_%s_count" % (self.field.attname, get_or_set)
         count = getattr(instance, count_attr, 0)
         setattr(instance, count_attr, count + 1)

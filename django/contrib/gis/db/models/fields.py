@@ -278,6 +278,13 @@ class GeometryField(BaseSpatialField):
         super().__init__(verbose_name=verbose_name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a serializable tuple, allowing it to be reconstructed later.
+
+        The deconstruction process captures the object's essential attributes, including its dimensionality, geographic settings, spatial extent, and tolerance values, and stores them in keyword arguments.
+
+        This method extends the base class deconstruction behavior by incorporating the object's specific properties, ensuring that all relevant information is preserved during serialization. The resulting tuple contains the object's name, path, positional arguments, and keyword arguments, providing a comprehensive representation of the object's state.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
         if self.dim != 2:

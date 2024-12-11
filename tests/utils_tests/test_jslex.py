@@ -277,6 +277,23 @@ class JsTokensTest(SimpleTestCase):
 
 def make_function(input, toks):
     def test_func(self):
+        """
+
+        Tests the JsLexer functionality by comparing the expected tokens with the actual tokens 
+        generated from the input string. The test case verifies that the lexer correctly identifies 
+        and separates the tokens, excluding whitespace.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Note:
+            This is a unit test function, and its outcome is determined by whether the 
+            asserted condition is met, not by any explicit return value.
+
+        """
         lexer = JsLexer()
         result = [
             "%s %s" % (name, tok) for name, tok in lexer.lex(input) if name != "ws"
@@ -391,6 +408,17 @@ class JsToCForGettextTest(SimpleTestCase):
 
 
 def make_function(js, c):
+    """
+
+    Generate a test function that asserts the output of preparing JavaScript code for gettext extraction.
+
+    The generated function, when called, will verify that the JavaScript code `js` is correctly prepared for gettext extraction, matching the expected output `c`.
+
+    :param js: The JavaScript code to be prepared for gettext extraction.
+    :param c: The expected output of preparing the JavaScript code.
+    :return: A test function that can be used to validate the preparation of JavaScript code for gettext extraction.
+
+    """
     def test_func(self):
         self.assertEqual(prepare_js_for_gettext(js), c)
 

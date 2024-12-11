@@ -111,6 +111,14 @@ class CheckboxInputTest(WidgetTest):
         self.assertFalse(self.widget.value_from_datadict({}, {}, "testing"))
 
     def test_value_from_datadict_string_int(self):
+        """
+
+        Tests that a string value of '0' is correctly interpreted as True by the value_from_datadict method.
+
+        This test case ensures that the method correctly handles the conversion of a string integer to a boolean value, 
+        which is a common requirement in form data processing.
+
+        """
         value = self.widget.value_from_datadict({"testing": "0"}, {}, "testing")
         self.assertIs(value, True)
 
@@ -121,6 +129,12 @@ class CheckboxInputTest(WidgetTest):
         self.assertIs(self.widget.value_omitted_from_data({}, {}, "field"), False)
 
     def test_get_context_does_not_mutate_attrs(self):
+        """
+        Tests that the get_context method of the widget does not mutate the input attributes dictionary.
+
+        Verifies that the 'checked' attribute remains unchanged after calling get_context, 
+        ensuring that the method has no side effects on the input data.
+        """
         attrs = {"checked": False}
         self.widget.get_context("name", True, attrs)
         self.assertIs(attrs["checked"], False)

@@ -155,6 +155,18 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserUniqueConstraint")
     def test_username_unique_with_model_constraint(self):
+        """
+
+        Tests the unique constraint functionality for usernames in a custom user model.
+
+        This test case verifies that the custom user model with a unique constraint on the 'username' field passes the system checks 
+        when using the default authentication backend. It then checks if the unique constraint remains enforced when using a custom 
+        authentication backend.
+
+        Ensures that the system checks do not report any errors when the unique constraint is applied to the custom user model, 
+        regardless of the authentication backend being used.
+
+        """
         class CustomUserUniqueConstraint(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -229,6 +241,19 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_non_clashing_custom_permissions(self):
+        """
+        Tests that custom permissions defined on a model do not clash with other permissions.
+
+        Verifies that the model's Meta class can successfully define and register custom permissions
+        without raising any errors. Ensures that the permission checks are run without detecting any issues,
+        resulting in an empty list of errors.\"\"\"
+
+        or if you want it shorter
+
+        \"\"\"Tests that custom model permissions do not clash with other permissions.
+
+        Verifies custom permissions are successfully registered without raising errors.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [

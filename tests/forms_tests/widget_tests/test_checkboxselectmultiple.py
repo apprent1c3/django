@@ -227,6 +227,16 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.check_html(self.widget(choices=choices), "times", None, html=html)
 
     def test_use_required_attribute(self):
+        """
+        Determines whether a widget should use the 'required' attribute based on the provided choices.
+
+        The function takes a list of choices as input and returns a boolean value indicating whether the 'required' attribute should be applied to the widget.
+
+        The decision to use the 'required' attribute is made based on the presence and content of the choices list. This function is used to test the logic for applying the 'required' attribute to a widget under different scenarios. 
+
+        Returns:
+            bool: True if the 'required' attribute should be used, False otherwise
+        """
         widget = self.widget(choices=self.beatles)
         # Always False because browser validation would require all checkboxes
         # to be checked instead of at least one.

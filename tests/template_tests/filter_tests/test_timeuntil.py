@@ -12,6 +12,9 @@ class TimeuntilTests(TimezoneTestCase):
     # Default compare with datetime.now()
     @setup({"timeuntil01": "{{ a|timeuntil }}"})
     def test_timeuntil01(self):
+        """
+        Tests the timeuntil function to ensure it correctly calculates the time difference until a given datetime object and formats it as a human-readable string, specifically verifying that it omits seconds from the output when the time difference is in minutes.
+        """
         output = self.engine.render_to_string(
             "timeuntil01", {"a": datetime.now() + timedelta(minutes=2, seconds=10)}
         )
@@ -43,6 +46,13 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil05": "{{ a|timeuntil:b }}"})
     def test_timeuntil05(self):
+        """
+
+        Tests the timeuntil template filter, verifying that it correctly calculates the time difference between two datetime objects.
+
+        The function checks the filter's output when the input datetimes have a difference of one minute, ensuring the result is displayed in the expected format.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil05",
             {
@@ -55,6 +65,9 @@ class TimeuntilTests(TimezoneTestCase):
     # Regression for #7443
     @setup({"timeuntil06": "{{ earlier|timeuntil }}"})
     def test_timeuntil06(self):
+        """
+        Tests the timeuntil template filter to ensure it returns the correct time difference when the provided date is 7 days in the past. The test verifies that the output is rounded down to the nearest minute and does not display any hours or days when the time difference is less than 1 hour.
+        """
         output = self.engine.render_to_string(
             "timeuntil06", {"earlier": self.now - timedelta(days=7)}
         )
@@ -62,6 +75,20 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil07": "{{ earlier|timeuntil:now }}"})
     def test_timeuntil07(self):
+        """
+        Tests the timeuntil filter with a time in the past.
+
+        This test case checks that when the input time is 7 days earlier than the current time,
+        the timeuntil filter returns '0 minutes', indicating that the time has already passed.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Asserts that the timeuntil filter behaves correctly with past times.
+        """
         output = self.engine.render_to_string(
             "timeuntil07", {"now": self.now, "earlier": self.now - timedelta(days=7)}
         )
@@ -69,6 +96,9 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil08": "{{ later|timeuntil }}"})
     def test_timeuntil08(self):
+        """
+        Tests the timeuntil filter functionality in the template engine, specifically when the difference is one week. It verifies that the output is correctly rendered as '1 week'.
+        """
         output = self.engine.render_to_string(
             "timeuntil08", {"later": self.now + timedelta(days=7, hours=1)}
         )
@@ -85,12 +115,25 @@ class TimeuntilTests(TimezoneTestCase):
     @requires_tz_support
     @setup({"timeuntil10": "{{ a|timeuntil }}"})
     def test_timeuntil10(self):
+        """
+        Tests the timeuntil template filter when the time difference is less than 10 minutes.
+
+        The function verifies that when the time until a given time is less than 10 minutes, 
+        the filter renders the time difference as '0 minutes'. It checks the output of the 
+        engine render_to_string method with the current time in the timezone and 
+        compares it with the expected string '0 minutes'.
+        """
         output = self.engine.render_to_string("timeuntil10", {"a": self.now_tz})
         self.assertEqual(output, "0\xa0minutes")
 
     @requires_tz_support
     @setup({"timeuntil11": "{{ a|timeuntil }}"})
     def test_timeuntil11(self):
+        """
+        Tests the timeuntil filter to verify it correctly displays the time until a given datetime object.
+
+        This test case utilizes a template with the timeuntil filter, passing in a datetime object, and checks if the rendered output matches the expected result, confirming the filter's functionality in displaying elapsed time as \"0 minutes\" when the input datetime object is the same as the current time.
+        """
         output = self.engine.render_to_string("timeuntil11", {"a": self.now_tz_i})
         self.assertEqual(output, "0\xa0minutes")
 
@@ -125,6 +168,13 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil16": "{{ a|timeuntil:b }}"})
     def test_aware_naive_type_error(self):
+        """
+
+        Tests that rendering the timeuntil template filter with an aware datetime object and a naive datetime object raises a TypeError.
+
+        The test verifies that the engine correctly handles the case where the input dates have different timezone awareness, and that it produces an empty output when the dates cannot be compared.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil16", {"a": self.now_tz_i, "b": self.now}
         )

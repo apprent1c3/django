@@ -492,6 +492,19 @@ class RadioSelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form field using a fieldset.
+
+        This test case checks that the fieldset is correctly wrapped around a ChoiceField
+        with a specific widget, and that the rendered HTML matches the expected output.
+
+        The test creates a TestForm instance with a single ChoiceField and verifies that
+        the use_fieldset attribute of the widget is True. It then asserts that the
+        rendered HTML of the form matches the expected structure, including the fieldset
+        and legend elements, as well as the correctly formatted radio button options.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

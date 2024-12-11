@@ -25,6 +25,15 @@ class LowerTests(TestCase):
         )
 
     def test_num_args(self):
+        """
+        Tests that the Lower database function raises a TypeError when passed more than one argument.
+
+         This test case verifies that the Lower function correctly enforces its argument count, 
+         expecting exactly one argument. It checks that a TypeError is raised when two arguments are provided, 
+         containing the expected error message. 
+
+         :raises: TypeError if the Lower function is called with an invalid number of arguments.
+        """
         with self.assertRaisesMessage(
             TypeError, "'Lower' takes exactly 1 argument (2 given)"
         ):

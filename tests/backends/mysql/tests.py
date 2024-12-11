@@ -9,6 +9,20 @@ from django.test import TestCase, override_settings
 
 @contextmanager
 def get_connection():
+    """
+
+    Manages a database connection context.
+
+    This context manager creates a copy of the existing database connection, 
+    yields it for use within a 'with' block, and automatically closes the 
+    connection when exiting the block, regardless of whether an exception 
+    occurs or not.
+
+    Use this context manager to ensure database connections are properly 
+    closed after use, preventing resource leaks and promoting good database 
+    hygiene.
+
+    """
     new_connection = connection.copy()
     yield new_connection
     new_connection.close()
@@ -71,6 +85,13 @@ class IsolationLevelTests(TestCase):
 
     def test_uppercase_isolation_level(self):
         # Upper case values are also accepted in 'isolation_level'.
+        """
+        Tests if changing the 'isolation_level' setting in the database connection's options dictionary to an uppercase value is correctly reflected when getting the current isolation level.
+
+        Verifies that the isolation level returned by the database connection matches the expected value from the 'isolation_values' mapping, demonstrating that the uppercase value is properly handled and converted as needed.
+
+        This test case ensures that the database connection settings and the actual isolation level in use remain consistent, even when the setting is provided in uppercase form.
+        """
         with get_connection() as new_connection:
             new_connection.settings_dict["OPTIONS"][
                 "isolation_level"
@@ -90,6 +111,20 @@ class IsolationLevelTests(TestCase):
             )
 
     def test_isolation_level_validation(self):
+        """
+
+        Tests the validation of the transaction isolation level setting to ensure it matches one of the allowed options.
+
+        The allowed isolation levels are:
+            * read committed
+            * read uncommitted
+            * repeatable read
+            * serializable
+            * None
+
+        If an invalid isolation level is specified, the test verifies that an ImproperlyConfigured exception is raised with a corresponding error message.
+
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"]["isolation_level"] = "xxx"
         msg = (

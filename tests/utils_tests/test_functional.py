@@ -274,6 +274,10 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(repr(original_object), repr(lazy_obj()))
 
     def test_lazy_repr_int(self):
+        """
+        Tests that the representation of a lazily created integer object is equivalent to its non-lazy counterpart. 
+        Verifies that the `repr()` function returns the same string for both the original integer object and the lazily created integer object when it is actually instantiated.
+        """
         original_object = 15
         lazy_obj = lazy(lambda: original_object, int)
         self.assertEqual(repr(original_object), repr(lazy_obj()))
@@ -284,6 +288,17 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(repr(original_object), repr(lazy_obj()))
 
     def test_lazy_regular_method(self):
+        """
+        Tests the lazy evaluation of a regular method.
+
+        Verifies that a lazy object, created with a given value and type, 
+        behaves as expected when its method is invoked, by comparing the 
+        result with the same method called on the original object.
+
+        Ensures that the lazy object's method call produces the same output 
+        as the original object, confirming that the lazy object is correctly 
+        initialized and its methods are properly proxied.
+        """
         original_object = 15
         lazy_obj = lazy(lambda: original_object, int)
         self.assertEqual(original_object.bit_length(), lazy_obj().bit_length())
@@ -297,10 +312,34 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(str(lazy_value), "[1]")
 
     def test_lazy_str_cast_mixed_bytes_result_types(self):
+        """
+
+        Tests that lazy string casting handles mixed result types, specifically when working with bytes.
+
+        Verifies that when a lazy value is defined with both bytes and list result types, 
+        the string representation of the lazy value is correctly generated as a list.
+
+        """
         lazy_value = lazy(lambda: [1], bytes, list)()
         self.assertEqual(str(lazy_value), "[1]")
 
     def test_classproperty_getter(self):
+        """
+
+        Tests the behavior of class properties and their getters.
+
+        This function verifies that class properties are correctly accessed and that their
+        values are not overridden by instance attributes with the same name. It checks
+        the behavior of class properties defined using the @classproperty decorator and
+        their getters, ensuring that they return the expected values when accessed through
+        the class and its instances. 
+
+        The test covers two scenarios: one where the class property is defined directly
+        on the class, and another where it is defined using a separate getter function.
+        In both cases, it checks that the class property returns the expected value, 
+        regardless of whether it is accessed through the class itself or an instance of the class.
+
+        """
         class Foo:
             foo_attr = 123
 
@@ -324,6 +363,17 @@ class FunctionalTests(SimpleTestCase):
         self.assertEqual(Bar().bar, 123)
 
     def test_classproperty_override_getter(self):
+        """
+        Tests that the getter of a class property can be overridden.
+
+        This test case verifies that when a getter is explicitly defined for a class property,
+        it takes precedence over the original property getter and provides the same value when
+        accessed through the class or an instance of the class.
+
+        The test demonstrates the behavior when using the :func:`@classproperty` decorator
+        and :meth:`@getter` decorator to define and override the getter of a class property.
+
+        """
         class Foo:
             @classproperty
             def foo(cls):

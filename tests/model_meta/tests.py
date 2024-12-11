@@ -64,12 +64,32 @@ class LabelTests(OptionsBaseTests):
             self.assertEqual(model._meta.label, expected_result)
 
     def test_label_lower(self):
+        """
+
+        Tests that the label_lower attribute of a model's meta class is correctly set.
+
+        This test checks that the lower case version of a model's label matches the expected result.
+        It iterates over a predefined set of test results, comparing the actual label_lower value with the expected value for each model.
+        The test ensures that the label lowering logic is applied consistently across different models.
+
+        """
         for model, expected_result in TEST_RESULTS["lower_labels"].items():
             self.assertEqual(model._meta.label_lower, expected_result)
 
 
 class DataTests(OptionsBaseTests):
     def test_fields(self):
+        """
+        Tests the fields of a model against expected results.
+
+        Verifies that the actual fields in each model match the predefined expected results.
+        This test ensures data consistency by comparing the field names in the model metadata
+        with the expected field names, helping to prevent potential data mismatch issues.
+
+        The test covers all models specified in the TEST_RESULTS dictionary, under the 'fields' key.
+        Each model's fields are compared to the corresponding expected result, and any discrepancies
+        will result in a test failure, indicating a potential issue with the model's field configuration.
+        """
         for model, expected_result in TEST_RESULTS["fields"].items():
             fields = model._meta.fields
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -95,6 +115,17 @@ class DataTests(OptionsBaseTests):
 
 class M2MTests(OptionsBaseTests):
     def test_many_to_many(self):
+        """
+        Tests the 'many_to_many' relationships in a model, ensuring that the model's many-to-many fields match the expected results.
+
+        This function iterates over a set of test models and their corresponding expected results, verifying that the names of the model's many-to-many fields match the expected values.
+
+        It also checks each many-to-many field to ensure that it is properly configured as a many-to-many relationship and is a valid relation field.
+
+        The test results are based on the data stored in the TEST_RESULTS dictionary, under the 'many_to_many' key. Each key in this dictionary corresponds to a model being tested, and the value is a list of the expected many-to-many field names for that model.
+
+        This test provides a way to validate that a model's many-to-many relationships are correctly defined and configured, helping to catch any errors or inconsistencies in the model's design.
+        """
         for model, expected_result in TEST_RESULTS["many_to_many"].items():
             fields = model._meta.many_to_many
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -125,6 +156,15 @@ class RelatedObjectsTests(OptionsBaseTests):
             )
 
     def test_related_objects_local(self):
+        """
+        Tests the ability to retrieve all related objects with a local model.
+
+        This test case verifies that the function correctly identifies and returns all related objects 
+        that are associated with a local model. It checks the results against predefined expected values 
+        for each model, ensuring that the retrieved related objects match the expected ones. The test 
+        covers related objects that are auto-created and not concrete, providing a comprehensive check 
+        of the function's behavior in various scenarios.
+        """
         result_key = "get_all_related_objects_with_model_local"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -138,6 +178,15 @@ class RelatedObjectsTests(OptionsBaseTests):
             )
 
     def test_related_objects_include_hidden(self):
+        """
+
+        Tests whether the function responsible for retrieving all related objects of a model includes hidden related objects in its output.
+
+        This test case iterates over various models and verifies that the names of the related objects (including hidden ones) match the expected results.
+
+        The test allows for the verification of the inclusion of auto-created and non-concrete fields in the retrieved related objects, ensuring that all types of related objects are properly accounted for.
+
+        """
         result_key = "get_all_related_objects_with_model_hidden"
         for model, expected in TEST_RESULTS[result_key].items():
             objects = [
@@ -275,6 +324,17 @@ class RelationTreeTests(SimpleTestCase):
 
     def test_first_relation_tree_access_populates_all(self):
         # On first access, relation tree should have populated cache.
+        """
+
+        Tests that the relation tree is populated for all models after accessing the first relation tree.
+
+        Verifies that the relation tree attribute is present and set for each model's metadata,
+        except for the AbstractPerson model which has an empty relation tree.
+
+        Ensures that all models, except AbstractPerson, have a populated relation tree after 
+        initializing the first model's relation tree.
+
+        """
         self.assertTrue(self.all_models[0]._meta._relation_tree)
 
         # AbstractPerson does not have any relations, so relation_tree
@@ -291,6 +351,19 @@ class RelationTreeTests(SimpleTestCase):
 
     def test_relations_related_objects(self):
         # Testing non hidden related objects
+        """
+        Tests the correctness of related objects in the relation tree.
+
+        Verifies that the related query names for Relation, BasePerson, and AbstractPerson models
+        are as expected. The test checks the related query names for fields in the _relation_tree
+        attribute of the models' meta class, filtering out fields with hidden remote fields.
+
+        This test case ensures that the relations between models are properly established and
+        can be queried correctly, covering both foreign key and many-to-many relationships.
+
+        The expected related query names are compared to the actual ones, sorted alphabetically
+        to ensure consistency and accuracy in the test results.
+        """
         self.assertEqual(
             sorted(
                 field.related_query_name()

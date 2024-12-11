@@ -383,6 +383,15 @@ class CustomManagerTests(TestCase):
         self.test_removal_through_specified_fk_related_manager(bulk=False)
 
     def test_removal_through_default_gfk_related_manager(self, bulk=True):
+        """
+        Tests the removal of related objects through the default generic foreign key related manager. 
+
+        This test case creates two instances of FunPerson, one fun and one not fun, both related to the same favorite thing. It then removes the not fun person from the favorite thing's related objects and verifies the updated list of related objects. 
+
+        The test proceeds to remove the fun person from the favorite thing's related objects, verifying the updated list again. It then changes the favorite book of the fun person to the same favorite thing and saves the changes. 
+
+        Finally, the test clears all related objects from the favorite thing using the clear method and verifies that the list of related objects remains unchanged. The test can be run with or without bulk operations.
+        """
         bugs = FunPerson.objects.create(
             first_name="Bugs", last_name="Bunny", fun=True, favorite_thing=self.b1
         )
@@ -567,6 +576,14 @@ class CustomManagerTests(TestCase):
         )
 
     def test_deconstruct_default(self):
+        """
+        Tests the deconstruction of a default model Manager instance.
+
+        Verifies that the deconstructed Manager returns the expected values, 
+        including the path to the Manager class, and that no arguments or keyword 
+        arguments are passed. This ensures correct behavior when reconstructing a 
+        Manager instance from its deconstructed state.
+        """
         mgr = models.Manager()
         as_manager, mgr_path, qs_path, args, kwargs = mgr.deconstruct()
         self.assertFalse(as_manager)

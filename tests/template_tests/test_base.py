@@ -49,6 +49,17 @@ class DebugLexerTests(LexerTestMixin, SimpleTestCase):
 
 class TemplateTests(SimpleTestCase):
     def test_lazy_template_string(self):
+        """
+        Tests the rendering of a lazy template string.
+
+        Verifies that a template string marked as lazy using gettext_lazy is rendered correctly
+        when passed through the Template renderer with an empty Context. The expected output
+        is that the original lazy string is returned, indicating that the lazy string was
+        properly evaluated during rendering.
+
+        This test ensures that the template engine handles lazy strings as expected, 
+        allowing for proper internationalization and localization of template content.
+        """
         template_string = gettext_lazy("lazy string")
         self.assertEqual(Template(template_string).render(Context()), template_string)
 

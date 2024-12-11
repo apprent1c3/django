@@ -34,6 +34,9 @@ class LoginRequiredTestCase(AuthViewsTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        Checks that the login_required decorator correctly preserves asynchronous behavior when applied to an asynchronous view function, ensuring the wrapped view remains a coroutine function.
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -169,6 +172,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
         return cls.user
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        ..: Tests if a synchronous function remains non-coroutine after being wrapped with the permission_required decorator.
+
+            The function verifies that the decorator does not convert a synchronous view into a coroutine function,
+            ensuring that the original function's execution nature is preserved. This is crucial for maintaining the
+            expected behavior of synchronous views when decorated with permission_required.
+        """
         def sync_view(request):
             return HttpResponse()
 

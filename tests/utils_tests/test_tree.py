@@ -43,6 +43,11 @@ class NodeTests(unittest.TestCase):
         self.assertFalse(self.node2)
 
     def test_contains(self):
+        """
+        验证一个数据结构中是否包含或不包含特定的元素。
+
+        验证包含特定键值对 ('a', 1) 的测试用例。具体来说，它确保 self.node1 中包含键值对 ('a', 1)，而 self.node2 中不包含。
+        """
         self.assertIn(("a", 1), self.node1)
         self.assertNotIn(("a", 1), self.node2)
 
@@ -57,6 +62,18 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(str(node3), "(DEFAULT: ('a', 1), ('b', 2), ('c', 3))")
 
     def test_add_eq_child_mixed_connector(self):
+        """
+
+        Tests the addition of a child node to an existing node with mixed connectors.
+
+        This test case verifies that when a new child is added to a node with an OR connector,
+        the resulting node has the new child connected using an AND connector.
+
+        The test checks two main outcomes:
+        - The value returned by the add operation is the root value of the child node.
+        - The original node is updated correctly to include the new child node with the AND connector.
+
+        """
         node = Node(["a", "b"], OR)
         self.assertEqual(node.add("a", AND), "a")
         self.assertEqual(node, Node([Node(["a", "b"], OR), "a"], AND))
@@ -97,6 +114,16 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_deepcopy(self):
+        """
+
+        Tests the deepcopy functionality of a Node object.
+
+        Verifies that a deep copy of a Node object is created correctly, ensuring that 
+        the original and copied objects are equal but not the same instance. This test 
+        also checks that the child nodes of the original and copied objects are equal 
+        but not the same instance, demonstrating a true deep copy.
+
+        """
         a = Node([Node(["a", "b"], OR), "c"], AND)
         b = copy.deepcopy(a)
         self.assertEqual(a, b)
@@ -110,6 +137,12 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_eq_children(self):
+        """
+        ..: 
+            Tests whether two Node instances are considered equal based on their children.
+
+            This test case verifies that the equality of Node instances is correctly determined by comparing their children. It checks that two Node instances with the same children are considered equal, and that two Node instances with different children are considered unequal.
+        """
         node = Node(self.node1_children)
         self.assertEqual(node, self.node1)
         self.assertNotEqual(node, self.node2)
@@ -121,6 +154,11 @@ class NodeTests(unittest.TestCase):
         self.assertNotEqual(default_node, new_node)
 
     def test_eq_negated(self):
+        """
+        Tests that a negated Node instance is not equal to a non-negated Node instance.
+
+        Verifies that the equality check correctly distinguishes between nodes with different negation states, ensuring that a negated node is not considered equal to its non-negated counterpart.
+        """
         node = Node(negated=False)
         negated = Node(negated=True)
         self.assertNotEqual(negated, node)

@@ -111,6 +111,11 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_perm_in_perms_attrs(self):
+        """
+        Checks if a user has specific permissions and tests the functionality of permission checks in the auth processor view.
+
+         Tests are performed on a user with the 'add_permission' permission and verify that the response from the '/auth_processor_perm_in_perms/' view correctly indicates the presence of this permission and other auth permissions. It also checks for the absence of a nonexistent permission in the response.
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(

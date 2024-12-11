@@ -93,6 +93,16 @@ class RemoveGroupsAndPermissions:
         AbstractUser._meta.local_many_to_many = [groups, user_permissions]
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Reverts changes made to the metadata of AbstractUser and PermissionsMixin models.
+
+        This method is called when exiting a context and is responsible for restoring the original 
+        local many-to-many fields of the AbstractUser and PermissionsMixin models. It ensures that 
+        any changes made to these models during the execution of the context are properly undone.
+
+        :raises: None
+        :returns: None
+        """
         AbstractUser._meta.local_many_to_many = self._old_au_local_m2m
         PermissionsMixin._meta.local_many_to_many = self._old_pm_local_m2m
 

@@ -11,6 +11,13 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ExpTests(TestCase):
     def test_null(self):
+        """
+        Tests that an annotated expression evaluates to None when the referenced field is null.
+
+        This test case creates an instance of IntegerModel and then annotates it with an expression
+        that references the 'normal' field. It verifies that the annotated value is None,
+        demonstrating the correct handling of null values in expressions.
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_exp=Exp("normal")).first()
         self.assertIsNone(obj.null_exp)
@@ -46,6 +53,11 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.big_exp, math.exp(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of decimal fields using the exponential function.
+
+        This test case creates sample decimal objects, applies the exponential function to the 'n1' field, and verifies that the transformed results can be properly filtered and retrieved. The test covers the scenario where the exponential of 'n1' is greater than a specified threshold (10 in this case).
+        """
         with register_lookup(DecimalField, Exp):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

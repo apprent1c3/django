@@ -30,6 +30,21 @@ class CarAdmin(admin.ModelAdmin):
 
 class CarTireAdmin(admin.ModelAdmin):
     def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        """
+
+        Override the default form field for foreign keys to filter the car field by owner.
+
+        This method is used to customize the form field for foreign keys in the admin interface.
+        For the 'car' field, it filters the options to only include cars owned by the current user.
+        For other foreign key fields, it falls back to the default behavior.
+
+        :param db_field: The database field being rendered as a form field.
+        :param request: The current HTTP request, used to determine the owner of the cars.
+        :param kwargs: Additional keyword arguments to customize the form field.
+
+        :return: The customized form field for the given foreign key.
+
+        """
         if db_field.name == "car":
             kwargs["queryset"] = Car.objects.filter(owner=request.user)
             return db_field.formfield(**kwargs)

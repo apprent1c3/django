@@ -75,6 +75,17 @@ class TestRemovedField(SimpleTestCase):
         )
 
     def test_user_specified_details(self):
+        """
+
+        Tests that user-specified details for system checks are correctly reported when checking a model.
+
+        This test case verifies that custom error messages, hints, and IDs provided by the user
+        for deprecated or removed fields are properly included in the system check output.
+        It ensures that the check results accurately reflect the user-specified details, allowing
+        developers to provide informative and actionable feedback when using deprecated or removed
+        fields in their models.
+
+        """
         class MyField(models.Field):
             system_check_removed_details = {
                 "msg": "Support for this field is gone.",

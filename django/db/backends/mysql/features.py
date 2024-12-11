@@ -333,6 +333,16 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def allows_group_by_selected_pks(self):
+        """
+        Indicates whether the database allows grouping by selected primary keys.
+
+        This property checks the database connection's SQL mode to determine if it supports
+        grouping by a subset of primary keys. In MySQL and MariaDB, this is controlled by
+        the 'ONLY_FULL_GROUP_BY' mode. If this mode is enabled, grouping by selected primary
+        keys is not allowed.
+
+        :return: True if grouping by selected primary keys is allowed, False otherwise
+        """
         if self.connection.mysql_is_mariadb:
             return "ONLY_FULL_GROUP_BY" not in self.connection.sql_mode
         return True

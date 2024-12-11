@@ -38,6 +38,23 @@ def convert_exception_to_response(get_response):
 
         @wraps(get_response)
         async def inner(request):
+            """
+            Asynchronous wrapper function that wraps around an existing response generator.
+
+            This function attempts to retrieve a response from the provided request. If successful, it returns the response.
+            In case of an exception, it catches the error and returns a response generated specifically for the exception.
+
+            The exception handling mechanism invokes a dedicated function to construct an appropriate response, ensuring
+            that the application remains robust and provides meaningful feedback even in the event of errors.
+
+            Parameters
+            ----------
+            request : the incoming request object
+
+            Returns
+            -------
+            response : the generated response object, either from the original response generator or the exception handler
+            """
             try:
                 response = await get_response(request)
             except Exception as exc:

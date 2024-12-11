@@ -97,6 +97,16 @@ class ExplainTests(TestCase):
                     self.assertIn(option, captured_queries[0]["sql"])
 
     def test_multi_page_text_explain(self):
+        """
+
+        Verify the functionality of generating an explain plan for a multi-page text query.
+
+        This test case checks if the database backend supports the TEXT format for explaining query plans.
+        It constructs a query that unions multiple results sets of tags with the name 'test' and 
+        then explains the query plan in TEXT format. The test passes if the explain plan output 
+        contains at least 100 newline characters, indicating that the query plan is sufficiently complex.
+
+        """
         if "TEXT" not in connection.features.supported_explain_formats:
             self.skipTest("This backend does not support TEXT format.")
 
@@ -106,6 +116,18 @@ class ExplainTests(TestCase):
         self.assertGreaterEqual(result.count("\n"), 100)
 
     def test_option_sql_injection(self):
+        """
+
+        Test the explain functionality of a query set to prevent SQL injection.
+
+        This test checks that the explain method raises a ValueError when an option
+        name contains malicious SQL. It verifies that the function correctly identifies
+        and rejects option names that could potentially be used for a SQL injection
+        attack, ensuring the security of the database. The test uses a specific example
+        of a malicious option name that attempts to execute arbitrary SQL code, and
+        confirms that it is properly handled by the explain method.
+
+        """
         qs = Tag.objects.filter(name="test")
         options = {"SUMMARY true) SELECT 1; --": True}
         msg = "Invalid option name: 'SUMMARY true) SELECT 1; --'"

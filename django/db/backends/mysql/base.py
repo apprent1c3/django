@@ -137,6 +137,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def data_types(self):
+        """
+        Returns a dictionary of data types supported by the instance, including any native UUID field types if applicable. The dictionary maps data type names to their corresponding type representations. The result is cached to improve performance.
+        """
         _data_types = self._data_types.copy()
         if self.features.has_native_uuid_field:
             _data_types["UUIDField"] = "uuid"
@@ -294,6 +297,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             pass
 
     def _set_autocommit(self, autocommit):
+        """
+        **:param bool autocommit: Whether to enable or disable autocommit mode.
+        :raises: Database errors if setting autocommit fails.
+        :Set the autocommit mode for the current database connection.
+
+        This method controls whether database transactions are committed automatically 
+        after each statement. Enabling autocommit can simplify interaction with the 
+        database, but may also reduce control over transaction boundaries. Disabling 
+        autocommit allows for more fine-grained control over transactions, but requires 
+        explicit commit or rollback calls.**
+        """
         with self.wrap_database_errors:
             self.connection.autocommit(autocommit)
 

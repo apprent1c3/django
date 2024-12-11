@@ -21,6 +21,19 @@ class BaseChoiceIterator:
         return super().__eq__(other)
 
     def __getitem__(self, index):
+        """
+        Returns the item at the specified index in the container.
+
+        Supports both positive and negative indexing, allowing access to items from the end of the container.
+
+        Raises:
+            IndexError: If the index is out of range.
+
+        Note:
+            This method returns an item as if the container were a list, although the actual implementation may differ.
+
+        Examples are not provided here, consult the class documentation for usage examples.
+        """
         if index < 0:
             # Suboptimally consume whole iterator to handle negative index.
             return list(self)[index]

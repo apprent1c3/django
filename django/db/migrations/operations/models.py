@@ -422,6 +422,13 @@ class RenameModel(ModelOperation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, old_name, new_name):
+        """
+        Initializes a class instance to manage a name change operation.
+
+        :param old_name: The original name to be replaced.
+        :param new_name: The new name to replace the original with.
+        :note: This initialization also invokes the parent class constructor with the original name.
+        """
         self.old_name = old_name
         self.new_name = new_name
         super().__init__(old_name)
@@ -435,6 +442,15 @@ class RenameModel(ModelOperation):
         return self.new_name.lower()
 
     def deconstruct(self):
+        """
+        Deconstruct the object into a tuple containing the class name, an empty list of positional arguments, and keyword arguments.
+
+        The keyword arguments dictionary includes the object's old name and new name, which can be used to reconstruct the object or create a new instance with similar properties.
+
+        Returns:
+            tuple: A tuple containing the class name, positional arguments list, and keyword arguments dictionary.
+
+        """
         kwargs = {
             "old_name": self.old_name,
             "new_name": self.new_name,
@@ -618,6 +634,20 @@ class AlterModelTableComment(ModelOptionOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Updates the database table comment when migrating a model.
+
+        This method is called during a database migration when the model's table comment has changed.
+        It checks if migration is allowed for the given model and database connection, and if so,
+        it alters the database table comment to match the new model's comment.
+
+        :param app_label: The label of the application containing the model.
+        :param schema_editor: The schema editor used to perform the migration.
+        :param from_state: The previous state of the model.
+        :param to_state: The new state of the model.
+
+        """
         new_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
             old_model = from_state.apps.get_model(app_label, self.name)
@@ -822,6 +852,14 @@ class AlterModelOptions(ModelOptionOperation):
         super().__init__(name)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a tuple containing its class name, an empty list, and a dictionary of keyword arguments.
+
+        The dictionary includes the object's name and options, allowing for the potential reconstruction or serialization of the object.
+
+        Returns:
+            tuple: A tuple containing ('class_name', [], kwargs) where kwargs includes the object's name and options.
+        """
         kwargs = {
             "name": self.name,
             "options": self.options,
@@ -910,6 +948,19 @@ class AddIndex(IndexOperation):
             schema_editor.add_index(model, self.index)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the database migration operation for the specified index.
+
+        This method is used to roll back the addition of a database index for a given model.
+        It removes the index from the model in the database if the migration is allowed.
+
+        :param app_label: The label of the application that owns the model.
+        :param schema_editor: The schema editor instance used to perform the operation.
+        :param from_state: The state of the model before the migration.
+        :param to_state: The state of the model after the migration.
+
+        """
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             schema_editor.remove_index(model, self.index)
@@ -1054,6 +1105,25 @@ class RenameIndex(IndexOperation):
             )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Rename a database index.
+
+        This function updates the name of an existing database index when migrating a Django
+        application's database schema. It takes into account the current and target states of
+        the application's models and only renames the index if its name has changed.
+
+        The function first checks if the model is allowed to be migrated and if the index
+        exists. If the index does not exist or its name has not changed, the function does
+        nothing. Otherwise, it renames the index using the database schema editor.
+
+        Parameters:
+            app_label (str): The label of the application that owns the model.
+            schema_editor: The database schema editor to use for making changes.
+            from_state: The current state of the application's models.
+            to_state: The target state of the application's models.
+
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if not self.allow_migrate_model(schema_editor.connection.alias, model):
             return
@@ -1113,6 +1183,16 @@ class RenameIndex(IndexOperation):
         self.new_name, self.old_name = self.old_name, self.new_name
 
     def describe(self):
+        """
+        Returns a human-readable description of the index renaming operation.
+
+        This description includes the model name and the old and new names of the index.
+        If the old index had a name, it is included in the description; otherwise,
+        the description refers to the old fields of the index that are being renamed.\"\"\"
+            the original line: 
+        \"\"\"Return a description of index rename\"\"\"
+        usually is also very good as it's a simplest form. It depends on the situation.
+        """
         if self.old_name:
             return (
                 f"Rename index {self.old_name} on {self.model_name} to {self.new_name}"

@@ -5,6 +5,14 @@ from django.contrib.gis.gdal import Envelope, GDALException
 
 class TestPoint:
     def __init__(self, x, y):
+        """
+        Initializes a new instance with coordinates.
+
+        :param x: The x-coordinate of the instance.
+        :param y: The y-coordinate of the instance.
+        :returns: None
+        :rtype: None
+        """
         self.x = x
         self.y = y
 

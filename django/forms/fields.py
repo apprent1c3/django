@@ -376,6 +376,16 @@ class FloatField(IntegerField):
         return value
 
     def validate(self, value):
+        """
+        Validate the input value by checking if it is finite.
+
+        This method first calls the parent class's validate method to perform any
+        initial validation checks. If the value is considered empty, it is allowed
+        to pass without further checks. However, if the value is not finite (i.e., it
+        is infinite or NaN), a ValidationError is raised with the error code 'invalid'.
+
+        :raises: ValidationError if the input value is not finite
+        """
         super().validate(value)
         if value in self.empty_values:
             return
@@ -407,6 +417,17 @@ class DecimalField(IntegerField):
         decimal_places=None,
         **kwargs,
     ):
+        """
+
+        Initializes a number field with optional range and precision constraints.
+
+        The initializer accepts keyword arguments to specify the maximum and minimum allowed values, as well as the maximum number of digits and decimal places for the number.
+
+        The number of digits is restricted by the 'max_digits' parameter, while 'decimal_places' limits the number of digits that can appear after the decimal point. These constraints are enforced by a DecimalValidator.
+
+        Additional keyword arguments are passed to the parent class initializer to apply further validation and configuration.
+
+        """
         self.max_digits, self.decimal_places = max_digits, decimal_places
         super().__init__(max_value=max_value, min_value=min_value, **kwargs)
         self.validators.append(validators.DecimalValidator(max_digits, decimal_places))
@@ -530,6 +551,15 @@ class DateTimeField(BaseTemporalField):
     }
 
     def prepare_value(self, value):
+        """
+        Prepare a value for further processing by converting datetime objects to the current timezone.
+
+            Args:
+                value: The value to be prepared, which may be a datetime object or another type.
+
+            Returns:
+                The prepared value, with datetime objects converted to the current timezone if necessary.
+        """
         if isinstance(value, datetime.datetime):
             value = to_current_timezone(value)
         return value
@@ -699,6 +729,17 @@ class FileField(Field):
         return not self.disabled and data is not None
 
     def _clean_bound_field(self, bf):
+        """
+        Clean the value of a bound form field.
+
+        This method retrieves the value of a bound form field, which is either the initial
+        value if the field is disabled or the field's data otherwise. It then calls the 
+        :func:`clean` method to validate and sanitize this value, passing both the 
+        retrieved value and the initial value as arguments.
+
+        :param bf: The bound form field to be cleaned
+        :rtype: The cleaned value of the field
+        """
         value = bf.initial if self.disabled else bf.data
         return self.clean(value, bf.initial)
 
@@ -884,6 +925,21 @@ class ChoiceField(Field):
     }
 
     def __init__(self, *, choices=(), **kwargs):
+        """
+
+        Initialize the class instance.
+
+        This method sets up a new instance of the class, inheriting properties from its parent class.
+        It takes in optional keyword arguments, including a tuple of choices that can be used to 
+        constrain or validate the instance's behavior.
+
+        The :attr:`choices` attribute is set based on the provided tuple of choices, and can be 
+        accessed later to determine the available options for the instance.
+
+        :param choices: A tuple of choices to constrain or validate the instance's behavior.
+        :param kwargs: Additional keyword arguments to pass to the parent class's constructor.
+
+        """
         super().__init__(**kwargs)
         self.choices = choices
 
@@ -993,6 +1049,18 @@ class MultipleChoiceField(ChoiceField):
                 )
 
     def has_changed(self, initial, data):
+        """
+        Checks if the data has changed compared to its initial state.
+
+        Returns False if changes are not tracked due to the object being disabled.
+        Otherwise, compares the initial and current data sets. If the lengths of the two
+        sets are different, or if the sets contain different elements (regardless of order),
+        the function returns True, indicating a change has occurred. If the sets are identical,
+        the function returns False, indicating no change has occurred.
+
+        Note that the comparison is case-sensitive and does not account for the original data types,
+        as all values are converted to strings before being compared.
+        """
         if self.disabled:
             return False
         if initial is None:
@@ -1048,6 +1116,14 @@ class ComboField(Field):
     """
 
     def __init__(self, fields, **kwargs):
+        """
+        Initializes a new instance of the class, setting up the specified fields.
+
+        :param fields: A collection of fields to be managed by this instance.
+        :keyword kwargs: Additional keyword arguments to be passed to the parent class constructor.
+
+        The fields provided are configured to be non-required by default. This allows for flexible validation and processing of the fields within the class. The fields are stored as an instance attribute for later use.
+        """
         super().__init__(**kwargs)
         # Set 'required' to False on the individual fields, because the
         # required validation will be handled by ComboField, not by those
@@ -1299,6 +1375,16 @@ class SplitDateTimeField(MultiValueField):
 
 class GenericIPAddressField(CharField):
     def __init__(self, *, protocol="both", unpack_ipv4=False, **kwargs):
+        """
+        Initializes an instance of the class.
+
+        This initializer configures the instance to handle IP address validation according to the specified protocol and unpacking behavior.
+
+        The protocol to use for validation can be specified, with options to validate 'both' (IPv4 and IPv6), or a specific version.
+        Additionally, the initializer accepts an option to unpack IPv4 addresses.
+
+        The instance's configuration is set based on these parameters, including the default validators to be used for IP address validation.
+        """
         self.unpack_ipv4 = unpack_ipv4
         self.default_validators = validators.ip_address_validators(
             protocol, unpack_ipv4
@@ -1386,6 +1472,20 @@ class JSONField(CharField):
             return converted
 
     def bound_data(self, data, initial):
+        """
+
+        Attempts to convert the provided data into a JSON object using a custom decoder.
+
+        If the object is currently disabled, it returns the initial value.
+        If the data is None, it returns None.
+        Otherwise, it attempts to parse the data as JSON. If successful, it returns the parsed object.
+        If the data is not valid JSON, it raises an InvalidJSONInput error with the invalid data.
+
+        :param data: The data to be converted into a JSON object
+        :param initial: The initial value to return if the object is disabled
+        :return: The parsed JSON object, or the initial value if the object is disabled
+
+        """
         if self.disabled:
             return initial
         if data is None:

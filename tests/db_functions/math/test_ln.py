@@ -46,6 +46,18 @@ class LnTests(TestCase):
         self.assertAlmostEqual(obj.big_ln, math.log(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of decimal fields using a natural logarithm lookup.
+
+        This test case checks if the lookup correctly applies the natural logarithm function
+        to decimal fields and allows for filtering based on the transformed values.
+
+        It verifies that the transformation is correctly applied by creating model instances
+        with decimal values, applying the transformation, and asserting that the filtered
+        result matches the expected output.
+
+        """
         with register_lookup(DecimalField, Ln):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

@@ -27,6 +27,13 @@ class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
     def add_arguments(self, parser):
+        """
+        Adds custom command-line arguments for managing Django migrations.
+
+        The arguments include options to specify app labels, control the creation and merging of migrations, and modify the behavior of the migration process. The available options allow users to customize the migration process, such as creating empty migrations, avoiding user input, and generating migration files with custom names and headers.
+
+        The function supports various modes, including dry-run, merge, and scriptable modes, which enable features like conflict resolution, input diversion, and log output customization. Additionally, users can opt to update existing migrations by merging model changes and optimizing operations.
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -103,6 +110,59 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *app_labels, **options):
+        """
+
+        Handle a migration operation.
+
+        This function takes care of preparing and executing a migration, including
+        checking for conflicts, detecting changes, and writing migration files.
+
+        It accepts various options to customize its behavior, including the verbosity
+        level, interactive mode, dry run, merge, and empty migration creation.
+
+        The function first checks for any conflicting migrations and raises an error
+        if it finds any. It then uses an autodetector to identify changes in the
+        models and generates migration files accordingly.
+
+        The migration files can be written in different ways depending on the options
+        chosen, including writing to new files, updating existing files, or creating
+        empty migrations.
+
+        Parameters
+        ----------
+        *app_labels : str
+            The labels of the apps to include in the migration.
+        **options : dict
+            A dictionary of options to customize the migration behavior.
+
+        Options
+        -------
+        verbosity : int
+            The level of verbosity for the migration operation.
+        interactive : bool
+            Whether to run the migration in interactive mode.
+        dry_run : bool
+            Whether to simulate the migration without making any changes.
+        merge : bool
+            Whether to merge conflicting migrations.
+        empty : bool
+            Whether to create an empty migration.
+        name : str
+            The name of the migration.
+        include_header : bool
+            Whether to include a header in the migration file.
+        check_changes : bool
+            Whether to check for changes without making any migrations.
+        scriptable : bool
+            Whether to make the migration scriptable.
+        update : bool
+            Whether to update existing migration files instead of creating new ones.
+
+        Returns
+        -------
+        None
+
+        """
         self.written_files = []
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]

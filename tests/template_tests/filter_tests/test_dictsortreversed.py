@@ -4,6 +4,18 @@ from django.test import SimpleTestCase
 
 class FunctionTests(SimpleTestCase):
     def test_sort(self):
+        """
+
+        Tests the sorting of dictionaries in descending order based on a specified key.
+
+        This function verifies that a list of dictionaries can be sorted in reverse order
+        by a given key, in this case 'age'. It checks that the resulting sorted list
+        contains the same dictionaries as the original list, but in the correct order.
+
+        The function ensures that the dictionaries are sorted correctly regardless of the
+        order of their keys, by comparing the sorted items of each dictionary.
+
+        """
         sorted_dicts = dictsortreversed(
             [
                 {"age": 23, "name": "Barbara-Ann"},
@@ -23,11 +35,28 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_sort_list_of_tuples(self):
+        """
+
+        Tests the sorting of a list of tuples in descending order based on the first element of each tuple.
+
+        This function verifies that the dictsortreversed function correctly sorts a list of tuples
+        where the first element of each tuple is used as the sorting key.
+
+        """
         data = [("a", "42"), ("c", "string"), ("b", "foo")]
         expected = [("c", "string"), ("b", "foo"), ("a", "42")]
         self.assertEqual(dictsortreversed(data, 0), expected)
 
     def test_sort_list_of_tuple_like_dicts(self):
+        """
+
+        Tests the sorting of a list of dictionary-like objects in descending order based on a specified key.
+
+        The function verifies that the dictsortreversed function correctly sorts a list of dictionaries, 
+        where each dictionary represents a tuple-like object, by the values associated with a given key.
+        In this case, the list is sorted in descending order based on the '0' key.
+
+        """
         data = [
             {"0": "a", "1": "42"},
             {"0": "c", "1": "string"},

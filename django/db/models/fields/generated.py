@@ -34,6 +34,21 @@ class GeneratedField(Field):
 
     @cached_property
     def cached_col(self):
+        """
+        Returns a database column reference to this field, cached for efficiency.
+
+        This property provides a way to access the underlying database column associated
+        with this field, using Django's database abstraction. It returns a Col object,
+        which represents a reference to a column in the database.
+
+        The Col object is created with the model's database table name, this field
+        instance, and the field's output field. The resulting object can be used in
+        database queries and other operations that require a column reference.
+
+        The caching mechanism ensures that the Col object is only created once, and
+        subsequent calls to this property return the same cached instance, improving
+        performance by reducing the number of database operations.
+        """
         from django.db.models.expressions import Col
 
         return Col(self.model._meta.db_table, self, self.output_field)

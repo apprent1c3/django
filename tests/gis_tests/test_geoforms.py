@@ -289,6 +289,17 @@ class SpecializedFieldTest(SimpleTestCase):
             self.assertFalse(PointForm(data={"p": invalid.wkt}).is_valid())
 
     def test_multipointfield(self):
+        """
+        Tests the functionality of a form utilizing a MultiPointField.
+
+        This test case focuses on validating the correct handling of geometric data,
+        specifically MultiPointField instances, through the creation of a form.
+        It checks that the form correctly renders the geometry as a textarea and map widget,
+        and that it appropriately validates both valid and invalid geometric inputs.
+
+        The test covers scenarios including valid multipoint geometry, empty form data,
+        and incorrect geometric types to ensure robust form validation behavior.
+        """
         class PointForm(forms.Form):
             p = forms.MultiPointField()
 
@@ -386,6 +397,15 @@ class OSMWidgetTest(SimpleTestCase):
         }
 
     def test_osm_widget(self):
+        """
+
+        Tests the OSMWidget functionality in a form.
+
+        This test case verifies that the OSMWidget is correctly rendered as part of a form field,
+        specifically a PointField. It checks if the OpenLayers OSM source is included in the rendered form,
+        and if the HTML id of the widget is correctly set.
+
+        """
         class PointForm(forms.Form):
             p = forms.PointField(widget=forms.OSMWidget)
 

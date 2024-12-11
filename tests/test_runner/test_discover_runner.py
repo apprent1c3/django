@@ -33,6 +33,16 @@ def change_cwd(directory):
 
 @contextmanager
 def change_loader_patterns(patterns):
+    """
+    Context manager that temporarily changes the test name patterns used by the test loader.
+
+    Temporarily overrides the test name patterns of the test loader with the provided patterns, 
+    restoring the original patterns when the context is exited. This allows for flexible and 
+    targeted test discovery within a specified scope.
+
+    :param patterns: A list of glob patterns to match test names against during the context.
+
+    """
     original_patterns = DiscoverRunner.test_loader.testNamePatterns
     DiscoverRunner.test_loader.testNamePatterns = patterns
     try:
@@ -137,6 +147,15 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIsNone(runner.shuffle_seed)
 
     def test_setup_shuffler_shuffle_none(self):
+        """
+        Tests that the setup_shuffler method initializes shuffle correctly when shuffle is set to None.
+
+        Verifies that the shuffle seed is generated randomly and a message indicating the generated seed is displayed.
+        The resulting shuffle seed is also stored and can be retrieved from the runner instance.
+
+        This test case ensures the setup_shuffler method behaves as expected when shuffle is not explicitly set, 
+        providing a default behavior of using a randomly generated seed for shuffling purposes.
+        """
         runner = DiscoverRunner(shuffle=None)
         self.assertIsNone(runner.shuffle)
         with mock.patch("random.randint", return_value=1):
@@ -176,6 +195,16 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count, 4)
 
     def test_dotted_test_class_vanilla_unittest(self):
+        """
+        Tests that the test runner correctly discovers and counts test cases in a vanilla Unittest test class.
+
+        This test ensures that the test discovery mechanism is able to find and load test cases from a basic Unittest class, 
+        and that the test count is accurate. It checks for a single test case in the specified test class.
+
+        The test validates the test runner's functionality in terms of test case discovery, loading, and counting, providing
+        confidence in its ability to manage tests. The test uses a discover runner to find and build a test suite from the 
+        sample test class, and then asserts that the resulting test count is as expected.
+        """
         count = (
             DiscoverRunner(verbosity=0)
             .build_suite(
@@ -419,6 +448,20 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     def test_build_suite_failed_tests_first(self):
         # The "doesnotexist" label results in a _FailedTest instance.
+        """
+        Tests that a test suite is built with failed tests first.
+
+        This test case checks the behavior of a test runner when it encounters test labels
+        that do not correspond to existing tests. It verifies that the resulting test suite 
+        contains the failed test labels first, and that the actual test cases come after.
+
+        The test suite is built using a DiscoveryRunner with specified test labels, 
+        including one that exists and one that does not. The test checks the type of 
+        the first and last tests in the suite to ensure they match the expected pattern.
+
+        This test is important to ensure that the test runner handles unknown test labels
+        correctly, and that the test suite is constructed in a predictable and useful way.
+        """
         suite = DiscoverRunner(verbosity=0).build_suite(
             test_labels=["test_runner_apps.sample", "doesnotexist"],
         )
@@ -501,6 +544,20 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertEqual(count_tests(exclude_tags=["foo"]), 0)
 
     def test_tag_fail_to_load(self):
+        """
+
+        Tests the handling of failed test tag loading.
+
+        Verifies that when a test module is specified with a tag, but the module itself
+        contains a syntax error and fails to load, the test runner correctly identifies
+        and reports the failure. The test checks that a SyntaxError is raised during the
+        import attempt and that the test suite is built with the failed tests marked
+        accordingly.
+
+        The test case also confirms that unknown test modules are properly handled and
+        included in the test suite as failed tests.
+
+        """
         with self.assertRaises(SyntaxError):
             import_module("test_runner_apps.tagged.tests_syntax_error")
         runner = DiscoverRunner(tags=["syntax_error"], verbosity=0)
@@ -523,6 +580,19 @@ class DiscoverRunnerTests(SimpleTestCase):
             self.assertIn("Including test tag(s): bar, foo.\n", stdout.getvalue())
 
     def test_excluded_tags_displayed(self):
+        """
+        Tests that excluded tags are displayed when building a test suite.
+
+        This test case verifies that when a set of tags is excluded from the test run,
+        the excluded tags are properly displayed in the output.
+
+        The test checks for the presence of a specific output message indicating that
+        the tags 'foo' and 'bar' are being excluded from the test run.
+
+        :raises AssertionError: If the output message does not contain the expected
+            excluded tags.
+
+        """
         runner = DiscoverRunner(exclude_tags=["foo", "bar"], verbosity=3)
         with captured_stdout() as stdout:
             runner.build_suite(["test_runner_apps.tagged.tests"])
@@ -614,6 +684,14 @@ class DiscoverRunnerTests(SimpleTestCase):
         return result, output
 
     def test_run_suite_logs_seed(self):
+        """
+        Tests the run suite functionality with logging of the shuffle seed.
+
+        The function verifies that by default, the shuffle seed is not logged in the output.
+        It also checks that when a shuffle seed is provided, it is correctly logged in the output.
+        The test covers two scenarios: running the suite without a specified shuffle seed and running it with a seed value of 2. 
+        The function confirms that the result of the suite run is as expected and that the output matches the expected logging behavior for the shuffle seed.
+        """
         class TestRunner:
             def run(self, suite):
                 return "<fake-result>"
@@ -651,6 +729,17 @@ class DiscoverRunnerTests(SimpleTestCase):
 
     @mock.patch("faulthandler.enable")
     def test_faulthandler_already_enabled(self, mocked_enable):
+        """
+        Tests that the faulthandler is not enabled when it is already active.
+
+        This test case verifies the behavior of the DiscoverRunner when the faulthandler is
+        previously enabled. It checks that the DiscoverRunner does not attempt to enable
+        the faulthandler again, thus avoiding potential issues.
+
+        Verifies that the enable method of the faulthandler is not called when the 
+        faulthandler is already enabled and DiscoverRunner is initialized with 
+        enable_faulthandler set to True.
+        """
         with mock.patch("faulthandler.is_enabled", return_value=True):
             DiscoverRunner(enable_faulthandler=True)
             mocked_enable.assert_not_called()
@@ -727,6 +816,18 @@ class DiscoverRunnerTests(SimpleTestCase):
                     self.assertEqual(stdout.getvalue(), f"{msg}\n" if output else "")
 
     def test_log_logger(self):
+        """
+
+         Tests the logging functionality of the DiscoverRunner class.
+
+         This test case verifies that the DiscoverRunner instance logs messages at the
+         specified level and that the log output matches the expected format. It covers
+         various logging levels, including built-in levels (DEBUG, INFO, WARNING) and
+         custom levels.
+
+         :return: None
+
+        """
         logger = logging.getLogger("test.logging")
         cases = [
             (None, "INFO:test.logging:log message"),
@@ -843,6 +944,17 @@ class DiscoverRunnerGetDatabasesTests(SimpleTestCase):
         )
 
     def test_serialize(self):
+        """
+        Tests the serialization of databases.
+
+        Verifies that the database configuration is correctly serialized and returns
+        the expected output. In this case, it checks if the 'default' database is
+        properly identified and its configuration is correctly set to True.
+
+        This test ensures that the database serialization process functions as
+        expected, providing a valid foundation for further testing and development.
+
+        """
         databases, _ = self.get_databases(
             ["test_runner_apps.databases.tests.DefaultDatabaseSerializedTests"]
         )

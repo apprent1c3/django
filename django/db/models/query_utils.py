@@ -437,6 +437,23 @@ class FilteredRelation:
     """Specify custom filtering in the ON clause of SQL joins."""
 
     def __init__(self, relation_name, *, condition=Q()):
+        """
+
+        Initializes the object with the provided relation name and condition.
+
+        :arg relation_name: The name of the relation.
+        :arg condition: The condition of the relation. Defaults to an empty condition (Q()).
+
+        The relation name must be a non-empty string. The condition must be an instance of Q.
+        Otherwise, a ValueError is raised.
+
+        The initialized object will have attributes for the relation name, alias, and condition.
+        The condition is also stored in a resolved format.
+
+        Note: The alias is initially set to None and the resolved condition is set to None.
+        These attributes can be updated later.
+
+        """
         if not relation_name:
             raise ValueError("relation_name cannot be empty.")
         self.relation_name = relation_name
@@ -466,6 +483,19 @@ class FilteredRelation:
         return clone
 
     def relabeled_clone(self, change_map):
+        """
+        Creates a clone of the current object with relabeled condition based on the provided change map.
+
+        Args:
+            change_map: A mapping used to relabel the condition in the cloned object.
+
+        Returns:
+            A cloned object with its condition relabeled according to the change map.
+
+        Note:
+            The relabeling process only occurs if the object has a resolved condition.
+
+        """
         clone = self.clone()
         if resolved_condition := clone.resolved_condition:
             clone.resolved_condition = resolved_condition.relabeled_clone(change_map)

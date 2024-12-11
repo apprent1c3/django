@@ -60,6 +60,9 @@ class TemplatesSettingTests(SharedTests, SimpleTestCase):
 
 class DeprecationTests(SimpleTestCase):
     def test_django_div_renderer_warning(self):
+        """
+        Checks that using the deprecated DjangoDivFormRenderer raises a warning, indicating its removal in Django 6.0 and recommends using DjangoTemplates as an alternative.
+        """
         msg = (
             "The DjangoDivFormRenderer transitional form renderer is deprecated. Use "
             "DjangoTemplates instead."
@@ -68,6 +71,13 @@ class DeprecationTests(SimpleTestCase):
             DjangoDivFormRenderer()
 
     def test_jinja2_div_renderer_warning(self):
+        """
+        Tests that using the Jinja2DivFormRenderer raises a RemovedInDjango60Warning.
+
+        This test case verifies that the deprecated Jinja2DivFormRenderer transitional form
+        renderer correctly emits a warning when instantiated, recommending the use of
+        Jinja2 instead, as it is scheduled for removal in Django 6.0.
+        """
         msg = (
             "The Jinja2DivFormRenderer transitional form renderer is deprecated. Use "
             "Jinja2 instead."

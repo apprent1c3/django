@@ -154,6 +154,22 @@ class RelatedField(FieldCacheMixin, Field):
         return []
 
     def _check_related_query_name_is_valid(self):
+        """
+        Checks if the related query name is valid.
+
+        Validates the name used for reverse queries to ensure it meets the necessary criteria.
+        A valid related query name should not end with an underscore and should not contain the lookup separator.
+
+        Returns a list of errors if the related query name is invalid, otherwise an empty list.
+
+        Note:
+            The related query name is checked against the following conditions:
+                - The name must not end with an underscore.
+                - The name must not contain the lookup separator.
+
+            If the name is invalid, errors are returned with hints to resolve the issues by adjusting the related_name or related_query_name arguments for the field.
+
+        """
         if self.remote_field.hidden:
             return []
         rel_query_name = self.related_query_name()
@@ -210,6 +226,18 @@ class RelatedField(FieldCacheMixin, Field):
         return []
 
     def _check_referencing_to_swapped_model(self):
+        """
+        Checks if a field references a model that has been swapped out.
+
+        This function verifies if the model referenced by a field's remote field has been replaced by another model. 
+        If the referenced model is no longer available and has been swapped, it returns an error with a hint to update the relation. 
+        Otherwise, it returns an empty list. 
+
+        The goal of this check is to prevent relations from pointing to non-existent models, thus maintaining referential integrity and preventing potential errors. 
+
+        Returns:
+            list: A list of errors if the referenced model has been swapped out, otherwise an empty list.
+        """
         if (
             self.remote_field.model not in self.opts.apps.get_models()
             and not isinstance(self.remote_field.model, str)
@@ -546,6 +574,28 @@ class ForeignObject(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+        Initializes a relationship between two entities.
+
+        This constructor sets up the connection between the current entity and a target entity, 
+        specifying how the relationship should be handled in terms of deletion and querying.
+
+        :param to: The entity to which the relationship is being established.
+        :param on_delete: Defines the behavior when the related entity is deleted.
+        :param from_fields: The fields on the current entity that participate in the relationship.
+        :param to_fields: The corresponding fields on the target entity.
+        :param rel: Optional relationship instance; if not provided, one will be created.
+        :param related_name: The name to use for the relationship from the target entity back to this one.
+        :param related_query_name: The name to use for the relationship in query operations.
+        :param limit_choices_to: Restricts the choices available for the relationship.
+        :param parent_link: Indicates if this relationship represents a parent link.
+        :param swappable: Determines if the relationship is swappable.
+        :param **kwargs: Additional keyword arguments passed to the parent constructor.
+
+        For most use cases, only the primary arguments (to, on_delete, from_fields, to_fields) are necessary, 
+        enabling the creation of a basic relationship between entities. The optional arguments offer more 
+        fine-grained control over the relationship's characteristics and behavior.
+        """
         if rel is None:
             rel = self.rel_class(
                 self,
@@ -788,6 +838,16 @@ class ForeignObject(RelatedField):
         )
 
     def get_reverse_joining_columns(self):
+        """
+
+        Returns the columns used for reverse joining.
+
+        .. deprecated:: 
+            This method is deprecated in favor of :meth:`get_reverse_joining_fields()`. It will be removed in Django 6.0.
+
+        This method provides the columns that are used to establish a reverse relationship. It is the inverse of the normal joining columns.
+
+        """
         warnings.warn(
             "ForeignObject.get_reverse_joining_columns() is deprecated. Use "
             "get_reverse_joining_fields() instead.",
@@ -881,6 +941,17 @@ class ForeignObject(RelatedField):
         return cls.merge_dicts(class_lookups)
 
     def contribute_to_class(self, cls, name, private_only=False, **kwargs):
+        """
+        `:param cls: The class to which this object is being contributed.
+        :param str name: The name under which this object is being contributed to the class.
+        :param bool private_only: Whether to restrict access to this object only within the class itself.
+        :param kwargs: Additional keyword arguments.
+        :returns: None
+        :rtype: None
+        :note: This method contributes this object to the given class, setting an attribute on the class with the same name as this object.
+                It also establishes a related accessor, allowing for easier interaction with related objects.
+                This method is typically used internally and should not be called directly by users of the class.`
+        """
         super().contribute_to_class(cls, name, private_only=private_only, **kwargs)
         setattr(cls, self.name, self.forward_related_accessor_class(self))
 
@@ -1157,6 +1228,26 @@ class ForeignKey(ForeignObject):
             self.remote_field.field_name = cls._meta.pk.name
 
     def formfield(self, *, using=None, **kwargs):
+        """
+
+        Creates a form field for this field.
+
+        This method returns a form field instance that can be used in Django forms to represent this field.
+        It uses a ModelChoiceField for the related model, with a queryset based on the related model's default manager.
+
+        Depending on the configuration of this field, the returned form field may allow or disallow blank/empty input.
+
+        Args:
+            using (str): The database alias to use for the form field's queryset. Defaults to `None`.
+            **kwargs: Additional keyword arguments to pass to the form field's constructor.
+
+        Note:
+            This method will raise an error if the related model for this field has not been loaded yet.
+
+        Returns:
+            A form field instance representing this field.
+
+        """
         if isinstance(self.remote_field.model, str):
             raise ValueError(
                 "Cannot create form field for %r yet, because "
@@ -1232,10 +1323,25 @@ class OneToOneField(ForeignKey):
     description = _("One-to-one relationship")
 
     def __init__(self, to, on_delete, to_field=None, **kwargs):
+        """
+        Initializes a one-to-one relationship between two models.
+
+        :param to: The model class to which the relationship is established.
+        :param on_delete: The behavior to adopt when the referenced model instance is deleted.
+        :param to_field: The field on the related model that the relationship is to.
+        :param **kwargs: Additional keyword arguments to customize the relationship.
+        :note: This relationship is unique, meaning each instance of the model can only be related to one instance of the target model.
+        """
         kwargs["unique"] = True
         super().__init__(to, on_delete, to_field=to_field, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, removing the 'unique' keyword argument if present.
+
+        Returns:
+            A tuple containing the object's name, path, positional arguments, and keyword arguments, with the 'unique' keyword argument removed.
+        """
         name, path, args, kwargs = super().deconstruct()
         if "unique" in kwargs:
             del kwargs["unique"]
@@ -1262,6 +1368,21 @@ class OneToOneField(ForeignKey):
 
 
 def create_many_to_many_intermediary_model(field, klass):
+    """
+
+    Create a Django model representing an intermediary table for a many-to-many relationship.
+
+    This function generates a model that handles the relationship between two models.
+    It is used internally to represent the intermediate table for a many-to-many field.
+
+    :Parameters:
+        - **field**: The many-to-many field.
+        - **klass**: The model containing the many-to-many field.
+
+    :Returns:
+        A Django model representing the intermediary table.
+
+    """
     from django.db import models
 
     def set_managed(model, related, through):

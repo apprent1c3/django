@@ -81,6 +81,32 @@ END;
     _extract_format_re = _lazy_re_compile(r"[A-Z_]+")
 
     def date_extract_sql(self, lookup_type, sql, params):
+        """
+
+        Extracts a specific date component from an SQL date expression.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The type of date component to extract. Supported values are 'week_day', 
+            'iso_week_day', 'week', 'quarter', 'iso_year', or any valid PostgreSQL 
+            date format code (e.g. 'YEAR', 'MONTH', 'DAY').
+        sql : str
+            The SQL date expression to extract the component from.
+        params : tuple
+            Any parameters required by the SQL date expression.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the modified SQL expression and the required parameters.
+
+        Raises
+        ------
+        ValueError
+            If the lookup type is not recognized.
+
+        """
         extract_sql = f"TO_CHAR({sql}, %s)"
         extract_param = None
         if lookup_type == "week_day":
@@ -147,6 +173,20 @@ END;
         return sql, params
 
     def datetime_cast_date_sql(self, sql, params, tzname):
+        """
+
+        Cast a timestamp with time zone SQL expression to a date.
+
+        This function takes a SQL expression, its parameters, and a time zone name.
+        It converts the SQL expression to the specified time zone and then casts the result to a date,
+         effectively removing the time component.
+
+        :param sql: The SQL expression to be converted
+        :param params: The parameters associated with the SQL expression
+        :param tzname: The name of the time zone to convert to
+        :return: A tuple containing the converted SQL expression as a string and its parameters
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"TRUNC({sql})", params
 
@@ -164,6 +204,32 @@ END;
         )
 
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
+        """
+
+        Extracts a specific date or time component from a SQL datetime expression.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The type of date or time component to extract (e.g., 'year', 'month', 'day', 'hour', 'minute', 'second').
+        sql : str
+            The SQL datetime expression to extract from.
+        params : tuple
+            The parameters to be used in the SQL query.
+        tzname : str
+            The time zone name to use for the extraction.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the SQL expression with the extracted component and the updated parameters.
+
+        Note
+        ----
+        For 'second' lookup type, this function returns a SQL expression that extracts the second component.
+        For any other lookup type, it delegates to the date_extract_sql method.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         if lookup_type == "second":
             # Truncate fractional seconds.
@@ -201,6 +267,32 @@ END;
         # The implementation is similar to `datetime_trunc_sql` as both
         # `DateTimeField` and `TimeField` are stored as TIMESTAMP where
         # the date part of the later is ignored.
+        """
+
+        Truncates a SQL query timestamp to a specified level of precision.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The level of precision to truncate the timestamp to. Can be one of 'hour', 'minute', or 'second'.
+        sql : str
+            The SQL query to truncate.
+        params : tuple
+            The parameters to use with the SQL query.
+        tzname : str, optional
+            The time zone to use for the truncation. If not specified, the default time zone will be used.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the truncated SQL query and the updated parameters.
+
+        Notes
+        -----
+        The returned SQL query will use the TRUNC function to truncate the timestamp to the specified level of precision.
+        For 'second' level precision, the query will be converted to a date type instead of using TRUNC.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         trunc_param = None
         if lookup_type == "hour":
@@ -311,6 +403,24 @@ END;
         return None
 
     def limit_offset_sql(self, low_mark, high_mark):
+        """
+        Generates SQL clauses for limiting and offsetting query results.
+
+        This function takes low and high water marks as input and returns a string 
+        containing the SQL OFFSET and FETCH clauses to apply the corresponding limits 
+        and offsets. The returned string can be appended to a SQL query to restrict 
+        the number of rows returned. 
+
+        The OFFSET clause specifies the number of rows to skip before starting to 
+        return rows, while the FETCH FIRST clause specifies the maximum number of 
+        rows to return. 
+
+        :param low_mark: The low water mark, used to calculate the offset.
+        :param high_mark: The high water mark, used to calculate the fetch limit.
+        :return: A string containing the SQL OFFSET and FETCH clauses, or an empty 
+                 string if neither offset nor fetch limit is applied.
+
+        """
         fetch, offset = self._get_limit_offset_params(low_mark, high_mark)
         return " ".join(
             sql
@@ -659,6 +769,19 @@ END;
         return "%s_SQ" % truncate_name(strip_quotes(table), name_length).upper()
 
     def _get_sequence_name(self, cursor, table, pk_name):
+        """
+        Gets the sequence name associated with the primary key column of a given table.
+
+        This method queries the database to retrieve the sequence name for the specified
+        primary key column. If no sequence is found, it falls back to retrieving the
+        sequence name without checking for autofield.
+
+        :param cursor: Database cursor to execute the query
+        :param table: Name of the table to retrieve the sequence name for
+        :param pk_name: Name of the primary key column
+        :returns: The sequence name associated with the primary key column, or the default
+                  sequence name if no sequence is found
+        """
         cursor.execute(
             """
             SELECT sequence_name

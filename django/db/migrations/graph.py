@@ -269,6 +269,14 @@ class MigrationGraph:
     def ensure_not_cyclic(self):
         # Algo from GvR:
         # https://neopythonic.blogspot.com/2009/01/detecting-cycles-in-directed-graph.html
+        """
+
+        Performs a depth-first search to check for cycles in the directed graph represented by the object's nodes and node map.
+
+        Raises:
+            CircularDependencyError: If a cycle is detected, this exception is raised with a message indicating the nodes involved in the cycle.
+
+        """
         todo = set(self.nodes)
         while todo:
             node = todo.pop()

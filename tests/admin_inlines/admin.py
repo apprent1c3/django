@@ -488,6 +488,13 @@ class UUIDParentModelAdmin(admin.ModelAdmin):
 
 class ShowInlineParentAdmin(admin.ModelAdmin):
     def get_inlines(self, request, obj):
+        """
+        Returns a list of inlines to be displayed for the given object, if applicable.
+
+        The decision to include inlines is based on the presence and configuration of the provided object.
+        If the object exists and its `show_inlines` attribute is set to True, a list containing `ShowInlineChildInline` is returned.
+        Otherwise, an empty list is returned, indicating that no inlines should be displayed.
+        """
         if obj is not None and obj.show_inlines:
             return [ShowInlineChildInline]
         return []

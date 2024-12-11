@@ -19,10 +19,26 @@ class BashCompletionTests(unittest.TestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the environment for testing by overriding the DJANGO_AUTO_COMPLETE environment variable.
+
+        This method stores the original value of DJANGO_AUTO_COMPLETE and then sets it to '1' to enable auto-complete functionality for the duration of the test.
+
+        Returns:
+            None
+
+        Notes:
+            This method is intended to be used as part of a test setup routine and should be called before running tests that require auto-complete functionality. The original value of DJANGO_AUTO_COMPLETE is preserved and can be restored after testing is complete.
+        """
         self.old_DJANGO_AUTO_COMPLETE = os.environ.get("DJANGO_AUTO_COMPLETE")
         os.environ["DJANGO_AUTO_COMPLETE"] = "1"
 
     def tearDown(self):
+        """
+        Reverts the DJANGO_AUTO_COMPLETE environment variable to its original state after a test.
+
+        This method restores the DJANGO_AUTO_COMPLETE environment variable to the value it had before the test, or removes it if it did not exist prior to the test, ensuring the test environment is cleaned up after use.
+        """
         if self.old_DJANGO_AUTO_COMPLETE:
             os.environ["DJANGO_AUTO_COMPLETE"] = self.old_DJANGO_AUTO_COMPLETE
         else:
@@ -49,6 +65,16 @@ class BashCompletionTests(unittest.TestCase):
         sys.argv = input_str.split()
 
     def _run_autocomplete(self):
+        """
+        Run the autocomplete functionality and return the suggestions.
+
+        This method executes the autocomplete feature of the management utility and captures its output.
+        The output is then processed and returned as a list of suggestions, with each suggestion on a separate line.
+        The method handles the SystemExit exception raised by the autocomplete feature, ensuring that it does not propagate up the call stack.
+
+        Returns:
+            list: A list of autocomplete suggestions
+        """
         util = ManagementUtility(argv=sys.argv)
         with captured_stdout() as stdout:
             try:

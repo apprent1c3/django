@@ -13,6 +13,14 @@ class TemplateTestMixin:
         return Engine(debug=self.debug_engine, **kwargs)
 
     def test_string_origin(self):
+        """
+
+        Tests the origin of a string template.
+
+        Verifies that a template loaded from a string has the expected origin attributes,
+        including the name of the origin, loader name, and the source of the template itself.
+
+        """
         template = self._engine().from_string("string template")
         self.assertEqual(template.origin.name, UNKNOWN_SOURCE)
         self.assertIsNone(template.origin.loader_name)
@@ -80,6 +88,13 @@ class TemplateTestMixin:
                 engine.from_string("{% if 1 %}lala{% endblock %}{% endif %}")
 
     def test_unknown_block_tag(self):
+        """
+        Tests that the templating engine correctly raises an exception when encountering an unknown block tag in a template.
+
+        The test case verifies that a TemplateSyntaxError is raised with a descriptive error message when the engine encounters a tag that has not been registered or loaded.
+
+        This test ensures that the templating engine behaves as expected when encountering invalid or unknown syntax, providing a clear error message to aid in debugging and template development.
+        """
         engine = self._engine()
         msg = (
             "Invalid block tag on line 1: 'foobar'. Did you forget to "
@@ -118,6 +133,16 @@ class TemplateTestMixin:
             self.assertEqual(e.exception.template_debug["during"], "{% badtag %}")
 
     def test_compile_tag_error_27584(self):
+        """
+        Test that a TemplateSyntaxError is raised when a template contains a tag with a compile error.
+
+        The test specifically checks for the presence of the correct error message 
+        when rendering a template with a deliberately faulty tag, 
+        verifying that the template engine correctly handles the compilation error. 
+
+        If debug mode is enabled, it also verifies the specific point in the template 
+        where the error occurred, ensuring that the error message accurately reflects the location of the issue.
+        """
         engine = self._engine(
             app_dirs=True,
             libraries={"tag_27584": "template_tests.templatetags.tag_27584"},

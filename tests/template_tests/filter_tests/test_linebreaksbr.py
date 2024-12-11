@@ -13,6 +13,11 @@ class LinebreaksbrTests(SimpleTestCase):
 
     @setup({"linebreaksbr01": "{{ a|linebreaksbr }} {{ b|linebreaksbr }}"})
     def test_linebreaksbr01(self):
+        """
+        Tests the linebreaksbr template filter to ensure it correctly replaces newline characters with HTML line breaks.
+
+        The function verifies that the filter properly escapes special characters and handles marked safe input. It checks if the output matches the expected result, which is the input strings with newline characters replaced by HTML line breaks and special characters escaped accordingly. The test covers both regular and marked safe input to ensure the filter works as expected in different scenarios.
+        """
         output = self.engine.render_to_string(
             "linebreaksbr01", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )
@@ -27,6 +32,17 @@ class LinebreaksbrTests(SimpleTestCase):
         }
     )
     def test_linebreaksbr02(self):
+        """
+
+        Tests the linebreaksbr template filter when used with autoescape off and mark_safe.
+
+        This test verifies that linebreaks are correctly replaced with HTML line breaks (<br>) 
+        in a Jinja template, regardless of whether the input string is marked as safe or not.
+
+        The test case includes input strings containing both ampersands (&) and newline characters (\n), 
+        to ensure proper escaping and line breaking behavior.
+
+        """
         output = self.engine.render_to_string(
             "linebreaksbr02", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )

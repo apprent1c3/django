@@ -221,5 +221,17 @@ class CounterNode(template.Node):
 
 @register.tag("extra_data")
 def do_extra_data(parser, token):
+    """
+
+    Registers a custom template tag to store extra data in the parser.
+
+    This tag, named 'extra_data', allows for the injection of custom data into the
+    template parsing process. When encountered, it sets a specific key ('extra_data')
+    in the parser's extra data dictionary to a predefined value ('CUSTOM_DATA'),
+    enabling subsequent template code to access this custom data.
+
+    The tag does not render any visible content in the resulting template output.
+
+    """
     parser.extra_data["extra_data"] = "CUSTOM_DATA"
     return TextNode("")

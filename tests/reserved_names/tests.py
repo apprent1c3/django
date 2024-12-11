@@ -56,6 +56,15 @@ class ReservedNameTests(TestCase):
         self.assertEqual(u.when, "h")
 
     def test_order_by(self):
+        """
+
+        Tests the ordering of 'Thing' objects by their 'when' attribute.
+
+        Verifies that the 'Thing' objects are returned in the correct order when 
+        sorted by the 'when' field. The expected order is determined by the 
+        values 'a' and 'h', which should be returned in that order.
+
+        """
         self.generate()
         things = [t.when for t in Thing.objects.order_by("when")]
         self.assertEqual(things, ["a", "h"])

@@ -174,6 +174,17 @@ class CheckConstraint(BaseConstraint):
         return self.condition
 
     def _set_check(self, value):
+        """
+        Sets the condition for a check constraint.
+
+        Note:
+            This method is deprecated in favor of setting the `.condition` attribute directly.
+            It will be removed in Django 6.0.
+
+        Args:
+            value: The condition to be set for the check constraint.
+
+        """
         warnings.warn(
             "CheckConstraint.check is deprecated in favor of `.condition`.",
             RemovedInDjango60Warning,
@@ -241,6 +252,20 @@ class CheckConstraint(BaseConstraint):
         return schema_editor._delete_check_sql(model, self.name)
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+
+        Validate an instance against a model's constraints.
+
+        This method takes a model and an instance, and checks if the instance satisfies the constraint defined by the current object.
+        It uses the model's metadata to determine which fields to check, and the instance's field values to perform the validation.
+        Any fields specified in the `exclude` parameter are skipped during validation.
+
+        The validation is performed against the database specified by the `using` parameter. If the instance does not satisfy the constraint,
+        a `ValidationError` is raised with a code specified by the `violation_error_code` attribute and a message specified by the `get_violation_error_message` method.
+
+        If a `FieldError` occurs during validation (e.g. due to a missing field), it is silently ignored.
+
+        """
         against = instance._get_field_value_map(meta=model._meta, exclude=exclude)
         try:
             if not Q(self.condition).check(against, using=using):
@@ -467,6 +492,17 @@ class UniqueConstraint(BaseConstraint):
         return errors
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        Generate SQL for the condition specified in the instance.
+
+        This method constructs a SQL query string based on the condition provided.
+        It utilizes the model's query builder to create a WHERE clause and then compiles
+        it into SQL, taking into account the database connection provided by the schema editor.
+        The generated SQL is returned as a string, with any parameter values properly quoted.
+
+        Returns:
+            str or None: The SQL string for the condition, or None if no condition is specified.
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -488,6 +524,19 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def constraint_sql(self, model, schema_editor):
+        """
+        Generates the SQL constraint statement for creating a unique constraint.
+
+        This method constructs the necessary SQL components to define a unique constraint
+        on the specified model fields, incorporating conditions, included columns, and 
+        other index properties as specified by the constraint definition.
+
+        :param model: The model to which the constraint applies
+        :param schema_editor: The schema editor used to generate the SQL statement
+        :returns: The SQL statement for creating the unique constraint
+        :note: The resulting SQL statement incorporates the defined constraint properties,
+               such as deferrability, included columns, and operator classes
+        """
         fields = [model._meta.get_field(field_name) for field_name in self.fields]
         include = [
             model._meta.get_field(field_name).column for field_name in self.include

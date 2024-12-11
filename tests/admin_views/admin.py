@@ -381,6 +381,17 @@ class SubscriberAdmin(admin.ModelAdmin):
     action_form = MediaActionForm
 
     def delete_queryset(self, request, queryset):
+        """
+        Deletes a queryset of objects and marks the delete operation as overridden.
+
+        This method is used to remove multiple objects from the database. It first sets
+        a flag indicating that the delete operation has been overridden, then calls the
+        parent class's delete_queryset method to perform the actual deletion.
+
+        :param request: The current request object.
+        :param queryset: The set of objects to be deleted.
+
+        """
         SubscriberAdmin.overridden = True
         super().delete_queryset(request, queryset)
 
@@ -556,6 +567,14 @@ class SubPostInline(admin.TabularInline):
     prepopulated_fields = {"subslug": ("subtitle",)}
 
     def get_readonly_fields(self, request, obj=None):
+        """
+
+        Returns a list of fields that should be read-only for the given request and object.
+
+        If an object is provided and it has been published, the 'subslug' field will be added to the read-only fields.
+        Otherwise, the default read-only fields defined in the class will be returned.
+
+        """
         if obj and obj.published:
             return ("subslug",)
         return self.readonly_fields
@@ -607,6 +626,18 @@ class PostAdmin(admin.ModelAdmin):
 
     @admin.display
     def coolness(self, instance):
+        """
+
+        Returns a string describing the coolness of an instance.
+
+        The coolness is determined by the instance's primary key (pk) if it exists, 
+        otherwise it returns 'Unknown coolness.' The coolness is represented as the 
+        instance's pk followed by ' amount of cool.'
+
+        :param instance: The instance to determine the coolness for
+        :return: A string describing the coolness of the instance
+
+        """
         if instance.pk:
             return "%d amount of cool." % instance.pk
         else:
@@ -935,6 +966,19 @@ class UnorderedObjectAdmin(admin.ModelAdmin):
 
 class UndeletableObjectAdmin(admin.ModelAdmin):
     def change_view(self, *args, **kwargs):
+        """
+
+        Override the default change view to hide the delete action.
+
+        This method extends the standard change view behavior by modifying the
+        context to exclude the delete option. It does not alter any other
+        functionality of the change view.
+
+        :param args: Variable number of positional arguments
+        :param kwargs: Variable number of keyword arguments
+        :return: The result of the parent class's change view method
+
+        """
         kwargs["extra_context"] = {"show_delete": False}
         return super().change_view(*args, **kwargs)
 
@@ -1160,6 +1204,22 @@ class GetFormsetsArgumentCheckingAdmin(admin.ModelAdmin):
         return super().change_view(request, *args, **kwargs)
 
     def get_formsets_with_inlines(self, request, obj=None):
+        """
+
+        Retrieves formsets with inlines for a given view.
+
+        This method checks if the current view is an add or change view, and validates
+        the presence or absence of an object accordingly. If the view is an add view,
+        it checks that no object is provided. If the view is a change view, it checks
+        that an object is provided. If these conditions are not met, it raises an
+        exception. Otherwise, it delegates to the parent class to retrieve the formsets.
+
+        :param request: The current request object.
+        :param obj: The object being edited, or None for an add view.
+        :raises Exception: If the object is present during an add view, or absent during a change view.
+        :return: A list of formsets with inlines for the given view.
+
+        """
         if request.is_add_view and obj is not None:
             raise Exception(
                 "'obj' passed to get_formsets_with_inlines wasn't None during add_view"

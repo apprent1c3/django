@@ -24,6 +24,14 @@ class RightTests(TestCase):
         )
 
     def test_invalid_length(self):
+        """
+
+        Tests that an invalid length parameter raises a ValueError.
+
+        The function checks that when a length of 0 is passed to the Right database function,
+        a ValueError is raised with a message indicating that the 'length' must be greater than 0.
+
+        """
         with self.assertRaisesMessage(ValueError, "'length' must be greater than 0"):
             Author.objects.annotate(raises=Right("name", 0))
 
@@ -43,6 +51,13 @@ class RightTests(TestCase):
         )
 
     def test_expressions(self):
+        """
+        Tests the usage of Django's database functions, specifically the Right function, to extract a subset of characters from a string field.
+
+         The function verifies that the annotation correctly extracts the last three characters from the 'name' field of Author objects, and that the results can be properly ordered and compared.
+
+         The test case checks for the correctness of the extracted values by comparing them to the expected results.
+        """
         authors = Author.objects.annotate(
             name_part=Right("name", Value(3, output_field=IntegerField()))
         )

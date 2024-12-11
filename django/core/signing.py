@@ -62,6 +62,17 @@ class SignatureExpired(BadSignature):
 
 
 def b62_encode(s):
+    """
+    Encodes an integer into a base62 string.
+
+    The base62 encoding is a compact and URL-friendly representation of numbers.
+    This function takes an integer as input, converts it into its absolute value, 
+    and then represents it using a 62-character alphabet (0-9, a-z, A-Z).
+    The result is a string that starts with a minus sign if the original number was negative.
+
+    :returns: A base62 encoded string representation of the input integer.
+
+    """
     if s == 0:
         return "0"
     sign = "-" if s < 0 else ""
@@ -91,6 +102,19 @@ def b64_encode(s):
 
 
 def b64_decode(s):
+    """
+    Decode a base64-encoded string into its original binary data.
+
+    The input string may need padding to be a multiple of 4 characters long, 
+    which is automatically added to ensure correct decoding.
+
+    The decoding process uses URL-safe base64, which replaces '+' and '/' 
+    with '-' and '_' respectively, making the encoded data safe to use in URLs.
+
+    :param s: The base64-encoded string to be decoded
+    :returns: The decoded binary data as bytes 
+    :rtype: bytes
+    """
     pad = b"=" * (-len(s) % 4)
     return base64.urlsafe_b64decode(s + pad)
 
@@ -107,6 +131,15 @@ def _cookie_signer_key(key):
 
 
 def get_cookie_signer(salt="django.core.signing.get_cookie_signer"):
+    """
+    Returns an instance of a cookie signer, which is used to securely sign and verify cookies.
+
+    The signer is created using the configured signing backend, specified in the project's settings.
+
+    The key used for signing is generated from the project's secret key, with optional fallback keys.
+
+    A custom salt can be provided to modify the signature process. If not specified, the default salt 'django.core.signing.get_cookie_signer' is used.
+    """
     Signer = import_string(settings.SIGNING_BACKEND)
     return Signer(
         key=_cookie_signer_key(settings.SECRET_KEY),
@@ -204,6 +237,24 @@ class Signer:
         return "%s%s%s" % (value, self.sep, self.signature(value))
 
     def unsign(self, signed_value):
+        """
+
+        Verifies a signed value and returns the unsigned value if the signature is valid.
+
+        The function checks if the signed value contains the separator and raises an error if it's not found.
+        It then splits the signed value into the original value and the signature, and checks the signature against
+        the expected signature generated with the provided key or its fallback keys.
+
+        Args:
+            signed_value (str): The value to be verified, containing the separator.
+
+        Returns:
+            str: The unsigned value if the signature is valid.
+
+        Raises:
+            BadSignature: If the separator is not found in the signed value or if the signature does not match.
+
+        """
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)

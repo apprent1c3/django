@@ -28,6 +28,19 @@ from .models import (
 class AdminActionsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class.
+
+        This method is called once before running the test suite. It creates a superuser, an external subscriber, and a subscriber, 
+        which can be used throughout the tests to ensure a consistent test environment.
+
+        Attributes created:
+            - superuser (User): a superuser with a predefined username, password, and email.
+            - s1 (ExternalSubscriber): an external subscriber with a predefined name and email.
+            - s2 (Subscriber): a subscriber with a predefined name and email.
+
+        These test data instances can be accessed as class attributes in subsequent tests.
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )

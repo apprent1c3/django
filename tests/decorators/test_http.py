@@ -179,6 +179,13 @@ class ConditionalPageTests(SimpleTestCase):
 
     def test_conditional_page_decorator_successful(self):
         @conditional_page
+        """
+        Tests the conditional_page decorator's successful scenario.
+
+        The conditional_page decorator is applied to a view function, which returns an HttpResponse with a body and Cache-Control headers set.
+        This test case verifies that the decorated view returns a successful response (200 status code) and includes an Etag header.
+
+        """
         def sync_view(request):
             response = HttpResponse()
             response.content = b"test"
@@ -193,6 +200,15 @@ class ConditionalPageTests(SimpleTestCase):
 
     async def test_conditional_page_decorator_successful_async_view(self):
         @conditional_page
+        """
+
+        Tests the conditional page decorator with an asynchronous view, verifying that it successfully handles a request and returns a response with an ETag.
+
+        The test checks that the decorated view returns a response with a 200 status code and includes an ETag header, indicating that the decorator is functioning correctly.
+
+        This test case ensures that the conditional page decorator integrates properly with asynchronous views, providing caching functionality while handling requests and responses as expected.
+
+        """
         async def async_view(request):
             response = HttpResponse()
             response.content = b"test"

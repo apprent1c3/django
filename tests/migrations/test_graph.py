@@ -439,6 +439,19 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_stringify(self):
+        """
+        Tests the string representation of a MigrationGraph.
+
+        This test case verifies that the string representation of a MigrationGraph
+        correctly reflects the number of nodes and edges in the graph, both before and
+        after adding nodes and dependencies. The test checks the output of both the 
+        :func:`str` and :func:`repr` functions to ensure they provide a human-readable 
+        and a debug representation of the graph, respectively.
+
+        The test creates a MigrationGraph, adds multiple nodes and dependencies to it, 
+        and then checks that the string representations match the expected output.
+
+        """
         graph = MigrationGraph()
         self.assertEqual(str(graph), "Graph: 0 nodes, 0 edges")
 
@@ -465,6 +478,16 @@ class NodeTests(SimpleTestCase):
         self.assertEqual(str(node), "('app_a', '0001')")
 
     def test_dummynode_repr(self):
+        """
+
+        Tests the string representation of a DummyNode instance.
+
+        This test case verifies that the repr method of a DummyNode object returns
+        a string in the expected format, which includes the key of the node.
+        The test creates a DummyNode instance with a specific key, origin, and error message,
+        and then checks if the repr method returns a string that matches the expected output.
+
+        """
         node = DummyNode(
             key=("app_a", "0001"),
             origin="app_a.0001",

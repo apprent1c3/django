@@ -135,6 +135,18 @@ class DistinctOnTests(TestCase):
 
     def test_distinct_not_implemented_checks(self):
         # distinct + annotate not allowed
+        """
+
+        Tests that attempting to combine distinct queries with annotation or aggregation raises a NotImplementedError.
+
+        Checks that the following operations are not implemented:
+        - Annotating a queryset with a function (e.g. Max) and then applying distinct on specific fields
+        - Applying distinct on specific fields to a queryset and then annotating with a function
+        - Applying distinct on specific fields to a queryset and then aggregating with a function
+
+        Verifies that the correct error messages are raised for these unimplemented cases.
+
+        """
         msg = "annotate() + distinct(fields) is not implemented."
         with self.assertRaisesMessage(NotImplementedError, msg):
             Celebrity.objects.annotate(Max("id")).distinct("id")[0]

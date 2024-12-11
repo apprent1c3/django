@@ -49,6 +49,12 @@ class DeprecatedFieldsTests(SimpleTestCase):
         )
 
     def test_nullbooleanfield_deprecated(self):
+        """
+        ationships and configurations.
+
+            Tests the deprecation of the NullBooleanField database field, which is no longer supported in the current version except for historical migrations.
+            Verifies that using NullBooleanField raises an Error with a hint to use BooleanField with null=True and blank=True instead.
+        """
         class NullBooleanFieldModel(models.Model):
             nb = models.NullBooleanField()
 

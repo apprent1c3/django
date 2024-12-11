@@ -91,6 +91,21 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
     def test_closes_connections(self):
         # The server's request thread sets this event after closing
         # its database connections.
+        """
+        Verifies that the connection is properly closed after use.
+
+        This test ensures that after a connection is established and used to retrieve data,
+        it is correctly closed by the server, releasing system resources.
+
+        It checks for the following conditions:
+        - A connection is successfully established.
+        - Data is retrieved from the server using the connection.
+        - The connection is properly closed by the server after use.
+
+        If the connection is not closed within a specified time limit, the test will fail.
+        This test helps to prevent resource leaks and ensures the server behaves correctly
+        in terms of connection management.
+        """
         closed_event = self.server_thread.httpd._connections_closed
         conn = self.conn
         # Open a connection to the database.
@@ -281,6 +296,12 @@ class LiveServerViews(LiveServerBase):
             conn.close()
 
     def test_404(self):
+        """
+        Tests that a HTTP request to the root URL ('/') results in a 404 error response.
+        The test case verifies that the HTTPError exception is raised, and that the 
+        status code of the exception is 404, indicating that the requested resource 
+        could not be found.
+        """
         with self.assertRaises(HTTPError) as err:
             self.urlopen("/")
         err.exception.close()
@@ -416,6 +437,13 @@ class LiveServerThreadedTests(LiveServerBase):
             self.assertEqual(f.read(), b"subview calling view: subview")
 
     def test_check_model_instance_from_subview(self):
+        """
+        Checks that a model instance can be correctly retrieved from a subview, 
+        verifying that the content of the model instance is properly displayed. 
+        This test case sends a request to the '/check_model_instance_from_subview/' URL 
+        with a query parameter 'url' and then asserts that the response contains 
+        the expected content.
+        """
         url = "/check_model_instance_from_subview/?%s" % urlencode(
             {
                 "url": self.live_server_url,

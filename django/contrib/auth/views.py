@@ -78,6 +78,30 @@ class LoginView(RedirectURLMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
+        """
+
+        Handles HTTP requests to the view, applying security decorators and redirects authenticated users.
+
+        Applies the following security measures:
+            - Marks the view as requiring a sensitive post, to prevent browsers from caching the response.
+            - Protects the view from cross-site request forgery (CSRF) attacks.
+            - Ensures the view's response is never cached by the browser.
+
+        For authenticated users, if the view is configured to redirect them, it will redirect to a success URL.
+        In this case, it checks for potential redirection loops to prevent infinite redirects. If a loop is detected,
+        it raises a ValueError to signal that the login redirect URL should be reviewed.
+
+        Otherwise, it delegates the request handling to its superclass. 
+
+        Args:
+            request: The incoming HTTP request object.
+            *args: Additional positional arguments.
+            **kwargs: Additional keyword arguments.
+
+        Returns:
+            An HTTP response object.
+
+        """
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -204,6 +228,24 @@ class PasswordContextMixin:
     extra_context = None
 
     def get_context_data(self, **kwargs):
+        """
+
+        Get the context data for the current view.
+
+        This method retrieves the context data from the parent class and updates it with
+        additional information, including the title of the view and any extra context
+        provided. The resulting dictionary is then returned for use in the view's template.
+
+        The context dictionary will contain the following keys:
+
+        * title: the title of the view
+        * subtitle: the subtitle of the view (defaults to None)
+        * any additional key-value pairs specified in the extra_context attribute
+
+        Returns:
+            dict: The updated context data for the view.
+
+        """
         context = super().get_context_data(**kwargs)
         context.update(
             {"title": self.title, "subtitle": None, **(self.extra_context or {})}
@@ -368,6 +410,15 @@ class PasswordChangeView(PasswordContextMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
+        """
+
+        Handles the validation of a form and saves the changes to the associated user.
+        When the form is successfully validated, it saves the form data, updates the session
+        authentication hash for the user, and then calls the parent class's form_valid method
+        to handle any additional processing. This ensures that the user's session remains valid
+        after updating their data.
+
+        """
         form.save()
         # Updating the password logs out all other sessions for the user
         # except the current one.

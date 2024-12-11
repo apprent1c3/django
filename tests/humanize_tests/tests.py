@@ -43,6 +43,15 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_ordinal(self):
+        """
+        Tests the ordinal humanization function to ensure it correctly converts numeric values into their corresponding ordinal representations.
+
+        This test case covers a variety of inputs, including positive and negative integers, numbers with different endings (e.g., 1, 2, 3, 11, 12, 13), and non-numeric values.
+
+        The expected output is a list of ordinal representations, where numbers are suffixed with 'st', 'nd', 'rd', or 'th' according to their ordinal rules, and non-numeric values are left unchanged.
+
+        The test is performed with the English language translation override to ensure consistent results regardless of the system's locale settings.
+        """
         test_list = (
             "1",
             "2",
@@ -278,6 +287,15 @@ class HumanizeTests(SimpleTestCase):
 
     def test_intcomma_without_number_grouping(self):
         # Regression for #17414
+        """
+
+        Tests the intcomma filter without number grouping in a Japanese locale.
+
+        This test case verifies that numbers are formatted correctly when the locale is set to Japanese and number grouping is not applied.
+        The test input is a list containing the number 100, and it checks if the output is as expected, which is '100'.
+        The test is performed using the humanize_tester with the 'intcomma' filter.
+
+        """
         with translation.override("ja"):
             self.humanize_tester([100], ["100"], "intcomma")
 
@@ -386,6 +404,19 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_apnumber(self):
+        """
+
+        Tests the humanization of numbers according to the AP style guide.
+
+        This test verifies that numbers are correctly converted to their AP style equivalents.
+        For example, numbers 1 through 9 are spelled out, while 10 and above are written in numeric form.
+        The test also checks that a None value is handled correctly.
+
+        :param None
+        :raises AssertionError: if the humanization test fails
+        :return: None
+
+        """
         test_list = [str(x) for x in range(1, 11)]
         test_list.append(None)
         result_list = (

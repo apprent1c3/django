@@ -53,6 +53,19 @@ class TypedChoiceFieldTest(SimpleTestCase):
 
     def test_typedchoicefield_has_changed(self):
         # has_changed should not trigger required validation
+        """
+
+        Checks if the TypedChoiceField has changed.
+
+        This function tests the has_changed method of TypedChoiceField for various scenarios, 
+        including when the field is required, when it is not required, and when the initial value 
+        is None or an empty string. The test cases cover different types of values, such as integers 
+        and strings, and verify that the has_changed method returns the expected boolean result.
+
+        The purpose of this test is to ensure that the TypedChoiceField correctly determines 
+        whether its value has changed, which is important for detecting changes in form data.
+
+        """
         f = TypedChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int, required=True)
         self.assertFalse(f.has_changed(None, ""))
         self.assertFalse(f.has_changed(1, "1"))

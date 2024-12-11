@@ -116,6 +116,13 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return "%s[%s]" % (self.base_field.cast_db_type(connection), size)
 
     def db_parameters(self, connection):
+        """
+        Retrieves database parameters for a given connection, extending the base parameters with the database collation.
+
+         :param connection: The database connection to retrieve parameters for
+         :return: A dictionary containing the database parameters, including collation
+
+        """
         db_params = super().db_parameters(connection)
         db_params["collation"] = self.db_collation
         return db_params
@@ -151,6 +158,16 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def _from_db_value(self, value, expression, connection):
+        """
+
+        Extracts and converts a database value into a usable format.
+
+        This method takes a database value, an expression, and a connection as input, 
+        and returns the converted value. If the input value is None, it is returned as is.
+        Otherwise, it iterates over each item in the input value and converts it using 
+        the base field's from_db_value method, returning a list of the converted items.
+
+        """
         if value is None:
             return value
         return [
@@ -260,6 +277,19 @@ class ArrayRHSMixin:
         super().__init__(lhs, rhs)
 
     def process_rhs(self, compiler, connection):
+        """
+        .process_rhs(compiler, connection)
+            Process the right-hand side (RHS) of a database query, applying any necessary type casting.
+
+            The function takes a compiler and a database connection as input, and returns a tuple containing the processed RHS and its parameters.
+
+            The type casting is applied based on the output field of the left-hand side (LHS) of the query, ensuring that the RHS is converted to a compatible database type. 
+
+            :param compiler: The compiler object used to process the query
+            :param connection: The database connection object
+            :return: A tuple containing the processed RHS and its parameters 
+            :rtype: tuple
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         cast_type = self.lhs.output_field.cast_db_type(connection)
         return "%s::%s" % (rhs, cast_type), rhs_params
@@ -351,6 +381,16 @@ class IndexTransformFactory:
 
 class SliceTransform(Transform):
     def __init__(self, start, end, *args, **kwargs):
+        """
+        Initializes a new instance of the class, setting the start and end points.
+
+        :param start: The starting point of the instance.
+        :param end: The ending point of the instance.
+        :param args: Additional positional arguments to be passed to the parent class.
+        :param kwargs: Additional keyword arguments to be passed to the parent class.
+
+        :note: This method is not intended to be called directly, but is invoked when an instance of the class is created.
+        """
         super().__init__(*args, **kwargs)
         self.start = start
         self.end = end

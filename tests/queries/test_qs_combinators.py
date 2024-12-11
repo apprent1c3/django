@@ -29,6 +29,11 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_simple_union(self):
+        """
+        Tests that a union operation between multiple Django querysets returns the expected combined result.
+
+        The union operation is performed on querysets that filter numbers based on different conditions, and the test asserts that the combined result contains all the unique numbers from the individual querysets, regardless of their original order.
+        """
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=8)
         qs3 = Number.objects.filter(num=5)
@@ -192,6 +197,13 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(list(qs1), list(qs2))
 
     def test_limits(self):
+        """
+        Test the limits of a query set union operation.
+
+        Verifies that the correct number of elements are returned when combining two query sets and limiting the results.
+        The test checks if the union of two identical query sets, sliced to return the first two elements, returns exactly two elements.
+
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         self.assertEqual(len(list(qs1.union(qs2)[:2])), 2)
@@ -409,6 +421,17 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_multiple_models_with_values_list_and_order_by_extra_select(self):
+        """
+        Tests the union of multiple querysets with values_list and order_by using extra select.
+
+        This test case verifies that when combining two querysets using the union method, 
+        the resulting queryset can be ordered by an extra field selected from the database, 
+        and the values_list method returns the expected results.
+
+        The test covers a scenario where two querysets, one containing `Celebrity` objects and the other containing `ReservedName` objects,
+        are combined and ordered by an extra field named `extra_name`. It then checks that the primary key of the `ReservedName` object
+        is returned as the result when using the `values_list` method with `flat=True`.
+        """
         reserved_name = ReservedName.objects.create(name="rn1", order=0)
         qs1 = Celebrity.objects.extra(select={"extra_name": "name"})
         qs2 = ReservedName.objects.extra(select={"extra_name": "name"})
@@ -502,6 +525,16 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(qs1.union(qs2).count(), 4)
 
     def test_count_union_empty_result(self):
+        """
+        Tests that the union of two empty querysets results in an empty queryset.
+
+        Checks that the count of the resulting queryset is 0, verifying that the union
+        operation correctly handles empty input querysets without introducing any
+        unexpected elements.
+
+        This test ensures the correctness of specific edge-case behavior when working
+        with empty querysets and union operations in the context of the Number model.
+        """
         qs = Number.objects.filter(pk__in=[])
         self.assertEqual(qs.union(qs).count(), 0)
 
@@ -524,6 +557,17 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(qs1.intersection(qs2).count(), 1)
 
     def test_exists_union(self):
+        """
+
+        Tests the existence of a union of two querysets and verifies the resulting SQL query.
+
+        Checks that the union of two querysets, one filtering numbers greater than or equal to 5 and the other filtering numbers less than or equal to 5, returns at least one result.
+        Additionally, verifies that the database query is optimized by checking that:
+        - only one query is executed
+        - the primary key column is not quoted in the SQL query
+        - the query uses a limit to retrieve only one row, as the existence check does not require retrieving all rows.
+
+        """
         qs1 = Number.objects.filter(num__gte=5)
         qs2 = Number.objects.filter(num__lte=5)
         with CaptureQueriesContext(connection) as context:
@@ -608,6 +652,17 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(list(qs1.union(qs2).order_by("num")), [1, 99])
 
     def test_order_raises_on_non_selected_column(self):
+        """
+
+        Tests that db query ordering raises a DatabaseError when the order_by clause references 
+        a column that does not exist in the result set of the union operation, ensuring that the 
+        ORDER BY term matches a column in the result set.
+
+        Specifically, this test covers scenarios where the order_by clause references a column 
+        that is not selected in either of the querysets being unioned, and verifies that a 
+        DatabaseError is raised with an informative error message.
+
+        """
         qs1 = (
             Number.objects.filter()
             .annotate(

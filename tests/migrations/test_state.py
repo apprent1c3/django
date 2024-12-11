@@ -996,6 +996,19 @@ class StateTests(SimpleTestCase):
             project_state.apps
 
     def test_reference_mixed_case_app_label(self):
+        """
+
+        Test case to verify that mixed case app labels are handled correctly.
+
+        This test checks that models with mixed case app labels are properly registered and 
+        can be retrieved from the project state. It also verifies that relationships between 
+        models, such as foreign keys and many-to-many fields, are correctly established.
+
+        The test case creates three models (Author, Book, and Magazine) with mixed case 
+        app labels and adds them to the project state. It then checks that all three models 
+        are successfully registered and can be retrieved from the project state.
+
+        """
         new_apps = Apps()
 
         class Author(models.Model):
@@ -1523,6 +1536,19 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_rename_field(self):
+        """
+
+        Tests the functionality of renaming a field within a model.
+
+        This method verifies that the field is correctly renamed and that the corresponding
+        relationships are updated. The test checks that the field's identity remains unchanged,
+        despite its new name, by comparing the original and renamed fields.
+
+        The test scenario involves a model named 'comment' with a field named 'user' that
+        is related to a model named 'user'. The test renames the 'user' field to 'author'
+        and checks that the relationships are updated accordingly.
+
+        """
         project_state = self.get_base_project_state()
         field = project_state.models["tests", "comment"].fields["user"]
         self.assertEqual(
@@ -1845,6 +1871,17 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations", "django.contrib.contenttypes")
     def test_order_with_respect_to_private_field(self):
+        """
+
+        Tests that the 'order_with_respect_to' Meta option is ignored when it references a private field (i.e., a GenericForeignKey).
+
+        This test ensures that the model state does not include the 'order_with_respect_to' option when it points to a private field, 
+        preventing potential issues with the model's ordering behavior.
+
+        The test creates a model with a private field and sets 'order_with_respect_to' to this field, then checks that the model state 
+        does not contain the 'order_with_respect_to' option.
+
+        """
         class PrivateFieldModel(models.Model):
             content_type = models.ForeignKey("contenttypes.ContentType", models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -1858,6 +1895,20 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations")
     def test_abstract_model_children_inherit_indexes(self):
+        """
+
+        Tests that children of an abstract model inherit indexes from their parent.
+
+        This function verifies that when an abstract model defines an index, its child models
+        automatically inherit this index. It also checks that modifying the index name on
+        a child model's state does not affect the actual index name defined on the model.
+
+        The test covers the following scenarios:
+        - An abstract model defines an index, and its child models inherit this index.
+        - The index name on the child model is unique and does not conflict with the parent's index name.
+        - Modifying the index name on a child model's state does not change the actual index name on the model.
+
+        """
         class Abstract(models.Model):
             name = models.CharField(max_length=50)
 
@@ -1926,6 +1977,39 @@ class RelatedModelsTests(SimpleTestCase):
     def create_model(
         self, name, foreign_keys=[], bases=(), abstract=False, proxy=False
     ):
+        """
+
+        Creates a new Django model dynamically.
+
+        This function generates a new model class with the specified name and characteristics.
+        It allows for the addition of foreign keys to the model, as well as the specification of
+        base classes and metadata such as abstract and proxy settings.
+
+        Parameters
+        ----------
+        name : str
+            The name of the model to be created.
+        foreign_keys : list
+            A list of foreign key fields to be added to the model.
+        bases : tuple
+            A tuple of base classes for the model. If not provided, defaults to (models.Model,).
+        abstract : bool
+            Whether the model should be abstract. Defaults to False.
+        proxy : bool
+            Whether the model should be a proxy model. Defaults to False.
+
+        Returns
+        -------
+        type
+            The newly created model class.
+
+        Notes
+        -----
+        Abstract and proxy models are mutually exclusive; attempting to create a model that is both
+        abstract and a proxy will result in an error. The model's metadata, including its app label,
+        is set to a test name ('related_models_app') by default.
+
+        """
         test_name = "related_models_app"
         assert not (abstract and proxy)
         meta_contents = {
@@ -1976,6 +2060,14 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A])
 
     def test_fk_through_proxy(self):
+        """
+        #: Tests foreign key relationships through proxy models.
+        #: 
+        #: This function verifies that foreign key relationships are correctly established 
+        #: when using proxy models. It creates a chain of models A, B, C, and D where 
+        #: B and C are proxy models for A, and D has a foreign key to C. The function 
+        #: then checks that the relationships between all models are correctly resolved.
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,), proxy=True)
         C = self.create_model("C", bases=(B,), proxy=True)
@@ -2030,6 +2122,25 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [A])
 
     def test_nested_base(self):
+        """
+
+        Tests the nested base relationships between model classes.
+
+        This test case verifies the hierarchical relationships between model classes,
+        where a class inherits from another class that itself inherits from a base class.
+        It checks that the relationships are correctly established and reported between
+        the base class, the intermediate class, and the final class.
+
+        The test case covers the following scenarios:
+
+        * The base class is correctly related to its direct and indirect subclasses.
+        * The intermediate class is correctly related to its base class and its subclass.
+        * The final class is correctly related to its base classes at all levels.
+
+        By checking these relationships, this test ensures that the model creation and
+        inheritance mechanism is working correctly and that the relationships between
+        classes are accurately represented. 
+        """
         A = self.create_model("A")
         B = self.create_model("B", bases=(A,))
         C = self.create_model("C", bases=(B,))
@@ -2207,6 +2318,13 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(B, [])
 
     def test_nested_abstract_base(self):
+        """
+        Tests the relationship between nested abstract base models.
+
+        This test case verifies that the relationships between abstract base models and their concrete subclasses are correctly established.
+        It creates a hierarchy of models where A is an abstract base model, B is an abstract subclass of A, and C is a concrete subclass of B.
+        The test then checks that the related objects for each model are correctly identified, ensuring that A is related to both B and C, B is related to C, and C has no related objects.
+        """
         A = self.create_model("A", abstract=True)
         B = self.create_model("B", bases=(A,), abstract=True)
         C = self.create_model("C", bases=(B,))
@@ -2229,6 +2347,23 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [])
 
     def test_multiple_mixed_bases(self):
+        """
+        Tests the resolution of relationships involving multiple mixed bases.
+
+        This test case creates a complex inheritance hierarchy with abstract, proxy,
+        and concrete models, then verifies that the expected relationships exist
+        between each pair of models.
+
+        The test covers the following relationships:
+        - An abstract model (A) and its descendants
+        - A concrete model (M) and its related models
+        - A proxy model (Q) and its related models
+        - A model (Z) with multiple and mixed inheritance, and its related models
+
+        The test assertions validate that the relationships are correctly resolved
+        in all directions, ensuring that the expected models are related to each other
+        as expected in the presence of multiple inheritance and mixed base classes.
+        """
         A = self.create_model("A", abstract=True)
         M = self.create_model("M")
         P = self.create_model("P")

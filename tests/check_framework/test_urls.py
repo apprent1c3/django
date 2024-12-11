@@ -288,6 +288,19 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.bad_error_handlers_invalid_path"
     )
     def test_bad_handlers_invalid_path(self):
+        """
+
+        Tests the handling of custom error handlers with invalid paths.
+
+        This function checks the functionality of custom error handlers in the event of invalid paths.
+        It verifies that the check_custom_error_handlers function correctly identifies and reports errors
+        for various types of invalid paths, including views that do not exist in a module, modules that do not exist,
+        and paths that are not fully qualified.
+
+        The test covers a range of error codes and paths, ensuring that the function behaves as expected in different scenarios.
+        The expected results include error messages and hints that provide detailed information about the cause of the error.
+
+        """
         result = check_custom_error_handlers(None)
         paths = [
             "django.views.bad_handler",
@@ -326,6 +339,9 @@ class CheckCustomErrorHandlersTests(SimpleTestCase):
         ROOT_URLCONF="check_framework.urls.good_class_based_error_handlers",
     )
     def test_good_class_based_handlers(self):
+        """
+        Tests the functionality of custom class-based error handlers by overriding the root URL configuration to use the good_class_based_error_handlers setup and verifying that no errors are reported when checking for custom error handlers.
+        """
         result = check_custom_error_handlers(None)
         self.assertEqual(result, [])
 

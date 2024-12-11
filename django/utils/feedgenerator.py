@@ -419,6 +419,18 @@ class Atom1Feed(SyndicationFeed):
     ns = "http://www.w3.org/2005/Atom"
 
     def write(self, outfile, encoding):
+        """
+        Writes the current object's data to an output file in XML format.
+
+        The file will be written to the specified outfile, using the provided encoding.
+        The XML will represent the object's data as an Atom feed, with the root element
+        being 'feed'. The function will automatically add any necessary root elements
+        and populate the feed with the object's items.
+
+        :param outfile: The file to write the XML data to.
+        :param encoding: The encoding to use when writing the XML data.
+
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         handler.startElement("feed", self.root_attributes())
@@ -427,6 +439,18 @@ class Atom1Feed(SyndicationFeed):
         handler.endElement("feed")
 
     def root_attributes(self):
+        """
+        Returns a dictionary of attributes for the root element of an XML feed.
+
+        The dictionary contains the namespace definition (`xmlns`) and optionally the language definition (`xml:lang`) if a language is specified in the feed configuration.
+
+        The returned attributes are:
+
+        * `xmlns`: the namespace of the XML feed
+        * `xml:lang`: the language of the XML feed (only included if a language is specified in the feed configuration)
+
+        This method provides the necessary attributes for constructing a valid XML feed root element.
+        """
         if self.feed["language"] is not None:
             return {"xmlns": self.ns, "xml:lang": self.feed["language"]}
         else:

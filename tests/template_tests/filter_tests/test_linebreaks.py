@@ -28,6 +28,16 @@ class LinebreaksTests(SimpleTestCase):
         }
     )
     def test_linebreaks02(self):
+        """
+
+        Tests the linebreaks filter with HTML entities and safe strings.
+
+        Verifies that the linebreaks filter correctly handles newline characters
+        in strings, properly escaping HTML entities and preserving safe strings.
+        The filter should replace newline characters with HTML line breaks
+        (<br>) and wrap the output in paragraph tags (<p>).
+
+        """
         output = self.engine.render_to_string(
             "linebreaks02", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )

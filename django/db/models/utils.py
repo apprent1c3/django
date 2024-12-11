@@ -58,6 +58,15 @@ class AltersData:
     """
 
     def __init_subclass__(cls, **kwargs):
+        """
+
+        Initializes a subclass by automatically inheriting the 'alters_data' attribute from parent classes for methods without this attribute.
+
+        This method ensures that methods in the subclass are correctly marked as altering data or not, based on the behavior of their counterparts in the parent classes. This inheritance of behavior helps maintain consistency and accuracy in the subclass's data handling.
+
+        The process involves identifying methods in the subclass that do not have the 'alters_data' attribute, and then checking their equivalents in the parent classes. If an equivalent method is found in a parent class and it has the 'alters_data' attribute, this attribute is inherited by the subclass method.
+
+        """
         for fn_name, fn in vars(cls).items():
             if callable(fn) and not hasattr(fn, "alters_data"):
                 for base in cls.__bases__:

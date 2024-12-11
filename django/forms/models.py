@@ -712,6 +712,24 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return field.to_python
 
     def _construct_form(self, i, **kwargs):
+        """
+        Constructs a form instance based on the given index and optional keyword arguments.
+
+        This method creates a form for a specific index `i`, taking into account whether the form requires a primary key (PK) or not. If a PK is required, it attempts to retrieve the PK from the form data and uses it to retrieve an existing object from the database. If no PK is required, it uses the initial extra data or the queryset to populate the form.
+
+        The constructed form instance is then returned, with the primary key field set as required if necessary. 
+
+        Parameters
+        ----------
+        i : int
+            The index of the form to construct.
+        **kwargs
+            Optional keyword arguments to pass to the form constructor.
+
+        Returns
+        -------
+        A form instance constructed for the given index and keyword arguments.
+        """
         pk_required = i < self.initial_form_count()
         if pk_required:
             if self.is_bound:
@@ -922,6 +940,23 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return gettext("Please correct the duplicate values below.")
 
     def save_existing_objects(self, commit=True):
+        """
+
+        Save the existing objects associated with the provided forms.
+
+        This method iterates over the initial forms, and for each form that has an existing object,
+        it checks if the object should be deleted or updated. If an object is marked for deletion,
+        it is removed. If an object has changed, its updated data is saved. The updated objects are
+        then returned as a list.
+
+        The method also keeps track of changed and deleted objects, which can be accessed through
+        the :attr:`changed_objects` and :attr:`deleted_objects` attributes, respectively.
+
+        :param bool commit: Whether to commit the changes to the database immediately.
+                            Defaults to True.
+        :return: A list of saved instances.
+
+        """
         self.changed_objects = []
         self.deleted_objects = []
         if not self.initial_forms:
@@ -948,6 +983,21 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return saved_instances
 
     def save_new_objects(self, commit=True):
+        """
+        Saves new objects from the extra forms that have been changed and not marked for deletion.
+
+        This method iterates through each form in `extra_forms`, checks if the form has any changes and if it's not marked for deletion. 
+        If both conditions are met, it saves the new object using `save_new` method and adds it to the `new_objects` list. 
+
+        If `commit` is False, the form is added to `saved_forms` list instead of being committed immediately.
+
+        Args:
+            commit (bool): Whether to commit the changes immediately. Defaults to True.
+
+        Returns:
+            list: A list of newly saved objects.
+
+        """
         self.new_objects = []
         for form in self.extra_forms:
             if not form.has_changed():
@@ -1372,6 +1422,16 @@ class InlineForeignKeyField(Field):
         super().__init__(*args, **kwargs)
 
     def clean(self, value):
+        """
+        Validates and cleans the input value to ensure it matches the expected choice.
+
+        Checks if the input value is considered empty and returns either None or the parent instance accordingly.
+        If the input value is not empty, it verifies that the value matches the expected choice by comparing it to the specified field or primary key of the parent instance.
+        If the values do not match, a ValidationError is raised with an appropriate error message.
+        Otherwise, the function returns the parent instance if the input value is valid.
+
+        :raises: ValidationError if the input value does not match the expected choice
+        """
         if value in self.empty_values:
             if self.pk_field:
                 return None
@@ -1411,6 +1471,15 @@ class ModelChoiceIteratorValue:
 
 class ModelChoiceIterator(BaseChoiceIterator):
     def __init__(self, field):
+        """
+
+        Initialize a new instance of the class.
+
+        :param field: The field object associated with this instance.
+        :ivar field: The field object stored for later use.
+        :ivar queryset: The queryset associated with the given field, stored for efficient access.
+
+        """
         self.field = field
         self.queryset = field.queryset
 
@@ -1469,6 +1538,35 @@ class ModelChoiceField(ChoiceField):
     ):
         # Call Field instead of ChoiceField __init__() because we don't need
         # ChoiceField.__init__().
+        """
+
+        Initialize a ModelChoiceField to handle model instance selection.
+
+        This field is used to select a model instance from a given queryset. It provides various options to customize its behavior, such as specifying an empty label, making the field required or optional, and limiting the choices to a subset of the queryset.
+
+        The field's appearance can be controlled by choosing a specific widget, and additional help text can be provided to assist the user.
+
+        Parameters
+        ----------
+        - queryset : The set of model instances to choose from.
+        - empty_label : The label to display for an empty choice (defaults to '---------').
+        - required : Whether the field is required (defaults to True).
+        - widget : The widget to use for the field (defaults to None).
+        - label : The label to display for the field (defaults to None).
+        - initial : The initial value of the field (defaults to None).
+        - help_text : Additional text to display below the field (defaults to an empty string).
+        - to_field_name : The name of the model field to use for the field's value (defaults to None).
+        - limit_choices_to : A dictionary or Q object to limit the choices to a subset of the queryset (defaults to None).
+        - blank : Whether the field is allowed to be blank (defaults to False).
+
+        Attributes
+        ----------
+        - queryset : The set of model instances to choose from.
+        - limit_choices_to : A dictionary or Q object to limit the choices to a subset of the queryset.
+        - to_field_name : The name of the model field to use for the field's value.
+        - empty_label : The label to display for an empty choice.
+
+        """
         Field.__init__(
             self,
             required=required,
@@ -1531,6 +1629,11 @@ class ModelChoiceField(ChoiceField):
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
+        """
+        Retrieves the available choices for the current object.
+
+        Returns the cached choices if they have been previously computed, otherwise generates them using the iterator. The resulting choices are not cached, use this method to get the latest choices based on the current state of the object.
+        """
         if hasattr(self, "_choices"):
             return self._choices
 
@@ -1546,6 +1649,13 @@ class ModelChoiceField(ChoiceField):
     choices = property(_get_choices, ChoiceField.choices.fset)
 
     def prepare_value(self, value):
+        """
+        Prepares a value for serialization, handling objects with metadata.
+
+        If the value has a _meta attribute, the method attempts to return a serializable representation.
+        If a to_field_name is specified, it uses that field's serializable value; otherwise, it defaults to the object's primary key.
+        For other values, it delegates preparation to the parent class's implementation.
+        """
         if hasattr(value, "_meta"):
             if self.to_field_name:
                 return value.serializable_value(self.to_field_name)
@@ -1574,6 +1684,16 @@ class ModelChoiceField(ChoiceField):
         return Field.validate(self, value)
 
     def has_changed(self, initial, data):
+        """
+        Determines if the value has changed from the initial state.
+
+        Checks if the initial value is different from the current data value, taking into account cases where either value may be None.
+        If the object is disabled, it always returns False, indicating no change.
+
+        :param initial: The initial value for comparison.
+        :param data: The current data value to compare with the initial value.
+        :return: True if the value has changed, False otherwise.
+        """
         if self.disabled:
             return False
         initial_value = initial if initial is not None else ""
@@ -1658,6 +1778,21 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return qs
 
     def prepare_value(self, value):
+        """
+
+        Prepares a given value for further processing.
+
+        This method checks if the provided value is an iterable (but not a string) and
+        recursively prepares each item within it. If the value is not iterable, or is a string,
+        it delegates the preparation to the parent class.
+
+        Args:
+            value: The value to be prepared.
+
+        Returns:
+            The prepared value, optionally as a list if the input was an iterable.
+
+        """
         if (
             hasattr(value, "__iter__")
             and not isinstance(value, str)
@@ -1668,6 +1803,20 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return super().prepare_value(value)
 
     def has_changed(self, initial, data):
+        """
+        Checks if the given data has changed compared to the initial data.
+
+        This method compares the initial and current data to determine if any changes have occurred.
+        It first checks if the container is disabled, in which case no change is detected.
+        The comparison is done by converting the values to strings and comparing the resulting sets.
+        If the lengths of the initial and current data are different, or if the sets of string values are not equal,
+        the method returns True, indicating that a change has been detected.
+        Otherwise, it returns False, indicating that no change has occurred.
+
+        :param initial: The initial data to compare against
+        :param data: The current data to check for changes
+        :return: True if the data has changed, False otherwise
+        """
         if self.disabled:
             return False
         if initial is None:

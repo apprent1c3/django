@@ -144,6 +144,12 @@ class DistanceTest(SimpleTestCase):
         self.assertEqual(repr(d2), "Distance(km=3.5)")
 
     def test_furlong(self):
+        """
+        Tests the conversion of distance from meters to furlongs.
+
+        Verifies that a distance of 201.168 meters is correctly converted to 1 furlong.
+
+        """
         d = D(m=201.168)
         self.assertEqual(d.furlong, 1)
 

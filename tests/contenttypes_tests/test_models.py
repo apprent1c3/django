@@ -47,6 +47,20 @@ class ContentTypesTests(TestCase):
             ContentType.objects.get_by_natural_key("contenttypes", "contenttype")
 
     def test_get_for_models_creation(self):
+        """
+
+        Tests the get_for_models method of the ContentTypeManager.
+
+        This test case verifies that the get_for_models method correctly retrieves
+        ContentType instances for the given models in a single database query.
+        It deletes all existing ContentType instances and then checks that the 
+        method returns the correct instances for multiple models. 
+
+        The test also checks that the method executes only a single database 
+        query when fetching ContentType instances for multiple models, 
+        which is important for optimizing database performance.
+
+        """
         ContentType.objects.all().delete()
         with self.assertNumQueries(4):
             cts = ContentType.objects.get_for_models(
@@ -64,6 +78,20 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_empty_cache(self):
         # Empty cache.
+        """
+
+        Tests the get_for_models method of ContentType when the cache is empty.
+
+        Verifies that the method retrieves the correct content types for a list of models,
+        including the models themselves, in a single database query. The resulting
+        content types are then compared to the expected content types, which are
+        obtained individually using the get_for_model method.
+
+        The test checks that the method can handle various types of models, including
+        proxies, and that the returned content types are correct. This ensures that
+        the get_for_models method is functioning as expected, even when the cache is empty.
+
+        """
         with self.assertNumQueries(1):
             cts = ContentType.objects.get_for_models(
                 ContentType, FooWithUrl, ProxyModel, ConcreteModel
@@ -92,6 +120,21 @@ class ContentTypesTests(TestCase):
         )
 
     def test_get_for_models_migrations(self):
+        """
+        Tests the get_for_models method of the ContentType model to ensure it correctly retrieves the content type instances for the given model.
+
+        This test verifies that the get_for_models method returns a dictionary mapping each model to its corresponding content type instance, 
+        and that this result matches the expected output from calling get_for_model directly on the ContentType model.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the result of get_for_models does not match the expected output.
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
         ContentType = state.apps.get_model("contenttypes", "ContentType")
         cts = ContentType.objects.get_for_models(ContentType)
@@ -101,6 +144,18 @@ class ContentTypesTests(TestCase):
 
     @isolate_apps("contenttypes_tests")
     def test_get_for_models_migrations_create_model(self):
+        """
+
+        Tests the functionality of the get_for_models method for creating ContentType objects.
+
+        This test ensures that the get_for_models method correctly retrieves ContentType objects 
+        for given models, specifically after model creation through migrations. 
+
+        It verifies that the method returns a dictionary mapping each model to its corresponding 
+        ContentType object, checking that the returned ContentType objects match the ones 
+        retrieved using the get_for_model method for individual models.
+
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
 
         class Foo(models.Model):
@@ -248,6 +303,21 @@ class ContentTypesTests(TestCase):
         )
 
     def test_cache_not_shared_between_managers(self):
+        """
+
+        Tests that the cache is not shared between different managers.
+
+        Verifies that the cache is correctly isolated to each manager instance,
+        by checking the number of queries made when retrieving content types
+        using the same and different managers. This ensures that the cache is
+        not accidentally shared, which could lead to incorrect results or
+        unexpected behavior.
+
+        The test covers the scenario where the same manager instance is used
+        to retrieve content types, and then checks that a different manager
+        instance does not reuse the cache from the first manager.
+
+        """
         with self.assertNumQueries(1):
             ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(0):
@@ -297,18 +367,57 @@ class ContentTypesTests(TestCase):
         )
 
     def test_str(self):
+        """
+        Tests the string representation of a ContentType object.
+
+        Verifies that the string representation of a ContentType instance is correctly
+        formatted as 'App Label | Model Name'.
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(str(ct), "Contenttypes_Tests | site")
 
     def test_str_auth(self):
+        """
+        Tests the string representation of a ContentType object for the 'group' model in the 'auth' app.
+
+         The test verifies that the string representation of the ContentType object is correctly formatted, 
+         returning a string that includes the app label and model name, separated by a vertical bar and 
+         prefixed with 'Authentication and Authorization'.
+        """
         ct = ContentType.objects.get(app_label="auth", model="group")
         self.assertEqual(str(ct), "Authentication and Authorization | group")
 
     def test_name(self):
+        """
+
+        Checks if the name of a content type matches its expected value.
+
+        This test function verifies that the content type with the model 'site' in the 
+        'contenttypes_tests' app has the correct name.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the content type name does not match 'site'.
+
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.name, "site")
 
     def test_app_labeled_name(self):
+        """
+        Tests the retrieval of an app-labeled name for a given content type.
+
+        Verifies that the app_labeled_name property returns the correct string,
+        which includes the app label and model name, separated by a vertical bar.
+        The format of the app-labeled name is '<app_label> | <model_name>', with the
+        app label being the name of the application that the content type belongs to,
+        and the model name being the name of the model that the content type represents.
+
+        This test case ensures that the app_labeled_name property is correctly
+        formatted and contains the expected information for a given content type.
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(ct.app_labeled_name, "Contenttypes_Tests | site")
 
@@ -351,6 +460,9 @@ class ContentTypesMultidbTests(TestCase):
 
 class GenericPrefetchTests(TestCase):
     def test_querysets_required(self):
+        """
+        Checks that GenericPrefetch initialization raises a TypeError when the required 'querysets' argument is missing, ensuring proper error handling for invalid class instantiation.
+        """
         msg = (
             "GenericPrefetch.__init__() missing 1 required "
             "positional argument: 'querysets'"
@@ -359,6 +471,17 @@ class GenericPrefetchTests(TestCase):
             GenericPrefetch("question")
 
     def test_values_queryset(self):
+        """
+        Tests that the GenericPrefetch class raises a ValueError when attempting to prefetch querysets 
+        using the values() or values_list() methods.
+
+        This test ensures that the GenericPrefetch class correctly handles and rejects querysets 
+        that use raw(), values(), or values_list() methods, which are not compatible with prefetching.
+
+        Raises:
+            ValueError: If the queryset uses values() or values_list() methods.
+
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             GenericPrefetch("question", [Author.objects.values("pk")])

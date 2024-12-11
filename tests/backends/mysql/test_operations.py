@@ -11,6 +11,23 @@ from ..models import Person, Tag
 class MySQLOperationsTests(SimpleTestCase):
     def test_sql_flush(self):
         # allow_cascade doesn't change statements on MySQL.
+        """
+        Tests the SQL flush command generation for the database.
+
+        This test case checks the sql_flush method of the database connection's operations,
+        verifying it produces the correct SQL commands to clear data from the Person and Tag tables.
+        The test covers both cases where foreign key constraints are allowed to cascade and where they are not.
+
+        It ensures the generated SQL commands include disabling foreign key checks, deleting data from both tables, and re-enabling foreign key checks afterwards, regardless of the cascade setting.
+
+        The expected output consists of a sequence of SQL commands: 
+        - Disabling foreign key checks,
+        - Deleting data from the Person table,
+        - Deleting data from the Tag table, and
+        - Re-enabling foreign key checks.
+
+        The test utilizes a subtest for each allow_cascade setting to ensure both scenarios are thoroughly validated.
+        """
         for allow_cascade in [False, True]:
             with self.subTest(allow_cascade=allow_cascade):
                 self.assertEqual(

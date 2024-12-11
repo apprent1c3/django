@@ -15,6 +15,23 @@ class DeleteQuery(Query):
     compiler = "SQLDeleteCompiler"
 
     def do_query(self, table, where, using):
+        """
+        Executes a query on the specified database table.
+
+        This method performs a query operation on the provided table using the 
+        given conditions and database connection.
+
+        :param table: The name of the database table to query.
+        :param where: The conditions for the query.
+        :param using: The database connection to use for the query.
+
+        :return: The number of rows affected by the query, or 0 if the query 
+                 was unsuccessful or no cursor was obtained.
+
+        :raises: No explicit exceptions are raised, but underlying database 
+                 operations may raise errors if the query or connection is invalid.
+
+        """
         self.alias_map = {table: self.alias_map[table]}
         self.where = where
         cursor = self.get_compiler(using).execute_sql(CURSOR)

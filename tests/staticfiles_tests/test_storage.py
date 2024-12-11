@@ -21,6 +21,17 @@ from .settings import TEST_ROOT
 
 
 def hashed_file_path(test, path):
+    """
+    взаимODEction
+    Hashed File Path
+    ----------------
+
+    This function generates a hashed version of a given file path by applying a template rendering process.
+
+    The function takes two parameters, `test` and `path`, and returns the resulting hashed file path as a string. The hashing process involves rendering the provided `path` using a template snippet, and then removing a specified static URL prefix from the result.
+
+    The hashed file path can be used in scenarios where a unique, versioned reference to a file is required, such as in web applications where static files need to be updated without affecting the overall application functionality.
+    """
     fullpath = test.render_template(test.static_template_snippet(path))
     return fullpath.removeprefix(settings.STATIC_URL)
 
@@ -78,6 +89,17 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_path_with_querystring(self):
+        """
+        Tests that a file path with a query string is correctly hashed and stored.
+
+        The function verifies that the query string is preserved in the hashed file path, 
+        and checks that the resulting file contents are as expected. Specifically, it 
+        ensures that the contents do not include a reference to an unrelated cached file, 
+        and do include a reference to another file that has been correctly hashed. 
+
+        Finally, it checks that any necessary post-conditions have been met after 
+        the storage operation is complete.
+        """
         relpath = self.hashed_file_path("cached/styles.css?spam=eggs")
         self.assertEqual(relpath, "cached/styles.5e0040571e1a.css?spam=eggs")
         with storage.staticfiles_storage.open(
@@ -142,6 +164,21 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_template_tag_relative(self):
+        """
+
+        Tests the functionality of a template tag when used with relative file paths.
+
+        Verifies that the template tag correctly resolves relative paths in CSS files,
+        replacing them with hashed versions of the files. Specifically, it checks that:
+
+        * Relative CSS imports are rewritten to use hashed versions of the imported files.
+        * Relative image URLs are rewritten to use hashed versions of the image files.
+        * The resulting CSS file does not contain any references to unhashed files.
+
+        Ensures that the post-condition of the test is met, indicating that the test has
+        not introduced any unintended side effects.
+
+        """
         relpath = self.hashed_file_path("cached/relative.css")
         self.assertEqual(relpath, "cached/relative.c3e9e1ea6f2e.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -162,6 +199,19 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_template_tag_deep_relative(self):
+        """
+        Tests the rendering of a template tag with deep relative URLs.
+
+        Verifies that a static CSS file is correctly generated with hashed filenames,
+        and that the file contains the expected relative URLs to other static assets.
+        The test checks for the absence of non-hashed URLs and the presence of hashed
+        URLs, ensuring that the template tag correctly resolves and generates relative
+        paths for static files.
+
+        Ensures that the post-condition of the test is met after verifying the template
+        tag's behavior.
+
+        """
         relpath = self.hashed_file_path("cached/css/window.css")
         self.assertEqual(relpath, "cached/css/window.5d5c10836967.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -171,6 +221,14 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_template_tag_url(self):
+        """
+        Tests a template tag's ability to generate a URL for a static file by checking the following conditions:
+
+         * The generated relative path to the static file has been correctly hashed.
+         * The contents of the generated file contain an absolute URL, specifically one starting with 'https://'.
+
+         Verifies the post condition after the test execution.
+        """
         relpath = self.hashed_file_path("cached/url.css")
         self.assertEqual(relpath, "cached/url.902310b73412.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -225,6 +283,22 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_css_import_case_insensitive(self):
+        """
+
+        Checks that CSS imports are handled in a case-insensitive manner.
+
+        This test verifies that the styles file is correctly hashed and stored,
+        and that its contents are as expected. The test specifically checks 
+        that the file imports another file with a hashed filename, 
+        regardless of the original filename's case, and that the original 
+        filename is not used in the import statement.
+
+        The test covers the following scenarios:
+        - The hashed filename of the styles file is correct.
+        - The contents of the styles file do not include the original filename of the imported file.
+        - The contents of the styles file include the hashed filename of the imported file.
+
+        """
         relpath = self.hashed_file_path("cached/styles_insensitive.css")
         self.assertEqual(relpath, "cached/styles_insensitive.3fa427592a53.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -234,6 +308,15 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_css_source_map(self):
+        """
+        Tests that the CSS source map is correctly generated and referenced.
+
+        Verifies that the hashed file path for the source map CSS file is correctly generated,
+        and that the contents of the file do not contain the original source map reference,
+        but instead contain the correct hashed source map reference.
+
+        Ensures that the test post condition is met after the test execution.
+        """
         relpath = self.hashed_file_path("cached/source_map.css")
         self.assertEqual(relpath, "cached/source_map.b2fceaf426aa.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -246,6 +329,17 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_css_source_map_tabs(self):
+        """
+        Tests that CSS source maps are correctly handled when tabs are present.
+
+        Verifies that the source mapping URL comment in the CSS file does not contain tabs
+        and that the correct mapping file path is included. The test case also checks the 
+        file path of the hashed CSS file. 
+
+        The test ensures that the storage mechanism for static files is correctly 
+        configuring source maps for CSS files and that the post-conditions for the test 
+        are met after the source map has been processed.
+        """
         relpath = self.hashed_file_path("cached/source_map_tabs.css")
         self.assertEqual(relpath, "cached/source_map_tabs.b2fceaf426aa.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -258,6 +352,9 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_css_source_map_sensitive(self):
+        """
+        Tests the CSS source map functionality with sensitivity to file names, verifying that the source mapping URL is correctly included in the generated CSS file and that the file name is properly hashed. The test checks for the presence of a specific source map comment and ensures that an incorrect comment is not present, confirming the integrity of the source map generation process.
+        """
         relpath = self.hashed_file_path("cached/source_map_sensitive.css")
         self.assertEqual(relpath, "cached/source_map_sensitive.456683f2106f.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -294,6 +391,15 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_js_source_map_trailing_whitespace(self):
+        """
+        Tests that the JavaScript source map file path is correctly generated and the trailing whitespace is removed.
+
+        Verifies that the hashed file path for a given JavaScript file is as expected and that
+        the source map URL in the resulting file does not contain trailing whitespace and
+        has been correctly replaced with the hashed source map file path.
+
+        Ensures the correct behavior of source map handling in the context of static file storage.
+        """
         relpath = self.hashed_file_path("cached/source_map_trailing_whitespace.js")
         self.assertEqual(
             relpath, "cached/source_map_trailing_whitespace.cd45b8534a87.js"
@@ -308,6 +414,18 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_js_source_map_sensitive(self):
+        """
+
+        Tests the sensitivity of JavaScript source maps.
+
+        Verifies that the correct source map file is generated and included in the JavaScript file,
+        with the correct path and file name. The test checks for the presence of the expected
+        source mapping URL in the file contents and ensures that an incorrect source mapping URL
+        is not present.
+
+        The test also validates that the post-condition is met after executing the test.
+
+        """
         relpath = self.hashed_file_path("cached/source_map_sensitive.js")
         self.assertEqual(relpath, "cached/source_map_sensitive.5da96fdd3cb3.js")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -351,6 +469,15 @@ class TestHashedFiles:
         STATICFILES_FINDERS=["django.contrib.staticfiles.finders.FileSystemFinder"],
     )
     def test_post_processing_nonutf8(self):
+        """
+
+        Tests the post-processing functionality when dealing with static files that contain non-UTF8 encoded characters.
+
+        This test case simulates a scenario where a static file (nonutf8.css) contains non-UTF8 encoded characters.
+        It verifies that a UnicodeDecodeError is raised when attempting to collect static files using the 'collectstatic' command.
+        Additionally, it checks that the error message generated during post-processing is as expected.
+
+        """
         finders.get_finder.cache_clear()
         err = StringIO()
         with self.assertRaises(UnicodeDecodeError):
@@ -369,6 +496,14 @@ class TestHashedFiles:
 )
 class TestExtraPatternsStorage(CollectionTestCase):
     def setUp(self):
+        """
+        Sets up the test environment by clearing the static files cache.
+
+        This method is called before each test to ensure a clean slate. It removes any
+        hashed files from the static files storage, allowing tests to run independently
+        without interference from previous test runs. It then calls the parent class's
+        setUp method to perform any additional setup required by the testing framework.
+        """
         storage.staticfiles_storage.hashed_files.clear()  # avoid cache interference
         super().setUp()
 
@@ -426,6 +561,14 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
         self._manifest_strict = storage.staticfiles_storage.manifest_strict
 
     def tearDown(self):
+        """
+        Cleans up after a test by removing a temporary file and resetting a manifest setting.
+
+        Resets the state of the test environment to ensure consistency across tests. This includes
+        deleting a specific file if it exists and reverting a manifest strictness setting to its
+        original value. The superclass's tear down method is also called to perform any additional
+        necessary cleanup operations.
+        """
         if os.path.exists(self._clear_filename):
             os.unlink(self._clear_filename)
 
@@ -441,6 +584,18 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
             self.assertEqual(hashed_files, manifest)
 
     def test_manifest_exists(self):
+        """
+        Verifies the existence of the static files manifest.
+
+        Checks if a manifest file, as determined by the static files storage backend,
+        is present on the file system. The test ensures that the manifest file, which
+        maps static file names to unique hashed versions, can be found at the expected
+        location.
+
+        Raises:
+            AssertionError: If the manifest file does not exist.
+
+        """
         filename = storage.staticfiles_storage.manifest_name
         path = storage.staticfiles_storage.path(filename)
         self.assertTrue(os.path.exists(path))
@@ -450,11 +605,25 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
         self.assertIsNone(storage.staticfiles_storage.read_manifest())
 
     def test_manifest_does_not_ignore_permission_error(self):
+        """
+        Tests that reading the manifest file raises a PermissionError when the file cannot be opened due to a permissions issue.
+
+        This test case ensures that the storage system properly propagates permission errors when attempting to read the manifest file, rather than ignoring or masking them.
+
+        Args: None
+
+        Raises: PermissionError if the manifest file cannot be opened due to a permissions issue
+
+        Returns: None
+        """
         with mock.patch("builtins.open", side_effect=PermissionError):
             with self.assertRaises(PermissionError):
                 storage.staticfiles_storage.read_manifest()
 
     def test_loaded_cache(self):
+        """
+        Tests the integrity of the loaded cache by verifying that it is not empty and that the manifest file contains the expected manifest version.
+        """
         self.assertNotEqual(storage.staticfiles_storage.hashed_files, {})
         manifest_content = storage.staticfiles_storage.read_manifest()
         self.assertIn(
@@ -468,6 +637,9 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
         self.assertEqual(hashed_files, manifest)
 
     def test_clear_empties_manifest(self):
+        """
+        Tests that the collectstatic process correctly clears and empties the manifest when the clear option is enabled. Verifies that a file is properly added to the manifest and stored, then checks that the file and its reference are removed from the manifest and storage after clearing.
+        """
         cleared_file_name = storage.staticfiles_storage.clean_name(
             os.path.join("test", "cleared.txt")
         )
@@ -574,6 +746,20 @@ class TestCollectionManifestStorageStaticUrlSlash(CollectionTestCase):
     hashed_file_path = hashed_file_path
 
     def test_protocol_relative_url_ignored(self):
+        """
+        Tests that a protocol-relative URL is ignored during static file collection.
+
+        This test case verifies that a protocol-relative URL (i.e., a URL starting with//
+        without a protocol specified) within a static file is preserved and not modified
+        during the static file collection process. The test checks that the collected file
+        has the expected hashed filename and that its content remains unchanged, including
+        the protocol-relative URL.
+
+        The test utilizes Django's static file collection mechanism and uses a custom
+        static file finder to locate the files. It also checks the resulting collected file
+        for the expected content, ensuring that the protocol-relative URL is not modified
+        during the collection process.
+        """
         with override_settings(
             STATICFILES_DIRS=[os.path.join(TEST_ROOT, "project", "static_url_slash")],
             STATICFILES_FINDERS=["django.contrib.staticfiles.finders.FileSystemFinder"],
@@ -598,6 +784,15 @@ class TestCollectionNoneHashStorage(CollectionTestCase):
     hashed_file_path = hashed_file_path
 
     def test_hashed_name(self):
+        """
+
+        Tests that the hashed_file_path method returns the expected relative path for a given file.
+
+        This test case verifies that the hashed version of a file path is identical to the original path when the hash is not modified.
+
+        The test is performed on a specific CSS file ('cached/styles.css') and ensures that the relative path returned by hashed_file_path matches the original file path.
+
+        """
         relpath = self.hashed_file_path("cached/styles.css")
         self.assertEqual(relpath, "cached/styles.css")
 
@@ -631,10 +826,30 @@ class TestCollectionSimpleStorage(CollectionTestCase):
     hashed_file_path = hashed_file_path
 
     def setUp(self):
+        """
+        Sets up the test environment by clearing the cached hashed files in the static files storage and then calls the superclass's setUp method to perform any additional setup tasks.
+        """
         storage.staticfiles_storage.hashed_files.clear()  # avoid cache interference
         super().setUp()
 
     def test_template_tag_return(self):
+        """
+        Tests the functionality of the template tag for returning static content.
+
+        This function checks the behavior of the template tag in various scenarios, 
+        including when the requested file does not exist, and when the file does exist 
+        with and without versioning. It also tests the handling of directories and queries.
+
+        The test cases cover the following situations:
+        - Raise an error when the requested file is not found.
+        - Render the correct path for a non-versioned file.
+        - Render the correct path for a versioned file.
+        - Render the correct path for a directory.
+        - Render the correct path for a file with a query string.
+
+        These test cases ensure that the template tag behaves correctly in different 
+        situations, providing a robust and reliable way to serve static content.
+        """
         self.assertStaticRaises(
             ValueError, "does/not/exist.png", "/static/does/not/exist.png"
         )
@@ -646,6 +861,18 @@ class TestCollectionSimpleStorage(CollectionTestCase):
         self.assertStaticRenders("path/?query", "/static/path/?query")
 
     def test_template_tag_simple_content(self):
+        """
+        Tests the rendering of a simple template tag.
+
+        This function verifies that the template tag correctly generates a hashed file path 
+        and that the file's content is updated accordingly. It checks that the hashed file path 
+        is correctly formatted and that the file's content includes the expected hashed references 
+        to other files, while excluding the non-hashed references.
+
+        The test covers the basic functionality of the template tag, ensuring that it produces 
+        the expected output without any unexpected inclusions or omissions. The test outcome 
+        confirms whether the template tag behaves as expected in a simple scenario.
+        """
         relpath = self.hashed_file_path("cached/styles.css")
         self.assertEqual(relpath, "cached/styles.deploy12345.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -700,6 +927,17 @@ class TestCollectionJSModuleImportAggregationManifestStorage(CollectionTestCase)
                     self.assertIn(module_import, content)
 
     def test_aggregating_modules(self):
+        """
+
+        Tests the aggregation of modules in the caching process.
+
+        Verifies that the relative path of a hashed file is correctly generated and 
+        that the content of the cached file contains the expected module imports.
+
+        The function checks for the presence of various import statements within the 
+        cached file content, including default exports, named exports, and aliased exports.
+
+        """
         relpath = self.hashed_file_path("cached/module.js")
         self.assertEqual(relpath, "cached/module.55fd6938fbc5.js")
         tests = [
@@ -719,6 +957,19 @@ class TestCollectionJSModuleImportAggregationManifestStorage(CollectionTestCase)
 
 class CustomManifestStorage(storage.ManifestStaticFilesStorage):
     def __init__(self, *args, manifest_storage=None, **kwargs):
+        """
+        Initializes the instance.
+
+        This constructor takes variable arguments and keyword arguments. 
+        It creates a StaticFilesStorage instance using the provided manifest_location 
+        and uses it to call the superclass's constructor, effectively setting up the 
+        manifest storage for the instance.
+
+        :param manifest_location: The location to store manifests.
+        :param args: Variable arguments to be passed to the superclass.
+        :param kwargs: Keyword arguments to be passed to the superclass.
+
+        """
         manifest_storage = storage.StaticFilesStorage(
             location=kwargs.pop("manifest_location"),
         )
@@ -727,6 +978,21 @@ class CustomManifestStorage(storage.ManifestStaticFilesStorage):
 
 class TestCustomManifestStorage(SimpleTestCase):
     def setUp(self):
+        """
+
+        Setup method for creating a temporary environment for testing CustomManifestStorage.
+
+        This method prepares a temporary directory to store manifest files, sets up a CustomManifestStorage instance with the temporary directory,
+        and creates a basic manifest file with the current version number.
+
+        The temporary directory is automatically removed after the test is completed.
+
+        Attributes set by this method:
+            - staticfiles_storage: An instance of CustomManifestStorage.
+            - manifest_file: The path to the manifest file.
+            - manifest: A dictionary representing the initial manifest data.
+
+        """
         manifest_path = Path(tempfile.mkdtemp())
         self.addCleanup(shutil.rmtree, manifest_path)
 
@@ -746,10 +1012,25 @@ class TestCustomManifestStorage(SimpleTestCase):
         )
 
     def test_read_manifest_nonexistent(self):
+        """
+
+        Tests the behavior of read_manifest when the manifest file does not exist.
+
+        Verifies that the function returns None when the manifest file is missing,
+        ensuring proper handling of this edge case.
+
+        """
         os.remove(self.manifest_file)
         self.assertIsNone(self.staticfiles_storage.read_manifest())
 
     def test_save_manifest_override(self):
+        """
+        Tests that saving a manifest file using the static files storage correctly overrides the existing manifest.
+
+        Verifies that the manifest file exists both before and after saving, and that the resulting manifest contains the expected 'paths' key and differs from the original manifest.
+
+        Ensures that the save_manifest method updates the manifest file as expected, and that the changes are reflected in the file's contents.
+        """
         self.assertIs(self.manifest_file.exists(), True)
         self.staticfiles_storage.save_manifest()
         self.assertIs(self.manifest_file.exists(), True)
@@ -758,6 +1039,16 @@ class TestCustomManifestStorage(SimpleTestCase):
         self.assertNotEqual(new_manifest, self.manifest)
 
     def test_save_manifest_create(self):
+        """
+        Tests the creation of a new manifest file through the save_manifest method.
+
+        Verifies that the manifest file is generated, contains the required 'paths' key, 
+        and has different contents than the original manifest.
+
+        Ensures that the save_manifest method correctly creates a new manifest when the 
+        existing one is removed, which is a crucial step in managing static files.
+
+        """
         os.remove(self.manifest_file)
         self.staticfiles_storage.save_manifest()
         self.assertIs(self.manifest_file.exists(), True)
@@ -786,6 +1077,16 @@ class TestStaticFilePermissions(CollectionTestCase):
     }
 
     def setUp(self):
+        """
+        Sets up the test environment by setting the umask to a specific value.
+
+        This function configures the umask, which controls the default permissions for new files and directories,
+        to a value of 23. It also saves the original umask value and schedules it to be restored after the test
+        has completed, ensuring that the test environment is cleaned up properly.
+
+        The parent class's setUp method is then called to perform any additional setup required by the test framework.
+
+        """
         self.umask = 0o027
         old_umask = os.umask(self.umask)
         self.addCleanup(os.umask, old_umask)
@@ -800,6 +1101,23 @@ class TestStaticFilePermissions(CollectionTestCase):
         FILE_UPLOAD_DIRECTORY_PERMISSIONS=0o765,
     )
     def test_collect_static_files_permissions(self):
+        """
+        Tests the permissions of static files and directories after running the collectstatic command.
+
+        Verifies that the collected static files have the correct file permissions and that the
+        directories containing these files have the correct directory permissions. The test checks
+        the permissions of the static root directory's contents, including subdirectories and files.
+
+        The test verifies that:
+
+        - The permissions of the static files match the value specified in FILE_UPLOAD_PERMISSIONS.
+        - The permissions of the directories containing the static files match the value specified
+          in FILE_UPLOAD_DIRECTORY_PERMISSIONS.
+
+        This test ensures that the collectstatic command is correctly applying the specified
+        permissions to the static files and directories, which is important for security and
+        access control in a production environment.
+        """
         call_command("collectstatic", **self.command_params)
         static_root = Path(settings.STATIC_ROOT)
         test_file = static_root / "test.txt"
@@ -820,6 +1138,15 @@ class TestStaticFilePermissions(CollectionTestCase):
         FILE_UPLOAD_DIRECTORY_PERMISSIONS=None,
     )
     def test_collect_static_files_default_permissions(self):
+        """
+
+        Tests the default permissions set on files and directories when collecting static files using the collectstatic command.
+
+        This test verifies that the permissions of the collected files and directories are correctly applied, taking into account the system's umask setting.
+
+        The test checks the permissions of a test file, as well as several directories and subdirectories within the static root directory, to ensure they match the expected values.
+
+        """
         call_command("collectstatic", **self.command_params)
         static_root = Path(settings.STATIC_ROOT)
         test_file = static_root / "test.txt"

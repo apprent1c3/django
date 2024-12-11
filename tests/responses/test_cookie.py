@@ -75,11 +75,31 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(max_age_cookie["expires"], http_date(set_cookie_time + 10))
 
     def test_max_age_int(self):
+        """
+
+        Tests that the max-age attribute of a cookie is set to an integer value.
+
+        Verifies that when a floating point number is passed to the max-age parameter
+        of the set_cookie method, it is truncated to the nearest integer.
+
+        Ensures that the max-age attribute of the resulting cookie is set correctly,
+        performing an assertion to confirm the expected behavior.
+
+        """
         response = HttpResponse()
         response.set_cookie("max_age", max_age=10.6)
         self.assertEqual(response.cookies["max_age"]["max-age"], 10)
 
     def test_max_age_timedelta(self):
+        """
+        Tests that the max-age attribute of a cookie is correctly set to the equivalent number of seconds when using a timedelta object for the max_age parameter.
+
+            This test case verifies that the max-age value in the cookie is calculated
+            correctly from the provided timedelta object, ensuring that the cookie
+            expiration time is set as expected. The test checks for the correct
+            conversion of the timedelta object into seconds, which is essential for
+            proper cookie expiration handling.
+        """
         response = HttpResponse()
         response.set_cookie("max_age", max_age=timedelta(hours=1))
         self.assertEqual(response.cookies["max_age"]["max-age"], 3600)
@@ -109,6 +129,15 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["test"].value, cookie_value)
 
     def test_samesite(self):
+        """
+
+        Test the Samesite attribute of an HTTP response cookie.
+
+        This test case verifies that the Samesite attribute of a cookie can be successfully set to different values ('None', 'Lax', 'Strict') and retrieved correctly.
+
+        The test covers the basic functionality of setting and getting the Samesite attribute, ensuring that it behaves as expected and returns the correct values.
+
+        """
         response = HttpResponse()
         response.set_cookie("example", samesite="None")
         self.assertEqual(response.cookies["example"]["samesite"], "None")
@@ -118,6 +147,14 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["example"]["samesite"], "strict")
 
     def test_invalid_samesite(self):
+        """
+        Tests that setting an invalid 'samesite' attribute for a cookie raises a ValueError.
+
+        The 'samesite' attribute of a cookie must have one of the following values: 'lax', 'none', or 'strict'.
+        Any other value will result in a ValueError being raised, with a message indicating the allowed values.
+
+        This test ensures that the set_cookie method of an HttpResponse object correctly validates the 'samesite' attribute and raises an error for invalid values.
+        """
         msg = 'samesite must be "lax", "none", or "strict".'
         with self.assertRaisesMessage(ValueError, msg):
             HttpResponse().set_cookie("example", samesite="invalid")
@@ -125,6 +162,19 @@ class SetCookieTests(SimpleTestCase):
 
 class DeleteCookieTests(SimpleTestCase):
     def test_default(self):
+        """
+
+        Tests that deleting a cookie using HttpResponse results in the expected cookie attributes.
+
+        Specifically, this test verifies that the 'c' cookie's attributes are set as follows:
+        - 'expires' is set to the Unix epoch (January 1, 1970, 00:00:00 GMT) to immediately expire the cookie.
+        - 'max-age' is set to 0, indicating that the cookie should be deleted.
+        - 'path' is set to '/', which is the root path of the domain.
+        - 'secure', 'domain', and 'samesite' attributes are not specified.
+
+        The test ensures that deleting a cookie using the HttpResponse object correctly sets these attributes to delete the cookie.
+
+        """
         response = HttpResponse()
         response.delete_cookie("c")
         cookie = response.cookies["c"]
@@ -155,6 +205,9 @@ class DeleteCookieTests(SimpleTestCase):
         self.assertIs(response.cookies["c"]["secure"], True)
 
     def test_delete_cookie_samesite(self):
+        """
+        Tests that deleting a cookie with the samesite attribute set to 'lax' correctly sets the samesite value in the response's cookie. This ensures that cookies marked with the samesite='lax' flag are properly deleted and their attributes are updated accordingly, verifying the expected behavior of the delete_cookie method.
+        """
         response = HttpResponse()
         response.delete_cookie("c", samesite="lax")
         self.assertEqual(response.cookies["c"]["samesite"], "lax")

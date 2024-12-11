@@ -8,6 +8,9 @@ from ..utils import setup
 class LengthTests(SimpleTestCase):
     @setup({"length01": "{{ list|length }}"})
     def test_length01(self):
+        """
+        Tests the length filter of a list in a template, ensuring it correctly counts the number of elements regardless of their data type. The test case verifies that the length calculation is accurate even when the list contains a mix of string, null, boolean, and dictionary values.
+        """
         output = self.engine.render_to_string(
             "length01", {"list": ["4", None, True, {}]}
         )
@@ -20,11 +23,25 @@ class LengthTests(SimpleTestCase):
 
     @setup({"length03": "{{ string|length }}"})
     def test_length03(self):
+        """
+
+        Tests the length filter when the input string is empty.
+
+        Verifies that the filter correctly returns '0' as the length of an empty string.
+
+        """
         output = self.engine.render_to_string("length03", {"string": ""})
         self.assertEqual(output, "0")
 
     @setup({"length04": "{{ string|length }}"})
     def test_length04(self):
+        """
+        Tests the functionality of the length filter in the templating engine.
+
+         Verifies that the engine correctly calculates the length of a given string.
+
+         :raises AssertionError: If the output does not match the expected length of the string.
+        """
         output = self.engine.render_to_string("length04", {"string": "django"})
         self.assertEqual(output, "6")
 
@@ -43,6 +60,13 @@ class LengthTests(SimpleTestCase):
 
     @setup({"length07": "{{ None|length }}"})
     def test_length07(self):
+        """
+
+        Tests the length filter when the input value is None.
+
+        Checks if the length of None is correctly rendered as '0' by the template engine.
+
+        """
         output = self.engine.render_to_string("length07", {"None": None})
         self.assertEqual(output, "0")
 

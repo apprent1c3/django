@@ -109,6 +109,21 @@ class DeconstructableSerializer(BaseSerializer):
 
     @staticmethod
     def _serialize_path(path):
+        """
+
+        Serialize a given path into a name and required import statements.
+
+        This function takes a full path to an object as input, splits it into its module and name components,
+        and then determines the necessary imports to access the object. It handles special cases for
+        Django models by importing the models module directly.
+
+        The function returns a tuple containing the serialized name of the object and a set of import
+        statements required to use the object.
+
+        The serialized name is in a format that can be used directly in code, and the import statements
+        are in a format that can be used to import the necessary modules.
+
+        """
         module, name = path.rsplit(".", 1)
         if module == "django.db.models":
             imports = {"from django.db import models"}
@@ -172,6 +187,20 @@ class FrozensetSerializer(BaseUnorderedSequenceSerializer):
 
 class FunctionTypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+        Serialize a function into a string representation.
+
+        This function generates a string that can be used to reconstruct the function 
+        later, including the module and class names if applicable.
+
+        The serialized string is returned along with a set of import statements required 
+        to use the serialized function.
+
+        Raises:
+            ValueError: If the function is a lambda function, has no module, or is a 
+                        method of an anonymous object.
+
+        """
         if getattr(self.value, "__self__", None) and isinstance(
             self.value.__self__, type
         ):
@@ -201,6 +230,20 @@ class FunctionTypeSerializer(BaseSerializer):
 class FunctoolsPartialSerializer(BaseSerializer):
     def serialize(self):
         # Serialize functools.partial() arguments
+        """
+
+        Serialize the current object into a string representation.
+
+        This function takes the object's value, which is expected to contain a function and its arguments, 
+        and converts it into a string that can be used to reconstruct the function call. 
+
+        The serialization process also generates a set of necessary imports required to execute the 
+        reconstructed function call.
+
+        Returns:
+            A tuple containing the serialized function call as a string and a set of required imports.
+
+        """
         func_string, func_imports = serializer_factory(self.value.func).serialize()
         args_string, args_imports = serializer_factory(self.value.args).serialize()
         keywords_string, keywords_imports = serializer_factory(
@@ -236,6 +279,17 @@ class IterableSerializer(BaseSerializer):
 
 class ModelFieldSerializer(DeconstructableSerializer):
     def serialize(self):
+        """
+        Serializes the object into a serialized form.
+
+        This method breaks down the object's value into its constituent parts, 
+        including the path, positional arguments, and keyword arguments, and 
+        then delegates the actual serialization to the :meth:`serialize_deconstructed` method.
+
+        Returns:
+            The serialized form of the object.
+
+        """
         attr_name, path, args, kwargs = self.value.deconstruct()
         return self.serialize_deconstructed(path, args, kwargs)
 
@@ -316,6 +370,19 @@ class TupleSerializer(BaseSequenceSerializer):
 
 class TypeSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serialize the value into a string representation.
+
+        This function handles serialization of various types, including Django models and built-in types.
+        It returns a tuple containing the serialized string and a set of necessary import statements.
+
+        The serialized string is in the format of 'module.name' or just 'name' if it's a built-in type.
+        The set of import statements contains the necessary imports to use the serialized value.
+
+        For special cases like Django models, the function returns a predefined string representation and the required import statements.
+
+        """
         special_cases = [
             (models.Model, "models.Model", ["from django.db import models"]),
             (types.NoneType, "types.NoneType", ["import types"]),
@@ -377,6 +444,20 @@ class Serializer:
 
 
 def serializer_factory(value):
+    """
+
+    Factory function to create a serializer instance for the given value.
+
+    This function determines the appropriate serializer class based on the type of the value.
+    It supports serialization of various types, including Django models, fields, managers, operations, and types,
+    as well as objects that implement the `deconstruct` method.
+
+    If the value cannot be serialized, a ValueError is raised with a message indicating that the value cannot be serialized
+    and providing a link to the Django documentation for more information.
+
+    The serializer instance returned by this function can then be used to serialize the value into a format suitable for migration files.
+
+    """
     if isinstance(value, Promise):
         value = str(value)
     elif isinstance(value, LazyObject):

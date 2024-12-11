@@ -425,6 +425,17 @@ class HttpResponse(HttpResponseBase):
         return True
 
     def writelines(self, lines):
+        """
+        Writes multiple lines to the underlying output.
+
+        :param lines: An iterable of strings to be written
+        :returns: None
+
+        This method provides a convenient way to write several lines of text at once.
+        Each line in the input iterable is written separately, allowing for efficient
+        output of large amounts of text. The lines are written in the order they appear
+        in the input iterable.
+        """
         for line in lines:
             self.write(line)
 
@@ -481,6 +492,15 @@ class StreamingHttpResponse(HttpResponseBase):
 
     def _set_streaming_content(self, value):
         # Ensure we can never iterate on "value" more than once.
+        """
+        Sets the streaming content of the object, handling both synchronous and asynchronous sources.
+
+        This method takes a value and attempts to create an iterator from it. If the value is iterable, it is treated as a synchronous source. If it is not iterable but is an asynchronous iterator, it is treated as an asynchronous source. 
+
+        The method also checks if the provided value has a `close` method and, if so, schedules it for closure when the object is finished with it. 
+
+        The determination of whether the content is asynchronous or not is reflected in the `is_async` attribute.
+        """
         try:
             self._iterator = iter(value)
             self.is_async = False
@@ -536,6 +556,22 @@ class FileResponse(StreamingHttpResponse):
     block_size = 4096
 
     def __init__(self, *args, as_attachment=False, filename="", **kwargs):
+        """
+
+        Initializes a new instance of the class.
+
+        This constructor accepts a variable number of arguments and keyword arguments,
+        which are passed to the parent class. Additionally, it accepts two specific
+        keyword arguments:
+
+        * `as_attachment`: a boolean indicating whether the content should be sent as a
+          downloadable attachment
+        * `filename`: the filename to use when sending the content as an attachment
+
+        The constructor also detects whether an explicit content type has been specified,
+        and stores this information for internal use.
+
+        """
         self.as_attachment = as_attachment
         self.filename = filename
         self._no_explicit_content_type = (
@@ -614,6 +650,18 @@ class HttpResponseRedirectBase(HttpResponse):
     allowed_schemes = ["http", "https", "ftp"]
 
     def __init__(self, redirect_to, *args, **kwargs):
+        """
+        Initializes a redirect response object.
+
+        Sets the 'Location' header to the given redirect URL, converted to a URI.
+        Validates the redirect URL to ensure it uses an allowed scheme to prevent 
+        unsafe redirects. Raises a DisallowedRedirect exception if the scheme is not 
+        allowed.
+
+        :param redirect_to: The URL to redirect to.
+        :param args: Positional arguments passed to the parent class.
+        :param kwargs: Keyword arguments passed to the parent class.
+        """
         super().__init__(*args, **kwargs)
         self["Location"] = iri_to_uri(redirect_to)
         parsed = urlsplit(str(redirect_to))
@@ -648,6 +696,14 @@ class HttpResponseNotModified(HttpResponse):
     status_code = 304
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, inheriting from its parent class and removing the 'content-type' key from its attributes.
+
+        This constructor takes in any number of positional and keyword arguments, passing them to the parent class for initialization.
+        After initialization, it ensures that the 'content-type' key is deleted from the object's attributes to prevent any potential conflicts or misuse.
+
+        Note that this initializer does not perform any additional setup or validation beyond what is provided by its parent class and the removal of the 'content-type' key.
+        """
         super().__init__(*args, **kwargs)
         del self["content-type"]
 

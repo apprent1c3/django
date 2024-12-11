@@ -96,6 +96,16 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_fieldset_with_unhidden_field(self):
+        """
+
+        Tests the rendering of a form fieldset with both hidden and unhidden fields.
+
+        The test checks that a fieldset is used as expected when at least one unhidden field is present.
+        It verifies that the hidden field is not included within the fieldset and that the fieldset is correctly rendered around the unhidden field.
+
+        The test uses a custom form class with two SplitDateTimeFields: one hidden and one unhidden. It then checks the HTML output of the form to ensure that the fieldset is properly applied to the unhidden field.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             hidden_field = SplitDateTimeField(widget=self.widget)

@@ -481,6 +481,14 @@ class AnonymousUser:
         return _user_has_perm(self, perm, obj=obj)
 
     def has_perms(self, perm_list, obj=None):
+        """
+        Checks if the current object has all of the specified permissions.
+
+        :param perm_list: A list or other iterable of permissions to check for.
+        :param obj: An optional object to check permissions against. If not provided, permissions are checked globally.
+        :returns: True if the current object has all of the specified permissions, False otherwise.
+        :raises ValueError: If perm_list is not an iterable (excluding strings) of permissions.
+        """
         if not isinstance(perm_list, Iterable) or isinstance(perm_list, str):
             raise ValueError("perm_list must be an iterable of permissions.")
         return all(self.has_perm(perm, obj) for perm in perm_list)

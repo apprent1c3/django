@@ -50,6 +50,18 @@ class LeastTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "MySQL-specific workaround")
     def test_coalesce_workaround_mysql(self):
+        """
+
+        Tests a workaround for using the Coalesce function with MySQL to avoid incorrect date comparisons.
+
+        The Coalesce function is used to provide a default value if a field is null. However, MySQL has limitations when
+        comparing dates with Coalesce, which can lead to incorrect results. This test case creates a sample Article object
+        and checks if the last_updated field is correctly set to the written date when the published date is null.
+
+        The test uses a future date as a default value and verifies that the last_updated field is set to the written date,
+        which is the expected behavior. This test is MySQL-specific and is skipped for other database vendors.
+
+        """
         future = datetime(2100, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -63,6 +75,14 @@ class LeastTests(TestCase):
         self.assertEqual(articles.first().last_updated, now)
 
     def test_all_null(self):
+        """
+        Tests that all articles have null 'first_updated' field when no 'published' or 'updated' dates are set.
+
+        This test verifies the expected behavior of the 'first_updated' field in the Article model,
+        which is annotated with the earliest of 'published' and 'updated' dates. 
+        It checks that when neither 'published' nor 'updated' dates are provided for an article,
+        the 'first_updated' field is correctly set to None.
+        """
         Article.objects.create(title="Testing with Django", written=timezone.now())
         articles = Article.objects.annotate(first_updated=Least("published", "updated"))
         self.assertIsNone(articles.first().first_updated)

@@ -496,6 +496,19 @@ class AppConfigTests(SimpleTestCase):
         DEFAULT_AUTO_FIELD="django.db.models.SmallAutoField",
     )
     def test_default_auto_field_setting(self):
+        """
+
+        Tests the default auto field setting in the Django application configuration.
+
+        This test case verifies that the default auto field is correctly set to 
+        'django.db.models.SmallAutoField' when specified in the settings and that 
+        the '_is_default_auto_field_overridden' flag is appropriately set to False.
+
+        The test ensures that the application configuration accurately reflects the 
+        default auto field setting, providing confidence in the application's 
+        ability to use the correct auto field type.
+
+        """
         apps_config = apps.get_app_config("apps")
         self.assertEqual(
             apps_config.default_auto_field,

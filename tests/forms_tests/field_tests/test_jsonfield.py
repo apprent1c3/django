@@ -20,6 +20,12 @@ class JSONFieldTest(SimpleTestCase):
         self.assertEqual(value, {"a": "b"})
 
     def test_valid_empty(self):
+        """
+        Tests the validation of an empty JSON field when the field is not required.
+
+        Verifies that cleaning an empty string or a None value returns None, indicating
+        that the field can be empty without raising any validation errors.
+        """
         field = JSONField(required=False)
         self.assertIsNone(field.clean(""))
         self.assertIsNone(field.clean(None))
@@ -46,6 +52,14 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIsInstance(field.widget, Textarea)
 
     def test_custom_widget_kwarg(self):
+        """
+
+        Tests that a custom widget can be successfully passed to a JSONField as a keyword argument.
+
+        This test case verifies that the widget attribute of the JSONField instance
+        is correctly set to the provided widget class.
+
+        """
         field = JSONField(widget=TextInput)
         self.assertIsInstance(field.widget, TextInput)
 

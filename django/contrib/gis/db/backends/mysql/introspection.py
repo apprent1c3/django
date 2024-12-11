@@ -11,6 +11,14 @@ class MySQLIntrospection(DatabaseIntrospection):
     data_types_reverse[FIELD_TYPE.GEOMETRY] = "GeometryField"
 
     def get_geometry_type(self, table_name, description):
+        """
+        Returns the geometry type of a specified field in a database table.
+
+        :param table_name: The name of the table to retrieve the geometry type from.
+        :param description: An object containing information about the field, including its name.
+        :returns: A tuple containing the geometry type of the field as a Django field type and a dictionary of field parameters.
+        :rtype: tuple
+        """
         with self.connection.cursor() as cursor:
             # In order to get the specific geometry type of the field,
             # we introspect on the table definition using `DESCRIBE`.

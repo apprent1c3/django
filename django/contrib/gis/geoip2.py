@@ -223,6 +223,21 @@ class GeoIP2:
 
     @classmethod
     def open(cls, full_path, cache):
+        """
+        A class method that opens a GeoIP2 database.
+
+        .. deprecated:: 
+            This method is deprecated and will be removed in Django 6.0. Instead, use the :class:`GeoIP2` constructor directly.
+
+        This method creates a new instance of the GeoIP2 class, taking a full path to the database and a cache as parameters.
+
+        :param full_path: The full path to the GeoIP2 database.
+        :param cache: The cache to use for the GeoIP2 instance.
+        :return: A new instance of the GeoIP2 class.
+
+        Note: It is recommended to use the :class:`GeoIP2` constructor instead of this method for new code.\"\"\"
+        ```
+        """
         warnings.warn(
             "GeoIP2.open() is deprecated. Use GeoIP2() instead.",
             RemovedInDjango60Warning,

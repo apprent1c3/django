@@ -28,6 +28,16 @@ class Receiver:
         signal.connect(self, sender=APP_CONFIG)
 
     def __call__(self, signal, sender, **kwargs):
+        """
+        Invokes the callable instance, incrementing the call counter and storing keyword arguments.
+
+        This method is used to track the number of times the instance is called and retain the keyword arguments passed during the most recent invocation.
+
+        :param signal: The signal that triggered the invocation
+        :param sender: The sender of the signal
+        :param **kwargs: Additional keyword arguments passed during invocation
+
+        """
         self.call_counter += 1
         self.call_args = kwargs
 
@@ -39,6 +49,16 @@ class OneTimeReceiver:
     """
 
     def __init__(self, signal):
+        """
+        Initializes a signal handler instance.
+
+        This constructor sets up the signal handler with the provided signal, 
+        which is connected to the sender specified in the application configuration (APP_CONFIG).
+        It also initializes counters for tracking the number of calls and stores the arguments passed with the signal.
+
+        :param signal: The signal to be handled.
+
+        """
         self.signal = signal
         self.call_counter = 0
         self.call_args = None

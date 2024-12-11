@@ -299,6 +299,16 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
             EmailMessage(reply_to="reply_to@example.com")
 
     def test_header_injection(self):
+        """
+
+        Checks for header injection vulnerabilities in email messages.
+
+        This test ensures that email headers cannot contain newline characters,
+        which could be used to inject malicious headers. It covers various scenarios,
+        including subjects and 'To' addresses with newlines, and verifies that a 
+        :exc:`BadHeaderError` is raised in each case with a descriptive error message.
+
+        """
         msg = "Header values can't contain newlines "
         email = EmailMessage(
             "Subject\nInjection Test", "Content", "from@example.com", ["to@example.com"]
@@ -494,6 +504,15 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_unicode_headers(self):
+        """
+        Test handling of Unicode characters in email headers.
+
+        This test case verifies that email headers containing non-ASCII characters are properly encoded to ensure they can be transmitted and received correctly. It checks the encoding of the Subject, Sender, and Comments headers, ensuring they are correctly represented in the email message.
+
+        The test covers the use of UTF-8 encoding for headers with special characters, such as non-ASCII names and comments, to guarantee that they are delivered intact and can be read by the recipient's email client.
+
+        The expected output of this test is that the headers are properly encoded in the email message, using the UTF-8 character set and the relevant encoding schemes (base64 or quoted-printable) as necessary. This ensures that email messages with Unicode characters in their headers are sent and received correctly, allowing for the exchange of messages with internationalized content.
+        """
         email = EmailMessage(
             "Gżegżółka",
             "Content",
@@ -1451,6 +1470,20 @@ class BaseEmailBackendTests(HeadersCheckMixin):
         self.assertEqual(self.get_mailbox_content(), [])
 
     def test_wrong_admins_managers(self):
+        """
+
+        Tests that the ADMINS and MANAGERS settings are correctly validated.
+
+        The function checks that when either the ADMINS or MANAGERS setting is set to an
+        invalid value (such as a string, a single tuple, or a list of strings or tuples
+        with the wrong length), a ValueError is raised when attempting to send an email
+        using the mail_admins or mail_managers function, respectively.
+
+        The invalid values tested include strings, single tuples, and lists of strings or
+        tuples with the wrong length. The expected error message is verified to ensure
+        that the error is correctly reported.
+
+        """
         tests = (
             "test@example.com",
             ("test@example.com",),
@@ -1625,6 +1658,15 @@ class LocmemBackendTests(BaseEmailBackendTests, SimpleTestCase):
             )
 
     def test_outbox_not_mutated_after_send(self):
+        """
+
+        Tests that an EmailMessage instance is not mutated after it has been sent.
+
+        This test case verifies that changes made to an EmailMessage object after it has been sent through the email sending mechanism do not affect the email that was already sent. It checks that both the subject and recipient list of the sent email remain unchanged despite subsequent modifications to the original EmailMessage object.
+
+        The test ensures that emails in the outbox retain their original content and recipient information, guaranteeing consistency between the sent emails and their original configuration at the time of sending.
+
+        """
         email = EmailMessage(
             subject="correct subject",
             body="test body",
@@ -1703,6 +1745,14 @@ class FileBackendTests(BaseEmailBackendTests, SimpleTestCase):
 
 class FileBackendPathLibTests(FileBackendTests):
     def mkdtemp(self):
+        """
+
+        Create a temporary directory.
+
+        This method creates a unique temporary directory and returns its path as a Path object.
+        The directory is created in a way that it will be removed automatically when it is no longer needed.
+
+        """
         tmp_dir = super().mkdtemp()
         return Path(tmp_dir)
 
@@ -1711,6 +1761,15 @@ class ConsoleBackendTests(BaseEmailBackendTests, SimpleTestCase):
     email_backend = "django.core.mail.backends.console.EmailBackend"
 
     def setUp(self):
+        """
+
+        Sets up the test environment by initializing the stdout stream.
+
+        This method overrides the default setup behavior to redirect the standard output
+        to a StringIO object, allowing for capturing and verification of output during testing.
+        The original stdout is stored for potential restoration later.
+
+        """
         super().setUp()
         self.__stdout = sys.stdout
         self.stream = sys.stdout = StringIO()
@@ -1789,6 +1848,21 @@ class SMTPHandler:
 class SMTPBackendTestsBase(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class-level test environment for SMTP-related tests.
+
+        This method initializes the SMTP handler and controller, overrides the email settings
+        to use a local SMTP server, and starts the SMTP server. The local SMTP server is bound
+        to a random available port on localhost.
+
+        The settings override and SMTP server are automatically cleaned up after all tests in
+        the class have finished running, ensuring that the test environment is restored to its
+        original state.
+
+        This setup is necessary to isolate SMTP-related tests and prevent conflicts with other
+        tests or the production environment. It provides a self-contained SMTP server for testing
+        purposes, allowing for more reliable and efficient testing of email-related functionality.
+        """
         super().setUpClass()
         # Find a free port.
         with socket.socket() as s:
@@ -1834,6 +1908,17 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
         EMAIL_HOST_PASSWORD="not empty password",
     )
     def test_email_authentication_use_settings(self):
+        """
+        Tests that the smtp email backend uses email authentication settings.
+
+        Verifies that the email backend successfully retrieves and uses the 
+        username and password settings specified in the email configuration.
+
+        The test case confirms that the backend's username and password attributes 
+        match the values provided in the email settings, ensuring proper 
+        authentication for email sending operations.
+
+        """
         backend = smtp.EmailBackend()
         self.assertEqual(backend.username, "not empty username")
         self.assertEqual(backend.password, "not empty password")
@@ -1933,6 +2018,11 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
         self.assertEqual(backend.ssl_certfile, "bar")
 
     def test_email_ssl_certfile_default_disabled(self):
+        """
+        Tests that the ssl_certfile is not set by default when using the EmailBackend with SSL/TLS.
+
+        Verifies that when an instance of the EmailBackend class is created without explicitly setting the ssl_certfile, its value remains None. This ensures that SSL/TLS certificate verification is disabled by default, relying on the underlying SSL/TLS library's default behavior for certificate validation.
+        """
         backend = smtp.EmailBackend()
         self.assertIsNone(backend.ssl_certfile)
 
@@ -1952,6 +2042,17 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 
     @override_settings(EMAIL_USE_TLS=True)
     def test_email_tls_attempts_starttls(self):
+        """
+
+        Tests the TLS functionality of the email backend when attempting to start a secure connection.
+
+        Verifies that the email backend uses TLS as expected and checks for the correct exception handling
+        when the email server does not support the STARTTLS extension.
+
+        This test case ensures that the email backend behaves correctly in environments where TLS is enabled,
+        providing confidence in the security of email communications.
+
+        """
         backend = smtp.EmailBackend()
         self.assertTrue(backend.use_tls)
         with self.assertRaisesMessage(
@@ -1962,6 +2063,12 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 
     @override_settings(EMAIL_USE_SSL=True)
     def test_email_ssl_attempts_ssl_connection(self):
+        """
+        Tests that the email backend attempts an SSL connection when EMAIL_USE_SSL is set to True.
+
+        This test case verifies that the email backend correctly configures itself to use a secure SSL connection when the EMAIL_USE_SSL setting is enabled. It checks that the backend is set to use SSL and then attempts to establish a connection, expecting an SSLError to be raised.
+
+        """
         backend = smtp.EmailBackend()
         self.assertTrue(backend.use_ssl)
         with self.assertRaises(SSLError):

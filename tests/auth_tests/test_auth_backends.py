@@ -67,6 +67,13 @@ class BaseBackendTest(TestCase):
         self.assertIs(self.user.has_perm("other_perm", TestObj()), False)
 
     def test_has_perms_perm_list_invalid(self):
+        """
+        Tests that the has_perms method raises a ValueError when perm_list is not an iterable of permissions.
+
+        This test checks that the function correctly handles invalid input by raising an exception
+        with a meaningful error message when the perm_list argument is not an iterable, such as a string or an object.
+
+        """
         msg = "perm_list must be an iterable of permissions."
         with self.assertRaisesMessage(ValueError, msg):
             self.user.has_perms("user_perm")
@@ -281,6 +288,21 @@ class BaseModelBackendTest:
         PASSWORD_HASHERS=["auth_tests.test_auth_backends.CountingMD5PasswordHasher"]
     )
     def test_authentication_without_credentials(self):
+        """
+
+        Tests authentication without providing valid credentials.
+
+        This test case checks the behavior of the authentication system when 
+        invalid or incomplete credentials are supplied. It iterates over 
+        different scenarios, including providing no credentials, only a username, 
+        and only a password. 
+
+        The test asserts that in all these cases, the authentication function 
+        does not make any database queries and does not attempt to hash any 
+        passwords, which is verified by checking that the custom password 
+        hasher's call count remains zero.
+
+        """
         CountingMD5PasswordHasher.calls = 0
         for credentials in (
             {},
@@ -477,6 +499,19 @@ class RowlevelBackendTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Setup test data for the class.
+
+        This class method creates a set of pre-defined test users in the database.
+        It provides a common set of test data that can be used across multiple test cases,
+        reducing the need to create and delete users repeatedly during testing.
+
+        The method creates three test users, each with a unique username and email address,
+        and a shared password for simplicity. These users are stored as class attributes,
+        allowing them to be easily accessed and used throughout the test suite.
+
+        """
         cls.user1 = User.objects.create_user("test", "test@example.com", "test")
         cls.user2 = User.objects.create_user("test2", "test2@example.com", "test")
         cls.user3 = User.objects.create_user("test3", "test3@example.com", "test")
@@ -913,6 +948,15 @@ class SelectingBackendTests(TestCase):
             self.client._login(user)
 
     def test_non_string_backend(self):
+        """
+
+        Tests that a TypeError is raised when a non-string backend is supplied to the login function.
+
+        The test case verifies that the login function correctly handles invalid backend types.
+        It attempts to login a user with a backend that is not a dotted import path string,
+        and checks that a TypeError is raised with the expected error message.
+
+        """
         user = User.objects.create_user(self.username, "email", self.password)
         expected_message = (
             "backend must be a dotted import path string (got "

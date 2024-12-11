@@ -134,6 +134,22 @@ def make_middleware_decorator(middleware_class):
                 return None
 
             def _process_exception(request, exception):
+                """
+
+                Processes an exception that occurred during the execution of a request.
+
+                This function attempts to handle an exception by invoking the 
+                :func:`process_exception` method of the middleware, if available. 
+                If the middleware's method returns a result, this result is returned. 
+                Otherwise, the function re-raises the original exception, allowing it to propagate 
+                up the call stack for further handling or logging.
+
+                :param request: The request that triggered the exception.
+                :param exception: The exception that occurred during request execution.
+                :returns: The result of the middleware's :func:`process_exception` method, 
+                          or None if no middleware is available or configured to handle the exception.
+
+                """
                 if hasattr(middleware, "process_exception"):
                     result = middleware.process_exception(request, exception)
                     if result is not None:
@@ -178,6 +194,31 @@ def make_middleware_decorator(middleware_class):
             else:
 
                 def _view_wrapper(request, *args, **kwargs):
+                    """
+                    Wrapper function to preprocess, execute, and postprocess a view function request.
+
+                    This function takes a request and any additional positional and keyword arguments, 
+                    then applies the following steps:
+                    - Preprocesses the request, potentially returning a result immediately if the 
+                      request is handled during this step.
+                    - If preprocessing does not return a result, executes the wrapped view function 
+                      with the given request and arguments.
+                    - If an exception occurs during view function execution, catches the exception and 
+                      attempts to process it, potentially returning a result immediately.
+                    - If exception processing does not return a result, or if no exception occurred, 
+                      postprocesses the request and response, then returns the final result.
+
+                    The purpose of this wrapper is to provide a standardized way to handle requests, 
+                    including preprocessing, exception handling, and postprocessing, ensuring a 
+                    consistent and robust interface for view functions. 
+
+                    :param request: The incoming request to be processed.
+                    :param args: Additional positional arguments to be passed to the view function.
+                    :param kwargs: Additional keyword arguments to be passed to the view function.
+                    :return: The result of the request processing, which may be influenced by 
+                        preprocessing, view function execution, exception handling, or postprocessing.
+
+                    """
                     result = _pre_process_request(request, *args, **kwargs)
                     if result is not None:
                         return result

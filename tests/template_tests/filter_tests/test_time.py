@@ -20,6 +20,14 @@ class TimeTests(TimezoneTestCase):
 
     @setup({"time00_l10n": "{{ dt|time }}"})
     def test_time00_l10n(self):
+        """
+
+        Tests the time localization feature when the locale is set to French.
+
+        Verifies that a given datetime object is rendered correctly in the 'HH:MM' format.
+        The test assumes a time of 16:25 and checks if the rendered output matches the expected string '16:25'.
+
+        """
         with translation.override("fr"):
             output = self.engine.render_to_string("time00_l10n", {"dt": time(16, 25)})
         self.assertEqual(output, "16:25")
@@ -36,6 +44,12 @@ class TimeTests(TimezoneTestCase):
 
     @setup({"time03": '{{ t|time:"P:e:O:T:Z" }}'})
     def test_time03(self):
+        """
+        Test rendering of time object in format 'P:e:O:T:Z'.
+
+        This function checks if the time object is correctly formatted as per the given format.
+        It tests if the time '4 a.m.' in a specific timezone is correctly rendered as '4 a.m.::::'
+        """
         output = self.engine.render_to_string(
             "time03", {"t": time(4, 0, tzinfo=timezone.get_fixed_timezone(30))}
         )
@@ -48,11 +62,32 @@ class TimeTests(TimezoneTestCase):
 
     @setup({"time05": '{{ d|time:"P:e:O:T:Z" }}'})
     def test_time05(self):
+        """
+        Tests the rendering of a time string in the format 'P:e:O:T:Z' to an empty string when the input date is today.
+
+        The function verifies that when the current date is provided as input, the function correctly handles the time format and produces the expected output, which in this case is an empty string.
+
+        :raises AssertionError: If the rendered output does not match the expected empty string
+        """
         output = self.engine.render_to_string("time05", {"d": self.today})
         self.assertEqual(output, "")
 
     @setup({"time06": '{{ obj|time:"P:e:O:T:Z" }}'})
     def test_time06(self):
+        """
+
+        Tests the time filter with a non-datetime value.
+
+        Verifies that when a non-datetime value is passed to the time filter, 
+        it returns an empty string.
+
+        Args:
+            self: The test instance.
+
+        Returns:
+            None
+
+        """
         output = self.engine.render_to_string("time06", {"obj": "non-datetime-value"})
         self.assertEqual(output, "")
 

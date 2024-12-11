@@ -64,6 +64,16 @@ class FunctionTests(TestCase):
             )
 
     def test_function_as_filter(self):
+        """
+
+        Tests the functionality of filtering Author objects based on their alias field, 
+        using case-insensitive matching via the Upper database function. 
+
+        The test case verifies that an Author with the alias 'SMITHJ' can be successfully 
+        retrieved when querying with 'smithj' (lowercase), and that other authors without 
+        this alias are correctly excluded from the query results.
+
+        """
         Author.objects.create(name="John Smith", alias="SMITHJ")
         Author.objects.create(name="Rhonda")
         self.assertQuerySetEqual(

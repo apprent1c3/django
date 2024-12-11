@@ -90,6 +90,13 @@ class TranslationCheckTests(SimpleTestCase):
 
     @override_settings(USE_I18N=True, LANGUAGES=[("en", "English")])
     def test_inconsistent_language_settings(self):
+        """
+        Test that the system correctly identifies inconsistent language settings.
+
+        This test checks the validation of the LANGUAGE_CODE setting against the list of languages defined in the LANGUAGES setting.
+        It verifies that an error is raised when the LANGUAGE_CODE is not present in the LANGUAGES list.
+        The test covers different language tags, including those with and without region or dialect specifications.
+        """
         msg = (
             "You have provided a value for the LANGUAGE_CODE setting that is "
             "not in the LANGUAGES setting."

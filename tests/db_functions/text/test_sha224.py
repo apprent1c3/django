@@ -46,6 +46,19 @@ class SHA224Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+
+        Tests the transformation of author names using the SHA224 hash function.
+
+        This test case checks if the lookup registration for the CharField with SHA224
+        hashing is functioning correctly. It retrieves a list of authors with a specific
+        SHA224 hash value for their alias and asserts that the result matches the
+        expected author name.
+
+        The test verifies the correctness of the hash-based lookup process, ensuring that
+        it returns the correct author instance based on the hashed alias value.
+
+        """
         with register_lookup(CharField, SHA224):
             authors = Author.objects.filter(
                 alias__sha224=(

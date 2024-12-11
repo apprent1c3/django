@@ -25,6 +25,13 @@ class SessionStore(SessionBase):
         self._session_key = self.encode({})
 
     def load(self):
+        """
+        Loads the session data from the stored session key.
+
+        Attempts to decode the session key using the internal decoding mechanism.
+        If the decoding is successful, the loaded session data is returned.
+        In case of any decoding errors, the session is marked as modified and an empty dictionary is returned.
+        """
         try:
             return self.decode(self.session_key)
         except Exception:

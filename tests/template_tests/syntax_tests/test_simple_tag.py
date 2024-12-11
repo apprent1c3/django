@@ -19,5 +19,8 @@ class SimpleTagTests(SimpleTestCase):
 
     @setup({"simpletag-renamed03": "{% load custom %}{% minustwo_overridden_name 7 %}"})
     def test_simpletag_renamed03(self):
+        """
+        Tests that a simple tag with an overridden name, specifically 'minustwo_overridden_name', raises a TemplateSyntaxError when used in a template. This test case checks the functionality of the custom template tag loader and the engine's ability to handle template syntax errors.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("simpletag-renamed03")

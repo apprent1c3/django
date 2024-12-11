@@ -21,6 +21,15 @@ class LowerTests(SimpleTestCase):
 
     @setup({"lower02": "{{ a|lower }} {{ b|lower }}"})
     def test_lower02(self):
+        """
+
+        Tests the rendering of template with lower filter applied to its variables.
+
+        This test case checks the correct application of the lower filter on input strings, 
+        handling special characters like ampersands ('&') in HTML-safe context.
+        It verifies that the output string has all characters converted to lowercase as expected.
+
+        """
         output = self.engine.render_to_string(
             "lower02", {"a": "Apple & banana", "b": mark_safe("Apple &amp; banana")}
         )

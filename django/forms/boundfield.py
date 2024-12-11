@@ -264,6 +264,20 @@ class BoundField(RenderableFieldMixin):
         return self.form.get_initial_for_field(self.field, self.name)
 
     def build_widget_attrs(self, attrs, widget=None):
+        """
+        Builds and returns a dictionary of HTML attributes for a form widget.
+
+        The function takes into account various factors such as whether the field is required, disabled, or has errors. It also considers the widget type and its configuration.
+
+        The returned dictionary can be used to render the widget with the correct attributes, ensuring accessibility and proper form behavior.
+
+        Parameters:
+            attrs (dict): Initial dictionary of attributes.
+            widget (object, optional): The widget instance to use. Defaults to the field's widget.
+
+        Returns:
+            dict: The updated dictionary of HTML attributes for the widget.
+        """
         widget = widget or self.field.widget
         attrs = dict(attrs)  # Copy attrs to avoid modifying the argument.
         if (
@@ -341,6 +355,17 @@ class BoundWidget:
         return self.tag(wrap_label=True)
 
     def tag(self, wrap_label=False):
+        """
+
+        Render the widget with the provided template.
+
+        Renders the widget using the specified template and context. If wrap_label is True, 
+        the label will be wrapped according to the template's configuration.
+
+        :arg bool wrap_label: Whether to wrap the label when rendering the widget.
+        :returns: The rendered widget as a string.
+
+        """
         context = {"widget": {**self.data, "wrap_label": wrap_label}}
         return self.parent_widget._render(self.template_name, context, self.renderer)
 

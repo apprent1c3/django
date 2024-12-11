@@ -22,6 +22,28 @@ class AreaField(models.FloatField):
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Returns the prepared value of a geographic field for database storage.
+
+        Parameters
+        ----------
+        value : object
+            The geographic value to be prepared for database storage.
+        connection : object
+            The database connection object.
+        prepared : bool, optional
+            A flag indicating whether the value is already prepared (default is False).
+
+        Returns
+        -------
+        object
+            The prepared geographic value, or None if the input value is None.
+
+        The preparation process involves retrieving the area attribute for the
+        geographic field from the database connection operations and using it
+        to get the corresponding attribute from the value object. If no area
+        attribute is found, the original value is returned.
+        """
         if value is None:
             return
         area_att = connection.ops.get_area_att_for_field(self.geo_field)
@@ -46,6 +68,14 @@ class DistanceField(models.FloatField):
     "Wrapper for Distance values."
 
     def __init__(self, geo_field):
+        """
+        Initializes the object, setting up the geographic field attribute.
+
+        :param geo_field: The geographic field to be associated with this object
+        :type geo_field: 
+        :raises: 
+        :note: This method is called when an instance of the class is created and is used to establish the geographic context for subsequent operations.
+        """
         super().__init__()
         self.geo_field = geo_field
 

@@ -40,6 +40,21 @@ class SignalTestCase(TestCase):
 
     def test_login(self):
         # Only a successful login will trigger the success signal.
+        """
+
+        Tests the login functionality of the client.
+
+        This test case covers two scenarios: a failed login attempt with incorrect credentials and a successful login attempt with correct credentials.
+
+        The test first attempts to log in with incorrect credentials, verifying that the login fails and the failed login attempt is recorded. It then attempts to log in with correct credentials, verifying that the login is successful and the logged in user is correctly identified.
+
+        The test checks the following conditions:
+
+        * A failed login attempt is recorded with the correct username and password (with the password masked for security).
+        * A successful login attempt results in the correct user being logged in.
+        * The number of logged in and failed login attempts is correctly tracked.
+
+        """
         self.client.login(username="testclient", password="bad")
         self.assertEqual(len(self.logged_in), 0)
         self.assertEqual(len(self.login_failed), 1)

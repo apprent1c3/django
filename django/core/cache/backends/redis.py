@@ -63,6 +63,16 @@ class RedisCacheClient:
     def _get_connection_pool_index(self, write):
         # Write to the first server. Read from other servers if there are more,
         # otherwise read from the first server.
+        """
+        Obtains the index of the connection pool to use.
+
+        This method determines which server in the pool to connect to, based on the intent to write data.
+        If write operations are intended or there is only a single server in the pool, it will always select the primary server (at index 0).
+        For read operations and multiple servers, it randomly selects one of the secondary servers (at index 1 or greater).
+
+        :param write: A boolean indicating whether the intention is to write data
+        :returns: The index of the connection pool to use
+        """
         if write or len(self._servers) == 1:
             return 0
         return random.randint(1, len(self._servers) - 1)
@@ -100,6 +110,14 @@ class RedisCacheClient:
         return default if value is None else self._serializer.loads(value)
 
     def set(self, key, value, timeout):
+        """
+        Sets a value in the cache for a given key with an optional expiration timeout.
+
+        :param key: The key under which the value will be stored.
+        :param value: The value to be stored.
+        :param timeout: The time in seconds until the value expires. A value of 0 will delete the key from the cache.
+        :return: None
+        """
         client = self.get_client(key, write=True)
         value = self._serializer.dumps(value)
         if timeout == 0:
@@ -158,6 +176,18 @@ class RedisCacheClient:
 
 class RedisCache(BaseCache):
     def __init__(self, server, params):
+        """
+        Initializes a new instance of the class.
+
+        :param server: A string or list of server addresses, where multiple addresses can be separated by commas or semicolons in the string.
+        :param params: A dictionary of parameters, including OPTIONS for additional configuration settings.
+
+        :property _servers: A list of server addresses parsed from the input server parameter.
+        :property _class: The type of cache client, set to RedisCacheClient.
+        :property _options: A dictionary of options extracted from the params dictionary.
+
+        This initialization method sets up the instance with the provided server and parameter settings, preparing it for use as a cache client.
+        """
         super().__init__(params)
         if isinstance(server, str):
             self._servers = re.split("[;,]", server)
@@ -206,6 +236,14 @@ class RedisCache(BaseCache):
         return {key_map[k]: v for k, v in ret.items()}
 
     def has_key(self, key, version=None):
+        """
+        Checks if a given key exists in the cache.
+
+        :param key: The key to check for existence in the cache.
+        :param version: Optional version number associated with the key.
+        :returns: True if the key exists in the cache, False otherwise.
+        :note: The key is automatically validated and formatted before checking for existence.
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._cache.has_key(key)
 

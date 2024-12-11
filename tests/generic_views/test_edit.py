@@ -121,6 +121,21 @@ class CreateViewTests(TestCase):
         self.assertEqual(Author.objects.count(), 0)
 
     def test_create_with_object_url(self):
+        """
+
+        Tests the successful creation of an artist object via a POST request.
+
+        Verifies that upon receiving a valid request, the server redirects the client
+        to the newly created artist's detail page and that the artist object is
+        successfully stored in the database.
+
+        The test checks for the following conditions:
+        - A 302 status code is returned, indicating a redirect.
+        - The client is redirected to the correct detail page for the new artist.
+        - The artist object is correctly stored and can be retrieved from the database.
+        - The database contains only the newly created artist object.
+
+        """
         res = self.client.post("/edit/artists/create/", {"name": "Rene Magritte"})
         self.assertEqual(res.status_code, 302)
         artist = Artist.objects.get(name="Rene Magritte")
@@ -245,6 +260,19 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_post(self):
+        """
+
+        Tests the update post functionality for an author.
+
+        Verifies that the update form is rendered correctly with a GET request,
+        including the correct form instance, object, and author. Also checks that
+        the correct template is used to render the form.
+
+        Then, tests a POST request to update the author's information, ensuring
+        that the request is successful, redirects to the authors list page, and
+        that the author's information is updated correctly in the database.
+
+        """
         res = self.client.get("/edit/author/%d/update/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -276,6 +304,16 @@ class UpdateViewTests(TestCase):
         self.assertEqual(res.context["view"].get_form_called_count, 1)
 
     def test_update_with_object_url(self):
+        """
+
+        Tests that updating an artist's details with a URL that includes the object's URL 
+        redirects correctly and does not change the artist's details.
+
+        The test checks that a POST request to the update endpoint with the artist's name 
+        remaining the same results in a successful redirect to the artist's detail page, 
+        and that the artist's details in the database remain unchanged.
+
+        """
         a = Artist.objects.create(name="Rene Magritte")
         res = self.client.post(
             "/edit/artists/%d/update/" % a.pk, {"name": "Rene Magritte"}
@@ -435,6 +473,25 @@ class DeleteViewTests(TestCase):
         self.assertQuerySetEqual(Author.objects.all(), [])
 
     def test_delete_without_redirect(self):
+        """
+        Tests that deleting an author without specifying a redirect URL raises an ImproperlyConfigured exception.
+
+        The test checks that when a POST request is made to delete an author without providing a success URL,
+        the expected error message is displayed, indicating that a URL for redirection is required.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ImproperlyConfigured: When no success URL is provided for the deletion operation.
+
+        Note:
+            The test uses the author instance associated with the test case to simulate the deletion request.
+
+        """
         msg = "No URL to redirect to. Provide a success_url."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             self.client.post("/edit/author/%d/delete/naive/" % self.author.pk)

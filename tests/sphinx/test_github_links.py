@@ -48,11 +48,21 @@ class I:
         self.assertEqual(locator.import_locations, {"b": "a", "c": "a", "e": ".d"})
 
     def test_module_name_to_file_path_package(self):
+        """
+        Tests the conversion of a module name to its corresponding file path, 
+        with the expectation that the resulting path points to the package's 
+        __init__.py file.
+        """
         path = github_links.module_name_to_file_path("django")
 
         self.assertEqual(last_n_parts(path, 2), "django/__init__.py")
 
     def test_module_name_to_file_path_module(self):
+        """
+        Tests that the module_name_to_file_path function from github_links module 
+        correctly converts a Python module name to its corresponding file path, 
+        by verifying the resulting path ends with the expected directory and file name.
+        """
         path = github_links.module_name_to_file_path("django.shortcuts")
 
         self.assertEqual(last_n_parts(path, 2), "django/shortcuts.py")
@@ -99,6 +109,20 @@ class I:
         self.assertEqual(line, 20)
 
     def test_get_path_and_line_forwarded_import(self):
+        """
+        Returns the file path and line number of a given class or function from a forwarded import.
+
+        The function takes a module name and a fully qualified name of a class or function, 
+        and returns a tuple containing the path to the file where the class or function is defined 
+        and the line number where it is defined. 
+
+        This can be useful for generating links to specific lines in code repository views, 
+        such as GitHub. 
+
+        :param module: The name of the module where the import is forwarded from.
+        :param fullname: The fully qualified name of the class or function.
+        :returns: A tuple containing the file path and line number.
+        """
         path, line = github_links.get_path_and_line(
             module="tests.sphinx.testdata.package.module", fullname="MyOtherClass"
         )
@@ -130,6 +154,27 @@ class I:
         self.assertEqual(line, 1)
 
     def test_get_path_and_line_forwarded_import_module(self):
+        """
+        Return the path and line number of a forwarded import module.
+
+        Given a module name and a fully qualified name of an object (e.g., class or function),
+        this function returns the file path where the object is defined and the line number
+        where it is defined.
+
+        The returned path is the path to the Python file where the object is defined, and the
+        line number is the line number where the object's definition starts.
+
+        This function is useful for resolving the location of imported objects, especially in
+        cases where the import is forwarded through multiple modules. The result can be used
+        to create links or references to the object's definition in documentation or other
+        tools.
+
+        :param module: The name of the module where the object is imported.
+        :param fullname: The fully qualified name of the object (e.g., class or function).
+        :returns: A tuple containing the path to the object's definition and the line number
+                  where it is defined.
+
+        """
         path, line = github_links.get_path_and_line(
             module="tests.sphinx.testdata.package.module",
             fullname="other_module.MyOtherClass",
@@ -167,6 +212,16 @@ class I:
         )
 
     def test_github_linkcode_resolve_not_found(self):
+        """
+        Test that github_linkcode_resolve returns None for non-existent modules.
+
+        This test case checks the behavior of github_linkcode_resolve when given a module
+        that is expected to not exist. It verifies that the function correctly handles
+        this scenario and returns None as expected.
+
+        :expected output: None
+        :raises: None
+        """
         info = {
             "module": "foo.bar.baz.hopefully_non_existant_module",
             "fullname": "MyClass",

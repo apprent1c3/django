@@ -72,6 +72,11 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(my_birthday, ""), "")
 
     def test_am_pm(self):
+        """
+        Tests the formatting of time objects using 'a' and 'A' format codes to determine AM/PM designation.
+
+        This test ensures that times before noon are correctly labeled as 'a.m.' or 'AM', and times at or after noon are labeled as 'p.m.' or 'PM'.
+        """
         morning = time(7, 00)
         evening = time(19, 00)
         self.assertEqual(dateformat.format(morning, "a"), "a.m.")
@@ -208,6 +213,9 @@ class DateFormatTests(SimpleTestCase):
 
     @requires_tz_support
     def test_e_format_with_named_time_zone(self):
+        """
+        Tests the dateformat function's ability to format a datetime object in a specific time zone, identified by name, using the 'e' format code. Verifies that the formatted string matches the expected result when the input datetime object is set to the UTC timezone.
+        """
         dt = datetime(1970, 1, 1, tzinfo=timezone.utc)
         self.assertEqual(dateformat.format(dt, "e"), "UTC")
 
@@ -236,6 +244,10 @@ class DateFormatTests(SimpleTestCase):
 
     def test_r_format_with_date(self):
         # Assume midnight in default timezone if datetime.date provided.
+        """
+        Tests the r format specifier for date formatting, verifying that it correctly generates a string in the format defined by RFC 5322, including the day of the week, date, time, and timezone offset.\"\"\"
+        ```
+        """
         dt = date(2022, 7, 1)
         self.assertEqual(
             dateformat.format(dt, "r"),
@@ -281,6 +293,15 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(datetime(999, 1, 1), "Y"), "0999")
 
     def test_twelve_hour_format(self):
+        """
+
+        Tests the twelve-hour format functionality of the dateformat module.
+
+        This function verifies that the 12-hour clock format is correctly applied to various times of day.
+        It checks the formatting of hours in both 'g' (1-12) and 'h' (01-12) formats, ensuring that the
+        output matches the expected results for each hour from 0 to 23.
+
+        """
         tests = [
             (0, "12", "12"),
             (1, "1", "01"),

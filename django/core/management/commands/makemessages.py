@@ -47,6 +47,17 @@ def is_valid_locale(locale):
 @total_ordering
 class TranslatableFile:
     def __init__(self, dirpath, file_name, locale_dir):
+        """
+
+        Initialize an instance for managing localization files.
+
+        :param dirpath: The base directory path where localization files are stored.
+        :param file_name: The name of the file to be localized.
+        :param locale_dir: The directory containing locale-specific translations.
+
+        This initialization sets up the necessary paths and file names for further localization operations. 
+
+        """
         self.file = file_name
         self.dirpath = dirpath
         self.locale_dir = locale_dir
@@ -492,6 +503,16 @@ class Command(BaseCommand):
 
     @cached_property
     def settings_available(self):
+        """
+        Checks if project settings are properly configured and available.
+
+        Returns:
+            bool: True if settings are available, False otherwise.
+
+        Notes:
+            This check is used to verify if the necessary settings have been correctly set up.
+            If settings are not available, a message will be printed to the standard error if verbosity level is greater than 1.
+        """
         try:
             settings.LOCALE_PATHS
         except ImproperlyConfigured:

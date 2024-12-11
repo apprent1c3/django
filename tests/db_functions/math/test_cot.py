@@ -11,6 +11,9 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CotTests(TestCase):
     def test_null(self):
+        """
+        Tests that the Cot annotation correctly handles null values in the 'normal' field of the IntegerModel, verifying that the annotated 'null_cot' field is None when the underlying data is null.
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_cot=Cot("normal")).first()
         self.assertIsNone(obj.null_cot)

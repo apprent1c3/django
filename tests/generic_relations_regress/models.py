@@ -135,6 +135,13 @@ class Board(models.Model):
 
 class SpecialGenericRelation(GenericRelation):
     def __init__(self, *args, **kwargs):
+        """
+
+        Initializes the object, inheriting properties from its parent class and setting default attributes.
+
+        The object is made editable by default, with the ability to track the number of times form data is saved.
+
+        """
         super().__init__(*args, **kwargs)
         self.editable = True
         self.save_form_data_calls = 0

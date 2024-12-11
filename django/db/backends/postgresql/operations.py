@@ -58,6 +58,19 @@ class DatabaseOperations(BaseDatabaseOperations):
         }
 
     def unification_cast_sql(self, output_field):
+        """
+        Formats the SQL query for unification casting to the specified output field type.
+
+        This function determines the internal type of the output field and returns a formatted string 
+        for a SQL cast operation. If the field type is GenericIPAddressField, IPAddressField, TimeField, 
+        or UUIDField, it returns a CAST operation with the field's database type. Otherwise, it returns 
+        the field name as is. The returned string can be used directly in a SQL query to ensure 
+        consistent data types across different database systems.
+
+        :arg output_field: The output field to determine the internal type and database type from.
+        :return: A formatted SQL query string for unification casting. 
+        :rtype: str
+        """
         internal_type = output_field.get_internal_type()
         if internal_type in (
             "GenericIPAddressField",
@@ -122,6 +135,34 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"({sql})::time", params
 
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
+        """
+
+        Extracts a datetime component from a SQL query.
+
+        This function takes a lookup type, a SQL query, parameters, and a timezone name,
+        and returns a tuple containing the modified SQL query and the parameters.
+        The lookup type determines which datetime component to extract, such as 'second'.
+        The SQL query and parameters are first converted to the specified timezone.
+        If the lookup type is 'second', the function returns a SQL query that extracts the second component.
+        Otherwise, it delegates to the date_extract_sql method.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The type of datetime component to extract, such as 'second'.
+        sql : str
+            The SQL query to extract the datetime component from.
+        params : tuple
+            The parameters for the SQL query.
+        tzname : str
+            The name of the timezone to convert the SQL query to.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the modified SQL query and the parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         if lookup_type == "second":
             # Truncate fractional seconds.

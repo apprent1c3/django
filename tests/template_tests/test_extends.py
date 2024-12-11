@@ -10,12 +10,23 @@ RECURSIVE = os.path.join(ROOT, "recursive_templates")
 
 class ExtendsBehaviorTests(SimpleTestCase):
     def test_normal_extend(self):
+        """
+        Handles the rendering of a template named 'one.html' using the Engine from a specific directory, 
+        verifies that the output is as expected after rendering with an empty context. 
+        The test checks the successful extension of templates in normal scenarios.
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("one.html")
         output = template.render(Context({}))
         self.assertEqual(output.strip(), "three two one")
 
     def test_extend_recursive(self):
+        """
+        Tests the recursive extension mechanism by rendering a template named 'recursive.html' 
+        from multiple directories. The function verifies that the template is rendered correctly 
+        by comparing the output with an expected string, ensuring that the recursive extension 
+        works as intended and loads templates from all specified directories in the correct order.
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),
@@ -28,6 +39,16 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(output.strip(), "fs3/recursive fs2/recursive fs/recursive")
 
     def test_extend_missing(self):
+        """
+        Tests the extend functionality when a parent template is missing.
+
+        This test case verifies that when a child template attempts to extend a parent 
+        template that does not exist, the `TemplateDoesNotExist` exception is raised.
+        The test checks the number of templates that are tried during the rendering 
+        process and ensures that only the missing parent template is attempted to be 
+        loaded, confirming the expected behavior of the template engine in handling 
+        non-existent parent templates.
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("extend-missing.html")
         with self.assertRaises(TemplateDoesNotExist) as e:
@@ -83,6 +104,17 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(message, "Skipped to avoid recursion")
 
     def test_extend_cached(self):
+        """
+
+        Tests the extension of the template cache when using the cached template loader.
+
+        This test case verifies that the template cache is correctly extended when
+        rendering templates from multiple directories. It checks that the cache is
+        populated with the expected templates and that the origin of the templates is
+        correctly set. The test also ensures that rendering multiple templates with the
+        same content but different names does not result in duplicate cache entries.
+
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),

@@ -127,6 +127,17 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         )
 
     def test_template_detail(self):
+        """
+        Tests the template detail page.
+
+        Verifies that the template detail page for the specified template 
+        ('admin_doc/template_detail.html') can be retrieved successfully and 
+        contains the expected template name in the page header.
+
+        The test ensures that the page title properly displays the template name, 
+        indicating that the template detail page is correctly rendering the 
+        requested template's information.
+        """
         response = self.client.get(
             reverse(
                 "django-admindocs-templates", args=["admin_doc/template_detail.html"]
@@ -145,6 +156,13 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, "view_for_loader_test.html</code></li>")
 
     def test_missing_docutils(self):
+        """
+        Tests the behavior of the admin documentation system when the docutils library is missing.
+
+        Verifies that the system correctly displays an error message indicating that the docutils library is required and provides instructions for installation.
+
+        Also checks that the standard Django administration interface elements remain visible on the page.
+        """
         utils.docutils_is_available = False
         try:
             response = self.client.get(reverse("django-admindocs-docroot"))
@@ -240,6 +258,11 @@ class AdminDocViewWithMultipleEngines(AdminDocViewTests):
 @unittest.skipUnless(utils.docutils_is_available, "no docutils installed.")
 class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
     def setUp(self):
+        """
+        Sets up the test environment for docstring testing by logging in as a superuser and capturing any stderr output.
+        The function simulates a GET request to the admin documentation detail page for the 'Person' model, allowing for subsequent tests to validate the documentation output.
+        It prepares the test class with necessary attributes, including the captured stderr and the HTTP response from the simulated request.
+        """
         self.client.force_login(self.superuser)
         with captured_stderr() as self.docutils_stderr:
             self.response = self.client.get(

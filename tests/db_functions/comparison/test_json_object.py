@@ -109,6 +109,14 @@ class JSONObjectTests(TestCase):
 @skipIfDBFeature("has_json_object_function")
 class JSONObjectNotSupportedTests(TestCase):
     def test_not_supported(self):
+        """
+
+        Tests that attempting to use the JSONObject database function on an unsupported backend raises a NotSupportedError.
+
+        The test case simulates a scenario where the JSONObject function is applied to a database query using the annotate method, 
+        and verifies that the expected error message is raised with a clear indication that JSONObject is not supported on the current database backend.
+
+        """
         msg = "JSONObject() is not supported on this database backend."
         with self.assertRaisesMessage(NotSupportedError, msg):
             Author.objects.annotate(json_object=JSONObject()).get()

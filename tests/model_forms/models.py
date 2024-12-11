@@ -148,6 +148,18 @@ class TextFile(models.Model):
 
 class CustomFileField(models.FileField):
     def save_form_data(self, instance, data):
+        """
+
+        Saves form data for the given instance.
+
+        This method updates the internal state of the object to reflect that form data has been saved.
+        It ensures that the save operation can only be performed once, raising an assertion error if 
+        called multiple times with the same instance.
+
+        :param instance: The instance for which the form data is being saved
+        :param data: The data to be saved for the instance
+
+        """
         been_here = getattr(self, "been_saved", False)
         assert not been_here, "save_form_data called more than once"
         setattr(self, "been_saved", True)

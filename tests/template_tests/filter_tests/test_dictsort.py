@@ -93,6 +93,11 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(dictsort(data, 0), expected)
 
     def test_sort_list_of_tuple_like_dicts(self):
+        """
+        Tests the dictsort function with a list of dictionary-like objects, where each dictionary has keys '0' and '1'. 
+        The function should sort the list based on the values of key '0' in ascending order, demonstrating its ability to handle tuple-like dictionaries. 
+        This test case ensures the function behaves correctly when sorting dictionary-like objects with both string and non-string values, returning a new sorted list without modifying the original data.
+        """
         data = [
             {"0": "a", "1": "42"},
             {"0": "c", "1": "string"},

@@ -216,6 +216,18 @@ class RegexPattern(CheckURLMixin):
         return None
 
     def check(self):
+        """
+
+        Check the validity of the current configuration.
+
+        This method performs a series of checks to identify potential issues with the current setup.
+        It verifies that patterns start with a slash and, for non-endpoint configurations, checks for the inclusion of a trailing dollar sign.
+        Any warnings or issues found during these checks are collected and returned as a list.
+
+        Returns:
+            list: A list of warnings or issues detected during the checks.
+
+        """
         warnings = []
         warnings.extend(self._check_pattern_startswith_slash())
         if not self._is_endpoint:
@@ -223,6 +235,12 @@ class RegexPattern(CheckURLMixin):
         return warnings
 
     def _check_include_trailing_dollar(self):
+        """
+        Checks if a URL pattern ends with a trailing dollar sign ($), 
+        which can cause issues when including URLs. If a trailing dollar 
+        sign is found, a warning is returned with a recommendation to 
+        remove it from the route to avoid potential problems.
+        """
         if self._regex.endswith("$") and not self._regex.endswith(r"\$"):
             return [
                 Warning(
@@ -387,6 +405,20 @@ class LocalePrefixPattern:
 
     @property
     def language_prefix(self):
+        """
+        Returns the language prefix for the current instance.
+
+        The prefix is determined by the currently active language code, which is
+        retrieved using the :func:`get_language` function. If this function returns
+        ``None``, the default language code from the settings is used instead.
+
+        The prefix will be in the format of ``'<language_code>/'``, unless the
+        current language code matches the default language code from the settings
+        and the :attr:`prefix_default_language` attribute is ``False``. In this
+        case, an empty string will be returned.
+
+        This property can be used to construct URLs or paths that are language-aware.
+        """
         language_code = get_language() or settings.LANGUAGE_CODE
         if language_code == settings.LANGUAGE_CODE and not self.prefix_default_language:
             return ""
@@ -440,6 +472,13 @@ class URLPattern:
             return []
 
     def _check_callback(self):
+        """
+        Checks if the provided callback is a valid Django view.
+
+        Returns a list of errors if the callback is a class-based view that should be passed as an instance of `as_view()` instead of the class itself. This ensures that the view is properly initialized and configured for use in the URL pattern.
+
+        If the callback is valid, an empty list is returned. The validation is performed to prevent common mistakes when defining URL patterns, ensuring that the application's routing configuration is correct and functional.
+        """
         from django.views import View
 
         view = self.callback
@@ -618,6 +657,17 @@ class URLResolver:
 
     @property
     def reverse_dict(self):
+        """
+        Property that returns a dictionary with reversed key-value pairs for the current language.
+
+        Returns a dictionary where the keys and values are swapped compared to the original dictionary, 
+        specifically tailored for the language currently being used. If the dictionary for the current 
+        language has not been populated yet, this property will trigger the population process before 
+        returning the reversed dictionary. The returned dictionary is language-dependent, meaning its 
+        contents will change based on the active language setting.
+
+        :rtype: dict
+        """
         language_code = get_language()
         if language_code not in self._reverse_dict:
             self._populate()
@@ -658,6 +708,29 @@ class URLResolver:
         return name in self._callback_strs
 
     def resolve(self, path):
+        """
+        Resolves a URL path against a set of URL patterns.
+
+        Attempts to match the given path against a set of predefined URL patterns. 
+        If a match is found, it recursively attempts to resolve any sub-paths 
+        until a complete match is found. 
+
+        The function returns a ResolverMatch object containing information about 
+        the matched URL, including the view function, arguments, and other relevant 
+        details. 
+
+        If no match is found, it raises a Resolver404 exception with a list of 
+        patterns that were attempted. 
+
+        Args:
+            path: The URL path to be resolved.
+
+        Returns:
+            A ResolverMatch object containing information about the matched URL.
+
+        Raises:
+            Resolver404: If no matching URL pattern is found.
+        """
         path = str(path)  # path may be a reverse_lazy object
         tried = []
         match = self.pattern.match(path)
@@ -707,6 +780,18 @@ class URLResolver:
 
     @cached_property
     def urlconf_module(self):
+        """
+        Returns the URL configuration module.
+
+        This property dynamically imports or returns the URL configuration module
+        based on the provided urlconf_name. If the urlconf_name is a string, it is
+        used to import the corresponding module. Otherwise, the urlconf_name
+        itself is returned as the module.
+
+        The returned module should contain the URL patterns for the application.
+
+        :rtype: ModuleType
+        """
         if isinstance(self.urlconf_name, str):
             return import_module(self.urlconf_name)
         else:
@@ -715,6 +800,11 @@ class URLResolver:
     @cached_property
     def url_patterns(self):
         # urlconf_module might be a valid set of patterns, so we default to it
+        """
+        Returns a list of URL patterns from the included URL configuration module.
+
+        The URL patterns are obtained from the 'urlpatterns' attribute of the module. If the module does not contain a 'urlpatterns' attribute, the module itself is returned. The function checks if the obtained patterns are iterable and raises an ImproperlyConfigured error if they are not, suggesting a potential circular import issue if the 'urlpatterns' variable with valid patterns is present in the file.
+        """
         patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
         try:
             iter(patterns)
@@ -742,6 +832,36 @@ class URLResolver:
         return self._reverse_with_prefix(lookup_view, "", *args, **kwargs)
 
     def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        """
+        Reverses the given lookup view with the specified prefix, resolving the view's URL pattern.
+
+        Parameters
+        ----------
+        lookup_view : object
+            The view object to be reversed.
+        _prefix : str
+            The prefix to be prepended to the view's URL pattern.
+        *args : variable length argument list
+            Positional arguments to be used in the URL pattern.
+        **kwargs : variable length keyword argument dictionary
+            Keyword arguments to be used in the URL pattern.
+
+        Returns
+        -------
+        str
+            The reversed URL for the given view.
+
+        Raises
+        ------
+        ValueError
+            If both *args and **kwargs are provided.
+        NoReverseMatch
+            If no matching URL pattern is found for the given view and arguments.
+
+        Notes
+        -----
+        The function first attempts to match the provided arguments with the view's URL patterns. If a match is found, it constructs and returns the corresponding URL. If no match is found, it raises a NoReverseMatch exception with a descriptive error message.
+        """
         if args and kwargs:
             raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
 

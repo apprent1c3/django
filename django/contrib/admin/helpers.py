@@ -175,6 +175,17 @@ class AdminField:
         self.is_readonly = False
 
     def label_tag(self):
+        """
+
+        Generates an HTML label tag for a form field.
+
+        The label tag is customized based on the field's properties, such as whether it is a checkbox, required, or not the first field. 
+        The generated tag includes additional classes to control its appearance, such as 'vCheckboxLabel' for checkboxes and 'required' for required fields.
+        The function also escapes the label's contents to prevent HTML injection and marks the label as safe for rendering. 
+
+        Returns the customized label tag.
+
+        """
         classes = []
         contents = conditional_escape(self.field.label)
         if self.is_checkbox:
@@ -484,6 +495,20 @@ class InlineAdminForm(AdminForm):
         model_admin=None,
         view_on_site_url=None,
     ):
+        """
+        Initializes the object with the provided formset, form, and fieldsets.
+
+        :param formset: The formset associated with this object.
+        :param form: The form instance used to validate and display the data.
+        :param fieldsets: A list of tuples representing the fieldsets to be displayed.
+        :param prepopulated_fields: A dictionary mapping field names to their prepopulated values.
+        :param original: The original object being edited.
+        :param readonly_fields: An optional list of fields that should be displayed as read-only.
+        :param model_admin: The model admin instance associated with this object, defaults to None.
+        :param view_on_site_url: The URL to view the object on the site, defaults to None.
+
+        Attributes set by this method include the formset, model admin, original object, and absolute URL for viewing the object on the site. The readonly fields are also configured. This method serves as the foundation for setting up the object's properties and behavior.
+        """
         self.formset = formset
         self.model_admin = model_admin
         self.original = original

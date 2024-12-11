@@ -23,6 +23,16 @@ def get_img_path(path):
 @unittest.skipUnless(Image, "Pillow is required to test ImageField")
 class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_imagefield_annotate_with_image_after_clean(self):
+        """
+
+        Tests that an ImageField correctly annotates an uploaded image after cleaning.
+
+        This test verifies that when a non-image content type is provided for an uploaded image,
+        the ImageField still correctly identifies and annotates the image format and content type.
+        The test specifically checks that the image format and content type are properly updated
+        after the cleaning process, ensuring that the image is handled correctly despite the mismatched content type.
+
+        """
         f = ImageField()
 
         img_path = get_img_path("filepath_test_files/1x1.png")
@@ -88,6 +98,17 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 f.clean(tmp_file)
 
     def test_widget_attrs_default_accept(self):
+        """
+
+        Tests that the ImageField instance returns the correct widget attributes.
+
+        Verifies that when using the default widget, an empty dictionary is returned.
+        For FileInput and ClearableFileInput widgets, checks that the 'accept' attribute
+        is set to 'image/*', which specifies that only image files should be accepted.
+        Also ensures that the rendered HTML widget includes the 'accept' attribute and
+        other expected properties.
+
+        """
         f = ImageField()
         # Nothing added for non-FileInput widgets.
         self.assertEqual(f.widget_attrs(Widget()), {})
@@ -105,6 +126,13 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_widget_attrs_accept_false(self):
+        """
+        Tests that the 'accept' attribute is not included in the widget attributes when set to False.
+
+        The purpose of this test is to ensure that the widget attributes for a file input field
+        are correctly generated when the 'accept' attribute is explicitly set to False.
+        It verifies that no 'accept' attribute is present in the rendered HTML.
+        """
         f = ImageField(widget=FileInput(attrs={"accept": False}))
         self.assertEqual(f.widget_attrs(f.widget), {})
         self.assertWidgetRendersTo(

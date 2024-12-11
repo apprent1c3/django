@@ -85,6 +85,25 @@ class DumpDataAssertMixin:
         exclude_list=[],
         primary_keys="",
     ):
+        """
+
+        Asserts that the output of the dumpdata management command matches the expected output.
+
+        The function simulates a call to the dumpdata command with the specified arguments and options,
+        then compares the output to the expected output. The comparison method depends on the output format.
+
+        The following options are supported:
+        - format (str): The output format of the dumpdata command. Can be 'json', 'xml', or any other format.
+        - filename (str): The name of the file to store the dumpdata output. If specified, the file is temporarily saved to the system's temporary directory.
+        - natural_foreign_keys (bool): Whether to use natural foreign keys in the dumpdata output.
+        - natural_primary_keys (bool): Whether to use natural primary keys in the dumpdata output.
+        - use_base_manager (bool): Whether to use the base manager when dumping data.
+        - exclude_list (list): A list of models to exclude from the dumpdata output.
+        - primary_keys (str): A string of primary keys to include in the dumpdata output.
+
+        The function raises an assertion error if the output of the dumpdata command does not match the expected output.
+
+        """
         new_io = StringIO()
         filename = filename and os.path.join(tempfile.gettempdir(), filename)
         management.call_command(
@@ -133,6 +152,21 @@ class DumpDataAssertMixin:
 
 class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_loading_and_dumping(self):
+        """
+
+        Tests the loading and dumping of data using various formats and fixtures.
+
+        This test case covers the following scenarios:
+        - Loading data from JSON and XML files
+        - Dumping data in JSON and XML formats
+        - Verifying data integrity after loading and dumping
+        - Testing natural foreign keys and primary keys
+        - Checking for data consistency across different fixtures
+
+        It uses several fixtures to test the data loading and dumping functionality,
+        including articles, categories, tags, persons, and visas.
+
+        """
         apps.clear_cache()
         Site.objects.all().delete()
         # Load fixture 1. Single JSON file, with two objects.
@@ -574,6 +608,18 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         sys.platform == "win32", "Windows doesn't support '?' in filenames."
     )
     def test_load_fixture_with_special_characters(self):
+        """
+
+        Tests the loading of fixtures that contain special characters in their filenames.
+
+        Verifies that the data can be successfully loaded and accessed through the 
+        Article model, specifically checking that the headline of the loaded article 
+        matches the expected value.
+
+        Note: This test is skipped on Windows platforms due to limitations in handling 
+        special characters in filenames.
+
+        """
         management.call_command("loaddata", "fixture_with[special]chars", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -581,6 +627,16 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_filtering_manager(self):
+        """
+
+        Tests the dumpdata management command with a custom manager that filters results.
+
+        This test covers the scenario where a model's manager has a custom filter applied,
+        and the dumpdata command is used to export data. It verifies that the export includes
+        only the instances that pass the filter, unless the use_base_manager flag is used,
+        in which case all instances are included in the export.
+
+        """
         spy1 = Spy.objects.create(name="Paul")
         spy2 = Spy.objects.create(name="Alex", cover_blown=True)
         self.assertSequenceEqual(Spy.objects.all(), [spy1])
@@ -601,6 +657,14 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_pks(self):
+        """
+        Tests the dumpdata command when using the --pks option. 
+
+        This test case loads fixture data, then checks that the dumpdata command correctly returns data for specified primary keys. 
+        It also verifies that the command raises an error when the --pks option is used with multiple models. 
+        The test covers various scenarios, including loading data from multiple fixtures and testing the command with different input options. 
+        The goal of this test is to ensure that the dumpdata command works as expected when using the --pks option to filter data by primary key.
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         management.call_command("loaddata", "fixture2.json", verbosity=0)
         self._dumpdata_assert(
@@ -665,6 +729,17 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
             )
 
     def test_dumpdata_with_uuid_pks(self):
+        """
+
+        Tests the dumpdata management command's ability to export data for specific models with UUID primary keys.
+
+        Verifies that the dumpdata command correctly serializes the primary key values for the specified models,
+        ensuring that the UUID values are properly included in the output.
+
+        This test covers a specific use case where the dumpdata command is called with the --pks option,
+        filtering the output to only include data for the specified primary key values.
+
+        """
         m1 = PrimaryKeyUUIDModel.objects.create()
         m2 = PrimaryKeyUUIDModel.objects.create()
         output = StringIO()
@@ -695,6 +770,16 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_file_gzip_output(self):
+        """
+
+        Tests the dumpdata command with gzip file output.
+
+        This test case loads initial data from a fixture, then asserts that the dumpdata command
+        correctly serializes the data to a gzip file. The test verifies the output of the dumpdata
+        command by comparing it to an expected JSON string, ensuring the data is properly
+        serialized and compressed.
+
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -711,6 +796,17 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_BZ2, "No bz2 library detected.")
     def test_dumpdata_with_file_bz2_output(self):
+        """
+
+        Tests the management command 'dumpdata' with bz2 file output.
+
+        This test case checks if the 'dumpdata' command can correctly dump data 
+        into a bz2 compressed file. It first loads data from a fixture, then 
+        calls 'dumpdata' and asserts that the output matches the expected data.
+
+        The test will be skipped if the bz2 library is not available.
+
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         self._dumpdata_assert(
             ["fixtures"],
@@ -758,6 +854,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_file_zip_output(self):
+        """
+        Tests the dumpdata command when output is written to a file with a.zip extension.
+
+        The test loads fixtures from a JSON file, then attempts to dump data to a file with a.zip extension.
+        It verifies that a RuntimeWarning is raised with the expected message, indicating that the.zip extension is unsupported.
+        The dumped data is instead saved to a file named 'dumpdata.json', demonstrating the default behavior when an unsupported file extension is specified.
+
+        The test covers the dumpdata command's handling of file extensions and its fallback behavior when an unsupported extension is encountered.
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         msg = "Unsupported file extension (.zip). Fixtures saved in 'dumpdata.json'."
         with self.assertWarnsMessage(RuntimeWarning, msg):
@@ -831,6 +936,34 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self.assertEqual(len(warning_list), 0)
 
     def test_dumpdata_objects_with_prefetch_related(self):
+        """
+        Tests the dumpdata management command with prefetched related objects.
+
+        This test loads fixtures from JSON files and then dumps the data, asserting that
+        the resulting dump matches the expected output and that the correct number of
+        database queries are executed. The test specifically checks that the dumpdata
+        command correctly handles natural foreign keys and primary keys when dumping
+        objects with related fields.
+
+        The expected output includes specific data for the 'fixtures.visa' model, 
+        including permissions and person fields. The test verifies that the dumpdata 
+        command produces the correct JSON output for these objects, ensuring that 
+        the data is correctly serialized and formatted.
+
+        The test also verifies that the dumpdata command is executed with the 
+        correct parameters, including natural foreign keys and primary keys, to 
+        ensure that the data is dumped correctly and efficiently.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the dumped data does not match the expected output or 
+            if the number of database queries executed is not as expected.
+        """
         management.call_command(
             "loaddata", "fixture6.json", "fixture8.json", verbosity=0
         )
@@ -848,11 +981,33 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_compress_format_loading(self):
         # Load fixture 4 (compressed), using format specification
+        """
+
+        Tests the loading of compressed data formats.
+
+        This test case verifies that data can be successfully loaded from a compressed
+        format, specifically a JSON file, and that the loaded data is correctly stored
+        in the database. It checks that an Article object is created with the expected
+        headline after loading the data from the fixture4.json file.
+
+        """
         management.call_command("loaddata", "fixture4.json", verbosity=0)
         self.assertEqual(Article.objects.get().headline, "Django pets kitten")
 
     def test_compressed_specified_loading(self):
         # Load fixture 5 (compressed), using format *and* compression specification
+        """
+        Tests whether compressed data can be loaded successfully.
+
+        Verifies that the management command 'loaddata' can handle compressed fixtures 
+        (.zip format) and loads the data correctly. The test checks if the loaded data 
+        matches the expected result, specifically the headline of an Article object.
+
+        This test ensures that compressed fixtures are properly decompressed and 
+        deserialized during the loading process, allowing for efficient data import 
+        and population of the database.
+
+        """
         management.call_command("loaddata", "fixture5.json.zip", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -861,6 +1016,12 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_compressed_loading(self):
         # Load fixture 5 (compressed), only compression specification
+        """
+        Tests the loading of compressed fixtures using the 'loaddata' management command.
+
+        Verifies that the fixture is loaded correctly by checking the headline of an Article object.
+
+        """
         management.call_command("loaddata", "fixture5.zip", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -868,6 +1029,14 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_compressed_loading_gzip(self):
+        """
+
+        Tests the compressed loading functionality using gzip compression.
+
+        This test case checks that a fixture compressed with gzip can be loaded correctly into the database.
+        It verifies that the loaded data matches the expected values, specifically the headline of an Article object.
+
+        """
         management.call_command("loaddata", "fixture5.json.gz", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -884,6 +1053,14 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_LZMA, "No lzma library detected.")
     def test_compressed_loading_lzma(self):
+        """
+        Tests the loading of compressed JSON data using the LZMA compression algorithm.
+
+        This test case verifies that the system can successfully load compressed data from a file, 
+        uncompress it, and import the data into the application's database. The test checks 
+        the integrity of the loaded data by asserting that a specific object has the expected 
+        attributes. The test is skipped if the LZMA library is not available.
+        """
         management.call_command("loaddata", "fixture5.json.lzma", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -892,6 +1069,11 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     @unittest.skipUnless(HAS_LZMA, "No lzma library detected.")
     def test_compressed_loading_xz(self):
+        """
+        Tests the loading of compressed fixtures in xz format using the ``loaddata`` management command.
+
+        This test checks if the fixture can be successfully loaded from a compressed xz file and verifies that the loaded data is correct by comparing the headline of the first Article object with an expected value. The test is skipped if the lzma library is not available.
+        """
         management.call_command("loaddata", "fixture5.json.xz", verbosity=0)
         self.assertEqual(
             Article.objects.get().headline,
@@ -940,6 +1122,18 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
             management.call_command("loaddata", "null_character_in_field_value.json")
 
     def test_loaddata_app_option(self):
+        """
+
+        Tests the functionality of the loaddata management command with app label options.
+
+        This test case verifies that the loaddata command raises an error when attempting to load a fixture
+        from a non-existent app label, and that the command successfully loads data from a fixture when
+        the correct app label is provided. It also checks that no data is loaded when the app label is incorrect.
+
+        The test validates the expected behavior of the loaddata command by checking the resulting database state
+        after executing the command with different app label options.
+
+        """
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'db_fixture_1' found."
         ):
@@ -956,6 +1150,14 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_loaddata_verbosity_three(self):
+        """
+        Tests the loaddata management command with verbosity level 3.
+
+        Verifies that the command outputs the expected progress messages when loading fixtures.
+        The test checks for the presence of specific output lines indicating the number of objects processed.
+        It ensures that the command provides detailed progress updates when run with high verbosity, 
+        allowing for real-time monitoring of the data loading process.
+        """
         output = StringIO()
         management.call_command(
             "loaddata", "fixture1.json", verbosity=3, stdout=output, stderr=output
@@ -987,6 +1189,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_unmatched_identifier_loading(self):
         # Db fixture 3 won't load because the database identifier doesn't
         # match.
+        """
+
+        Tests the behavior of the 'loaddata' management command when encountering an unmatched identifier.
+
+        Verifies that the command raises a CommandError with an informative message when attempting to load a non-existent fixture, 
+        regardless of whether the operation is performed on the default database or a specified database. 
+        Additionally, ensures that no extraneous data is loaded into the database in such cases, specifically checking the Article model.
+
+        """
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'db_fixture_3' found."
         ):
@@ -1083,6 +1294,15 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_loading_with_exclude_app(self):
+        """
+        Tests the loading of fixtures while excluding specific apps.
+
+        This test case verifies that when loading fixtures, certain apps can be excluded from the loading process.
+        It checks that the excluded apps' models are not populated with data, while other models are loaded correctly.
+        The test ensures the correct loading of site data and verifies the domain of the loaded site object.
+
+        :raises: AssertionError if the loading of fixtures with excluded apps does not behave as expected.
+        """
         Site.objects.all().delete()
         management.call_command(
             "loaddata", "fixture1", exclude=["fixtures"], verbosity=0
@@ -1191,6 +1411,16 @@ class FixtureTransactionTests(DumpDataAssertMixin, TransactionTestCase):
     @skipUnlessDBFeature("supports_forward_references")
     def test_format_discovery(self):
         # Load fixture 1 again, using format discovery
+        """
+
+        Tests Django's data discovery and loading mechanism.
+
+        This test case covers the functionality of the 'loaddata' management command,
+        specifically how it handles forward references and multiple fixtures with the same name.
+        It verifies that data is correctly loaded from fixtures and that the expected errors are raised
+        when attempting to load multiple fixtures with the same name.
+
+        """
         management.call_command("loaddata", "fixture1", verbosity=0)
         self.assertSequenceEqual(
             Article.objects.values_list("headline", flat=True),
@@ -1236,6 +1466,19 @@ class FixtureTransactionTests(DumpDataAssertMixin, TransactionTestCase):
 
 class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
     def test_forward_reference_fk(self):
+        """
+
+        Test that forward references in foreign keys are correctly resolved.
+
+        This test loads data from the 'forward_reference_fk.json' fixture and verifies
+        that the 'other_thing' foreign key fields in the NaturalKeyThing instances are
+        properly linked to each other.
+
+        The test checks that the relationship is bidirectional, i.e., t1 references t2
+        and t2 references t1, and that the data can be successfully dumped in the
+        expected format.
+
+        """
         management.call_command("loaddata", "forward_reference_fk.json", verbosity=0)
         t1, t2 = NaturalKeyThing.objects.all()
         self.assertEqual(t1.other_thing, t2)
@@ -1249,6 +1492,15 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_forward_reference_fk_natural_key(self):
+        """
+
+        Tests a forward reference foreign key with a natural key.
+
+        Verifies that loading fixtures with forward references between objects using natural keys works correctly.
+        Checks that the relationships between objects are established correctly in both directions.
+        Also validates that the data can be correctly dumped using natural primary and foreign keys.
+
+        """
         management.call_command(
             "loaddata",
             "forward_reference_fk_natural_key.json",
@@ -1313,6 +1565,16 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
 
 class CircularReferenceTests(DumpDataAssertMixin, TestCase):
     def test_circular_reference(self):
+        """
+
+        Tests the handling of circular references between fixtures.
+
+        Verifies that the circular reference between two objects is correctly loaded
+        and that each object references the other as expected. The test also checks
+        that the data can be successfully dumped back to a fixture file, ensuring
+        that the circular reference is preserved.
+
+        """
         management.call_command("loaddata", "circular_reference.json", verbosity=0)
         obj_a = CircularA.objects.get()
         obj_b = CircularB.objects.get()

@@ -47,8 +47,43 @@ def setup(templates, *args, test_once=False):
         # are properly isolated from Django's global settings.
         @override_settings(TEMPLATES=None)
         @wraps(func)
+        """
+
+        Decorator to prepare and test template engine rendering functionality.
+
+        This decorator is designed to wrap a function and set up the template engine with
+        varying configurations to test different rendering scenarios. It overrides the
+        default template settings and iteratively calls the wrapped function multiple
+        times with distinct engine configurations, including with and without string
+        invalidation and debug mode. The decorator aims to facilitate comprehensive
+        testing of template rendering under different conditions.
+
+        :param func: The function to be decorated and tested with template engine.
+        :returns: A decorated function that tests template engine rendering.
+
+        """
         def inner(self):
             # Set up custom template tag libraries if specified
+            """
+
+            Calls the wrapped function multiple times with different Django template engine configurations.
+
+            The function iterates over various settings, including default, string-if-invalid, and debug modes,
+            to test the wrapped function's behavior under different conditions.
+
+            The template engine is reinitialized before each call with the specified settings, allowing for 
+            isolation of the function's execution and accurate testing of its output.
+
+            The function is called a total of five times with the following configurations:
+            - Default settings
+            - Default settings (again, for testing consistency)
+            - String-if-invalid mode
+            - String-if-invalid mode (again, for testing consistency)
+            - Debug mode
+
+            This repetition allows for thorough testing of the wrapped function's behavior and error handling.
+
+            """
             libraries = getattr(self, "libraries", {})
 
             self.engine = Engine(
@@ -116,6 +151,23 @@ class SomeClass:
         raise TypeError
 
     def __getitem__(self, key):
+        """
+        Retrieves a value associated with the given key.
+
+        This method allows for dictionary-like access to specific values. However, 
+        instead of returning a value, it raises an exception for certain predefined keys.
+
+        Supported keys and their corresponding exceptions are:
+        - 'silent_fail_key': Raises SomeException
+        - 'noisy_fail_key': Raises SomeOtherException
+
+        Any other key will result in a KeyError being raised.
+
+        Raises:
+            SomeException: If the key is 'silent_fail_key'
+            SomeOtherException: If the key is 'noisy_fail_key'
+            KeyError: For all other keys
+        """
         if key == "silent_fail_key":
             raise SomeException
         elif key == "noisy_fail_key":

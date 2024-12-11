@@ -59,6 +59,18 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.choices, [])
 
     def test_choicefield_callable(self):
+        """
+
+        Tests the functionality of ChoiceField when choices are provided via a callable.
+
+        This test case verifies that the ChoiceField correctly utilizes a callable to 
+        retrieve the list of choices and validates the input against these choices.
+
+        The callable is expected to return a list of tuples, where each tuple contains 
+        a value and a human-readable name for the choice. The test checks that the 
+        clean method of the ChoiceField correctly returns the validated choice value.
+
+        """
         def choices():
             return [("J", "John"), ("P", "Paul")]
 
@@ -100,6 +112,23 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(i, f.clean(i))
 
     def test_choicefield_grouped_mapping_inner_dict(self):
+        """
+        Tests the functionality of a ChoiceField with grouped choices defined by an inner dictionary.
+
+        The test verifies that the ChoiceField correctly accepts and processes choices from the inner dictionary, 
+        ensuring that all choices are properly cleaned and validated. It covers various options within the grouped 
+        choices, confirming that the field behaves as expected for each possible selection.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the cleaned choice does not match the original input.
+
+        """
         f = ChoiceField(
             choices={
                 "Numbers": {"1": "One", "2": "Two"},
@@ -111,6 +140,17 @@ class ChoiceFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 self.assertEqual(i, f.clean(i))
 
     def test_choicefield_callable_may_evaluate_to_different_values(self):
+        """
+        Tests the behavior of a ChoiceField when its choices are provided as a callable function.
+
+        The callable function should return the list of choices at runtime. This test 
+        verifies that the choice field and its corresponding widget correctly update 
+        when the callable returns different values. It checks that both the field's 
+        choices and the widget's choices match the returned values from the callable.
+
+        It ensures that the form instance reflects the updated choices each time it 
+        is instantiated, given the callable returns new values each time it is called.
+        """
         choices = []
 
         def choices_as_callable():

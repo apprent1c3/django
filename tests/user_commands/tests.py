@@ -34,6 +34,14 @@ from .management.commands import dance
 )
 class CommandTests(SimpleTestCase):
     def test_command(self):
+        """
+        Tests the dance command by simulating its execution and verifying the output.
+
+        This test case checks if the dance command returns the expected message when executed.
+        The message should indicate that the system does not feel like dancing Rock'n'Roll.
+
+        :raises AssertionError: if the expected message is not found in the command output
+        """
         out = StringIO()
         management.call_command("dance", stdout=out)
         self.assertIn("I don't feel like dancing Rock'n'Roll.\n", out.getvalue())
@@ -145,6 +153,11 @@ class CommandTests(SimpleTestCase):
     def test_calling_command_with_parameters_and_app_labels_at_the_end_should_be_ok(
         self,
     ):
+        """
+        Verifies that a command can be successfully executed with parameters and application labels provided at the end. 
+        The function checks if the command's output, as captured by a string buffer, contains the expected result, 
+        indicating that the command was executed correctly with the provided arguments and application labels.
+        """
         out = StringIO()
         management.call_command("hal", "--verbosity", "3", "myapp", stdout=out)
         self.assertIn(
@@ -211,6 +224,17 @@ class CommandTests(SimpleTestCase):
             Command()
 
     def test_check_migrations(self):
+        """
+
+        Tests that the 'dance' command respects the requires_migrations_checks flag.
+        Verifies that when flag is False, the command does not perform migration checks,
+        and when the flag is True, it does.
+
+        Checks the behavior of the command by calling it twice with different flag values
+        and asserting the corresponding calls to the migration checking functionality.
+        Ensures the original flag value is restored after the test, regardless of the outcome.
+
+        """
         requires_migrations_checks = dance.Command.requires_migrations_checks
         self.assertIs(requires_migrations_checks, False)
         try:
@@ -251,6 +275,16 @@ class CommandTests(SimpleTestCase):
         self.assertIn("needme2", out.getvalue())
 
     def test_call_command_with_required_parameters_in_mixed_options(self):
+        """
+
+        Tests whether a management command can be successfully called with a mix of 
+        optional and required parameters, verifying that the parameters are correctly 
+        processed and reflected in the command's output.
+
+        The test checks for the presence of required option values in the command's 
+        stdout, ensuring that both short and long option formats are handled correctly.
+
+        """
         out = StringIO()
         management.call_command(
             "required_option", "--need-me=foo", needme2="bar", stdout=out
@@ -264,6 +298,16 @@ class CommandTests(SimpleTestCase):
         self.assertIn("Detected that --version already exists", out.getvalue())
 
     def test_mutually_exclusive_group_required_options(self):
+        """
+
+        Tests that the mutually exclusive group of options in the command are handled correctly.
+
+        The test case covers three scenarios:
+        - Passing an option that is part of the mutually exclusive group and verifying its presence in the output.
+        - Passing a different option from the mutually exclusive group and verifying its presence in the output.
+        - Not passing any of the options from the mutually exclusive group and verifying that the correct error message is raised, indicating that at least one of the options is required.
+
+        """
         out = StringIO()
         management.call_command("mutually_exclusive_required", foo_id=1, stdout=out)
         self.assertIn("foo_id", out.getvalue())
@@ -280,6 +324,19 @@ class CommandTests(SimpleTestCase):
             management.call_command("mutually_exclusive_required", stdout=out)
 
     def test_mutually_exclusive_group_required_const_options(self):
+        """
+
+        Tests that the mutually exclusive group required options in a management command work as expected.
+
+        The function checks several command line arguments, each with a corresponding constant value, 
+        to ensure they produce the correct output when used independently. The arguments tested are 
+        append_const, const, count, flag_false, and flag_true.
+
+        It verifies the output of the management command 'mutually_exclusive_required' when each 
+        argument is provided as a command line option or as a keyword argument, confirming that 
+        the expected output is generated in both scenarios.
+
+        """
         tests = [
             ("append_const", [42]),
             ("const", 31),
@@ -305,6 +362,18 @@ class CommandTests(SimpleTestCase):
                 self.assertIn(expected_output, out.getvalue())
 
     def test_mutually_exclusive_group_required_with_same_dest_options(self):
+        """
+        Test that mutually exclusive options with the same destination cannot be passed together.
+
+        Checks if attempting to pass multiple options with the same destination to the 
+        'mutually_exclusive_required_with_same_dest' command raises a TypeError. The test
+        covers various combinations of options to ensure that the command correctly handles
+        mutually exclusive arguments with the same destination.
+
+        Raises:
+            TypeError: If options with the same destination are passed together.
+
+        """
         tests = [
             {"until": "2"},
             {"for": "1", "until": "2"},
@@ -383,6 +452,11 @@ class CommandTests(SimpleTestCase):
         self.assertIn(expected_output, out.getvalue())
 
     def test_subparser(self):
+        """
+        Tests the subparser management command with specific arguments and verifies the expected output string is present in the result. 
+
+        This test case invokes the 'subparser' command with 'foo' and the integer value 12, capturing the command's output. It then asserts that the output contains the substring 'bar', ensuring the command behaves as expected when executed with the provided inputs.
+        """
         out = StringIO()
         management.call_command("subparser", "foo", 12, stdout=out)
         self.assertIn("bar", out.getvalue())
@@ -393,6 +467,15 @@ class CommandTests(SimpleTestCase):
         self.assertIn("bar", out.getvalue())
 
     def test_subparser_dest_required_args(self):
+        """
+
+        Tests the subparser command with destination required arguments.
+
+        Verifies that the 'subparser_required' command correctly processes required 
+        arguments and includes the 'bar' value in the output when called with 
+        'foo_1', 'foo_2', and bar=12 as arguments.
+
+        """
         out = StringIO()
         management.call_command(
             "subparser_required", "foo_1", "foo_2", bar=12, stdout=out
@@ -420,6 +503,13 @@ class CommandTests(SimpleTestCase):
         self.assertEqual(parser.formatter_class, ArgumentDefaultsHelpFormatter)
 
     def test_outputwrapper_flush(self):
+        """
+
+        Tests the output wrapper command's functionality by verifying that the expected message is written to the output stream and that the flush method is called.
+
+        The test case checks for the presence of 'Working...' in the output and confirms that the flush operation was performed on the stdout stream, ensuring proper execution of the output wrapper command.
+
+        """
         out = StringIO()
         with mock.patch.object(out, "flush") as mocked_flush:
             management.call_command("outputwrapper", stdout=out)
@@ -433,6 +523,15 @@ class CommandRunTests(AdminScriptTestCase):
     """
 
     def test_script_prefix_set_in_commands(self):
+        """
+
+        Tests that the script prefix is correctly set in commands.
+
+        This function verifies that the FORCE_SCRIPT_NAME setting is applied to the generated URLs
+        in management commands. It checks the output of the reverse_url management command to ensure
+        that the prefix is correctly prepended to the URL.
+
+        """
         self.write_settings(
             "settings.py",
             apps=["user_commands"],
@@ -456,6 +555,13 @@ class CommandRunTests(AdminScriptTestCase):
         self.assertEqual(out.strip(), "Set foo")
 
     def test_skip_checks(self):
+        """
+        Tests the functionality of the set_option management command when the --skip-checks flag is provided.
+
+        This test case ensures that the command executes successfully and produces the expected output without performing any checks.
+
+        It verifies that the command output matches the expected string and that no error messages are generated during execution.
+        """
         self.write_settings(
             "settings.py",
             apps=["django.contrib.staticfiles", "user_commands"],
@@ -482,6 +588,18 @@ class CommandRunTests(AdminScriptTestCase):
         )
 
     def test_subparser_non_django_error_formatting(self):
+        """
+        Tests the error formatting of the subparser when a non-Django related error occurs.
+
+        This test case verifies that the subparser correctly handles and formats errors
+        that are not specific to Django, such as invalid input values. It checks that the
+        error message is properly displayed, including the command that was run and the
+        specific error that occurred.
+
+        The test uses a vanilla subparser and passes an invalid integer value to simulate
+        an error. The output and error messages are then checked to ensure that they match
+        the expected format and content.
+        """
         self.write_settings("settings.py", apps=["user_commands"])
         out, err = self.run_manage(["subparser_vanilla", "foo", "seven"])
         self.assertNoOutput(out)
@@ -496,17 +614,35 @@ class CommandRunTests(AdminScriptTestCase):
 
 class UtilsTests(SimpleTestCase):
     def test_no_existent_external_program(self):
+        """
+        Tests that an error is raised when attempting to execute an external program that does not exist. 
+        Verifies that the expected error message is produced when the non-existent program is invoked through the popen_wrapper function.
+        """
         msg = "Error executing a_42_command_that_doesnt_exist_42"
         with self.assertRaisesMessage(CommandError, msg):
             popen_wrapper(["a_42_command_that_doesnt_exist_42"])
 
     def test_get_random_secret_key(self):
+        """
+
+        Tests the generation of a random secret key.
+
+        Verifies that the generated key has a length of 50 characters and only contains alphanumeric characters and specific special characters (!, @, #, $, %, ^, &, *, -, _, =, +).
+
+        """
         key = get_random_secret_key()
         self.assertEqual(len(key), 50)
         for char in key:
             self.assertIn(char, "abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)")
 
     def test_is_ignored_path_true(self):
+        """
+        =\"\"\"Checks the function to determine if a given path is ignored based on a list of patterns.
+
+        The function is_ignored_path takes a path and a list of ignore patterns, and returns True if the path matches any of the patterns, indicating it should be ignored.
+
+        This test ensures the function correctly identifies ignored paths by providing various patterns, including exact matches, wildcard matches, and regex-style matches, and verifies the function returns True for each of them, confirming the path 'foo/bar/baz' is correctly identified as ignored.
+        """
         patterns = (
             ["foo/bar/baz"],
             ["baz"],
@@ -533,5 +669,17 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_normalize_path_patterns_truncates_wildcard_base(self):
+        """
+
+        Verifies that the normalize_path_patterns function correctly truncates wildcard bases.
+
+        This test checks if the function is able to handle path patterns with wildcards
+        at the end of the path and correctly removes them, resulting in the normalized path.
+        The function should return a list of paths with the wildcard base truncated, 
+        and the paths normalized to the current operating system's case.
+
+        :raises AssertionError: If the function does not correctly truncate wildcard bases.
+
+        """
         expected = [os.path.normcase(p) for p in ["foo/bar", "bar/*/"]]
         self.assertEqual(normalize_path_patterns(["foo/bar/*", "bar/*/"]), expected)

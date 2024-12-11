@@ -18,6 +18,17 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n32(self):
+        """
+
+        Tests the internationalization (i18n) filters for language names.
+
+        This test case verifies that the language name filters ('language_name', 
+        'language_name_local', 'language_bidi', and 'language_name_translated') 
+        work correctly for the Hungarian language code ('hu'). The test checks the 
+        filters both with and without overriding the language to Czech ('cs'), 
+        ensuring that the translated language name changes accordingly.
+
+        """
         output = self.engine.render_to_string("i18n32")
         self.assertEqual(output, "Hungarian Magyar False Hungarian")
 
@@ -33,6 +44,19 @@ class I18nFiltersTests(SimpleTestCase):
         }
     )
     def test_i18n33(self):
+        """
+
+        Tests the i18n template tags for language code 'nl'.
+
+        This test case evaluates the rendering of language names, their local variants, 
+        and bidirectional indicators, as well as translated names, for the given language 
+        code. It also checks the output when the system's language is overridden to Czech ('cs'), 
+        verifying that the translation of the language name is correctly resolved.
+
+        The expected output in the default environment is 'Dutch Nederlands False Dutch', 
+        and when the language is set to Czech, it should be 'Dutch Nederlands False nizozemsky'.
+
+        """
         output = self.engine.render_to_string("i18n33", {"langcode": "nl"})
         self.assertEqual(output, "Dutch Nederlands False Dutch")
 

@@ -8,6 +8,16 @@ from ..utils import setup
 class SliceTests(SimpleTestCase):
     @setup({"slice01": '{{ a|slice:"1:3" }} {{ b|slice:"1:3" }}'})
     def test_slice01(self):
+        """
+
+        Render the 'slice01' template to test the slice filter.
+
+        This test case checks the functionality of the slice filter by passing two variables 'a' and 'b' 
+        with the string 'a&b' to the 'slice01' template. The slice filter is applied to extract a subset 
+        of characters from the strings. The test verifies that the output is correctly escaped for 'a' 
+        and not escaped for 'b' due to the use of mark_safe, resulting in the expected output '&amp;b &b'.
+
+        """
         output = self.engine.render_to_string(
             "slice01", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -22,6 +32,16 @@ class SliceTests(SimpleTestCase):
         }
     )
     def test_slice02(self):
+        """
+
+        Test the slice filter in template rendering.
+
+        This function verifies that the slice filter correctly extracts a subset of characters
+        from a string, ensuring proper handling of HTML special characters and safe strings.
+        The test checks that the filter behaves as expected for both regular strings and
+        strings marked as safe from HTML escaping.
+
+        """
         output = self.engine.render_to_string(
             "slice02", {"a": "a&b", "b": mark_safe("a&b")}
         )
@@ -51,6 +71,11 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(slice_filter("abcdefg", "0::2"), "aceg")
 
     def test_fail_silently(self):
+        """
+        Tests that the slice_filter function fails silently when given an invalid slice operation, 
+        returning the original object unchanged. This ensures that the function does not raise any 
+        exceptions when encountering unexpected input, instead providing a predictable and safe output.
+        """
         obj = object()
         self.assertEqual(slice_filter(obj, "0::2"), obj)
 

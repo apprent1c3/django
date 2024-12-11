@@ -59,6 +59,12 @@ class AbstractBaseUser(models.Model):
     # def save(self, **kwargs):
     #   super().save(**kwargs)
     def save(self, *args, **kwargs):
+        """
+        Saves the current object instance and updates the password if a new one has been set.
+
+        The save operation proceeds as it normally would, with any provided arguments being passed to the superclass's save method. 
+        If a new password has been specified, it is validated and then cleared from the instance to prevent unnecessary retention of sensitive data.
+        """
         super().save(*args, **kwargs)
         if self._password is not None:
             password_validation.password_changed(self._password, self)

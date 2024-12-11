@@ -29,6 +29,15 @@ class RenderTests(SimpleTestCase):
 
     @require_jinja2
     def test_render_with_using(self):
+        """
+
+        Tests the rendering of templates using different template engines.
+
+        This function checks the rendering of a page that can be rendered using either
+        the default template engine or Jinja2, depending on the 'using' query parameter.
+        It verifies that the page is rendered correctly in all cases.
+
+        """
         response = self.client.get("/render/using/")
         self.assertEqual(response.content, b"DTL\n")
         response = self.client.get("/render/using/?using=django")

@@ -137,6 +137,21 @@ class AddIndexConcurrently(NotInTransactionMixin, AddIndex):
             schema_editor.add_index(model, self.index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the database state for the model index.
+
+        This method is part of the migration process, responsible for removing an index
+        from the database model when the migration is rolled back. It checks whether the
+        model is allowed to be migrated on the given database connection and ensures
+        that the operation is performed outside of a transaction.
+
+        :param app_label: The label of the application containing the model.
+        :param schema_editor: The schema editor instance used to modify the database schema.
+        :param from_state: The previous state of the migration.
+        :param to_state: The new state of the migration.
+
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -161,6 +176,20 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
             schema_editor.remove_index(model, index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Adds an index to the database in reverse order, as part of a migration.
+
+        This method is used to apply an index addition operation during a backwards migration.
+        It ensures the index is created on the target model in the correct database schema.
+        The index creation is performed concurrently to avoid locking the underlying tables.
+
+        :param app_label: The label of the application containing the model.
+        :param schema_editor: The schema editor used to interact with the database.
+        :param from_state: The initial state of the migration.
+        :param to_state: The target state of the migration.
+
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
@@ -244,6 +273,19 @@ class RemoveCollation(CollationOperation):
     category = OperationCategory.REMOVAL
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Handles database changes moving forward by checking the current database connection and 
+        application label. If the connection is not PostgreSQL or migration is not allowed, 
+        this function takes no action. Otherwise, it removes the collation using the provided 
+        schema editor. 
+
+        :param app_label: The name of the application label being migrated.
+        :param schema_editor: The schema editor instance used to modify the database schema.
+        :param from_state: The previous state of the application model.
+        :param to_state: The target state of the application model.
+
+        """
         if schema_editor.connection.vendor != "postgresql" or not router.allow_migrate(
             schema_editor.connection.alias, app_label
         ):

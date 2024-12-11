@@ -15,6 +15,19 @@ from .models import (
 
 class ForceTests(TestCase):
     def test_force_update(self):
+        """
+        Tests the functionality of forced updates when saving model instances.
+
+        This test case covers various scenarios, including:
+
+        * Successful forced updates
+        * Simultaneous forced insert and update operations, which should raise a ValueError
+        * Attempting to force an update on a new instance without a primary key, which should raise a ValueError
+        * Attempting to force an insert on an existing instance, which should raise an IntegrityError
+        * Attempting to force an update on a model instance that does not exist in the database, which should raise a DatabaseError
+
+        These tests ensure that the forced update functionality behaves as expected in different situations, providing a robust and reliable way to manage model instance updates in the database.
+        """
         c = Counter.objects.create(name="one", value=1)
 
         # The normal case

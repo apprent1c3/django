@@ -189,6 +189,17 @@ class MockReference:
             self.referenced_tables.add(new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        Updates the list of referenced columns by renaming a column in a given table.
+
+        This method replaces all references to the specified old column name with the new column name in the table.
+        It ensures that any dependencies or links to the original column are updated to point to the renamed column.
+
+        :param table: The name of the table containing the column to be renamed.
+        :param old_column: The current name of the column to be renamed.
+        :param new_column: The new name for the column.
+
+        """
         column = (table, old_column)
         if column in self.referenced_columns:
             self.referenced_columns.remove(column)
@@ -216,6 +227,19 @@ class StatementTests(SimpleTestCase):
         self.assertIs(statement.references_column("other", "column"), False)
 
     def test_references_index(self):
+        """
+        Checks if a statement references a specific index on a given table.
+
+        Args:
+            table (str): The name of the table to check.
+            index (str): The name of the index to check.
+
+        Returns:
+            bool: True if the statement references the specified index on the table, False otherwise.
+
+        This method is used to determine if a statement includes a reference to a specific database index, 
+        which can be useful for analyzing and optimizing database queries.
+        """
         statement = Statement(
             "",
             reference=MockReference("", {}, {}, {("table", "index")}),
@@ -231,6 +255,16 @@ class StatementTests(SimpleTestCase):
         self.assertEqual(reference.referenced_tables, {"other"})
 
     def test_rename_column_references(self):
+        """
+        Tests the renaming of column references in a given statement.
+
+        Ensures that when a column reference is renamed, the change is correctly reflected
+        in the underlying reference object, updating the referenced columns accordingly.
+
+        Parameters are used to specify the table and column to rename, as well as the new
+        column name. The test verifies that the referenced columns are updated to contain
+        the new column name after the rename operation is performed.
+        """
         reference = MockReference("", {}, {("table", "column")}, {})
         statement = Statement("", reference=reference, non_reference="")
         statement.rename_column_references("table", "column", "other")

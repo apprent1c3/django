@@ -80,6 +80,15 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
             self.assertEqual(self._check_engines(_engines), errors)
 
     def test_string_if_invalid_both_are_strings(self):
+        """
+        Tests the behavior of template engines when both have 'string_if_invalid' option set to the same string value.
+
+            This test case verifies that when both template engines are configured with the same 'string_if_invalid' option, 
+            no errors are raised and no invalid templates are detected. 
+
+            :return: None 
+            :raises: AssertionError if any invalid templates are detected.
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         TEMPLATES[0]["OPTIONS"]["string_if_invalid"] = "test"
         TEMPLATES[1]["OPTIONS"]["string_if_invalid"] = "test"
@@ -87,6 +96,12 @@ class CheckTemplateStringIfInvalidTest(SimpleTestCase):
             self.assertEqual(self._check_engines(engines.all()), [])
 
     def test_string_if_invalid_not_specified(self):
+        """
+        Tests that when 'string_if_invalid' is not specified for a template engine, 
+        the function correctly identifies and reports the error. The test case covers 
+        the scenario where aninvalid template engine configuration is provided, 
+        verifying that the expected error is raised and handled as anticipated.
+        """
         TEMPLATES = deepcopy(self.TEMPLATES_STRING_IF_INVALID)
         del TEMPLATES[1]["OPTIONS"]["string_if_invalid"]
         with self.settings(TEMPLATES=TEMPLATES):
@@ -139,6 +154,11 @@ class CheckTemplateTagLibrariesWithSameName(SimpleTestCase):
 
     def test_template_tags_for_separate_backends(self):
         # The "libraries" names are the same, but the backends are different.
+        """
+        Test that template tags can be used with separate backends.
+
+        This test validates that the same template tags can be registered for multiple template engines without any conflicts, ensuring that each engine can correctly identify and utilize the tags specific to its backend. It checks that all template engines are properly configured and do not report any errors when the same tags are used across different backends.
+        """
         with self.settings(
             TEMPLATES=[
                 self.get_settings(

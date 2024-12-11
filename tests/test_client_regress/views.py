@@ -171,12 +171,33 @@ def render_template_multiple_times(request):
 
 
 def redirect_based_on_extra_headers_1_view(request):
+    """
+    Redirects the request based on the presence of specific extra headers.
+
+    This view checks for the existence of the 'HTTP_REDIRECT' header in the request.
+    If the header is present, it redirects the user to the '/redirect_based_on_extra_headers_2/' page.
+    Otherwise, it returns a standard HTTP response.
+
+    :return: An HttpResponseRedirect if the 'HTTP_REDIRECT' header is present, otherwise an HttpResponse.
+    :rtype: HttpResponseRedirect | HttpResponse
+    """
     if "HTTP_REDIRECT" in request.META:
         return HttpResponseRedirect("/redirect_based_on_extra_headers_2/")
     return HttpResponse()
 
 
 def redirect_based_on_extra_headers_2_view(request):
+    """
+
+    Redirects the HTTP request based on the presence of extra headers.
+
+    Checks for the 'HTTP_REDIRECT' header in the request and redirects to '/redirects/further/more/' if present.
+    Otherwise, returns a basic HTTP response.
+
+    :param request: The incoming HTTP request
+    :return: An HTTP response, either a redirect or a basic response
+
+    """
     if "HTTP_REDIRECT" in request.META:
         return HttpResponseRedirect("/redirects/further/more/")
     return HttpResponse()

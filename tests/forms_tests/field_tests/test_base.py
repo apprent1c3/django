@@ -4,6 +4,12 @@ from django.test import SimpleTestCase
 
 class BasicFieldsTests(SimpleTestCase):
     def test_field_sets_widget_is_required(self):
+        """
+        Verifies that a Field's required attribute correctly sets its widget's is_required property.
+
+        Checks that when a Field is created with required=True, its associated widget is marked as required,
+        and when created with required=False, the widget is not marked as required, ensuring correct validation behavior.
+        """
         self.assertTrue(Field(required=True).widget.is_required)
         self.assertFalse(Field(required=False).widget.is_required)
 

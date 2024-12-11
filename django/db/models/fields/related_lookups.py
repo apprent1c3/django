@@ -38,6 +38,21 @@ class MultiColSource:
 
 
 def get_normalized_value(value, lhs):
+    """
+    Return a normalized value for filtering purposes.
+
+    This function takes a value and a left-hand side (LHS) of a filter expression as input.
+    If the value is a Django model instance, it is normalized to a tuple of values that can be used for filtering.
+    The function ensures that the model instance is saved and retrieves the values of the target fields specified in the LHS.
+    If the value is not a model instance, it is returned as a tuple, either wrapping a single value in a tuple or passing through an existing tuple.
+
+    The function raises a ValueError if the model instance is not saved.
+
+    :param value: The value to be normalized
+    :param lhs: The left-hand side of the filter expression
+    :returns: A normalized value as a tuple
+    :raises ValueError: If the model instance is not saved
+    """
     from django.db.models import Model
 
     if isinstance(value, Model):

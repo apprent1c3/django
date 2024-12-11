@@ -121,6 +121,17 @@ def E006(name):
 
 @register(Tags.urls)
 def check_custom_error_handlers(app_configs, **kwargs):
+    """
+    Checks custom error handlers in the Django URL configuration to ensure they are properly defined and can be imported.
+
+    Checks are performed for the following HTTP status codes: 400, 403, 404, and 500. 
+
+    The function verifies that each custom error handler can be resolved, imported, and has the correct function signature. 
+
+    If any issues are found with the custom error handlers, a list of errors is returned, providing detailed information about the problem, including a hint about the cause of the issue and a unique error identifier. 
+
+    Returned errors can be used for reporting and debugging purposes.
+    """
     if not getattr(settings, "ROOT_URLCONF", None):
         return []
 

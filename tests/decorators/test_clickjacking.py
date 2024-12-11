@@ -27,6 +27,13 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
     def test_decorator_sets_x_frame_options_to_deny(self):
         @xframe_options_deny
+        """
+
+        Tests the xframe_options_deny decorator by applying it to a sample view function and verifying 
+        that the 'X-Frame-Options' header in the response is set to 'DENY', indicating that the 
+        page should not be framed by other sites for security reasons.
+
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -35,6 +42,23 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
     async def test_decorator_sets_x_frame_options_to_deny_async_view(self):
         @xframe_options_deny
+        """
+        Tests that the xframe_options_deny decorator correctly sets the X-Frame-Options header to 'DENY' for an asynchronous view.
+
+        This test case verifies that when the xframe_options_deny decorator is applied to an asynchronous view function, 
+        the resulting HTTP response includes the X-Frame-Options header with a value of 'DENY', which instructs browsers 
+        to prevent the response from being framed by another webpage, helping to prevent clickjacking attacks.
+
+        The test checks the behavior of the decorator by applying it to a simple asynchronous view, making a request to 
+        that view, and then asserting that the X-Frame-Options header in the response is set as expected.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the X-Frame-Options header is not set to 'DENY' in the response.
+
+        """
         async def an_async_view(request):
             return HttpResponse()
 
@@ -44,6 +68,13 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
 class XFrameOptionsSameoriginTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+
+        Tests that a synchronous function wrapped with xframe_options_sameorigin decorator remains a non-coroutine function.
+
+        This test case verifies that applying the xframe_options_sameorigin decorator to a synchronous view function does not convert it into a coroutine function.
+
+        """
         def sync_view(request):
             return HttpResponse()
 

@@ -308,6 +308,16 @@ class BaseDatabaseWrapper:
                 return self.connection.rollback()
 
     def _close(self):
+        """
+        Closes the current database connection.
+
+        This method checks if a connection is established and, if so, attempts to close it.
+        Any database-related errors that occur during the closure process are caught and handled.
+
+        Returns:
+            The result of the close operation, if applicable.
+
+        """
         if self.connection is not None:
             with self.wrap_database_errors:
                 return self.connection.close()
@@ -363,6 +373,15 @@ class BaseDatabaseWrapper:
     # ##### Backend-specific savepoint management methods #####
 
     def _savepoint(self, sid):
+        """
+        Creates a savepoint in the database.
+
+        This method generates and executes the SQL command to create a savepoint with the given identifier.
+        It is used to mark a point in the current transaction that can be rolled back to later.
+
+        :param sid: The identifier for the savepoint to be created.
+
+        """
         with self.cursor() as cursor:
             cursor.execute(self.ops.savepoint_create_sql(sid))
 

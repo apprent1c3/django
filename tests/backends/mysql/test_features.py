@@ -30,6 +30,21 @@ class TestFeatures(TestCase):
             self.assertIs(database_features.allows_auto_pk_0, True)
 
     def test_allows_group_by_selected_pks(self):
+        """
+        Tests the DatabaseFeatures.allows_group_by_selected_pks property.
+
+        This test case verifies the behavior of the allows_group_by_selected_pks property 
+        under different database configurations. It checks whether the property correctly 
+        detects when a database allows grouping by primary keys that are selected in the query.
+
+        The test covers various database scenarios, including MySQL and MariaDB, 
+        with different SQL modes enabled. The results of this test ensure that the 
+        DatabaseFeatures class accurately reflects the capabilities of the underlying database system.
+
+        The test passes if the allows_group_by_selected_pks property is correctly set to 
+        True for MySQL databases and False for MariaDB databases with the ONLY_FULL_GROUP_BY 
+        SQL mode enabled, among other scenarios.
+        """
         with mock.MagicMock() as _connection:
             _connection.mysql_is_mariadb = False
             database_features = DatabaseFeatures(_connection)

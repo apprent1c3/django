@@ -18,6 +18,14 @@ class FloatformatTests(SimpleTestCase):
         }
     )
     def test_floatformat01(self):
+        """
+
+        Test case for the floatformat Django template filter.
+
+        Verifies that the filter correctly formats floating point numbers to one decimal place,
+        both for regular strings and for strings marked as safe using mark_safe.
+
+        """
         output = self.engine.render_to_string(
             "floatformat01", {"a": "1.42", "b": mark_safe("1.42")}
         )
@@ -25,6 +33,17 @@ class FloatformatTests(SimpleTestCase):
 
     @setup({"floatformat02": "{{ a|floatformat }} {{ b|floatformat }}"})
     def test_floatformat02(self):
+        """
+
+        Tests the floatformat filter with two floats.
+
+        Verifies that the filter correctly formats the numbers to one decimal place,
+        regardless of whether the input is a string or a marked safe string.
+
+        The test checks the rendered output of a template using the floatformat filter
+        and asserts that it matches the expected formatted string.
+
+        """
         output = self.engine.render_to_string(
             "floatformat02", {"a": "1.42", "b": mark_safe("1.42")}
         )
@@ -33,6 +52,21 @@ class FloatformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_inputs(self):
+        """
+        Test the floatformat function by providing various input values and precision levels,
+                verifying that the returned string representations are as expected.
+
+                The tests cover a range of scenarios, including:
+                - Positive and negative numbers
+                - Numbers with and without decimal points
+                - Zero
+                - Decimal objects
+                - Precision values from positive to negative
+                - Large and small numbers
+                - Edge cases with extremely large or small values
+
+                This function ensures that the floatformat function behaves correctly and produces the expected output for different inputs and precision settings.
+        """
         self.assertEqual(floatformat(7.7), "7.7")
         self.assertEqual(floatformat(7.0), "7")
         self.assertEqual(floatformat(0.7), "0.7")
@@ -171,6 +205,10 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(pos_inf / pos_inf), "nan")
 
     def test_float_dunder_method(self):
+        """
+        Test the float dunder method in a FloatWrapper class to ensure correct float conversion and formatting.
+        This test creates an instance of the FloatWrapper class with a floating point value, then verifies that the floatformat function correctly converts the FloatWrapper instance to a float and formats it to the specified number of decimal places.
+        """
         class FloatWrapper:
             def __init__(self, value):
                 self.value = value

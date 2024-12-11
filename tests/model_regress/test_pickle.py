@@ -36,6 +36,16 @@ class ModelPickleTests(SimpleTestCase):
             title = models.CharField(max_length=10)
 
             def __reduce__(self):
+                """
+                Custom implementation of the reduce protocol to support pickling of Django model instances.
+
+                This method is used to reduce the object's state to a tuple that can be pickled and unpickled, 
+                allowing for the object's state to be saved and restored. The method extends the default 
+                reduce protocol by adding the Django version used for pickling to the object's state, 
+                enabling version-specific serialization and deserialization of the object.
+
+                :return: A tuple containing the object's reduced state, including the Django version used for pickling.
+                """
                 reduce_list = super().__reduce__()
                 data = reduce_list[-1]
                 data[DJANGO_VERSION_PICKLE_KEY] = "1.0"

@@ -19,6 +19,17 @@ class TestDebugSQL(unittest.TestCase):
 
     class FailingTest(TestCase):
         def runTest(self):
+            """
+
+            Run a test case that intentionally fails.
+
+            This method queries the database for Person objects with a first name of 'fail' 
+            and then immediately fails the test, regardless of the query result.
+
+            Note: The purpose of this test appears to be testing the failure mechanism itself, 
+            rather than verifying the correctness of the database query.
+
+            """
             Person.objects.filter(first_name="fail").count()
             self.fail()
 

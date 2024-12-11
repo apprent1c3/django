@@ -14,10 +14,28 @@ class MediaTypeTests(TestCase):
                 self.assertEqual(repr(media_type), "<MediaType: >")
 
     def test_str(self):
+        """
+        ..:nodoc:
+        Checks the string representation of MediaType objects to ensure they match their initialization values.
+
+        The test covers different scenarios, including media types with and without quality parameters.
+        It verifies that the string representation accurately reflects the media type's attributes, such as type and subtype, as well as any additional parameters like quality (q) values.
+        """
         self.assertEqual(str(MediaType("*/*; q=0.8")), "*/*; q=0.8")
         self.assertEqual(str(MediaType("application/xml")), "application/xml")
 
     def test_repr(self):
+        """
+        :return: Tests the representation of MediaType objects to ensure correct string output.
+
+         The function verifies that the repr function returns a string in the expected format: 
+         '<MediaType: type/subtype; parameters>' for MediaTypes with parameters 
+         and '<MediaType: type/subtype>' for those without. 
+
+         This test checks for the proper formatting of the string representation in both 
+         cases, including when quality factor parameter (q) is present and when it is not.
+
+        """
         self.assertEqual(repr(MediaType("*/*; q=0.8")), "<MediaType: */*; q=0.8>")
         self.assertEqual(
             repr(MediaType("application/xml")),
@@ -45,6 +63,14 @@ class MediaTypeTests(TestCase):
                 self.assertIs(MediaType(accepted_type).match(mime_type), True)
 
     def test_no_match(self):
+        """
+        Tests that the MediaType class correctly identifies non-matching media types.
+
+        This function verifies that the MediaType match method returns False for various
+        combinations of accepted types and MIME types, ensuring that the class behaves
+        as expected when no match is found. The test cases cover a range of scenarios,
+        including empty or null accepted types, and mismatched MIME types.
+        """
         tests = [
             (None, "*/*"),
             ("", "*/*"),
@@ -67,6 +93,19 @@ class AcceptHeaderTests(TestCase):
         )
 
     def test_accept_headers(self):
+        """
+        Tests the parsing of Accept headers in an HttpRequest object.
+
+        This function verifies that the accepted_types attribute of an HttpRequest object
+        is correctly populated based on the HTTP Accept header. It checks that the
+        accepted types are parsed and ordered correctly, and that the quality values
+        (q-values) are preserved.
+
+        The test case covers a typical Accept header with multiple MIME types and q-values,
+        ensuring that the HttpRequest object accurately represents the client's preferences.
+
+
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = (
             "text/html, application/xhtml+xml,application/xml ;q=0.9,*/*;q=0.8"
@@ -82,6 +121,12 @@ class AcceptHeaderTests(TestCase):
         )
 
     def test_request_accepts_any(self):
+        """
+        ..: meth:: test_request_accepts_any
+            Verifies that an HttpRequest object accepts any media type when the 'Accept' header is set to '*/*'.
+
+            Checks if the :meth:`accepts` method of the HttpRequest object returns True for 'application/json' when the 'Accept' header is set to '*/*', confirming that the object accepts all media types.
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = "*/*"
         self.assertIs(request.accepts("application/json"), True)

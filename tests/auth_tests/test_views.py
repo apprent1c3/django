@@ -51,6 +51,15 @@ class RedirectURLMixinTests(TestCase):
         self.assertEqual(RedirectURLView().get_default_redirect_url(), "/custom/")
 
     def test_get_default_redirect_url_no_next_page(self):
+        """
+
+         Tests that get_default_redirect_url raises an ImproperlyConfigured exception when no next page is provided.
+
+         This test case validates that the RedirectURLMixin class behaves correctly when there is no redirect URL to use.
+
+         :raises: ImproperlyConfigured exception with a specific error message when no next page is provided.
+
+        """
         msg = "No URL to redirect to. Provide a next_page."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             RedirectURLMixin().get_default_redirect_url()
@@ -353,6 +362,21 @@ class PasswordResetTest(AuthViewsTestCase):
         )
 
     def test_confirm_redirect_default(self):
+        """
+
+        Tests that the password reset confirmation view redirects to the default success URL 
+        when the password is confirmed successfully.
+
+        It verifies that after submitting a valid password confirmation form, the view 
+        returns a successful redirect response to the expected URL without following the 
+        redirect.
+
+        This test case assumes a valid password reset session has been initiated and 
+        the password confirmation form is populated with a valid new password. The test 
+        covers the successful redirect scenario, ensuring the view behaves correctly 
+        when the password is confirmed successfully.
+
+        """
         url, path = self._test_confirm_start()
         response = self.client.post(
             path, {"new_password1": "anewpassword", "new_password2": "anewpassword"}
@@ -581,6 +605,12 @@ class ChangePasswordTest(AuthViewsTestCase):
         self.client.post("/logout/")
 
     def test_password_change_fails_with_invalid_old_password(self):
+        """
+        Tests that changing the password with an invalid old password results in an error.
+
+        This test simulates the process of attempting to change a user's password, providing an incorrect old password, and verifies that the request is rejected.
+        The expected error message is checked to ensure it matches the 'password_incorrect' error defined in the PasswordChangeForm.
+        """
         self.login()
         response = self.client.post(
             "/password_change/",
@@ -1326,6 +1356,15 @@ class LogoutTest(AuthViewsTestCase):
         self.confirm_logged_out()
 
     def test_security_check(self):
+        """
+        Tests the security of the logout view by attempting to redirect to various URLs, both malicious and benign, after logging out.
+
+        The function tests the following cases:
+        - Malicious URLs: checks that URLs with invalid or potentially malicious schemes (e.g., `javascript`, `ftp`) are blocked and do not appear in the redirect URL after logging out.
+        - Benign URLs: verifies that URLs with valid schemes (e.g., `http`, `https`) and containing parameters or spaces are allowed and appear in the redirect URL after logging out.
+
+        Each test case covers a specific redirect URL, ensuring that the logout view handles various scenarios correctly and securely.
+        """
         logout_url = reverse("logout")
 
         # These URLs should not pass the security check.
@@ -1406,12 +1445,28 @@ class LogoutTest(AuthViewsTestCase):
 
     @override_settings(LOGOUT_REDIRECT_URL="/custom/")
     def test_logout_redirect_url_setting_allowed_hosts_unsafe_host(self):
+        """
+
+        Tests the logout redirect URL setting when the next parameter contains an unallowed host.
+
+        Verifies that the logout redirect proceeds as expected, even when the next parameter
+        specifies a potentially malicious URL. The test checks that the redirect occurs to
+        the URL specified by the LOGOUT_REDIRECT_URL setting, rather than the potentially
+        unsafe host provided in the next parameter.
+
+        """
         self.login()
         response = self.client.post("/logout/allowed_hosts/?next=https://evil/")
         self.assertRedirects(response, "/custom/", fetch_redirect_response=False)
 
     @override_settings(LOGOUT_REDIRECT_URL="logout")
     def test_logout_redirect_url_named_setting(self):
+        """
+        /Test logout redirect URL named setting.
+
+        Tests that the logout redirect URL is correctly set to the value specified by the LOGOUT_REDIRECT_URL setting.
+        Verifies that after logging out, the user is redirected to the specified URL and that the logout process is successful.
+        """
         self.login()
         response = self.client.post("/logout/")
         self.assertContains(response, "Logged out")

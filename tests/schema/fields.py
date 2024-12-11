@@ -31,6 +31,33 @@ class CustomManyToManyField(RelatedField):
         db_table=None,
         **kwargs,
     ):
+        """
+
+        Initializes a Many-To-Many relationship field.
+
+        This field is used to establish a many-to-many relationship between two models.
+        It provides options to customize the relationship, such as specifying a custom database table,
+        a related name, or a query name.
+
+        The relationship can be defined as symmetrical, meaning that the relationship exists in both directions,
+        or asymmetrical, where the relationship only exists in one direction.
+
+        Additionally, this field supports using an intermediary model to represent the relationship,
+        allowing for more complex and customized many-to-many relationships.
+
+        :type to: Model or str
+        :param to: The model or string representation of the model to establish a relationship with.
+        :param db_constraint: Whether to create a database constraint for the relationship.
+        :param swappable: Whether the model can be swapped out with another model.
+        :param related_name: The name of the relationship as seen from the related model.
+        :param related_query_name: The name of the relationship as seen in query lookups.
+        :param limit_choices_to: A dictionary of lookup arguments to filter the related objects.
+        :param symmetrical: Whether the relationship is symmetrical.
+        :param through: The intermediary model representing the relationship.
+        :param through_fields: The field names on the intermediary model that represent the relationship.
+        :param db_table: The name of the database table to use for the relationship.
+
+        """
         try:
             to._meta
         except AttributeError:
@@ -64,6 +91,23 @@ class CustomManyToManyField(RelatedField):
         )
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+
+        Contribute this many-to-many relationship field to the given class.
+
+        This method is responsible for setting up the relationship between the current
+        model and the target model, including creating a through table if necessary,
+        and setting the related name for the relationship. It also adds a descriptor
+        to the class to provide easy access to the related objects.
+
+        The relationship is symmetrical if the target model is the same as the current
+        model, and the related name will be automatically set in this case. If the
+        relationship is not symmetrical, the related name must be provided manually.
+
+        Once this method is called, the relationship is fully set up and can be used
+        to retrieve and manipulate related objects.
+
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == "self"
             or self.remote_field.model == cls._meta.object_name

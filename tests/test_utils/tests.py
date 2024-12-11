@@ -56,6 +56,15 @@ from .views import empty_response
 
 class SkippingTestCase(SimpleTestCase):
     def _assert_skipping(self, func, expected_exc, msg=None):
+        """
+
+        Asserts that a given function raises a specific exception, while also ensuring it does not skip the test.
+
+        This method takes a function to be executed, the expected exception to be raised, and an optional error message.
+        If the error message is provided, it verifies that the raised exception contains the specified message.
+        The function will fail the test if the execution of the provided function results in a skipped test instead of raising the expected exception.
+
+        """
         try:
             if msg is not None:
                 with self.assertRaisesMessage(expected_exc, msg):
@@ -195,6 +204,22 @@ class SkippingClassTestCase(TransactionTestCase):
 
     def test_missing_default_databases(self):
         @skipIfDBFeature("missing")
+        """
+        Tests that attempting to run a test suite containing a test case
+        that is decorated with skipIfDBFeature when the feature is not
+        applicable raises the correct ValueError.
+
+        The test checks that the skipIfDBFeature decorator does not raise a
+        SkipTest exception prematurely, but instead waits until the test
+        suite is run. At that point, it verifies that a ValueError is raised
+        with the expected error message, indicating that skipIfDBFeature
+        cannot be used with the given test case because it does not allow
+        queries against the 'default' database.
+
+        This test ensures that the skipIfDBFeature decorator behaves
+        correctly in this specific edge case, providing a robust test suite
+        for the functionality of database features in test cases.
+        """
         class MissingDatabases(SimpleTestCase):
             def test_assertion_error(self):
                 pass
@@ -236,6 +261,13 @@ class AssertNumQueriesTests(TestCase):
         )
 
         def test_func():
+            """
+            Tests the retrieval of a person's details by making two consecutive GET requests to the /test_utils/get_person endpoint with the person's primary key.
+
+             The purpose of this function is to verify that the endpoint behaves as expected when queried multiple times with the same identifier, ensuring data consistency and server responsiveness.
+
+             :raises: AssertionError if the GET requests fail or return unexpected responses
+            """
             self.client.get("/test_utils/get_person/%s/" % person.pk)
             self.client.get("/test_utils/get_person/%s/" % person.pk)
 
@@ -246,6 +278,15 @@ class AssertNumQueriesUponConnectionTests(TransactionTestCase):
     available_apps = []
 
     def test_ignores_connection_configuration_queries(self):
+        """
+
+        Tests that database connection configuration queries are ignored.
+
+        This test case verifies that the database connection configuration query, 
+        which checks the database connection status, is not counted as a separate query. 
+        It ensures that only the actual query to retrieve data is accounted for.
+
+        """
         real_ensure_connection = connection.ensure_connection
         connection.close()
 
@@ -680,6 +721,25 @@ class HTMLEqualTests(SimpleTestCase):
                 self.assertEqual(dom[2], "world")
 
     def test_simple_equal_html(self):
+        """
+
+        Tests the equality of HTML strings, ensuring that different formatting and whitespace variations are correctly considered equal.
+
+        This test case verifies that the comparison function ignores extraneous whitespace, empty tags, and other formatting differences, 
+        and correctly identifies equivalent HTML structures.
+
+        The tests cover a range of scenarios, including:
+
+        * Empty strings and tags
+        * Tags with varying amounts of whitespace
+        * Tags with different line breaks
+        * Empty and non-empty tags
+        * Self-closing tags
+        * Tags with default attribute values
+
+        The goal of this test is to ensure that the HTML comparison function behaves as expected and can handle a variety of input formats.
+
+        """
         self.assertHTMLEqual("", "")
         self.assertHTMLEqual("<p></p>", "<p></p>")
         self.assertHTMLEqual("<p></p>", " <p> </p> ")
@@ -1001,6 +1061,14 @@ class InHTMLTests(SimpleTestCase):
             self.assertInHTML("<b>Hello</b>", "<p>Test</p>")
 
     def test_msg_prefix(self):
+        """
+
+        Test that an error message is properly prefixed when assertInHTML fails.
+
+        This test verifies that the AssertionError raised by assertInHTML is correctly prefixed with a user-specified message.
+        The case tested is when the expected HTML snippet is not found in the actual HTML content.
+
+        """
         msg = (
             "False is not true : Prefix: Couldn't find '<b>Hello</b>' in the following "
             'response\n\'<input type="text" name="Hello" />\''
@@ -1087,6 +1155,9 @@ class JSONEqualTests(SimpleTestCase):
             self.assertJSONEqual(json1, json2)
 
     def test_equal_parsing_errors(self):
+        """
+        Tests that the assertJSONEqual function correctly identifies and raises an AssertionError when comparing a valid and an invalid JSON string, specifically when there is a parsing error in the invalid string due to a missing quotation mark. The test case confirms the function's ability to detect parsing errors in both directions of comparison, i.e., when the invalid string is provided as the first or the second argument to the assertJSONEqual function.
+        """
         invalid_json = '{"attr1": "foo, "attr2":"baz"}'
         valid_json = '{"attr1": "foo", "attr2":"baz"}'
         with self.assertRaises(AssertionError):
@@ -1174,6 +1245,16 @@ class XMLEqualTests(SimpleTestCase):
         self.assertXMLEqual(xml1, xml2)
 
     def test_simple_not_equal_with_whitespace_in_the_middle(self):
+        """
+        Tests that XML strings with differing amounts of whitespace are correctly identified as not equal.
+
+            This test case checks for the presence of whitespace in the middle of an XML string,
+            demonstrating that the XML comparison function is sensitive to such differences.
+
+            The test includes two XML strings that are identical except for the presence of a space
+            between two elements in the second string. The expected result is that these strings
+            are considered not equal by the comparison function.
+        """
         xml1 = "<elem>foo</elem><elem>bar</elem>"
         xml2 = "<elem>foo</elem> <elem>bar</elem>"
         self.assertXMLNotEqual(xml1, xml2)
@@ -1361,6 +1442,19 @@ class TestForm(Form):
         return value
 
     def clean(self):
+        """
+        Cleans and validates the form data.
+
+        This method checks the form data for any errors and raises a ValidationError if the 'field' is set to an invalid value.
+        If the data is valid, it returns the cleaned form data.
+
+        Raises:
+            ValidationError: If the 'field' is set to an invalid value.
+
+        Returns:
+            dict: The cleaned form data.
+
+        """
         if self.cleaned_data.get("field") == "invalid_non_field":
             raise ValidationError("non-field error")
         return self.cleaned_data
@@ -1678,6 +1772,15 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_non_form_errors_with_field(self):
+        """
+        Tests that a ValueError is raised when non-form errors are reported without specifying a field.
+
+        This test case ensures that the function correctly handles the case where a non-form error 
+        is encountered and an attempt is made to report it without associating it with a specific field.
+
+        The test verifies that a ValueError exception is raised with the expected error message 
+        when the function is called with the invalid formset and no field specified.
+        """
         msg = "You must use field=None with form_index=None."
         with self.assertRaisesMessage(ValueError, msg):
             self.assertFormSetError(
@@ -2036,6 +2139,11 @@ class CaptureOnCommitCallbacksTests(TestCase):
         self.assertEqual(callbacks, [branch_1, branch_2, leaf_3, leaf_1, leaf_2])
 
     def test_execute_robust(self):
+        """
+        Tests execution of a robust on_commit callback, ensuring it handles exceptions as expected.
+
+        This test case simulates the registration of a callback function with transaction.on_commit, where the callback raises a custom exception. It verifies that the callback is executed and the exception is logged with the expected error message. The test also checks that the log record contains the exception information.
+        """
         class MyException(Exception):
             pass
 
@@ -2088,6 +2196,18 @@ class DisallowedDatabaseQueriesTests(SimpleTestCase):
             Car.objects.first()
 
     def test_disallowed_database_chunked_cursor_queries(self):
+        """
+
+        Tests that chunked cursor queries to the 'default' database are disallowed in SimpleTestCase subclasses.
+
+        This test verifies that attempting to execute a query using an iterator,
+        such as `Car.objects.iterator()`, raises a `DatabaseOperationForbidden` exception.
+        This is because SimpleTestCase subclasses do not provide proper test isolation,
+        and using the database in this way can lead to unexpected behavior and test failures.
+        To use the database in a test, either subclass `TestCase` or `TransactionTestCase`,
+        or add the 'default' database to the list of allowed databases in `DisallowedDatabaseQueriesTests`.
+
+        """
         expected_message = (
             "Database queries to 'default' are not allowed in SimpleTestCase "
             "subclasses. Either subclass TestCase or TransactionTestCase to "
@@ -2137,6 +2257,18 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
         def thread_func():
             # Passing django.db.connection between threads doesn't work while
             # connections[DEFAULT_DB_ALIAS] does.
+            """
+            .. function:: thread_func()
+               :noindex:
+
+               Ensures thread safety for database connections by incrementing thread sharing.
+
+               This function establishes a connection to the default database, activates an iterator 
+               for Car objects to initialize the database connection, then increments thread sharing 
+               for the connection. The connection object is stored in a dictionary for future use, 
+               keyed by its unique identifier. This helps prevent database connections from being 
+               closed prematurely when used across multiple threads.
+            """
             from django.db import connections
 
             connection = connections["default"]
@@ -2188,6 +2320,15 @@ class DatabaseAliasTests(SimpleTestCase):
             self._validate_databases()
 
     def test_close_match(self):
+        """
+
+        Test that an improperly configured database alias raises an exception.
+
+        This test case checks that when a database alias is misspelled or does not match
+        any defined database in the settings, a :class:`django.core.exceptions.ImproperlyConfigured`
+        exception is raised with a helpful error message suggesting the correct alias.
+
+        """
         self.__class__.databases = {"defualt"}
         message = (
             "test_utils.tests.DatabaseAliasTests.databases refers to 'defualt' which "

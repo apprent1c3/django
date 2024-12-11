@@ -269,6 +269,14 @@ class CustomContextView(generic.detail.SingleObjectMixin, generic.View):
         return Book(name="dummy")
 
     def get_context_data(self, **kwargs):
+        """
+        :Adds custom data to the context dictionary for use in templates.
+
+        This method extends the default context data with a custom key-value pair. 
+        It then updates the context with any additional keyword arguments provided. 
+        The updated context is then passed to the parent class to further populate the context data. 
+        The resulting context dictionary is returned, containing all the data needed for template rendering.
+        """
         context = {"custom_key": "custom_value"}
         context.update(kwargs)
         return super().get_context_data(**context)

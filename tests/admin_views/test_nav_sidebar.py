@@ -138,6 +138,16 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_sidebar_starts_open(self):
+        """
+        Test that the sidebar starts open on the user changelist page.
+
+        Verifies that when the user changelist page is loaded, the main content area
+        indicates that the sidebar is currently open, as indicated by the presence of
+        the 'shifted' class in its HTML element.
+
+        This test ensures that the sidebar's initial state is correct and visible
+        to the user when accessing the user management page.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -220,6 +230,21 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_filter_persists(self):
+        """
+        Tests that the filter value in the admin navigation sidebar persists.
+
+        This test case verifies that the filter value entered in the navigation sidebar
+        is correctly stored and retrieved from session storage. It checks for the initial
+        absence of a filter value, sets a new filter value, and then asserts that the
+        new value is correctly persisted.
+
+        The test scenario covers the following steps:
+
+        * Navigate to the user changelist page in the admin interface
+        * Verify that no filter value is initially set
+        * Enter a filter value in the navigation sidebar
+        * Confirm that the entered filter value is stored and can be retrieved
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(

@@ -193,6 +193,16 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_model(self):
+        """
+
+        Tests the deletion of models and the signals emitted by the origin model.
+
+        This test case checks that the pre_delete and post_delete signals are correctly 
+        emitted when a model instance is deleted, including cases where the deletion 
+        cascades to related instances. The test verifies that the sender and origin 
+        of the signals are correctly passed to the signal handlers.
+
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -445,6 +455,20 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_not_loaded_model(self, apps):
+        """
+
+        Tests that a model's post initialization signal is dispatched correctly when the model is not loaded.
+
+        This test case checks the connection and disconnection of the post_init signal for a given sender model, 
+        and verifies that the signal is received as expected. The test also ensures proper cleanup of the signal 
+        connection after the test is completed.
+
+        The test uses a dynamically created model `Created` to simulate a scenario where the model is not 
+        previously loaded, and the signal is connected and disconnected within the context of the test.
+
+        :param apps: The applications to isolate for the test.
+
+        """
         signals.post_init.connect(
             self.receiver, sender="signals.Created", weak=False, apps=apps
         )
@@ -470,6 +494,16 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_registered_model(self, apps):
+        """
+
+        Tests the behavior of disconnecting a registered model from a signal.
+
+        This test case verifies that disconnecting a receiver from a signal twice does not raise any errors,
+        and that the receiver is properly disconnected and no longer receives signals after disconnection.
+
+        It also checks that the signal is not sent to the receiver after it has been disconnected.
+
+        """
         received = []
 
         def receiver(**kwargs):
@@ -636,6 +670,18 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(async_handler, 1)])
 
     async def test_asend_robust_only_async_receivers(self):
+        """
+
+        Tests the asend_robust method with only asynchronous receivers connected to the signal.
+
+        This test case ensures that the asend_robust method functions correctly when all 
+        connected receivers are asynchronous. It verifies that the method returns a list 
+        of tuples containing the receiver and the result of the asynchronous signal sending.
+
+        The test connects an asynchronous handler to a signal, sends the signal using the 
+        asend_robust method, and checks that the returned result matches the expected output.
+
+        """
         async_handler = AsyncHandler()
         signal = dispatch.Signal()
         signal.connect(async_handler)

@@ -89,6 +89,17 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         self.geometry_sql = []
 
     def delete_model(self, model, **kwargs):
+        """
+        Deletes a model instance, handling geometry metadata and tables as necessary.
+
+        URRENCY:
+            :param model: The model instance to be deleted
+            :param kwargs: Additional keyword arguments to be passed to the parent class's delete_model method
+
+            The function takes care of removing geometry metadata associated with the model and discarding geometry columns in related tables.
+            It then calls the parent class's delete_model method to perform the actual deletion of the model instance.
+            Any geometry-related tables or fields are cleaned up during this process, ensuring consistency and integrity of the database.
+        """
         from django.contrib.gis.db.models import GeometryField
 
         # Drop spatial metadata (dropping the table does not automatically remove them)
@@ -110,6 +121,13 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         super().delete_model(model, **kwargs)
 
     def add_field(self, model, field):
+        """
+        Adds a new field to the model, handling geometry fields specially.
+
+        If the field is a geometry field, it generates the necessary SQL to create the column and executes 
+        it, followed by any additional geometry-related SQL. For non-geometry fields, it defers to the 
+        parent class to perform the addition.
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if isinstance(field, GeometryField):

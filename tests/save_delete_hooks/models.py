@@ -13,6 +13,16 @@ class Person(models.Model):
     last_name = models.CharField(max_length=20)
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting up its internal state.
+
+        This constructor method is called when an object of the class is instantiated.
+        It takes in any number of positional and keyword arguments, which are passed to the parent class's constructor.
+        Additionally, it initializes an empty list, `data`, which can be used to store information within the object.
+
+        :param args: Variable number of positional arguments
+        :param kwargs: Variable number of keyword arguments
+        """
         super().__init__(*args, **kwargs)
         self.data = []
 

@@ -109,6 +109,11 @@ class TranslationTests(SimpleTestCase):
         )
 
     def test_plural_null(self):
+        """
+        Tests the correct handling of null values in plural translations using the ngettext function.
+
+        This test case checks that the ngettext function correctly returns the plural or singular form of a string based on the provided number, even when the number is zero, one, or greater than one. The test covers the translation of a string representing a quantity of years, verifying that the correct form is used for different quantities.
+        """
         g = trans_null.ngettext
         self.assertEqual(g("%(num)d year", "%(num)d years", 0) % {"num": 0}, "0 years")
         self.assertEqual(g("%(num)d year", "%(num)d years", 1) % {"num": 1}, "1 year")
@@ -533,6 +538,22 @@ class FormattingTests(SimpleTestCase):
         )
 
     def test_all_format_strings(self):
+        """
+        Tests the formatting of dates and times in various locales.
+
+        This test iterates over all supported locales, activating each locale in turn and checking that the formatted date and time strings 
+        contain expected values. It checks the following formats: 
+        - Year in date format
+        - Minute in time format
+        - Year in datetime format
+        - Year and month in year-month format
+        - Day and month in month-day format
+        - Short date format
+        - Short datetime format
+
+        Verifies that the date and time formatting functions produce correct results for each locale, ensuring internationalization support.
+
+        """
         all_locales = LANG_INFO.keys()
         some_date = datetime.date(2017, 10, 14)
         some_datetime = datetime.datetime(2017, 10, 14, 10, 23)
@@ -1714,6 +1735,21 @@ class MiscTests(SimpleTestCase):
         ],
     )
     def test_get_language_from_path_real(self):
+        """
+
+        Tests the get_language_from_path function with various URL paths to ensure it correctly determines the language.
+
+        The function is tested with a range of paths, including those with valid language codes, 
+        invalid codes, and codes with different cases and subtags. It also checks for paths 
+        that do not contain a language code, and for paths with very long strings that should 
+        not match any language code.
+
+        The test cases cover languages with different lengths of codes, codes with region and 
+        script subtags, and codes with non-standard cases. The function should return the 
+        correct language code for each valid path, and None for paths that do not contain a 
+        valid language code.
+
+        """
         g = trans_real.get_language_from_path
         tests = [
             ("/pl/", "pl"),
@@ -1740,6 +1776,14 @@ class MiscTests(SimpleTestCase):
                 self.assertEqual(g(path), language)
 
     def test_get_language_from_path_null(self):
+        """
+        Tests the get_language_from_path function with null or invalid paths.
+
+        This function checks if the get_language_from_path function correctly handles paths that do not specify a language,
+        returning None in such cases.
+
+        The tests cover different scenarios, including paths with and without trailing slashes, and paths with unknown language codes.
+        """
         g = trans_null.get_language_from_path
         self.assertIsNone(g("/pl/"))
         self.assertIsNone(g("/pl"))
@@ -1770,6 +1814,15 @@ class ResolutionOrderI18NTests(SimpleTestCase):
         self.addCleanup(deactivate)
 
     def assertGettext(self, msgid, msgstr):
+        """
+        Asserts that the translation of a given message ID contains the expected translation string.
+
+        Checks if the gettext translation of msgid contains msgstr. This method is useful for verifying
+        that translations are correct and contain the expected text.
+
+        :param msgid: The message ID to be translated
+        :param msgstr: The expected translation string
+        """
         result = gettext(msgid)
         self.assertIn(
             msgstr,
@@ -2126,6 +2179,31 @@ class WatchForTranslationChangesTests(SimpleTestCase):
             mocked_sender.watch_dir.assert_any_call(Path(app_dir), "**/*.mo")
 
     def test_i18n_app_dirs(self):
+        """
+
+        Tests the functionality of watching for translation changes in an i18n application.
+        Verifies that the watching mechanism correctly identifies and monitors the directory
+        where translation files are stored for the application, ensuring that any changes
+        to these files trigger the necessary actions.
+
+        The test covers the scenario where the application's translation directory is
+        automatically detected and added to the watch list, facilitating the seamless
+        integration of internationalization features.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        See Also
+        --------
+        watch_for_translation_changes : Function responsible for setting up the watching
+                                        mechanism for translation changes.
+
+        """
         mocked_sender = mock.MagicMock()
         with self.settings(INSTALLED_APPS=["i18n.sampleproject"]):
             watch_for_translation_changes(mocked_sender)

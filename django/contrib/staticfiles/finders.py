@@ -108,6 +108,18 @@ class FileSystemFinder(BaseFinder):
         super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
+        """
+        Checks the configuration of the STATICFILES_DIRS setting for potential problems.
+
+        This function inspects the STATICFILES_DIRS setting and verifies its correctness, 
+        including checking that it is a list or tuple, that prefixes do not end with a slash, 
+        and that the STATIC_ROOT directory is not included in the STATICFILES_DIRS list.
+
+        It also checks that the directories specified in the STATICFILES_DIRS setting exist.
+
+        Returns a list of Error or Warning objects describing any issues found, where each object 
+        includes a descriptive message, a unique id, and optionally a hint for fixing the issue.
+        """
         errors = []
         if not isinstance(settings.STATICFILES_DIRS, (list, tuple)):
             errors.append(
@@ -206,6 +218,22 @@ class AppDirectoriesFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # The list of apps that are handled
+        """
+
+        Initializes an instance of the class, setting up storage for specified applications.
+
+        This method takes an optional list of application names, and configures storage
+        for each of these applications by creating a storage object at the application's
+        source directory. If no application names are provided, it configures storage for
+        all available applications.
+
+        The configured storage objects are stored in the :attr:`storages` dictionary,
+        with application names as keys. The applications for which storage is configured
+        are also tracked in the :attr:`apps` list.
+
+        :arg app_names: Optional list of application names to configure storage for.
+
+        """
         self.apps = []
         # Mapping of app names to storage instances
         self.storages = {}

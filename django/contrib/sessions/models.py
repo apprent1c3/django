@@ -27,6 +27,19 @@ class Session(AbstractBaseSession):
 
     @classmethod
     def get_session_store_class(cls):
+        """
+
+        Returns the Django session store class to manage user sessions.
+
+        The returned class is used to interact with the session backend, allowing for 
+        storage and retrieval of session data. It serves as a bridge between the 
+        application and the underlying database, providing a standardized interface 
+        for session management.
+
+        This method provides a convenient way to access the session store class, 
+        enabling seamless integration with Django's session framework. 
+
+        """
         from django.contrib.sessions.backends.db import SessionStore
 
         return SessionStore

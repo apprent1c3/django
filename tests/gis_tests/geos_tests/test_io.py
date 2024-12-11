@@ -16,6 +16,15 @@ from django.test import SimpleTestCase
 class GEOSIOTest(SimpleTestCase):
     def test01_wktreader(self):
         # Creating a WKTReader instance
+        """
+        Tests the functionality of the WKTReader class.
+
+        This test case checks the ability of the WKTReader to parse a Well-Known Text (WKT) string 
+        representing a geometric object and returns a corresponding geometric object.
+        It verifies that the read method works correctly with both encoded and unencoded WKT strings.
+        Additionally, it ensures that the read method raises a TypeError when passed invalid input types, 
+        such as integers or memory views, instead of a WKT string or bytes object.
+        """
         wkt_r = WKTReader()
         wkt = "POINT (5 23)"
 

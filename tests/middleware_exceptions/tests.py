@@ -69,6 +69,15 @@ class MiddlewareTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.middleware.TemplateResponseMiddleware"]
     )
     def test_process_template_response(self):
+        """
+        Tests the process of template response using the TemplateResponseMiddleware.
+
+        This test case verifies that the TemplateResponseMiddleware is correctly applied 
+        to a template response, checking the presence of the expected content in the 
+        response. It uses a test client to send a GET request to a specific URL and 
+        asserts that the response content matches the expected output, confirming the 
+        middleware's functionality. 
+        """
         response = self.client.get("/middleware_exceptions/template_response/")
         self.assertEqual(
             response.content, b"template_response OK\nTemplateResponseMiddleware"
@@ -331,6 +340,14 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     async def test_async_and_sync_middleware_async_call(self):
+        """
+
+        Tests an asynchronous call to a view protected by middleware that handles both synchronous and asynchronous requests.
+
+        This test case verifies that the middleware correctly handles an asynchronous GET request to the specified view, 
+        returning a successful HTTP response with a status code of 200 and content 'OK'.
+
+        """
         response = await self.async_client.get("/middleware_exceptions/view/")
         self.assertEqual(response.content, b"OK")
         self.assertEqual(response.status_code, 200)
@@ -341,6 +358,16 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ]
     )
     def test_async_and_sync_middleware_sync_call(self):
+        """
+
+        Tests the SyncAndAsyncMiddleware for synchronous HTTP requests.
+
+        This test case verifies that the middleware correctly handles a synchronous call
+        to a view function and returns the expected HTTP response. The test checks if the
+        response content and status code match the expected values, indicating a successful
+        execution of the middleware.
+
+        """
         response = self.client.get("/middleware_exceptions/view/")
         self.assertEqual(response.content, b"OK")
         self.assertEqual(response.status_code, 200)
@@ -403,6 +430,13 @@ class AsyncMiddlewareTests(SimpleTestCase):
         ]
     )
     async def test_view_exception_handled_by_process_exception(self):
+        """
+        Tests the handling of exceptions in views by the AsyncProcessExceptionMiddleware.
+
+        This test case checks that when an exception occurs in a view, the middleware catches it and returns a response with the content 'Exception caught'.
+
+        The test simulates a GET request to a URL that triggers an exception and verifies that the middleware correctly handles the exception and returns the expected response.
+        """
         response = await self.async_client.get("/middleware_exceptions/error/")
         self.assertEqual(response.content, b"Exception caught")
 
@@ -412,5 +446,10 @@ class AsyncMiddlewareTests(SimpleTestCase):
         ]
     )
     async def test_process_view_return_response(self):
+        """
+        Tests the AsyncProcessViewMiddleware by sending a GET request to a view and verifying that the middleware processes the view and returns the expected response. 
+
+        The test checks that the AsyncProcessViewMiddleware correctly handles the view and provides an accurate response, confirming that the middleware functions as expected in an asynchronous environment.
+        """
         response = await self.async_client.get("/middleware_exceptions/view/")
         self.assertEqual(response.content, b"Processed view normal_view")

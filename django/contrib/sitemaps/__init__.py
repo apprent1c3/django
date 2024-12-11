@@ -44,6 +44,9 @@ class Sitemap:
         return self._languages()
 
     def _languages(self):
+        """
+        帰нар ラdıkReturns a list of language codes. If the languages attribute is set, it returns the languages defined there. Otherwise, it defaults to all language codes defined in the LANGUAGES setting.
+        """
         if self.languages is not None:
             return self.languages
         return [lang_code for lang_code, _ in settings.LANGUAGES]
@@ -115,6 +118,27 @@ class Sitemap:
             return self.lastmod
 
     def _urls(self, page, protocol, domain):
+        """
+
+        Generates a list of URL information for the specified page.
+
+        This function iterates over the items in the paginator page, extracting relevant information 
+        such as the location, last modification date, change frequency, and priority. The resulting 
+        information is stored in a dictionary and added to a list, which is then returned.
+
+        The function also handles internationalization (i18n) and alternate language URLs if 
+        configured to do so. It checks for the existence of languages for an item and generates 
+        alternate URLs accordingly.
+
+        The function updates the `latest_lastmod` attribute if all items in the page have a last 
+        modification date and a latest date can be determined.
+
+        :param page: The page number to generate URLs for
+        :param protocol: The protocol to use for the URLs (e.g. http or https)
+        :param domain: The domain to use for the URLs
+        :return: A list of dictionaries containing URL information
+
+        """
         urls = []
         latest_lastmod = None
         all_items_lastmod = True  # track if all items have a lastmod

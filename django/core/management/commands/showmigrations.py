@@ -11,6 +11,25 @@ class Command(BaseCommand):
     help = "Shows all available migrations for the current project"
 
     def add_arguments(self, parser):
+        """
+        Add command line arguments for managing migrations.
+
+        This function defines the command line arguments that can be used to customize the 
+        output of migration commands. The arguments include options to filter by application 
+        label, specify a database, and choose the output format.
+
+        The available output formats are:
+
+        * A list of all migrations and their applied status
+        * A plan of all migrations in the order they will be applied
+
+        The database and application label arguments allow users to limit the output to a 
+        specific set of migrations. If no database is specified, the default database will 
+        be used.
+
+        The function sets the default output format to a list of migrations.
+
+        """
         parser.add_argument(
             "app_label",
             nargs="*",

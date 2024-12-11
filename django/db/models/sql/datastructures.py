@@ -18,6 +18,14 @@ class MultiJoin(Exception):
     """
 
     def __init__(self, names_pos, path_with_names):
+        """
+
+        Initializes an object to store names and their corresponding path information.
+
+        :param names_pos: The position or level of the names being stored.
+        :param path_with_names: The file path where the names are located.
+
+        """
         self.level = names_pos
         # The path travelled, this includes the path to the multijoin.
         self.names_with_path = path_with_names

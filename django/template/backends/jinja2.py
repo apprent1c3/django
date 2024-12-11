@@ -62,6 +62,22 @@ class Template:
         )
 
     def render(self, context=None, request=None):
+        """
+
+        Renders a template with the provided context and request.
+
+        The context is a dictionary of variables that will be made available to the template.
+        If no context is provided, an empty dictionary is used.
+
+        If a request is provided, it is added to the context along with CSRF input and token.
+        The request is also used to update the context with variables provided by the template context processors.
+
+        The function returns the rendered template as a string.
+
+        Raises:
+            TemplateSyntaxError: If there is a syntax error in the template.
+
+        """
         if context is None:
             context = {}
         if request is not None:
@@ -85,6 +101,15 @@ class Origin:
     """
 
     def __init__(self, name, template_name):
+        """
+        Initializes the object with a name and a template name.
+
+        :param name: The name of the object
+        :param template_name: The name of the template associated with the object
+
+        This constructor sets the foundation for the object's configuration, allowing for 
+        further customization and usage in subsequent method calls.
+        """
         self.name = name
         self.template_name = template_name
 

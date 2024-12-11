@@ -211,6 +211,19 @@ class ValidationError(Exception):
                 yield str(message)
 
     def __str__(self):
+        """
+
+        Returns a string representation of the object.
+
+        If the object contains error information, it returns a string representation of 
+        the error dictionary. Otherwise, it returns a string representation of the 
+        object as a list.
+
+        This method is used to provide a human-readable representation of the object, 
+        and is typically used for debugging or logging purposes. The returned string 
+        can be used to inspect the contents of the object.
+
+        """
         if hasattr(self, "error_dict"):
             return repr(dict(self))
         return repr(list(self))

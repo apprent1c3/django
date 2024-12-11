@@ -74,6 +74,9 @@ class GetModelsTest(SimpleTestCase):
         self.not_installed_module = models
 
     def test_get_model_only_returns_installed_models(self):
+        """
+        Tests that attempting to retrieve a model using :func:`apps.get_model` raises a :exc:`LookupError` when the model's app is not installed, ensuring that only installed models are returned.
+        """
         with self.assertRaises(LookupError):
             apps.get_model("not_installed", "NotInstalledModel")
 

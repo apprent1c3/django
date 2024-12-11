@@ -19,6 +19,15 @@ from django.test import (
 
 class TestUtils(SimpleTestCase):
     def test_truncate_name(self):
+        """
+        Truncates a given table name if it exceeds the specified maximum length.
+
+        The function takes into account table names with or without a schema name prefix.
+        If the table name does not exceed the maximum length, it is returned unchanged.
+        Otherwise, the function truncates the middle part of the table name, replacing it with a hexadecimal hash code.
+        An optional parameter allows specifying the length of the prefix that is preserved at the beginning of the truncated table name.
+        If no maximum length is specified, the original table name is returned unchanged.
+        """
         self.assertEqual(truncate_name("some_table", 10), "some_table")
         self.assertEqual(truncate_name("some_long_table", 10), "some_la38a")
         self.assertEqual(truncate_name("some_long_table", 10, 3), "some_loa38")
@@ -74,6 +83,15 @@ class TestUtils(SimpleTestCase):
             equal("1234567890.1234", 5, None, "1234600000")
 
     def test_split_tzname_delta(self):
+        """
+
+        Tests the function split_tzname_delta, which separates a time zone name into its base name, offset sign, and offset hours:minutes.
+
+        This function verifies the split_tzname_delta function works correctly for various time zone names, including those with and without UTC offsets, and handles both positive and negative offsets.
+
+        The test cases cover time zones with names containing special characters, as well as standard and non-standard UTC offset formats.
+
+        """
         tests = [
             ("Asia/Ust+Nera", ("Asia/Ust+Nera", None, None)),
             ("Asia/Ust-Nera", ("Asia/Ust-Nera", None, None)),

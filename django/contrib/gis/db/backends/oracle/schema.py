@@ -41,6 +41,15 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         return super().quote_value(value)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        Generates SQL for a database column based on the provided model and field.
+
+        The function first calls the parent class's implementation to generate the initial SQL.
+        If the field is a geometry field, it appends additional SQL to add geometry metadata to the database table.
+        The metadata includes the table and column names, extent dimensions, tolerance, and spatial reference system identifier (SRID).
+        If a spatial index is required for the field, it also appends SQL to create the index.
+        The generated SQL is then returned.
+        """
         column_sql = super().column_sql(model, field, include_default)
         if isinstance(field, GeometryField):
             db_table = model._meta.db_table
@@ -71,6 +80,17 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         return column_sql
 
     def create_model(self, model):
+        """
+
+        Creates a model and initializes its geometry.
+
+        This method extends the base class implementation by executing geometry-related SQL
+        after the model is created, ensuring that the model's spatial properties are properly
+        configured.
+
+        :param model: The model to be created
+
+        """
         super().create_model(model)
         self.run_geometry_sql()
 

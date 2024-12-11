@@ -44,6 +44,11 @@ class MultipleLocaleActivationTests(MultipleLocaleActivationTestCase):
             self.assertEqual(t.render(Context({})), "Nee")
 
     def test_multiple_locale_deactivate(self):
+        """
+        Test deactivation of translation for a specific locale and verify that a template renders with the correct translation when switching to a different locale. 
+
+        This function checks if the translation deactivation works correctly by first overriding the translation to German ('de') with deactivation and then overriding it to Dutch ('nl'), ensuring that the rendered template uses the correct Dutch translation ('Nee') instead of the German one.
+        """
         with translation.override("de", deactivate=True):
             t = Template("{{ _('No') }}")
         with translation.override("nl"):
@@ -58,6 +63,14 @@ class MultipleLocaleActivationTests(MultipleLocaleActivationTestCase):
     # Literal marked up with _(), loading the i18n template tag library
 
     def test_multiple_locale_loadi18n(self):
+        """
+
+        Tests the proper loading of internationalization (i18n) within a template across multiple locales.
+
+        This function verifies that a template renders correctly after switching between different languages.
+        It checks that the translation of a specific string is accurate when the locale is changed.
+
+        """
         with translation.override("de"):
             t = Template("{% load i18n %}{{ _('No') }}")
         with translation.override(self._old_language), translation.override("nl"):
@@ -70,6 +83,13 @@ class MultipleLocaleActivationTests(MultipleLocaleActivationTestCase):
             self.assertEqual(t.render(Context({})), "Nee")
 
     def test_multiple_locale_loadi18n_direct_switch(self):
+        """
+
+        Tests the loading of the i18n template tag with multiple locales by directly switching between languages.
+
+        This test case evaluates whether the template tag correctly loads translations for different languages. It checks that the German ('de') locale is initially set and then switches to the Dutch ('nl') locale, verifying that the rendered template output corresponds to the expected Dutch translation ('Nee') of the string 'No'.
+
+        """
         with translation.override("de"):
             t = Template("{% load i18n %}{{ _('No') }}")
         with translation.override("nl"):
@@ -108,6 +128,10 @@ class I18nStringLiteralTests(SimpleTestCase):
 
     @setup({"i18n16": '{{ _("<") }}'})
     def test_i18n16(self):
+        """
+        Test the rendering of a template with an internationalized string that requires escaping, 
+        ensuring that the less-than symbol is correctly displayed when the locale is set to German.
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n16")
         self.assertEqual(output, "<")

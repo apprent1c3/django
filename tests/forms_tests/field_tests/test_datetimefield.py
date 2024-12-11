@@ -65,6 +65,18 @@ class DateTimeFieldTest(SimpleTestCase):
                 self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_clean_invalid(self):
+        """
+        Tests the cleaning functionality of a DateTimeField.
+
+        This function verifies that a DateTimeField correctly raises a ValidationError
+        when provided with invalid date/time input. It checks various invalid formats,
+        including non-standard date/time strings, empty strings, and strings that do not
+        match the field's input formats.
+
+        The test cases cover a range of scenarios, ensuring that the field raises an error
+        when the input is not a valid date/time. The expected error message is 'Enter a
+        valid date/time.'
+        """
         f = DateTimeField()
         msg = "'Enter a valid date/time.'"
         with self.assertRaisesMessage(ValidationError, msg):

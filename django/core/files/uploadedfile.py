@@ -73,6 +73,20 @@ class TemporaryUploadedFile(UploadedFile):
     """
 
     def __init__(self, name, content_type, size, charset, content_type_extra=None):
+        """
+
+        Initializes an upload file object.
+
+        :param name: The original name of the file being uploaded.
+        :param content_type: The MIME type of the file.
+        :param size: The size of the file in bytes.
+        :param charset: The character encoding of the file.
+        :param content_type_extra: Optional extra information about the content type.
+
+        Creates a temporary file with a unique name and the same file extension as the original file,
+        and passes this information to the parent class for further initialization.
+
+        """
         _, ext = os.path.splitext(name)
         file = tempfile.NamedTemporaryFile(
             suffix=".upload" + ext, dir=settings.FILE_UPLOAD_TEMP_DIR

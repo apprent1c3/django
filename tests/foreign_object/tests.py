@@ -407,6 +407,19 @@ class MultiColumnFKTests(TestCase):
 
     @translation.override("fi")
     def test_translations(self):
+        """
+
+        Tests the functionality of article translations, specifically the `active_translation` field on the Article model.
+
+        This test case verifies that the `active_translation` field is correctly set based on the currently active language. It also checks that
+        the `select_related` method can be used to fetch articles with their active translations in a single database query.
+
+        Additionally, the test covers filtering articles based on properties of their active translations, such as the presence or absence of an abstract.
+
+        The test scenarios cover multiple languages, including Finnish ('fi') and English ('en'), ensuring that the translation system behaves as expected
+        across different locales.
+
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         at1_fi = ArticleTranslation(
             article=a1, lang="fi", title="Otsikko", body="Diipadaapa"
@@ -464,6 +477,18 @@ class MultiColumnFKTests(TestCase):
             referrer.article
 
     def test_foreign_key_related_query_name(self):
+        """
+
+        Tests the functionality of foreign key related query names.
+
+        This test case verifies that the correct related query name is used when filtering
+        objects based on the name of a related object. It checks that the query name 'tag'
+        is used to filter Article objects based on the name of a related ArticleTag object.
+
+        The test also checks that using an incorrect query name, 'tags', raises a FieldError
+        with the expected error message, ensuring that the correct query name is required.
+
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         ArticleTag.objects.create(article=a1, name="foo")
         self.assertEqual(Article.objects.filter(tag__name="foo").count(), 1)

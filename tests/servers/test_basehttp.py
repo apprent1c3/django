@@ -27,6 +27,18 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_log_message(self):
+        """
+
+        Tests logging of HTTP messages with varying status codes and log levels.
+
+        This test ensures that the log message function correctly logs messages at the 
+        appropriate log level (INFO, WARNING, ERROR) based on the HTTP status code. It 
+        verifies that log messages are recorded with the expected request details and 
+        that the log level is correctly set for each status code. The test covers a range 
+        of common HTTP status codes, including successful responses (200, 301, 304), 
+        client errors (400, 403, 404), and server errors (500, 503).
+
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
         handler = WSGIRequestHandler(request, "192.168.0.2", None)

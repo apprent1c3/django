@@ -180,6 +180,14 @@ class DynamicSearchFieldsChildAdmin(admin.ModelAdmin):
     search_fields = ("name",)
 
     def get_search_fields(self, request):
+        """
+        Returns a list of fields that can be used for searching, extending the default search fields.
+
+        This method builds upon the search fields provided by the parent class and adds 'age' as an additional searchable field.
+
+        :param request: The current request object
+        :return: A tuple of field names that can be used for searching
+        """
         search_fields = super().get_search_fields(request)
         search_fields += ("age",)
         return search_fields
@@ -202,6 +210,15 @@ class UnescapedTitleFilter(admin.SimpleListFilter):
         return [("yes", "yes"), ("no", "no")]
 
     def queryset(self, request, queryset):
+        """
+        Filters a queryset to include only items that match the specified active status.
+
+         :param request: The current request object
+         :param queryset: The queryset to be filtered
+         :return: A filtered queryset containing only items where is_active matches the filter value 'yes' or 'no' 
+
+         The filter value determines whether to return active or inactive items. If the value is 'yes', only active items are included. If the value is not 'yes', only inactive items are included.
+        """
         if self.value() == "yes":
             return queryset.filter(is_active=True)
         else:

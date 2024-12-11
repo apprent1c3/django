@@ -243,6 +243,11 @@ class ModelAdminTests(TestCase):
             list_filter = ["main_band__sign_date"]
 
             def get_list_filter(self, request):
+                """
+                Returns the list of fields to filter on for the current view, depending on whether the request has an authenticated user.
+
+                If the request has a user, the filter list is extended with an additional filter option for the 'main_band__name' field. Otherwise, the standard list of filters is returned, as defined by `self.list_filter`.
+                """
                 if getattr(request, "user", None):
                     return self.list_filter + ["main_band__name"]
                 return self.list_filter

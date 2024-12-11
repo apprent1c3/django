@@ -115,6 +115,13 @@ class Geo3DLoadingHelper:
             InterstateProj2D.objects.create(name=name, line=line_2d)
 
     def _load_city_data(self):
+        """
+        Loads geographic data for cities into the database, creating 3D city objects with their respective geographical points. 
+
+        Each city is represented by its name and a point on the Earth's surface, defined by longitude, latitude, and a spatial reference system identifier (SRID) of 4326, which corresponds to the WGS 84 coordinate system. 
+
+        The loaded data is persisted in the database using the City3D model, allowing for efficient querying and manipulation of city geometries.
+        """
         for name, pnt_data in city_data:
             City3D.objects.create(
                 name=name,
@@ -123,6 +130,18 @@ class Geo3DLoadingHelper:
             )
 
     def _load_polygon_data(self):
+        """
+        Loads 2D and 3D polygon data from bounding box data.
+
+        This method takes bounding box data, converts it into 2D and 3D geometric 
+        representations, and saves them as Polygon2D and Polygon3D objects in the database.
+
+        The 2D polygon represents the base of the bounding box, while the 3D polygon 
+        includes the z-dimension, creating a 3D bounding box.
+
+        The loaded polygon data is saved with the names '2D BBox' and '3D BBox' 
+        respectively, and are associated with the SRID 32140 spatial reference system.
+        """
         bbox_wkt, bbox_z = bbox_data
         bbox_2d = GEOSGeometry(bbox_wkt, srid=32140)
         bbox_3d = Polygon(

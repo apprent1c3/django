@@ -1279,6 +1279,16 @@ class ChangeListTests(TestCase):
             list_per_page = 10
 
         def check_results_order(ascending=False):
+            """
+
+            Checks the order of results returned by the changelist view of the UnorderedObject admin.
+
+            This function tests whether the results are ordered correctly, either in ascending or descending order.
+            It simulates a request to the changelist view for multiple pages and verifies that each result is returned in the expected order.
+
+            :param bool ascending: Whether to check for ascending (default: False) or descending order.
+
+            """
             custom_site.register(UnorderedObject, UnorderedObjectAdmin)
             model_admin = UnorderedObjectAdmin(UnorderedObject, custom_site)
             counter = 0 if ascending else 51
@@ -1611,6 +1621,19 @@ class ChangeListTests(TestCase):
         self.assertNotIn("Add ", response.rendered_content)
 
     def test_search_help_text(self):
+        """
+        Tests the functionality of search help text in the changelist view of the BandAdmin class.
+
+            Verifies that the search help text is correctly displayed or hidden
+            based on the value of the search_help_text attribute. When search_help_text
+            is not set, it checks that no search help text is displayed. When
+            search_help_text is set, it checks that the provided text is displayed
+            as a help message next to the search bar in the changelist view.
+
+            Also checks that the search help text is correctly propagated to the
+            context data, making it accessible for further customization or processing.
+
+        """
         superuser = self._create_superuser("superuser")
         m = BandAdmin(Band, custom_site)
         # search_fields without search_help_text.

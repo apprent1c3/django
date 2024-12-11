@@ -12,6 +12,14 @@ class StorageHandler:
     def __init__(self, backends=None):
         # backends is an optional dict of storage backend definitions
         # (structured like settings.STORAGES).
+        """
+        Initializes a new instance of the class.
+
+        :param backends: Optional list of backends to use.
+        :note: If no backends are provided, the instance will be initialized without any associated backends.
+        :attribute _backends: Internal storage for the list of backends.
+        :attribute _storages: Internal dictionary for storing backend-specific data.
+        """
         self._backends = backends
         self._storages = {}
 

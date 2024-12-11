@@ -6,6 +6,15 @@ from .fields import CustomDescriptorField, CustomTypedField
 
 class TestDbType(SimpleTestCase):
     def test_db_parameters_respects_db_type(self):
+        """
+
+        Tests that the db_parameters method of a CustomTypedField instance returns a dictionary 
+        with the correct 'type' value based on the database type.
+
+        This test case ensures that the database parameters respect the database type, 
+        providing a guarantee that the correct data type is used when interacting with the database.
+
+        """
         f = CustomTypedField()
         self.assertEqual(f.db_parameters(connection)["type"], "custom_field")
 

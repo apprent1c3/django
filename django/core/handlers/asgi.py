@@ -132,6 +132,16 @@ class ASGIRequest(HttpRequest):
         return parse_cookie(self.META.get("HTTP_COOKIE", ""))
 
     def close(self):
+        """
+
+        Closes the current resource, releasing any associated system resources.
+
+        This method ensures that the underlying stream is properly shut down, 
+        allowing other processes to access the resource if necessary. It is 
+        recommended to call this method when the resource is no longer needed 
+        to avoid resource leaks and promote efficient system utilization.
+
+        """
         super().close()
         self._stream.close()
 

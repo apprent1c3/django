@@ -70,6 +70,14 @@ class OnDeleteTests(TestCase):
         self.assertEqual(self.DEFAULT, a.setvalue.pk)
 
     def test_setnull(self):
+        """
+
+        Tests that the setnull attribute is properly set to None after deletion.
+
+        This test case verifies that when the related object is deleted, the setnull
+        attribute is correctly updated to reflect the change, ensuring data consistency.
+
+        """
         a = create_a("setnull")
         a.setnull.delete()
         a = A.objects.get(pk=a.pk)
@@ -138,6 +146,15 @@ class OnDeleteTests(TestCase):
         replacement_r = R.objects.create()
 
         def check_do_nothing(sender, **kwargs):
+            """
+            Updates the do-nothing status of an object after a specific event.
+
+            This function is triggered by a signal sent by the sender and updates the do-nothing flag of the instance object to the replacement value.
+
+            :param sender: The object that triggered the signal.
+            :param instance: The object whose do-nothing status needs to be updated.
+
+            """
             obj = kwargs["instance"]
             obj.donothing_set.update(donothing=replacement_r)
 
@@ -159,6 +176,16 @@ class OnDeleteTests(TestCase):
         self.assertEqual(Base.objects.count(), 0)
 
     def test_inheritance_cascade_up(self):
+        """
+
+        Tests the cascading deletion of a child object's parent when the child is deleted.
+
+        This test case ensures that when a child object is removed, its corresponding parent object
+        is also deleted from the database, demonstrating the expected behavior of inheritance-based
+        cascading deletion. The test creates a child object, deletes it, and then verifies that the
+        parent object with the same primary key no longer exists.
+
+        """
         child = RChild.objects.create()
         child.delete()
         self.assertFalse(R.objects.filter(pk=child.pk).exists())
@@ -190,6 +217,19 @@ class OnDeleteTests(TestCase):
         self.assertIsNone(a.child_setnull)
 
     def test_setnull_from_parent(self):
+        """
+        Test that setting null from parent works as expected.
+
+        This test case checks that when a parent object is deleted, its associated
+        child object is correctly set to null in the database. It uses the
+        child_setnull relationship to verify this behavior.
+
+        It first creates an instance of A, then deletes the associated R object.
+        After deletion, it checks that the RChild object is no longer present in
+        the database. Finally, it retrieves the updated A object and verifies
+        that its child_setnull attribute is indeed null, confirming the expected
+        behavior of the null setting from the parent object.
+        """
         a = create_a("child_setnull")
         R.objects.get(pk=a.child_setnull_id).delete()
         self.assertFalse(RChild.objects.filter(pk=a.child_setnull_id).exists())
@@ -226,6 +266,21 @@ class OnDeleteTests(TestCase):
         self.assertEqual(cm.exception.restricted_objects, {a, b3})
 
     def test_restrict_path_cascade_indirect(self):
+        """
+
+        Tests the restriction of path cascading when there are indirect foreign key references.
+
+        This test case ensures that an instance cannot be deleted when it is referenced by a
+        restricted foreign key through an intermediate model. It also verifies that after the
+        restriction is removed by setting a cascading reference, the instance can be deleted
+        and the related objects are properly cascaded.
+
+        The test scenario involves a multi-step process, starting with the creation of an instance
+        with a restricted foreign key, then attempting to delete the referenced instance while the
+        restriction is still in place, and finally testing the cascading behavior after the restriction
+        is removed.
+
+        """
         a = create_a("restrict")
         a.restrict.p = P.objects.create()
         a.restrict.save()
@@ -244,6 +299,18 @@ class OnDeleteTests(TestCase):
         self.assertFalse(R.objects.filter(pk=a.restrict_id).exists())
 
     def test_restrict_path_cascade_direct(self):
+        """
+
+        Test that deleting a cascaded path restriction object will successfully cascade delete related objects.
+
+        This test case verifies the functionality of a cascade delete mechanism in the context of path restrictions.
+        It ensures that when a specific object in the path restriction hierarchy is deleted, the dependent objects
+        are also deleted, resulting in a clean and consistent state of the database.
+
+        The test outcome asserts that after deleting the key object in the path restriction, both the original object
+        and its related restriction object are removed from the database, confirming the successful cascade deletion.
+
+        """
         a = create_a("restrict")
         a.restrict.p = P.objects.create()
         a.restrict.save()
@@ -311,6 +378,14 @@ class DeletionTests(TestCase):
             M.objects.all()[0:5].delete()
 
     def test_pk_none(self):
+        """
+        Tests that attempting to delete an object with a None primary key raises a ValueError.
+
+        This test ensures that the delete method correctly handles the case where the object's
+        identifier is not set, preventing potential data inconsistencies.
+
+        :raises: ValueError if the object's primary key is None
+        """
         m = M()
         msg = "M object can't be deleted because its id attribute is set to None."
         with self.assertRaisesMessage(ValueError, msg):
@@ -359,6 +434,17 @@ class DeletionTests(TestCase):
         self.assertFalse(S.objects.exists())
 
     def test_instance_update(self):
+        """
+
+        Tests the instance update functionality, specifically focusing on pre-delete signals and their impact on related objects.
+
+        The test covers two key scenarios: 
+        - \"setnull\" behavior, where the related object's foreign key is set to null after the parent object is deleted.
+        - \"cascade\" behavior, where the related object is also deleted when the parent object is deleted.
+
+        It verifies that the deleted objects are properly removed and that the relationships between objects are updated as expected.
+
+        """
         deleted = []
         related_setnull_sets = []
 
@@ -385,6 +471,23 @@ class DeletionTests(TestCase):
         models.signals.pre_delete.disconnect(pre_delete)
 
     def test_deletion_order(self):
+        """
+
+        Tests the order of deletion for objects in a relational database.
+
+        This function creates a hierarchy of objects from models R, S, T, and RChild, 
+        where R has two children S, each S has one child T, and R has one child RChild.
+        It then deletes the top-level object R and checks the order in which the 
+        pre-delete and post-delete signals are emitted for each object.
+
+        The expected deletion order is verified to be:
+        - Pre-delete: T, T, RChild, S, S, R
+        - Post-delete: T, T, RChild, S, S, R
+
+        The function ensures that the deletion order is correctly propagated through 
+        the model hierarchy, which is crucial for maintaining data consistency.
+
+        """
         pre_delete_order = []
         post_delete_order = []
 
@@ -685,6 +788,11 @@ class FastDeleteTests(TestCase):
         self.assertNotIn("SELECT", sql)
 
     def test_fast_delete_fk(self):
+        """
+        Tests the fast deletion of a foreign key object, verifying that both the referenced object and the referencing object are deleted in a minimal number of database queries. 
+
+        This test case creates a User object with a linked Avatar object, then checks that deleting the Avatar object not only removes the Avatar but also the referencing User object, with the entire operation taking place in the least possible number of database queries, ensuring efficient database interaction.
+        """
         u = User.objects.create(avatar=Avatar.objects.create())
         a = Avatar.objects.get(pk=u.avatar_id)
         # 1 query to fast-delete the user
@@ -701,6 +809,15 @@ class FastDeleteTests(TestCase):
         self.assertNumQueries(2, f.delete)
 
     def test_fast_delete_revm2m(self):
+        """
+        Tests the performance of deleting an instance with a many-to-many relationship.
+
+        Verifies that the deletion operation is executed efficiently, with a minimal number of database queries.
+
+        This test case specifically examines the relationship between the M2MTo and M2MFrom models, ensuring that the deletion of an instance from M2MFrom does not result in an excessive number of queries to the database.
+
+        The expected outcome is that the deletion operation is completed within 2 database queries.
+        """
         t = M2MTo.objects.create()
         f = M2MFrom.objects.create()
         f.m2m.add(t)
@@ -749,6 +866,15 @@ class FastDeleteTests(TestCase):
         self.assertFalse(Child.objects.exists())
 
     def test_fast_delete_large_batch(self):
+        """
+        Tests the efficient deletion of large batches of User objects.
+
+        Verifies that bulk deletion of Users is performed in a single database query, 
+        and that cascade deletion of related objects, such as Avatars, works correctly.
+        The test creates a large batch of Users, some of which are associated with an Avatar,
+        and then checks that deleting these objects results in the expected number of database queries.
+        Finally, it confirms that all Users have been successfully deleted from the database.
+        """
         User.objects.bulk_create(User() for i in range(0, 2000))
         # No problems here - we aren't going to cascade, so we will fast
         # delete the objects in a single query.

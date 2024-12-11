@@ -79,6 +79,11 @@ class QueryOtherDatabaseCursorManyAppConfig(CursorQueryManyAppConfig):
 
 class StoredProcedureQueryAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+        Execute a database query by invoking a stored procedure on the configured database connection.
+
+        This method establishes a cursor to the database, calls a predefined procedure named 'test_procedure', and then initializes an empty list to store query results. The actual query results are not retrieved or processed within this method; instead, it sets up the necessary infrastructure for subsequent data retrieval and processing steps.
+        """
         with connections[self.database].cursor() as cursor:
             cursor.callproc("test_procedure")
             self.query_results = []

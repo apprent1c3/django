@@ -587,6 +587,17 @@ class OneToOneTests(TestCase):
         self.assertEqual(r, r2)
 
     def test_primary_key_to_field_filter(self):
+        """
+
+        Tests the filtering of ToFieldPointer objects based on their primary key and relationship to a Target object.
+
+        This test case ensures that the correct ToFieldPointer object is returned when filtering by its associated Target object 
+        and when filtering by its exact primary key.
+
+        The test verifies that the filtering methods are functioning as expected, returning the correct object when a 
+        specific target or primary key is provided.
+
+        """
         target = Target.objects.create(name="foo")
         pointer = ToFieldPointer.objects.create(target=target)
         self.assertSequenceEqual(

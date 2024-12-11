@@ -122,6 +122,14 @@ class HandlerLoggingTests(
         self.assertEqual(self.logger_output.getvalue(), "")
 
     def test_redirect_no_warning(self):
+        """
+
+        Tests that a redirect request does not produce any warnings in the log output.
+
+        Checks if a GET request to the /redirect/ endpoint results in an empty logger output,
+        indicating that no warnings were generated during the redirect process.
+
+        """
         self.client.get("/redirect/")
         self.assertEqual(self.logger_output.getvalue(), "")
 
@@ -197,6 +205,13 @@ class HandlerLoggingTests(
 )
 class I18nLoggingTests(SetupDefaultLoggingMixin, LoggingCaptureMixin, SimpleTestCase):
     def test_i18n_page_found_no_warning(self):
+        """
+
+        Tests that when an i18n page is found, no warnings are logged.
+
+        Verifies that requests to both a page's default URL and its language-specific URL do not produce any logged warnings.
+
+        """
         self.client.get("/exists/")
         self.client.get("/en/exists/")
         self.assertEqual(self.logger_output.getvalue(), "")
@@ -212,6 +227,15 @@ class I18nLoggingTests(SetupDefaultLoggingMixin, LoggingCaptureMixin, SimpleTest
 
 class CallbackFilterTest(SimpleTestCase):
     def test_sense(self):
+        """
+
+        Test the functionality of the CallbackFilter class.
+
+        This test case verifies that the CallbackFilter correctly applies a user-provided callback function to filter records.
+        It checks two scenarios: one where the callback always returns False, and another where it always returns True.
+        The test ensures that the filter method of CallbackFilter behaves as expected in both cases, returning False for the always-false callback and True for the always-true callback, given a sample record.
+
+        """
         f_false = CallbackFilter(lambda r: False)
         f_true = CallbackFilter(lambda r: True)
 
@@ -219,6 +243,15 @@ class CallbackFilterTest(SimpleTestCase):
         self.assertTrue(f_true.filter("record"))
 
     def test_passes_on_record(self):
+        """
+
+        Tests that the CallbackFilter successfully passes records to the callback function.
+
+        The test verifies that a record is correctly passed to the callback and collected 
+        for later verification. This ensures that the CallbackFilter behaves as expected 
+        when a record is filtered.
+
+        """
         collector = []
 
         def _callback(record):
@@ -583,6 +616,16 @@ class SettingsCustomLoggingTest(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+
+        Set up the test environment by configuring the logging system.
+
+        This function initializes the logging configuration for the test case by creating a temporary file with a predefined logging configuration.
+        It then updates the settings to use this temporary logging configuration file.
+        The logging configuration is set to log messages to the console (stdout) in a simple format, without including any additional metadata.
+        Once the test is completed, the temporary file is automatically closed and cleaned up.
+
+        """
         super().setUp()
         logging_conf = """
 [loggers]
@@ -613,6 +656,15 @@ format=%(message)s
         )
 
     def test_custom_logging(self):
+        """
+        Tests that the custom logging configuration is functioning correctly.
+
+        Verifies that the system check management command completes without errors and 
+        reports that no issues were identified, including silenced ones. 
+
+        This test ensures that the logging setup does not interfere with system checks 
+        and that any problems are accurately reported.
+        """
         out, err = self.run_manage(["check"])
         self.assertNoOutput(err)
         self.assertOutput(out, "System check identified no issues (0 silenced).")

@@ -169,6 +169,12 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(bool(f.choices), False)
 
     def test_choices_bool_empty_label(self):
+        """
+        Tests if the ModelChoiceField returns a non-empty choices list even when the 
+        queryset is empty and an empty label is provided. This ensures that the field 
+        still returns a valid set of choices when there are no available options, 
+        preventing potential errors in form rendering and validation.
+        """
         f = forms.ModelChoiceField(Category.objects.all(), empty_label="--------")
         Category.objects.all().delete()
         self.assertIs(bool(f.choices), True)
@@ -261,6 +267,15 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_disabled_modelchoicefield_has_changed(self):
+        """
+        Tests the has_changed method of a disabled ModelChoiceField.
+
+        This test case verifies that a disabled ModelChoiceField returns False when checking if its value has changed, 
+        regardless of the input values.
+
+        It ensures that the field behaves as expected when its disabled attribute is set to True, 
+        and does not trigger unnecessary form validation or updates.
+        """
         field = forms.ModelChoiceField(Author.objects.all(), disabled=True)
         self.assertIs(field.has_changed("x", "y"), False)
 
@@ -415,6 +430,16 @@ class ModelChoiceFieldTests(TestCase):
         self.assertNotEqual(hash(value_1), hash(value_2))
 
     def test_choices_not_fetched_when_not_rendering(self):
+        """
+        Tests that the choices for a ModelChoiceField are not fetched when the field is not being rendered.
+
+        This test case verifies that the database query to fetch choices for the field is only executed once, 
+        even when the field's clean method is called. This helps to prevent unnecessary database queries 
+        and improve performance when working with large datasets. The test uses a ModelChoiceField 
+        with a queryset of Category objects ordered by name in descending order, and checks that the 
+        clean method returns the correct category name for a given primary key without executing 
+        additional queries.
+        """
         with self.assertNumQueries(1):
             field = forms.ModelChoiceField(Category.objects.order_by("-name"))
             self.assertEqual("Entertainment", field.clean(self.c1.pk).name)

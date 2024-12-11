@@ -21,6 +21,21 @@ class GeoAggregate(Aggregate):
     def as_sql(self, compiler, connection, function=None, **extra_context):
         # this will be called again in parent, but it's needed now - before
         # we get the spatial_aggregate_name
+        """
+        Generate the SQL representation of this aggregate function.
+
+        This method generates the SQL string that represents the aggregate function,
+        taking into account the specific database connection and any additional context.
+        It checks that the database supports the expression and returns the SQL string.
+
+        :param compiler: The SQL compiler to use for generating the SQL string.
+        :param connection: The database connection to use for generating the SQL string.
+        :param function: The name of the SQL function to use; if not provided, the default
+            spatial aggregate name will be used based on the connection's operations.
+        :param extra_context: Additional context to pass to the superclass's as_sql method.
+        :return: The SQL string representation of the aggregate function.
+
+        """
         connection.ops.check_expression_support(self)
         return super().as_sql(
             compiler,

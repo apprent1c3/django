@@ -419,6 +419,11 @@ class DefusedExpatParser(_ExpatParser):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, inheriting from its parent class and configuring default features.
+        It disables external gesture and pose estimation by default, allowing for customization through other methods.
+        This constructor is used to set up the object's initial state, preparing it for further use in the application.
+        """
         super().__init__(*args, **kwargs)
         self.setFeature(handler.feature_external_ges, False)
         self.setFeature(handler.feature_external_pes, False)

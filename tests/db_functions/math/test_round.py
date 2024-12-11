@@ -95,6 +95,15 @@ class RoundTests(TestCase):
         self.assertAlmostEqual(obj.big_round, obj.big, places=0)
 
     def test_integer_with_precision(self):
+        """
+
+            Tests the rounding functionality for integer fields with varying precision.
+
+            Verifies that integer fields can be rounded to a specified number of decimal places
+            and that the result is an integer. The test also checks that the rounded values are
+            approximate to the original values within the specified precision.
+
+        """
         IntegerModel.objects.create(small=-5, normal=3, big=-100)
         obj = IntegerModel.objects.annotate(
             small_round=Round("small", 1),

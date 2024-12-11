@@ -184,6 +184,20 @@ class ManyToManyTests(TestCase):
 
     def test_related_sets(self):
         # Article objects have access to their related Publication objects.
+        """
+
+        Verify the relationships between articles and publications.
+
+        This test method checks that the article-publication relationships are correctly established.
+        It ensures that each article's publications and each publication's articles are accurately retrieved.
+
+        The following relationships are validated:
+        - An article's publications
+        - A publication's associated articles
+
+        The test covers various scenarios, including articles with single and multiple publications, and publications with single and multiple articles.
+
+        """
         self.assertSequenceEqual(self.a1.publications.all(), [self.p1])
         self.assertSequenceEqual(
             self.a2.publications.all(),
@@ -267,6 +281,18 @@ class ManyToManyTests(TestCase):
     def test_reverse_selects(self):
         # Reverse m2m queries are supported (i.e., starting at the table that
         # doesn't have a ManyToManyField).
+        """
+        Tests various ways to select Publication objects using Django's ORM.
+
+        This function checks the following scenarios: 
+        - Filtering by exact id
+        - Filtering by primary key
+        - Filtering by attributes of a related object (in this case, an Article)
+        - Filtering by the id of a related object
+        - Filtering by the related object itself
+        - Filtering by a list of related object ids or objects
+        - Ensures the correctness of the results from these queries, verifying they match the expected output in each case.
+        """
         python_journal = [self.p1]
         self.assertSequenceEqual(
             Publication.objects.filter(id__exact=self.p1.id), python_journal
@@ -415,6 +441,10 @@ class ManyToManyTests(TestCase):
         self.assertEqual(ids, new_ids)
 
     def test_assign_forward(self):
+        """
+        Tests that assigning a list of articles directly to the reverse side of a many-to-many relationship raises a TypeError. 
+        Verifies that an informative error message is displayed, suggesting the use of the set() method instead.
+        """
         msg = (
             "Direct assignment to the reverse side of a many-to-many set is "
             "prohibited. Use article_set.set() instead."
@@ -423,6 +453,11 @@ class ManyToManyTests(TestCase):
             self.p2.article_set = [self.a4, self.a3]
 
     def test_assign_reverse(self):
+        """
+        Testing that direct assignment to the forward side of a many-to-many set raises a TypeError.
+
+        This test case verifies that attempting to directly assign a list of objects to the forward side of a many-to-many relationship (e.g., setting publications directly) results in a TypeError with a specific error message. The error message instructs the user to use the set() method instead, indicating the correct way to establish this type of relationship.
+        """
         msg = (
             "Direct assignment to the forward side of a many-to-many "
             "set is prohibited. Use publications.set() instead."

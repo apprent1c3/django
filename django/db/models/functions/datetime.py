@@ -85,6 +85,27 @@ class Extract(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        Resolve an expression and prepare it for use in a database query.
+
+        This method extends the functionality of the parent class by adding additional checks and validation for date and time related fields.
+
+        It takes several parameters to control its behavior, including:
+
+        * `query`: The query to resolve the expression against
+        * `allow_joins`: Whether to allow joins in the query
+        * `reuse`: Whether to reuse existing queries or create a new one
+        * `summarize`: Whether to summarize the query
+        * `for_save`: Whether the query is being used for saving data
+
+        The method checks that the expression is associated with a valid date or time field (DateField, DateTimeField, TimeField, or DurationField) and that the extraction operation is valid for the given field type.
+
+        For example, it is not possible to extract a time component from a DateField, or to extract a date component from a DurationField.
+
+        If the expression is valid, the method returns the resolved expression. Otherwise, it raises a ValueError with a descriptive error message.
+
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )

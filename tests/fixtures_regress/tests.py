@@ -698,6 +698,16 @@ class NaturalKeyFixtureTests(TestCase):
         self.assertEqual(sorted_deps, [Store, Person, Book])
 
     def test_dependency_sorting_3(self):
+        """
+        Tests the sorting of dependencies for a given list of fixtures and their corresponding models.
+
+        The :func:`serializers.sort_dependencies` function is tested with a single fixture and its associated models, verifying that the returned sorted dependencies match the expected order.
+
+        The expected order is determined by the relationships between the models, ensuring that dependencies are resolved in a valid and consistent manner.
+
+        :raises AssertionError: If the sorted dependencies do not match the expected order.
+
+        """
         sorted_deps = serializers.sort_dependencies(
             [("fixtures_regress", [Store, Book, Person])]
         )
@@ -748,6 +758,17 @@ class NaturalKeyFixtureTests(TestCase):
             )
 
     def test_dependency_self_referential(self):
+        """
+        Tests the handling of self-referential dependencies in the dependency sorting process.
+
+        Verifies that a RuntimeError is raised when attempting to resolve dependencies for an object that has a self-referential relationship.
+
+        This test case ensures that the dependency sorting mechanism can detect and report circular dependencies, which would otherwise lead to infinite loops or unresolved dependencies.
+
+        The expected error message indicates that the dependency resolver is unable to resolve the dependencies for the specified object due to the presence of a self-referential dependency.
+
+        This test is crucial in validating the correctness and robustness of the dependency sorting algorithm, particularly in scenarios where complex object relationships are involved.
+        """
         with self.assertRaisesMessage(
             RuntimeError,
             "Can't resolve dependencies for fixtures_regress.Circle3 in "

@@ -59,6 +59,16 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_constructor_different_attrs(self):
+        """
+        .. method:: test_constructor_different_attrs
+
+            Tests the construction of SplitDateTimeWidget with different attribute settings.
+
+            Verifies that the widget correctly renders HTML for date and time inputs 
+            based on the provided attribute configurations, including date, time, and 
+            global attributes. The test covers various scenarios to ensure the widget's 
+            flexibility and correctness in different use cases.
+        """
         html = (
             '<input type="text" class="foo" value="2006-01-10" name="date_0">'
             '<input type="text" class="bar" value="07:30:00" name="date_1">'

@@ -161,6 +161,36 @@ def get_label_module(label):
 
 
 def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=None):
+    """
+
+
+    Get filtered test modules based on various conditions.
+
+    This function returns an iterator over test modules that match the specified filters.
+    It checks for GIS backend availability if 'gis_tests' are included in the test labels.
+    The filtering process considers a list of test labels, and it starts from a specified module or after a specified module.
+
+    Parameters
+    ----------
+    start_at : str
+        The name of the module to start from. If provided, the function will yield modules starting from this one.
+    start_after : str
+        The name of the module to start after. If provided, the function will yield modules starting after this one.
+    gis_enabled : bool
+        A flag indicating whether the GIS backend is enabled.
+    test_labels : list of str, optional
+        A list of test labels to filter the test modules. If not provided, an empty list is used.
+
+    Yields
+    ------
+    str
+        The name of a test module that matches the specified filters.
+
+    Notes
+    -----
+    The function will exit with an error message if 'gis_tests' are included in the test labels but the GIS backend is not enabled.
+
+    """
     if test_labels is None:
         test_labels = []
     # Reduce each test label to just the top-level module part.
@@ -269,6 +299,16 @@ def setup_collect_tests(start_at, start_after, test_labels=None):
 
 def teardown_collect_tests(state):
     # Restore the old settings.
+    """
+    Restores the original state of settings by resetting each setting to its original value.
+
+    This function takes a state dictionary as input, where each key-value pair represents a setting and its original value.
+    It iterates over the dictionary and updates the corresponding settings to their original values using the provided state.
+
+    This is typically used after collecting tests to ensure that the settings are restored to their original state, 
+    preventing any changes made during test collection from affecting subsequent tests or the application's behavior.
+
+    """
     for key, value in state.items():
         setattr(settings, key, value)
 

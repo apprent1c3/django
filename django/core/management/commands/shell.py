@@ -113,6 +113,22 @@ class Command(BaseCommand):
 
     def handle(self, **options):
         # Execute the command and exit.
+        """
+
+        Handle different interfaces and execute commands.
+
+        This function first checks if a command is provided in the options and 
+        executes it. If not, it checks for input from standard input (only 
+        on non-Windows systems) and executes the input as Python code.
+
+        If no command or input is provided, it attempts to load and run 
+        the specified interface or falls back to trying all available 
+        interfaces. If none of the interfaces can be loaded, it raises 
+        a CommandError.
+
+        :param options: Dictionary of options including 'command' and 'interface'
+
+        """
         if options["command"]:
             exec(options["command"], globals())
             return

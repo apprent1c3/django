@@ -32,6 +32,22 @@ from ..models import ChoiceModel
 
 class AssertFormErrorsMixin:
     def assertFormErrors(self, expected, the_callable, *args, **kwargs):
+        """
+
+        Asserts that a given callable raises a ValidationError with specific error messages.
+
+        Args:
+            expected (list): A list of expected error messages.
+            the_callable (callable): The function or method to be called.
+            *args: Variable number of positional arguments to be passed to the callable.
+            **kwargs: Variable number of keyword arguments to be passed to the callable.
+
+        This function checks if the callable raises a ValidationError and verifies that the 
+        error messages match the expected ones. The error messages are compared as a whole, 
+        which means the order and content of the messages must be identical to the expected 
+        ones for the assertion to pass.
+
+        """
         with self.assertRaises(ValidationError) as cm:
             the_callable(*args, **kwargs)
         self.assertEqual(cm.exception.messages, expected)
@@ -97,6 +113,18 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX DIGITS BEFORE DP IS 2"], f2.clean, "123.4")
 
     def test_datefield(self):
+        """
+
+        Tests the DateField validation functionality.
+
+        This test case ensures that the DateField correctly handles required and invalid input data.
+        It verifies that the field raises the appropriate error messages when no input is provided
+        or when the input cannot be parsed as a valid date.
+
+        The test uses custom error messages for required and invalid input, allowing for more
+        flexible and user-friendly validation feedback.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",

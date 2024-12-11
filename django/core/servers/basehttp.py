@@ -89,6 +89,19 @@ class ThreadedWSGIServer(socketserver.ThreadingMixIn, WSGIServer):
     daemon_threads = True
 
     def __init__(self, *args, connections_override=None, **kwargs):
+        """
+        Initializes the object, optionally overriding default connection settings.
+
+        The initializer accepts any number of positional and keyword arguments, 
+        which are passed to the parent class for handling. Additionally, it 
+        accepts an optional connections_override parameter, allowing for 
+        customization of connection settings. This parameter is stored as an 
+        instance attribute for later use.
+
+        :param connections_override: Optional override for default connection settings
+        :type connections_override: any
+
+        """
         super().__init__(*args, **kwargs)
         self.connections_override = connections_override
 
@@ -262,6 +275,39 @@ def run(
     on_bind=None,
     server_cls=WSGIServer,
 ):
+    """
+
+    Run a WSGI HTTP server.
+
+    This function creates and starts a WSGI-compliant HTTP server, listening on the specified address and port.
+    It supports both IPv4 and IPv6 protocols, as well as optional threading for concurrent request handling.
+
+    The server will run indefinitely until manually stopped, serving requests using the provided WSGI handler.
+
+    Parameters
+    ----------
+    addr : str
+        The address to bind the server to.
+    port : int
+        The port to listen on.
+    wsgi_handler : callable
+        The WSGI handler to use for processing requests.
+    ipv6 : bool, optional
+        Whether to use IPv6 instead of IPv4 (default is False).
+    threading : bool, optional
+        Whether to enable threading for concurrent request handling (default is False).
+    on_bind : callable, optional
+        A callback function to call when the server is bound to the address and port.
+        The callback will be passed the server's port number as an argument.
+    server_cls : type, optional
+        The server class to use (default is WSGIServer).
+
+    Notes
+    -----
+    For advanced usage, the server class can be customized by passing a different server class.
+    The `on_bind` callback can be used to perform additional setup or logging when the server is bound to the address and port.
+
+    """
     server_address = (addr, port)
     if threading:
         httpd_cls = type("WSGIServer", (socketserver.ThreadingMixIn, server_cls), {})

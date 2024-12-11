@@ -158,6 +158,9 @@ class ProxyModelTests(TestCase):
 
     @isolate_apps("proxy_models")
     def test_new_fields(self):
+        """
+        Tests that a proxy model does not contain new fields, verifying that it adheres to Django's constraints on proxy models. This test ensures that any attempt to add new fields to a proxy model results in the expected error, as defined in Django's model checking framework.
+        """
         class NoNewFields(Person):
             newfield = models.BooleanField()
 
@@ -265,6 +268,17 @@ class ProxyModelTests(TestCase):
         signals.post_save.disconnect(h6, sender=MyPersonProxy)
 
     def test_content_type(self):
+        """
+        Tests if the ContentType objects retrieved for different models (Person and OtherPerson) are the same, 
+        indicating they share a common content type. 
+
+        This test case ensures that the models are correctly configured and registered 
+        in the ContentType database, which is crucial for the proper functioning of certain 
+        Django features such as generic foreign keys and permissions. 
+
+        The test passes if both models return the same ContentType instance, 
+        meaning they are treated as the same type by the Django framework.
+        """
         ctype = ContentType.objects.get_for_model
         self.assertIs(ctype(Person), ctype(OtherPerson))
 
@@ -409,6 +423,14 @@ class ProxyModelTests(TestCase):
 class ProxyModelAdminTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating entities required for testing.
+
+        This method initializes a superuser with administrative privileges,
+        a tracker user with a specific name and status, and an issue assigned to the tracker user.
+        These entities are class attributes, making them accessible throughout the test suite.
+        The setup enables consistent testing of functionality that relies on these predefined users and issues.
+        """
         cls.superuser = AuthUser.objects.create(is_superuser=True, is_staff=True)
         cls.tu1 = ProxyTrackerUser.objects.create(name="Django Pony", status="emperor")
         cls.i1 = Issue.objects.create(summary="Pony's Issue", assignee=cls.tu1)

@@ -67,6 +67,16 @@ class GISAdminTests(GeoAdminTest):
         self.assertEqual(widget.attrs["default_zoom"], 12)
 
     def test_custom_gis_widget_kwargs(self):
+        """
+        Tests the customization of a GIS widget with predefined kwargs.
+
+        This test case verifies that a custom GIS widget has the correct default 
+        latitude, longitude, and zoom level. It checks if the default position 
+        and zoom level of the map are correctly set to predefined values, which 
+        are latitude 55, longitude 37, and zoom level 12. This ensures that the 
+        GIS widget is properly configured to display the map at the expected 
+        location and scale.
+        """
         geoadmin = site_gis_custom.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)()
         widget = form["point"].field.widget

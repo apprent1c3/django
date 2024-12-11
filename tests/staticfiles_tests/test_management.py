@@ -60,6 +60,22 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
     """
 
     def _get_file(self, filepath):
+        """
+        Retrieve the content of a static file.
+
+        This method takes a file path as input, locates the corresponding static file
+        using the `findstatic` command, and returns the file's content as a string.
+
+        Args:
+            filepath (str): The path to the static file to retrieve.
+
+        Returns:
+            str: The content of the requested static file.
+
+        Note:
+            The file is assumed to be encoded in UTF-8.
+
+        """
         path = call_command(
             "findstatic", filepath, all=False, verbosity=0, stdout=StringIO()
         )
@@ -127,6 +143,13 @@ class TestFindStatic(TestDefaults, CollectionTestCase):
 
 class TestConfiguration(StaticFilesTestCase):
     def test_location_empty(self):
+        """
+        Tests that attempting to collect static files raises an error when the STATIC_ROOT setting is not set to a valid filesystem path. 
+
+        The test checks this scenario with both an empty string and None as the value for STATIC_ROOT. 
+
+        It verifies that the ImproperlyConfigured exception is raised with a message indicating that the STATIC_ROOT setting must be set to a filesystem path.
+        """
         msg = "without having set the STATIC_ROOT setting to a filesystem path"
         err = StringIO()
         for root in ["", None]:
@@ -137,6 +160,22 @@ class TestConfiguration(StaticFilesTestCase):
                     )
 
     def test_local_storage_detection_helper(self):
+        """
+
+        Tests the detection of local storage in the collectstatic command.
+
+        This function verifies that the command correctly identifies local storage
+        backends, such as FileSystemStorage, and distinguishes them from non-local
+        storage backends. It tests different storage configurations, including
+        overrides of the STATICFILES_STORAGE setting, to ensure the detection
+        mechanism is robust. The test covers both the default staticfiles storage
+        and custom storage backends.
+
+        It checks the behavior of the is_local_storage method of the collectstatic
+        command under various storage settings, confirming that local storage is
+        properly detected and distinguished from non-local storage.
+
+        """
         staticfiles_storage = storage.staticfiles_storage
         try:
             storage.staticfiles_storage._wrapped = empty
@@ -179,6 +218,13 @@ class TestConfiguration(StaticFilesTestCase):
 
     @override_settings(STATICFILES_DIRS=("test"))
     def test_collectstatis_check(self):
+        """
+        Tests that the collectstatic command raises a SystemCheckError when 
+        the STATICFILES_DIRS setting is not a tuple or list. This ensures 
+        correct configuration of static files directories. The test verifies 
+        that the command properly checks the type of the STATICFILES_DIRS 
+        setting and raises an error if it is not a valid collection.
+        """
         msg = "The STATICFILES_DIRS setting is not a tuple or list."
         with self.assertRaisesMessage(SystemCheckError, msg):
             call_command("collectstatic", skip_checks=False)
@@ -232,6 +278,20 @@ class TestCollectionVerbosity(CollectionTestCase):
     staticfiles_copied_msg = "static files copied to"
 
     def test_verbosity_0(self):
+        """
+        Tests that the collectstatic command produces no output when verbosity is set to 0.
+
+        Verifies that the command runs silently and does not write any messages to the standard output when the verbosity level is minimized, confirming the expected quiet behavior.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the command produces any output when verbosity is set to 0
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=0, stdout=stdout)
         self.assertEqual(stdout.getvalue(), "")
@@ -244,6 +304,15 @@ class TestCollectionVerbosity(CollectionTestCase):
         self.assertNotIn(self.copying_msg, output)
 
     def test_verbosity_2(self):
+        """
+        Tests the verbosity level 2 of the collectstatic command.
+
+        Checks that the relevant messages are displayed when verbosity is set to 2, 
+        including the successful copying of static files and the copying message.
+
+        Verifies that the output contains the expected messages, 
+        providing a medium level of detail about the command's execution.
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout)
         output = stdout.getvalue()
@@ -276,6 +345,15 @@ class TestCollectionVerbosity(CollectionTestCase):
         }
     )
     def test_verbosity_2_with_post_process(self):
+        """
+
+        Tests the behavior of the collectstatic command when verbosity is set to 2 and post-processing is enabled.
+
+        This test case verifies that the post-processing message is displayed on the console when the collectstatic command is run with increased verbosity and post-processing enabled.
+
+        The test checks the output of the command to ensure that it includes the expected post-processing message, confirming that the post-processing step is executed and reported correctly.
+
+        """
         stdout = StringIO()
         self.run_collectstatic(verbosity=2, stdout=stdout, post_process=True)
         self.assertIn(self.post_process_msg, stdout.getvalue())
@@ -287,6 +365,16 @@ class TestCollectionClear(CollectionTestCase):
     """
 
     def run_collectstatic(self, **kwargs):
+        """
+
+        Run the collectstatic command, indicating that static files should be cleared.
+
+        This method initiates a process to collect static files, ensuring any existing files are removed before collection. 
+        It logs a marker file to indicate successful clearing of static files.
+
+        :param kwargs: Additional keyword arguments to be passed to the parent class's run_collectstatic method
+
+        """
         clear_filepath = os.path.join(settings.STATIC_ROOT, "cleared.txt")
         with open(clear_filepath, "w") as f:
             f.write("should be cleared")
@@ -296,6 +384,19 @@ class TestCollectionClear(CollectionTestCase):
         self.assertFileNotFound("cleared.txt")
 
     def test_dir_not_exists(self, **kwargs):
+        """
+
+        Tests that the static directory is properly created when it does not exist.
+
+        This test case simulates a scenario where the static directory has been deleted,
+        then runs the collect static task to verify that the directory is recreated and
+        populated with the expected static files.
+
+        It ensures that the collect static task can handle a non-existent static directory
+        and that the application's static files are correctly collected and stored in the
+        STATIC_ROOT location.
+
+        """
         shutil.rmtree(settings.STATIC_ROOT)
         super().run_collectstatic(clear=True)
 
@@ -308,6 +409,15 @@ class TestCollectionClear(CollectionTestCase):
         }
     )
     def test_handle_path_notimplemented(self):
+        """
+        Tests the handling of PathNotImplementedStorage when running collectstatic.
+
+        This test ensures that the system correctly handles a storage backend where the path
+        is not implemented, verifying that the expected file is not found after running
+        collectstatic. The test relies on a custom storage configuration to simulate this
+        scenario, providing a way to validate the system's behavior under these specific
+        conditions.
+        """
         self.run_collectstatic()
         self.assertFileNotFound("cleared.txt")
 
@@ -320,12 +430,29 @@ class TestInteractiveMessages(CollectionTestCase):
     @staticmethod
     def mock_input(stdout):
         def _input(msg):
+            """
+            Displays a message to the user and assumes an affirmative response.
+
+            Args:
+                msg (str): The message to be displayed to the user.
+
+            Returns:
+                str: A string indicating an affirmative response ('yes').
+            """
             stdout.write(msg)
             return "yes"
 
         return _input
 
     def test_warning_when_clearing_staticdir(self):
+        """
+        Test that a warning is displayed when clearing the static directory.
+
+        This test case verifies the behavior of the collectstatic command when run in interactive mode with the clear option.
+        It checks that a warning message is displayed when files are deleted from the static directory, but no overwrite warning is shown.
+
+        The test mocks user input to simulate interactive mode and captures the output to verify the expected warning messages.
+        """
         stdout = StringIO()
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=self.mock_input(stdout)):
@@ -336,6 +463,11 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertIn(self.delete_warning_msg, output)
 
     def test_warning_when_overwriting_files_in_staticdir(self):
+        """
+        Tests that a warning is raised when overwriting files in the static directory during the collectstatic command with interactive mode enabled.
+
+        The test verifies that the expected warning message about overwriting files is displayed, while ensuring that the delete warning message is not shown. This Check is crucial for ensuring that users are properly notified when static files are being overwritten, helping prevent accidental data loss.
+        """
         stdout = StringIO()
         self.run_collectstatic()
         with mock.patch("builtins.input", side_effect=self.mock_input(stdout)):
@@ -345,6 +477,14 @@ class TestInteractiveMessages(CollectionTestCase):
         self.assertNotIn(self.delete_warning_msg, output)
 
     def test_no_warning_when_staticdir_does_not_exist(self):
+        """
+        Tests that no warning is output when the static directory does not exist.
+
+        This test case ensures that the collectstatic command behaves as expected when 
+        the static root directory is missing. It verifies that no warnings related to 
+        overwriting or deleting files are issued, and that the message indicating 
+        successful copying of files is displayed instead.
+        """
         stdout = StringIO()
         shutil.rmtree(settings.STATIC_ROOT)
         call_command("collectstatic", interactive=True, stdout=stdout)
@@ -441,6 +581,18 @@ class TestCollectionFilesOverride(CollectionTestCase):
     """
 
     def setUp(self):
+        """
+
+        Set up the test environment by creating a temporary directory and test application.
+
+        This method creates a temporary directory, initializes a test application within it,
+        and sets up a test file. It also records the original modification and access times
+        of a reference file and ensures that the test file has a slightly earlier timestamp.
+        The test application is added to the list of installed applications in the settings,
+        and the settings are enabled for the duration of the test. All temporary resources
+        are scheduled for cleanup after the test is completed.
+
+        """
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.temp_dir)
 
@@ -560,6 +712,12 @@ class TestCollectionNonLocalStorage(TestNoFilesCreated, CollectionTestCase):
 
     def test_storage_properties(self):
         # Properties of the Storage as described in the ticket.
+        """
+        :=
+            Test the properties of a storage object, focusing on its modification time and path handling.
+
+            This test case verifies that the storage object correctly reports its modification time and raises the expected error when attempting to retrieve an absolute path, as this functionality is not supported by the backend.
+        """
         storage = DummyStorage()
         self.assertEqual(
             storage.get_modified_time("name"),
@@ -653,6 +811,15 @@ class TestCollectionLinks(TestDefaults, CollectionTestCase):
         }
     )
     def test_no_remote_link(self):
+        """
+
+        Tests that the collectstatic command raises an error when attempting to symlink to a remote destination.
+
+        This test ensures that the command handles the case where a remote storage backend is being used,
+        which does not support symlinks. The test expects a CommandError to be raised with a message indicating
+        that symlinking to a remote destination is not allowed.
+
+        """
         with self.assertRaisesMessage(
             CommandError, "Can't symlink to a remote destination."
         ):

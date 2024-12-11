@@ -55,6 +55,23 @@ class Command(BaseCommand):
                     self.create_table(db, cache._table, dry_run)
 
     def create_table(self, database, tablename, dry_run):
+        """
+
+        Creates a cache table in the specified database for the given table name.
+
+        :param database: The name of the database in which to create the table.
+        :param tablename: The name of the table to be created.
+        :param dry_run: If True, only prints the SQL statements to create the table without executing them.
+
+        This function first checks if the table already exists in the database. If it does, a message is printed to the console and the function returns without making any changes. If the table does not exist, it constructs the SQL statement to create the table and executes it. The table is created with three columns: 'cache_key', 'value', and 'expires'. The 'cache_key' column is the primary key and is unique, while the 'expires' column is indexed.
+
+        If dry_run is True, the function prints the SQL statements to the console without executing them, allowing the user to inspect the statements before they are executed. If dry_run is False, the function executes the SQL statements to create the table and any necessary indexes.
+
+        In case of an error during table creation, the function raises a CommandError with the error message.
+
+        The function also takes into account the verbosity level, printing messages to the console if the verbosity level is greater than 0 or 1, respectively.
+
+        """
         cache = BaseDatabaseCache(tablename, {})
         if not router.allow_migrate_model(database, cache.cache_model_class):
             return

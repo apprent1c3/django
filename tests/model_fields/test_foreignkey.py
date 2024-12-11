@@ -104,6 +104,15 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_to_python(self):
+        """
+        Tests the to_python method of a ForeignKey field to ensure it correctly converts a string representation of a primary key to its integer equivalent.
+
+            Verifies that when given a string representation of a primary key, the to_python method returns the corresponding integer value, demonstrating the field's ability to properly deserialize foreign key references.
+
+            This test is isolated to the 'model_fields' application to prevent interference from other tests and ensure accurate results.
+
+            The test case involves creating a simple model relationship between two classes, Foo and Bar, where Bar has a foreign key referencing Foo, and then verifying the to_python method's correctness in this context.
+        """
         class Foo(models.Model):
             pass
 
@@ -114,6 +123,19 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_fk_to_fk_get_col_output_field(self):
+        """
+
+        Test that a foreign key to a foreign key model instance returns the correct output field.
+
+        Specifically, this test case verifies that when a model has a foreign key to another model,
+        which in turn has a foreign key set as its primary key, the output field for the nested foreign key
+        is correctly resolved to the primary key of the original model.
+
+        The test uses a nested model structure, where model Baz has a foreign key to model Bar,
+        which itself has a foreign key to model Foo set as its primary key. The test checks that the
+        output field for the foreign key from Baz to Bar is correctly identified as the primary key of Foo.
+
+        """
         class Foo(models.Model):
             pass
 
@@ -139,6 +161,16 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_non_local_to_field(self):
+        """
+
+        Tests that an exception is raised when a foreign key on a model refers to a field 
+        that is not local to the related model, but rather inherited from a parent model.
+
+        The test case verifies that the `FieldError` exception is correctly raised when 
+        attempting to access the related fields of the foreign key, with an informative 
+        error message indicating that the referred field is not local to the related model.
+
+        """
         class Parent(models.Model):
             key = models.IntegerField(unique=True)
 

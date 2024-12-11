@@ -35,6 +35,17 @@ class StaticFilesStorage(FileSystemStorage):
             self.location = None
 
     def path(self, name):
+        """
+        Returns the path for a given static file name.
+
+        This method builds upon the parent class's path resolution functionality. It first checks if the location is properly set and raises an exception if the STATIC_ROOT setting is not configured. If the location is set, it delegates the path resolution to the parent class. 
+
+        The result can be used to determine the location of a static file within the application's file system. 
+
+        :param name: The name of the static file.
+        :raises ImproperlyConfigured: If the STATIC_ROOT setting is not configured. 
+        :return: The path for the specified static file name.
+        """
         if not self.location:
             raise ImproperlyConfigured(
                 "You're using the staticfiles app "
@@ -493,6 +504,16 @@ class ManifestFilesMixin(HashedFilesMixin):
             self.save_manifest()
 
     def save_manifest(self):
+        """
+
+        Saves the manifest to storage.
+
+        This method generates a hash for the manifest contents, constructs a payload with the hashed files, manifest version, and manifest hash,
+        and then saves this payload to the designated storage location. If a manifest with the same name already exists, it is deleted before saving the new version.
+
+        The saved manifest contains information about the current state of the files, including their paths and hashes, as well as the manifest version and hash.
+
+        """
         self.manifest_hash = self.file_hash(
             None, ContentFile(json.dumps(sorted(self.hashed_files.items())).encode())
         )

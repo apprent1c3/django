@@ -22,6 +22,17 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class by removing stale content types and creates a new content type for testing purposes.
+
+        This method is used to prepare the test environment by purging stale content types and creating a test content type.
+        It also captures the count of content types before the creation of the new content type for assertion purposes.
+        The newly created content type is stored as an instance variable for use in subsequent tests.
+
+        Returns:
+            None
+
+        """
         with captured_stdout():
             call_command(
                 "remove_stale_contenttypes",
@@ -86,6 +97,15 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": ["empty_models"]})
     def test_contenttypes_removed_in_installed_apps_without_models(self):
+        """
+        .\"\"\"
+         Tests the removal of stale content types when an app is removed from INSTALLED_APPS and has no models.
+
+        This test case creates content types for two apps, 'empty_models' and 'no_models', and then simulates the removal of 'empty_models' from INSTALLED_APPS.
+        It then calls the 'remove_stale_contenttypes' management command and verifies that the content type from 'empty_models' is not deleted, 
+        while the content type from 'no_models' is deleted. The test also checks that the total count of content types is updated correctly.
+
+        """
         ContentType.objects.create(app_label="empty_models", model="Fake 1")
         ContentType.objects.create(app_label="no_models", model="Fake 2")
         with (
@@ -105,6 +125,16 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": ["empty_models"]})
     def test_contenttypes_removed_for_apps_not_in_installed_apps(self):
+        """
+
+        Test that the remove_stale_contenttypes command correctly removes stale content types for apps not in INSTALLED_APPS.
+
+        This test case creates content types for apps that are not in the installed apps list, 
+        then calls the remove_stale_contenttypes command with the option to include stale apps.
+        It verifies that the command outputs the deletion of the stale content types and 
+        that the content type count is restored to its original state after the command execution.
+
+        """
         ContentType.objects.create(app_label="empty_models", model="Fake 1")
         ContentType.objects.create(app_label="no_models", model="Fake 2")
         with (

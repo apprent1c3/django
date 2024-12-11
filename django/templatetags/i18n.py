@@ -56,6 +56,11 @@ class GetCurrentLanguageNode(Node):
         self.variable = variable
 
     def render(self, context):
+        """
+        Render the current language code for the given variable in the template context.
+
+        This function sets the language code in the template context using the provided variable name, allowing it to be accessed and displayed in a template. It then returns an empty string. The language code is retrieved from the current translation settings.
+        """
         context[self.variable] = translation.get_language()
         return ""
 
@@ -206,6 +211,15 @@ class BlockTranslateNode(Node):
 
 class LanguageNode(Node):
     def __init__(self, nodelist, language):
+        """
+        Initializes the object with a list of nodes and a language specification.
+
+        :param nodelist: A list of nodes to be associated with the object.
+        :param language: The language to be used for the object.
+
+        This method sets up the fundamental data structures required for the object's functionality, 
+        providing a foundation for subsequent operations and manipulations.
+        """
         self.nodelist = nodelist
         self.language = language
 

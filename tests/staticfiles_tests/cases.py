@@ -23,15 +23,37 @@ class BaseStaticFilesMixin:
         )
 
     def assertFileNotFound(self, filepath):
+        """
+        Asserts that attempting to retrieve a file at the specified filepath results in an OSError, indicating that the file does not exist.
+
+        :param filepath: The path to the file to check for existence
+        :raises AssertionError: If the file is found or no OSError is raised
+        """
         with self.assertRaises(OSError):
             self._get_file(filepath)
 
     def render_template(self, template, **kwargs):
+        """
+        _RENDER_TEMPLATE_
+        Renders a template string with given keyword arguments.
+
+        :param template: A template string or a Template object to be rendered.
+        :keyword kwargs: Keyword arguments to be replaced in the template.
+        :return: A rendered template string with replaced keyword arguments, stripped of leading and trailing whitespace.
+        """
         if isinstance(template, str):
             template = Template(template)
         return template.render(Context(**kwargs)).strip()
 
     def static_template_snippet(self, path, asvar=False):
+        """
+        Generates a template snippet for loading static files.
+
+        :param path: The path to the static file.
+        :param asvar: If True, returns a snippet that assigns the static file to a variable, otherwise returns a snippet that directly includes the static file.
+        :returns: A Django template snippet as a string.
+        :description: The generated snippet can be used in a Django template to load static files, either by directly including them or by assigning them to a variable for further use.
+        """
         if asvar:
             return (
                 "{%% load static from static %%}{%% static '%s' as var %%}{{ var }}"
@@ -40,6 +62,19 @@ class BaseStaticFilesMixin:
         return "{%% load static from static %%}{%% static '%s' %%}" % path
 
     def assertStaticRenders(self, path, result, asvar=False, **kwargs):
+        """
+
+        Asserts that a static rendered template matches the expected result.
+
+        :arg path: The path to the template to render.
+        :arg result: The expected rendered result of the template.
+        :arg asvar: Optional boolean indicating whether to render the template as a variable.
+        :arg kwargs: Additional keyword arguments to pass to the render_template method.
+
+        This function verifies that the rendered template at the specified path matches the provided result, 
+        optionally rendered as a variable, allowing for flexible testing of static template rendering scenarios.
+
+        """
         template = self.static_template_snippet(path, asvar)
         self.assertEqual(self.render_template(template, **kwargs), result)
 
@@ -67,6 +102,18 @@ class CollectionTestCase(BaseStaticFilesMixin, SimpleTestCase):
     run_collectstatic_in_setUp = True
 
     def setUp(self):
+        """
+
+        Sets up a temporary environment for testing by creating a temporary directory,
+        configuring static file settings, and optionally running the collectstatic command.
+
+        Creates a temporary directory to serve as the static root and enables a patched
+        version of the settings. If `run_collectstatic_in_setUp` is True, the collectstatic
+        command is executed to populate the static directory. Cleanup hooks are added to
+        remove the temporary directory and disable the patched settings after the test is
+        complete.
+
+        """
         super().setUp()
         temp_dir = self.mkdtemp()
         # Override the STATIC_ROOT for all tests from setUp to tearDown

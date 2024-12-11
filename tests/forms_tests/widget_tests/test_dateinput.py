@@ -62,6 +62,16 @@ class DateInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a form field using a custom widget.
+
+        Verifies that the field is rendered correctly without a fieldset, 
+        and that the widget's use_fieldset attribute is set to False.
+
+        The test case uses a test form with a single CharField and a custom 
+        widget, rendering the form and asserting its HTML output matches 
+        the expected result.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

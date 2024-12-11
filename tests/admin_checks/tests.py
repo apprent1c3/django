@@ -23,6 +23,16 @@ class ValidFields(admin.ModelAdmin):
 
 class ValidFormFieldsets(admin.ModelAdmin):
     def get_form(self, request, obj=None, **kwargs):
+        """
+        ..:noindex:
+            Returns a form instance with an additional name field.
+
+            The returned form is an extension of the SongForm, with a char field named 'name' 
+            that accepts strings up to 50 characters long. This form can be used to collect 
+            extra information, specifically a name, in addition to the fields defined in 
+            the SongForm. The form can be initialized with an optional object and arbitrary 
+            keyword arguments.
+        """
         class ExtraFieldForm(SongForm):
             name = forms.CharField(max_length=50)
 
@@ -73,6 +83,16 @@ class SystemChecksTestCase(SimpleTestCase):
     databases = "__all__"
 
     def test_checks_are_performed(self):
+        """
+
+        Tests that the necessary checks are performed on the Song model when it is registered with the admin site.
+
+        This test case ensures that the custom admin class MyAdmin correctly raises the expected errors when checks are run.
+        The test checks for the presence of specific error messages, verifying that the validation logic is working as intended.
+
+        The test is self-contained, registering and unregistering the Song model with the admin site to avoid interfering with other tests.
+
+        """
         admin.site.register(Song, MyAdmin)
         try:
             errors = checks.run_checks()
@@ -486,6 +506,19 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_exclude_in_inline(self):
+        """
+        Tests that the 'exclude' attribute in an Inline model admin must be a list or tuple.
+
+        This test case verifies that the admin interface correctly raises an error when
+        the 'exclude' attribute in an Inline model admin is not a list or tuple. The
+        test creates a custom Inline model admin with an 'exclude' attribute set to a
+        string, and then checks that the expected error is raised when validating the
+        admin interface.
+
+        The expected error is an instance of checks.Error with the id 'admin.E014',
+        indicating that the 'exclude' value must be a list or tuple.
+
+        """
         class ExcludedFieldsInline(admin.TabularInline):
             model = Song
             exclude = "foo"
@@ -726,6 +759,11 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_inlines_property(self):
+        """
+        Checks if a ModelAdmin's inlines property can be a property method and still be properly validated. 
+
+        This test case verifies that using a property method to define inlines in a custom ModelAdmin class does not produce any validation errors. It ensures that the inlines are correctly registered and can be used to display related objects in the admin interface.
+        """
         class CitiesInline(admin.TabularInline):
             model = City
 
@@ -963,6 +1001,9 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_check_sublists_for_duplicates(self):
+        """
+        Checks if a ModelAdmin's fields contain duplicate sublists, ensuring each sublist defines a unique set of fields to prevent conflicts in the admin interface.
+        """
         class MyModelAdmin(admin.ModelAdmin):
             fields = ["state", ["state"]]
 

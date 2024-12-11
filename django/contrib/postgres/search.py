@@ -16,6 +16,13 @@ class SearchVectorExact(Lookup):
     lookup_name = "exact"
 
     def process_rhs(self, qn, connection):
+        """
+        Processes the right-hand side of a query, ensuring it is in a suitable format before proceeding with further operations.
+
+        This method checks if the right-hand side (RHS) of the query is an instance of :class:`SearchQuery` or :class:`CombinedSearchQuery`. If not, it converts the RHS into a :class:`SearchQuery` object using the configuration from the left-hand side (LHS) if available.
+
+        The method then delegates the processing of the RHS to the superclass, returning the processed RHS along with its associated parameters.
+        """
         if not isinstance(self.rhs, (SearchQuery, CombinedSearchQuery)):
             config = getattr(self.lhs, "config", None)
             self.rhs = SearchQuery(self.rhs, config=config)
@@ -46,6 +53,17 @@ class _Float4Field(Field):
 
 class SearchConfig(Expression):
     def __init__(self, config):
+        """
+
+        Initializes the class instance.
+
+        :param config: The configuration object or value to be used by the instance.
+                      If the provided config does not have a resolve_expression method, 
+                      it will be wrapped in a Value object to provide a unified interface.
+
+        :ivar config: The configured object or value, potentially wrapped in a Value object.
+
+        """
         super().__init__()
         if not hasattr(config, "resolve_expression"):
             config = Value(config)

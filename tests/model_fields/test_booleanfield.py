@@ -17,6 +17,11 @@ class BooleanFieldTests(TestCase):
         self.assertIsNone(f.get_prep_value(None))
 
     def _test_to_python(self, f):
+        """
+        Verifies the to_python method of a field object converts integers to their corresponding boolean values.
+
+        This test checks that the to_python method correctly maps the integer values 1 and 0 to the boolean values True and False respectively, ensuring proper conversion of values to Python's native boolean type.
+        """
         self.assertIs(f.to_python(1), True)
         self.assertIs(f.to_python(0), False)
 
@@ -55,6 +60,18 @@ class BooleanFieldTests(TestCase):
         self.assertIsInstance(f.formfield(), forms.NullBooleanField)
 
     def test_return_type(self):
+        """
+
+        Tests the return type of boolean and null boolean fields after creation and refresh.
+
+        Verifies that the fields are correctly stored and retrieved from the database,
+        with specific attention to the values of True and False.
+
+        Checks the consistency of BooleanModel and NullBooleanModel instances, ensuring
+        that the `bfield` and `nbfield` fields are returned as expected after creation
+        and subsequent database refresh.
+
+        """
         b = BooleanModel.objects.create(bfield=True)
         b.refresh_from_db()
         self.assertIs(b.bfield, True)
@@ -114,6 +131,14 @@ class BooleanFieldTests(TestCase):
 
 class ValidationTest(SimpleTestCase):
     def test_boolean_field_doesnt_accept_empty_input(self):
+        """
+
+        Verifies that a BooleanField raises a ValidationError when provided with an empty input.
+
+        This test ensures that a BooleanField correctly enforces its data validation rules by checking
+        that it rejects a None value, which is considered an empty or invalid input for a boolean field.
+
+        """
         f = models.BooleanField()
         with self.assertRaises(ValidationError):
             f.clean(None, None)

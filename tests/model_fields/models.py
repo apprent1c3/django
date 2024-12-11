@@ -272,6 +272,25 @@ if Image:
         """
 
         def __init__(self, *args, **kwargs):
+            """
+            Initializes the class instance.
+
+            This constructor sets the initial state of the object, specifically tracking whether it has been opened.
+            It also calls the parent class's constructor to ensure proper initialization of inherited attributes.
+            The arguments passed to this constructor are forwarded to the parent class's constructor.
+
+            Parameters
+            ----------
+            *args : variable length argument list
+                Positional arguments to be passed to the parent class's constructor.
+            **kwargs : variable length keyword argument dictionary
+                Keyword arguments to be passed to the parent class's constructor.
+
+            Note
+            ----
+            The :attr:`was_opened` attribute is initialized to False, indicating that the object has not been opened yet.
+
+            """
             self.was_opened = False
             super().__init__(*args, **kwargs)
 

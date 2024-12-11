@@ -34,6 +34,32 @@ class ExclusionConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+
+        Initializes an ExclusionConstraint object.
+
+        An exclusion constraint is a rule that ensures that two rows in a table cannot have
+        certain combinations of values in certain columns. For example, if you have a table
+        of time intervals, you can use an exclusion constraint to prevent two rows from
+        having overlapping intervals.
+
+        This object takes several parameters to define the constraint:
+
+        * name: the name of the constraint
+        * expressions: a list of 2-tuples, where each tuple contains a column name and
+          an operator (e.g. (\"start_time\", \"<\")) to define the exclusion condition
+        * index_type: the type of index to use for the constraint (either 'GiST' or 'SP-GiST')
+        * condition: an optional Q object to specify a condition under which the constraint
+          applies
+        * deferrable: an optional Deferrable object to specify whether the constraint can be
+          deferred
+        * include: an optional list or tuple of columns to include in the index
+        * violation_error_code: an optional error code to raise when the constraint is violated
+        * violation_error_message: an optional error message to raise when the constraint is violated
+
+        Raises a ValueError if the input parameters are invalid.
+
+        """
         if index_type and index_type.lower() not in {"gist", "spgist"}:
             raise ValueError(
                 "Exclusion constraints only support GiST or SP-GiST indexes."

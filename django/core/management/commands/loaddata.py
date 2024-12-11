@@ -49,6 +49,21 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+
+        Adds command line arguments for loading fixtures into a database.
+
+        The following arguments are defined:
+        - Fixture labels: one or more labels identifying the fixtures to be loaded.
+        - Database: the specific database to load fixtures into (defaults to the 'default' database).
+        - App label: only load fixtures from the specified application.
+        - Ignore non-existent fields: ignore entries in the serialized data for fields that do not currently exist on the model.
+        - Exclude: specify an application or model to exclude from loading (can be used multiple times).
+        - Format: the format of the serialized data when reading from stdin.
+
+        These arguments provide flexibility in loading fixtures, allowing control over which data is loaded and how it is interpreted.
+
+        """
         parser.add_argument(
             "args", metavar="fixture", nargs="+", help="Fixture labels."
         )
@@ -138,6 +153,19 @@ class Command(BaseCommand):
                     cursor.execute(line)
 
     def loaddata(self, fixture_labels):
+        """
+
+        Load data from fixtures into the database.
+
+        This function takes a list of fixture labels, finds and loads the corresponding fixtures,
+        and then installs the data into the database. The function also checks for any deferred
+        fields that need to be saved after the initial load and resets the database sequences
+        if necessary. It provides a progress message indicating the number of objects installed
+        from the fixtures, depending on the verbosity level.
+
+        :arg fixture_labels: A list of labels identifying the fixtures to load
+
+        """
         connection = connections[self.using]
 
         # Keep a count of the installed objects and fixtures
@@ -303,6 +331,20 @@ class Command(BaseCommand):
         }
 
     def find_fixture_files_in_dir(self, fixture_dir, fixture_name, targets):
+        """
+
+        Finds fixture files within a specified directory that match given target names.
+
+        Args:
+            fixture_dir (str): The directory to search for fixture files.
+            fixture_name (str): The base name of the fixtures to search for.
+            targets (list): A list of target file names to include in the search results.
+
+        Returns:
+            list: A list of tuples containing the full path to each matching fixture file, 
+                  its directory, and its base name.
+
+        """
         fixture_files_in_dir = []
         path = os.path.join(fixture_dir, fixture_name)
         for candidate in glob.iglob(glob.escape(path) + "*"):

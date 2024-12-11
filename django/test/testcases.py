@@ -828,6 +828,36 @@ class SimpleTestCase(unittest.TestCase):
     def _assertFooMessage(
         self, func, cm_attr, expected_exception, expected_message, *args, **kwargs
     ):
+        """
+
+        Asserts that a given function or callable object raises or warns with a specific exception and message.
+
+        This function wraps the provided function or callable object in a context manager that checks for the expected exception and message.
+        If no callable object is provided, it simply returns the context manager.
+
+        The context manager can then be used with a 'with' statement to execute the callable object and assert the expected exception and message.
+
+        Parameters
+        ----------
+        func : function
+            The function to be tested.
+        cm_attr : str
+            The context manager attribute to use.
+        expected_exception : Exception
+            The expected exception to be raised or warned.
+        expected_message : str
+            The expected message of the exception or warning.
+        *args : any
+            Additional positional arguments for the callable object.
+        **kwargs : any
+            Additional keyword arguments for the callable object.
+
+        Returns
+        -------
+        context manager
+            A context manager that asserts the expected exception and message.
+
+        """
         callable_obj = None
         if args:
             callable_obj, *args = args
@@ -1526,6 +1556,23 @@ def _deferredSkip(condition, reason, name):
 
             @wraps(test_func)
             def skip_wrapper(*args, **kwargs):
+                """
+                Decorator to conditionally skip a test function based on certain conditions.
+
+                Raises a ValueError if the test function is being executed on a test case that does not support queries against the specified database.
+
+                Raises a SkipTest exception if the condition function returns True, effectively skipping the test.
+
+                Otherwise, calls the original test function with the provided arguments and keyword arguments.
+
+                Args:
+                    *args: Variable length argument list.
+                    **kwargs: Arbitrary keyword arguments.
+
+                Note:
+                    This decorator is intended for use with unittest test cases and Joomla-like condition checks.
+
+                """
                 if (
                     args
                     and isinstance(args[0], unittest.TestCase)
@@ -1625,6 +1672,12 @@ class FSFilesHandler(WSGIHandler):
     """
 
     def __init__(self, application):
+        """
+        Initializes an instance of the class, setting up the internal state with the provided application.
+
+        :param application: The application instance to be associated with this object.
+        :note: The base URL for the application is automatically determined and parsed during initialization.
+        """
         self.application = application
         self.base_url = urlparse(self.get_base_url())
         super().__init__()
@@ -1643,6 +1696,23 @@ class FSFilesHandler(WSGIHandler):
         return url2pathname(relative_url)
 
     def get_response(self, request):
+        """
+        Retrieves a response to the given HTTP request.
+
+        This method checks if the current view should handle the request based on its path.
+        If it should, it attempts to serve the request directly. If the request cannot be served,
+        it falls back to the parent class's get_response method to handle the request.
+
+        This allows the view to handle requests it is responsible for, while delegating other requests
+        to be handled by a parent or higher-level view.
+
+        Args:
+            request: The HTTP request to retrieve a response for.
+
+        Returns:
+            An HTTP response object.
+
+        """
         from django.http import Http404
 
         if self._should_handle(request.path):
@@ -1653,6 +1723,17 @@ class FSFilesHandler(WSGIHandler):
         return super().get_response(request)
 
     def serve(self, request):
+        """
+        Serve a file based on the provided request path.
+
+        This function takes an HTTP request as input, resolves the corresponding file path, and serves the file from the document root directory. The file path is normalized and converted to a Unix-style path to ensure proper handling of different operating systems' path separators. The function returns the served file content.
+
+        Parameters:
+            request (object): The HTTP request object containing the requested path.
+
+        Returns:
+            The served file content based on the provided request path.
+        """
         os_rel_path = self.file_path(request.path)
         os_rel_path = posixpath.normpath(unquote(os_rel_path))
         # Emulate behavior of django.contrib.staticfiles.views.serve() when it

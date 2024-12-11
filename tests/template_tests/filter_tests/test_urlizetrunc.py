@@ -15,6 +15,13 @@ class UrlizetruncTests(SimpleTestCase):
         }
     )
     def test_urlizetrunc01(self):
+        """
+        Test the urlizetrunc template filter, which truncates and converts URLs to HTML links.
+
+        This test case checks the functionality of the urlizetrunc filter with unsafe and safe input strings.
+        It verifies that the filter correctly truncates the URLs to a specified length, converts them to HTML links,
+        and applies the nofollow attribute. The test also ensures that the filter handles escaped characters correctly.
+        """
         output = self.engine.render_to_string(
             "urlizetrunc01",
             {
@@ -32,6 +39,11 @@ class UrlizetruncTests(SimpleTestCase):
 
     @setup({"urlizetrunc02": '{{ a|urlizetrunc:"8" }} {{ b|urlizetrunc:"8" }}'})
     def test_urlizetrunc02(self):
+        """
+        )..Test the urlizetrunc filter with unsafe and safe input.
+
+        This test case verifies that the urlizetrunc filter correctly handles both unsafe and safe strings, truncating URLs to a specified length and wrapping them in an anchor tag with a rel=\"nofollow\" attribute. The filter is applied to two inputs: one containing an unsafe string with special characters, and another containing a safe string with HTML entities. The test checks that the output matches the expected rendering, ensuring that the filter behaves as expected in different scenarios.
+        """
         output = self.engine.render_to_string(
             "urlizetrunc02",
             {
@@ -50,6 +62,17 @@ class UrlizetruncTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_truncate(self):
+        """
+        Tests the urlizetrunc function to ensure it correctly truncates a given URI.
+
+        The function checks the urlizetrunc function's behavior at different truncation lengths, 
+        verifying that it correctly truncates the URI while maintaining the rel=\"nofollow\" attribute 
+        and wrapping the result in an HTML anchor tag.
+
+        The test cases cover scenarios where the truncation length is equal to, less than, 
+        and significantly less than the original length of the URI, ensuring the function 
+        produces the expected output in each case.
+        """
         uri = "http://31characteruri.com/test/"
         self.assertEqual(len(uri), 31)
 

@@ -28,6 +28,23 @@ def vary_on_headers(*headers):
         else:
 
             def _view_wrapper(request, *args, **kwargs):
+                """
+
+                Wraps an existing view function to modify its response by patching the Vary headers.
+
+                This wrapper function takes in a request and any additional positional and keyword arguments,
+                passes them to the wrapped view function, and then modifies the resulting response by updating
+                its Vary headers. The modified response is then returned.
+
+                The purpose of this wrapper is to ensure that the Vary headers of the response are correctly set,
+                which is important for caching and other HTTP-related purposes.
+
+                :param request: The incoming request object
+                :param args: Any additional positional arguments to be passed to the view function
+                :param kwargs: Any additional keyword arguments to be passed to the view function
+                :return: The response from the wrapped view function with updated Vary headers
+
+                """
                 response = func(request, *args, **kwargs)
                 patch_vary_headers(response, headers)
                 return response

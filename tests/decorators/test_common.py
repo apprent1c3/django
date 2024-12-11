@@ -7,6 +7,14 @@ from django.views.decorators.common import no_append_slash
 
 class NoAppendSlashTests(SimpleTestCase):
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+
+        Tests that a wrapped synchronous function is not treated as a coroutine function.
+
+        Verifies that the :func:`no_append_slash` decorator does not transform the wrapped
+        function into a coroutine, preserving its original synchronous behavior.
+
+        """
         def sync_view(request):
             return HttpResponse()
 

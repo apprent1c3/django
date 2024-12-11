@@ -240,6 +240,21 @@ class SpGistIndexTests(IndexTestMixin, PostgreSQLSimpleTestCase):
         self.assertEqual(SpGistIndex.suffix, "spgist")
 
     def test_deconstruction(self):
+        """
+        Tests the deconstruction process of a SpGistIndex instance.
+
+        Deconstruction is the process of breaking down a complex object into its constituent parts, 
+        such as the path to the object's class and its initialization arguments. 
+
+        This test case verifies that a SpGistIndex instance with specified fields, name, and fill factor 
+        can be successfully deconstructed into its path, positional arguments, and keyword arguments.
+
+        The deconstruction process is essential for operations like serialization and database migration, 
+        where the object's state needs to be preserved or replicated. 
+
+        The test asserts that the deconstructed path matches the class path of SpGistIndex, 
+        and that the deconstructed arguments match the original initialization arguments.
+        """
         index = SpGistIndex(fields=["title"], name="test_title_spgist", fillfactor=80)
         path, args, kwargs = index.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.indexes.SpGistIndex")
@@ -506,6 +521,17 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_gist_parameters(self):
+        """
+        Tests the parameters of a GIST index, specifically verifying that buffering and fillfactor options are correctly applied.
+
+        This test creates a GIST index on a model with buffering enabled and a fillfactor of 80, then checks that the corresponding database constraints are created with the expected options. The test also verifies that the index is correctly removed when requested.
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the index constraints do not match the expected values or if the index is not successfully removed.
+        """
         index_name = "integer_array_gist_buffering"
         index = GistIndex(
             fields=["field"], name=index_name, buffering=True, fillfactor=80
@@ -638,6 +664,19 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_spgist_include(self):
+        """
+        Tests the successful creation and removal of a SpGist index with included columns.
+
+        This test case verifies that a SpGist index can be added to a model with an 'include'
+        parameter, and then removed, while ensuring the index's name, type, and columns are
+        correctly configured. The test procedure involves adding the index, checking its
+        constraints, and then removing the index to validate its removal from the database schema.
+
+        The test also verifies the index's properties, including its type and included columns,
+        to ensure they match the defined SpGist index settings. The test scenario covers the
+        creation and deletion of the index, providing a comprehensive check of the indexing
+        mechanism's functionality.
+        """
         index_name = "scene_spgist_include_setting"
         index = SpGistIndex(name=index_name, fields=["scene"], include=["setting"])
         with connection.schema_editor() as editor:

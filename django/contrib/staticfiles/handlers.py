@@ -88,6 +88,9 @@ class ASGIStaticFilesHandler(StaticFilesHandlerMixin, ASGIHandler):
     """
 
     def __init__(self, application):
+        """
+        Initializes the object with the provided application, storing a reference to it and determining the base URL by parsing the result of the get_base_url method.
+        """
         self.application = application
         self.base_url = urlparse(self.get_base_url())
 

@@ -557,6 +557,17 @@ class modify_settings(override_settings):
         super(override_settings, self).__init__()
 
     def save_options(self, test_func):
+        """
+
+        Saves the current options to the test function.
+
+        Updates the :attr:`_modified_settings` attribute of the test function with the current operations.
+        If no previous settings have been saved, the current operations are used as the initial settings.
+        Otherwise, the current operations are appended to the existing modified settings.
+
+        :param test_func: The test function to save the options to.
+
+        """
         if test_func._modified_settings is None:
             test_func._modified_settings = self.operations
         else:
@@ -598,6 +609,16 @@ class override_system_checks(TestContextDecorator):
     """
 
     def __init__(self, new_checks, deployment_checks=None):
+        """
+        Initializes a new instance of the class.
+
+        This constructor sets up the necessary components for performing checks, 
+        including registering new checks and optionally specifying deployment-specific checks.
+
+         :param new_checks: A collection of new checks to be registered.
+         :param deployment_checks: Optional deployment-specific checks.
+
+        """
         from django.core.checks.registry import registry
 
         self.registry = registry
@@ -712,6 +733,18 @@ class CaptureQueriesContext:
         return self.connection.queries[self.initial_queries : self.final_queries]
 
     def __enter__(self):
+        """
+
+        Enters the runtime context for the object, preparing it for use with debug cursor functionality.
+
+        Establishes a connection and sets up initial state for tracking queries, effectively allowing for the 
+        debugging of database interactions. The function also disconnects any previously established request 
+        reset handlers to prevent interference with the current context.
+
+        Upon successful entry, the object instance is returned, enabling further interaction within the 
+        established context.
+
+        """
         self.force_debug_cursor = self.connection.force_debug_cursor
         self.connection.force_debug_cursor = True
         # Run any initialization queries if needed so that they won't be
@@ -916,6 +949,14 @@ class isolate_apps(TestContextDecorator):
     """
 
     def __init__(self, *installed_apps, **kwargs):
+        """
+        Initializes the object with a variable number of installed applications.
+
+        :param installed_apps: A variable number of installed applications to be associated with the object.
+        :param kwargs: Additional keyword arguments to be passed to the parent class's initializer.
+        :returns: None
+        :description: This method sets up the object with the provided installed applications and then delegates the initialization process to its parent class, allowing for further configuration through keyword arguments.
+        """
         self.installed_apps = installed_apps
         super().__init__(**kwargs)
 

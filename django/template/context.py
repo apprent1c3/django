@@ -29,6 +29,15 @@ class BaseContext:
         self._reset_dicts(dict_)
 
     def _reset_dicts(self, value=None):
+        """
+        Reset the internal dictionaries of the object.
+
+        Resets the internal dictionaries to a default state, starting with a dictionary of built-in values (True, False, None).
+        Optionally, appends additional dictionaries from a provided BaseContext object or a user-provided dictionary.
+
+        :param value: An optional BaseContext object or dictionary to append to the internal dictionaries. Defaults to None.
+        :return: None
+        """
         builtins = {"True": True, "False": False, "None": None}
         self.dicts = [builtins]
         if isinstance(value, BaseContext):
@@ -92,12 +101,26 @@ class BaseContext:
         return any(key in d for d in self.dicts)
 
     def get(self, key, otherwise=None):
+        """
+        Retrieves the value associated with the given key from a sequence of dictionaries.
+
+        The function searches for the key in reverse order of the dictionaries. If the key is found, its corresponding value is returned. If the key is not found in any dictionary, the function returns the value provided by the ``otherwise`` parameter, which defaults to ``None`` if not specified.
+        """
         for d in reversed(self.dicts):
             if key in d:
                 return d[key]
         return otherwise
 
     def setdefault(self, key, default=None):
+        """
+        Sets a value for a given key if that key does not exist in the object. 
+
+         If the key already exists, returns the value associated with the key. 
+
+         :param key: The key to be set or retrieved.
+         :param default: The value to be set for the key if it does not exist, defaults to None.
+         :return: The value associated with the key, or the default value if the key was not present.
+        """
         try:
             return self[key]
         except KeyError:
@@ -245,6 +268,26 @@ class RequestContext(Context):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        Context manager that temporarily binds a template to the current context.
+
+        This context manager sets up a template and its associated context processors,
+        allowing for a clean and isolated execution of template-related code. It ensures
+        that the context is not already bound to another template, and it properly
+        updates the context with the results of the template's context processors.
+
+        When used, this context manager will:
+
+        * Verify that the context is not already bound to a template
+        * Set up the template and its context processors
+        * Update the context with the results of the context processors
+        * Yield control to the enclosed code block
+        * Clean up the template and context after execution, regardless of success or failure
+
+        This context manager is designed to provide a safe and reliable way to work with
+        templates and their associated context, and it should be used as a `with` statement
+        to ensure proper cleanup and exception handling.
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
 

@@ -106,6 +106,15 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_and_slug(self):
+        """
+
+        Tests the detail view of an author by primary key and slug.
+
+        Verifies that a GET request to the detail view with the primary key and slug of an author
+        returns a successful response (200 status code), and that the response contains the correct author object.
+        Additionally, checks that the response uses the expected template for rendering the author detail page.
+
+        """
         res = self.client.get(
             "/detail/author/bypkandslug/%s-roberto-bolano/" % self.author1.pk
         )
@@ -128,6 +137,15 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/artist_detail.html")
 
     def test_template_name(self):
+        """
+
+        Tests the rendering of the template_name page for an author.
+
+        Verifies that the HTTP request returns a successful response (200 status code),
+        that the response context contains the correct author object, and that the 
+        correct template is used to render the page.
+
+        """
         res = self.client.get("/detail/author/%s/template_name/" % self.author1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author1)
@@ -193,6 +211,16 @@ class DetailViewTest(TestCase):
         )
 
     def test_deferred_queryset_context_object_name(self):
+        """
+        Tests that the context object name in a deferred queryset is correctly handled in a form view.
+
+        The function verifies that when using a deferred queryset to retrieve an object, 
+        the object is properly passed to the view's context, regardless of whether the 
+        deferred fields are included in the form's fields. It checks that both the 
+        default 'object' context key and the model instance's name ('author') 
+        contain the expected object, ensuring that the view behaves as expected 
+        when dealing with deferred querysets.
+        """
         class FormContext(ModelFormMixin):
             request = RequestFactory().get("/")
             model = Author
@@ -204,6 +232,18 @@ class DetailViewTest(TestCase):
         self.assertEqual(form_context_data["author"], self.author1)
 
     def test_invalid_url(self):
+        """
+        Tests that an invalid URL does not return a valid response.
+
+        This test case checks that an AttributeError is raised when attempting to access 
+        an invalid URL using the client's get method.
+
+        The invalid URL is constructed by providing an incorrect or malformed path.
+        The expected behavior is that the client will fail with an AttributeError exception.
+
+        The purpose of this test is to ensure that the system correctly handles and 
+        responds to invalid requests, providing a robust error handling mechanism.
+        """
         with self.assertRaises(AttributeError):
             self.client.get("/detail/author/invalid/url/")
 

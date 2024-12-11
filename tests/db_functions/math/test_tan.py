@@ -32,6 +32,15 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.f2_tan, math.tan(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the calculation of the tangent for integer values.
+
+        This test case checks that the Tangent function can be applied to integer fields in the database,
+        and that the result is a floating point number. It also verifies that the calculated tangent
+        values match the expected results, calculated using the math library. The test covers a range
+        of integer values, including negative and positive numbers, to ensure the function behaves as expected
+        across different input values.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_tan=Tan("small"),
@@ -46,6 +55,13 @@ class TanTests(TestCase):
         self.assertAlmostEqual(obj.big_tan, math.tan(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of the DecimalField using the tangent (tan) function, specifically verifying that the lookup is applied correctly. 
+
+         This test case covers the scenario where a DecimalField value is transformed using the tan function and then filtered based on the result being less than a certain threshold. 
+
+         The test creates sample data, applies the tan transformation, and checks that the correct object is retrieved when filtering on the transformed value.
+        """
         with register_lookup(DecimalField, Tan):
             DecimalModel.objects.create(n1=Decimal("0.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))

@@ -61,6 +61,17 @@ class SampleFailingSubtest(SimpleTestCase):
 
 class RemoteTestResultTest(SimpleTestCase):
     def _test_error_exc_info(self):
+        """
+        Retrieves exception information from a deliberately raised ValueError.
+
+        This method tests the handling of error conditions by simulating an exception,
+        catching it, and returning the associated exception information.
+
+        Returns:
+            tuple: A tuple containing information about the caught exception, 
+                   including the type, value, and traceback.
+
+        """
         try:
             raise ValueError("woops")
         except ValueError:
@@ -103,6 +114,16 @@ class RemoteTestResultTest(SimpleTestCase):
         self.assertEqual(result.events, loaded_result.events)
 
     def test_pickle_errors_detection(self):
+        """
+        Tests the detection of errors that cannot be pickled.
+
+        This method verifies that the `_confirm_picklable` function correctly identifies
+        errors that cannot be serialized using the pickle protocol. It checks that a
+        picklable error is accepted without issue, while an error that cannot be
+        unpickled raises a `TypeError` with the expected error message. This ensures that
+        the function behaves correctly when encountering both valid and invalid errors,
+        preventing potential issues with test result serialization.
+        """
         picklable_error = RuntimeError("This is fine")
         not_unpicklable_error = ExceptionThatFailsUnpickling("arg")
 
@@ -115,6 +136,20 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_unpicklable_subtest(self):
+        """
+        Tests the unpickling of a subtest.
+
+        This test case verifies that a subtest which raises an exception during execution
+        is properly handled and reported by the testing framework. It checks that the
+        exception is correctly pickled and unpickled, allowing for accurate error
+        reporting and debugging. The test result is checked to ensure that it contains
+        the expected failure message.
+
+        The test uses a sample failing subtest and a remote test result to simulate
+        the execution of a test case. It then verifies that the resulting events
+        contain the expected error message, confirming that the unpickling process
+        was successful.
+        """
         result = RemoteTestResult()
         subtest_test = SampleFailingSubtest(methodName="pickle_error_test")
         subtest_test.run(result=result)

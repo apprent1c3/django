@@ -20,6 +20,11 @@ class SlugifyTests(SimpleTestCase):
         }
     )
     def test_slugify01(self):
+        """
+        Tests the slugify filter in a template by rendering a string with two variables, 
+        one containing special characters and the other containing HTML entities, 
+        and checks if the output matches the expected slugified result.
+        """
         output = self.engine.render_to_string(
             "slugify01", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -27,6 +32,16 @@ class SlugifyTests(SimpleTestCase):
 
     @setup({"slugify02": "{{ a|slugify }} {{ b|slugify }}"})
     def test_slugify02(self):
+        """
+
+        Test the slugify filter functionality.
+
+        This test case checks if the slugify filter correctly converts strings into a slug format, 
+        handling special characters and HTML entities. It verifies that the filter replaces 
+        special characters with hyphens and leaves HTML-safe strings unchanged, resulting 
+        in a slugified output string.
+
+        """
         output = self.engine.render_to_string(
             "slugify02", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )
@@ -52,6 +67,14 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(slugify(123), "123")
 
     def test_slugify_lazy_string(self):
+        """
+        Tests the slugify function with a lazy string.
+
+        Verifies that the function correctly converts a string containing special characters 
+        and numbers into a slug, which is a URL-friendly string of lowercase letters, 
+        numbers, and hyphens. The test covers the handling of non-alphanumeric characters 
+        and ensures their proper removal or replacement in the resulting slug.
+        """
         lazy_str = lazy(lambda string: string, str)
         self.assertEqual(
             slugify(

@@ -120,6 +120,9 @@ class BasicSyntaxTests(SimpleTestCase):
     # containing an illegal character.
     @setup({"basic-syntax13": "{{ va>r }}"})
     def test_basic_syntax13(self):
+        """
+        Tests the basic syntax of a templating engine to ensure it correctly raises a TemplateSyntaxError when encountering invalid syntax, specifically an undefined variable access operation.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("basic-syntax13")
 
@@ -135,6 +138,15 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax16": "{{ eggs! }}"})
     def test_basic_syntax16(self):
+        """
+        Tests that using an exclamation mark after a variable in a template raises a TemplateSyntaxError.
+
+        This test case ensures that the template engine correctly handles invalid syntax
+        and raises an exception when it encounters an unexpected character after a variable.
+        The test verifies that the engine's parsing logic is working as expected and that
+        it provides a clear error message when encountering invalid template syntax.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("basic-syntax16")
 
@@ -195,6 +207,17 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax22": "{{ moo #}"})
     def test_basic_syntax22(self):
+        """
+
+        Tests the rendering of a basic syntax template string containing an opening brace and a hash character.
+
+        The purpose of this test is to verify that the templating engine correctly handles a specific edge case where the template string contains 
+        an opening brace '{{' followed by a hash character '#', without interpreting it as a special syntax or command. 
+
+        The expected output is the original template string, unchanged, confirming that the engine does not attempt to parse or evaluate the 
+        sequence as a template directive.
+
+        """
         output = self.engine.render_to_string("basic-syntax22")
         self.assertEqual(output, "{{ moo #}")
 
@@ -219,16 +242,44 @@ class BasicSyntaxTests(SimpleTestCase):
     # purposes.
     @setup({"basic-syntax25": '{{ "fred" }}'})
     def test_basic_syntax25(self):
+        """
+
+        Test rendering of basic syntax in a template engine.
+
+        This test case verifies that the template engine correctly renders a simple template
+        with a variable substitution. It checks that the engine replaces the variable with
+        its actual value and produces the expected output.
+
+        """
         output = self.engine.render_to_string("basic-syntax25")
         self.assertEqual(output, "fred")
 
     @setup({"basic-syntax26": r'{{ "\"fred\"" }}'})
     def test_basic_syntax26(self):
+        """
+
+        Tests the rendering of a template with a basic syntax escaped double quote.
+
+        Verifies that the engine correctly renders the template and unescapes the double quote,
+        producing the expected output string.
+
+        """
         output = self.engine.render_to_string("basic-syntax26")
         self.assertEqual(output, '"fred"')
 
     @setup({"basic-syntax27": r'{{ _("\"fred\"") }}'})
     def test_basic_syntax27(self):
+        """
+        Test the basic syntax of the template engine for rendering escaped backslashes.
+
+        This test case verifies that the engine correctly handles backslash escaping,
+        ensuring that the output matches the expected string literal. It checks if the
+        rendered template produces a string with properly escaped backslashes, which is
+        essential for accurate representation of string literals in the output.
+
+        The test renders a template containing a double backslash and compares the result
+        with the expected output, validating the engine's syntax handling capabilities.
+        """
         output = self.engine.render_to_string("basic-syntax27")
         self.assertEqual(output, '"fred"')
 
@@ -236,6 +287,12 @@ class BasicSyntaxTests(SimpleTestCase):
     # suppressed on dictionary and attribute lookup.
     @setup({"basic-syntax28": "{{ a.b }}"})
     def test_basic_syntax28(self):
+        """
+        Tests the rendering of dot notation in a template string when the attribute does not exist and SilentGetItemClass is used.
+
+            The test confirms whether the rendering engine correctly handles the case when the attribute 'b' of object 'a' is accessed, 
+            but does not exist, and whether it outputs the correct result based on the 'string_if_invalid' setting of the engine.
+        """
         output = self.engine.render_to_string(
             "basic-syntax28", {"a": SilentGetItemClass()}
         )
@@ -246,6 +303,13 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax29": "{{ a.b }}"})
     def test_basic_syntax29(self):
+        """
+        Test a basic syntax case where a nested attribute 'b' is accessed on an object 'a' using the dot notation. 
+
+        This function checks how the templating engine handles the rendering of a template containing an undefined attribute. 
+
+        It renders a template with the given syntax and checks if the output is either an 'INVALID' string or an empty string, depending on the engine's configuration for handling invalid syntax.
+        """
         output = self.engine.render_to_string(
             "basic-syntax29", {"a": SilentAttrClass()}
         )
@@ -265,6 +329,9 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax31": "{{ 1.2.3 }}"})
     def test_basic_syntax31(self):
+        """
+        Tests rendering of a basic syntax template with nested dictionary access, verifying that the engine correctly retrieves the last element from a tuple within a nested dictionary structure.
+        """
         output = self.engine.render_to_string(
             "basic-syntax31",
             {"1": {"2": ("a", "b", "c", "d")}},
@@ -281,6 +348,15 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax33": "{{ 1.2.3 }}"})
     def test_basic_syntax33(self):
+        """
+
+        Tests the basic syntax of the templating engine by rendering a template with a nested tuple.
+
+        The test case verifies that the templating engine correctly extracts the last element from the nested tuple.
+
+        :returns: None
+
+        """
         output = self.engine.render_to_string(
             "basic-syntax33",
             {"1": ("xxxx", "yyyy", "abcd")},
@@ -289,6 +365,15 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax34": "{{ 1.2.3 }}"})
     def test_basic_syntax34(self):
+        """
+
+        Test the rendering of a template with nested objects in the basic syntax 1.2.3.
+
+        This test case verifies that the templating engine can correctly retrieve and render the value
+        of a nested object within the template syntax {{ 1.2.3 }} when provided with a dictionary
+        containing nested dictionaries and a list of dictionaries.
+
+        """
         output = self.engine.render_to_string(
             "basic-syntax34", {"1": ({"x": "x"}, {"y": "y"}, {"z": "z", "3": "d"})}
         )
@@ -339,6 +424,13 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"tpl-str": "%s", "tpl-percent": "%%", "tpl-weird-percent": "% %s"})
     def test_ignores_strings_that_look_like_format_interpolation(self):
+        """
+        Tests that the templating engine correctly ignores strings that resemble format interpolation.
+
+        Verifies that the engine treats strings containing percentage signs and other format-like patterns as literal strings,
+        rather than attempting to interpolate them. This ensures that the engine ruggedly handles templates containing such patterns,
+        yielding the original string as output without modification. 
+        """
         output = self.engine.render_to_string("tpl-str")
         self.assertEqual(output, "%s")
         output = self.engine.render_to_string("tpl-percent")

@@ -90,6 +90,21 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"{sign}{offset}" if offset else tzname
 
     def _convert_sql_to_tz(self, sql, params, tzname):
+        """
+
+        Converts a SQL query to account for timezone differences.
+
+        This function checks if a timezone name is provided and if the project is set to use timezones.
+        If the timezone name does not match the connection's timezone, it modifies the SQL query to
+        use the CONVERT_TZ function, converting the query to the specified timezone.
+        Otherwise, it returns the original SQL query and parameters unchanged.
+
+        :param sql: The SQL query to convert
+        :param params: The parameters for the SQL query
+        :param tzname: The target timezone name
+        :return: A tuple containing the converted SQL query and updated parameters
+
+        """
         if tzname and settings.USE_TZ and self.connection.timezone_name != tzname:
             return f"CONVERT_TZ({sql}, %s, %s)", (
                 *params,
@@ -291,6 +306,27 @@ class DatabaseOperations(BaseDatabaseOperations):
         return "NULL"
 
     def combine_expression(self, connector, sub_expressions):
+        """
+
+        Combine multiple sub-expressions into a single expression using a given connector.
+
+        The connector determines the operation to apply to the sub-expressions. Currently supported
+        connectors include bitwise operators ('&', '|', '<<', '>>'), logical operators ('#'), and
+        exponentiation ('^'). The resulting combined expression is formatted as a string.
+
+        The function handles the following cases:
+
+        * Exponentiation: `connector = '^'`, returns the sub-expressions as arguments to the `POW` function.
+        * Bitwise operations: `connector in ('&', '|', '<<', '#')`, returns the sub-expressions joined by the connector, with the result converted to a signed value.
+        * Right shift: `connector = '>>'`, returns the left-hand sub-expression divided by 2 to the power of the right-hand sub-expression, with the result rounded down to the nearest integer.
+
+        If the connector is not recognized, the function delegates to the parent class's `combine_expression` method.
+
+        :param connector: The operator to use to combine the sub-expressions.
+        :param sub_expressions: A list of sub-expressions to combine.
+        :return: A string representation of the combined expression.
+
+        """
         if connector == "^":
             return "POW(%s)" % ",".join(sub_expressions)
         # Convert the result to a signed integer since MySQL's binary operators

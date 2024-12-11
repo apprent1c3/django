@@ -67,6 +67,26 @@ class TestSuiteTests(SimpleTestCase):
         return suite
 
     def make_test_suite(self, suite=None, suite_class=None):
+        """
+
+        Create a test suite for the current instance.
+
+        This method constructs a test suite by defining two test case classes, Tests1 and Tests2, 
+        each containing multiple test methods (test1 and test2). The test suite is then built 
+        using the provided suite and suite class parameters, and the resulting test suite is returned.
+
+        Parameters
+        ----------
+        suite : optional
+            The base suite to which the test cases will be added.
+        suite_class : optional
+            The class to use for the test suite.
+
+        Returns
+        -------
+        A test suite containing the test cases from Tests1 and Tests2.
+
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
                 pass
@@ -204,6 +224,17 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_random(self):
+        """
+
+        Reorders the test bin in a random order.
+
+        This function tests the functionality of the reorder_test_bin function using a shuffler
+        with a fixed seed for reproducibility. It verifies that the reordered tests are returned
+        as an iterator and that the test names match the expected order after shuffling.
+
+        The expected test names are used as the basis for verification.
+
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -261,6 +292,14 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_random(self):
+        """
+        Reorders tests in a random manner to verify correct functionality.
+
+        This function ensures that tests can be shuffled while maintaining their integrity.
+        It creates a set of tests, applies a shuffler to reorder them, and verifies that the reordered tests are returned as an iterator.
+        The function checks that the tests are reordered correctly by comparing their names to an expected output.
+
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -466,6 +505,18 @@ class ManageCommandTests(unittest.TestCase):
         MockTestRunner.run_tests.assert_called_with(("sites",))
 
     def test_bad_test_runner(self):
+        """
+        Tests that using a non-existent test runner raises an AttributeError.
+
+        This test case verifies that the system correctly handles a scenario where a test runner
+        specified by name does not exist, ensuring that an informative error is raised instead
+        of producing unexpected behavior. The test runner name is deliberately incorrect to 
+        simulate a misconfiguration, and the expected outcome is that an AttributeError is 
+        raised, indicating that the specified test runner could not be found or loaded.
+
+        :raises AttributeError: If the specified test runner does not exist.
+
+        """
         with self.assertRaises(AttributeError):
             call_command("test", "sites", testrunner="test_runner.NonexistentRunner")
 
@@ -603,12 +654,28 @@ class CustomTestRunnerOptionsSettingsTests(AdminScriptTestCase):
         self.assertOutput(out, "1:foo:3")
 
     def test_option_name_and_value_separated(self):
+        """
+        Tests that an option name and value are correctly separated when passed as arguments.
+
+        Verifies that when a Django admin command is run with an option and its corresponding value, 
+        the output is correctly formatted with the expected option value. 
+
+        This test case ensures that the command correctly handles option values when they are provided 
+        separately from the option names, using the equals sign as a separator is not required in this case.
+
+        The expected output format is a string containing the option value, used to validate the command's behavior.
+
+        """
         args = ["test", "--settings=test_project.settings", "--option_b", "foo"]
         out, err = self.run_django_admin(args)
         self.assertNoOutput(err)
         self.assertOutput(out, "1:foo:3")
 
     def test_all_options_given(self):
+        """
+        Tests that the Django administration command runs successfully and produces the expected output when all available options are provided. 
+         Verification includes checking for the absence of error messages and ensuring the output contains the combined values of the provided options.
+        """
         args = [
             "test",
             "--settings=test_project.settings",
@@ -628,6 +695,17 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up the test environment by calling the parent class's setup method and 
+        writing the necessary settings to a settings file named 'settings.py'.
+
+        This method is typically called before each test to ensure a clean and 
+        consistent environment. It allows for the configuration of the test setup 
+        by writing a specific settings file, which can be used to customize the 
+        test environment as needed.
+
+        """
         super().setUp()
         self.write_settings("settings.py")
 
@@ -715,6 +793,20 @@ class TestRunnerInitializerTests(SimpleTestCase):
         multiprocessing, "Pool", side_effect=Exception("multiprocessing.Pool()")
     )
     def test_no_initialize_suite_test_runner(self, mocked_pool):
+        """
+        Tests the behavior of :class:`test runner` when the multiprocessing Pool initialization fails.
+
+        This test case mocks the :class:`multiprocessing.Pool` to raise an exception during initialization,
+        verifies that the :class:`test runner` correctly propagates this exception, and checks the arguments
+        passed to the :class:`multiprocessing.Pool` initializer.
+
+        Specifically, it checks that the ``initializer`` argument is set to :func:`_init_worker` and that the
+        ``initargs`` argument contains the expected number of elements, with the last two elements being
+        debug mode and the default database alias, respectively.
+
+        The test ensures that the test runner handles the multiprocessing Pool initialization failure and
+        raises the expected exception with the correct message.
+        """
         class StubTestRunner(DiscoverRunner):
             def setup_test_environment(self, **kwargs):
                 return
@@ -907,6 +999,25 @@ class SetupDatabasesTests(unittest.TestCase):
             )
 
     def test_destroy_test_db_restores_db_name(self):
+        """
+
+        Tests the restoration of the original database name after destroying a test database.
+
+        This function verifies that the original database name is restored after the test database
+        is destroyed, ensuring that the database configuration is properly reset. The test creates
+        a test database connection with a modified name, destroys the test database, and then checks
+        that the original database name is restored.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the original database name is not restored after destroying the test database.
+
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {

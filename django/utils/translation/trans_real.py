@@ -81,6 +81,18 @@ class TranslationCatalog:
         self._plurals = [trans.plural] if trans else [lambda n: int(n != 1)]
 
     def __getitem__(self, key):
+        """
+        Fetches an item from any of the internal catalogs using the given key.
+
+        The function iterates over the available catalogs and attempts to retrieve the item
+        associated with the provided key. If the key is found in any of the catalogs, the
+        corresponding item is returned. If the key is not found in any catalog, a KeyError
+        exception is raised with the key that was not found.
+
+        :param key: The key to search for in the catalogs.
+        :raises KeyError: If the key is not found in any catalog.
+        :return: The item associated with the key, or raises an exception if not found.
+        """
         for cat in self._catalogs:
             try:
                 return cat[key]
@@ -95,10 +107,29 @@ class TranslationCatalog:
         return any(key in cat for cat in self._catalogs)
 
     def items(self):
+        """
+        Generates a sequence of items from all catalogs.
+
+        Returns an iterator over all items stored in the catalogs, allowing for efficient 
+        iteration over the entire collection without having to load all items into memory.
+
+        Yields:
+            Sequence of items from all catalogs
+
+        """
         for cat in self._catalogs:
             yield from cat.items()
 
     def keys(self):
+        """
+        Returns a generator that yields all keys from the catalogs.
+
+        This method iterates over each catalog and yields all keys found within them,
+        providing a unified view of keys across multiple catalogs.
+
+        :yields: Key from one of the catalogs.
+        :rtype: generator
+        """
         for cat in self._catalogs:
             yield from cat.keys()
 

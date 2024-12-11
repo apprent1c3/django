@@ -17,6 +17,23 @@ class TestValidationError(unittest.TestCase):
         self.assertEqual(sorted(exception.messages), ["E1", "E2", "E3", "E4"])
 
     def test_eq(self):
+        """
+        Tests the equality of ValidationError objects.
+
+        The equality of ValidationError objects is determined by their message, code, and parameters.
+        Two ValidationError objects are considered equal if they have the same message, code, and parameters.
+
+        The following scenarios are tested:
+        - Equality of ValidationError objects with the same message
+        - Inequality of ValidationError objects with different messages
+        - Inequality of ValidationError objects with the same message but different codes
+        - Inequality of ValidationError objects with the same message and code but different parameters
+        - Equality and inequality of ValidationError objects with dictionary messages
+        - Equality and inequality of ValidationError objects with list messages
+        - Equality and inequality of ValidationError objects with nested ValidationError objects
+
+        This test ensures that the equality of ValidationError objects behaves as expected in various scenarios.
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")
@@ -135,6 +152,19 @@ class TestValidationError(unittest.TestCase):
         self.assertNotEqual(ValidationError({"field1": error4}), error4)
 
     def test_eq_nested(self):
+        """
+        Tests the equality of nested ValidationError instances.
+
+        Checks that two ValidationError instances are considered equal if they contain the same error messages and parameters, 
+        regardless of the order of parameters. Also checks that instances with different error messages or parameters are considered 
+        unequal. This ensures that the equality check is working correctly for nested ValidationError instances with dictionary 
+        structures.
+
+        The function covers equality checks for identical error dictionaries, error dictionaries with different parameter orders, 
+        and error dictionaries with different messages or parameters. 
+
+        This helps to guarantee the consistency of validation error reporting in complex scenarios with nested validation errors.
+        """
         error_dict = {
             "field1": ValidationError(
                 "error %(parm1)s %(parm2)s",

@@ -102,6 +102,15 @@ class TimezoneTests(SimpleTestCase):
             timezone.deactivate()
 
     def test_override_string_tz(self):
+        """
+
+        Tests that overriding the timezone string successfully sets the current timezone.
+
+        This test case verifies that the timezone override function correctly changes the
+        current timezone to the specified one, in this case 'Asia/Bangkok'. It checks
+        that the overridden timezone matches the expected timezone name.
+
+        """
         with timezone.override("Asia/Bangkok"):
             self.assertEqual(timezone.get_current_timezone_name(), "Asia/Bangkok")
 
@@ -180,6 +189,19 @@ class TimezoneTests(SimpleTestCase):
             )
 
     def test_make_naive_zoneinfo(self):
+        """
+
+        Tests the function to convert a timezone-aware datetime to a naive datetime.
+
+        The test case verifies that the function correctly removes the timezone information
+        from a datetime object while preserving the original date and time. It also checks
+        the handling of the 'fold' attribute, which is used to disambiguate duplicate times
+        during daylight saving time transitions.
+
+        The test covers two scenarios: a standard datetime object and a datetime object with
+        the 'fold' attribute set.
+
+        """
         self.assertEqual(
             timezone.make_naive(
                 datetime.datetime(2011, 9, 1, 12, 20, 30, tzinfo=PARIS_ZI), PARIS_ZI

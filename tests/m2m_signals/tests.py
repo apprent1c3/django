@@ -11,6 +11,15 @@ from .models import Car, Part, Person, SportsCar
 class ManyToManySignalsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the class.
+
+        This method creates a set of cars, parts, and people that can be used throughout the tests.
+        The created objects include three car models, five car parts, and four individuals.
+        All created objects are stored as class attributes, allowing for easy access and reuse in test cases.
+
+        """
         cls.vw = Car.objects.create(name="VW")
         cls.bmw = Car.objects.create(name="BMW")
         cls.toyota = Car.objects.create(name="Toyota")
@@ -44,6 +53,16 @@ class ManyToManySignalsTest(TestCase):
 
     def tearDown(self):
         # disconnect all signal handlers
+        """
+
+        Disconnects the m2m_changed signal receiver from various many-to-many relationships.
+
+        This method is called at the end of a test to clean up signal connections, ensuring that 
+        the test environment is properly reset. It disconnects the signal receiver from the 
+        many-to-many relationships between Car and its default parts, Car and its optional parts, 
+        Person and their fans, and Person and their friends.
+
+        """
         models.signals.m2m_changed.disconnect(
             self.m2m_changed_signal_receiver, Car.default_parts.through
         )

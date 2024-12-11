@@ -16,6 +16,17 @@ class FloorTests(TestCase):
         self.assertIsNone(obj.null_floor)
 
     def test_decimal(self):
+        """
+
+        Tests the Floor database function with Decimal model fields.
+
+        Verifies that applying the Floor function to Decimal fields returns the largest integer 
+        less than or equal to the input value, and that the result is also a Decimal instance.
+
+        The test case checks both positive and negative Decimal values to ensure the function 
+        behaves as expected in different scenarios.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_floor=Floor("n1"), n2_floor=Floor("n2")

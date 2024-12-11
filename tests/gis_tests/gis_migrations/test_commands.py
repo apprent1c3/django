@@ -15,6 +15,22 @@ class MigrateTests(TransactionTestCase):
             return connection.introspection.get_table_description(cursor, table)
 
     def assertTableExists(self, table):
+        """
+        Verifies that a given table exists in the database.
+
+         Args:
+             table (str): The name of the table to check for existence.
+
+         This function uses database introspection to fetch a list of existing tables and
+         asserts that the specified table is present in the list. If the table does not
+         exist, an AssertionError is raised.
+
+         Returns:
+             None
+
+         Raises:
+             AssertionError: If the table does not exist in the database.
+        """
         with connection.cursor() as cursor:
             self.assertIn(table, connection.introspection.table_names(cursor))
 

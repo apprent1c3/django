@@ -9,6 +9,22 @@ from . import FormFieldAssertionsMixin
 
 class TimeFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_timefield_1(self):
+        """
+        Tests the TimeField class for proper time validation and cleaning.
+
+        This test case verifies that the TimeField correctly handles time input in various formats,
+        including datetime.time objects and string representations. It checks that times are cleaned
+        and validated correctly, and that invalid input raises a ValidationError with an informative
+        error message. The test covers both 12-hour and 24-hour time formats, as well as times with
+        and without seconds.
+
+        Valid input formats include 'HH:MM', 'HH:MM:SS', and datetime.time objects. The test ensures
+        that these inputs are properly cleaned and converted to datetime.time objects.
+
+        Invalid input, such as strings that do not represent times, raises a ValidationError with the
+        message 'Enter a valid time.'. This test verifies that the TimeField correctly handles such
+        input and provides a helpful error message.
+        """
         f = TimeField()
         self.assertEqual(datetime.time(14, 25), f.clean(datetime.time(14, 25)))
         self.assertEqual(datetime.time(14, 25, 59), f.clean(datetime.time(14, 25, 59)))

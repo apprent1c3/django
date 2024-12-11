@@ -750,6 +750,22 @@ class ExecutorTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_migrate_marks_replacement_unapplied(self):
+        """
+
+        Tests that a migration marked as replaced is correctly unapplied.
+
+        This test case verifies the migration executor's ability to correctly handle 
+        replacement migrations by applying and then unapplying a migration marked as 
+        replaced. It checks that the migration is successfully applied and then removed 
+        from the list of applied migrations after being unapplied.
+
+        Checks the following conditions:
+
+        * The migration is applied successfully.
+        * The migration is recorded as applied in the migration recorder.
+        * After being unapplied, the migration is removed from the list of applied migrations.
+
+        """
         executor = MigrationExecutor(connection)
         executor.migrate([("migrations", "0001_squashed_0002")])
         try:

@@ -14,6 +14,22 @@ class PostGISIntrospection(DatabaseIntrospection):
     ]
 
     def get_field_type(self, data_type, description):
+        """
+
+        Retrieves the type of a given database field based on its data type and description.
+
+        This function takes into account PostGIS-specific geometry and geography types,
+        performing a database lookup if necessary to determine the correct type.
+        It then delegates to the parent class to determine the final field type.
+
+        Parameters:
+            data_type (str): The data type of the field.
+            description (str): A description of the field.
+
+        Returns:
+            The type of the field.
+
+        """
         if not self.postgis_oid_lookup:
             # Query PostgreSQL's pg_type table to determine the OID integers
             # for the PostGIS data types used in reverse lookup (the integers

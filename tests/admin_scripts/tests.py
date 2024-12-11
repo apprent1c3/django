@@ -250,6 +250,12 @@ class DjangoAdminDefaultSettings(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+
+        Set up the test environment by calling the parent class's setUp method and 
+        initializing the settings by writing them to a 'settings.py' file.
+
+        """
         super().setUp()
         self.write_settings("settings.py")
 
@@ -975,6 +981,15 @@ class ManageFullPathDefaultSettings(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up the test environment by calling the parent class's setUp method and configuring the Django settings.
+
+        This method writes a set of required applications to a settings.py file, including Django's authentication and content types modules, as well as the custom admin scripts module.
+
+        The resulting settings configuration is used to support the execution of tests that rely on these Django components.
+
+        """
         super().setUp()
         self.write_settings(
             "settings.py",
@@ -1360,6 +1375,18 @@ class ManageSettingsWithSettingsErrors(AdminScriptTestCase):
     """
 
     def write_settings_with_import_error(self, filename):
+        """
+
+        Writes a settings file with an intentional import error to a specified file.
+
+        This function creates a settings file at the specified filename within the test directory.
+        The generated file contains a comment indicating it was automatically created, as well as an import statement 
+        that is expected to cause an import error. This is typically used for testing purposes to simulate import 
+        failures and verify error handling behavior.
+
+        :param filename: The name of the settings file to be created.
+
+        """
         settings_file_path = os.path.join(self.test_dir, filename)
         with open(settings_file_path, "w") as settings_file:
             settings_file.write(
@@ -1566,6 +1593,16 @@ class ManageCheck(AdminScriptTestCase):
 
 class ManageRunserver(SimpleTestCase):
     def setUp(self):
+        """
+
+        Set up the environment for testing the RunserverCommand.
+
+        This method initializes the necessary components for testing the RunserverCommand,
+        including setting up a mock output buffer and configuring the command to use a
+        dummy run method. The output of the command is redirected to a StringIO object,
+        allowing for easy capture and verification of the command's output.
+
+        """
         def monkey_run(*args, **options):
             return
 
@@ -1621,6 +1658,15 @@ class ManageRunserver(SimpleTestCase):
         )
 
     def test_runner_hostname(self):
+        """
+
+        Tests that the runner correctly handles different hostnames when initiating commands.
+
+        The test validates that the runner can successfully set server settings for various hostnames and ports.
+        It covers scenarios with both a generic hostname (localhost) and a specific domain name, 
+        ensuring the runner's flexibility in handling diverse addressing schemes.
+
+        """
         call_command(self.cmd, addrport="localhost:8000")
         self.assertServerSettings("localhost", "8000")
 
@@ -1698,6 +1744,15 @@ class ManageRunserver(SimpleTestCase):
 
 class ManageRunserverMigrationWarning(TestCase):
     def setUp(self):
+        """
+        Sets up the test environment by initializing the standard output stream and creating a RunserverCommand instance.
+
+        This method prepares the necessary components for testing the runserver command, allowing for capturing and verification of output.
+
+        Attributes:
+            stdout (StringIO): The output stream where the command output will be written.
+            runserver_command (RunserverCommand): The command instance being tested, configured to write output to the stdout stream.
+        """
         self.stdout = StringIO()
         self.runserver_command = RunserverCommand(stdout=self.stdout)
 
@@ -1818,6 +1873,11 @@ class CommandTypes(AdminScriptTestCase):
     "Tests for the various types of base command types that can be defined."
 
     def setUp(self):
+        """
+        Sets up the environment for testing by inheriting the base setup and generating settings.
+
+        This method is responsible for initializing the test setup, including writing the default settings to a file named 'settings.py'. It provides a foundation for subsequent tests to run smoothly, ensuring a consistent and predictable testing environment.
+        """
         super().setUp()
         self.write_settings("settings.py")
 
@@ -1930,6 +1990,18 @@ class CommandTypes(AdminScriptTestCase):
         self.assertNotEqual(style.ERROR("Hello, world!"), "Hello, world!")
 
     def test_command_color(self):
+        """
+
+        Test the ColorCommand to ensure it correctly handles color output.
+
+        This function verifies that the command produces the expected output with or without color support.
+        It checks that the command prints \"Hello, world!\" to both stdout and stderr, and that the output
+        is formatted as expected when color is supported.
+
+        The test cases cover two scenarios: when the system supports color output and when it does not.
+        In both cases, the function asserts that the output is correctly formatted, with or without color codes.
+
+        """
         out = StringIO()
         err = StringIO()
         command = ColorCommand(stdout=out, stderr=err)
@@ -1983,6 +2055,13 @@ class CommandTypes(AdminScriptTestCase):
             call_command(BaseCommand(), no_color=True, force_color=True)
 
     def test_no_color_force_color_mutually_exclusive_command_init(self):
+        """
+        Tests that the 'no_color' and 'force_color' options in the command initialization are mutually exclusive.
+
+        The purpose of this test is to ensure that attempting to use both 'no_color' and 'force_color' simultaneously will raise a CommandError, as these options have opposing effects and cannot be used together. 
+
+        It verifies that the command correctly handles this invalid configuration by checking for the expected error message.
+        """
         msg = "'no_color' and 'force_color' can't be used together."
         with self.assertRaisesMessage(CommandError, msg):
             call_command(BaseCommand(no_color=True, force_color=True))
@@ -2623,6 +2702,17 @@ class StartProject(LiveServerTestCase, AdminScriptTestCase):
         self.assertTrue(os.path.exists(os.path.join(testproject_dir, "run.py")))
 
     def test_custom_project_template_from_tarball_by_url_django_user_agent(self):
+        """
+
+        Tests the functionality of creating a custom Django project from a template tarball
+        served over HTTP, while also verifying the User-Agent header sent by Django's
+        `startproject` command.
+
+        This test checks that the project template is correctly downloaded and used to
+        create a new project, and that the User-Agent header includes the expected Django
+        version information.
+
+        """
         user_agent = None
 
         def serve_template(request, *args, **kwargs):

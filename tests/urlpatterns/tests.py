@@ -48,6 +48,16 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_typed_parameters(self):
+        """
+        .. function:: test_path_lookup_with_typed_parameters
+
+           Tests the path lookup functionality with typed parameters.
+
+           This test case verifies that a URL path with typed parameters, such as an integer year, 
+           is correctly resolved and its components are accurately extracted. It checks the 
+           resolution of a URL path against expected values for the URL name, positional and 
+           keyword arguments, route pattern, captured keyword arguments, and extra keyword arguments.
+        """
         match = resolve("/articles/2015/")
         self.assertEqual(match.url_name, "articles-year")
         self.assertEqual(match.args, ())
@@ -57,6 +67,20 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters(self):
+        """
+
+        Tests the path lookup functionality when multiple URL parameters are provided.
+
+        Verifies that the resolver correctly identifies the URL pattern, extracts the 
+        parameters, and stores them in the match object. The test checks for the following:
+        - The correct URL name is identified
+        - The match object contains the expected keyword arguments
+        - The captured and extra keyword arguments are correctly extracted
+        - The route pattern is correctly identified
+
+        Ensures that the path lookup functionality works as expected with multiple URL parameters.
+
+        """
         match = resolve("/articles/2015/04/12/")
         self.assertEqual(match.url_name, "articles-year-month-day")
         self.assertEqual(match.args, ())
@@ -152,6 +176,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(url, "/articles/2003/")
 
     def test_path_reverse_with_parameter(self):
+        """
+        Tests that the path reverse for article URLs with year, month, and day parameters is correctly generated, verifying that the resulting URL matches the expected format.
+        """
         url = reverse(
             "articles-year-month-day", kwargs={"year": 2015, "month": 4, "day": 12}
         )
@@ -168,6 +195,21 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_reverse(self):
+        """
+
+        Tests the functionality of the URL converter's reverse functionality.
+
+        This function iterates over a set of test data, where each test case consists of 
+        an expected URL and a set of parameters used to reverse the URL. The test 
+        verifies that the generated URL matches the expected URL for each test case.
+
+        The test data includes cases for both named and namespaced URLs. If a URL is 
+        namespaced, the namespace is included in the URL name.
+
+        Each test case is run as a sub-test, allowing for detailed reporting of test 
+        failures.
+
+        """
         for expected, (url_name, app_name, kwargs) in converter_test_data:
             if app_name:
                 url_name = "%s:%s" % (app_name, url_name)
@@ -199,6 +241,22 @@ class SimplifiedURLTests(SimpleTestCase):
             re_path("^hello/$", empty_view, "name")
 
     def test_invalid_converter(self):
+        """
+
+        Tests that using an invalid converter in a URL route raises an ImproperlyConfigured exception.
+
+        The function checks that attempting to use a custom converter that does not exist in the route configuration results in an error message indicating the invalid converter used.
+
+        Args:
+            None
+
+        Raises:
+            ImproperlyConfigured: if an invalid converter is used in the URL route.
+
+        Returns:
+            None
+
+        """
         msg = "URL route 'foo/<nonexistent:var>/' uses invalid converter 'nonexistent'."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             path("foo/<nonexistent:var>/", empty_view)
@@ -221,6 +279,13 @@ class SimplifiedURLTests(SimpleTestCase):
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # msg = "Converter 'base64' is already registered."
         # with self.assertRaisesMessage(ValueError, msg):
+        """
+
+        Tests that overriding a registered converter using the register_converter function
+        triggers a RemovedInDjango60Warning. This warning is raised because support for
+        overriding registered converters is deprecated and will be removed in Django 6.0.
+
+        """
         msg = (
             "Converter 'base64' is already registered. Support for overriding "
             "registered converters is deprecated and will be removed in Django 6.0."
@@ -306,6 +371,18 @@ class ConverterTests(SimpleTestCase):
                         )
 
     def test_nonmatching_urls(self):
+        """
+
+        Test that URLs with invalid or non-matching patterns raise a Resolver404 error.
+
+        This function covers various URL patterns, including integers, strings, paths, slugs, and UUIDs,
+        with a range of valid and invalid suffixes. It checks that the resolver correctly handles
+        non-matching URLs and raises an exception as expected.
+
+        The test data includes a variety of edge cases, such as empty strings, invalid characters,
+        and malformed UUIDs, to ensure the resolver behaves correctly in different scenarios.
+
+        """
         test_data = (
             ("int", {"-1", "letters"}),
             ("str", {"", "/"}),
@@ -334,6 +411,22 @@ class ConverterTests(SimpleTestCase):
 class SameNameTests(SimpleTestCase):
     def test_matching_urls_same_name(self):
         @DynamicConverter.register_to_url
+        """
+
+        Tests that reversing URLs with the same name produce the expected URLs.
+
+        This function verifies the correctness of the URL reversal process by testing
+        different cases, including:
+
+        - URLs with varying numbers of positional arguments
+        - URLs with keyword arguments
+        - URLs using different converters (such as path, string, slug, integer, and UUID)
+        - URLs using regular expressions for case sensitivity
+        - URLs using custom converters (such as tiny_int)
+
+        For each test case, the function checks that the reversed URL matches the expected URL.
+
+        """
         def requires_tiny_int(value):
             if value > 5:
                 raise ValueError
@@ -423,6 +516,24 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_resolve_value_error_means_no_match(self):
         @DynamicConverter.register_to_python
+        """
+        Tests that a Resolver404 exception is raised when the dynamic converter function encounters a ValueError, indicating no matching value was found.
+
+        This test scenario emulates a situation where the conversion to a Python object fails, resulting in a ValueError being raised. The expected outcome is that a Resolver404 exception is then raised, signifying that no valid match was found.
+
+        Parameters
+        ----------
+        None
+
+        Raises
+        ------
+        Resolver404
+            If the dynamic converter function raises a ValueError.
+
+        Notes
+        -----
+        This test is designed to ensure that the resolver behaves correctly when encountering conversion errors, and provides the expected error handling response.
+        """
         def raises_value_error(value):
             raise ValueError()
 
@@ -431,6 +542,13 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_resolve_type_error_propagates(self):
         @DynamicConverter.register_to_python
+        """
+        Tests that a TypeError raised during a dynamic conversion is properly propagated.
+
+        Verifies that a TypeError exception is re-raised with its original error message when 
+        the resolve function encounters an issue, ensuring that the error is not lost 
+        or obscured during the resolution process.
+        """
         def raises_type_error(value):
             raise TypeError("This type error propagates.")
 

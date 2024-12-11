@@ -223,6 +223,17 @@ class WhereNode(tree.Node):
         return clone
 
     def relabeled_clone(self, change_map):
+        """
+
+        Creates a new copy of the current object with relabeled aliases based on the provided change map.
+
+        The change map is used to modify the aliases in the cloned object, allowing for flexible renaming and reorganization.
+        The original object remains unchanged.
+
+        :param change_map: A dictionary mapping old aliases to new aliases.
+        :return: A new object with the modified aliases.
+
+        """
         clone = self.clone()
         clone.relabel_aliases(change_map)
         return clone
@@ -269,6 +280,22 @@ class WhereNode(tree.Node):
 
     @staticmethod
     def _resolve_leaf(expr, query, *args, **kwargs):
+        """
+        Resolve a leaf expression in a query.
+
+        Attempts to resolve the given expression by calling its `resolve_expression` method,
+        if available, passing in the provided query and any additional arguments.
+
+        Args:
+            expr: The expression to be resolved.
+            query: The query in which the expression is being resolved.
+            *args: Additional positional arguments to be passed to the `resolve_expression` method.
+            **kwargs: Additional keyword arguments to be passed to the `resolve_expression` method.
+
+        Returns:
+            The resolved expression, or the original expression if no `resolve_expression` method is available.
+
+        """
         if hasattr(expr, "resolve_expression"):
             expr = expr.resolve_expression(query, *args, **kwargs)
         return expr
@@ -314,6 +341,14 @@ class WhereNode(tree.Node):
         return self.output_field.get_lookup(lookup)
 
     def leaves(self):
+        """
+        Yields the leaf nodes of the current node's tree structure.
+
+        This generator function traverses the tree depth-first, skipping over any intermediate WhereNode instances, and produces each terminal child node. 
+
+        Returns:
+            A sequence of child nodes that are not instances of WhereNode, in depth-first order.
+        """
         for child in self.children:
             if isinstance(child, WhereNode):
                 yield from child.leaves()
@@ -337,6 +372,15 @@ class ExtraWhere:
     contains_over_clause = False
 
     def __init__(self, sqls, params):
+        """
+        Initializes an instance with SQL queries and parameters.
+
+        :param sqls: A collection of SQL queries to be executed.
+        :param params: Parameters associated with the SQL queries.
+
+        This is a constructor method that sets up the object with the necessary SQL queries and their corresponding parameters, 
+        allowing for further operations to be performed on them. 
+        """
         self.sqls = sqls
         self.params = params
 
@@ -359,6 +403,18 @@ class SubqueryConstraint:
         self.query_object = query_object
 
     def as_sql(self, compiler, connection):
+        """
+
+        Generates a SQL query as a subquery condition.
+
+        This method compiles the given query object into a SQL subquery, using the provided database connection and compiler.
+        It sets the target values for the query and returns the resulting SQL as a subquery condition, formatted for the specified alias and columns.
+
+        :param compiler: The compiler to use for generating the SQL query.
+        :param connection: The database connection to use for compiling the query.
+        :returns: The compiled SQL query as a subquery condition.
+
+        """
         query = self.query_object
         query.set_values(self.targets)
         query_compiler = query.get_compiler(connection=connection)

@@ -21,6 +21,11 @@ def csrf(request):
     """
 
     def _get_val():
+        """
+        Gets the authentication token from the current request.
+
+        :returns: The authentication token if available, 'NOTPROVIDED' otherwise.
+        """
         token = get_token(request)
         if token is None:
             # In order to be able to provide debugging info in the
@@ -66,6 +71,17 @@ def i18n(request):
 
 
 def tz(request):
+    """
+
+    Returns a dictionary containing the current time zone name.
+
+    This function provides the name of the time zone currently being used by the application.
+    The returned dictionary contains a single key, 'TIME_ZONE', which maps to the name of the current time zone as a string.
+
+    :returns: A dictionary with the current time zone name
+    :rtype: dict
+
+    """
     from django.utils import timezone
 
     return {"TIME_ZONE": timezone.get_current_timezone_name()}

@@ -29,6 +29,15 @@ class ExistingRelatedInstancesTests(TestCase):
         )
 
     def test_foreign_key(self):
+        """
+
+        Tests the foreign key relationship between Tournament and Pool models.
+        Verifies that a Pool instance is correctly associated with its parent Tournament instance.
+
+        Checks that the number of database queries executed during this operation does not exceed 2.
+        Confirming this relationship ensures data consistency and validates the model's design.
+
+        """
         with self.assertNumQueries(2):
             tournament = Tournament.objects.get(pk=self.t1.pk)
             pool = tournament.pool_set.all()[0]
@@ -43,6 +52,14 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(tournament, pool.tournament)
 
     def test_foreign_key_multiple_prefetch(self):
+        """
+
+        Tests the foreign key relationship between Tournament and Pool instances using multiple prefetches.
+
+        Verifies that when multiple Tournament instances are prefetched with their related Pool instances,
+        the foreign key references are correctly established between the prefetched objects.
+
+        """
         with self.assertNumQueries(2):
             tournaments = list(
                 Tournament.objects.prefetch_related("pool_set").order_by("pk")
@@ -141,6 +158,22 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(pool, style.pool)
 
     def test_reverse_one_to_one_multi_select_related(self):
+        """
+        Tests the reversal of a one-to-one relationship using select_related.
+
+        This test case verifies that related objects can be fetched efficiently
+        using a single database query. It checks that the relationships between
+        Pool instances and their corresponding PoolStyle instances are correctly
+        established.
+
+        Specifically, it tests the bidirectional nature of the one-to-one
+        relationship, ensuring that Pool objects can access their associated
+        PoolStyle object and vice versa.
+
+        The test uses the select_related method to fetch related objects in a
+        single query, and then asserts that the relationships are correctly
+        established for multiple Pool instances. 
+        """
         with self.assertNumQueries(1):
             pools = list(Pool.objects.select_related("poolstyle").order_by("pk"))
             self.assertIs(pools[1], pools[1].poolstyle.pool)

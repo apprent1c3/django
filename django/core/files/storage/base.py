@@ -52,6 +52,18 @@ class Storage:
         return name
 
     def is_name_available(self, name, max_length=None):
+        """
+        Checks if a given name is available for use.
+
+        This method verifies that the name does not already exist and optionally checks that its length does not exceed a specified maximum.
+
+        Args:
+            name (str): The name to be checked.
+            max_length (int, optional): The maximum allowed length of the name. Defaults to None.
+
+        Returns:
+            bool: True if the name is available, False otherwise.
+        """
         exceeds_max_length = max_length and len(name) > max_length
         return not self.exists(name) and not exceeds_max_length
 

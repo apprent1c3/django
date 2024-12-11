@@ -464,6 +464,13 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_is_counterclockwise(self):
+        """
+        Determines whether the LinearRing is oriented counterclockwise.
+
+        The LinearRing orientation is considered counterclockwise if its points are ordered 
+        in a counterclockwise direction around the ring's center. Trying to determine 
+        the orientation of an empty LinearRing raises a ValueError with a descriptive message.
+        """
         lr = LinearRing((0, 0), (1, 0), (0, 1), (0, 0))
         self.assertIs(lr.is_counterclockwise, True)
         lr.reverse()
@@ -638,6 +645,13 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertIn("MULTIPOLYGON (((100", content)
 
     def test_polygon_comparison(self):
+        """
+
+        Tests the comparison of polygons, verifying that polygons with greater areas or larger geometric extent are considered greater than those with smaller areas or extents.
+
+        Compares multiple pairs of polygons with different geometries to ensure the comparison operators behave as expected, handling cases where the polygons have different orientations and vertices.
+
+        """
         p1 = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         p2 = Polygon(((0, 0), (0, 1), (1, 0), (0, 0)))
         self.assertGreater(p1, p2)
@@ -1204,6 +1218,15 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
                     g.__getitem__(0)
 
     def test_collection_dims(self):
+        """
+        Tests that the dimension of a GeometryCollection is correctly determined.
+
+        The dimension of a GeometryCollection is determined by the highest dimension of its constituent geometries. 
+        This test checks that an empty collection has a dimension of -1, 
+        a collection containing only points has a dimension of 0, 
+        a collection containing only lines (and possibly lower-dimensional geometries) has a dimension of 1, 
+        and a collection containing polygons (and possibly lower-dimensional geometries) has a dimension of 2.
+        """
         gc = GeometryCollection([])
         self.assertEqual(gc.dims, -1)
 
@@ -1575,6 +1598,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(GEOSGeometry.from_ewkt("POINT(1 1)"), Point(1, 1))
 
     def test_from_ewkt_empty_string(self):
+        """
+        Tests that creating a GEOSGeometry object from an empty string using EWKT (Extended Well-Known Text) format raises a ValueError with the expected error message. Verifies that both cases where an empty string and a string with only SRID information ('SRID=1;') are provided, result in an error being raised, indicating that a valid WKT string is expected.
+        """
         msg = "Expected WKT but got an empty string."
         with self.assertRaisesMessage(ValueError, msg):
             GEOSGeometry.from_ewkt("")

@@ -155,6 +155,19 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_and_remove_model_options(self):
+        """
+
+        Tests the optimization of model creation operations in Django migrations.
+
+        Specifically, this test checks if creating a model with certain options (e.g. verbose_name) 
+        and then immediately altering those options to remove them results in an optimized migration 
+        where the model is created without those options.
+
+        The test covers cases where a single option and multiple options are removed.
+
+        The expected outcome is a single CreateModel migration with the optimized model options.
+
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(
@@ -1328,6 +1341,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_add_constraint(self):
+        """
+        Tests the optimization of creating a model with a constraint by comparing the individual creation of a model and addition of a constraint to the creation of a model with the constraint pre-defined in its options. This ensures that both methods result in the same database schema, specifically verifying that a check constraint requiring a field value to be greater than zero is properly applied.
+        """
         gt_constraint = models.CheckConstraint(
             condition=models.Q(weight__gt=0), name="pony_weight_gt_0"
         )

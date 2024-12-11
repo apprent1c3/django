@@ -17,6 +17,19 @@ class UnseekableBytesIO(io.BytesIO):
 
 class FileResponseTests(SimpleTestCase):
     def test_content_length_file(self):
+        """
+
+        Checks if the Content-Length header of a FileResponse object is correctly set to the size of the file.
+
+        This test case verifies that when a FileResponse object is created with a file, the Content-Length header
+        in the response is properly calculated and matches the actual size of the file. This ensures that the
+        response accurately reports its size to the client.
+
+        The test uses a local file as input and compares the Content-Length header value with the actual file size
+        obtained using the os.path.getsize function. If the two values match, the test passes, indicating that the
+        Content-Length header is correctly set.
+
+        """
         response = FileResponse(open(__file__, "rb"))
         response.close()
         self.assertEqual(
@@ -28,6 +41,15 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Length"], "14")
 
     def test_content_length_nonzero_starting_position_file(self):
+        """
+        Tests that the Content-Length header is set correctly for a file response
+        when the file is opened at a non-zero starting position.
+
+        Verifies that the Content-Length header reflects the actual amount of data
+        that will be sent, taking into account the starting position of the file.
+        In this case, the file is opened 10 bytes into the file, so the expected
+        Content-Length is the total file size minus the skipped bytes.
+        """
         file = open(__file__, "rb")
         file.seek(10)
         response = FileResponse(file)
@@ -37,6 +59,17 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_length_nonzero_starting_position_buffer(self):
+        """
+        Tests the Content-Length header of a FileResponse when the buffer has a non-zero starting position.
+
+        This test checks that the Content-Length header is correctly calculated when the 
+        buffer's starting position is not at the beginning. The test uses different buffer 
+        classes and verifies that the response's Content-Length header matches the expected 
+        value based on the remaining content in the buffer.
+
+        The test case covers scenarios where the buffer is seekable and unseekable, 
+        ensuring the functionality works as expected in both cases.
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -179,10 +212,24 @@ class FileResponseTests(SimpleTestCase):
                 )
 
     def test_content_disposition_buffer(self):
+        """
+        Tests if a FileResponse object does not include a 'Content-Disposition' header by default when initialized with a BytesIO buffer containing binary content.
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertFalse(response.has_header("Content-Disposition"))
 
     def test_content_disposition_buffer_attachment(self):
+        """
+
+        Test that the Content-Disposition header is correctly set to 'attachment' when
+        serving a file as an attachment.
+
+        This test case verifies that when a file is served with the as_attachment parameter
+        set to True, the server responds with a Content-Disposition header value of
+        'attachment', indicating to the client that the response body should be saved as a
+        file rather than displayed inline.
+
+        """
         response = FileResponse(io.BytesIO(b"binary content"), as_attachment=True)
         self.assertEqual(response.headers["Content-Disposition"], "attachment")
 
@@ -203,10 +250,39 @@ class FileResponseTests(SimpleTestCase):
             )
 
     def test_response_buffer(self):
+        """
+
+        Tests the response buffer functionality of a FileResponse object.
+
+        Verifies that the response buffer correctly yields the contents of a file-like object.
+        The test checks that the response returns the expected binary content as a single chunk.
+
+        """
         response = FileResponse(io.BytesIO(b"binary content"))
         self.assertEqual(list(response), [b"binary content"])
 
     def test_response_nonzero_starting_position(self):
+        """
+        Tests the FileResponse class with a non-zero starting position.
+
+        This test case verifies that the FileResponse class correctly handles file-like
+        objects with non-zero starting positions. It checks that the response contains
+        the expected data, starting from the specified position, for different types
+        of buffer classes.
+
+        The test iterates over various buffer classes, creates a FileResponse instance,
+        and asserts that the response data matches the expected output, demonstrating
+        that the FileResponse class can handle non-zero starting positions as expected.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the response data does not match the expected output.
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -232,6 +308,19 @@ class FileResponseTests(SimpleTestCase):
 
     @skipIf(sys.platform == "win32", "Named pipes are Unix-only.")
     def test_file_from_named_pipe_response(self):
+        """
+        \".. function:: test_file_from_named_pipe_response
+
+           Tests the handling of a FileResponse object created from a named pipe.
+
+           This test case verifies that the FileResponse object can correctly read binary data
+           from a named pipe and that the response does not include a 'Content-Length' header.
+
+           The test creates a temporary named pipe, writes binary content to it, and then uses
+           the FileResponse object to read the content from the pipe. The test then asserts that
+           the read content matches the written content and that the 'Content-Length' header is
+           not present in the response.\"
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             pipe_file = os.path.join(temp_dir, "named_pipe")
             os.mkfifo(pipe_file)
@@ -266,6 +355,16 @@ class FileResponseTests(SimpleTestCase):
                 self.assertFalse(response.has_header("Content-Encoding"))
 
     def test_unicode_attachment(self):
+        """
+
+        Tests the handling of Unicode filenames in attachments.
+
+        Verifies that a FileResponse with a Unicode filename is served correctly,
+        including the Content-Type and Content-Disposition headers. Specifically,
+        it checks that the Content-Disposition header is formatted according to
+        RFC 6266, with the filename encoded using UTF-8.
+
+        """
         response = FileResponse(
             ContentFile(b"binary content", name="祝您平安.odt"),
             as_attachment=True,

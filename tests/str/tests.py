@@ -9,6 +9,20 @@ from .models import InternationalArticle
 
 class SimpleTests(TestCase):
     def test_international(self):
+        """
+        Tests the string representation of an InternationalArticle instance.
+
+        Verifies that the string representation of an InternationalArticle object is 
+        equal to its headline attribute, handling international characters correctly.
+
+        Checks if the __str__ method of the InternationalArticle class returns the 
+        expected string, which is the headline of the article, for an article with 
+        international characters in its headline.
+
+        The test case creates an InternationalArticle instance with a headline 
+        containing the Euro symbol (€) and checks that its string representation 
+        matches the headline, ensuring correct handling of international characters.
+        """
         a = InternationalArticle.objects.create(
             headline="Girl wins €12.500 in lottery",
             pub_date=datetime.datetime(2005, 7, 28),

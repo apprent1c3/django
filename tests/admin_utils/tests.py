@@ -152,6 +152,18 @@ class UtilsTests(SimpleTestCase):
             self.assertEqual(value, resolved_value)
 
     def test_empty_value_display_for_field(self):
+        """
+
+        Tests that the display_for_field function correctly handles empty values for various model fields.
+
+        This test checks that when an empty value is passed to the display_for_field function, 
+        it returns the expected empty value, rather than attempting to display the empty value itself.
+        The test covers a range of model fields, including character, date, decimal, float, JSON, and time fields.
+
+        The test iterates over each model field type and its corresponding empty values, 
+        verifying that the display_for_field function behaves as expected for each combination.
+
+        """
         tests = [
             models.CharField(),
             models.DateField(),

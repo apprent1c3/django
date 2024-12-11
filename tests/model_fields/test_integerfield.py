@@ -22,6 +22,17 @@ class IntegerFieldTests(TestCase):
 
     @property
     def backend_range(self):
+        """
+
+        Returns the range of allowed values for the 'value' field of the model.
+
+        The range is determined by the internal database type of the 'value' field, 
+        which is used to query the database's allowed range for that type. This 
+        information can be useful for validating or constraining input data.
+
+        :rtype: tuple
+
+        """
         field = self.model._meta.get_field("value")
         internal_type = field.get_internal_type()
         return connection.ops.integer_field_range(internal_type)
@@ -97,6 +108,17 @@ class IntegerFieldTests(TestCase):
             instance.full_clean()
 
     def test_backend_range_min_value_lookups(self):
+        """
+        Tests whether a database backend enforces the minimum value constraint for a model field, specifically in terms of lookup queries.
+
+        This function checks that the backend correctly handles lookups involving values less than the defined minimum value. It creates an object with the minimum allowed value, then performs various lookups to ensure the expected behavior:
+
+        * Lookup by value less than the minimum raises a DoesNotExist exception without issuing a database query.
+        * Lookup by greater-than and greater-than-or-equal-to the value just below the minimum should find the object in the database and only require a single database query.
+        * Lookup by less-than and less-than-or-equal-to the value just below the minimum raises a DoesNotExist exception without issuing a database query.
+
+        The goal is to validate that the backend enforces the minimum value constraint in a way that optimizes database queries and avoids unnecessary lookups. If the backend does not support an integer minimum value, the test is skipped.
+        """
         min_value = self.backend_range[0]
         if min_value is None:
             raise SkipTest("Backend doesn't define an integer min value.")
@@ -117,6 +139,14 @@ class IntegerFieldTests(TestCase):
             self.model.objects.get(value__lte=underflow_value)
 
     def test_backend_range_max_value_lookups(self):
+        """
+
+        Tests the range maximum value lookup on the backend.
+
+        This test case verifies that lookups beyond the maximum defined value for the backend's integer range are properly handled.
+        It checks that queries for values greater than the maximum value return no results, while queries for values less than or equal to the maximum value return the expected results.
+
+        """
         max_value = self.backend_range[-1]
         if max_value is None:
             raise SkipTest("Backend doesn't define an integer max value.")
@@ -179,6 +209,14 @@ class IntegerFieldTests(TestCase):
                         ranged_value_field.run_validators(max_backend_value + 1)
 
     def test_types(self):
+        """
+        Tests the data type consistency of the model's 'value' attribute.
+
+        Verifies that the 'value' attribute is maintained as an integer throughout 
+        the model's lifecycle, including after instantiation, saving, and retrieval 
+        from the database. Ensures that the data type remains consistent to prevent 
+        potential type-related errors or inconsistencies in the application.
+        """
         instance = self.model(value=1)
         self.assertIsInstance(instance.value, int)
         instance.save()
@@ -192,6 +230,15 @@ class IntegerFieldTests(TestCase):
         self.assertEqual(instance.value, 10)
 
     def test_invalid_value(self):
+        """
+
+        Tests the creation of model objects with invalid 'value' field values.
+
+        Verifies that attempting to create a model object with a non-numeric 'value' 
+        field raises the expected exception with a descriptive error message. 
+        The tested invalid values include various non-numeric types and a non-numeric string.
+
+        """
         tests = [
             (TypeError, ()),
             (TypeError, []),
@@ -267,10 +314,26 @@ class ValidationTests(SimpleTestCase):
         A = 1
 
     def test_integerfield_cleans_valid_string(self):
+        """
+
+        Checks that the IntegerField properly cleans a valid string input.
+
+        Tests that a string representation of an integer is correctly converted to its integer equivalent.
+
+        """
         f = models.IntegerField()
         self.assertEqual(f.clean("2", None), 2)
 
     def test_integerfield_raises_error_on_invalid_intput(self):
+        """
+        Tests that the IntegerField raises a ValidationError when provided with invalid input.
+
+        The test verifies that attempting to clean a non-integer value with the IntegerField
+        results in a ValidationError being raised, ensuring data integrity and validation
+        for integer fields in models.
+
+        :raises ValidationError: If the input cannot be converted to an integer
+        """
         f = models.IntegerField()
         with self.assertRaises(ValidationError):
             f.clean("a", None)
@@ -280,23 +343,72 @@ class ValidationTests(SimpleTestCase):
         self.assertEqual(10, f.clean(10, None))
 
     def test_choices_validation_supports_named_groups_dicts(self):
+        """
+        Tests the validation of IntegerField's choices when using a mix of named groups and single choice dictionaries.
+
+        This test case checks that the clean method correctly handles a list of choices that includes both a named group (defined as a dictionary) and standalone choices (defined as key-value pairs).
+        The function verifies that when a valid choice from the named group is provided, it is successfully cleaned and returned by the clean method.
+        """
         f = models.IntegerField(choices={"group": ((10, "A"), (20, "B")), 30: "C"})
         self.assertEqual(10, f.clean(10, None))
 
     def test_choices_validation_supports_named_groups_nested_dicts(self):
+        """
+        Tests that the choices validation supports named groups and nested dictionaries.
+
+        This test case ensures that the validation of choices for an IntegerField 
+        works correctly when the choices are defined as a nested dictionary, 
+        allowing for named groups within the choices. The test verifies that 
+        the field's clean method correctly returns the value when a valid choice 
+        is provided, even when the choice is part of a named group.
+
+        The validation checks that the IntegerField correctly handles the nested 
+        structure of the choices and validates the input value accordingly, 
+        allowing for more complex and organized choice definitions.
+
+        In this case, the test uses a dictionary with both a named group 'group' 
+        containing choices and a standalone choice, and checks that the field 
+        correctly validates and returns the value for a choice within the named group.
+        """
         f = models.IntegerField(choices={"group": {10: "A", 20: "B"}, 30: "C"})
         self.assertEqual(10, f.clean(10, None))
 
     def test_nullable_integerfield_raises_error_with_blank_false(self):
+        """
+        Tests that an IntegerField with null=True and blank=False raises a ValidationError when cleaned with a value of None.
+
+        This test case verifies the expected behavior of the IntegerField when its null parameter is set to True, indicating that the field can store a null value in the database, but its blank parameter is set to False, indicating that the field cannot be left blank in a form. The test checks that attempting to clean the field with a value of None results in a ValidationError being raised, as expected when blank=False.
+        """
         f = models.IntegerField(null=True, blank=False)
         with self.assertRaises(ValidationError):
             f.clean(None, None)
 
     def test_nullable_integerfield_cleans_none_on_null_and_blank_true(self):
+        """
+
+        Tests that an IntegerField with null and blank set to True correctly cleans None values.
+
+        The test verifies that when a null value is passed to the IntegerField, it is cleaned and
+        returned as None, without raising any errors. This is to ensure that the field handles
+        null and blank values as expected, allowing for optional integer inputs in the model.
+
+        """
         f = models.IntegerField(null=True, blank=True)
         self.assertIsNone(f.clean(None, None))
 
     def test_integerfield_raises_error_on_empty_input(self):
+        """
+        Tests that the IntegerField raises a ValidationError when given empty input.
+
+        This test checks the behavior of IntegerField when null is set to False. It verifies
+        that attempting to clean an IntegerField with either None or an empty string as input
+        results in a ValidationError being raised, as these are both considered invalid inputs
+        for a non-nullable IntegerField.
+
+        Raises:
+            ValidationError: When attempting to clean the IntegerField with empty input.
+
+        """
         f = models.IntegerField(null=False)
         with self.assertRaises(ValidationError):
             f.clean(None, None)
@@ -304,6 +416,9 @@ class ValidationTests(SimpleTestCase):
             f.clean("", None)
 
     def test_integerfield_validates_zero_against_choices(self):
+        """
+        Tests that an IntegerField with choices validates against the specified options, specifically checking that a value of zero is correctly identified as invalid when it is not among the provided choices.
+        """
         f = models.IntegerField(choices=((1, 1),))
         with self.assertRaises(ValidationError):
             f.clean("0", None)
@@ -320,6 +435,17 @@ class ValidationTests(SimpleTestCase):
             f.clean("3", None)
 
     def test_callable_choices(self):
+        """
+
+        Tests that the clean method of an IntegerField correctly validates and retrieves choices 
+        when the choices are dynamically generated by a callable.
+
+        Verifies that choices returned by the callable are accepted, while invalid choices 
+        (including strings and integers outside the range of generated choices) 
+        raise a ValidationError. This ensures the field behaves as expected in various scenarios, 
+        enforcing the integrity of the data it handles.
+
+        """
         def get_choices():
             return {i: str(i) for i in range(3)}
 
