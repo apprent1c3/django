@@ -189,6 +189,9 @@ class BaseSpatialField(Field):
                 )
 
     def get_prep_value(self, value):
+        """
+
+        """
         obj = super().get_prep_value(value)
         if obj is None:
             return None
@@ -278,6 +281,15 @@ class GeometryField(BaseSpatialField):
         super().__init__(verbose_name=verbose_name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, including its name, path, arguments, and keyword arguments.
+
+        The deconstruction process considers the object's dimensionality, geographic settings, and spatial extent. If the object's dimensionality is not two-dimensional, its dimension is included in the keyword arguments. Similarly, if geographic settings are enabled or customized, they are also included.
+
+        The object's spatial extent and tolerance are also considered during deconstruction. If these values differ from their default settings, they are added to the keyword arguments.
+
+        The deconstructed parts can be used to recreate the object or to serialize its state for later use. The returned tuple contains the object's name, path, positional arguments, and keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
         if self.dim != 2:

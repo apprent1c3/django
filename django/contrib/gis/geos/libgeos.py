@@ -21,6 +21,17 @@ logger = logging.getLogger("django.contrib.gis")
 
 def load_geos():
     # Custom library path set?
+    """
+    Load the GEOS (Geometry Engine - Open Source) library and initialize it for use.
+
+    This function attempts to load the GEOS library from the path specified in the Django settings or falls back to searching for it in the system's library paths. 
+
+    If the library is found, it is loaded and prepared for use by setting the return and argument types of key functions. 
+
+    If the library cannot be found, an ImportError is raised with a message suggesting how to resolve the issue.
+
+    The loaded and initialized GEOS library is then returned for further use.
+    """
     try:
         from django.conf import settings
 

@@ -7,6 +7,9 @@ from .models import Organiser, Pool, PoolStyle, Tournament
 class ExistingRelatedInstancesTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.t1 = Tournament.objects.create(name="Tourney 1")
         cls.t2 = Tournament.objects.create(name="Tourney 2")
         cls.o1 = Organiser.objects.create(name="Organiser 1")
@@ -70,6 +73,9 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(first.organiser, organiser)
 
     def test_queryset_or_only_one_with_precache(self):
+        """
+
+        """
         tournament_1 = self.t1
         tournament_2 = self.t2
         # 2 queries here as pool 3 has tournament 2, which is not cached

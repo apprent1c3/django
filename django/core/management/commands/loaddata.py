@@ -90,6 +90,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+
+        """
         self.ignore = options["ignore"]
         self.using = options["database"]
         self.app_label = options["app_label"]
@@ -138,6 +141,9 @@ class Command(BaseCommand):
                     cursor.execute(line)
 
     def loaddata(self, fixture_labels):
+        """
+
+        """
         connection = connections[self.using]
 
         # Keep a count of the installed objects and fixtures

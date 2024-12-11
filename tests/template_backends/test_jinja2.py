@@ -48,6 +48,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(content, "hello world!")
 
     def test_exception_debug_info_min_context(self):
+        """
+
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error.html")
         debug = e.exception.template_debug
@@ -63,6 +66,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_exception_debug_info_max_context(self):
+        """
+
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error2.html")
         debug = e.exception.template_debug
@@ -99,6 +105,10 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(template.render({"name": "Joe"}), "Hello Joe!")
 
     def test_template_render_nested_error(self):
+        """
+        Tests rendering of a template with nested syntax errors, verifying that the error is correctly identified and reported.
+        The test checks that a TemplateSyntaxError is raised when rendering the template, and that the error's debug information is accurate, including the line and position of the error, as well as the source lines and error message.
+        """
         template = self.engine.get_template(
             "template_backends/syntax_error_include.html"
         )
@@ -117,6 +127,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_template_render_error_nonexistent_source(self):
+        """
+
+        """
         template = self.engine.get_template("template_backends/hello.html")
         with mock.patch(
             "jinja2.environment.Template.render",

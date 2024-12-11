@@ -19,6 +19,15 @@ class ManyToManyTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a couple of Publications.
+        """
+        Set up test data for the application, creating a set of publications and articles 
+        with predefined headlines and publication associations. This method is used to 
+        establish a baseline dataset for testing purposes, providing a set of known 
+        publications and articles that can be used to verify the functionality of the 
+        application. The created test data includes multiple publications and articles, 
+        with varying numbers of publication associations, allowing for comprehensive 
+        testing of the application's data models and relationships.
+        """
         cls.p1 = Publication.objects.create(title="The Python Journal")
         cls.p2 = Publication.objects.create(title="Science News")
         cls.p3 = Publication.objects.create(title="Science Weekly")
@@ -40,6 +49,9 @@ class ManyToManyTests(TestCase):
 
     def test_add(self):
         # Create an Article.
+        """
+
+        """
         a5 = Article(headline="Django lets you create web apps easily")
         # You can't associate it with a Publication until it's been saved.
         msg = (
@@ -102,6 +114,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(a5.authors.all(), [])
 
     def test_related_manager_refresh(self):
+        """
+
+        """
         user_1 = User.objects.create(username="Jean")
         user_2 = User.objects.create(username="Joe")
         self.a3.authors.add(user_1.username)
@@ -205,6 +220,9 @@ class ManyToManyTests(TestCase):
 
     def test_selects(self):
         # We can perform kwarg queries across m2m relationships
+        """
+
+        """
         self.assertSequenceEqual(
             Article.objects.filter(publications__id__exact=self.p1.id),
             [self.a1, self.a2],
@@ -267,6 +285,24 @@ class ManyToManyTests(TestCase):
     def test_reverse_selects(self):
         # Reverse m2m queries are supported (i.e., starting at the table that
         # doesn't have a ManyToManyField).
+        """
+        Tests the functionality of reverse lookups in Django ORM filters.
+
+        This function checks the correct behavior of filtering publications by 
+        article or article ID, using various methods such as pk, id, 
+        startswith, and in operators. It verifies that the filter queries 
+        return the expected set of publications.
+
+        The tested cases include:
+        - Filtering by publication ID
+        - Filtering by article ID
+        - Filtering by article instance
+        - Filtering by a list of article IDs or instances
+
+        The purpose of this test is to ensure the correctness of reverse 
+        lookups in Django ORM, which is essential for querying related 
+        models in a database.
+        """
         python_journal = [self.p1]
         self.assertSequenceEqual(
             Publication.objects.filter(id__exact=self.p1.id), python_journal
@@ -367,6 +403,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(self.a3.publications.all(), [])
 
     def test_set(self):
+        """
+
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -432,6 +471,9 @@ class ManyToManyTests(TestCase):
 
     def test_assign(self):
         # Relation sets can be assigned using set().
+        """
+
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),

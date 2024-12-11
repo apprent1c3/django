@@ -71,6 +71,14 @@ class CsrfTokenNode(Node):
     child_nodelists = ()
 
     def render(self, context):
+        """
+        Renders a CSRF token input field based on the provided context.
+
+        This function checks if a CSRF token is available in the context. If a token is found, it returns a hidden input field with the token value. If the token is set to 'NOTPROVIDED', an empty string is returned. If no token is available in the context and the application is running in debug mode, a warning is raised to indicate a potential configuration issue.
+
+        :param context: The template context containing the CSRF token.
+        :return: A string representing the rendered CSRF token input field or an empty string if no token is available or set to 'NOTPROVIDED'.
+        """
         csrf_token = context.get("csrf_token")
         if csrf_token:
             if csrf_token == "NOTPROVIDED":
@@ -148,6 +156,9 @@ class FirstOfNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+
+        """
         first = ""
         for var in self.vars:
             value = var.resolve(context, ignore_failures=True)
@@ -186,6 +197,9 @@ class ForNode(Node):
         )
 
     def render(self, context):
+        """
+
+        """
         if "forloop" in context:
             parentloop = context["forloop"]
         else:
@@ -260,6 +274,9 @@ class IfChangedNode(Node):
 
     def render(self, context):
         # Init state storage
+        """
+
+        """
         state_frame = self._get_context_stack_frame(context)
         state_frame.setdefault(self)
 
@@ -314,6 +331,9 @@ class IfNode(Node):
         return NodeList(self)
 
     def render(self, context):
+        """
+
+        """
         for condition, nodelist in self.conditions_nodelists:
             if condition is not None:  # if / elif clause
                 try:
@@ -336,6 +356,36 @@ class LoremNode(Node):
         self.common = common
 
     def render(self, context):
+        """
+
+        Render text content based on the specified method and count.
+
+        This function generates random text content, either paragraphs or individual words,
+        depending on the chosen method. The amount of content is determined by the provided count.
+
+        The method can be either 'w' for words or 'p' for paragraphs. If 'w' is chosen, the function
+        returns a list of random words. If 'p' is chosen, the function returns a list of paragraphs,
+        each wrapped in HTML paragraph tags. If an invalid method is provided, the function defaults
+        to returning paragraphs.
+
+        The count parameter determines the number of words or paragraphs to generate. If the count
+        cannot be resolved to an integer, it defaults to 1.
+
+        Parameters
+        ----------
+        context : object
+            The context in which to resolve the count.
+        method : str
+            The method to use for rendering, either 'w' or 'p'.
+        count : int
+            The number of words or paragraphs to generate.
+
+        Returns
+        -------
+        str
+            The rendered text content.
+
+        """
         try:
             count = int(self.count.resolve(context))
         except (ValueError, TypeError):
@@ -461,6 +511,23 @@ class URLNode(Node):
         )
 
     def render(self, context):
+        """
+
+        Render a URL by reversing a view name with given arguments and keyword arguments.
+
+        Receives a context and uses it to resolve the view name and any positional or keyword arguments.
+        The resolved URL is then returned, or stored in a variable in the context if specified.
+
+        The function also takes into account the current application namespace when reversing the URL,
+        to handle cases where the same view name is used in multiple applications.
+
+        If a variable name is provided, the rendered URL is stored in the context under that name and
+        an empty string is returned. Otherwise, the rendered URL is returned directly.
+
+        Raises a NoReverseMatch exception if the view name cannot be reversed, unless storing the URL
+        in a variable, in which case the exception is caught and an empty string is returned.
+
+        """
         from django.urls import NoReverseMatch, reverse
 
         args = [arg.resolve(context) for arg in self.args]
@@ -507,6 +574,32 @@ class WidthRatioNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+
+        Render a width ratio based on provided values and context.
+
+        This function calculates the ratio of a given value to a maximum value and
+        returns a string representation of the corresponding width.
+
+        The calculation is performed using the following formula:
+        value / max_value * max_width
+
+        The result is rounded to the nearest integer and returned as a string.
+
+        If the calculation results in a division by zero, the function returns '0'.
+
+        In the case of invalid input values, the function raises a TemplateSyntaxError
+        or returns an empty string.
+
+        If the `asvar` attribute is set, the result is stored in the context variable
+        specified by `asvar` and an empty string is returned. Otherwise, the result
+        is returned directly.
+
+        :param context: The template context used to resolve the values.
+        :raises TemplateSyntaxError: If the width ratio final argument is not a number.
+        :return: A string representation of the calculated width ratio or an empty string.
+
+        """
         try:
             value = self.val_expr.resolve(context)
             max_value = self.max_expr.resolve(context)

@@ -51,6 +51,9 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertEqual(get_password_validators([]), [])
 
     def test_validate_password(self):
+        """
+
+        """
         self.assertIsNone(validate_password("sufficiently-long"))
         msg_too_short = (
             "This password is too short. It must contain at least 12 characters."
@@ -74,6 +77,9 @@ class PasswordValidationTest(SimpleTestCase):
         self.assertIsNone(password_changed("password"))
 
     def test_password_changed_with_custom_validator(self):
+        """
+
+        """
         class Validator:
             def password_changed(self, password, user):
                 self.password = password
@@ -114,6 +120,9 @@ class PasswordValidationTest(SimpleTestCase):
 
 class MinimumLengthValidatorTest(SimpleTestCase):
     def test_validate(self):
+        """
+
+        """
         expected_error = (
             "This password is too short. It must contain at least %d characters."
         )
@@ -138,6 +147,26 @@ class MinimumLengthValidatorTest(SimpleTestCase):
 
 class UserAttributeSimilarityValidatorTest(TestCase):
     def test_validate(self):
+        """
+        Tests the validation of passwords against similarity to user attributes.
+
+        This test case covers scenarios where a password is too similar to the user's
+        username, email address, first name, or other specified attributes. It also checks
+        that an error is raised when the maximum similarity threshold is set too low.
+
+        Validates that a :class:`UserAttributeSimilarityValidator` correctly identifies
+        passwords that are too similar to user attributes and raises a
+        :exc:`ValidationError` with an appropriate error message.
+
+        Additionally, it checks that the `max_similarity` parameter is validated
+        correctly and that a :exc:`ValueError` is raised if it is set below the minimum
+        allowed value.
+
+        The test ensures that the `UserAttributeSimilarityValidator` works as expected
+        with different user attributes and similarity thresholds, providing a robust
+        password validation mechanism.
+
+        """
         user = User.objects.create_user(
             username="testclient",
             password="password",
@@ -258,6 +287,9 @@ class NumericPasswordValidatorTest(SimpleTestCase):
 
 class UsernameValidatorsTests(SimpleTestCase):
     def test_unicode_validator(self):
+        """
+
+        """
         valid_usernames = ["joe", "René", "ᴮᴵᴳᴮᴵᴿᴰ", "أحمد"]
         invalid_usernames = [
             "o'connell",
@@ -277,6 +309,9 @@ class UsernameValidatorsTests(SimpleTestCase):
                     v(invalid)
 
     def test_ascii_validator(self):
+        """
+
+        """
         valid_usernames = ["glenn", "GLEnN", "jean-marc"]
         invalid_usernames = [
             "o'connell",

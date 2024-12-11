@@ -416,6 +416,9 @@ class BrokenLinkEmailsMiddlewareTest(SimpleTestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_custom_request_checker(self):
+        """
+
+        """
         class SubclassedMiddleware(BrokenLinkEmailsMiddleware):
             ignored_user_agent_patterns = (
                 re.compile(r"Spider.*"),
@@ -646,6 +649,9 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         """
 
         def get_response(req):
+            """
+
+            """
             resp = self.client.get(req.path_info)
             resp["Date"] = "Sat, 12 Feb 2011 17:35:44 GMT"
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"

@@ -151,6 +151,9 @@ class FileFieldTests(TestCase):
                     )
 
     def test_pickle(self):
+        """
+
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(MEDIA_ROOT=Path(tmp_dir)):
                 with open(__file__, "rb") as fp:

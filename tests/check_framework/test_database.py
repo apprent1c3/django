@@ -18,6 +18,9 @@ class DatabaseCheckTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "mysql", "Test only for MySQL")
     def test_mysql_strict_mode(self):
+        """
+
+        """
         def _clean_sql_mode():
             for alias in self.databases:
                 if hasattr(connections[alias], "sql_mode"):

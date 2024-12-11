@@ -5,6 +5,9 @@ from django.test import SimpleTestCase
 
 class MultipleChoiceFieldTest(SimpleTestCase):
     def test_multiplechoicefield_1(self):
+        """
+
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")])
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -26,6 +29,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_2(self):
+        """
+
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")], required=False)
         self.assertEqual([], f.clean(""))
         self.assertEqual([], f.clean(None))
@@ -43,6 +49,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_3(self):
+        """
+
+        """
         f = MultipleChoiceField(
             choices=[
                 ("Numbers", (("1", "One"), ("2", "Two"))),

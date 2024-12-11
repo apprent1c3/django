@@ -227,6 +227,9 @@ class ModelInheritanceTests(TestCase):
                     self.assertIn("INSERT INTO", sql, sql)
 
     def test_create_copy_with_inherited_m2m(self):
+        """
+
+        """
         restaurant = Restaurant.objects.create()
         supplier = CustomSupplier.objects.create(
             name="Central market", address="944 W. Fullerton"
@@ -253,6 +256,9 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_abstract_parent_link(self):
+        """
+
+        """
         class A(models.Model):
             pass
 
@@ -269,6 +275,18 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_init_subclass(self):
+        """
+        Tests the initialization of a subclass with keyword arguments.
+
+        This test verifies that when a model subclass is created with keyword arguments,
+        these arguments are properly passed to the :meth:`__init_subclass__` method of its parent class.
+
+        The test checks that the keyword arguments passed during subclass creation are saved
+        and can be accessed later, ensuring that the :meth:`__init_subclass__` method is called correctly.
+
+        In this test case, a subclass `B` is created from a parent class `A` with keyword arguments `x`, `y`, and `z`.
+        The test then asserts that these keyword arguments are correctly passed to the :meth:`__init_subclass__` method of `A` and saved for later access.
+        """
         saved_kwargs = {}
 
         class A(models.Model):
@@ -285,6 +303,18 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_set_name(self):
+        """
+        Tests the behavior of the __set_name__ method in a class attribute.
+
+         This function verifies that when a class attribute is defined with the __set_name__ method, 
+         it is correctly called with the owner class and attribute name when the attribute is set.
+
+         The test case creates a class attribute with a __set_name__ method and assigns it to a model class. 
+         It then checks that the __set_name__ method was called with the correct owner class and attribute name.
+
+         This ensures that the class attribute is properly initialized and that the __set_name__ method 
+         is functioning as expected in the context of model inheritance.
+        """
         class ClassAttr:
             called = None
 
@@ -444,6 +474,21 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_related_objects_for_inherited_models(self):
         # Related objects work just as they normally do.
+        """
+        Tests that related objects are correctly associated for inherited models.
+
+        This test case verifies that relationships between suppliers, customers, and their respective inherited models (e.g. restaurants) are properly established and can be queried.
+
+        Specifically, it checks that:
+
+        * A supplier can be associated with multiple customers (restaurants)
+        * A customer (restaurant) can have multiple suppliers
+        * The correct suppliers are returned for a given customer (restaurant)
+        * The correct customers (restaurants) are returned for a given supplier
+        * Inherited models (e.g. ItalianRestaurant) can also be used to filter relationships
+
+        The test also covers edge cases, such as attempting to access a non-existent relationship (e.g. a Place object with no associated Restaurant).
+        """
         s1 = Supplier.objects.create(name="Joe's Chickens", address="123 Sesame St")
         s1.customers.set([self.restaurant, self.italian_restaurant])
         s2 = Supplier.objects.create(name="Luigi's Pasta", address="456 Sesame St")
@@ -538,6 +583,9 @@ class ModelInheritanceDataTests(TestCase):
         self.assertEqual(qs[1].italianrestaurant.rating, 4)
 
     def test_parent_cache_reuse(self):
+        """
+
+        """
         place = Place.objects.create()
         GrandChild.objects.create(place=place)
         grand_parent = GrandParent.objects.latest("pk")
@@ -608,6 +656,16 @@ class ModelInheritanceDataTests(TestCase):
 @isolate_apps("model_inheritance", "model_inheritance.tests")
 class InheritanceSameModelNameTests(SimpleTestCase):
     def test_abstract_fk_related_name(self):
+        """
+
+        Test the handling of an abstract model's related name for a foreign key.
+
+        Verifies the resolution of the related name for a foreign key field defined
+        in an abstract model. Checks that the related name is not directly set on the
+        referenced model, but instead generates the correct field names based on the
+        concrete models inheriting from the abstract model.
+
+        """
         related_name = "%(app_label)s_%(class)s_references"
 
         class Referenced(models.Model):

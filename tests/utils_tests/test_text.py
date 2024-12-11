@@ -58,6 +58,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(list(text.smart_split(test)), expected)
 
     def test_truncate_chars(self):
+        """
+
+        """
         truncator = text.Truncator("The quick brown fox jumped over the lazy dog.")
         self.assertEqual(
             "The quick brown fox jumped over the lazy dog.", truncator.chars(100)
@@ -96,6 +99,23 @@ class TestUtilsText(SimpleTestCase):
         )
 
     def test_truncate_chars_html(self):
+        """
+        Tests the truncation of HTML strings to a specified number of characters.
+
+        This test verifies that the truncation function correctly truncates HTML strings
+        while preserving HTML structure and providing an ellipsis when the string is
+        truncated. It checks various scenarios, including:
+
+        * Truncation to different lengths, both above and below the original string length
+        * Preservation of HTML tags and structure
+        * Replacement of original text with an ellipsis when truncated
+        * Handling of edge cases, such as truncation to zero or a negative length
+        * Ability to specify a custom truncation string
+
+        The test covers both cases where the original string is shorter than the
+        truncation length and where it is longer, ensuring that the truncation function
+        works correctly in all scenarios.
+        """
         truncator = text.Truncator(
             '<p id="par"><strong><em>The quick brown fox jumped over the lazy dog.</em>'
             "</strong></p>"
@@ -218,6 +238,21 @@ class TestUtilsText(SimpleTestCase):
         self.assertEqual("", truncator.words(-1))
 
     def test_truncate_html_words(self):
+        """
+
+        Tests the truncation of HTML content to a specified number of words.
+
+        This test suite covers a variety of scenarios, including:
+        - Truncating HTML content with different types of tags (e.g., strong, em, a)
+        - Truncating HTML content with different types of characters (e.g., whitespace, tabs)
+        - Truncating HTML content with different types of entities (e.g., &lt;, &gt;, &#x00bf;)
+        - Truncating HTML content with varying levels of nesting
+        - Edge cases, such as truncating to zero words or using a custom truncation string
+
+        Verifies that the truncation occurs correctly, preserving the original HTML structure
+        and content whenever possible.
+
+        """
         truncator = text.Truncator(
             '<p id="par"><strong><em>The quick brown fox jumped over the lazy dog.</em>'
             "</strong></p>"
@@ -338,6 +373,9 @@ class TestUtilsText(SimpleTestCase):
                 self.assertEqual(expected, truncator.words(50, html=True))
 
     def test_wrap(self):
+        """
+
+        """
         digits = "1234 67 9"
         self.assertEqual(text.wrap(digits, 100), "1234 67 9")
         self.assertEqual(text.wrap(digits, 9), "1234 67 9")
@@ -439,6 +477,9 @@ class TestUtilsText(SimpleTestCase):
         self.assertLess(compressed_length, actual_length)
 
     def test_format_lazy(self):
+        """
+
+        """
         self.assertEqual("django/test", format_lazy("{}/{}", "django", lazystr("test")))
         self.assertEqual("django/test", format_lazy("{0}/{1}", *("django", "test")))
         self.assertEqual(

@@ -13,6 +13,9 @@ from .models import (
 class MultiTableTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.alice = Person.objects.create(name="Alice")
         cls.bob = Person.objects.create(name="Bob")
         cls.chris = Person.objects.create(name="Chris")

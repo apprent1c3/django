@@ -293,6 +293,9 @@ class SessionBase:
         return delta.days * 86400 + delta.seconds
 
     async def aget_expiry_age(self, **kwargs):
+        """
+
+        """
         try:
             modification = kwargs["modification"]
         except KeyError:
@@ -335,6 +338,21 @@ class SessionBase:
         return modification + timedelta(seconds=expiry)
 
     async def aget_expiry_date(self, **kwargs):
+        """
+        Fetch the expiry date for a session.
+
+        This method calculates the expiry date based on the provided modification time and expiry duration.
+        If no modification time is provided, it defaults to the current time.
+        The expiry duration can be specified explicitly, or it will be retrieved from the session data if available.
+        If the expiry duration is not specified or not found in the session data, it will be set to the session cookie age.
+
+        The expiry duration can be provided as a string in ISO format, a datetime object, or as a number of seconds.
+        If the expiry duration is provided as a string, it will be parsed into a datetime object.
+        If the expiry duration is provided as a number of seconds, it will be added to the modification time to calculate the expiry date.
+
+        :return: The calculated expiry date as a datetime object.
+        :rtype: datetime
+        """
         try:
             modification = kwargs["modification"]
         except KeyError:
@@ -380,6 +398,13 @@ class SessionBase:
         self["_session_expiry"] = value
 
     async def aset_expiry(self, value):
+        """
+        Sets the expiry date for a session.
+
+        :param value: The expiry date to be set. It can be a timedelta object, which will be added to the current time, a datetime object, or None to clear the expiry date.
+        :rtype: None
+        :note: If value is None, any existing expiry date will be removed. If value is a datetime object, it will be converted to ISO format before being stored.
+        """
         if value is None:
             # Remove any custom expiration for this session.
             try:

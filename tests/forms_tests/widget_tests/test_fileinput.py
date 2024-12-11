@@ -57,6 +57,21 @@ class FileInputTest(WidgetTest):
             FileInput(attrs={"multiple": True})
 
     def test_value_from_datadict_multiple(self):
+        """
+        Tests the `value_from_datadict` method of a file input widget when handling multiple files.
+
+        This test case verifies that the method correctly retrieves the uploaded files from the data dictionary,
+        supporting both single and multiple file uploads. The test checks that when the `allow_multiple_selected` 
+        attribute is set to True, the method returns a list of all uploaded files. Conversely, when this attribute 
+        is False, the method returns only the last uploaded file. 
+
+        The test uses a `MultipleFileInput` widget with `allow_multiple_selected` set to True and a standard 
+        `FileInput` widget to cover both scenarios. 
+
+        :param None
+        :raises AssertionError: if the returned value does not match the expected output
+        :return: None
+        """
         class MultipleFileInput(FileInput):
             allow_multiple_selected = True
 

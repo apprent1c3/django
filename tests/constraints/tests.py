@@ -120,6 +120,17 @@ class BaseConstraintTests(SimpleTestCase):
 
 class CheckConstraintTests(TestCase):
     def test_eq(self):
+        """
+        .\"\"\"
+        Checks the equality of CheckConstraint instances.
+
+        This function verifies that CheckConstraint instances are considered equal when they have the same condition and name. 
+        It also checks that instances with different conditions, names, violation error messages, or violation error codes are considered unequal.
+
+        The equality checks include comparisons with other CheckConstraint instances, as well as with unrelated objects (e.g., integers) and mock objects. 
+        This ensures that the equality checks behave as expected in various scenarios.
+
+        """
         check1 = models.Q(price__gt=models.F("discounted_price"))
         check2 = models.Q(price__lt=models.F("discounted_price"))
         self.assertEqual(
@@ -258,6 +269,9 @@ class CheckConstraintTests(TestCase):
         self.assertIn("constraints_childmodel_adult", constraints)
 
     def test_validate(self):
+        """
+
+        """
         check = models.Q(price__gt=models.F("discounted_price"))
         constraint = models.CheckConstraint(condition=check, name="price")
         # Invalid product.
@@ -339,6 +353,19 @@ class CheckConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_validate_nullable_jsonfield(self):
+        """
+
+        Tests the validation of nullable JSON fields using check constraints.
+
+        This test case covers two scenarios:
+        - A check constraint that ensures the JSON field is null.
+        - A check constraint that ensures the JSON field is not null.
+
+        It verifies that validating a model instance against these constraints raises a ValidationError
+        with the expected error message when the constraint is violated. The test ensures that the
+        validation behaves as expected for both null and non-null JSON field values.
+
+        """
         is_null_constraint = models.CheckConstraint(
             condition=models.Q(data__isnull=True),
             name="nullable_data",
@@ -384,6 +411,9 @@ class CheckConstraintTests(TestCase):
             json_exact_constraint.validate(JSONFieldModel, JSONFieldModel(data=data))
 
     def test_check_deprecation(self):
+        """
+
+        """
         msg = "CheckConstraint.check is deprecated in favor of `.condition`."
         condition = models.Q(foo="bar")
         with self.assertWarnsRegex(RemovedInDjango60Warning, msg):
@@ -404,6 +434,9 @@ class UniqueConstraintTests(TestCase):
         cls.p2 = UniqueConstraintProduct.objects.create(name="p2")
 
     def test_eq(self):
+        """
+
+        """
         self.assertEqual(
             models.UniqueConstraint(fields=["foo", "bar"], name="unique"),
             models.UniqueConstraint(fields=["foo", "bar"], name="unique"),
@@ -838,6 +871,9 @@ class UniqueConstraintTests(TestCase):
             UniqueConstraintConditionProduct(name=obj2.name).validate_constraints()
 
     def test_model_validation_constraint_no_code_error(self):
+        """
+
+        """
         class ValidateNoCodeErrorConstraint(UniqueConstraint):
             def validate(self, model, instance, **kwargs):
                 raise ValidationError({"name": ValidationError("Already exists.")})
@@ -858,6 +894,9 @@ class UniqueConstraintTests(TestCase):
             NoCodeErrorConstraintModel(name="test").validate_constraints()
 
     def test_validate(self):
+        """
+
+        """
         constraint = UniqueConstraintProduct._meta.constraints[0]
         msg = "Unique constraint product with this Name and Color already exists."
         non_unique_product = UniqueConstraintProduct(
@@ -1036,6 +1075,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_validate_nullable_textfield_with_isnull_true(self):
+        """
+
+        """
         is_null_constraint = models.UniqueConstraint(
             "price",
             "discounted_price",
@@ -1112,6 +1154,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_deferrable_unique_constraints")
     def test_initially_deferred_database_constraint(self):
+        """
+
+        """
         obj_1 = UniqueConstraintDeferrable.objects.create(name="p1", shelf="front")
         obj_2 = UniqueConstraintDeferrable.objects.create(name="p2", shelf="back")
 
@@ -1130,6 +1175,9 @@ class UniqueConstraintTests(TestCase):
 
     @skipUnlessDBFeature("supports_deferrable_unique_constraints")
     def test_initially_immediate_database_constraint(self):
+        """
+
+        """
         obj_1 = UniqueConstraintDeferrable.objects.create(name="p1", shelf="front")
         obj_2 = UniqueConstraintDeferrable.objects.create(name="p2", shelf="back")
         obj_1.shelf, obj_2.shelf = obj_2.shelf, obj_1.shelf

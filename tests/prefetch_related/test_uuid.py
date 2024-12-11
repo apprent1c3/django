@@ -27,6 +27,9 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(person.pets.all()))
 
     def test_prefetch_related_from_uuid_model_to_uuid_model(self):
+        """
+
+        """
         fleas = [Flea.objects.create() for i in range(3)]
         Pet.objects.create(name="Fifi").fleas_hosted.add(*fleas)
         Pet.objects.create(name="Bobo").fleas_hosted.add(*fleas)

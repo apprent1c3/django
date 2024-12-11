@@ -12,6 +12,9 @@ class TestDbType(SimpleTestCase):
 
 class DescriptorClassTest(SimpleTestCase):
     def test_descriptor_class(self):
+        """
+
+        """
         class CustomDescriptorModel(models.Model):
             name = CustomDescriptorField(max_length=32)
 

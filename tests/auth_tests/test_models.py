@@ -167,6 +167,9 @@ class UserManagerTestCase(TransactionTestCase):
             )
 
     def test_runpython_manager_methods(self):
+        """
+
+        """
         def forwards(apps, schema_editor):
             UserModel = apps.get_model("auth", "User")
             user = UserModel.objects.create_user("user1", password="secure")
@@ -301,6 +304,25 @@ class AbstractUserTestCase(TestCase):
 
     @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
     async def test_acheck_password_upgrade(self):
+        """
+
+        Tests the asynchronous password checking functionality of a user account
+        when the password hashing algorithm's iteration count is upgraded.
+
+        This test ensures that the user's password is upgraded to the new iteration
+        count when the password is checked, and that the password validation signal
+        is not sent unnecessarily.
+
+        The test case covers the following scenarios:
+
+        * Creating a new user with a given password
+        * Verifying the user's password using the 'acheck_password' method
+        * Upgrading the password hashing algorithm's iteration count
+        * Verifying the user's password again with the upgraded iteration count
+        * Checking that the password was upgraded to the new iteration count
+        * Confirming that the password validation signal was not sent
+
+        """
         user = await sync_to_async(User.objects.create_user)(
             username="user", password="foo"
         )
@@ -335,6 +357,9 @@ class CustomModelBackend(ModelBackend):
 class UserWithPermTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         content_type = ContentType.objects.get_for_model(Group)
         cls.permission = Permission.objects.create(
             name="test",
@@ -537,6 +562,9 @@ class AnonymousUserTests(SimpleTestCase):
         self.user = AnonymousUser()
 
     def test_properties(self):
+        """
+
+        """
         self.assertIsNone(self.user.pk)
         self.assertEqual(self.user.username, "")
         self.assertEqual(self.user.get_username(), "")

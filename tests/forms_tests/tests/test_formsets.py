@@ -701,6 +701,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(len(formset.deleted_forms), 1)
 
     def test_formset_with_deletion_custom_widget(self):
+        """
+
+        """
         class DeletionAttributeFormSet(BaseFormSet):
             deletion_widget = HiddenInput
 
@@ -790,6 +793,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_formsets_with_ordering_custom_widget(self):
+        """
+
+        """
         class OrderingAttributeFormSet(BaseFormSet):
             ordering_widget = HiddenInput
 
@@ -1130,6 +1136,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(formset.absolute_max, 2000)
 
     def test_absolute_max(self):
+        """
+
+        """
         data = {
             "form-TOTAL_FORMS": "2001",
             "form-INITIAL_FORMS": "0",
@@ -1471,6 +1480,19 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertIn("DELETE", formset.forms[1].fields)
 
     def test_disable_delete_extra_formset_forms(self):
+        """
+
+        Tests the functionality of a formset with the ability to delete forms disabled for extra forms.
+
+        Checks the following scenarios:
+            - A formset with no initial data, where no 'DELETE' fields are present in the forms.
+            - A formset with initial data, where the 'DELETE' field is present only in the first form.
+            - A formset with data, where the 'DELETE' field is honoured for the initial form and ignored for extra forms.
+
+        Verifies the correct number of forms in the formset, the presence or absence of 'DELETE' fields in each form,
+        and the correct processing of form data when the 'DELETE' field is submitted.
+
+        """
         ChoiceFormFormset = formset_factory(
             form=Choice,
             can_delete=True,
@@ -1615,6 +1637,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertIsInstance(formset.renderer, type(default_renderer))
 
     def test_repr(self):
+        """
+
+        """
         valid_formset = self.make_choiceformset([("test", 1)])
         valid_formset.full_clean()
         invalid_formset = self.make_choiceformset([("test", "")])

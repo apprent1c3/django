@@ -305,6 +305,9 @@ class SelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "time", None, html=html)
 
     def _test_optgroups(self, choices):
+        """
+
+        """
         groups = list(
             self.widget(choices=choices).optgroups(
                 "name",

@@ -746,6 +746,9 @@ class BaseDatabaseOperations:
         return start_, end_
 
     def window_frame_range_start_end(self, start=None, end=None):
+        """
+
+        """
         if (start is not None and not isinstance(start, int)) or (
             isinstance(start, int) and start > 0
         ):
@@ -773,6 +776,9 @@ class BaseDatabaseOperations:
         return start_, end_
 
     def explain_query_prefix(self, format=None, **options):
+        """
+
+        """
         if not self.connection.features.supports_explaining_query_execution:
             raise NotSupportedError(
                 "This backend does not support explaining query execution."

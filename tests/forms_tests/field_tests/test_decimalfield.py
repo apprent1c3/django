@@ -10,6 +10,9 @@ from . import FormFieldAssertionsMixin
 
 class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_decimalfield_1(self):
+        """
+
+        """
         f = DecimalField(max_digits=4, decimal_places=2)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" step="0.01" type="number" name="f" required>'
@@ -97,6 +100,19 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_decimalfield_3(self):
+        """
+
+        Tests the functionality of the DecimalField form field.
+
+        This test case checks the rendering of the DecimalField widget as an HTML input element
+        and verifies that it correctly validates and sanitizes decimal values, ensuring they 
+        are within the specified range and have the correct number of digits and decimal places. 
+
+        It also tests error messages raised when the input value exceeds the maximum or is below 
+        the minimum allowed value. Additionally, it checks the field's properties such as 
+        maximum digits, decimal places, maximum and minimum values.
+
+        """
         f = DecimalField(
             max_digits=4,
             decimal_places=2,
@@ -181,6 +197,9 @@ class DecimalFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.clean("0.546e+2"), decimal.Decimal("54.6"))
 
     def test_decimalfield_widget_attrs(self):
+        """
+
+        """
         f = DecimalField(max_digits=6, decimal_places=2)
         self.assertEqual(f.widget_attrs(Widget()), {})
         self.assertEqual(f.widget_attrs(NumberInput()), {"step": "0.01"})

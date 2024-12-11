@@ -152,6 +152,9 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(datetime(2000, 12, 31), "z"), "366")
 
     def test_timezones(self):
+        """
+
+        """
         my_birthday = datetime(1979, 7, 8, 22, 00)
         summertime = datetime(2005, 10, 30, 1, 00)
         wintertime = datetime(2005, 10, 30, 4, 00)

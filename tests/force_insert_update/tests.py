@@ -15,6 +15,9 @@ from .models import (
 
 class ForceTests(TestCase):
     def test_force_update(self):
+        """
+
+        """
         c = Counter.objects.create(name="one", value=1)
 
         # The normal case
@@ -102,6 +105,9 @@ class ForceInsertInheritanceTests(TestCase):
             Counter().save(force_insert=(SubCounter,))
 
     def test_force_insert_false(self):
+        """
+
+        """
         with self.assertNumQueries(3):
             obj = SubCounter.objects.create(pk=1, value=0)
         with self.assertNumQueries(2):
@@ -159,6 +165,9 @@ class ForceInsertInheritanceTests(TestCase):
 
     def test_force_insert_diamond_mti(self):
         # Force insert all parents.
+        """
+
+        """
         with self.assertNumQueries(4):
             DiamondSubSubCounter(pk=1, value=1).save(
                 force_insert=(Counter, SubCounter, OtherSubCounter)

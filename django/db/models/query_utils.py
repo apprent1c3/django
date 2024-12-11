@@ -56,6 +56,9 @@ class Q(tree.Node):
         )
 
     def _combine(self, other, conn):
+        """
+
+        """
         if getattr(other, "conditional", False) is False:
             raise TypeError(other)
         if not self:
@@ -143,6 +146,9 @@ class Q(tree.Node):
             return True
 
     def deconstruct(self):
+        """
+
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if path.startswith("django.db.models.query_utils"):
             path = path.replace("django.db.models.query_utils", "django.db.models")
@@ -156,6 +162,9 @@ class Q(tree.Node):
 
     @cached_property
     def identity(self):
+        """
+
+        """
         path, args, kwargs = self.deconstruct()
         identity = [path, *kwargs.items()]
         for child in args:

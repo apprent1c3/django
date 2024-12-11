@@ -14,6 +14,19 @@ class BoundField(RenderableFieldMixin):
     "A Field plus data"
 
     def __init__(self, form, field, name):
+        """
+
+        Initialize the form field instance.
+
+        This method is called when a new instance of the form field is created. It sets up the basic properties of the field, 
+        including its name, HTML name, and initial HTML name and ID. It also determines the field's label and help text.
+
+        The label is automatically generated from the field's name if no explicit label is provided. The help text is 
+        retrieved from the field's configuration, defaulting to an empty string if not specified.
+
+        The field's renderer is also set based on the form's renderer.
+
+        """
         self.form = form
         self.field = field
         self.name = name
@@ -146,6 +159,15 @@ class BoundField(RenderableFieldMixin):
         return self.field.prepare_value(data)
 
     def _has_changed(self):
+        """
+        Checks if the field's value has changed since its initial state.
+
+        This method determines whether the field's current data is different from its initial value.
+        It takes into account the field's show_hidden_initial attribute, which affects how the initial value is obtained.
+        If show_hidden_initial is True, it retrieves the initial value from a hidden widget; otherwise, it uses the field's initial attribute.
+        The method then compares the initial value with the current data, after converting the initial value to a Python object using the field's to_python method.
+        Returns True if the field's value has changed, False otherwise.
+        """
         field = self.field
         if field.show_hidden_initial:
             hidden_widget = field.hidden_widget()
@@ -264,6 +286,18 @@ class BoundField(RenderableFieldMixin):
         return self.form.get_initial_for_field(self.field, self.name)
 
     def build_widget_attrs(self, attrs, widget=None):
+        """
+
+        Builds and returns a dictionary of HTML attributes for a widget.
+
+        This function takes into account various properties of the form field and widget,
+        such as whether the field is required, disabled, or has errors. It also considers
+        the presence of help text and whether the field is part of a fieldset.
+
+        The resulting dictionary can be used to render the widget with the appropriate
+        HTML attributes, providing a better user experience and accessibility features.
+
+        """
         widget = widget or self.field.widget
         attrs = dict(attrs)  # Copy attrs to avoid modifying the argument.
         if (

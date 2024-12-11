@@ -27,6 +27,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_create_index = "CREATE INDEX %(name)s ON %(table)s (%(columns)s)%(extra)s"
 
     def quote_value(self, value):
+        """
+
+        """
         if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
             return "'%s'" % value
         elif isinstance(value, datetime.timedelta):
@@ -71,6 +74,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def alter_field(self, model, old_field, new_field, strict=False):
+        """
+
+        """
         try:
             super().alter_field(model, old_field, new_field, strict)
         except DatabaseError as e:

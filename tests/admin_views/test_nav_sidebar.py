@@ -147,6 +147,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_can_be_closed(self):
+        """
+
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -170,6 +173,22 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertNotIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_state_persists(self):
+        """
+
+        Tests whether the state of the sidebar persists across page reloads.
+
+        Verifies that the sidebar's state (open or closed) is stored in local storage and
+        retained when navigating between pages. This ensures a consistent user experience
+        by preserving the user's preference for the sidebar's visibility.
+
+        The test covers the following scenarios:
+
+        * The sidebar's initial state is correctly set to closed.
+        * Toggling the sidebar updates its state in local storage.
+        * The sidebar's state is persisted when reloading the page.
+        * The page layout adjusts accordingly based on the sidebar's state.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(

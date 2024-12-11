@@ -36,6 +36,9 @@ class RedisCacheClient:
         parser_class=None,
         **options,
     ):
+        """
+
+        """
         import redis
 
         self._lib = redis

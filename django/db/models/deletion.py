@@ -50,6 +50,9 @@ def RESTRICT(collector, field, sub_objs, using):
 
 
 def SET(value):
+    """
+
+    """
     if callable(value):
 
         def set_on_delete(collector, field, sub_objs, using):
@@ -412,6 +415,11 @@ class Collector:
                 yield model, obj
 
     def sort(self):
+        """
+        Sorts the models in the data attribute based on their dependencies.
+
+        This method ensures that models are ordered such that a model is only included after all its dependencies have been included. The sorting is done in a topological order, where each model is placed after its dependencies. If a circular dependency is detected, the sorting process stops and the data remains unchanged. The sorted models are then stored back in the data attribute.
+        """
         sorted_models = []
         concrete_models = set()
         models = list(self.data)
@@ -431,6 +439,9 @@ class Collector:
 
     def delete(self):
         # sort instance collections
+        """
+
+        """
         for model, instances in self.data.items():
             self.data[model] = sorted(instances, key=attrgetter("pk"))
 

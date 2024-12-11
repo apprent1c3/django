@@ -79,6 +79,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+
+        """
         class AbstractReferent(models.Model):
             reference = models.ForeignKey("Referred", on_delete=models.CASCADE)
 
@@ -87,6 +90,9 @@ class ForeignKeyTests(TestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -114,6 +120,19 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_fk_to_fk_get_col_output_field(self):
+        """
+
+        Test that a ForeignKey to another ForeignKey model returns the correct output field.
+
+        This test ensures that when a model has a ForeignKey to another model, which in turn
+        has a ForeignKey as its primary key, the output field returned by get_col is the
+        primary key of the original model.
+
+        The purpose of this test is to verify that Django's ORM correctly resolves the
+        foreign key relationships and returns the expected output field, which is crucial
+        for building complex queries and database operations.
+
+        """
         class Foo(models.Model):
             pass
 
@@ -139,6 +158,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_non_local_to_field(self):
+        """
+
+        """
         class Parent(models.Model):
             key = models.IntegerField(unique=True)
 

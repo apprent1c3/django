@@ -31,6 +31,9 @@ class MultiColumnFKTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Creating countries
+        """
+
+        """
         cls.usa = Country.objects.create(name="United States of America")
         cls.soviet_union = Country.objects.create(name="Soviet Union")
         # Creating People
@@ -407,6 +410,9 @@ class MultiColumnFKTests(TestCase):
 
     @translation.override("fi")
     def test_translations(self):
+        """
+
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         at1_fi = ArticleTranslation(
             article=a1, lang="fi", title="Otsikko", body="Diipadaapa"
@@ -534,6 +540,9 @@ class MultiColumnFKTests(TestCase):
 class TestModelCheckTests(SimpleTestCase):
     @isolate_apps("foreign_object")
     def test_check_composite_foreign_object(self):
+        """
+
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -557,6 +566,9 @@ class TestModelCheckTests(SimpleTestCase):
 
     @isolate_apps("foreign_object")
     def test_check_subset_composite_foreign_object(self):
+        """
+
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -723,6 +735,9 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.remote_field.get_joining_columns()
 
     def test_join_get_joining_columns_warning(self):
+        """
+
+        """
         class CustomForeignKey(models.ForeignKey):
             def __getattribute__(self, attr):
                 if attr == "get_joining_fields":

@@ -35,6 +35,9 @@ class CustomFileUploadHandler(MemoryFileUploadHandler):
 
 class RequestsTests(SimpleTestCase):
     def test_httprequest(self):
+        """
+
+        """
         request = HttpRequest()
         self.assertEqual(list(request.GET), [])
         self.assertEqual(list(request.POST), [])
@@ -89,6 +92,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<HttpRequest>")
 
     def test_wsgirequest(self):
+        """
+
+        """
         request = WSGIRequest(
             {
                 "PATH_INFO": "bogus",
@@ -256,6 +262,9 @@ class RequestsTests(SimpleTestCase):
 
     def test_limited_stream(self):
         # Read all of a limited stream
+        """
+
+        """
         stream = LimitedStream(BytesIO(b"test"), 2)
         self.assertEqual(stream.read(), b"te")
         # Reading again returns nothing.
@@ -763,6 +772,20 @@ class RequestsTests(SimpleTestCase):
             request.POST
 
     def test_POST_binary_only(self):
+        """
+        Tests the handling of binary data in a POST request.
+
+        Verifies that when a POST request contains binary data with a content type
+        of 'application/octet-stream', or when the content type is empty, the
+        following conditions are met:
+
+        - The `POST` attribute is an empty dictionary.
+        - The `FILES` attribute is an empty dictionary.
+        - The `body` attribute contains the raw binary payload.
+
+        This ensures that the request object correctly handles binary data and
+        does not attempt to parse it as form data or files.
+        """
         payload = b"\r\n\x01\x00\x00\x00ab\x00\x00\xcd\xcc,@"
         environ = {
             "REQUEST_METHOD": "POST",
@@ -1109,6 +1132,9 @@ class HostValidationTests(SimpleTestCase):
     )
     def test_http_get_host(self):
         # Check if X_FORWARDED_HOST is provided.
+        """
+
+        """
         request = HttpRequest()
         request.META = {
             "HTTP_X_FORWARDED_HOST": "forward.com",
@@ -1179,6 +1205,9 @@ class HostValidationTests(SimpleTestCase):
     @override_settings(USE_X_FORWARDED_HOST=True, ALLOWED_HOSTS=["*"])
     def test_http_get_host_with_x_forwarded_host(self):
         # Check if X_FORWARDED_HOST is provided.
+        """
+
+        """
         request = HttpRequest()
         request.META = {
             "HTTP_X_FORWARDED_HOST": "forward.com",

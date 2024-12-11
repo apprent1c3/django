@@ -126,6 +126,9 @@ class SyndicationFeed:
         stylesheets=None,
         **kwargs,
     ):
+        """
+
+        """
         def to_str(s):
             return str(s) if s is not None else s
 
@@ -322,6 +325,9 @@ class RssFeed(SyndicationFeed):
             handler.processingInstruction("xml-stylesheet", stylesheet)
 
     def add_root_elements(self, handler):
+        """
+
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
         handler.addQuickElement("description", self.feed["description"])
@@ -358,6 +364,9 @@ class Rss201rev2Feed(RssFeed):
     _version = "2.0"
 
     def add_item_elements(self, handler, item):
+        """
+
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -433,6 +442,9 @@ class Atom1Feed(SyndicationFeed):
             return {"xmlns": self.ns}
 
     def add_root_elements(self, handler):
+        """
+
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement(
             "link", "", {"rel": "alternate", "href": self.feed["link"]}
@@ -465,6 +477,9 @@ class Atom1Feed(SyndicationFeed):
             handler.endElement("entry")
 
     def add_item_elements(self, handler, item):
+        """
+
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", "", {"href": item["link"], "rel": "alternate"})
 

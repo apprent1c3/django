@@ -441,7 +441,13 @@ class LazyStream:
         return self.position
 
     def read(self, size=None):
+        """
+
+        """
         def parts():
+            """
+
+            """
             remaining = self._remaining if size is None else size
             # do the whole thing in one shot if no limit was provided.
             if remaining is None:
@@ -606,6 +612,9 @@ class BoundaryIter:
         return self
 
     def __next__(self):
+        """
+
+        """
         if self._done:
             raise StopIteration()
 

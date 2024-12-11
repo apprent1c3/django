@@ -89,6 +89,9 @@ class GetOrCreateTests(TestCase):
         self.assertEqual(t.name, "Annie")
 
     def test_get_or_create_on_related_manager(self):
+        """
+
+        """
         p = Publisher.objects.create(name="Acme Publishing")
         # Create a book through the publisher.
         book, created = p.books.get_or_create(name="The Book of Ed & Fred")
@@ -578,6 +581,9 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(journalist.name, "John")
 
     def test_update_only_defaults_and_pre_save_fields_when_local_fields(self):
+        """
+
+        """
         publisher = Publisher.objects.create(name="Acme Publishing")
         book = Book.objects.create(publisher=publisher, name="The Book of Ed & Fred")
 

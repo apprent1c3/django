@@ -285,6 +285,23 @@ class NaturalTimeFormatter:
 
     @classmethod
     def string_for(cls, value):
+        """
+
+        Returns a human-readable string representation of a given date or value.
+
+        If the input value is not a date object, it is returned as is.
+        For date objects, the function calculates the time difference between the input date and the current date/time.
+        It then returns a string indicating whether the date is in the past or future, along with an approximate time difference (e.g., \"X days ago\", \"in Y hours\", etc.).
+
+        The returned string is formatted according to the time strings defined in the class, which can be customized.
+
+        Parameters:
+            value (date or any): The input date or value to be converted to a human-readable string.
+
+        Returns:
+            str: A string representation of the input value.
+
+        """
         if not isinstance(value, date):  # datetime is a subclass of date
             return value
 

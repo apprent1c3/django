@@ -111,6 +111,9 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
     _get_single_internal = _get_single_external
 
     def _set_list(self, length, items):
+        """
+
+        """
         ndim = self._cs.dims
         hasz = self._cs.hasz  # I don't understand why these are different
         srid = self.srid

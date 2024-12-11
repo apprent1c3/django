@@ -232,6 +232,23 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _validate_databases(cls):
+        """
+
+        Validate the list of databases defined in the class.
+
+        Checks if the databases specified in the class are valid and exist in the
+        settings.DATABASES. If the class specifies '__all__', returns all available
+        databases.
+
+        Raises:
+            ImproperlyConfigured: If a specified database alias does not exist in
+                settings.DATABASES. Provides a helpful error message with a suggested
+                correction if a close match is found.
+
+        Returns:
+            frozenset: A set of validated database aliases.
+
+        """
         if cls.databases == "__all__":
             return frozenset(connections)
         for alias in cls.databases:
@@ -253,6 +270,9 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _add_databases_failures(cls):
+        """
+
+        """
         cls.databases = cls._validate_databases()
         for alias in connections:
             if alias in cls.databases:
@@ -556,6 +576,26 @@ class SimpleTestCase(unittest.TestCase):
     def _assert_contains(self, response, text, status_code, msg_prefix, html):
         # If the response supports deferred rendering and hasn't been rendered
         # yet, then ensure that it does get rendered before proceeding further.
+        """
+        Asserts that a given text is contained in a HTTP response.
+
+        This function checks if the HTTP response contains the specified text, 
+        verifies the response status code, and provides a detailed error message 
+        in case of failure. It also supports HTML content and streaming responses.
+
+        Args:
+            response: The HTTP response to be checked.
+            text (str or bytes): The text to be searched in the response content.
+            status_code (int): The expected status code of the response.
+            msg_prefix (str): Optional prefix for the error message.
+            html (bool): Whether the content is HTML or not.
+
+        Returns:
+            A tuple containing a representation of the searched text, 
+            the actual count of the text in the response content, 
+            the error message prefix, and a representation of the response content.
+
+        """
         if (
             hasattr(response, "render")
             and callable(response.render)
@@ -659,6 +699,23 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _assert_form_error(self, form, field, errors, msg_prefix, form_repr):
+        """
+
+        Asserts that the form error matches the expected errors.
+
+        This method checks if a form has errors in a specific field or non-field errors,
+        and compares them with the expected errors. It first checks if the form is bound,
+        then checks if the field exists in the form if one is specified. If the field
+        is None, it checks non-field errors. Finally, it asserts that the actual errors
+        match the expected errors.
+
+        :param form: The form to check for errors.
+        :param field: The field in the form to check for errors, or None to check non-field errors.
+        :param errors: The expected errors.
+        :param msg_prefix: A prefix to add to the error message.
+        :param form_repr: A string representation of the form, used in error messages.
+
+        """
         if not form.is_bound:
             self.fail(
                 f"{msg_prefix}The {form_repr} is not bound, it will never have any "
@@ -736,6 +793,27 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _get_template_used(self, response, template_name, msg_prefix, method_name):
+        """
+        Retrieves the template used in a response.
+
+        Determines the template name from the provided response and template name. If both
+        are provided, it checks the test client response for the 'templates' attribute. If
+        the response has a 'templates' attribute, it extracts the names of the used templates.
+        Otherwise, it returns the provided template name.
+
+        Args:
+            response: The response object to check for templates.
+            template_name: The name of the template to check.
+            msg_prefix: A prefix to use for error messages.
+            method_name: The name of the method calling this function.
+
+        Returns:
+            A tuple containing the template name (or None), the list of used template names
+            (or None), and the message prefix.
+
+        Raises:
+            TypeError: If neither response nor template_name is provided.
+        """
         if response is None and template_name is None:
             raise TypeError("response and/or template_name argument must be provided")
 
@@ -968,6 +1046,22 @@ class SimpleTestCase(unittest.TestCase):
             self.fail(self._formatMessage(msg, standardMsg))
 
     def assertInHTML(self, needle, haystack, count=None, msg_prefix=""):
+        """
+        Asserts that the given HTML `needle` is present in the `haystack` HTML.
+
+        Args:
+            needle (str): The HTML string to be searched for.
+            haystack (str): The HTML string in which to search for the `needle`.
+            count (int, optional): The expected number of occurrences of the `needle` in the `haystack`. Defaults to None.
+            msg_prefix (str, optional): The prefix for the error message. Defaults to ''.
+
+        Note:
+            If `count` is specified, the function checks that the actual count of `needle` in `haystack` matches the expected count.
+            If `count` is not specified, the function simply checks that `needle` is present in `haystack` at least once. 
+
+        Raises:
+            AssertionError: If the `needle` is not found in the `haystack` or if the actual count does not match the expected count.
+        """
         parsed_needle = assert_and_parse_html(
             self, needle, None, "First argument is not valid HTML:"
         )
@@ -1166,6 +1260,9 @@ class TransactionTestCase(SimpleTestCase):
                             cursor.execute(sql)
 
     def _fixture_setup(self):
+        """
+
+        """
         for db_name in self._databases_names(include_mirrors=False):
             # Reset sequences
             if self.reset_sequences:
@@ -1373,6 +1470,9 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        """
         super().setUpClass()
         if not (
             cls._databases_support_transactions()
@@ -1425,6 +1525,9 @@ class TestCase(TransactionTestCase):
         return super()._should_reload_connections()
 
     def _fixture_setup(self):
+        """
+
+        """
         if not self._databases_support_transactions():
             # If the backend does not support transactions, we should reload
             # class data before each test
@@ -1518,7 +1621,13 @@ class CheckCondition:
 
 
 def _deferredSkip(condition, reason, name):
+    """
+
+    """
     def decorator(test_func):
+        """
+
+        """
         nonlocal condition
         if not (
             isinstance(test_func, type) and issubclass(test_func, unittest.TestCase)
@@ -1796,6 +1905,9 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classmethod
     def _start_server_thread(cls):
+        """
+
+        """
         connections_override = cls._make_connections_override()
         for conn in connections_override.values():
             # Explicitly enable thread-shareability for this connection.

@@ -252,6 +252,9 @@ class AdminSite:
         # Since this module gets imported in the application's root package,
         # it cannot import models from other applications at the module level,
         # and django.contrib.contenttypes.views imports ContentType.
+        """
+
+        """
         from django.contrib.contenttypes import views as contenttype_views
         from django.urls import include, path, re_path
 
@@ -448,6 +451,9 @@ class AdminSite:
 
     @no_append_slash
     def catch_all_view(self, request, url):
+        """
+
+        """
         if settings.APPEND_SLASH and not url.endswith("/"):
             urlconf = getattr(request, "urlconf", None)
             try:

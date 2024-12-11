@@ -38,6 +38,19 @@ class DatabaseCreation(BaseDatabaseCreation):
         return cursor.fetchone() is not None
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+
+        Execute creation of a test database.
+
+        This method checks if a database already exists and only proceeds with creation if it does not.
+        If the keepdb parameter is set to True, the method will skip creation if the database exists.
+        If an error occurs during creation, the method will log the error and exit unless the error is due to a duplicate database and keepdb is False, in which case it will re-raise the exception.
+
+        :param cursor: database cursor object
+        :param parameters: dictionary containing database parameters, including 'dbname'
+        :param keepdb: flag indicating whether to keep the database if it already exists
+
+        """
         try:
             if keepdb and self._database_exists(cursor, parameters["dbname"]):
                 # If the database should be kept and it already exists, don't
@@ -57,6 +70,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         # CREATE DATABASE ... WITH TEMPLATE ... requires closing connections
         # to the template database.
+        """
+
+        """
         self.connection.close()
         self.connection.close_pool()
 

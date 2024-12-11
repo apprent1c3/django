@@ -20,6 +20,9 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(repr(self.node2), "<Node: (DEFAULT: )>")
 
     def test_hash(self):
+        """
+
+        """
         node3 = Node(self.node1_children, negated=True)
         node4 = Node(self.node1_children, connector="OTHER")
         node5 = Node(self.node1_children)
@@ -70,6 +73,9 @@ class NodeTests(unittest.TestCase):
         self.assertFalse(self.node1.negated)
 
     def test_create(self):
+        """
+
+        """
         SubNode = type("SubNode", (Node,), {})
 
         a = SubNode([SubNode(["a", "b"], OR), "c"], AND)

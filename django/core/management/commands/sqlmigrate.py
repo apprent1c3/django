@@ -40,6 +40,28 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Get the database we're operating from
+        """
+        Handles migration operations for a specified application and migration name.
+
+        This function takes in the application label and migration name as options, 
+        loads the migration, and generates the necessary SQL statements for the operation.
+        It checks if the application has migrations and if the specified migration exists, 
+        resolving any ambiguities or errors that may occur.
+
+        If the operation is successful, it returns the SQL statements as a string. 
+        Otherwise, it raises a CommandError with an informative error message.
+
+        The function also considers the verbosity level and outputs messages accordingly.
+        It handles both forward and backward migration operations, depending on the provided options.
+
+        :param app_label: The label of the application for which to handle the migration.
+        :param migration_name: The name of the migration to handle.
+        :param database: The database connection to use for the migration.
+        :param backwards: Whether to apply the migration in reverse.
+        :param verbosity: The level of verbosity for output messages.
+        :return: A string of SQL statements for the migration operation, or an empty string if no operations are found.
+
+        """
         connection = connections[options["database"]]
 
         # Load up a loader to get all the migration data, but don't replace

@@ -25,6 +25,9 @@ from .models import Author, Book, Publisher
 class FilteredAggregateTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.a1 = Author.objects.create(name="test", age=40)
         cls.a2 = Author.objects.create(name="test2", age=60)
         cls.a3 = Author.objects.create(name="test3", age=100)

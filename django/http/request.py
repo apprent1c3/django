@@ -61,6 +61,9 @@ class HttpRequest:
         # Any variable assignment made here should also happen in
         # `WSGIRequest.__init__()`.
 
+        """
+
+        """
         self.GET = QueryDict(mutable=True)
         self.POST = QueryDict(mutable=True)
         self.COOKIES = {}
@@ -253,6 +256,9 @@ class HttpRequest:
 
     @property
     def scheme(self):
+        """
+
+        """
         if settings.SECURE_PROXY_SSL_HEADER:
             try:
                 header, secure_value = settings.SECURE_PROXY_SSL_HEADER
@@ -323,6 +329,9 @@ class HttpRequest:
 
     @property
     def body(self):
+        """
+
+        """
         if not hasattr(self, "_body"):
             if self._read_started:
                 raise RawPostDataException(
@@ -502,6 +511,9 @@ class QueryDict(MultiValueDict):
     _encoding = None
 
     def __init__(self, query_string=None, mutable=False, encoding=None):
+        """
+
+        """
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
         query_string = query_string or ""

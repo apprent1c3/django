@@ -373,6 +373,9 @@ class DeleteTests(TestCase):
         self.assertIsNone(researcher2.secondary_contact)
 
     def test_self_reference_with_through_m2m_at_second_level(self):
+        """
+
+        """
         toy = Toy.objects.create(name="Paints")
         child = Child.objects.create(name="Juan")
         Book.objects.create(pagecount=500, owner=child)

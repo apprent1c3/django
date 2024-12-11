@@ -49,6 +49,9 @@ class BlockNode(Node):
         return "<Block Node: %s. Contents: %r>" % (self.name, self.nodelist)
 
     def render(self, context):
+        """
+
+        """
         block_context = context.render_context.get(BLOCK_CONTEXT_KEY)
         with context.push():
             if block_context is None:
@@ -114,6 +117,9 @@ class ExtendsNode(Node):
         return template
 
     def get_parent(self, context):
+        """
+
+        """
         parent = self.parent_name.resolve(context)
         if not parent:
             error_msg = "Invalid template name in 'extends' tag: %r." % parent
@@ -131,6 +137,9 @@ class ExtendsNode(Node):
         return self.find_template(parent, context)
 
     def render(self, context):
+        """
+
+        """
         compiled_parent = self.get_parent(context)
 
         if BLOCK_CONTEXT_KEY not in context.render_context:

@@ -27,6 +27,9 @@ class LimitedStream(IOBase):
         self.limit = limit
 
     def read(self, size=-1, /):
+        """
+
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -40,6 +43,9 @@ class LimitedStream(IOBase):
         return data
 
     def readline(self, size=-1, /):
+        """
+
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -55,6 +61,9 @@ class LimitedStream(IOBase):
 
 class WSGIRequest(HttpRequest):
     def __init__(self, environ):
+        """
+
+        """
         script_name = get_script_name(environ)
         # If PATH_INFO is empty (e.g. accessing the SCRIPT_NAME URL without a
         # trailing slash), operate as if '/' was requested.
@@ -118,6 +127,9 @@ class WSGIHandler(base.BaseHandler):
         self.load_middleware()
 
     def __call__(self, environ, start_response):
+        """
+
+        """
         set_script_prefix(get_script_name(environ))
         signals.request_started.send(sender=self.__class__, environ=environ)
         request = self.request_class(environ)

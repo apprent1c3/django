@@ -265,6 +265,9 @@ class TestDefer2(AssertionMixin, TestCase):
         self.assertEqual(s1_defer, s1)
 
     def test_refresh_not_loading_deferred_fields(self):
+        """
+
+        """
         s = Secondary.objects.create()
         rf = Primary.objects.create(name="foo", value="bar", related=s)
         rf2 = Primary.objects.only("related", "value").get()

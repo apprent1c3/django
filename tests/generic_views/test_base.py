@@ -252,6 +252,9 @@ class ViewTest(SimpleTestCase):
             self.assertIn(attribute, dir(view))
 
     def test_overridden_setup(self):
+        """
+
+        """
         class SetAttributeMixin:
             def setup(self, request, *args, **kwargs):
                 self.attr = True

@@ -370,6 +370,21 @@ class Signal:
 
             @sync_to_async
             def sync_send():
+                """
+
+                Synchronously sends a signal to multiple receivers and collects their responses.
+
+                This function iterates over a list of registered receivers, invoking each one and 
+                caching their response. If a receiver encounters an exception during invocation, 
+                the error is logged and the exception is added to the response list instead. 
+
+                The function returns a list of tuples, where each tuple contains a receiver and 
+                either its response or the exception it raised.
+
+                :param: None
+                :return: A list of tuples containing (receiver, response or exception)
+
+                """
                 responses = []
                 for receiver in sync_receivers:
                     try:

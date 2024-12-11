@@ -105,6 +105,9 @@ class DispatcherTests(SimpleTestCase):
             d_signal.disconnect(receiver_1_arg)
 
     def test_multiple_registration(self):
+        """
+
+        """
         a = Callable()
         a_signal.connect(a)
         a_signal.connect(a)
@@ -121,6 +124,16 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_uid_registration(self):
+        """
+
+        Test the behavior of registering and disconnecting signal receivers 
+        based on a unique dispatch uid.
+
+        This test case checks that only one receiver is registered when 
+        multiple functions are connected to a signal with the same dispatch uid, 
+        and that the connection can be successfully disconnected by the uid.
+
+        """
         def uid_based_receiver_1(**kwargs):
             pass
 
@@ -152,6 +165,16 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_send_robust_fail(self):
+        """
+        Tests that the send_robust method of a signal handles and logs exceptions properly.
+
+        This test case connects a receiver function that intentionally raises a ValueError
+        to a signal, then sends the signal using the send_robust method. It verifies that
+        the exception is caught, logged, and stored in the return value of send_robust.
+        Additionally, it checks that the log record contains the expected error message
+        and exception information. Finally, it ensures that the signal is properly 
+        disconnected after the test and the test state is cleaned up.
+        """
         def fails(val, **kwargs):
             raise ValueError("this")
 
@@ -181,6 +204,9 @@ class DispatcherTests(SimpleTestCase):
         self.assertTestIsClean(a_signal)
 
     def test_disconnection(self):
+        """
+
+        """
         receiver_1 = Callable()
         receiver_2 = Callable()
         receiver_3 = Callable()
@@ -227,6 +253,15 @@ class ReceiverTestCase(SimpleTestCase):
 
     def test_receiver_signal_list(self):
         @receiver([a_signal, b_signal, c_signal])
+        """
+        Tests the reception of signals by a receiver function, verifying that it correctly handles multiple signals and appends the received values to the state list.
+
+        The test case covers the scenarios where the signals are sent in different orders, ensuring that the receiver function processes them correctly and updates the state list accordingly.
+
+        Parameters are not applicable for this test function as it is designed to validate internal functionality. 
+
+        It asserts that the values 'a', 'b', and 'c' are present in the state list after sending the corresponding signals, thereby confirming the proper functioning of the signal receiving mechanism.
+        """
         def f(val, **kwargs):
             self.state.append(val)
 

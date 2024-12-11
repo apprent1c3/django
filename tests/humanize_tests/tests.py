@@ -452,6 +452,9 @@ class HumanizeTests(SimpleTestCase):
             humanize.datetime = orig_humanize_datetime
 
     def test_naturaltime(self):
+        """
+
+        """
         class naive(datetime.tzinfo):
             def utcoffset(self, dt):
                 return None

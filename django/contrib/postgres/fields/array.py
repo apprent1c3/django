@@ -57,6 +57,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return isinstance(value, (list, tuple)) or super()._choices_is_value(value)
 
     def check(self, **kwargs):
+        """
+
+        """
         errors = super().check(**kwargs)
         if self.base_field.remote_field:
             errors.append(
@@ -159,6 +162,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         ]
 
     def value_to_string(self, obj):
+        """
+
+        """
         values = []
         vals = self.value_from_object(obj)
         base_field = self.base_field
@@ -172,6 +178,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return json.dumps(values)
 
     def get_transform(self, name):
+        """
+
+        """
         transform = super().get_transform(name)
         if transform:
             return transform
@@ -309,6 +318,9 @@ class ArrayLenTransform(Transform):
 @ArrayField.register_lookup
 class ArrayInLookup(In):
     def get_prep_lookup(self):
+        """
+
+        """
         values = super().get_prep_lookup()
         if hasattr(values, "resolve_expression"):
             return values

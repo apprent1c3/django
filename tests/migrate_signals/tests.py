@@ -74,6 +74,24 @@ class MigrateSignalTests(TransactionTestCase):
         self.assertEqual(post_migrate_receiver.call_counter, 1)
 
     def test_args(self):
+        """
+
+        Tests the arguments passed to signal receivers during a migration.
+
+        This test case verifies that the signal receivers for pre-migrate and post-migrate
+        events are called with the correct arguments, including the application configuration,
+        verbosity level, interactive mode, and database connection. It also checks that
+        the output is correctly captured and that the migration plan and applications
+        are properly initialized.
+
+        The test case covers the following aspects:
+
+        * The signal receivers are called exactly once
+        * The arguments passed to the signal receivers match the expected values
+        * The output is correctly captured and contains the expected test string
+        * The migration plan and applications are properly initialized
+
+        """
         pre_migrate_receiver = Receiver(signals.pre_migrate)
         post_migrate_receiver = Receiver(signals.post_migrate)
         management.call_command(

@@ -84,6 +84,13 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(resp.status_code, 599)
 
     def test_invalid_status_code(self):
+        """
+        Tests the HttpResponse class's handling of invalid status codes.
+
+        Verifies that the class raises a TypeError when the status code is not an integer and a ValueError when the status code is an integer outside the valid range of 100 to 599.
+
+        The test checks the class's behavior with various invalid status code types, including non-integer objects and strings, as well as integer values below and above the valid range.
+        """
         must_be_integer = "HTTP status code must be an integer."
         must_be_integer_in_range = (
             "HTTP status code must be an integer from 100 to 599."

@@ -17,6 +17,9 @@ class GZipMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # It's not worth attempting to compress really short responses.
+        """
+
+        """
         if not response.streaming and len(response.content) < 200:
             return response
 

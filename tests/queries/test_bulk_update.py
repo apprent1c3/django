@@ -92,6 +92,16 @@ class BulkUpdateNoteTests(TestCase):
         self.assertCountEqual(Note.objects.filter(tag__isnull=True), self.notes)
 
     def test_set_mixed_fields_to_null(self):
+        """
+
+        Tests that setting mixed fields to null updates correctly.
+
+        This test case checks that notes can be divided into two groups: 
+        one with their tags set to null and the other with their tags set to a specific value.
+        It verifies that the updates are persisted in the database, 
+        ensuring that the correct notes are returned when filtered by their tag status.
+
+        """
         self.create_tags()
         midpoint = len(self.notes) // 2
         top, bottom = self.notes[:midpoint], self.notes[midpoint:]
@@ -166,6 +176,9 @@ class BulkUpdateTests(TestCase):
         self.assertEqual(rows_updated, 2)
 
     def test_only_concrete_fields_allowed(self):
+        """
+
+        """
         obj = Valid.objects.create(valid="test")
         detail = Detail.objects.create(data="test")
         paragraph = Paragraph.objects.create(text="test")

@@ -176,6 +176,16 @@ class ProxyModelTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="proxy_models.AlternateModel")
     @isolate_apps("proxy_models")
     def test_swappable(self):
+        """
+
+        Tests the swappable model functionality in the context of proxy models.
+        Checks that attempting to create a proxy model from a swappable model raises a TypeError, 
+        ensuring that the swappable model's behavior is correctly overridden in the test environment.
+        This test case validates the expected exception behavior when working with swappable models 
+        as proxy models, which is crucial for maintaining model flexibility and avoiding potential 
+        type conflicts in the system.
+
+        """
         class SwappableModel(models.Model):
             class Meta:
                 swappable = "TEST_SWAPPABLE_MODEL"
@@ -341,6 +351,17 @@ class ProxyModelTests(TestCase):
         self.assertSequenceEqual(ProxyTrackerUser.objects.filter(issues=issue), [ptu])
 
     def test_proxy_bug(self):
+        """
+
+        Tests the correctness of proxy objects in tracking bugs and improvements.
+
+        This function tests the behavior of ProxyBug, ProxyProxyBug, and ProxyImprovement objects,
+        specifically their representation and relationships with related models.
+        It covers scenarios where these proxy objects are retrieved using various filters,
+        such as version, reporter name, and associated bug summary.
+        The test ensures that the proxy objects are correctly instantiated and that their representation is as expected.
+
+        """
         contributor = ProxyTrackerUser.objects.create(
             name="Contributor", status="contrib"
         )

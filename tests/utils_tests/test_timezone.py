@@ -22,6 +22,9 @@ class TimezoneTests(SimpleTestCase):
             self.assertTrue(timezone.is_naive(timezone.now()))
 
     def test_localdate(self):
+        """
+
+        """
         naive = datetime.datetime(2015, 1, 1, 0, 0, 1)
         with self.assertRaisesMessage(
             ValueError, "localtime() cannot be applied to a naive datetime"
@@ -47,6 +50,9 @@ class TimezoneTests(SimpleTestCase):
                 self.assertEqual(timezone.localdate(), datetime.date(2014, 12, 31))
 
     def test_override(self):
+        """
+
+        """
         default = timezone.get_default_timezone()
         try:
             timezone.activate(ICT)
@@ -72,6 +78,9 @@ class TimezoneTests(SimpleTestCase):
             timezone.deactivate()
 
     def test_override_decorator(self):
+        """
+
+        """
         default = timezone.get_default_timezone()
 
         @timezone.override(EAT)

@@ -31,6 +31,9 @@ def require_http_methods(request_method_list):
     """
 
     def decorator(func):
+        """
+
+        """
         if iscoroutinefunction(func):
 
             @wraps(func)
@@ -104,8 +107,14 @@ def condition(etag_func=None, last_modified_func=None):
     """
 
     def decorator(func):
+        """
+
+        """
         def _pre_process_request(request, *args, **kwargs):
             # Compute values (if any) for the requested resource.
+            """
+
+            """
             res_last_modified = None
             if last_modified_func:
                 if dt := last_modified_func(request, *args, **kwargs):

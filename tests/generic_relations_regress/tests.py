@@ -184,6 +184,17 @@ class GenericRelationTests(TestCase):
     def test_ticket_20378(self):
         # Create a couple of extra HasLinkThing so that the autopk value
         # isn't the same for Link and HasLinkThing.
+        """
+        Tests the filtering and exclusion of HasLinkThing objects based on associated Link objects.
+
+        This test ensures that the correct HasLinkThing instances are returned when filtering by specific Links,
+        and that the correct instances are excluded when using the exclude method with Links.
+
+        Verifies the following scenarios:
+        - Filtering by a Link returns the associated HasLinkThing instance.
+        - Excluding by a Link returns all HasLinkThing instances except the associated one.
+
+        """
         hs1 = HasLinkThing.objects.create()
         hs2 = HasLinkThing.objects.create()
         hs3 = HasLinkThing.objects.create()
@@ -200,6 +211,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_ticket_20564(self):
+        """
+
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -212,6 +226,17 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(C.objects.exclude(b__a__flag=None), [c2])
 
     def test_ticket_20564_nullable_fk(self):
+        """
+        Tests the filtering of model instances based on a nullable foreign key.
+
+        This test case evaluates the behavior of Django's ORM when dealing with a 
+        model that has a foreign key to another model, where the foreign key is 
+        nullable. It verifies that instances can be filtered and excluded based 
+        on the presence or absence of the foreign key relation, as well as the 
+        value of a specific field on the related model. The test covers various 
+        scenarios, including filtering by null and non-null foreign key values, 
+        and checks the correctness of the results.
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -242,6 +267,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_annotate(self):
+        """
+
+        """
         hs1 = HasLinkThing.objects.create()
         hs2 = HasLinkThing.objects.create()
         HasLinkThing.objects.create()

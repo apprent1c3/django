@@ -41,6 +41,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
         return SimpleTemplateResponse(template, *args, **kwargs)
 
     def test_template_resolving(self):
+        """
+
+        """
         response = SimpleTemplateResponse("first/test.html")
         response.render()
         self.assertEqual(response.content, b"First template\n")
@@ -172,6 +175,9 @@ class SimpleTemplateResponseTest(SimpleTestCase):
     def test_pickling(self):
         # Create a template response. The context is
         # known to be unpicklable (e.g., a function).
+        """
+
+        """
         response = SimpleTemplateResponse(
             "first/test.html",
             {
@@ -309,6 +315,9 @@ class TemplateResponseTest(SimpleTestCase):
     def test_pickling(self):
         # Create a template response. The context is
         # known to be unpicklable (e.g., a function).
+        """
+
+        """
         response = TemplateResponse(
             self.factory.get("/"),
             "first/test.html",
@@ -396,6 +405,9 @@ class CustomURLConfTest(SimpleTestCase):
 )
 class CacheMiddlewareTest(SimpleTestCase):
     def test_middleware_caching(self):
+        """
+
+        """
         response = self.client.get("/template_response_view/")
         self.assertEqual(response.status_code, 200)
 

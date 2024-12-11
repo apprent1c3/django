@@ -15,6 +15,9 @@ from django.test import RequestFactory, SimpleTestCase, override_settings
 
 class ContextTests(SimpleTestCase):
     def test_context(self):
+        """
+
+        """
         c = Context({"a": 1, "b": "xyzzy"})
         self.assertEqual(c["a"], 1)
         self.assertEqual(c.push(), {})

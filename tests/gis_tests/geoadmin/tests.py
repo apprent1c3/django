@@ -38,6 +38,9 @@ class GeoAdminTest(SimpleTestCase):
         )
 
     def test_widget_has_changed(self):
+        """
+
+        """
         geoadmin = self.admin_site.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)()
         has_changed = form.fields["point"].has_changed

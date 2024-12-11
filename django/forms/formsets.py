@@ -89,6 +89,35 @@ class BaseFormSet(RenderableFormMixin):
         form_kwargs=None,
         error_messages=None,
     ):
+        """
+
+        Initialize a form instance.
+
+        The initialization process sets up the form's internal state, including its data, files, and error handling mechanisms.
+        It also allows for customization of the form's behavior through various parameters.
+
+        Parameters
+        ----------
+        data : dict, optional
+            The form's initial data.
+        files : dict, optional
+            The form's initial files.
+        auto_id : str, optional
+            The format string used to generate automatic IDs for form fields.
+        prefix : str, optional
+            The prefix used to identify the form's fields in the HTML output.
+        initial : dict, optional
+            The form's initial data, used to populate the form fields.
+        error_class : Exception, optional
+            The class used to represent form errors.
+        form_kwargs : dict, optional
+            Additional keyword arguments used to customize the form's behavior.
+        error_messages : dict, optional
+            Custom error messages used to override the form's default error messages.
+
+        The initialization process also sets up the form's error handling mechanisms, including the error class, error messages, and form renderer.
+
+        """
         self.is_bound = data is not None or files is not None
         self.prefix = prefix or self.get_default_prefix()
         self.auto_id = auto_id

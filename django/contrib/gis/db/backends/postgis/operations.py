@@ -43,6 +43,22 @@ class PostGISOperator(SpatialOperator):
         return super().as_sql(connection, lookup, template_params, *args)
 
     def check_raster(self, lookup, template_params):
+        """
+
+        Checks and updates the template parameters based on the raster properties of the lookup.
+
+        This function determines if the left-hand side (LHS) or right-hand side (RHS) of the lookup is a raster,
+        and if so, it applies the necessary transformations to the template parameters.
+
+        It also handles the case where a spheroid is specified or where the operator is configured to work with raster data.
+        In addition, it checks if band indices are provided for raster data and updates the template parameters accordingly.
+
+        The function returns the updated template parameters.
+
+        Raises:
+            ValueError: If band indices are provided for an operator that does not support them.
+
+        """
         spheroid = lookup.rhs_params and lookup.rhs_params[-1] == "spheroid"
 
         # Check which input is a raster.

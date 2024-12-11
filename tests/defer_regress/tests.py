@@ -30,6 +30,21 @@ class DeferRegressionTest(TestCase):
         # Deferred fields should really be deferred and not accidentally use
         # the field's default value just because they aren't passed to __init__
 
+        """
+        Tests the basic functionality of database querying using Django's ORM.
+
+        This test covers various aspects of database querying, including:
+
+        * Creating and retrieving objects using `create` and `get` methods
+        * Using `only` and `defer` to control which fields are fetched from the database
+        * Testing query counts using `assertNumQueries`
+        * Using `select_related` to fetch related objects in a single query
+        * Creating and retrieving related objects
+        * Using `ContentType` objects to get content types for models
+        * Using `annotate` and `defer`/`only` methods with aggregated queries
+
+        The test ensures that the ORM behaves correctly in various scenarios, including fetching related objects, using query optimization techniques, and handling aggregated queries.
+        """
         Item.objects.create(name="first", value=42)
         obj = Item.objects.only("name", "other_value").get(name="first")
         # Accessing "name" doesn't trigger a new database query. Accessing
@@ -146,6 +161,9 @@ class DeferRegressionTest(TestCase):
     def test_reverse_one_to_one_relations(self):
         # Refs #14694. Test reverse relations which are known unique (reverse
         # side has o2ofield or unique FK) - the o2o case
+        """
+
+        """
         item = Item.objects.create(name="first", value=42)
         o2o = OneToOneItem.objects.create(item=item, name="second")
         self.assertEqual(len(Item.objects.defer("one_to_one_item__name")), 1)
@@ -190,6 +208,9 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(i.value, 42)
 
     def test_defer_with_select_related(self):
+        """
+
+        """
         item1 = Item.objects.create(name="first", value=47)
         item2 = Item.objects.create(name="second", value=42)
         simple = SimpleItem.objects.create(name="simple", value="23")
@@ -260,6 +281,9 @@ class DeferRegressionTest(TestCase):
         )
 
     def test_common_model_different_mask(self):
+        """
+
+        """
         child = Child.objects.create(name="Child", value=42)
         second_child = Child.objects.create(name="Second", value=64)
         Leaf.objects.create(child=child, second_child=second_child)
@@ -310,6 +334,21 @@ class DeferRegressionTest(TestCase):
             self.assertEqual(Item.objects.only("request").get(), item)
 
     def test_self_referential_one_to_one(self):
+        """
+
+        Tests the self-referential one-to-one relationship between items.
+
+        This test case creates two items, 'first' and 'second', where 'second' has a self-referential relationship with 'first'.
+        It then queries the database to retrieve these items using select_related and only methods to optimize the query.
+        The test verifies that the query is executed only when necessary, and that the retrieved items have the correct attributes.
+
+        The test covers the following scenarios:
+
+        * Querying items with self-referential relationships using select_related and only methods
+        * Verifying that the query is executed only when necessary using assertNumQueries
+        * Checking the correctness of the retrieved items' attributes
+
+        """
         first = Item.objects.create(name="first", value=1)
         second = Item.objects.create(name="second", value=2, source=first)
         with self.assertNumQueries(1):

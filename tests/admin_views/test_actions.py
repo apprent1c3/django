@@ -55,6 +55,9 @@ class AdminActionsTest(TestCase):
         self.assertEqual(mail.outbox[0].subject, "Greetings from a ModelAdmin action")
 
     def test_model_admin_default_delete_action(self):
+        """
+
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk, self.s2.pk],
             "action": "delete_selected",

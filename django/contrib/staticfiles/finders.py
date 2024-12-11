@@ -19,6 +19,9 @@ searched_locations = []
 
 # RemovedInDjango61Warning: When the deprecation ends, remove completely.
 def _check_deprecated_find_param(class_name="", find_all=False, **kwargs):
+    """
+
+    """
     method_name = "find" if not class_name else f"{class_name}.find"
     if "all" in kwargs:
         legacy_all = kwargs.pop("all")
@@ -91,6 +94,9 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
+        """
+
+        """
         self.locations = []
         # Maps dir paths to an appropriate storage instance
         self.storages = {}
@@ -108,6 +114,9 @@ class FileSystemFinder(BaseFinder):
         super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
+        """
+
+        """
         errors = []
         if not isinstance(settings.STATICFILES_DIRS, (list, tuple)):
             errors.append(
@@ -206,6 +215,9 @@ class AppDirectoriesFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # The list of apps that are handled
+        """
+
+        """
         self.apps = []
         # Mapping of app names to storage instances
         self.storages = {}

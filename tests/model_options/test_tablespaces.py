@@ -94,6 +94,9 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_many_to_many_field(self):
+        """
+
+        """
         sql = sql_for_table(Authors).lower()
         # The join table of the ManyToManyField goes to the model's tablespace,
         # and its indexes too, unless DEFAULT_INDEX_TABLESPACE is set.

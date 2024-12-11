@@ -65,6 +65,9 @@ def method_decorator(decorator, name=""):
     # defined on. If 'obj' is a class, the 'name' is required to be the name
     # of the method that will be decorated.
     def _dec(obj):
+        """
+
+        """
         if not isinstance(obj, type):
             return _multi_decorate(decorator, obj)
         if not (name and hasattr(obj, name)):
@@ -118,8 +121,17 @@ def decorator_from_middleware(middleware_class):
 
 
 def make_middleware_decorator(middleware_class):
+    """
+
+    """
     def _make_decorator(*m_args, **m_kwargs):
+        """
+
+        """
         def _decorator(view_func):
+            """
+
+            """
             middleware = middleware_class(view_func, *m_args, **m_kwargs)
 
             def _pre_process_request(request, *args, **kwargs):
@@ -141,6 +153,19 @@ def make_middleware_decorator(middleware_class):
                 raise
 
             def _post_process_request(request, response):
+                """
+
+                Performs post-processing operations on an HTTP request and its corresponding response.
+
+                This function checks the response object for the ability to render a template and
+                invokes the middleware's template response processing if available. Additionally,
+                it checks for a general response processing method in the middleware and applies
+                it to the response. If the response cannot render a template, it directly applies
+                the general response processing method if available.
+
+                The function returns the post-processed response object.
+
+                """
                 if hasattr(response, "render") and callable(response.render):
                     if hasattr(middleware, "process_template_response"):
                         response = middleware.process_template_response(
@@ -162,6 +187,9 @@ def make_middleware_decorator(middleware_class):
             if iscoroutinefunction(view_func):
 
                 async def _view_wrapper(request, *args, **kwargs):
+                    """
+
+                    """
                     result = _pre_process_request(request, *args, **kwargs)
                     if result is not None:
                         return result
@@ -178,6 +206,9 @@ def make_middleware_decorator(middleware_class):
             else:
 
                 def _view_wrapper(request, *args, **kwargs):
+                    """
+
+                    """
                     result = _pre_process_request(request, *args, **kwargs)
                     if result is not None:
                         return result

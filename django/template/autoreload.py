@@ -11,6 +11,9 @@ def get_template_directories():
     # Iterate through each template backend and find
     # any template_loader that has a 'get_dirs' method.
     # Collect the directories, filtering out Django templates.
+    """
+
+    """
     cwd = Path.cwd()
     items = set()
     for backend in engines.all():
@@ -31,6 +34,9 @@ def get_template_directories():
 
 
 def reset_loaders():
+    """
+
+    """
     from django.forms.renderers import get_default_renderer
 
     for backend in engines.all():

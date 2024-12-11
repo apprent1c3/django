@@ -75,6 +75,9 @@ class ManyToOneTests(TestCase):
 
     def test_add(self):
         # Create an Article via the Reporter object.
+        """
+
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -116,6 +119,9 @@ class ManyToOneTests(TestCase):
         )
 
     def test_set(self):
+        """
+
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -160,6 +166,9 @@ class ManyToOneTests(TestCase):
             self.r2.article_set = []
 
     def test_assign(self):
+        """
+
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -199,6 +208,9 @@ class ManyToOneTests(TestCase):
         self.assertFalse(hasattr(self.r2.article_set, "clear"))
 
     def test_assign_fk_id_value(self):
+        """
+
+        """
         parent = Parent.objects.create(name="jeff")
         child1 = Child.objects.create(name="frank", parent=parent)
         child2 = Child.objects.create(name="randy", parent=parent)
@@ -215,6 +227,9 @@ class ManyToOneTests(TestCase):
         self.assertTrue(Parent.bestchild.is_cached(parent))
 
     def test_assign_fk_id_none(self):
+        """
+
+        """
         parent = Parent.objects.create(name="jeff")
         child = Child.objects.create(name="frank", parent=parent)
         parent.bestchild = child
@@ -227,6 +242,9 @@ class ManyToOneTests(TestCase):
         self.assertTrue(Parent.bestchild.is_cached(parent))
 
     def test_selects(self):
+        """
+
+        """
         new_article1 = self.r.article_set.create(
             headline="John's second story",
             pub_date=datetime.date(2005, 7, 29),
@@ -338,6 +356,9 @@ class ManyToOneTests(TestCase):
         )
 
     def test_reverse_selects(self):
+        """
+
+        """
         a3 = Article.objects.create(
             headline="Third article",
             pub_date=datetime.date(2005, 7, 27),
@@ -461,6 +482,24 @@ class ManyToOneTests(TestCase):
         )
 
     def test_delete(self):
+        """
+        Tests the deletion of reporter objects and its effects on related articles.
+
+        This test case creates new reporter and article objects, then checks the outcome
+        of deleting a reporter object on the related articles. It verifies that the
+        articles are properly removed from the database when their corresponding reporter
+        is deleted. Additionally, it tests the deletion of reporters based on conditions
+        applied to their articles, ensuring that both reporter and article objects are
+        correctly removed from the database in such scenarios.
+
+        The test covers the following deletion scenarios:
+        - Deleting a reporter object and verifying the removal of related articles.
+        - Deleting reporters based on conditions applied to their articles, ensuring both
+          reporter and article objects are removed.
+
+        It asserts that the remaining reporter and article objects are in the correct
+        order after deletion, confirming that the deletion process works as expected.
+        """
         new_article1 = self.r.article_set.create(
             headline="John's second story",
             pub_date=datetime.date(2005, 7, 29),
@@ -502,6 +541,9 @@ class ManyToOneTests(TestCase):
     def test_explicit_fk(self):
         # Create a new Article with get_or_create using an explicit value
         # for a ForeignKey.
+        """
+
+        """
         a2, created = Article.objects.get_or_create(
             headline="John's second test",
             pub_date=datetime.date(2011, 5, 7),
@@ -581,6 +623,9 @@ class ManyToOneTests(TestCase):
     def test_fk_assignment_and_related_object_cache(self):
         # Tests of ForeignKey assignment and the related-object cache (see #6886).
 
+        """
+
+        """
         p = Parent.objects.create(name="Parent")
         c = Child.objects.create(name="Child", parent=p)
 
@@ -712,6 +757,9 @@ class ManyToOneTests(TestCase):
 
     def test_multiple_foreignkeys(self):
         # Test of multiple ForeignKeys to the same model (bug #7125).
+        """
+
+        """
         c1 = Category.objects.create(name="First")
         c2 = Category.objects.create(name="Second")
         c3 = Category.objects.create(name="Third")
@@ -749,6 +797,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual("id", cat.remote_field.get_related_field().name)
 
     def test_relation_unsaved(self):
+        """
+
+        """
         Third.objects.create(name="Third 1")
         Third.objects.create(name="Third 2")
         th = Third(name="testing")
@@ -768,6 +819,9 @@ class ManyToOneTests(TestCase):
             self.assertEqual(th.child_set.count(), 0)
 
     def test_related_object(self):
+        """
+
+        """
         public_school = School.objects.create(is_public=True)
         public_student = Student.objects.create(school=public_school)
 

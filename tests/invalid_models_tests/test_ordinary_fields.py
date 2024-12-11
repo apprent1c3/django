@@ -228,6 +228,16 @@ class CharFieldTests(TestCase):
         )
 
     def test_iterable_of_iterable_choices(self):
+        """
+
+        Tests that a model field with choices set to an iterable of iterable objects does not raise any errors.
+
+        In this test, we create a model field with choices set to an instance of the 'Things' class,
+        which is an iterable of 'ThingItem' objects. Each 'ThingItem' object is itself an iterable
+        that returns a tuple of two values. The test verifies that the model field's choices are
+        successfully validated and do not raise any errors.
+
+        """
         class ThingItem:
             def __init__(self, value, display):
                 self.value = value
@@ -484,6 +494,9 @@ class DateFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_auto_now_and_auto_now_add_raise_error(self):
+        """
+
+        """
         class Model(models.Model):
             field0 = models.DateTimeField(auto_now=True, auto_now_add=True, default=now)
             field1 = models.DateTimeField(
@@ -513,6 +526,19 @@ class DateFieldTests(SimpleTestCase):
             self.assertEqual(checks, expected)
 
     def test_fix_default_value(self):
+        """
+
+        Tests the default value of DateField in a Django model.
+
+        This test checks if providing a fixed date/time value as the default for a DateField
+        raises a DjangoWarning, indicating that this might not be the intended behavior.
+        It verifies that using `now()` or `now().date()` as the default value triggers
+        this warning, while using `now` (without parentheses) does not.
+
+        The test case covers different ways of setting the default value for a DateField,
+        ensuring that the correct warnings are raised when a fixed value is provided.
+
+        """
         class Model(models.Model):
             field_dt = models.DateField(default=now())
             field_d = models.DateField(default=now().date())
@@ -558,6 +584,15 @@ class DateTimeFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_fix_default_value(self):
+        """
+        Tests that fixed default values for DateTimeField are correctly identified and warned against.
+
+        This test checks that providing a fixed default value to a DateTimeField, such as the result of now() or now().date(), 
+        triggers a warning suggesting the use of django.utils.timezone.now for dynamic date and time defaults.
+
+        The test covers both DateTimeField instances with fixed datetime and date default values, and verifies that 
+        the expected warnings are generated and reported correctly.
+        """
         class Model(models.Model):
             field_dt = models.DateTimeField(default=now())
             field_d = models.DateTimeField(default=now().date())
@@ -792,6 +827,9 @@ class GenericIPAddressFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class ImageFieldTests(SimpleTestCase):
     def test_pillow_installed(self):
+        """
+
+        """
         try:
             from PIL import Image  # NOQA
         except ImportError:
@@ -825,6 +863,9 @@ class ImageFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class IntegerFieldTests(SimpleTestCase):
     def test_max_length_warning(self):
+        """
+
+        """
         class Model(models.Model):
             integer = models.IntegerField(max_length=2)
             biginteger = models.BigIntegerField(max_length=2)
@@ -893,6 +934,9 @@ class TimeFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_fix_default_value(self):
+        """
+
+        """
         class Model(models.Model):
             field_dt = models.TimeField(default=now())
             field_t = models.TimeField(default=now().time())
@@ -1105,6 +1149,9 @@ class DbCommentTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class InvalidDBDefaultTests(TestCase):
     def test_db_default(self):
+        """
+
+        """
         class Model(models.Model):
             field = models.FloatField(db_default=Pi())
 
@@ -1141,6 +1188,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, [])
 
     def test_db_default_expression_invalid(self):
+        """
+
+        """
         expression = models.F("field_name")
 
         class Model(models.Model):
@@ -1161,6 +1211,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, expected_errors)
 
     def test_db_default_expression_required_db_features(self):
+        """
+
+        """
         expression = models.F("field_name")
 
         class Model(models.Model):
@@ -1211,6 +1264,9 @@ class InvalidDBDefaultTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class GeneratedFieldTests(TestCase):
     def test_not_supported(self):
+        """
+
+        """
         db_persist = connection.features.supports_stored_generated_columns
 
         class Model(models.Model):

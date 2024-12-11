@@ -45,6 +45,9 @@ class Serializer(JSONSerializer):
                     break
 
     def get_dump_object(self, obj):
+        """
+
+        """
         data = {
             "type": "Feature",
             "id": obj.pk if self.id_field is None else getattr(obj, self.id_field),

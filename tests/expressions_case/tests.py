@@ -36,6 +36,18 @@ except ImportError:
 class CaseExpressionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the test class.
+
+        This method creates a set of test instances for the CaseTestModel, O2OCaseTestModel, and FKCaseTestModel models. 
+        The test data includes a variety of combinations of integer and string values to facilitate comprehensive testing.
+
+        Additionally, it populates the group_by_fields class attribute with a list of field names from CaseTestModel 
+        that can be used for grouping, excluding auto-created relation fields and large object fields if the database 
+        does not support grouping by them.
+
+        """
         o = CaseTestModel.objects.create(integer=1, integer2=1, string="1")
         O2OCaseTestModel.objects.create(o2o=o, integer=1)
         FKCaseTestModel.objects.create(fk=o, integer=1)

@@ -30,6 +30,23 @@ class FindersCheckTests(CollectionTestCase):
         error3 = Error("3")
 
         def get_finders():
+            """
+            Return a list of finder objects used for checking and reporting errors.
+
+            The returned list contains instances of different finder classes, each responsible 
+            for identifying specific types of errors or issues. These finder objects can be 
+            used to perform checks and retrieve error reports.
+
+            The check method of each finder object can be called with arbitrary keyword 
+            arguments to initiate the error checking process. The method returns a list of 
+            errors found during the check.
+
+            The returned list of finder objects can be iterated over and used to perform 
+            checks and retrieve error reports in a centralized and standardized way. 
+
+            :rtype: list
+            :returns: A list of finder objects
+            """
             class Finder1(BaseFinder):
                 def check(self, **kwargs):
                     return [error1]

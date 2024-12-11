@@ -52,6 +52,9 @@ class Command(BaseCommand):
             test_runner_class.add_arguments(parser)
 
     def handle(self, *test_labels, **options):
+        """
+
+        """
         TestRunner = get_runner(settings, options["testrunner"])
 
         time_keeper = TimeKeeper() if options.get("timing", False) else NullTimeKeeper()

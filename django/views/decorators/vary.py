@@ -18,6 +18,26 @@ def vary_on_headers(*headers):
     """
 
     def decorator(func):
+        """
+        A decorator that patches the 'Vary' headers of the response from the decorated view function.
+
+        It checks if the decorated function is a coroutine and applies the decorator accordingly.
+        If the function is a coroutine, it awaits the function's response and then patches the 'Vary' headers.
+        If the function is not a coroutine, it directly calls the function and then patches the 'Vary' headers.
+
+        The patched headers are added based on the provided headers, allowing for customization of the 'Vary' headers for the view function's response.
+
+        This decorator is intended to be used with view functions to handle varying headers, such as when the response changes based on different request parameters (e.g., Accept-Language, Accept-Encoding).
+
+        Args:
+            func: The view function to be decorated.
+
+        Returns:
+            A wrapped version of the input function with patched 'Vary' headers in its response.
+
+        Note:
+            The headers to be patched are not defined within this decorator, but are expected to be defined beforehand. The function iscoroutinefunction is used to determine if the input function is a coroutine, and wraps is used to preserve the original function's metadata.
+        """
         if iscoroutinefunction(func):
 
             async def _view_wrapper(request, *args, **kwargs):

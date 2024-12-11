@@ -112,6 +112,9 @@ class SearchVector(SearchVectorCombinable, Func):
         return resolved
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+
+        """
         clone = self.copy()
         clone.set_source_expressions(
             [
@@ -203,6 +206,9 @@ class SearchQuery(SearchQueryCombinable, Func):
         invert=False,
         search_type="plain",
     ):
+        """
+
+        """
         self.function = self.SEARCH_TYPES.get(search_type)
         if self.function is None:
             raise ValueError("Unknown search_type argument '%s'." % search_type)
@@ -252,6 +258,22 @@ class SearchRank(Func):
         normalization=None,
         cover_density=False,
     ):
+        """
+
+        Initialize a text search ranking object.
+
+        This object calculates the relevance of a query to a given search vector,
+        optionally using weights and normalization. It can also use cover density
+        ranking, which takes into account how well the search query covers the
+        document.
+
+        :param vector: The search vector to rank against.
+        :param query: The query to rank.
+        :param weights: Optional weights to apply to the query terms.
+        :param normalization: Optional normalization value to apply to the ranking.
+        :param cover_density: If True, use cover density ranking instead of the default.
+
+        """
         from .fields.array import ArrayField
 
         if not hasattr(vector, "resolve_expression"):

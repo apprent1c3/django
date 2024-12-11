@@ -24,6 +24,9 @@ class DummyObj:
 
 class SystemCheckFrameworkTests(SimpleTestCase):
     def test_register_and_run_checks(self):
+        """
+
+        """
         def f(**kwargs):
             calls[0] += 1
             return [1, 2, 3]
@@ -313,6 +316,9 @@ class CheckFrameworkReservedNamesTests(SimpleTestCase):
     @isolate_apps("check_framework", kwarg_name="apps")
     @override_system_checks([checks.model_checks.check_all_models])
     def test_model_check_method_not_shadowed(self, apps):
+        """
+
+        """
         class ModelWithAttributeCalledCheck(models.Model):
             check = 42
 

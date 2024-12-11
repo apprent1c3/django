@@ -680,6 +680,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, DateRange(lower, upper))
 
     def test_using_split_datetime_widget(self):
+        """
+
+        """
         class SplitDateTimeRangeField(pg_forms.DateTimeRangeField):
             base_field = forms.SplitDateTimeField
 

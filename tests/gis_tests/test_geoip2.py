@@ -45,6 +45,9 @@ class GeoLite2Test(SimpleTestCase):
 
     def test_init(self):
         # Everything inferred from GeoIP path.
+        """
+
+        """
         g1 = GeoIP2()
         # Path passed explicitly.
         g2 = GeoIP2(settings.GEOIP_PATH, GeoIP2.MODE_AUTO)
@@ -75,6 +78,9 @@ class GeoLite2Test(SimpleTestCase):
             GeoIP2(invalid_path)
 
     def test_bad_query(self):
+        """
+
+        """
         g = GeoIP2(city="<invalid>")
 
         functions = (g.city, g.geos, g.lat_lon, g.lon_lat)
@@ -132,6 +138,25 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_city(self):
+        """
+
+        Test the city lookup functionality of the GeoIP2 class.
+
+        This test case verifies that the GeoIP2 class correctly retrieves city information 
+        from the database and returns it in the expected format. It also checks that 
+        the geospatial data is correctly converted to GEOSGeometry objects and 
+        that the latitude and longitude values are correctly returned.
+
+        The test covers the following methods:
+        - city: Retrieves city information for a given query.
+        - geos: Retrieves geospatial data for a given query.
+        - lat_lon: Retrieves latitude and longitude values for a given query.
+        - lon_lat: Retrieves longitude and latitude values for a given query.
+        - country: Retrieves country information for a given query.
+        - country_code: Retrieves the country code for a given query.
+        - country_name: Retrieves the country name for a given query.
+
+        """
         g = GeoIP2(country="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("City"), True)
         for query in self.query_values:

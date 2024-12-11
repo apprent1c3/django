@@ -26,6 +26,9 @@ class GeoFuncMixin:
     geom_param_pos = (0,)
 
     def __init__(self, *expressions, **extra):
+        """
+
+        """
         super().__init__(*expressions, **extra)
 
         # Ensure that value expressions are geometric.
@@ -68,6 +71,9 @@ class GeoFuncMixin:
         return super().as_sql(compiler, connection, function=function, **extra_context)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+
+        """
         res = super().resolve_expression(*args, **kwargs)
         if not self.geom_param_pos:
             return res
@@ -187,6 +193,9 @@ class AsGeoJSON(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, bbox=False, crs=False, precision=8, **extra):
+        """
+
+        """
         expressions = [expression]
         if precision is not None:
             expressions.append(self._handle_param(precision, "precision", int))
@@ -318,6 +327,9 @@ class Distance(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         super().__init__(*expressions, **extra)
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+
+        """
         clone = self.copy()
         function = None
         expr2 = clone.source_expressions[1]
@@ -453,6 +465,9 @@ class Length(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+
+        """
         clone = self.copy()
         function = None
         if self.source_is_geography():

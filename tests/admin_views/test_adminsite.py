@@ -69,6 +69,9 @@ class SiteEachContextTest(TestCase):
         self.assertEqual(site.each_context(request)["site_url"], "/my-script-name/")
 
     def test_available_apps(self):
+        """
+
+        """
         ctx = self.ctx
         apps = ctx["available_apps"]
         # we have registered two models from two different apps

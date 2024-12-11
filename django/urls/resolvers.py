@@ -45,6 +45,22 @@ class ResolverMatch:
         captured_kwargs=None,
         extra_kwargs=None,
     ):
+        """
+
+        Initializes a view instance with the provided function, arguments, and keyword arguments.
+
+        This class represents a view that can be used to handle HTTP requests. The constructor takes in various parameters, 
+        including the view function, positional and keyword arguments, URL name, application names, namespaces, and route.
+
+        The view function is the main entry point for handling the request. The positional and keyword arguments are used to 
+        pass data to the view function. The URL name, application names, and namespaces are used to identify and locate the view.
+
+        Optional parameters allow for specifying additional metadata, such as the route and captured keyword arguments.
+
+        The constructor also performs some internal setup, including determining the view path and name based on the provided 
+        parameters and the view function itself.
+
+        """
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -322,6 +338,11 @@ class RoutePattern(CheckURLMixin):
         self.name = name
 
     def match(self, path):
+        """
+        Matches a given path against a predefined regular expression pattern.
+
+        The function attempts to find a match for the specified path. If a match is found, it extracts the matched groups as keyword arguments and applies type conversions to the values using predefined converters. The function returns a tuple containing the remaining path after the matched part, no positional arguments, and the converted keyword arguments. If no match is found or if a type conversion fails, the function returns None.
+        """
         match = self.regex.search(path)
         if match:
             # RoutePattern doesn't allow non-named groups so args are ignored.
@@ -353,6 +374,19 @@ class RoutePattern(CheckURLMixin):
         return warnings
 
     def _check_pattern_unmatched_angle_brackets(self):
+        """
+        Verify that angle brackets in a URL pattern are properly matched.
+
+        Checks for unmatched '<' or '>' brackets in the route, which can indicate a 
+        configuration error. If any unmatched brackets are found, a warning is 
+        generated with a description of the issue.
+
+        Returns:
+            list: A list of warnings, where each warning includes a message describing 
+            the unmatched bracket and its location in the URL pattern, or an empty list 
+            if no issues are found.
+
+        """
         warnings = []
         msg = "Your URL pattern %s has an unmatched '%s' bracket."
         brackets = re.findall(r"[<>]", str(self._route))
@@ -494,6 +528,23 @@ class URLResolver:
     def __init__(
         self, pattern, urlconf_name, default_kwargs=None, app_name=None, namespace=None
     ):
+        """
+
+        Initialize an instance of the URL resolver.
+
+        This constructor sets the foundation for resolving URLs within a Django application.
+        It takes several key parameters that define how URLs are matched and resolved:
+            :param pattern: The URL pattern to be matched.
+            :param urlconf_name: The name of the URL configuration module.
+            :param default_kwargs: Optional default keyword arguments to be passed to the view function.
+            :param app_name: Optional application name for namespacing URL names.
+            :param namespace: Optional namespace for the URL pattern.
+
+        These parameters are used to configure the resolver and facilitate the resolution of URLs
+        to their corresponding view functions. The resolver also initializes internal data structures
+        to efficiently manage URL namespaces, applications, and callbacks.
+
+        """
         self.pattern = pattern
         # urlconf_name is the dotted Python path to the module defining
         # urlpatterns. It may also be an object with an urlpatterns attribute
@@ -537,6 +588,20 @@ class URLResolver:
         # infinite recursion. Concurrent threads may call this at the same
         # time and will need to continue, so set 'populating' on a
         # thread-local variable.
+        """
+        Populate the internal data structures that enable URL reversing.
+
+        This method is used to populate the internal data structures that are used for URL reversing. It iterates over the URL patterns in reverse order and populates the following data structures:
+        - A dictionary of callbacks and their corresponding URL patterns
+        - A dictionary of namespaces and their corresponding URL patterns
+        - A dictionary of applications and their corresponding namespaces
+
+        The method also handles the population of nested URL patterns, including those that are part of an application or namespace.
+
+        Once the data structures have been populated, they are stored in instance variables that are keyed by language code. This allows the data structures to be used for URL reversing in a language-specific manner.
+
+        The population process is internally synchronized to prevent concurrent population of the data structures. If the data structures are already being populated, this method will simply return without doing anything.
+        """
         if getattr(self._local, "populating", False):
             return
         try:
@@ -658,6 +723,34 @@ class URLResolver:
         return name in self._callback_strs
 
     def resolve(self, path):
+        """
+        Resolves a URL path against the defined URL patterns.
+
+        This function takes a URL path as input, attempts to match it against the patterns defined 
+        in the URL resolver, and returns a ResolverMatch object if a match is found. 
+        The ResolverMatch object contains information about the matched URL, including the function to be called, 
+        any arguments or keyword arguments to be passed, and other metadata.
+
+        If no match is found, a Resolver404 exception is raised with information about the URL patterns that were tried.
+
+        The path is resolved in a hierarchical manner, allowing for nested URL patterns to be matched. 
+        The function also handles cases where multiple URL patterns are defined with the same prefix. 
+
+        Parameters
+        ----------
+        path : str
+            The URL path to be resolved.
+
+        Returns
+        -------
+        ResolverMatch
+            An object containing information about the matched URL.
+
+        Raises
+        ------
+        Resolver404
+            If no match is found for the given URL path.
+        """
         path = str(path)  # path may be a reverse_lazy object
         tried = []
         match = self.pattern.match(path)
@@ -742,6 +835,9 @@ class URLResolver:
         return self._reverse_with_prefix(lookup_view, "", *args, **kwargs)
 
     def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        """
+
+        """
         if args and kwargs:
             raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
 

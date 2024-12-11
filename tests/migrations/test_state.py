@@ -288,6 +288,9 @@ class StateTests(SimpleTestCase):
         self.assertEqual(boss_state.managers, [("objects", Boss.objects)])
 
     def test_custom_default_manager(self):
+        """
+
+        """
         new_apps = Apps(["migrations"])
 
         class Author(models.Model):
@@ -305,6 +308,9 @@ class StateTests(SimpleTestCase):
         self.assertEqual(author_state.managers, [("manager2", Author.manager1)])
 
     def test_custom_base_manager(self):
+        """
+
+        """
         new_apps = Apps(["migrations"])
 
         class Author(models.Model):
@@ -446,6 +452,9 @@ class StateTests(SimpleTestCase):
         )
 
     def test_render_model_inheritance(self):
+        """
+
+        """
         class Book(models.Model):
             title = models.CharField(max_length=1000)
 
@@ -471,6 +480,9 @@ class StateTests(SimpleTestCase):
         ModelState.from_model(Novel).render(apps)
 
     def test_render_model_with_multiple_inheritance(self):
+        """
+
+        """
         class Foo(models.Model):
             class Meta:
                 app_label = "migrations"
@@ -647,6 +659,9 @@ class StateTests(SimpleTestCase):
         self.assertIs(D._meta.get_field("a").related_model, A)
 
     def test_reload_model_relationship_consistency(self):
+        """
+
+        """
         project_state = ProjectState()
         project_state.add_model(ModelState("migrations", "A", []))
         project_state.add_model(
@@ -909,6 +924,9 @@ class StateTests(SimpleTestCase):
         self.assertIs(project_state == other_state, False)
 
     def test_dangling_references_throw_error(self):
+        """
+
+        """
         new_apps = Apps()
 
         class Author(models.Model):
@@ -996,6 +1014,9 @@ class StateTests(SimpleTestCase):
             project_state.apps
 
     def test_reference_mixed_case_app_label(self):
+        """
+
+        """
         new_apps = Apps()
 
         class Author(models.Model):
@@ -1094,6 +1115,9 @@ class StateTests(SimpleTestCase):
         )
 
     def test_modelstate_get_field_order_wrt(self):
+        """
+
+        """
         new_apps = Apps()
 
         class Author(models.Model):
@@ -1117,6 +1141,9 @@ class StateTests(SimpleTestCase):
         self.assertEqual(order_wrt_field.related_model, "migrations.author")
 
     def test_modelstate_get_field_no_order_wrt_order_field(self):
+        """
+
+        """
         new_apps = Apps()
 
         class HistoricalRecord(models.Model):
@@ -1132,6 +1159,9 @@ class StateTests(SimpleTestCase):
         self.assertIsInstance(order_field, models.PositiveSmallIntegerField)
 
     def test_get_order_field_after_removed_order_with_respect_to_field(self):
+        """
+
+        """
         new_apps = Apps()
 
         class HistoricalRecord(models.Model):
@@ -1209,6 +1239,9 @@ class StateTests(SimpleTestCase):
 
 class StateRelationsTests(SimpleTestCase):
     def get_base_project_state(self):
+        """
+
+        """
         new_apps = Apps()
 
         class User(models.Model):
@@ -1330,6 +1363,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_remove_model(self):
+        """
+
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1352,6 +1388,9 @@ class StateRelationsTests(SimpleTestCase):
         self.assertEqual(project_state.relations, {})
 
     def test_rename_model(self):
+        """
+
+        """
         project_state = self.get_base_project_state()
         self.assertEqual(
             list(project_state.relations["tests", "user"]),
@@ -1406,6 +1445,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_add_field(self):
+        """
+
+        """
         project_state = self.get_base_project_state()
         self.assertNotIn(("tests", "post"), project_state.relations)
         # Add a self-referential foreign key.
@@ -1444,6 +1486,20 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_add_field_m2m_with_through(self):
+        """
+
+        Tests adding a ManyToManyField to a model with a through model.
+
+        This test scenario involves creating a project state, adding two models (`Tag` and `PostTag`) and then 
+        adding a ManyToManyField to the `Post` model that references the `Tag` model through the `PostTag` model.
+
+        The test verifies that the relations between models are correctly updated after adding the ManyToManyField.
+
+        After the field is added, it checks that the relations between `Post` and `PostTag`, and `Tag` and `PostTag` 
+        are correctly established, and that the relations between `Tag` and `Post` are also updated to reflect 
+        the ManyToManyField.
+
+        """
         project_state = self.get_base_project_state()
         project_state.add_model(
             ModelState(
@@ -1624,6 +1680,9 @@ class StateRelationsTests(SimpleTestCase):
         )
 
     def test_many_relations_to_same_model(self):
+        """
+
+        """
         project_state = self.get_base_project_state()
         new_field = models.ForeignKey("tests.user", models.CASCADE)
         project_state.add_field(
@@ -1858,6 +1917,9 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations")
     def test_abstract_model_children_inherit_indexes(self):
+        """
+
+        """
         class Abstract(models.Model):
             name = models.CharField(max_length=50)
 
@@ -1901,6 +1963,13 @@ class ModelStateTests(SimpleTestCase):
 
     @isolate_apps("migrations")
     def test_from_model_constraints(self):
+        """
+        Tests that model constraints defined in the model's Meta class are correctly 
+        propagated to the model state. Verifies that the constraints from the model and 
+        its corresponding state are equal in value, but distinct in identity, ensuring 
+        that modifying one does not affect the other. Specifically, this test checks 
+        that a CheckConstraint is properly transferred from the model to its state.
+        """
         class ModelWithConstraints(models.Model):
             size = models.IntegerField()
 
@@ -1926,6 +1995,9 @@ class RelatedModelsTests(SimpleTestCase):
     def create_model(
         self, name, foreign_keys=[], bases=(), abstract=False, proxy=False
     ):
+        """
+
+        """
         test_name = "related_models_app"
         assert not (abstract and proxy)
         meta_contents = {
@@ -2052,6 +2124,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [A, B])
 
     def test_multiple_nested_bases(self):
+        """
+
+        """
         A = self.create_model("A")
         B = self.create_model("B")
         C = self.create_model(
@@ -2229,6 +2304,9 @@ class RelatedModelsTests(SimpleTestCase):
         self.assertRelated(C, [])
 
     def test_multiple_mixed_bases(self):
+        """
+
+        """
         A = self.create_model("A", abstract=True)
         M = self.create_model("M")
         P = self.create_model("P")

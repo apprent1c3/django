@@ -106,6 +106,9 @@ class MultiDBOperationTests(OperationTestBase):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
 
     def _test_run_sql(self, app_label, should_run, hints=None):
+        """
+
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
@@ -146,6 +149,9 @@ class MultiDBOperationTests(OperationTestBase):
         self._test_run_sql("test_mltdb_runsql3", should_run=True, hints={"foo": True})
 
     def _test_run_python(self, app_label, should_run, hints=None):
+        """
+
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 

@@ -144,6 +144,23 @@ class LastExecutedQueryTest(TestCase):
             )
 
     def test_last_executed_query_with_duplicate_params(self):
+        """
+
+        Tests the retrieval of the last executed SQL query with duplicate parameters.
+
+        This test case validates the functionality of getting the last executed query 
+        from the database connection, specifically when the query contains duplicate 
+        parameters. It verifies that the retrieved query correctly represents the 
+        executed SQL statement, including the formatted parameter values.
+
+        The test scenario involves an UPDATE query on a \"Square\" table, updating the 
+        \"root\" column based on the \"id\" column. The query has duplicate parameter 
+        values, which are correctly replaced in the retrieved query string.
+
+        The test assertion checks if the retrieved query string matches the expected 
+        SQL statement, ensuring accurate query logging and debugging capabilities.
+
+        """
         square_opts = Square._meta
         table = connection.introspection.identifier_converter(square_opts.db_table)
         id_column = connection.ops.quote_name(square_opts.get_field("id").column)
@@ -254,6 +271,9 @@ class ConnectionCreatedSignalTest(TransactionTestCase):
     # and so it cannot be re-opened during testing.
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_signal(self):
+        """
+
+        """
         data = {}
 
         def receiver(sender, connection, **kwargs):
@@ -303,6 +323,9 @@ class BackendTestCase(TransactionTestCase):
         self.create_squares(args, "format", True)
 
     def create_squares(self, args, paramstyle, multiple):
+        """
+
+        """
         opts = Square._meta
         tbl = connection.introspection.identifier_converter(opts.db_table)
         f1 = connection.ops.quote_name(opts.get_field("root").column)
@@ -381,6 +404,9 @@ class BackendTestCase(TransactionTestCase):
 
     def test_unicode_fetches(self):
         # fetchone, fetchmany, fetchall return strings as Unicode objects.
+        """
+
+        """
         qn = connection.ops.quote_name
         Person(first_name="John", last_name="Doe").save()
         Person(first_name="Jane", last_name="Doe").save()
@@ -408,6 +434,14 @@ class BackendTestCase(TransactionTestCase):
             )
 
     def test_unicode_password(self):
+        """
+
+        Tests that a Unicode password can be used to connect to the database without raising an unexpected error.
+
+        This test sets a Unicode password, attempts to establish a database connection, and then reverts the password to its original value.
+        The test passes if no unexpected errors are raised during the connection attempt.
+
+        """
         old_password = connection.settings_dict["PASSWORD"]
         connection.settings_dict["PASSWORD"] = "françois"
         try:
@@ -567,6 +601,9 @@ class BackendTestCase(TransactionTestCase):
     @mock.patch("django.db.backends.utils.logger")
     @override_settings(DEBUG=True)
     def test_queries_logger(self, mocked_logger):
+        """
+
+        """
         sql = "SELECT 1" + connection.features.bare_select_suffix
         with connection.cursor() as cursor:
             cursor.execute(sql)
@@ -735,6 +772,9 @@ class FkConstraintsTests(TransactionTestCase):
             transaction.set_rollback(True)
 
     def test_check_constraints_sql_keywords(self):
+        """
+
+        """
         with transaction.atomic():
             obj = SQLKeywordsModel.objects.create(reporter=self.r)
             obj.refresh_from_db()
@@ -842,6 +882,18 @@ class ThreadTests(TransactionTestCase):
         Person.objects.create(first_name="John", last_name="Doe")
 
         def do_thread():
+            """
+
+            Performs a query in a separate thread to test database connections.
+
+            This function creates a new thread that attempts to retrieve a Person object from the database.
+            It temporarily switches the database connection in the new thread to the default connection from the main thread.
+            If an exception occurs during the query, it is appended to the exceptions list for further handling.
+
+            Note:
+                The function assumes that the `connections` and `exceptions` variables are defined in the outer scope, and that the `Person` model is available.
+
+            """
             def runner(main_thread_connection):
                 from django.db import connections
 
@@ -901,6 +953,9 @@ class ThreadTests(TransactionTestCase):
         exceptions = set()
 
         def runner1():
+            """
+
+            """
             def runner2(other_thread_connection):
                 try:
                     other_thread_connection.close()
@@ -923,6 +978,9 @@ class ThreadTests(TransactionTestCase):
         self.assertEqual(len(exceptions), 0)
 
     def test_thread_sharing_count(self):
+        """
+
+        """
         self.assertIs(connection.allow_thread_sharing, False)
         connection.inc_thread_sharing()
         self.assertIs(connection.allow_thread_sharing, True)

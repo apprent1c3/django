@@ -53,6 +53,29 @@ class Command(BaseCommand):
             )
 
     def handle_inspection(self, options):
+        """
+        Generates a Django model module based on the provided database inspection options.
+
+        This function takes an options dictionary as input and uses it to connect to the specified database.
+        It then inspects the tables in the database and generates a Django model module as a series of lines.
+
+        The generated model module includes:
+            * A header with instructions on how to clean up the module.
+            * Import statements for the Django models module.
+            * A class definition for each inspected table, with attributes corresponding to the table's columns.
+            * A Meta class definition for each model, including options for the table name, database table comment, and primary key.
+
+        The options dictionary should contain the following keys:
+            * database: The name of the database to inspect.
+            * table: A list of table names to inspect, or None to inspect all tables.
+            * table_name_filter: A callable that takes a table name as input and returns a boolean indicating whether to include the table.
+            * include_partitions: A boolean indicating whether to include partitioned tables in the inspection.
+            * include_views: A boolean indicating whether to include views in the inspection.
+
+        Yields:
+            str: A line of the generated Django model module.
+
+        """
         connection = connections[options["database"]]
         # 'table_name_filter' is a stealth option
         table_name_filter = options.get("table_name_filter")

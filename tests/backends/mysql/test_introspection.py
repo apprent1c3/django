@@ -34,6 +34,24 @@ class StorageEngineTests(TestCase):
     databases = {"default", "other"}
 
     def test_get_storage_engine(self):
+        """
+
+        Tests the functionality of getting the storage engine for a given table.
+
+        This test case checks if the storage engine of a table can be correctly retrieved
+        from different database connections. It creates a test table with different
+        storage engines ('InnoDB' and 'MyISAM') on two separate connections, and then
+        verifies that the correct storage engine is returned for each connection.
+
+        The test covers the following scenarios:
+        - Creating a table with a specific storage engine
+        - Retrieving the storage engine of the created table
+        - Verifying that the retrieved storage engine matches the expected one
+
+        The test is self-cleaning, meaning that it drops the test table after verification,
+        regardless of the test outcome.
+
+        """
         table_name = "test_storage_engine"
         create_sql = "CREATE TABLE %s (id INTEGER) ENGINE = %%s" % table_name
         drop_sql = "DROP TABLE %s" % table_name
@@ -68,6 +86,9 @@ class TestCrossDatabaseRelations(TestCase):
     databases = {"default", "other"}
 
     def test_omit_cross_database_relations(self):
+        """
+
+        """
         default_connection = connections["default"]
         other_connection = connections["other"]
         main_table = "cross_schema_get_relations_main_table"

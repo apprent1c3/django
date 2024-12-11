@@ -34,6 +34,9 @@ class ExclusionConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+
+        """
         if index_type and index_type.lower() not in {"gist", "spgist"}:
             raise ValueError(
                 "Exclusion constraints only support GiST or SP-GiST indexes."
@@ -128,6 +131,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def deconstruct(self):
+        """
+
+        """
         path, args, kwargs = super().deconstruct()
         kwargs["expressions"] = self.expressions
         if self.condition is not None:
@@ -177,6 +183,27 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        Validate a model instance against a set of database-level expressions.
+
+        This method takes a model instance and checks it against a set of predefined expressions. 
+        It replaces field names in the expressions with their actual values from the instance, 
+        and then filters the model's queryset using the resulting expressions.
+
+        The validation can be customized by excluding certain fields from the validation process. 
+        Additionally, the method can operate on a specific database, allowing for more flexibility.
+
+        If the validation fails, a `ValidationError` is raised with a specific error message and code.
+
+        Parameters:
+            model (Model): The model class being validated.
+            instance (Model instance): The instance being validated.
+            exclude (list, optional): A list of field names to exclude from validation. Defaults to None.
+            using (str, optional): The database alias to use for validation. Defaults to DEFAULT_DB_ALIAS.
+
+        Raises:
+            ValidationError: If the validation fails.
+        """
         queryset = model._default_manager.using(using)
         replacement_map = instance._get_field_value_map(
             meta=model._meta, exclude=exclude

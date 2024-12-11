@@ -101,6 +101,9 @@ class TestNumberFormat(SimpleTestCase):
         )
 
     def test_decimal_numbers(self):
+        """
+
+        """
         self.assertEqual(nformat(Decimal("1234"), "."), "1234")
         self.assertEqual(nformat(Decimal("1234.2"), "."), "1234.2")
         self.assertEqual(nformat(Decimal("1234"), ".", decimal_pos=2), "1234.00")
@@ -161,6 +164,9 @@ class TestNumberFormat(SimpleTestCase):
                 )
 
     def test_decimal_subclass(self):
+        """
+
+        """
         class EuroDecimal(Decimal):
             """
             Wrapper for Decimal which prefixes each amount with the € symbol.

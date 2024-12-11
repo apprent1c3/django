@@ -45,6 +45,9 @@ class Gender(models.TextChoices):
 
 class ChoicesTests(SimpleTestCase):
     def test_integerchoices(self):
+        """
+
+        """
         self.assertEqual(
             Suit.choices, [(1, "Diamond"), (2, "Spade"), (3, "Heart"), (4, "Club")]
         )
@@ -86,6 +89,13 @@ class ChoicesTests(SimpleTestCase):
         self.assertNotIn(0, Suit)
 
     def test_textchoices(self):
+        """
+        Tests the YearInSchool text choices to ensure they match the expected values.
+
+        Verifies that the choices, labels, values, and names for each year in school are correctly defined.
+        Additionally, checks the representation, label, and value of each choice, as well as the ability to access and instantiate choices by name or value.
+        Confirms that YearInSchool is an instance of the Choices type and that its choices are instances of the YearInSchool type, with labels being promises and values being strings.
+        """
         self.assertEqual(
             YearInSchool.choices,
             [
@@ -149,6 +159,9 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(BlankStr.names, ["EMPTY", "ONE"])
 
     def test_invalid_definition(self):
+        """
+
+        """
         msg = "'str' object cannot be interpreted as an integer"
         with self.assertRaisesMessage(TypeError, msg):
 

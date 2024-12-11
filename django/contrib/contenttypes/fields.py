@@ -171,6 +171,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+
+        """
         custom_queryset_dict = {}
         if querysets is not None:
             for queryset in querysets:
@@ -233,6 +236,9 @@ class GenericForeignKey(FieldCacheMixin, Field):
         )
 
     def __get__(self, instance, cls=None):
+        """
+
+        """
         if instance is None:
             return self
 
@@ -330,6 +336,9 @@ class GenericRelation(ForeignObject):
         limit_choices_to=None,
         **kwargs,
     ):
+        """
+
+        """
         kwargs["rel"] = self.rel_class(
             self,
             to,
@@ -483,6 +492,9 @@ class GenericRelation(ForeignObject):
         return str([instance.pk for instance in qs])
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+
+        """
         kwargs["private_only"] = True
         super().contribute_to_class(cls, name, **kwargs)
         self.model = cls
@@ -576,6 +588,9 @@ def create_generic_related_manager(superclass, rel):
 
     class GenericRelatedObjectManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+
+            """
             super().__init__()
 
             self.instance = instance
@@ -638,6 +653,29 @@ def create_generic_related_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+            Return a tuple containing a queryset and related functions for prefetching related objects.
+
+            This function takes a list of instances and an optional list of querysets, and returns a 
+            queryset that can be used to prefetch related objects for the given instances. The 
+            queryset is built based on the content types and object IDs of the instances.
+
+            The returned tuple contains the following elements:
+            - A queryset that can be used for prefetching related objects.
+            - A function that converts a related object to its ID and content type ID.
+            - A function that converts an object to its ID and content type ID.
+            - A boolean indicating whether the prefetch should be done in a single query.
+            - A cache name for the prefetch.
+            - A boolean indicating whether the prefetch should be done for a single query.
+
+            Raises:
+                ValueError: If the length of the querysets list is not 1.
+
+            Note:
+                If no queryset is provided, the function will use the default queryset from the 
+                superclass. The function also ensures that the queryset uses the correct database 
+                and adds necessary hints for the given instances.
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -677,6 +715,9 @@ def create_generic_related_manager(superclass, rel):
             )
 
         def add(self, *objs, bulk=True):
+            """
+
+            """
             self._remove_prefetched_objects()
             db = router.db_for_write(self.model, instance=self.instance)
 
@@ -759,6 +800,22 @@ def create_generic_related_manager(superclass, rel):
         def set(self, objs, *, bulk=True, clear=False):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
+            """
+
+            Sets the related objects for the current instance.
+
+            This method allows you to update the related objects in a single operation. 
+            You can choose to replace the existing objects or update them by passing a new list.
+
+            If `clear` is True, the existing objects will be removed and replaced with the new ones.
+            If `clear` is False, the existing objects will be updated by removing the ones that are no longer in the new list and adding the new ones that were not previously in the list.
+
+            Args:
+                objs: An iterable of objects to set as related objects.
+                bulk (bool): Whether to use bulk operations when adding or removing objects. Defaults to True.
+                clear (bool): Whether to clear the existing related objects before setting the new ones. Defaults to False.
+
+            """
             objs = tuple(objs)
 
             db = router.db_for_write(self.model, instance=self.instance)

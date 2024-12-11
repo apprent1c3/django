@@ -431,6 +431,9 @@ class BaseModelAdminChecks:
             return self._check_field_spec_item(obj, fields, label)
 
     def _check_field_spec_item(self, obj, field_name, label):
+        """
+
+        """
         if field_name in obj.readonly_fields:
             # Stuff can be put in fields that isn't actually a model field if
             # it's in readonly_fields, readonly_fields will handle the
@@ -772,6 +775,18 @@ class BaseModelAdminChecks:
             )
 
     def _check_readonly_fields_item(self, obj, field_name, label):
+        """
+        .. function:: _check_readonly_fields_item
+
+            Check if the given field name is a valid field or attribute on the provided object or its model.
+
+            This method verifies that the specified field_name is either a callable, an attribute of the object or its model, or a valid model field. If the field_name does not meet these criteria, an error is returned.
+
+            :param obj: The object to check against
+            :param field_name: The name of the field to verify
+            :param label: A label to use in error messages
+            :return: A list of errors if the field_name is not valid, or an empty list if it is valid
+        """
         if callable(field_name):
             return []
         elif hasattr(obj, field_name):
@@ -904,6 +919,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             )
 
     def _check_list_display_item(self, obj, item, label):
+        """
+
+        """
         if callable(item):
             return []
         elif hasattr(obj, item):
@@ -1103,6 +1121,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
             )
 
     def _check_list_editable_item(self, obj, field_name, label):
+        """
+
+        """
         try:
             field = obj.model._meta.get_field(field_name)
         except FieldDoesNotExist:
@@ -1195,6 +1216,22 @@ class ModelAdminChecks(BaseModelAdminChecks):
                     return []
 
     def _check_actions(self, obj):
+        """
+
+        Check the actions defined in the provided object for potential errors.
+
+        This method verifies that all actions with defined permissions have a corresponding
+        permission-checking method in the object. It also ensures that the names of actions
+        are unique within the object.
+
+        The method returns a list of errors found during the validation process.
+        Each error is represented as an instance of :class:`checks.Error` and provides
+        information about the error, including the object that caused it and a unique error ID.
+
+        The checks performed by this method help maintain consistency and correctness in
+        the object's actions and permission handling.
+
+        """
         errors = []
         actions = obj._get_base_actions()
 
@@ -1253,6 +1290,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
     def _check_exclude_of_parent_model(self, obj, parent_model):
         # Do not perform more specific checks if the base checks result in an
         # error.
+        """
+
+        """
         errors = super()._check_exclude(obj)
         if errors:
             return []

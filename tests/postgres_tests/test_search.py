@@ -26,6 +26,9 @@ except ImportError:
 class GrailTestData:
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.robin = Scene.objects.create(
             scene="Scene 10", setting="The dark forest of Ewing"
         )

@@ -16,6 +16,9 @@ class GeneratedField(Field):
     output_field = None
 
     def __init__(self, *, expression, output_field, db_persist=None, **kwargs):
+        """
+
+        """
         if kwargs.setdefault("editable", False):
             raise ValueError("GeneratedField cannot be editable.")
         if not kwargs.setdefault("blank", True):
@@ -67,6 +70,9 @@ class GeneratedField(Field):
         return sql, params
 
     def check(self, **kwargs):
+        """
+
+        """
         databases = kwargs.get("databases") or []
         errors = [
             *super().check(**kwargs),
@@ -109,6 +115,9 @@ class GeneratedField(Field):
         return errors
 
     def _check_supported(self, databases):
+        """
+
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -138,6 +147,9 @@ class GeneratedField(Field):
         return errors
 
     def _check_persistence(self, databases):
+        """
+
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):

@@ -47,6 +47,9 @@ if is_psycopg3:
 
     @lru_cache
     def postgis_adapters(geo_oid, geog_oid, raster_oid):
+        """
+
+        """
         class BaseDumper(Dumper):
             def __init_subclass__(cls, base_dumper):
                 super().__init_subclass__()
@@ -131,6 +134,21 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
     if is_psycopg3:
 
         def _register_type(self, pg_connection, typename):
+            """
+
+            Registers a PostgreSQL type with the given typename.
+
+            This function retrieves the type information for the specified typename and 
+            registers it with the PostgreSQL connection. If the type information is not 
+            already registered, it is fetched from the PostgreSQL connection.
+
+            The registered type is then associated with the TextLoader and TextBinaryLoader 
+            adapters, allowing for proper loading of the type from the database.
+
+            Returns:
+                int: The OID of the registered type, or None if the type information could not be retrieved.
+
+            """
             registry = self._type_infos[typename]
             try:
                 info = registry[self.alias]

@@ -8,6 +8,9 @@ from .models import Article, Category, Comment
 
 class DateTimesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.datetime(2005, 7, 28, 9, 0, 0),
@@ -146,6 +149,9 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_has_lazy_iterator(self):
+        """
+
+        """
         pub_dates = [
             datetime.datetime(2005, 7, 28, 12, 15),
             datetime.datetime(2005, 7, 29, 2, 15),

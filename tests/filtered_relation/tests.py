@@ -38,6 +38,9 @@ from .models import (
 class FilteredRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.author1 = Author.objects.create(name="Alice")
         cls.author2 = Author.objects.create(name="Jane")
         cls.editor_a = Editor.objects.create(name="a")
@@ -991,6 +994,9 @@ class FilteredRelationAggregationTests(TestCase):
 class FilteredRelationAnalyticalAggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         author = Author.objects.create(name="Author")
         editor = Editor.objects.create(name="Editor")
         cls.book1 = Book.objects.create(

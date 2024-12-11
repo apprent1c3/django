@@ -56,6 +56,9 @@ def update_installed_apps(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def update_connections_time_zone(*, setting, **kwargs):
+    """
+
+    """
     if setting == "TIME_ZONE":
         # Reset process time zone
         if hasattr(time, "tzset"):
@@ -90,6 +93,9 @@ def clear_routers_cache(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def reset_template_engines(*, setting, **kwargs):
+    """
+
+    """
     if setting in {
         "TEMPLATES",
         "DEBUG",
@@ -113,6 +119,9 @@ def reset_template_engines(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def storages_changed(*, setting, **kwargs):
+    """
+
+    """
     from django.contrib.staticfiles.storage import staticfiles_storage
     from django.core.files.storage import default_storage, storages
 
@@ -222,6 +231,9 @@ def auth_password_validators_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def user_model_swapped(*, setting, **kwargs):
+    """
+
+    """
     if setting == "AUTH_USER_MODEL":
         apps.clear_cache()
         try:

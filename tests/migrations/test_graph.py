@@ -175,6 +175,9 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_iterative_dfs(self):
+        """
+
+        """
         graph = MigrationGraph()
         root = ("app_a", "1")
         graph.add_node(root, None)
@@ -439,6 +442,9 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_stringify(self):
+        """
+
+        """
         graph = MigrationGraph()
         self.assertEqual(str(graph), "Graph: 0 nodes, 0 edges")
 

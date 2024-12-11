@@ -29,6 +29,9 @@ class DatabaseCreation(BaseDatabaseCreation):
                 raise
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         test_db_params = {

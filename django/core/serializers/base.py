@@ -54,6 +54,9 @@ class ProgressBar:
         self.prev_done = 0
 
     def update(self, count):
+        """
+
+        """
         if not self.output:
             return
         perc = count * 100 // self.total_count
@@ -272,6 +275,30 @@ class DeserializedObject:
         self.m2m_data = None
 
     def save_deferred_fields(self, using=None):
+        """
+        ```python
+        \"\"\"
+        Saves the deferred fields of an object.
+
+        This method processes the deferred fields stored in the instance's
+        `deferred_fields` attribute and saves them accordingly. For many-to-many
+        fields, it deserializes the field values and stores them in the `m2m_data`
+        attribute. For many-to-one fields, it deserializes the foreign key value and
+        sets it on the object instance.
+
+        If any deserialization errors occur during the process, a `DeserializationError`
+        is raised with information about the original exception, the object being
+        deserialized, and the problematic field value.
+
+        [args]
+            using (str, optional): The database alias to use for the save operation.
+                Defaults to None.
+
+        [raises]
+            DeserializationError: If a deserialization error occurs during field processing.
+        \"\"\"
+        ```
+        """
         self.m2m_data = {}
         for field, field_value in self.deferred_fields.items():
             opts = self.object._meta
@@ -326,6 +353,9 @@ def build_instance(Model, data, db):
 
 
 def deserialize_m2m_values(field, field_value, using, handle_forward_references):
+    """
+
+    """
     model = field.remote_field.model
     if hasattr(model._default_manager, "get_by_natural_key"):
 
@@ -361,6 +391,9 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
 
 
 def deserialize_fk_value(field, field_value, using, handle_forward_references):
+    """
+
+    """
     if field_value is None:
         return None
     model = field.remote_field.model

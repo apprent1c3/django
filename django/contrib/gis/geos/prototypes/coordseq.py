@@ -33,6 +33,9 @@ class CsOperation(GEOSFuncFactory):
     restype = c_int
 
     def __init__(self, *args, ordinate=False, get=False, **kwargs):
+        """
+
+        """
         if get:
             # Get routines have double parameter passed-in by reference.
             errcheck = check_cs_get

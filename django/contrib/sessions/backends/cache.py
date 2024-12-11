@@ -79,6 +79,9 @@ class SessionStore(SessionBase):
         )
 
     def save(self, must_create=False):
+        """
+
+        """
         if self.session_key is None:
             return self.create()
         if must_create:
@@ -96,6 +99,21 @@ class SessionStore(SessionBase):
             raise CreateError
 
     async def asave(self, must_create=False):
+        """
+
+        Asynchronously save the current session to the cache.
+
+        This function will create a new session if one does not already exist and :meth:`must_create` is True.
+        If :meth:`must_create` is False, it will attempt to update an existing session. If no existing session is found, it will raise an :exc:`UpdateError`.
+
+        If a new session is being created and the creation operation fails, it will raise a :exc:`CreateError`.
+
+         :param bool must_create: Whether to create a new session if one does not already exist.
+         :return: The result of the save operation.
+         :raises UpdateError: If an update operation is attempted on a non-existent session.
+         :raises CreateError: If a creation operation fails.
+
+        """
         if self.session_key is None:
             return await self.acreate()
         if must_create:

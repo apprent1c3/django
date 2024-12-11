@@ -37,6 +37,9 @@ class FuncTestMixin:
     """Assert that Func expressions aren't mutated during their as_sql()."""
 
     def setUp(self):
+        """
+
+        """
         def as_sql_wrapper(original_as_sql):
             def inner(*args, **kwargs):
                 func = original_as_sql.__self__

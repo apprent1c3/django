@@ -5,8 +5,17 @@ from .utils import FuncTestMixin
 
 
 def test_mutation(raises=True):
+    """
+
+    """
     def wrapper(mutation_func):
+        """
+
+        """
         def test(test_case_instance, *args, **kwargs):
+            """
+
+            """
             class TestFunc(models.Func):
                 output_field = models.IntegerField()
 

@@ -36,6 +36,20 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_view_default_collation(self):
+        """
+        Tests the default collation for a view created from a table with a char field.
+
+        This test case creates a view based on the 'first_name' column of the 'Person' table,
+        then uses the database introspection to retrieve the table description of the view.
+        It verifies that the collation for the column in the view is None, as default collation
+        is not inherited from the underlying table.
+
+        The test requires the database to support collation on char fields. If this feature
+        is not supported, the test is skipped.
+
+        The outcome of this test ensures that the database introspection module correctly
+        handles views and their associated collation settings. 
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )
@@ -59,6 +73,16 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_materialized_view_non_default_collation(self):
+        """
+
+        Tests the behavior of the database introspection system when retrieving the description of a materialized view with a non-default collation.
+
+        This test case creates a materialized view with a specific collation, then uses the :meth:`~django.db.connection.introspection.get_table_description` method to retrieve its column description.
+        It verifies that the retrieved column description includes the correct collation information.
+
+        The test requires a database backend that supports collation on character fields.
+
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )

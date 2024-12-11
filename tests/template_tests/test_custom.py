@@ -465,6 +465,9 @@ class InclusionTagTests(TagTestCase):
     def test_inclusion_tag_registration(self):
         # The decorators preserve the decorated function's docstring, name,
         # and attributes.
+        """
+
+        """
         self.verify_tag(inclusion.inclusion_no_params, "inclusion_no_params")
         self.verify_tag(inclusion.inclusion_one_param, "inclusion_one_param")
         self.verify_tag(

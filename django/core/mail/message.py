@@ -264,6 +264,9 @@ class EmailMessage:
         return self.connection
 
     def message(self):
+        """
+
+        """
         encoding = self.encoding or settings.DEFAULT_CHARSET
         msg = SafeMIMEText(self.body, self.content_subtype, encoding)
         msg = self._create_message(msg)
@@ -366,6 +369,9 @@ class EmailMessage:
         return self._create_attachments(msg)
 
     def _create_attachments(self, msg):
+        """
+
+        """
         if self.attachments:
             encoding = self.encoding or settings.DEFAULT_CHARSET
             body_msg = msg

@@ -30,6 +30,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        """
         database = options["database"]
         connection = connections[database]
         verbosity = options["verbosity"]

@@ -272,6 +272,9 @@ def url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
 def _url_has_allowed_host_and_scheme(url, allowed_hosts, require_https=False):
     # Chrome considers any URL with more than two slashes to be absolute, but
     # urlsplit is not so flexible. Treat any url with three slashes as unsafe.
+    """
+
+    """
     if url.startswith("///"):
         return False
     try:
@@ -311,6 +314,9 @@ def escape_leading_slashes(url):
 
 
 def _parseparam(s):
+    """
+
+    """
     while s[:1] == ";":
         s = s[1:]
         end = s.find(";")

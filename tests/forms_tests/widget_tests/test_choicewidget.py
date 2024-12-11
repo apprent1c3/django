@@ -43,6 +43,9 @@ class ChoiceWidgetTest(WidgetTest):
         self.assertIsNot(widget.attrs, obj.attrs)
 
     def test_options(self):
+        """
+
+        """
         options = list(
             self.widget(choices=self.beatles).options(
                 "name",

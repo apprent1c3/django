@@ -22,6 +22,9 @@ class TemplateStrings(BaseEngine):
         return Template(template_code)
 
     def get_template(self, template_name):
+        """
+
+        """
         tried = []
         for template_file in self.iter_template_filenames(template_name):
             try:

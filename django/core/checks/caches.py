@@ -21,6 +21,13 @@ def check_default_cache_is_configured(app_configs, **kwargs):
 
 @register(Tags.caches, deploy=True)
 def check_cache_location_not_exposed(app_configs, **kwargs):
+    """
+    Checks if a cache's location could potentially expose or corrupt data due to a conflict with the application's media, static files, or static files directories.
+
+    The function inspects the application's configuration for potential cache location issues. It verifies whether any cache location matches, is inside, or contains the media root, static root, or static files directories. If a conflict is found, a warning is raised to alert the developer about potential security or data integrity risks.
+
+    The function returns a list of errors, which are warnings about potentially problematic cache configurations. Each error includes information about the cache alias, the type of conflict found, and the setting that conflicted with the cache location.
+    """
     errors = []
     for name in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
         setting = getattr(settings, name, None)

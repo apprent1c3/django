@@ -135,6 +135,9 @@ class OnDeleteTests(TestCase):
         # Testing DO_NOTHING is a bit harder: It would raise IntegrityError for
         # a normal model, so we connect to pre_delete and set the fk to a known
         # value.
+        """
+
+        """
         replacement_r = R.objects.create()
 
         def check_do_nothing(sender, **kwargs):
@@ -226,6 +229,9 @@ class OnDeleteTests(TestCase):
         self.assertEqual(cm.exception.restricted_objects, {a, b3})
 
     def test_restrict_path_cascade_indirect(self):
+        """
+
+        """
         a = create_a("restrict")
         a.restrict.p = P.objects.create()
         a.restrict.save()
@@ -254,6 +260,9 @@ class OnDeleteTests(TestCase):
         self.assertFalse(R.objects.filter(pk=a.restrict_id).exists())
 
     def test_restrict_path_cascade_indirect_diamond(self):
+        """
+
+        """
         delete_top = DeleteTop.objects.create()
         b1 = B1.objects.create(delete_top=delete_top)
         b2 = B2.objects.create(delete_top=delete_top)
@@ -277,6 +286,9 @@ class OnDeleteTests(TestCase):
         self.assertFalse(DeleteBottom.objects.exists())
 
     def test_restrict_gfk_no_fast_delete(self):
+        """
+
+        """
         delete_top = DeleteTop.objects.create()
         generic_b1 = GenericB1.objects.create(generic_delete_top=delete_top)
         generic_b2 = GenericB2.objects.create(generic_delete_top=delete_top)
@@ -317,6 +329,20 @@ class DeletionTests(TestCase):
             m.delete()
 
     def test_m2m(self):
+        """
+
+        Tests the Many-To-Many relationship between models M and R.
+
+        Verifies that when an instance of M or R is deleted, the corresponding
+        Many-To-Many relationship instances are also removed. This includes testing
+        both explicit Many-To-Many relationship models (MR) and implicit relationships
+        defined through a field on model M (m2m).
+
+        Additionally, tests a case where the Many-To-Many relationship model (MRNull)
+        allows NULL values, ensuring that the relationship instances are not deleted
+        when an instance of R is deleted.
+
+        """
         m = M.objects.create()
         r = R.objects.create()
         MR.objects.create(m=m, r=r)
@@ -359,6 +385,9 @@ class DeletionTests(TestCase):
         self.assertFalse(S.objects.exists())
 
     def test_instance_update(self):
+        """
+
+        """
         deleted = []
         related_setnull_sets = []
 
@@ -385,6 +414,9 @@ class DeletionTests(TestCase):
         models.signals.pre_delete.disconnect(pre_delete)
 
     def test_deletion_order(self):
+        """
+
+        """
         pre_delete_order = []
         post_delete_order = []
 
@@ -432,6 +464,9 @@ class DeletionTests(TestCase):
         models.signals.pre_delete.disconnect(log_pre_delete)
 
     def test_relational_post_delete_signals_happen_before_parent_object(self):
+        """
+
+        """
         deletions = []
 
         def log_post_delete(instance, **kwargs):
@@ -454,6 +489,20 @@ class DeletionTests(TestCase):
 
     @skipUnlessDBFeature("can_defer_constraint_checks")
     def test_can_defer_constraint_checks(self):
+        """
+        Tests the ability to defer constraint checks on the database.
+
+        Verifies that when a User object with a related Avatar object is created and then deleted,
+        the corresponding Avatar object is also deleted, and the post_delete signal is sent.
+
+        This test checks the following conditions:
+
+        * The User and Avatar objects are correctly deleted
+        * The post_delete signal is sent once after the User object is deleted
+        * The total number of database queries is as expected
+
+        The test requires a database that supports deferred constraint checks.
+        """
         u = User.objects.create(avatar=Avatar.objects.create())
         a = Avatar.objects.get(pk=u.avatar_id)
         # 1 query to find the users for the avatar.
@@ -478,6 +527,9 @@ class DeletionTests(TestCase):
 
     @skipIfDBFeature("can_defer_constraint_checks")
     def test_cannot_defer_constraint_checks(self):
+        """
+
+        """
         u = User.objects.create(avatar=Avatar.objects.create())
         # Attach a signal to make sure we will not do fast_deletes.
         calls = []
@@ -527,6 +579,9 @@ class DeletionTests(TestCase):
         self.assertFalse(Avatar.objects.exists())
 
     def test_large_delete_related(self):
+        """
+
+        """
         TEST_SIZE = 2000
         s = S.objects.create(r=R.objects.create())
         for i in range(TEST_SIZE):
@@ -553,6 +608,9 @@ class DeletionTests(TestCase):
         self.assertTrue(R.objects.filter(id=parent_id).exists())
 
     def test_delete_with_keeping_parents_relationships(self):
+        """
+
+        """
         child = RChild.objects.create()
         parent_id = child.r_ptr_id
         parent_referent_id = S.objects.create(r=child.r_ptr).pk
@@ -731,6 +789,9 @@ class FastDeleteTests(TestCase):
         self.assertTrue(User.objects.filter(pk=u2.pk).exists())
 
     def test_fast_delete_inheritance(self):
+        """
+
+        """
         c = Child.objects.create()
         p = Parent.objects.create()
         # 1 for self, 1 for parent

@@ -20,6 +20,22 @@ class TestDbSignatureTests(SimpleTestCase):
         self.assertEqual(signature, (None, "custom.sqlite.db"))
 
     def test_get_test_db_clone_settings_name(self):
+        """
+        Tests the generation of cloned database settings names.
+
+        This test verifies that the get_test_db_clone_settings method correctly generates
+        the name for a cloned test database, based on the original database name and a
+        given suffix.
+
+        The test covers various scenarios, including different database name formats,
+        to ensure that the cloning logic works as expected and produces the correct
+        cloned database names. It checks that the cloned name is correctly generated
+        by comparing it to the expected name for each test case.
+
+        The outcome of this test ensures that the database cloning functionality behaves
+        correctly and consistently across different use cases, providing reliable and
+        predictable results when creating test database clones.
+        """
         test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
         test_connection.settings_dict = copy.deepcopy(
             connections[DEFAULT_DB_ALIAS].settings_dict,

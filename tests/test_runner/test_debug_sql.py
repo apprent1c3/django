@@ -53,6 +53,9 @@ class TestDebugSQL(unittest.TestCase):
                 raise Exception
 
     def _test_output(self, verbosity):
+        """
+
+        """
         runner = DiscoverRunner(debug_sql=True, verbosity=0)
         suite = runner.test_suite()
         suite.addTest(self.FailingTest())

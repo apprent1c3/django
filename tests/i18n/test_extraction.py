@@ -65,6 +65,9 @@ class ExtractorTests(POFileAssertionMixin, RunInTmpDirMixin, SimpleTestCase):
     def _assertPoLocComment(
         self, assert_presence, po_filename, line_number, *comment_parts
     ):
+        """
+
+        """
         with open(po_filename) as fp:
             po_contents = fp.read()
         if os.name == "nt":
@@ -266,6 +269,9 @@ class BasicExtractorTests(ExtractorTests):
         self.assertIs(Path("locale/_en/LC_MESSAGES/django.po").exists(), False)
 
     def test_comments_extractor(self):
+        """
+
+        """
         management.call_command("makemessages", locale=[LOCALE], verbosity=0)
         self.assertTrue(os.path.exists(self.PO_FILE))
         with open(self.PO_FILE, encoding="utf-8") as fp:
@@ -526,6 +532,9 @@ class BasicExtractorTests(ExtractorTests):
     @mock.patch("django.core.management.commands.makemessages.popen_wrapper")
     def test_makemessages_gettext_version(self, mocked_popen_wrapper):
         # "Normal" output:
+        """
+
+        """
         mocked_popen_wrapper.return_value = (
             "xgettext (GNU gettext-tools) 0.18.1\n"
             "Copyright (C) 1995-1998, 2000-2010 Free Software Foundation, Inc.\n"
@@ -595,6 +604,9 @@ class JavaScriptExtractorTests(ExtractorTests):
     PO_FILE = "locale/%s/LC_MESSAGES/djangojs.po" % LOCALE
 
     def test_javascript_literals(self):
+        """
+
+        """
         _, po_contents = self._run_makemessages(domain="djangojs")
         self.assertMsgId("This literal should be included.", po_contents)
         self.assertMsgId("gettext_noop should, too.", po_contents)
@@ -707,6 +719,9 @@ class SymlinkExtractorTests(ExtractorTests):
         self.symlinked_dir = os.path.join(self.test_dir, "templates_symlinked")
 
     def test_symlink(self):
+        """
+
+        """
         if symlinks_supported():
             os.symlink(os.path.join(self.test_dir, "templates"), self.symlinked_dir)
         else:

@@ -157,6 +157,9 @@ class IfParser:
 
     def __init__(self, tokens):
         # Turn 'is','not' and 'not','in' into single tokens.
+        """
+
+        """
         num_tokens = len(tokens)
         mapped_tokens = []
         i = 0

@@ -181,6 +181,9 @@ class MethodDecoratorTests(SimpleTestCase):
     def test_preserve_attributes(self):
         # Sanity check myattr_dec and myattr2_dec
         @myattr_dec
+        """
+
+        """
         def func():
             pass
 
@@ -266,6 +269,9 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(obj.method(), True)
 
     def test_bad_iterable(self):
+        """
+
+        """
         decorators = {myattr_dec_m, myattr2_dec_m}
         msg = "'set' object is not subscriptable"
         with self.assertRaisesMessage(TypeError, msg):
@@ -286,6 +292,9 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(Test().method(), False)
 
     def test_descriptors(self):
+        """
+
+        """
         def original_dec(wrapped):
             def _wrapped(arg):
                 return wrapped(arg)

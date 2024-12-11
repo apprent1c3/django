@@ -145,6 +145,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     ):
         # Drop indexes on varchar/text/citext columns that are changing to a
         # different type.
+        """
+
+        """
         old_db_params = old_field.db_parameters(connection=self.connection)
         old_type = old_db_params["type"]
         if (old_field.db_index or old_field.unique) and (

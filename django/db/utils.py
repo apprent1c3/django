@@ -145,6 +145,9 @@ class ConnectionHandler(BaseConnectionHandler):
     thread_critical = True
 
     def configure_settings(self, databases):
+        """
+
+        """
         databases = super().configure_settings(databases)
         if databases == {}:
             databases[DEFAULT_DB_ALIAS] = {"ENGINE": "django.db.backends.dummy"}
@@ -203,6 +206,9 @@ class ConnectionRouter:
 
     @cached_property
     def routers(self):
+        """
+
+        """
         if self._routers is None:
             self._routers = settings.DATABASE_ROUTERS
         routers = []
@@ -215,7 +221,13 @@ class ConnectionRouter:
         return routers
 
     def _router_func(action):
+        """
+
+        """
         def _route_db(self, model, **hints):
+            """
+
+            """
             chosen_db = None
             for router in self.routers:
                 try:
@@ -238,6 +250,9 @@ class ConnectionRouter:
     db_for_write = _router_func("db_for_write")
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+
+        """
         for router in self.routers:
             try:
                 method = router.allow_relation

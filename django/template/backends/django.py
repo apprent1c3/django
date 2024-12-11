@@ -47,6 +47,9 @@ class DjangoTemplates(BaseEngine):
         return []
 
     def _check_for_template_tags_with_the_same_name(self):
+        """
+
+        """
         libraries = defaultdict(set)
 
         for module_name, module_path in get_template_tag_modules():

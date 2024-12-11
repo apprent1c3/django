@@ -106,6 +106,9 @@ class SerializersTestBase:
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         sports = Category.objects.create(name="Sports")
         music = Category.objects.create(name="Music")
         op_ed = Category.objects.create(name="Op-Ed")
@@ -442,6 +445,17 @@ class SerializersTestBase:
 
 class SerializerAPITests(SimpleTestCase):
     def test_stream_class(self):
+        """
+        TestUtils for Serializer stream functionality.
+
+         The purpose of this test is to verify that the Serializer's stream class is correctly utilized.
+
+         It checks the following conditions:
+
+         - The stream class is set to the specified class (File in this case).
+         - An instance of this class is used as the serializer's stream.
+         - The serializer correctly serializes data into the stream, producing the expected JSON output.
+        """
         class File:
             def __init__(self):
                 self.lines = []

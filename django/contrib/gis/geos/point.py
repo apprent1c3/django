@@ -76,6 +76,22 @@ class Point(GEOSGeometry):
         return capi.create_point(cs)
 
     def _set_list(self, length, items):
+        """
+        Sets a new list of items for the geometry, replacing any existing data.
+
+        The list of items is first converted into a geometric representation of the
+        specified length. If the conversion is successful, the new geometric data is
+        assigned to the object, and any previous data is cleaned up. The object's
+        Spatial Reference System Identifier (SRID) is preserved during this process,
+        if one was previously set.
+
+        If the conversion fails to produce a valid geometry, a :exc:`GEOSException` is
+        raised to indicate the error.
+
+        Note: This method is intended for internal use only, as indicated by its
+        leading underscore prefix. External users should not rely on its behavior or
+        existence.
+        """
         ptr = self._create_point(length, items)
         if ptr:
             srid = self.srid

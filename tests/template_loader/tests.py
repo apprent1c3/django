@@ -150,6 +150,9 @@ class TemplateLoaderTests(SimpleTestCase):
             render_to_string([])
 
     def test_render_to_string_with_list_not_found(self):
+        """
+
+        """
         with self.assertRaises(TemplateDoesNotExist) as e:
             render_to_string(
                 ["template_loader/unknown.html", "template_loader/missing.html"]

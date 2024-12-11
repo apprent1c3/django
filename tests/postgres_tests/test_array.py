@@ -155,6 +155,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(instance.field, loaded.field)
 
     def test_other_array_types(self):
+        """
+
+        """
         instance = OtherTypesArrayModel(
             ips=["192.168.0.1", "::1"],
             uuids=[uuid.uuid4()],
@@ -1113,6 +1116,9 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_validate_fail_base_field_error_params(self):
+        """
+
+        """
         field = SimpleArrayField(forms.CharField(max_length=2))
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("abc,c,defg")
@@ -1340,6 +1346,9 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_splitarraywidget_value_omitted_from_data(self):
+        """
+
+        """
         class Form(forms.ModelForm):
             field = SplitArrayField(forms.IntegerField(), required=False, size=2)
 
@@ -1353,6 +1362,9 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(obj.field, [1, 2])
 
     def test_splitarrayfield_has_changed(self):
+        """
+
+        """
         class Form(forms.ModelForm):
             field = SplitArrayField(forms.IntegerField(), required=False, size=2)
 
@@ -1375,6 +1387,9 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
                 self.assertIs(form.has_changed(), expected_result)
 
     def test_splitarrayfield_remove_trailing_nulls_has_changed(self):
+        """
+
+        """
         class Form(forms.ModelForm):
             field = SplitArrayField(
                 forms.IntegerField(), required=False, size=2, remove_trailing_nulls=True

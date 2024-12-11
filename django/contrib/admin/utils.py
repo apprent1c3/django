@@ -139,6 +139,9 @@ def get_deleted_objects(objs, request, admin_site):
     perms_needed = set()
 
     def format_callback(obj):
+        """
+
+        """
         model = obj.__class__
         opts = obj._meta
 
@@ -191,6 +194,9 @@ class NestedObjects(Collector):
         self.edges.setdefault(source, []).append(target)
 
     def collect(self, objs, source=None, source_attr=None, **kwargs):
+        """
+
+        """
         for obj in objs:
             if source_attr and not source_attr.endswith("+"):
                 related_name = source_attr % {
@@ -215,6 +221,9 @@ class NestedObjects(Collector):
         )
 
     def _nested(self, obj, seen, format_callback):
+        """
+
+        """
         if obj in seen:
             return []
         seen.add(obj)
@@ -285,6 +294,9 @@ def model_ngettext(obj, n=None):
 
 
 def lookup_field(name, obj, model_admin=None):
+    """
+
+    """
     opts = obj._meta
     try:
         f = _get_non_gfk_field(opts, name)
@@ -427,6 +439,28 @@ def help_text_for_field(name, model):
 
 
 def display_for_field(value, field, empty_value_display):
+    """
+    DISPLAY_FOR_FIELD
+    -----------------
+
+    Display a human-friendly representation of a value for a given field.
+
+    This function takes into account the field's type and attributes to determine the best way to display the value. It supports various field types, including Boolean, Date, Time, Decimal, Integer, Float, File, and JSON fields.
+
+    Parameters
+    ----------
+    value : The value to be displayed.
+    field : The field associated with the value.
+    empty_value_display : The value to display when the value is empty.
+
+    Returns
+    -------
+    A human-friendly representation of the value, or the empty_value_display if the value is empty. 
+
+    Notes
+    -----
+    This function handles edge cases such as boolean fields, date and time fields, decimal fields, and file fields, providing a customized display for each type. It also supports displaying JSON data in a readable format.
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if getattr(field, "flatchoices", None):
@@ -464,6 +498,9 @@ def display_for_field(value, field, empty_value_display):
 
 
 def display_for_value(value, empty_value_display, boolean=False):
+    """
+
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if boolean:

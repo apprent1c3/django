@@ -31,6 +31,20 @@ class BaseConstraint:
         self, *args, name=None, violation_error_code=None, violation_error_message=None
     ):
         # RemovedInDjango60Warning.
+        """
+
+        Initialize a class instance with a name and optional violation error details.
+
+        The instance name is a required positional or keyword argument. Additional arguments can be provided to specify a custom violation error code and error message.
+
+        If the instance name is not provided as a keyword argument, it can be passed as the first positional argument. However, passing positional arguments is deprecated and will be removed in a future version.
+
+        Keyword arguments:
+            name (str): The required instance name.
+            violation_error_code (str): An optional custom error code for violations.
+            violation_error_message (str): An optional custom error message for violations. If not provided, a default error message will be used.
+
+        """
         if name is None and not args:
             raise TypeError(
                 f"{self.__class__.__name__}.__init__() missing 1 required keyword-only "
@@ -78,6 +92,9 @@ class BaseConstraint:
         return []
 
     def _check_references(self, model, references):
+        """
+
+        """
         errors = []
         fields = set()
         for field_name, *lookups in references:
@@ -184,6 +201,9 @@ class CheckConstraint(BaseConstraint):
     check = property(_get_check, _set_check)
 
     def _check(self, model, connection):
+        """
+
+        """
         errors = []
         if not (
             connection.features.supports_table_check_constraints
@@ -307,6 +327,9 @@ class UniqueConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+
+        """
         if not name:
             raise ValueError("A unique constraint must be named.")
         if not expressions and not fields:
@@ -369,6 +392,27 @@ class UniqueConstraint(BaseConstraint):
         return bool(self.expressions)
 
     def _check(self, model, connection):
+        """
+        _Check the validity of a unique constraint.
+
+        This method verifies that the given unique constraint can be applied to the 
+        provided model and database connection. It checks for various conditions 
+        such as the existence of partial indexes, deferrable unique constraints, 
+        covering indexes, expression indexes, and nulls distinct unique constraints.
+
+        The method also checks the references used in the condition and expressions 
+        of the constraint to ensure they are valid.
+
+        Any detected issues or incompatibilities are reported as warnings, which 
+        can be used to diagnose and resolve potential problems.
+
+        The function returns a list of errors and warnings encountered during the 
+        validation process. 
+
+        :param model: The model to check the constraint against.
+        :param connection: The database connection to check the constraint against.
+        :returns: A list of errors and warnings encountered during validation.
+        """
         errors = model._check_local_fields({*self.fields, *self.include}, "constraints")
         required_db_features = model._meta.required_db_features
         if self.condition is not None and not (
@@ -587,6 +631,9 @@ class UniqueConstraint(BaseConstraint):
         return super().__eq__(other)
 
     def deconstruct(self):
+        """
+
+        """
         path, args, kwargs = super().deconstruct()
         if self.fields:
             kwargs["fields"] = self.fields
@@ -603,6 +650,9 @@ class UniqueConstraint(BaseConstraint):
         return path, self.expressions, kwargs
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+
+        """
         queryset = model._default_manager.using(using)
         if self.fields:
             lookup_kwargs = {}

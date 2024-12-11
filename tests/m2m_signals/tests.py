@@ -11,6 +11,9 @@ from .models import Car, Part, Person, SportsCar
 class ManyToManySignalsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.vw = Car.objects.create(name="VW")
         cls.bmw = Car.objects.create(name="BMW")
         cls.toyota = Car.objects.create(name="Toyota")
@@ -103,6 +106,9 @@ class ManyToManySignalsTest(TestCase):
         models.signals.m2m_changed.disconnect(handler, Car.default_parts.through)
 
     def test_m2m_relations_add_remove_clear(self):
+        """
+
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -176,6 +182,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_give_the_self_vw_some_optional_parts(self):
+        """
+
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -317,6 +326,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_alternative_ways(self):
+        """
+
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -385,6 +397,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_clearing_removing(self):
+        """
+
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -450,6 +465,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_when_inheritance(self):
+        """
+
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)

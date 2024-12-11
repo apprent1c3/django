@@ -7,6 +7,18 @@ from .models import Article, Category
 
 class M2MMultipleTests(TestCase):
     def test_multiple(self):
+        """
+        Test the relationship between articles and categories, ensuring that primary and secondary categories are correctly associated.
+
+        This test case verifies the following scenarios:
+            - Articles can have multiple primary categories
+            - Articles can have multiple secondary categories
+            - Categories can have multiple primary articles
+            - Categories can have multiple secondary articles
+            - The correct articles are returned when querying a category's primary and secondary article sets
+
+        The test creates several categories and articles, assigns categories to articles, and then checks the resulting category-article relationships to ensure they are as expected.
+        """
         c1, c2, c3, c4 = [
             Category.objects.create(name=name)
             for name in ["Sports", "News", "Crime", "Life"]

@@ -24,6 +24,9 @@ class EngineHandler:
 
     @cached_property
     def templates(self):
+        """
+
+        """
         if self._templates is None:
             self._templates = settings.TEMPLATES
 
@@ -65,6 +68,9 @@ class EngineHandler:
         return templates
 
     def __getitem__(self, alias):
+        """
+
+        """
         try:
             return self._engines[alias]
         except KeyError:

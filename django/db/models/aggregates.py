@@ -60,6 +60,9 @@ class Aggregate(Func):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Aggregates are not allowed in UPDATE queries, so ignore for_save
+        """
+
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize)
         c.filter = (
             c.filter.resolve_expression(query, allow_joins, reuse, summarize)
@@ -115,6 +118,9 @@ class Aggregate(Func):
         return []
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+
+        """
         extra_context["distinct"] = "DISTINCT " if self.distinct else ""
         if self.filter:
             if connection.features.supports_aggregate_filter_clause:

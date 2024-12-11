@@ -13,6 +13,9 @@ def async_unsafe(message):
 
     def decorator(func):
         @wraps(func)
+        """
+
+        """
         def inner(*args, **kwargs):
             # Detect a running event loop in this thread.
             try:

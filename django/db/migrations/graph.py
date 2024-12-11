@@ -269,6 +269,9 @@ class MigrationGraph:
     def ensure_not_cyclic(self):
         # Algo from GvR:
         # https://neopythonic.blogspot.com/2009/01/detecting-cycles-in-directed-graph.html
+        """
+
+        """
         todo = set(self.nodes)
         while todo:
             node = todo.pop()

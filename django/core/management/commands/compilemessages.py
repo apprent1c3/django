@@ -70,6 +70,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         ignore_patterns = set(options["ignore_patterns"])

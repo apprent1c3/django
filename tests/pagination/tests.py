@@ -129,6 +129,9 @@ class PaginationTests(SimpleTestCase):
             paginator.validate_number(1.2)
 
     def test_error_messages(self):
+        """
+
+        """
         error_messages = {
             "invalid_page": "Wrong page number",
             "min_page": "Too small",
@@ -166,6 +169,9 @@ class PaginationTests(SimpleTestCase):
         self.assertEqual(paginator.validate_number(1), 1)
 
     def test_paginate_misc_classes(self):
+        """
+
+        """
         class CountContainer:
             def count(self):
                 return 42
@@ -355,6 +361,9 @@ class PaginationTests(SimpleTestCase):
 
     def test_get_elided_page_range(self):
         # Paginator.validate_number() must be called:
+        """
+
+        """
         paginator = Paginator([1, 2, 3], 2)
         with unittest.mock.patch.object(paginator, "validate_number") as mock:
             mock.assert_not_called()
@@ -500,6 +509,14 @@ class ModelPaginationTests(TestCase):
         ]
 
     def test_first_page(self):
+        """
+
+        Test that the first page of a paginated list of articles behaves as expected.
+
+        Verifies that the page object correctly identifies its position in the sequence,
+        contains the correct subset of articles, and provides accurate navigation information.
+
+        """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(1)
         self.assertEqual("<Page 1 of 2>", str(p))
@@ -514,6 +531,9 @@ class ModelPaginationTests(TestCase):
         self.assertEqual(5, p.end_index())
 
     def test_last_page(self):
+        """
+
+        """
         paginator = Paginator(Article.objects.order_by("id"), 5)
         p = paginator.page(2)
         self.assertEqual("<Page 2 of 2>", str(p))

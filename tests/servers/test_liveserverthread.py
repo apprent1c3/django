@@ -17,6 +17,9 @@ class LiveServerThreadTest(TransactionTestCase):
         thread.terminate()
 
     def test_closes_connections(self):
+        """
+
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         # Pass a connection to the thread to check they are being closed.
         connections_override = {DEFAULT_DB_ALIAS: conn}
@@ -31,6 +34,9 @@ class LiveServerThreadTest(TransactionTestCase):
             conn.dec_thread_sharing()
 
     def test_server_class(self):
+        """
+
+        """
         class FakeServer:
             def __init__(*args, **kwargs):
                 pass

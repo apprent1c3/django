@@ -124,6 +124,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return [dist_param]
 
     def get_geometry_converter(self, expression):
+        """
+
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:

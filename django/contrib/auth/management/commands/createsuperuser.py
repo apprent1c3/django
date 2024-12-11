@@ -36,6 +36,9 @@ class Command(BaseCommand):
         )
 
     def add_arguments(self, parser):
+        """
+
+        """
         parser.add_argument(
             "--%s" % self.UserModel.USERNAME_FIELD,
             help="Specifies the login for the superuser.",
@@ -90,6 +93,9 @@ class Command(BaseCommand):
         return super().execute(*args, **options)
 
     def handle(self, *args, **options):
+        """
+
+        """
         username = options[self.UserModel.USERNAME_FIELD]
         database = options["database"]
         user_data = {}

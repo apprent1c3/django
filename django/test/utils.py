@@ -411,6 +411,9 @@ class TestContextDecorator:
         self.disable()
 
     def decorate_class(self, cls):
+        """
+
+        """
         if issubclass(cls, TestCase):
             decorated_setUp = cls.setUp
 
@@ -426,6 +429,15 @@ class TestContextDecorator:
         raise TypeError("Can only decorate subclasses of unittest.TestCase")
 
     def decorate_callable(self, func):
+        """
+        Decorates a callable function by wrapping it in a context manager.
+
+        This function takes in another function `func` and returns a new function `inner` that wraps the original function. 
+        When the wrapped function `inner` is called, it sets up the context using `self` as the context manager. 
+        If `self.kwarg_name` is defined, it passes the context to the original function as a keyword argument. 
+        The wrapped function then calls the original function with the updated arguments and returns its result.
+        The function handles both asynchronous and synchronous callables.
+        """
         if iscoroutinefunction(func):
             # If the inner function is an async function, we must execute async
             # as well so that the `with` statement executes at the right time.
@@ -472,6 +484,18 @@ class override_settings(TestContextDecorator):
     def enable(self):
         # Keep this code at the beginning to leave the settings unchanged
         # in case it raises an exception because INSTALLED_APPS is invalid.
+        """
+        Enables the override of Django settings.
+
+        This method updates the Django settings object with the provided options, effectively overriding the current settings.
+        It first attempts to set the installed apps if provided in the options.
+        Then, it overrides the existing settings with the new values and sends a signal for each changed setting.
+        If an exception occurs during this process, the original settings are restored and the exception is stored.
+        The override remains in effect until :meth:`disable` is called.
+
+        :raises: Exception if setting override fails
+        :note: This method should be used in conjunction with :meth:`disable` to ensure proper cleanup.
+        """
         if "INSTALLED_APPS" in self.options:
             try:
                 apps.set_installed_apps(self.options["INSTALLED_APPS"])
@@ -496,6 +520,9 @@ class override_settings(TestContextDecorator):
                 self.disable()
 
     def disable(self):
+        """
+
+        """
         if "INSTALLED_APPS" in self.options:
             apps.unset_installed_apps()
         settings._wrapped = self.wrapped
@@ -566,6 +593,9 @@ class modify_settings(override_settings):
             )
 
     def enable(self):
+        """
+
+        """
         self.options = {}
         for name, operations in self.operations:
             try:
@@ -650,6 +680,19 @@ def compare_xml(want, got):
         return dict(element.attributes.items())
 
     def check_element(want_element, got_element):
+        """
+
+        Compare two HTML elements for equivalence.
+
+        This function checks if two elements have the same tag name, normalized child text, 
+        and attribute dictionary. It also recursively checks if the elements have the same 
+        number and structure of child elements.
+
+        :param want_element: The expected HTML element.
+        :param got_element: The actual HTML element to compare against.
+        :returns: True if the elements are equivalent, False otherwise.
+
+        """
         if want_element.tagName != got_element.tagName:
             return False
         if norm_child_text(want_element) != norm_child_text(got_element):

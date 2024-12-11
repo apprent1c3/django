@@ -30,6 +30,9 @@ class TestFeatures(TestCase):
             self.assertIs(database_features.allows_auto_pk_0, True)
 
     def test_allows_group_by_selected_pks(self):
+        """
+
+        """
         with mock.MagicMock() as _connection:
             _connection.mysql_is_mariadb = False
             database_features = DatabaseFeatures(_connection)

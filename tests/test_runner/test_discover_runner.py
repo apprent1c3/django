@@ -486,6 +486,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         )
 
     def test_tag_inheritance(self):
+        """
+
+        """
         def count_tests(**kwargs):
             kwargs.setdefault("verbosity", 0)
             suite = DiscoverRunner(**kwargs).build_suite(
@@ -597,6 +600,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("Write to stdout.", stdout.getvalue())
 
     def run_suite_with_runner(self, runner_class, **kwargs):
+        """
+
+        """
         class MyRunner(DiscoverRunner):
             def test_runner(self, *args, **kwargs):
                 return runner_class()
@@ -614,6 +620,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         return result, output
 
     def test_run_suite_logs_seed(self):
+        """
+
+        """
         class TestRunner:
             def run(self, suite):
                 return "<fake-result>"
@@ -690,6 +699,9 @@ class DiscoverRunnerTests(SimpleTestCase):
         self.assertIn("test", stderr.getvalue())
 
     def test_log(self):
+        """
+
+        """
         custom_low_level = 5
         custom_high_level = 45
         msg = "logging message"

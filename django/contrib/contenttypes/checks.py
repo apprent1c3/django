@@ -5,6 +5,9 @@ from django.core.checks import Error
 
 
 def check_generic_foreign_keys(app_configs=None, **kwargs):
+    """
+
+    """
     from .fields import GenericForeignKey
 
     if app_configs is None:

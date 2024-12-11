@@ -10,6 +10,9 @@ from .models import Car, CarDriver, Driver, Group, Membership, Person, UserMembe
 class M2MThroughTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.jim = Person.objects.create(name="Jim")
 

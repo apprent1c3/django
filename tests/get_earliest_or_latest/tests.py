@@ -19,6 +19,9 @@ class EarliestOrLatestTests(TestCase):
 
     def test_earliest(self):
         # Because no Articles exist yet, earliest() raises ArticleDoesNotExist.
+        """
+
+        """
         with self.assertRaises(Article.DoesNotExist):
             Article.objects.earliest()
 
@@ -102,6 +105,9 @@ class EarliestOrLatestTests(TestCase):
 
     def test_latest(self):
         # Because no Articles exist yet, latest() raises ArticleDoesNotExist.
+        """
+
+        """
         with self.assertRaises(Article.DoesNotExist):
             Article.objects.latest()
 

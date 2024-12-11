@@ -35,6 +35,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        """
         db = options["database"]
         include_stale_apps = options["include_stale_apps"]
         interactive = options["interactive"]

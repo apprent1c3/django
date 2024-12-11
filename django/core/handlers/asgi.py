@@ -46,6 +46,17 @@ class ASGIRequest(HttpRequest):
     body_receive_timeout = 60
 
     def __init__(self, scope, body_file):
+        """
+        Initializes a request object with the given scope and body file.
+
+         :param scope: The scope dictionary containing information about the request.
+         :param body_file: The file object containing the request body.
+
+         This constructor sets up the request object's attributes, including the HTTP method, path, query string,
+         and metadata such as the client's IP address, server name, and HTTP headers. It also initializes the
+         request body stream and content type parameters. The resulting object provides a standardized interface 
+         to the request data, making it easier to handle and process the request.
+        """
         self.scope = scope
         self._post_parse_error = False
         self._read_started = False

@@ -141,6 +141,9 @@ class Template:
         # exactly one Django template engine is configured, use that engine.
         # This is required to preserve backwards-compatibility for direct use
         # e.g. Template('...').render(Context({...}))
+        """
+
+        """
         if engine is None:
             from .engine import Engine
 
@@ -322,6 +325,9 @@ class Token:
         )
 
     def split_contents(self):
+        """
+
+        """
         split = []
         bits = smart_split(self.contents)
         for bit in bits:
@@ -436,6 +442,20 @@ class Parser:
     def __init__(self, tokens, libraries=None, builtins=None, origin=None):
         # Reverse the tokens so delete_first_token(), prepend_token(), and
         # next_token() can operate at the end of the list in constant time.
+        """
+
+        Initializes the object with the necessary data and configuration.
+
+        :param tokens: The input tokens to be processed.
+        :param libraries: A dictionary of external libraries to be used, defaulting to an empty dictionary if not provided.
+        :param builtins: A list of built-in libraries to be added, defaulting to an empty list if not provided.
+        :param origin: The origin of the input data, used for tracking and debugging purposes.
+
+        The initialization process sets up the object's internal state, including the token stack, tag and filter dictionaries, and the command stack.
+        It also loads and configures the provided libraries, including built-in ones.
+        The resulting object is ready to be used for further processing and templating tasks.
+
+        """
         self.tokens = list(reversed(tokens))
         self.tags = {}
         self.filters = {}
@@ -667,6 +687,9 @@ class FilterExpression:
     __slots__ = ("token", "filters", "var", "is_var")
 
     def __init__(self, token, parser):
+        """
+
+        """
         self.token = token
         matches = filter_re.finditer(token)
         var_obj = None
@@ -713,6 +736,20 @@ class FilterExpression:
         self.is_var = isinstance(var_obj, Variable)
 
     def resolve(self, context, ignore_failures=False):
+        """
+        Resolve the object using the provided context, applying filters as necessary.
+
+        This method takes an optional `ignore_failures` parameter. If `True`, the method will return `None` if the variable resolution fails. Otherwise, it will use the template engine's `string_if_invalid` setting to handle the failure.
+
+        The resolution process involves the following steps:
+
+        * Resolving the variable or value using the provided context
+        * Applying filters to the resolved object
+        * Handling timezone and autoescape considerations for certain filters
+        * Returning the final resolved and filtered object
+
+        The `ignore_failures` parameter allows for flexible error handling, while the filters provide a way to transform and manipulate the resolved object.
+        """
         if self.is_var:
             try:
                 obj = self.var.resolve(context)
@@ -798,6 +835,24 @@ class Variable:
     __slots__ = ("var", "literal", "lookups", "translate", "message_context")
 
     def __init__(self, var):
+        """
+
+        Initialize an instance with a variable string.
+
+        The variable string is parsed and stored as either an integer, float or as a reference to a variable.
+        If the string represents a number, it is stored as a literal value.
+        If the string is enclosed in `_()` it is marked for translation.
+        If the string contains underscores or uses the variable attribute separator, it is used to perform lookups on objects.
+
+        Args:
+            var (str): The variable string to parse.
+
+        Raises:
+            TypeError: If the variable is not a string.
+            ValueError: If the variable string is invalid.
+            TemplateSyntaxError: If the variable or attribute name starts with an underscore.
+
+        """
         self.var = var
         self.literal = None
         self.lookups = None

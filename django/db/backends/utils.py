@@ -56,6 +56,19 @@ class CursorWrapper:
     def callproc(self, procname, params=None, kparams=None):
         # Keyword parameters for callproc aren't supported in PEP 249, but the
         # database driver may support them (e.g. oracledb).
+        """
+
+        Calls a stored database procedure.
+
+        :param procname: The name of the stored procedure to call.
+        :param params: A tuple of positional parameters to pass to the procedure. Defaults to None.
+        :param kparams: A dictionary of keyword parameters to pass to the procedure. Defaults to None.
+        :raises NotSupportedError: If keyword parameters are used with a database backend that does not support them.
+        :returns: The result of the procedure call.
+
+        Note: This method checks the database connection state and raises warnings if the application is not ready.
+
+        """
         if kparams is not None and not self.db.features.supports_callproc_kwargs:
             raise NotSupportedError(
                 "Keyword parameters for callproc are not supported on this "
@@ -129,6 +142,9 @@ class CursorDebugWrapper(CursorWrapper):
     def debug_sql(
         self, sql=None, params=None, use_last_executed_query=False, many=False
     ):
+        """
+
+        """
         start = time.monotonic()
         try:
             yield
@@ -233,6 +249,9 @@ def typecast_time(s):  # does NOT store time zone information
 def typecast_timestamp(s):  # does NOT store time zone information
     # "2005-07-29 15:48:00.590358-05"
     # "2005-07-29 09:56:00-05"
+    """
+
+    """
     if not s:
         return None
     if " " not in s:

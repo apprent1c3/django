@@ -64,6 +64,9 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_path_ignored_completely(self):
+        """
+
+        """
         relpath = self.hashed_file_path("cached/css/ignored.css")
         self.assertEqual(relpath, "cached/css/ignored.55e7c226dda1.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -100,6 +103,9 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_path_with_querystring_and_fragment(self):
+        """
+
+        """
         relpath = self.hashed_file_path("cached/css/fragments.css")
         self.assertEqual(relpath, "cached/css/fragments.7fe344dee895.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -118,6 +124,16 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_template_tag_absolute(self):
+        """
+
+        Tests the functionality of a template tag with absolute file paths.
+
+        Verifies that the tag correctly generates absolute URLs for hashed static files, 
+        and checks that the content of the generated file is correct. The test ensures 
+        that the absolute URLs are properly formatted and do not contain any incorrect 
+        or relative paths.
+
+        """
         relpath = self.hashed_file_path("cached/absolute.css")
         self.assertEqual(relpath, "cached/absolute.eb04def9f9a4.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -142,6 +158,9 @@ class TestHashedFiles:
         self.assertPostCondition()
 
     def test_template_tag_relative(self):
+        """
+
+        """
         relpath = self.hashed_file_path("cached/relative.css")
         self.assertEqual(relpath, "cached/relative.c3e9e1ea6f2e.css")
         with storage.staticfiles_storage.open(relpath) as relfile:
@@ -409,6 +428,9 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
     """
 
     def setUp(self):
+        """
+
+        """
         super().setUp()
 
         temp_dir = tempfile.mkdtemp()
@@ -468,6 +490,19 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
         self.assertEqual(hashed_files, manifest)
 
     def test_clear_empties_manifest(self):
+        """
+        Tests that the clear functionality empties the manifest by removing a previously collected static file.
+
+        This test case ensures that when the clear option is enabled, a static file 
+        previously collected is properly removed from the manifest and the hashed files 
+        dictionary, and the file itself is deleted from the storage location.
+
+        The test covers the following steps:
+        - A static file is collected and verified to exist in the manifest and hashed files.
+        - The static file is then cleared, and it is verified that the file is removed 
+          from the manifest, hashed files, and the storage location.
+
+        """
         cleared_file_name = storage.staticfiles_storage.clean_name(
             os.path.join("test", "cleared.txt")
         )
@@ -496,6 +531,18 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
         self.assertNotIn(cleared_file_name, manifest_content)
 
     def test_missing_entry(self):
+        """
+
+        Tests the handling of a missing static file entry.
+
+        Verifies that a `ValueError` is raised when a static file is missing from the manifest
+        and `manifest_strict` is enabled. Also checks that a less strict error message is
+        raised when `manifest_strict` is disabled.
+
+        Ensures that saving a missing file to the storage allows subsequent retrieval
+        without errors.
+
+        """
         missing_file_name = "cached/missing.css"
         configured_storage = storage.staticfiles_storage
         self.assertNotIn(missing_file_name, configured_storage.hashed_files)
@@ -538,6 +585,9 @@ class TestCollectionManifestStorage(TestHashedFiles, CollectionTestCase):
 
     def test_manifest_hash(self):
         # Collect the additional file.
+        """
+
+        """
         self.run_collectstatic()
 
         _, manifest_hash_orig = storage.staticfiles_storage.load_manifest()
@@ -800,6 +850,9 @@ class TestStaticFilePermissions(CollectionTestCase):
         FILE_UPLOAD_DIRECTORY_PERMISSIONS=0o765,
     )
     def test_collect_static_files_permissions(self):
+        """
+
+        """
         call_command("collectstatic", **self.command_params)
         static_root = Path(settings.STATIC_ROOT)
         test_file = static_root / "test.txt"
@@ -820,6 +873,9 @@ class TestStaticFilePermissions(CollectionTestCase):
         FILE_UPLOAD_DIRECTORY_PERMISSIONS=None,
     )
     def test_collect_static_files_default_permissions(self):
+        """
+
+        """
         call_command("collectstatic", **self.command_params)
         static_root = Path(settings.STATIC_ROOT)
         test_file = static_root / "test.txt"
@@ -846,6 +902,9 @@ class TestStaticFilePermissions(CollectionTestCase):
         },
     )
     def test_collect_static_files_subclass_of_static_storage(self):
+        """
+
+        """
         call_command("collectstatic", **self.command_params)
         static_root = Path(settings.STATIC_ROOT)
         test_file = static_root / "test.txt"
@@ -889,6 +948,9 @@ class TestCollectionHashedFilesCache(CollectionTestCase):
 
     def test_file_change_after_collectstatic(self):
         # Create initial static files.
+        """
+
+        """
         file_contents = (
             ("foo.png", "foo"),
             ("bar.css", 'url("foo.png")\nurl("xyz.png")'),

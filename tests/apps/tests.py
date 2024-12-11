@@ -604,6 +604,9 @@ class QueryPerformingAppTests(TransactionTestCase):
                 editor.remove_procedure("test_procedure")
 
     def run_setup(self, app_config_name):
+        """
+
+        """
         custom_settings = override_settings(
             INSTALLED_APPS=[f"apps.query_performing_app.apps.{app_config_name}"]
         )

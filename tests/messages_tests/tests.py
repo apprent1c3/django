@@ -67,6 +67,9 @@ class TestLevelTags(SimpleTestCase):
         self.assertEqual(base.LEVEL_TAGS, self.message_tags)
 
     def test_lazy(self):
+        """
+
+        """
         storage_base_import_path = "django.contrib.messages.storage.base"
         in_use_base = sys.modules.pop(storage_base_import_path)
         self.addCleanup(sys.modules.__setitem__, storage_base_import_path, in_use_base)

@@ -117,6 +117,20 @@ class Tests(TestCase):
         self.assertTrue(mocked_get_database_version.called)
 
     def test_init_command(self):
+        """
+        Tests the initialization of a database connection with a custom init command.
+
+        This test case verifies that the `init_command` specified in the database settings
+        is executed when a connection is established, by checking the values of PRAGMA
+        synchronous and PRAGMA cache_size after connecting to the database.
+
+        The test uses an in-memory SQLite database and checks that the database settings
+        are applied correctly when the connection is initialized. The `init_command` is
+        used to set the PRAGMA synchronous and cache_size values to specific defaults.
+
+        The test is successful if the PRAGMA synchronous and cache_size values match the
+        expected values after connecting to the database and executing the init command.
+        """
         settings_dict = {
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
@@ -253,6 +267,9 @@ class ThreadSharing(TransactionTestCase):
     available_apps = ["backends"]
 
     def test_database_sharing_in_threads(self):
+        """
+
+        """
         thread_connections = []
 
         def create_object():

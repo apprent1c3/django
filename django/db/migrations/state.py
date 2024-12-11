@@ -124,6 +124,9 @@ class ProjectState:
             self.reload_model(*model_key)
 
     def remove_model(self, app_label, model_name):
+        """
+
+        """
         model_key = app_label, model_name
         del self.models[model_key]
         if self._relations is not None:
@@ -141,6 +144,28 @@ class ProjectState:
 
     def rename_model(self, app_label, old_name, new_name):
         # Add a new model.
+        """
+
+        Rename a model in the system.
+
+         PARAMETERS
+         ----------
+         app_label : str
+             The label of the application that the model belongs to.
+         old_name : str
+             The current name of the model.
+         new_name : str
+             The new name for the model.
+
+         DESCRIPTION
+         -----------
+         This function renames a model and updates all related fields and references.
+         It creates a new model with the same attributes as the old one, but with the new name.
+         It then replaces all references to the old model with references to the new one,
+         including foreign key fields and many-to-many relationships.
+         Finally, it reloads the affected models to ensure that the changes take effect.
+
+        """
         old_name_lower = old_name.lower()
         new_name_lower = new_name.lower()
         renamed_model = self.models[app_label, old_name_lower].clone()
@@ -218,6 +243,9 @@ class ProjectState:
         self._remove_option(app_label, model_name, "indexes", index_name)
 
     def rename_index(self, app_label, model_name, old_index_name, new_index_name):
+        """
+
+        """
         model_state = self.models[app_label, model_name]
         objs = model_state.options["indexes"]
 
@@ -239,6 +267,9 @@ class ProjectState:
 
     def add_field(self, app_label, model_name, name, field, preserve_default):
         # If preserve default is off, don't use the default for future state.
+        """
+
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -263,6 +294,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def alter_field(self, app_label, model_name, name, field, preserve_default):
+        """
+
+        """
         if not preserve_default:
             field = field.clone()
             field.default = NOT_PROVIDED
@@ -289,6 +323,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def rename_field(self, app_label, model_name, old_name, new_name):
+        """
+
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         # Rename the field.
@@ -344,6 +381,9 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def _find_reload_model(self, app_label, model_name, delay=False):
+        """
+
+        """
         if delay:
             self.is_delayed = True
 
@@ -409,6 +449,9 @@ class ProjectState:
 
     def _reload(self, related_models):
         # Unregister all related models
+        """
+
+        """
         with self.apps.bulk_update():
             for rel_app_label, rel_model_name in related_models:
                 self.apps.unregister_model(rel_app_label, rel_model_name)
@@ -441,6 +484,9 @@ class ProjectState:
         field,
         concretes,
     ):
+        """
+
+        """
         remote_model_key = resolve_relation(model, *model_key)
         if remote_model_key[0] not in self.real_apps and remote_model_key in concretes:
             remote_model_key = concretes[remote_model_key]
@@ -463,6 +509,9 @@ class ProjectState:
         field,
         concretes=None,
     ):
+        """
+
+        """
         remote_field = field.remote_field
         if not remote_field:
             return
@@ -605,6 +654,9 @@ class StateApps(Apps):
         # are some variables that refer to the Apps object.
         # FKs/M2Ms from real apps are also not included as they just
         # mess things up with partial states (due to lack of dependencies)
+        """
+
+        """
         self.real_models = []
         for app_label in real_apps:
             app = global_apps.get_app_config(app_label)
@@ -652,6 +704,20 @@ class StateApps(Apps):
         # base errors, until the size of the unrendered models doesn't
         # decrease by at least one, meaning there's a base dependency loop/
         # missing base.
+        """
+        Renders multiple model states, handling any circular dependencies that may arise.
+
+        This method takes a list of model states and attempts to render each one. If a model
+        cannot be rendered due to an :class:`InvalidBasesError`, it is added to a list of
+        unrendered models and retried in the next iteration. This process continues until
+        all models have been rendered or it is determined that the circular dependencies
+        cannot be resolved.
+
+        :raises InvalidBasesError: If the circular dependencies cannot be resolved, an
+            :class:`InvalidBasesError` is raised with a message explaining the possible
+            cause of the issue and a link to the relevant Django documentation.
+        :param model_states: A list of model states to render
+        """
         if not model_states:
             return
         # Prevent that all model caches are expired for each render.
@@ -721,6 +787,9 @@ class ModelState:
     def __init__(
         self, app_label, name, fields, options=None, bases=None, managers=None
     ):
+        """
+
+        """
         self.app_label = app_label
         self.name = name
         self.fields = dict(fields)

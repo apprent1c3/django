@@ -124,6 +124,9 @@ class GeoIP2:
         return self._reader.metadata()
 
     def _query(self, query, *, require_city=False):
+        """
+
+        """
         if not isinstance(query, (str, ipaddress.IPv4Address, ipaddress.IPv6Address)):
             raise TypeError(
                 "GeoIP query must be a string or instance of IPv4Address or "

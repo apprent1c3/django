@@ -22,6 +22,16 @@ class RedirectFallbackMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # No need to check for a redirect for non-404 responses.
+        """
+        Handle response processing for HTTP requests.
+
+        This method takes an HTTP request and response as input, and returns a modified response if necessary.
+        It checks for HTTP 404 status codes and attempts to find a matching redirect in the database.
+        If a redirect is found, it returns a redirect response to the new path.
+        If no redirect is found and the APPEND_SLASH setting is enabled, it attempts to find a redirect with the path appended with a slash.
+        If the redirect's new path is empty, it returns a \"Gone\" response.
+        Otherwise, it returns the original response.
+        """
         if response.status_code != 404:
             return response
 

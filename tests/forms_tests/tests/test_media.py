@@ -13,6 +13,9 @@ class FormsMediaTestCase(SimpleTestCase):
 
     def test_construction(self):
         # Check construction of media objects
+        """
+
+        """
         m = Media(
             css={"all": ("path/to/css1", "/path/to/css2")},
             js=(
@@ -109,6 +112,26 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_combine_media(self):
         # Media objects can be combined. Any given media resource will appear only
         # once. Duplicated media definitions are ignored.
+        """
+        Qualifier test_combine_media
+        -----------------------------
+
+        Tests the combination and merging of media (CSS and JavaScript) from multiple widgets.
+
+        This test case verifies that the combined media from multiple widgets is correctly aggregated,
+        removing duplicates and preserving the original order of resources. It also checks that
+        the media for a single widget is correctly rendered.
+
+        The test covers various scenarios, including:
+
+        * Combining media from multiple widgets with overlapping resources
+        * Removing duplicate resources from the combined media
+        * Preserving the original order of resources in the combined media
+        * Rendering media for a single widget with duplicate resources
+
+        It ensures that the resulting combined media is correctly rendered as a string, including
+        HTML links for CSS files and script tags for JavaScript files.
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -189,6 +212,9 @@ class FormsMediaTestCase(SimpleTestCase):
         ###############################################################
 
         # Widget media can be defined as a property
+        """
+
+        """
         class MyWidget4(TextInput):
             def _media(self):
                 return Media(css={"all": ("/some/path",)}, js=("/some/js",))
@@ -223,6 +249,20 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_property_parent_references(self):
         # Media properties can reference the media of their parents,
         # even if the parent media was defined using a class
+        """
+
+        Tests whether the media property on a widget correctly handles parent references.
+
+        This test case verifies that when a child widget extends a parent widget
+        and overrides the media property, the resulting media includes both
+        the parent's and child's media definitions.
+
+        The test covers various scenarios, including CSS and JavaScript
+        inclusions from different sources, such as local and remote URLs.
+        It ensures that the media property returns a combined and correctly formatted
+        string representation of all the included media.
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -260,6 +300,9 @@ class FormsMediaTestCase(SimpleTestCase):
 
         # If a widget extends another but provides no media definition, it
         # inherits the parent widget's media.
+        """
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -305,6 +348,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_from_property(self):
         # If a widget extends another but defines media, it extends the parents
         # widget's media, even if the parent defined media using a property.
+        """
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -353,6 +399,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_extends(self):
         # A widget can explicitly enable full media inheritance by specifying
         # 'extend=True'.
+        """
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -383,6 +432,9 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_media_inheritance_single_type(self):
         # A widget can enable inheritance of one media type by specifying
         # extend as a tuple.
+        """
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -439,6 +491,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # Multiwidget media handling
         ###############################################################
 
+        """
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -483,6 +538,9 @@ class FormsMediaTestCase(SimpleTestCase):
         # Media processing for forms
         ###############################################################
 
+        """
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -633,6 +691,9 @@ class FormsMediaTestCase(SimpleTestCase):
         self.assertEqual(merged._js, ["a", "b", "c", "f", "g", "h", "k"])
 
     def test_merge_css_three_way(self):
+        """
+
+        """
         widget1 = Media(css={"screen": ["c.css"], "all": ["d.css", "e.css"]})
         widget2 = Media(css={"screen": ["a.css"]})
         widget3 = Media(css={"screen": ["a.css", "b.css", "c.css"], "all": ["e.css"]})
@@ -654,6 +715,9 @@ class FormsMediaTestCase(SimpleTestCase):
         self.assertEqual(merged._css, {"screen": ["c.css"], "all": ["d.css", "e.css"]})
 
     def test_add_js_deduplication(self):
+        """
+
+        """
         widget1 = Media(js=["a", "b", "c"])
         widget2 = Media(js=["a", "b"])
         widget3 = Media(js=["a", "c", "b"])
@@ -674,6 +738,9 @@ class FormsMediaTestCase(SimpleTestCase):
             merged._js
 
     def test_add_css_deduplication(self):
+        """
+
+        """
         widget1 = Media(css={"screen": ["a.css"], "all": ["b.css"]})
         widget2 = Media(css={"screen": ["c.css"]})
         widget3 = Media(css={"screen": ["a.css"], "all": ["b.css", "c.css"]})
@@ -821,6 +888,9 @@ class FormsMediaObjectTestCase(SimpleTestCase):
         )
 
     def test_combine_media(self):
+        """
+
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": (CSS("path/to/css1", "all"), "/path/to/css2")}

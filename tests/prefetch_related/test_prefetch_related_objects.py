@@ -12,6 +12,9 @@ class PrefetchRelatedObjectsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         cls.book1 = Book.objects.create(title="Poems")
         cls.book2 = Book.objects.create(title="Jane Eyre")
         cls.book3 = Book.objects.create(title="Wuthering Heights")
@@ -68,6 +71,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             self.assertCountEqual(author1.books.all(), [self.book1, self.book2])
 
     def test_foreignkey_forward(self):
+        """
+
+        """
         authors = list(Author.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(authors, "first_book")
@@ -85,6 +91,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_foreignkey_reverse(self):
+        """
+
+        """
         books = list(Book.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(books, "first_time_authors")
@@ -105,6 +114,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_forward(self):
+        """
+
+        """
         houses = list(House.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(houses, "main_room")
@@ -122,6 +134,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_reverse(self):
+        """
+
+        """
         rooms = list(Room.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(rooms, "main_room_of")

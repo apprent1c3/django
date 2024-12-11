@@ -133,6 +133,9 @@ class ASGITest(SimpleTestCase):
         ],
     )
     async def test_static_file_response(self):
+        """
+
+        """
         application = ASGIStaticFilesHandler(get_asgi_application())
         # Construct HTTP request.
         scope = self.async_request_factory._base_scope(path="/static/file.txt")
@@ -163,6 +166,9 @@ class ASGITest(SimpleTestCase):
         await communicator.wait()
 
     async def test_headers(self):
+        """
+
+        """
         application = get_asgi_application()
         communicator = ApplicationCommunicator(
             application,
@@ -194,6 +200,9 @@ class ASGITest(SimpleTestCase):
         await communicator.wait()
 
     async def test_post_body(self):
+        """
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(
             method="POST",
@@ -211,6 +220,9 @@ class ASGITest(SimpleTestCase):
 
     async def test_create_request_error(self):
         # Track request_finished signal.
+        """
+
+        """
         signal_handler = SignalHandler()
         request_finished.connect(signal_handler)
         self.addCleanup(request_finished.disconnect, signal_handler)
@@ -300,6 +312,13 @@ class ASGITest(SimpleTestCase):
         self.assertEqual(outcome, [{"request_body": b"Body data!"}])
 
     async def test_untouched_request_body_gets_closed(self):
+        """
+        Tests that the request body is properly closed when an ASGI application returns a response without consuming the request body.
+
+        Verifies that the application correctly handles the case where the request body is not read, and ensures that the request body is closed after sending the response.
+
+        This test validates the expected behavior of the ASGI application by checking the response status code and body, and waiting for the communicator to finish processing the request.
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(method="POST", path="/post/")
         communicator = ApplicationCommunicator(application, scope)
@@ -314,6 +333,9 @@ class ASGITest(SimpleTestCase):
         await communicator.wait()
 
     async def test_get_query_string(self):
+        """
+
+        """
         application = get_asgi_application()
         for query_string in (b"name=Andrew", "name=Andrew"):
             with self.subTest(query_string=query_string):
@@ -403,6 +425,9 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output()
 
     async def test_non_unicode_query_string(self):
+        """
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/", query_string=b"\xff")
         communicator = ApplicationCommunicator(application, scope)
@@ -416,6 +441,9 @@ class ASGITest(SimpleTestCase):
 
     async def test_request_lifecycle_signals_dispatched_with_thread_sensitive(self):
         # Track request_started and request_finished signals.
+        """
+
+        """
         signal_handler = SignalHandler()
         request_started.connect(signal_handler)
         self.addCleanup(request_started.disconnect, signal_handler)
@@ -444,6 +472,9 @@ class ASGITest(SimpleTestCase):
         )
 
     async def test_concurrent_async_uses_multiple_thread_pools(self):
+        """
+
+        """
         sync_waiter.active_threads.clear()
 
         # Send 2 requests concurrently
@@ -475,6 +506,9 @@ class ASGITest(SimpleTestCase):
         sync_waiter.active_threads.clear()
 
     async def test_asyncio_cancel_error(self):
+        """
+
+        """
         view_started = asyncio.Event()
         # Flag to check if the view was cancelled.
         view_did_cancel = False
@@ -551,6 +585,9 @@ class ASGITest(SimpleTestCase):
     async def test_asyncio_streaming_cancel_error(self):
         # Similar to test_asyncio_cancel_error(), but during a streaming
         # response.
+        """
+
+        """
         view_did_cancel = False
         # Track request_finished signals.
         signal_handler = SignalHandler()
@@ -624,6 +661,9 @@ class ASGITest(SimpleTestCase):
         self.assertEqual(handler_call["kwargs"], {"sender": TestASGIHandler})
 
     async def test_streaming(self):
+        """
+
+        """
         scope = self.async_request_factory._base_scope(
             path="/streaming/", query_string=b"sleep=0.001"
         )
@@ -643,6 +683,18 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output(timeout=1)
 
     async def test_streaming_disconnect(self):
+        """
+        Tests the behavior of the application when a client disconnects during a streaming request.
+
+        This test simulates a streaming request to the '/streaming/' endpoint, which is expected to yield a series of responses.
+        It verifies that the application correctly sends an initial response, and then tests the application's behavior when the client
+        sends a disconnect message during the streaming process. The test checks that the application raises a TimeoutError when
+        attempting to receive further output after the client has disconnected.
+
+        The test uses an asynchronous communicator to simulate the client-server interaction, allowing for precise control over the
+        request and response sequence. The test is designed to ensure that the application handles client disconnects in a robust and
+        predictable manner, even in the context of ongoing streaming requests.
+        """
         scope = self.async_request_factory._base_scope(
             path="/streaming/", query_string=b"sleep=0.1"
         )

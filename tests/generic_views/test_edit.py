@@ -93,6 +93,9 @@ class ModelFormMixinTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="generic_views.urls")
 class CreateViewTests(TestCase):
     def test_create(self):
+        """
+
+        """
         res = self.client.get("/edit/authors/create/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -159,6 +162,18 @@ class CreateViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/author/{}/update/".format(pk))
 
     def test_create_with_special_properties(self):
+        """
+
+        Tests the creation of an author using special properties.
+
+        This function checks that the author creation page with special properties is displayed correctly,
+        that the form is properly rendered, and that a new author can be successfully created.
+        It verifies the HTTP response status codes, the presence of the form in the response context,
+        the template used to render the form, and the redirect after a successful author creation.
+        Additionally, it ensures that the newly created author is stored in the database and that
+        the author detail page is redirected to after creation.
+
+        """
         res = self.client.get("/edit/authors/create/special/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], views.AuthorForm)
@@ -245,6 +260,9 @@ class UpdateViewTests(TestCase):
         )
 
     def test_update_post(self):
+        """
+
+        """
         res = self.client.get("/edit/author/%d/update/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -318,6 +336,9 @@ class UpdateViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/author/{}/update/".format(pk))
 
     def test_update_with_special_properties(self):
+        """
+
+        """
         res = self.client.get("/edit/author/%d/update/special/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], views.AuthorForm)
@@ -349,6 +370,9 @@ class UpdateViewTests(TestCase):
             )
 
     def test_update_get_object(self):
+        """
+
+        """
         res = self.client.get("/edit/author/update/")
         self.assertEqual(res.status_code, 200)
         self.assertIsInstance(res.context["form"], forms.ModelForm)
@@ -422,6 +446,20 @@ class DeleteViewTests(TestCase):
         self.assertRedirects(res, "/%C3%A9dit/authors/create/?deleted={}".format(a.pk))
 
     def test_delete_with_special_properties(self):
+        """
+
+        Test for deleting an author object with special properties.
+
+        This test checks that the delete operation for an author object with special properties
+        functions correctly. It verifies that the initial HTTP GET request returns a successful
+        response, that the author object is correctly identified in the response context,
+        and that the correct template is used to render the confirmation page.
+
+        The test also checks the HTTP POST request that actually performs the deletion,
+        confirming that it results in a redirect to the authors list page and that the author
+        object is successfully removed from the database.
+
+        """
         res = self.client.get("/edit/author/%d/delete/special/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)
@@ -453,6 +491,9 @@ class DeleteViewTests(TestCase):
         self.assertSequenceEqual(Author.objects.all(), [])
 
     def test_delete_with_form_as_post_with_validation_error(self):
+        """
+
+        """
         res = self.client.get("/edit/author/%d/delete/form/" % self.author.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.author)

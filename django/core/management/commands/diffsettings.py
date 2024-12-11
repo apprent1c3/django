@@ -73,6 +73,9 @@ class Command(BaseCommand):
         return output
 
     def output_unified(self, user_settings, default_settings, **options):
+        """
+
+        """
         output = []
         for key in sorted(user_settings):
             if key not in default_settings:

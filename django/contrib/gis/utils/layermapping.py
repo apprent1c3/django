@@ -609,6 +609,9 @@ class LayerMapping:
                 progress_interval = progress
 
         def _save(feat_range=default_range, num_feat=0, num_saved=0):
+            """
+
+            """
             if feat_range:
                 layer_iter = self.layer[feat_range]
             else:

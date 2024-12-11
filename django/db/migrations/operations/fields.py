@@ -231,6 +231,18 @@ class AlterField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        :param app_label: The application label of the model to be modified
+        :param schema_editor: The schema editor instance to apply changes to the database schema
+        :param from_state: The previous state of the model
+        :param to_state: The updated state of the model
+        :returns: None
+        :description: Modifies the database schema by altering a field in a model.
+            This function checks if the model is allowed to be migrated, retrieves the field to be modified,
+            and then alters it in the database schema using the provided schema editor.
+            The field's default value is updated unless the preserve_default option is set.
+            The function ensures that the changes are persisted in the database schema.
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)

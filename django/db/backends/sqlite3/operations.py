@@ -44,6 +44,9 @@ class DatabaseOperations(BaseDatabaseOperations):
             return len(objs)
 
     def check_expression_support(self, expression):
+        """
+
+        """
         bad_fields = (models.DateField, models.DateTimeField, models.TimeField)
         bad_aggregates = (models.Sum, models.Avg, models.Variance, models.StdDev)
         if isinstance(expression, bad_aggregates):
@@ -173,6 +176,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         # bind_parameters(state, self->statement, parameters);
         # Unfortunately there is no way to reach self->statement from Python,
         # so we quote and substitute parameters manually.
+        """
+
+        """
         if params:
             if isinstance(params, (list, tuple)):
                 params = self._quote_params_for_last_executed_query(params)
@@ -286,6 +292,28 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def get_db_converters(self, expression):
+        """
+
+        Returns a list of database converters for the given expression.
+
+        This function extends the default behavior of getting database converters
+        by adding support for specific internal field types. It checks the internal
+        type of the expression's output field and appends a corresponding converter
+        function to the list of converters.
+
+        The supported internal field types and their corresponding converters are:
+
+        * DateTimeField: converts datetime values
+        * DateField: converts date values
+        * TimeField: converts time values
+        * DecimalField: converts decimal values using a field-specific converter
+        * UUIDField: converts UUID values
+        * BooleanField: converts boolean values
+
+        The function returns the updated list of converters, which can be used to
+        handle the conversion of database values to Python objects.
+
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type == "DateTimeField":
@@ -325,6 +353,9 @@ class DatabaseOperations(BaseDatabaseOperations):
     def get_decimalfield_converter(self, expression):
         # SQLite stores only 15 significant digits. Digits coming from
         # float inaccuracy must be removed.
+        """
+
+        """
         create_decimal = decimal.Context(prec=15).create_decimal_from_float
         if isinstance(expression, Col):
             quantize_value = decimal.Decimal(1).scaleb(

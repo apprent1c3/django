@@ -269,6 +269,22 @@ class CsrfViewMiddleware(MiddlewareMixin):
             patch_vary_headers(response, ("Cookie",))
 
     def _origin_verified(self, request):
+        """
+
+        Verify the origin of an incoming request.
+
+        This function checks if the origin of the request is allowed, based on the 'Origin' 
+        header in the request and the host of the server. It checks for exact matches 
+        and also for subdomains.
+
+        The function considers the request secure (i.e., 'https' or 'http') and 
+        compares it with the request's host. If there is a match, it returns True. 
+        If not, it checks if the origin is in a list of allowed origins or subdomains.
+
+        Returns:
+            bool: True if the origin is verified, False otherwise.
+
+        """
         request_origin = request.META["HTTP_ORIGIN"]
         try:
             good_host = request.get_host()
@@ -295,6 +311,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
         )
 
     def _check_referer(self, request):
+        """
+
+        """
         referer = request.META.get("HTTP_REFERER")
         if referer is None:
             raise RejectRequest(REASON_NO_REFERER)
@@ -350,6 +369,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
         # Access csrf_secret via self._get_secret() as rotate_token() may have
         # been called by an authentication middleware during the
         # process_request() phase.
+        """
+
+        """
         try:
             csrf_secret = self._get_secret(request)
         except InvalidTokenFormat as exc:
@@ -412,6 +434,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 request.META["CSRF_COOKIE"] = csrf_secret
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+
+        """
         if getattr(request, "csrf_processing_done", False):
             return None
 

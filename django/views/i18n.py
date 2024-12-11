@@ -176,6 +176,9 @@ class JavaScriptCatalog(View):
         return plural
 
     def get_catalog(self):
+        """
+
+        """
         pdict = {}
         catalog = {}
         translation = self.translation

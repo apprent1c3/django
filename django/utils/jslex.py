@@ -35,6 +35,9 @@ class Lexer:
     """
 
     def __init__(self, states, first):
+        """
+
+        """
         self.regexes = {}
         self.toks = {}
 

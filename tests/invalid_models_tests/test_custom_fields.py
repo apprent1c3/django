@@ -6,6 +6,9 @@ from django.test.utils import isolate_apps
 @isolate_apps("invalid_models_tests")
 class CustomFieldTest(SimpleTestCase):
     def test_none_column(self):
+        """
+
+        """
         class NoColumnField(models.AutoField):
             def db_type(self, connection):
                 # None indicates not to create a column in the database.

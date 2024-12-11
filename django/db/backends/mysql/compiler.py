@@ -28,6 +28,9 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
         # the SQLDeleteCompiler's default implementation when multiple tables
         # are involved since MySQL/MariaDB will generate a more efficient query
         # plan than when using a subquery.
+        """
+
+        """
         where, having, qualify = self.query.where.split_having_qualify(
             must_group_by=self.query.group_by is not None
         )
@@ -54,6 +57,9 @@ class SQLDeleteCompiler(compiler.SQLDeleteCompiler, SQLCompiler):
 
 class SQLUpdateCompiler(compiler.SQLUpdateCompiler, SQLCompiler):
     def as_sql(self):
+        """
+
+        """
         update_query, update_params = super().as_sql()
         # MySQL and MariaDB support UPDATE ... ORDER BY syntax.
         if self.query.order_by:

@@ -120,6 +120,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
             connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
 
     def test_no_auto_transaction(self):
+        """
+
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True

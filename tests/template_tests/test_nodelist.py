@@ -44,6 +44,9 @@ class ErrorIndexTest(SimpleTestCase):
     """
 
     def test_correct_exception_index(self):
+        """
+
+        """
         tests = [
             (
                 "{% load bad_tag %}{% for i in range %}{% badsimpletag %}{% endfor %}",

@@ -99,6 +99,9 @@ class AsyncQuerySetTest(TestCase):
         self.assertIs(created, True)
 
     async def test_aupdate_or_create(self):
+        """
+
+        """
         instance, created = await SimpleModel.objects.aupdate_or_create(
             id=self.s1.id, defaults={"field": 2}
         )
@@ -226,6 +229,9 @@ class AsyncQuerySetTest(TestCase):
     @skipUnlessDBFeature("supports_explaining_query_execution")
     @async_to_sync
     async def test_aexplain(self):
+        """
+
+        """
         supported_formats = await sync_to_async(self._get_db_feature)(
             connection, "supported_explain_formats"
         )

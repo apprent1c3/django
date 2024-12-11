@@ -27,6 +27,9 @@ class CachedLoaderTests(SimpleTestCase):
         )
 
     def test_get_template(self):
+        """
+
+        """
         template = self.engine.get_template("index.html")
         self.assertEqual(template.origin.name, os.path.join(TEMPLATE_DIR, "index.html"))
         self.assertEqual(template.origin.template_name, "index.html")
@@ -175,6 +178,9 @@ class FileSystemLoaderTests(SimpleTestCase):
             engine.get_template("index.html")
 
     def test_directory_security(self):
+        """
+
+        """
         with self.source_checker(["/dir1", "/dir2"]) as check_sources:
             check_sources("index.html", ["/dir1/index.html", "/dir2/index.html"])
             check_sources("/etc/passwd", [])

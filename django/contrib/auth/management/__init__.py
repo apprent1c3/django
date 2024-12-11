@@ -43,6 +43,9 @@ def create_permissions(
     apps=global_apps,
     **kwargs,
 ):
+    """
+
+    """
     if not app_config.models_module:
         return
 

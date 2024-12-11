@@ -66,6 +66,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         ###################
 
         # Can take a string.
+        """
+
+        """
         self.assertHTMLEqual(
             str(ErrorList(ValidationError("There was an error.").messages)),
             '<ul class="errorlist"><li>There was an error.</li></ul>',

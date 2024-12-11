@@ -17,6 +17,9 @@ else:
 
 class FileFieldTest(SimpleTestCase):
     def test_filefield_1(self):
+        """
+
+        """
         f = FileField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")

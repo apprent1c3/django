@@ -9,6 +9,9 @@ class BinaryFieldTests(TestCase):
     binary_data = b"\x00\x46\xFE"
 
     def test_set_and_retrieve(self):
+        """
+
+        """
         data_set = (
             self.binary_data,
             bytearray(self.binary_data),

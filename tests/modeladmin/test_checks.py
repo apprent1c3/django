@@ -252,6 +252,19 @@ class FieldsCheckTests(CheckTestCase):
 
 class FormCheckTests(CheckTestCase):
     def test_invalid_type(self):
+        """
+        Tests that the 'form' attribute of a ModelAdmin class is valid.
+
+        Checks that the 'form' attribute is a class that inherits from 'BaseModelForm'. 
+        Fails if the 'form' attribute is not a class or does not inherit from 'BaseModelForm', 
+        raising a validation error with code 'admin.E016'.
+
+        The test covers two scenarios:
+        1. When the 'form' attribute is a class that does not inherit from 'BaseModelForm'.
+        2. When the 'form' attribute is not a class.
+
+        Verifies that the validation error message is correctly raised in both cases.
+        """
         class FakeForm:
             pass
 
@@ -342,6 +355,9 @@ class FilterVerticalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_m2m_field_with_through(self):
+        """
+
+        """
         class Artist(Model):
             bands = ManyToManyField("Band", through="BandArtist")
 
@@ -422,6 +438,9 @@ class FilterHorizontalCheckTests(CheckTestCase):
 
     @isolate_apps("modeladmin")
     def test_invalid_m2m_field_with_through(self):
+        """
+
+        """
         class Artist(Model):
             bands = ManyToManyField("Band", through="BandArtist")
 
@@ -670,6 +689,9 @@ class ListDisplayTests(CheckTestCase):
 
     def test_valid_case(self):
         @admin.display
+        """
+
+        """
         def a_callable(obj):
             pass
 
@@ -683,6 +705,9 @@ class ListDisplayTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_valid_field_accessible_via_instance(self):
+        """
+
+        """
         class PositionField(Field):
             """Custom field accessible only via instance."""
 
@@ -743,6 +768,9 @@ class ListDisplayLinksCheckTests(CheckTestCase):
 
     def test_valid_case(self):
         @admin.display
+        """
+
+        """
         def a_callable(obj):
             pass
 
@@ -887,6 +915,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_not_filter_again_again(self):
+        """
+
+        """
         class AwesomeFilter(SimpleListFilter):
             def get_title(self):
                 return "awesomeness"
@@ -933,6 +964,9 @@ class ListFilterTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+
+        """
         class AwesomeFilter(SimpleListFilter):
             def get_title(self):
                 return "awesomeness"
@@ -1318,6 +1352,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(TestModelAdmin, ValidationTestModel)
 
     def test_proxy_model(self):
+        """
+
+        """
         class Reporter(Model):
             pass
 
@@ -1337,6 +1374,9 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(ReporterAdmin, Reporter)
 
     def test_proxy_model_fk_name(self):
+        """
+
+        """
         class ReporterFkName(Model):
             pass
 
@@ -1357,6 +1397,17 @@ class FkNameCheckTests(CheckTestCase):
         self.assertIsValid(ReporterAdmin, ReporterFkName)
 
     def test_proxy_model_parent(self):
+        """
+        Tests the support of proxy models as parents in the admin interface.
+
+        This test case covers the scenario where a proxy model is used as a parent for
+        another proxy model, and a related model has a foreign key to the proxy child.
+        It verifies that the admin interface can properly handle this setup, including
+        the use of inline forms with and without explicitly specifying the foreign key name.
+
+        It ensures that the admin interface is correctly configured and validated for
+        the proxy model, including the use of TabularInlines with and without fk_name specified.
+        """
         class Parent(Model):
             pass
 
@@ -1470,6 +1521,9 @@ class MinNumCheckTests(CheckTestCase):
 
 class FormsetCheckTests(CheckTestCase):
     def test_invalid_type(self):
+        """
+
+        """
         class FakeFormSet:
             pass
 
@@ -1505,6 +1559,9 @@ class FormsetCheckTests(CheckTestCase):
         )
 
     def test_valid_case(self):
+        """
+
+        """
         class RealModelFormSet(BaseModelFormSet):
             pass
 
@@ -1748,6 +1805,9 @@ class ActionsCheckTests(CheckTestCase):
 
     def test_actions_unique(self):
         @admin.action
+        """
+
+        """
         def action1(modeladmin, request, queryset):
             pass
 

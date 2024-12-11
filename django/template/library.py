@@ -26,6 +26,9 @@ class Library:
         self.tags = {}
 
     def tag(self, name=None, compile_function=None):
+        """
+
+        """
         if name is None and compile_function is None:
             # @register.tag()
             return self.tag_function
@@ -109,6 +112,9 @@ class Library:
         """
 
         def dec(func):
+            """
+
+            """
             (
                 params,
                 varargs,
@@ -164,6 +170,9 @@ class Library:
         """
 
         def dec(func):
+            """
+
+            """
             (
                 params,
                 varargs,

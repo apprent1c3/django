@@ -241,6 +241,16 @@ class GeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_empty_geometries")
     def test_empty_geometries(self):
+        """
+
+        Tests the creation of empty geometries for various geometry classes.
+
+        This test checks that empty geometries can be successfully created and stored
+        in the database for each of the following geometry classes: Point, LineString,
+        LinearRing, Polygon, MultiPoint, MultiLineString, MultiPolygon, and GeometryCollection.
+        It verifies that the created feature has the correct geometry and spatial reference system.
+
+        """
         geometry_classes = [
             Point,
             LineString,

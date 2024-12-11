@@ -19,6 +19,21 @@ from .models import (
 class RawQueryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application.
+
+        This class method creates a set of authors, books, coffee, and reviewers, 
+        establishing relationships between them. The created data includes 
+        four authors with different names and dates of birth, four books 
+        written by these authors, two coffee brands, and two reviewers 
+        with assigned reviews for specific books.
+
+        The test data is designed to be used as a foundation for testing 
+        the application's functionality, providing a consistent and 
+        predictable environment for evaluating its performance.
+
+        """
         cls.a1 = Author.objects.create(
             first_name="Joe", last_name="Smith", dob=date(1950, 9, 20)
         )
@@ -316,6 +331,16 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(Author, query, authors)
 
     def test_multiple_iterations(self):
+        """
+
+        Tests that multiple iterations over a raw query result set produce consistent results.
+
+        This test case verifies that the data retrieved from a raw SQL query is identical
+        when iterated over multiple times. It compares the results of two separate iterations
+        over the raw query result set with the expected results from the ORM, ensuring that
+        the data remains consistent across iterations.
+
+        """
         query = "SELECT * FROM raw_query_author"
         normal_authors = Author.objects.all()
         raw_authors = Author.objects.raw(query)

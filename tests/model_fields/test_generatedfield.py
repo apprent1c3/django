@@ -120,6 +120,9 @@ class BaseGeneratedFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_get_col(self):
+        """
+
+        """
         class Square(Model):
             side = IntegerField()
             area = GeneratedField(
@@ -154,6 +157,9 @@ class BaseGeneratedFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_cached_col(self):
+        """
+
+        """
         class Sum(Model):
             a = IntegerField()
             b = IntegerField()
@@ -193,6 +199,9 @@ class GeneratedFieldTestMixin:
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_full_clean_with_check_constraint(self):
+        """
+
+        """
         model_name = self.check_constraint_model._meta.verbose_name.capitalize()
 
         m = self.check_constraint_model(a=2)
@@ -211,6 +220,23 @@ class GeneratedFieldTestMixin:
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_full_clean_with_unique_constraint_expression(self):
+        """
+
+        Tests the full clean functionality of a model instance with a unique constraint 
+        expression. This test ensures that when saving a model instance, its unique 
+        constraint is validated and enforced. It also verifies that when attempting to 
+        save a duplicate instance, a ValidationError is raised indicating the 
+        constraint violation.
+
+        The test covers the following scenarios:
+            - Saving a model instance with a unique value and verifying its full clean 
+              functionality.
+            - Attempting to save a duplicate model instance and checking for the 
+              expected ValidationError.
+
+        This test requires the database to support expression indexes.
+
+        """
         model_name = self.unique_constraint_model._meta.verbose_name.capitalize()
 
         m = self.unique_constraint_model(a=2)

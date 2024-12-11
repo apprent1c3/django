@@ -55,6 +55,9 @@ class AdminScriptTestCase(SimpleTestCase):
         os.mkdir(self.test_dir)
 
     def write_settings(self, filename, apps=None, is_dir=False, sdict=None, extra=None):
+        """
+
+        """
         if is_dir:
             settings_dir = os.path.join(self.test_dir, filename)
             os.mkdir(settings_dir)
@@ -109,6 +112,35 @@ class AdminScriptTestCase(SimpleTestCase):
         return paths
 
     def run_test(self, args, settings_file=None, apps=None, umask=-1):
+        """
+        Run a test with the provided arguments and environment.
+
+        This function executes a test using the given arguments, settings file, and environment. 
+        It sets up the environment by modifying the 'PYTHONPATH' and 'DJANGO_SETTINGS_MODULE' variables 
+        to point to the test directory, Django directory, and other relevant paths. 
+        If a settings file is provided, it is used to configure Django; otherwise, 
+        any existing 'DJANGO_SETTINGS_MODULE' environment variable is removed.
+
+        The test is run using the system's executable Python, and its output is captured. 
+        The function returns the test's standard output and standard error as a tuple.
+
+        Parameters
+        ----------
+        args : list
+            A list of arguments to be passed to the test.
+        settings_file : str, optional
+            The path to a Django settings file.
+        apps : None, optional
+            Currently not used.
+        umask : int, optional
+            The umask to use when running the test (default is -1).
+
+        Returns
+        -------
+        tuple
+            A tuple containing the test's standard output and standard error.
+
+        """
         base_dir = os.path.dirname(self.test_dir)
         # The base dir for Django's tests is one level up.
         tests_dir = os.path.dirname(os.path.dirname(__file__))
@@ -1883,6 +1915,9 @@ class CommandTypes(AdminScriptTestCase):
         )
 
     def test_help_default_options_with_custom_arguments(self):
+        """
+
+        """
         args = ["base_command", "--help"]
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
@@ -1914,6 +1949,9 @@ class CommandTypes(AdminScriptTestCase):
             self.assertOutput(out, "-v {0,1,2,3}, --verbosity {0,1,2,3}")
 
     def test_color_style(self):
+        """
+
+        """
         style = color.no_style()
         self.assertEqual(style.ERROR("Hello, world!"), "Hello, world!")
 
@@ -1930,6 +1968,9 @@ class CommandTypes(AdminScriptTestCase):
         self.assertNotEqual(style.ERROR("Hello, world!"), "Hello, world!")
 
     def test_command_color(self):
+        """
+
+        """
         out = StringIO()
         err = StringIO()
         command = ColorCommand(stdout=out, stderr=err)
@@ -1988,6 +2029,9 @@ class CommandTypes(AdminScriptTestCase):
             call_command(BaseCommand(no_color=True, force_color=True))
 
     def test_custom_stdout(self):
+        """
+
+        """
         class Command(BaseCommand):
             requires_system_checks = []
 
@@ -2005,6 +2049,19 @@ class CommandTypes(AdminScriptTestCase):
         self.assertEqual(new_out.getvalue(), "Hello, World!\n")
 
     def test_custom_stderr(self):
+        """
+        Tests that a custom command correctly writes output to stderr.
+
+        This test case verifies that a command's handle method can write to stderr,
+        and that the output is properly redirected when the stderr parameter is provided.
+
+        It checks two scenarios: writing to the command's stderr attribute, and 
+        writing to a new stderr object passed as an argument to the call_command function.
+
+        The test ensures that the correct output is written to the correct stderr object 
+        in each case, and that no output is written to the original stderr object when 
+        a new one is provided.
+        """
         class Command(BaseCommand):
             requires_system_checks = []
 
@@ -2244,6 +2301,9 @@ class CommandTypes(AdminScriptTestCase):
         )
 
     def test_suppress_base_options_command_help(self):
+        """
+
+        """
         args = ["suppress_base_options_command", "--help"]
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
@@ -2545,6 +2605,9 @@ class StartProject(LiveServerTestCase, AdminScriptTestCase):
         self.assertTrue(os.path.exists(os.path.join(testproject_dir, "additional_dir")))
 
     def test_custom_project_template_non_python_files_not_formatted(self):
+        """
+
+        """
         template_path = os.path.join(custom_templates_dir, "project_template")
         args = ["startproject", "--template", template_path, "customtestproject"]
         testproject_dir = os.path.join(self.test_dir, "customtestproject")
@@ -2623,6 +2686,9 @@ class StartProject(LiveServerTestCase, AdminScriptTestCase):
         self.assertTrue(os.path.exists(os.path.join(testproject_dir, "run.py")))
 
     def test_custom_project_template_from_tarball_by_url_django_user_agent(self):
+        """
+
+        """
         user_agent = None
 
         def serve_template(request, *args, **kwargs):
@@ -2970,6 +3036,9 @@ class StartApp(AdminScriptTestCase):
         )
 
     def test_template(self):
+        """
+
+        """
         out, err = self.run_django_admin(["startapp", "new_app"])
         self.assertNoOutput(err)
         app_path = os.path.join(self.test_dir, "new_app")

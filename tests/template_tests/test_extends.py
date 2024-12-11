@@ -83,6 +83,9 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(message, "Skipped to avoid recursion")
 
     def test_extend_cached(self):
+        """
+
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),

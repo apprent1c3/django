@@ -58,7 +58,13 @@ def is_django_path(path):
 
 def check_errors(fn):
     @wraps(fn)
+    """
+
+    """
     def wrapper(*args, **kwargs):
+        """
+
+        """
         global _exception
         try:
             fn(*args, **kwargs)
@@ -327,6 +333,9 @@ class BaseReloader:
             return False
 
     def run(self, django_main_thread):
+        """
+
+        """
         logger.debug("Waiting for apps ready_event.")
         self.wait_for_apps_ready(apps, django_main_thread)
         from django.urls import get_resolver
@@ -385,6 +394,9 @@ class StatReloader(BaseReloader):
     SLEEP_TIME = 1  # Check for changes once per second.
 
     def tick(self):
+        """
+
+        """
         mtimes = {}
         while True:
             for filepath, mtime in self.snapshot_files():
@@ -407,6 +419,9 @@ class StatReloader(BaseReloader):
 
     def snapshot_files(self):
         # watched_files may produce duplicate paths if globs overlap.
+        """
+
+        """
         seen_files = set()
         for file in self.watched_files():
             if file in seen_files:
@@ -449,6 +464,19 @@ class WatchmanReloader(BaseReloader):
         # inside watch_glob() and watch_dir() is expensive, instead this could
         # could fall back to the StatReloader if this case is detected? For
         # now, watching its parent, if possible, is sufficient.
+        """
+        Monitors a root directory using Watchman.
+
+        This function initiates a watch on a specified root directory, allowing for 
+        notifications when changes occur within the directory or its subdirectories.
+        If the root directory does not exist, it will attempt to watch its parent 
+        directory instead.
+
+        :param root: The root directory to monitor.
+        :return: A tuple containing the watch ID and the relative path of the watched 
+            directory.
+
+        """
         if not root.exists():
             if not root.parent.exists():
                 logger.warning(
@@ -493,6 +521,9 @@ class WatchmanReloader(BaseReloader):
         self.client.query("subscribe", root, name, query)
 
     def _subscribe_dir(self, directory, filenames):
+        """
+
+        """
         if not directory.exists():
             if not directory.parent.exists():
                 logger.warning(
@@ -542,6 +573,24 @@ class WatchmanReloader(BaseReloader):
         return frozenset((*extra_directories, *watched_file_dirs, *sys_paths))
 
     def _update_watches(self):
+        """
+        Updates the watched files and directories.
+
+        This method refreshes the list of watched files, identifies common roots, and
+        re-establishes watches on these roots and directories. It also updates the
+        directory globs and subscribes to changes in watched directories.
+
+        The process involves the following steps:
+
+        * Gathering a list of watched files
+        * Identifying common roots among these files
+        * Updating watches on the identified roots
+        * Updating watches on directories with specified glob patterns
+        * Subscribing to changes in watched directories
+
+        This method is used to maintain an up-to-date list of watched files and
+        directories, ensuring that changes are properly detected and handled.
+        """
         watched_files = list(self.watched_files(include_globs=False))
         found_roots = common_roots(self.watched_roots(watched_files))
         logger.debug("Watching %s files", len(watched_files))
@@ -587,6 +636,9 @@ class WatchmanReloader(BaseReloader):
         self.processed_request.set()
 
     def tick(self):
+        """
+
+        """
         request_finished.connect(self.request_processed)
         self.update_watches()
         while True:
@@ -621,6 +673,9 @@ class WatchmanReloader(BaseReloader):
 
     @classmethod
     def check_availability(cls):
+        """
+
+        """
         if not pywatchman:
             raise WatchmanUnavailable("pywatchman not installed.")
         client = pywatchman.client(timeout=0.1)
@@ -661,6 +716,9 @@ def start_django(reloader, main_func, *args, **kwargs):
 
 
 def run_with_reloader(main_func, *args, **kwargs):
+    """
+
+    """
     signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
     try:
         if os.environ.get(DJANGO_AUTORELOAD_ENV) == "true":

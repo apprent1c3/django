@@ -41,6 +41,9 @@ class BaseGeometryWidget(Widget):
         return None
 
     def get_context(self, name, value, attrs):
+        """
+
+        """
         context = super().get_context(name, value, attrs)
         # If a string reaches here (via a validation error on another
         # field) then just reconstruct the Geometry.

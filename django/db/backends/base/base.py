@@ -53,6 +53,9 @@ class BaseDatabaseWrapper:
     def __init__(self, settings_dict, alias=DEFAULT_DB_ALIAS):
         # Connection related attributes.
         # The underlying database connection.
+        """
+
+        """
         self.connection = None
         # `settings_dict` should be a dictionary containing keys such as
         # NAME, USER, etc. It's called `settings_dict` instead of `settings`
@@ -725,6 +728,9 @@ class BaseDatabaseWrapper:
         return self.SchemaEditorClass(self, *args, **kwargs)
 
     def on_commit(self, func, robust=False):
+        """
+
+        """
         if not callable(func):
             raise TypeError("on_commit()'s callback must be a callable.")
         if self.in_atomic_block:
@@ -750,6 +756,9 @@ class BaseDatabaseWrapper:
                 func()
 
     def run_and_clear_commit_hooks(self):
+        """
+
+        """
         self.validate_no_atomic_block()
         current_run_on_commit = self.run_on_commit
         self.run_on_commit = []

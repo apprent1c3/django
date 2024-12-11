@@ -24,6 +24,9 @@ from .models import (
 class ReverseSelectRelatedTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        """
         user = User.objects.create(username="test")
         UserProfile.objects.create(user=user, state="KS", city="Lawrence")
         results = UserStatResult.objects.create(results="first results")
@@ -165,6 +168,18 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, "Child2 Parent1")
 
     def test_onetoone_with_two_subclasses(self):
+        """
+
+        Tests the one-to-one relationship between Parent2, Child2, and Child3 models.
+
+        This test case covers two scenarios:
+
+        1. When a Child3 instance does not exist for a given Child2, it verifies that a DoesNotExist exception is raised when trying to access the child3 attribute.
+        2. When a Child3 instance does exist for a given Child2, it checks that the one-to-one relationship is correctly established and that the related objects can be accessed with a single database query.
+
+        The test also validates that the relationships between Parent2, Child2, and Child3 are correctly set up and that the attribute values are consistent across related objects.
+
+        """
         with self.assertNumQueries(1):
             p = Parent2.objects.select_related("child2", "child2__child3").get(
                 name2="Child2 Parent2"
@@ -186,6 +201,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, p.child2.child3.name1)
 
     def test_multiinheritance_two_subclasses(self):
+        """
+
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1", "child1__child4").get(
                 name1="Child1 Parent1"
@@ -209,6 +227,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.value4, 4)
 
     def test_inheritance_deferred(self):
+        """
+
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         with self.assertNumQueries(1):
             p = (
@@ -234,6 +255,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.name2, "n2")
 
     def test_inheritance_deferred2(self):
+        """
+
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         qs = Parent2.objects.select_related("child1", "child1__child4").only(
             "id2", "child1__value", "child1__child4__value4"

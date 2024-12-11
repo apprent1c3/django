@@ -174,6 +174,19 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(reserved_name[:2], ("a", 2))
 
     def test_union_with_empty_qs(self):
+        """
+        Tests the union operation with an empty QuerySet.
+
+        This test case ensures that the union method behaves correctly when combining QuerySets with empty QuerySets.
+        It verifies that the union operation returns the expected results in various scenarios, including:
+
+        * Combining an empty QuerySet with a non-empty QuerySet
+        * Combining a non-empty QuerySet with an empty QuerySet
+        * Combining multiple empty QuerySets
+        * Using the all parameter to control duplicate removal
+
+        The test case covers different edge cases to guarantee the correctness and robustness of the union operation.
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.none()
         qs3 = Number.objects.filter(pk__in=[])
@@ -355,6 +368,9 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_order_by_annotation_transform(self):
+        """
+
+        """
         class Mod2(Mod, Transform):
             def __init__(self, expr):
                 super().__init__(expr, 2)
@@ -581,6 +597,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipIfDBFeature("supports_slicing_ordering_in_compound")
     def test_unsupported_ordering_slicing_raises_db_error(self):
+        """
+
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         qs3 = Number.objects.all()
@@ -608,6 +627,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(list(qs1.union(qs2).order_by("num")), [1, 99])
 
     def test_order_raises_on_non_selected_column(self):
+        """
+
+        """
         qs1 = (
             Number.objects.filter()
             .annotate(
@@ -647,6 +669,15 @@ class QuerySetSetOperationTests(TestCase):
         self.assertNumbersEqual(union.order_by("other_num"), reversed(numbers))
 
     def test_unsupported_operations_on_combined_qs(self):
+        """
+        Tests that calling various operations on a QuerySet that has been combined using union, difference, or intersection raises a NotSupportedError.
+
+        This test case covers a range of operations, including alias, annotate, defer, delete, distinct, exclude, extra, filter, only, 
+        prefetch_related, select_related, and update. It ensures that attempting to perform these operations on a combined QuerySet 
+        results in the expected error message, regardless of the specific combinator used (union, difference, or intersection).
+
+        Additionally, this test verifies that the contains method also raises a NotSupportedError when used on a combined QuerySet.
+        """
         qs = Number.objects.all()
         msg = "Calling QuerySet.%s() after %s() is not supported."
         combinators = ["union"]
@@ -683,6 +714,9 @@ class QuerySetSetOperationTests(TestCase):
                 getattr(qs, combinator)(qs).contains(obj)
 
     def test_get_with_filters_unsupported_on_combined_qs(self):
+        """
+
+        """
         qs = Number.objects.all()
         msg = "Calling QuerySet.get(...) with filters after %s() is not supported."
         combinators = ["union"]
@@ -696,6 +730,9 @@ class QuerySetSetOperationTests(TestCase):
                     getattr(qs, combinator)(qs).get(num=2)
 
     def test_operator_on_combined_qs_error(self):
+        """
+
+        """
         qs = Number.objects.all()
         msg = "Cannot use %s operator with combined queryset."
         combinators = ["union"]

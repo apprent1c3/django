@@ -25,6 +25,27 @@ class DateParseTests(unittest.TestCase):
 
     def test_parse_time(self):
         # Valid inputs
+        """
+
+        Parse time strings into time objects.
+
+        This function takes a string representing a time in various formats and attempts to parse it into a time object.
+        The supported formats include 'HH:MM:SS', 'HH:MM', 'HHMMSS', and 'HH:MM:SS.SSSSSS' with optional UTC offset.
+        If the input string is not in a valid format, the function returns None.
+        If the time components are invalid (e.g., minute or second out of range), the function raises a ValueError.
+
+        Examples of valid formats include:
+        - 'HH:MM:SS' (e.g., '09:15:00')
+        - 'HH:MM' (e.g., '10:10')
+        - 'HHMMSS' (available in Python 3.11 and later, e.g., '091500')
+        - 'HH:MM:SS.SSSSSS' (e.g., '10:20:30.400' or '10:20:30,400')
+        - 'HH:MM:SS+HHMM' (e.g., '00:05:23+04:00')
+
+        Notes:
+            For time strings with a UTC offset, only the hour, minute, and second components are extracted;
+            the offset is ignored.
+
+        """
         self.assertEqual(parse_time("09:15:00"), time(9, 15))
         if PY311:
             self.assertEqual(parse_time("091500"), time(9, 15))

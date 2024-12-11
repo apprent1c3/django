@@ -47,6 +47,9 @@ class BaseRangeField(forms.MultiValueField):
     hidden_widget = HiddenRangeWidget
 
     def __init__(self, **kwargs):
+        """
+
+        """
         if "widget" not in kwargs:
             kwargs["widget"] = RangeWidget(self.base_field.widget)
         if "fields" not in kwargs:
@@ -76,6 +79,9 @@ class BaseRangeField(forms.MultiValueField):
         return value
 
     def compress(self, values):
+        """
+
+        """
         if not values:
             return None
         lower, upper = values

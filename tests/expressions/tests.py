@@ -207,6 +207,9 @@ class BasicExpressionsTests(TestCase):
         )
 
     def _test_slicing_of_f_expressions(self, model):
+        """
+
+        """
         tests = [
             (F("name")[:], "Example Inc."),
             (F("name")[:7], "Example"),
@@ -365,6 +368,21 @@ class BasicExpressionsTests(TestCase):
 
     def test_filter_with_join(self):
         # F Expressions can also span joins
+        """
+
+        Tests the filtering of companies based on joined fields using the Django ORM.
+
+        This test case covers the usage of `filter()` and `exclude()` methods with joined fields,
+        including updating objects with joined field references. It verifies that the correct
+        companies are retrieved based on the filtering conditions and that the updated fields are
+        correctly applied.
+
+        Specifically, it checks that companies with matching CEO and point of contact first names
+        are correctly filtered and that companies with non-matching names can be updated. It also
+        tests that joined field references are not permitted in certain query operations, such as
+        updating a field with a joined field reference.
+
+        """
         Company.objects.update(point_of_contact=F("ceo"))
         c = Company.objects.first()
         c.point_of_contact = Employee.objects.create(
@@ -437,6 +455,9 @@ class BasicExpressionsTests(TestCase):
     def test_object_update_fk(self):
         # F expressions cannot be used to update attributes which are foreign
         # keys, or attributes which involve joins.
+        """
+
+        """
         test_gmbh = Company.objects.get(pk=self.gmbh.pk)
         msg = 'F(ceo)": "Company.point_of_contact" must be a "Employee" instance.'
         with self.assertRaisesMessage(ValueError, msg):
@@ -457,6 +478,15 @@ class BasicExpressionsTests(TestCase):
     def test_object_update_unsaved_objects(self):
         # F expressions cannot be used to update attributes on objects which do
         # not yet exist in the database
+        """
+
+        Tests the update of unsaved objects to ensure F() expressions are not used during insertion.
+
+        This test case verifies that attempting to save a new object with F() expressions
+        raises a ValueError, as F() expressions can only be used to update existing objects.
+        It checks this behavior for both numeric and string fields.
+
+        """
         acme = Company(
             name="The Acme Widget Co.", num_employees=12, num_chairs=5, ceo=self.max
         )
@@ -1059,6 +1089,9 @@ class BasicExpressionsTests(TestCase):
         self.assertCountEqual(qs, [self.example_inc.ceo, self.foobar_ltd.ceo, self.max])
 
     def test_boolean_expression_combined(self):
+        """
+
+        """
         is_ceo = Company.objects.filter(ceo=OuterRef("pk"))
         is_poc = Company.objects.filter(point_of_contact=OuterRef("pk"))
         self.gmbh.point_of_contact = self.max
@@ -1156,6 +1189,17 @@ class IterableLookupInnerExpressionsTests(TestCase):
         )
 
     def test_expressions_range_lookups_join_choice(self):
+        """
+        Tests that range lookups on expression fields correctly handle joins.
+
+        This test ensures that the `midpoint__range` lookup works as expected when
+        used with expression fields (`F('start__time')` and `F('end__time')`) and that
+        the correct type of join (INNER or LEFT OUTER) is used in the resulting query.
+
+        The test covers both the `filter` and `exclude` methods, verifying that the
+        correct SimulationRun objects are returned or excluded from the results.
+
+        """
         midpoint = datetime.time(13, 0)
         t1 = Time.objects.create(time=datetime.time(12, 0))
         t2 = Time.objects.create(time=datetime.time(14, 0))
@@ -1230,6 +1274,9 @@ class IterableLookupInnerExpressionsTests(TestCase):
         self.assertQuerySetEqual(queryset, [], ordered=False)
 
     def test_range_lookup_allows_F_expressions_and_expressions_for_dates(self):
+        """
+
+        """
         start = datetime.datetime(2016, 2, 3, 15, 0, 0)
         end = datetime.datetime(2016, 2, 5, 15, 0, 0)
         experiment_1 = Experiment.objects.create(
@@ -1716,6 +1763,25 @@ class ExpressionOperatorTests(TestCase):
 class FTimeDeltaTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Class method to set up test data for experiments.
+
+        This method initializes a set of experiment objects with varying start and end times, 
+        estimated times, and assigned dates. It creates a list of time deltas, delays, and 
+        days taken to complete each experiment. The method also creates a list of experiment names.
+
+        The experiments are created with different characteristics to test various scenarios, 
+        including experiments that start on the same day as their assigned date, experiments 
+        that start on a different day, and experiments with different estimated times.
+
+        The following class attributes are set:
+        - sday: the start date
+        - stime: the start time
+        - deltas: a list of time deltas for each experiment
+        - delays: a list of delays between the start time and the assigned date for each experiment
+        - days_long: a list of days taken to complete each experiment
+        - expnames: a list of names for all experiment objects
+        """
         cls.sday = sday = datetime.date(2010, 6, 25)
         cls.stime = stime = datetime.datetime(2010, 6, 25, 12, 15, 30, 747000)
         midnight = datetime.time(0)
@@ -1963,6 +2029,9 @@ class FTimeDeltaTests(TestCase):
             self.assertEqual(test_set, self.expnames[: i + 1])
 
     def test_delta_update(self):
+        """
+
+        """
         for delta in self.deltas:
             exps = Experiment.objects.all()
             expected_durations = [e.duration() for e in exps]
@@ -2049,6 +2118,9 @@ class FTimeDeltaTests(TestCase):
 
     @skipUnlessDBFeature("supports_temporal_subtraction")
     def test_date_subtraction(self):
+        """
+
+        """
         queryset = Experiment.objects.annotate(
             completion_duration=F("completed") - F("assigned"),
         )
@@ -2462,6 +2534,9 @@ class FieldTransformTests(TestCase):
 
 class ReprTests(SimpleTestCase):
     def test_expressions(self):
+        """
+
+        """
         self.assertEqual(
             repr(Case(When(a=1))),
             "<Case: CASE WHEN <Q: (AND: ('a', 1))> THEN Value(None), ELSE Value(None)>",
@@ -2697,6 +2772,9 @@ class CombinedExpressionTests(SimpleTestCase):
                     self.assertIsInstance(expr.output_field, expected_output_field)
 
     def test_resolve_output_field_dates(self):
+        """
+
+        """
         tests = [
             # Add - same type.
             (DateField, Combinable.ADD, DateField, FieldError),

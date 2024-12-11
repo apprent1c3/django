@@ -216,6 +216,13 @@ class BasePasswordHasher:
     salt_entropy = 128
 
     def _load_library(self):
+        """
+        Loads the algorithm library specified by the `library` attribute of the current instance.
+
+        The library can be specified in one of two ways: as a string representing the module path, or as a tuple/list containing the library name and module path.
+
+        If the library is found and can be imported, the loaded module is returned. If the library cannot be imported, a `ValueError` is raised with an error message indicating the problem. If the `library` attribute is not set, a `ValueError` is raised to indicate that the library is not specified.
+        """
         if self.library is not None:
             if isinstance(self.library, (tuple, list)):
                 name, mod_path = self.library

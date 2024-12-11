@@ -390,6 +390,9 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, 8, 4, "headshot")
 
     def test_assignment(self):
+        """
+
+        """
         p = self.PersonModel()
         self.check_dimensions(p, None, None, "mugshot")
         self.check_dimensions(p, None, None, "headshot")
@@ -410,6 +413,9 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
         self.check_dimensions(p, None, None, "headshot")
 
     def test_field_save_and_delete_methods(self):
+        """
+
+        """
         p = self.PersonModel(name="Joe")
         p.mugshot.save("mug", self.file1)
         self.check_dimensions(p, 4, 8, "mugshot")
@@ -475,6 +481,21 @@ class TwoImageFieldTests(ImageFieldTestMixin, TestCase):
 @skipIf(Image is None, "Pillow is required to test ImageField")
 class NoReadTests(ImageFieldTestMixin, TestCase):
     def test_width_height_correct_name_mangling_correct(self):
+        """
+
+        Tests the correct assignment and preservation of width and height attributes 
+        for an instance's mugshot image.
+
+        Verifies that the dimensions (width and height) of the mugshot are properly 
+        set when the image is initially saved, and that these dimensions remain 
+        consistent after the instance is saved to the database.
+
+        Additionally, this test checks for proper name mangling when multiple 
+        instances are created with the same image, ensuring that each instance's 
+        mugshot image has a unique name, while the dimensions of the image remain 
+        the same across instances.
+
+        """
         instance1 = PersonNoReadImage()
 
         instance1.mugshot.save("mug", self.file1)

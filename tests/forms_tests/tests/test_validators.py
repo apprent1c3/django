@@ -10,6 +10,23 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 
 class TestFieldWithValidators(TestCase):
     def test_all_errors_get_reported(self):
+        """
+        Tests that all form validation errors are properly reported.
+
+        This test case ensures that when multiple validation errors occur within a form,
+        all error messages are correctly captured and reported. It covers various 
+        validation scenarios, including integer and email checks, as well as regular 
+        expression-based validation with and without case sensitivity.
+
+        The test verifies that the form's `is_valid()` method returns False when 
+        validation errors are present and that the `errors` dictionary accurately 
+        represents the validation errors for each field. Additionally, it checks that 
+        the `clean()` method raises a ValidationError with the expected error messages.
+
+        By thoroughly testing the form validation process, this test case helps ensure 
+        that the form behaves as expected and provides informative error messages to 
+        users when validation fails.
+        """
         class UserForm(forms.Form):
             full_name = forms.CharField(
                 max_length=50,
@@ -73,6 +90,9 @@ class TestFieldWithValidators(TestCase):
 
 class ValidatorCustomMessageTests(TestCase):
     def test_value_placeholder_with_char_field(self):
+        """
+
+        """
         cases = [
             (validators.validate_integer, "-42.5", "invalid"),
             (validators.validate_email, "a", "invalid"),

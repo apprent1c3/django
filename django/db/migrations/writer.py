@@ -22,7 +22,13 @@ class OperationWriter:
         self.indentation = indentation
 
     def serialize(self):
+        """
+
+        """
         def _write(_arg_name, _arg_value):
+            """
+
+            """
             if _arg_name in self.operation.serialization_expand_args and isinstance(
                 _arg_value, (list, tuple, dict)
             ):
@@ -210,6 +216,28 @@ class MigrationWriter:
 
     @property
     def basedir(self):
+        """
+
+        Determine the base directory for Django migrations.
+
+        Returns the path of the directory where Django migrations for the given app
+        are stored. This is typically the 'migrations' directory within the app's
+        package.
+
+        If the migrations module does not exist, this method will attempt to create
+        it. If creation fails, a ValueError is raised.
+
+        The location of the migrations package is determined based on the app's
+        configuration and the MIGRATION_MODULES setting. If the setting is not
+        configured, the method will use the default location.
+
+        :raises ValueError: If Django cannot create migrations for the app due to
+            invalid configuration or if the top-level package does not exist and
+            cannot be imported.
+        :return: The path to the migrations base directory.
+        :rtype: str
+
+        """
         migrations_package_name, _ = MigrationLoader.migrations_module(
             self.migration.app_label
         )

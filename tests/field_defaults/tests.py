@@ -103,6 +103,9 @@ class DefaultTests(TestCase):
         self.assertEqual(obj2.language_code, "de")
 
     def test_foreign_key_db_default(self):
+        """
+
+        """
         parent1 = DBDefaultsPK.objects.create(language_code="fr")
         child1 = DBDefaultsFK.objects.create()
         if not connection.features.can_return_columns_from_insert:
@@ -171,6 +174,9 @@ class DefaultTests(TestCase):
         self.assertCountEqual(years, [2000, datetime.now().year])
 
     def test_full_clean(self):
+        """
+
+        """
         obj = DBArticle()
         obj.full_clean()
         obj.save()

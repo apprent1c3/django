@@ -43,6 +43,9 @@ class SignedCookieTest(SimpleTestCase):
         self.assertIsNone(request.get_signed_cookie("c", default=None))
 
     def test_max_age_argument(self):
+        """
+
+        """
         value = "hello"
         with freeze_time(123456789):
             response = HttpResponse()

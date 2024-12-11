@@ -45,6 +45,9 @@ class BloomIndex(PostgresIndex):
     suffix = "bloom"
 
     def __init__(self, *expressions, length=None, columns=(), **kwargs):
+        """
+
+        """
         super().__init__(*expressions, **kwargs)
         if len(self.fields) > 32:
             raise ValueError("Bloom indexes support a maximum of 32 fields.")

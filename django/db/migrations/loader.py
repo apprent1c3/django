@@ -167,6 +167,9 @@ class MigrationLoader:
             return self.disk_migrations[results[0]]
 
     def check_key(self, key, current_app):
+        """
+
+        """
         if (key[1] != "__first__" and key[1] != "__latest__") or key in self.graph:
             return key
         # Special-case __first__, which means "the first migration" for
@@ -207,6 +210,9 @@ class MigrationLoader:
                 self.graph.add_dependency(migration, key, parent, skip_validation=True)
 
     def add_external_dependencies(self, key, migration):
+        """
+
+        """
         for parent in migration.dependencies:
             # Skip internal dependencies
             if key[0] == parent[0]:

@@ -32,6 +32,15 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        Returns the corresponding Django field type based on the given Oracle database data type and field description.
+
+        The function inspects the precision and scale of NUMBER fields to determine the appropriate Django field type, such as BigAutoField, BigIntegerField, AutoField, SmallAutoField, BooleanField, or FloatField.
+
+        Additionally, it checks for NCLOB fields marked as JSON to return a JSONField.
+
+        If the data type does not match these specific conditions, the function falls back to the parent class's implementation to determine the field type.
+        """
         if data_type == oracledb.NUMBER:
             precision, scale = description[4:6]
             if scale == 0:

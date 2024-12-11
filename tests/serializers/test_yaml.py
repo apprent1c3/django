@@ -136,6 +136,24 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+
+        Extract values of a specified field from a serialized YAML string.
+
+        This function parses a serialized YAML string containing objects with fields,
+        and returns a list of values for the specified field name.
+
+        The function iterates over each object in the YAML string, checks if the
+        object has a 'fields' dictionary and if the specified field name is present
+        in the dictionary. If the field value is found, it is added to the result list
+        as a string. Non-string field values are converted to strings before being
+        added to the list.
+
+        :param serial_str: The serialized YAML string to parse.
+        :param field_name: The name of the field for which to extract values.
+        :return: A list of values for the specified field name.
+
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):

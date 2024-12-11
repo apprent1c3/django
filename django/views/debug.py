@@ -436,6 +436,9 @@ class ExceptionReporter:
         return t.render(c)
 
     def _get_source(self, filename, loader, module_name):
+        """
+
+        """
         source = None
         if hasattr(loader, "get_source"):
             try:
@@ -496,6 +499,9 @@ class ExceptionReporter:
 
     def get_traceback_frames(self):
         # Get the exception and all its causes
+        """
+
+        """
         exceptions = []
         exc_value = self.exc_value
         while exc_value:
@@ -528,6 +534,30 @@ class ExceptionReporter:
         return frames
 
     def get_exception_traceback_frames(self, exc_value, tb):
+        """
+        Generates a sequence of frames representing the traceback of an exception.
+
+        Each frame is represented as a dictionary containing various information about the exception and the execution point where it occurred, including filename, function name, line number, local variables, and code context.
+
+        The function takes into account the cause of the exception, whether it is explicit or implicit, and handles Django and user code frames differently. Frames can be filtered based on certain conditions, such as the presence of a `__traceback_hide__` local variable.
+
+        The generated frames are yielded as dictionaries, allowing the caller to process them in a flexible manner. Each dictionary contains the following keys:
+
+        * `exc_cause`: The cause of the exception
+        * `exc_cause_explicit`: Whether the cause is explicit
+        * `tb`: The traceback object
+        * `type`: The type of frame (either 'django' or 'user')
+        * `filename`: The filename where the exception occurred
+        * `function`: The function name where the exception occurred
+        * `lineno`: The line number where the exception occurred
+        * `vars`: The local variables at the execution point
+        * `id`: A unique identifier for the frame
+        * `pre_context`, `context_line`, `post_context`: The code context around the exception point
+        * `pre_context_lineno`: The line number of the first line of the pre-context
+        * `colno` and `tb_area_colno`: Additional information for formatting the exception message
+
+        This function is typically used for generating error reports or displaying exception information to the user.
+        """
         exc_cause = self._get_explicit_or_implicit_cause(exc_value)
         exc_cause_explicit = getattr(exc_value, "__cause__", True)
         if tb is None:

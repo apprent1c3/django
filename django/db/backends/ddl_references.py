@@ -95,6 +95,9 @@ class Columns(TableColumns):
         super().__init__(table, columns)
 
     def __str__(self):
+        """
+
+        """
         def col_str(column, idx):
             col = self.quote_name(column)
             try:
@@ -128,6 +131,9 @@ class IndexColumns(Columns):
         super().__init__(table, columns, quote_name, col_suffixes)
 
     def __str__(self):
+        """
+
+        """
         def col_str(column, idx):
             # Index.__init__() guarantees that self.opclasses is the same
             # length as self.columns.

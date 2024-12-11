@@ -46,6 +46,9 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_filter_parsing(self):
+        """
+
+        """
         c = {"article": {"section": "News"}}
         p = Parser("", builtins=[filter_library])
 
@@ -73,6 +76,9 @@ class ParserTests(SimpleTestCase):
             FilterExpression("article._hidden|upper", p)
 
     def test_variable_parsing(self):
+        """
+
+        """
         c = {"article": {"section": "News"}}
         self.assertEqual(Variable("article.section").resolve(c), "News")
         self.assertEqual(Variable('"News"').resolve(c), "News")
@@ -105,6 +111,9 @@ class ParserTests(SimpleTestCase):
             Variable({})
 
     def test_filter_args_count(self):
+        """
+
+        """
         parser = Parser("")
         register = Library()
 

@@ -30,6 +30,9 @@ class GeoAggregate(Aggregate):
         )
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+
+        """
         if not self.is_extent:
             tolerance = self.extra.get("tolerance") or getattr(self, "tolerance", 0.05)
             clone = self.copy()

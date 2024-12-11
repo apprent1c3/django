@@ -75,6 +75,9 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(repr(d), "<MultiValueDict: {'key': 'value'}>")
 
     def test_multivaluedict(self):
+        """
+
+        """
         d = MultiValueDict(
             {"name": ["Adrian", "Simon"], "position": ["Developer"], "empty": []}
         )
@@ -115,6 +118,9 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(d.getlist("name"), ["Adrian", "Simon"])
 
     def test_copy(self):
+        """
+
+        """
         for copy_func in [copy.copy, lambda d: d.copy()]:
             with self.subTest(copy_func):
                 d1 = MultiValueDict({"developers": ["Carl", "Fred"]})

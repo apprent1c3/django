@@ -33,6 +33,9 @@ class Feed:
     language = None
 
     def __call__(self, request, *args, **kwargs):
+        """
+
+        """
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
@@ -76,6 +79,9 @@ class Feed:
         return []
 
     def _get_dynamic_attr(self, attname, obj, default=None):
+        """
+
+        """
         try:
             attr = getattr(self, attname)
         except AttributeError:

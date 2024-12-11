@@ -105,6 +105,9 @@ class TestSigner(SimpleTestCase):
                 signer.unsign(transform(signed_value))
 
     def test_sign_unsign_object(self):
+        """
+
+        """
         signer = signing.Signer(key="predictable-secret")
         tests = [
             ["a", "list"],
@@ -217,6 +220,9 @@ class TestSigner(SimpleTestCase):
 
 class TestTimestampSigner(SimpleTestCase):
     def test_timestamp_signer(self):
+        """
+
+        """
         value = "hello"
         with freeze_time(123456789):
             signer = signing.TimestampSigner(key="predictable-key")

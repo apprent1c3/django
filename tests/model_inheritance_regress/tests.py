@@ -51,6 +51,9 @@ class ModelInheritanceTest(TestCase):
         # 'narrow()' API would require a similar approach.
 
         # Create a child-parent-grandparent chain
+        """
+
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -203,6 +206,9 @@ class ModelInheritanceTest(TestCase):
         # Regression test for #7276: calling delete() on a model with
         # multi-table inheritance should delete the associated rows from any
         # ancestor tables, as well as any descendent objects.
+        """
+
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -385,6 +391,17 @@ class ModelInheritanceTest(TestCase):
     def test_abstract_base_class_m2m_relation_inheritance(self):
         # many-to-many relations defined on an abstract base class are
         # correctly inherited (and created) on the child class.
+        """
+
+        Tests that abstract base class many-to-many relations are properly inherited.
+
+        This test ensures that instances of subclasses of an abstract base class
+        can correctly establish and query many-to-many relationships with other objects.
+        It covers scenarios where the subclassing relationship involves multiple levels
+        of inheritance, verifying that the relationships are correctly resolved and
+        queried through the various classes in the inheritance hierarchy.
+
+        """
         p1 = Person.objects.create(name="Alice")
         p2 = Person.objects.create(name="Bob")
         p3 = Person.objects.create(name="Carol")
@@ -564,6 +581,9 @@ class ModelInheritanceTest(TestCase):
             self.assertSequenceEqual(r.supplier_set.all(), [s])
 
     def test_queries_on_parent_access(self):
+        """
+
+        """
         italian_restaurant = ItalianRestaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",
@@ -600,6 +620,19 @@ class ModelInheritanceTest(TestCase):
             self.assertEqual(restaurant.italianrestaurant, italian_restaurant)
 
     def test_id_field_update_on_ancestor_change(self):
+        """
+
+        Tests that the id field of a model instance is updated correctly when its ancestor is changed.
+
+        This test case covers the scenario where a model instance's ancestor is updated, and verifies that the instance's id field is correctly updated to reflect the new ancestor's id.
+
+        It checks for the following conditions:
+        - When the ancestor of a model instance is updated, the instance's id field is updated to match the new ancestor's id.
+        - When the ancestor of a model instance is set to None, the instance's id field is set to None.
+
+        The test covers multiple levels of model inheritance, including a three-level inheritance chain (Place -> Restaurant -> ItalianRestaurant), ensuring that the id field updating works correctly across different model hierarchies.
+
+        """
         place1 = Place.objects.create(name="House of Pasta", address="944 Fullerton")
         place2 = Place.objects.create(name="House of Pizza", address="954 Fullerton")
         place3 = Place.objects.create(name="Burger house", address="964 Fullerton")
@@ -648,6 +681,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(User.objects.get(pk=p1.user_ptr_id).username, "john")
 
     def test_create_new_instance_with_pk_equals_none_multi_inheritance(self):
+        """
+
+        """
         c1 = Congressman.objects.create(state="PA", name="John", title="senator 1")
         c2 = Person.objects.get(pk=c1.pk).congressman
         # Create a new congressman by setting pk = None.

@@ -15,6 +15,9 @@ class AppConfig:
 
     def __init__(self, app_name, app_module):
         # Full Python path to the application e.g. 'django.contrib.admin'.
+        """
+
+        """
         self.name = app_name
 
         # Root module for the application e.g. <module 'django.contrib.admin'

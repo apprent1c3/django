@@ -95,6 +95,9 @@ class LoggingAssertionMixin:
     def assertLogsRequest(
         self, url, level, msg, status_code, logger="django.request", exc_class=None
     ):
+        """
+
+        """
         with self.assertLogs(logger, level) as cm:
             try:
                 self.client.get(url)
@@ -397,6 +400,9 @@ class AdminEmailHandlerTest(SimpleTestCase):
         DEBUG=False,
     )
     def test_customize_send_mail_method(self):
+        """
+
+        """
         class ManagerEmailHandler(AdminEmailHandler):
             def send_mail(self, subject, message, *args, **kwargs):
                 mail.mail_managers(
@@ -414,6 +420,9 @@ class AdminEmailHandlerTest(SimpleTestCase):
 
     @override_settings(ALLOWED_HOSTS="example.com")
     def test_disallowed_host_doesnt_crash(self):
+        """
+
+        """
         admin_email_handler = self.get_admin_email_handler(self.logger)
         old_include_html = admin_email_handler.include_html
 
@@ -620,6 +629,9 @@ format=%(message)s
 
 class LogFormattersTests(SimpleTestCase):
     def test_server_formatter_styles(self):
+        """
+
+        """
         color_style = color.make_style("")
         formatter = ServerFormatter()
         formatter.style = color_style
@@ -642,6 +654,9 @@ class LogFormattersTests(SimpleTestCase):
         self.assertEqual(formatter.format(record), log_msg)
 
     def test_server_formatter_default_format(self):
+        """
+
+        """
         server_time = "2016-09-25 10:20:30"
         log_msg = "log message"
         logger = logging.getLogger("django.server")

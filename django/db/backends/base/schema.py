@@ -303,6 +303,9 @@ class BaseDatabaseSchemaEditor:
     def _iter_column_sql(
         self, column_db_type, params, model, field, field_db_params, include_default
     ):
+        """
+
+        """
         yield column_db_type
         if collation := field_db_params.get("collation"):
             yield self._collate_sql(collation)
@@ -455,6 +458,9 @@ class BaseDatabaseSchemaEditor:
     @staticmethod
     def _effective_default(field):
         # This method allows testing its logic without a connection.
+        """
+
+        """
         if field.has_default():
             default = field.get_default()
         elif field.generated:
@@ -637,6 +643,9 @@ class BaseDatabaseSchemaEditor:
             self.execute(self._create_index_sql(model, fields=fields, suffix="_idx"))
 
     def _delete_composed_index(self, model, fields, constraint_kwargs, sql):
+        """
+
+        """
         meta_constraint_names = {
             constraint.name for constraint in model._meta.constraints
         }
@@ -1516,6 +1525,9 @@ class BaseDatabaseSchemaEditor:
         return index_name
 
     def _get_index_tablespace_sql(self, model, fields, db_tablespace=None):
+        """
+
+        """
         if db_tablespace is None:
             if len(fields) == 1 and fields[0].db_tablespace:
                 db_tablespace = fields[0].db_tablespace
@@ -1652,6 +1664,9 @@ class BaseDatabaseSchemaEditor:
         return output
 
     def _field_should_be_altered(self, old_field, new_field, ignore=None):
+        """
+
+        """
         if not old_field.concrete and not new_field.concrete:
             return False
         ignore = ignore or set()
@@ -1849,6 +1864,9 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,

@@ -512,6 +512,27 @@ class Expression(BaseExpression, Combinable):
 
     @cached_property
     def identity(self):
+        """
+        Return a unique identifier for the current instance.
+
+        This identifier is constructed by combining the class of the instance with
+        the values of its constructor arguments, excluding the instance itself.
+        The values are filtered and transformed to ensure they can be reliably
+        compared and hashed.
+
+        The resulting identifier is a tuple that can be used to distinguish the
+        instance from others of the same class, and to detect changes to the
+        instance's underlying state.
+
+        Note that the identifier includes only the arguments that are instances of
+        fields.Field or other hashable values, and excludes any arguments that are
+        not hashable. The identifier is computed based on the instance's constructor
+        arguments, which are stored in the _constructor_args attribute.
+
+        Returns:
+            tuple: A unique identifier for the current instance.
+
+        """
         args, kwargs = self._constructor_args
         signature = self._constructor_signature.bind_partial(self, *args, **kwargs)
         signature.apply_defaults()
@@ -734,6 +755,20 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
         return combined_type()
 
     def as_sql(self, compiler, connection):
+        """
+        .. method:: as_sql(compiler, connection)
+
+           Generates SQL code for combining two expressions using a given connector.
+
+           :param compiler: The compiler object used to compile the expressions.
+           :param connection: The database connection object.
+           :return: A tuple containing the combined SQL expression as a string, 
+                    wrapped in parentheses, and a list of parameters used in the expression.
+
+           This method is used to translate a logical operation between two expressions 
+           into a SQL query, allowing the database to evaluate the operation. The 
+           resulting SQL expression can then be executed on the database.
+        """
         expressions = []
         expression_params = []
         sql, params = compiler.compile(self.lhs)
@@ -750,6 +785,9 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        """
         lhs = self.lhs.resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -812,6 +850,9 @@ class DurationExpression(CombinedExpression):
         return compiler.compile(side)
 
     def as_sql(self, compiler, connection):
+        """
+
+        """
         if connection.features.has_native_duration_field:
             return super().as_sql(compiler, connection)
         connection.ops.check_expression_support(self)
@@ -829,6 +870,39 @@ class DurationExpression(CombinedExpression):
         return expression_wrapper % sql, expression_params
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+
+        Generates SQL for a given expression, adapting it for SQLite database backend.
+
+        This method typically takes a compiler and a database connection as input, 
+        as well as additional context parameters. It checks the compatibility of 
+        the left-hand side (LHS) and right-hand side (RHS) fields with the chosen 
+        mathematical operator (e.g., multiplication or division) and raises an error 
+        if they are not suitable.
+
+        The function returns a tuple containing the generated SQL string and 
+        the corresponding parameters.
+
+        Parameters
+        ----------
+        compiler : object
+            Database compiler instance.
+        connection : object
+            Database connection instance.
+        **extra_context : dict
+            Additional keyword arguments for the compilation process.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the generated SQL string and parameters.
+
+        Raises
+        ------
+        DatabaseError
+            If the LHS or RHS fields are incompatible with the chosen operator.
+
+        """
         sql, params = self.as_sql(compiler, connection, **extra_context)
         if self.connector in {Combinable.MUL, Combinable.DIV}:
             try:
@@ -972,6 +1046,9 @@ class Sliced(F):
     """
 
     def __init__(self, obj, subscript):
+        """
+
+        """
         super().__init__(obj.name)
         self.obj = obj
         if isinstance(subscript, int):
@@ -1084,6 +1161,9 @@ class Func(SQLiteNumericMixin, Expression):
         arg_joiner=None,
         **extra_context,
     ):
+        """
+
+        """
         connection.ops.check_expression_support(self)
         sql_parts = []
         params = []
@@ -1150,6 +1230,9 @@ class Value(SQLiteNumericMixin, Expression):
         return f"{self.__class__.__name__}({self.value!r})"
 
     def as_sql(self, compiler, connection):
+        """
+
+        """
         connection.ops.check_expression_support(self)
         val = self.value
         output_field = self._output_field_or_none
@@ -1178,6 +1261,9 @@ class Value(SQLiteNumericMixin, Expression):
         return []
 
     def _resolve_output_field(self):
+        """
+
+        """
         if isinstance(self.value, str):
             return fields.CharField()
         if isinstance(self.value, bool):
@@ -1429,6 +1515,22 @@ class NegatedExpression(ExpressionWrapper):
         return self.expression.copy()
 
     def as_sql(self, compiler, connection):
+        """
+
+        Returns a SQL expression for the current object, adapted to the given compiler and connection.
+
+        This function generates a SQL string and its corresponding parameters by first attempting
+        to use the parent class's implementation. If the parent class raises an EmptyResultSet exception,
+        it checks the database connection's features to determine whether to use a boolean expression in
+        the select clause or a conditional expression in the where clause.
+
+        If the database connection does not support conditional expressions in the where clause, it uses
+        a CASE statement to generate the SQL expression. Otherwise, it uses a NOT operator to negate
+        the SQL expression.
+
+        The function returns a tuple containing the SQL string and its parameters.
+
+        """
         try:
             sql, params = super().as_sql(compiler, connection)
         except EmptyResultSet:
@@ -1477,6 +1579,9 @@ class When(Expression):
     conditional = False
 
     def __init__(self, condition=None, then=None, **lookups):
+        """
+
+        """
         if lookups:
             if condition is None:
                 condition, lookups = Q(**lookups), None
@@ -1612,6 +1717,9 @@ class Case(SQLiteNumericMixin, Expression):
     def as_sql(
         self, compiler, connection, template=None, case_joiner=None, **extra_context
     ):
+        """
+
+        """
         connection.ops.check_expression_support(self)
         if not self.cases:
             return compiler.compile(self.default)
@@ -1741,6 +1849,9 @@ class OrderBy(Expression):
     constraint_validation_compatible = False
 
     def __init__(self, expression, descending=False, nulls_first=None, nulls_last=None):
+        """
+
+        """
         if nulls_first and nulls_last:
             raise ValueError("nulls_first and nulls_last are mutually exclusive")
         if nulls_first is False or nulls_last is False:
@@ -1764,6 +1875,23 @@ class OrderBy(Expression):
         return [self.expression]
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+        Return the SQL representation of this ordering expression.
+
+        The generated SQL will take into account the nulls ordering modifier, if supported by the database connection.
+        If the modifier is not supported, a workaround using IS NULL or IS NOT NULL will be used instead.
+
+        The ordering expression will be compiled and replaced with its SQL representation, and any additional context will be inserted as placeholders.
+
+        The result is a tuple containing the SQL string and a list of parameters to be used in the query.
+
+        :param compiler: The SQL compiler to use
+        :param connection: The database connection to use
+        :param template: An optional template string to use for the SQL representation
+        :param extra_context: Additional context to insert as placeholders in the SQL string
+
+        :return: A tuple containing the SQL string and a list of parameters
+        """
         template = template or self.template
         if connection.features.supports_order_by_nulls_modifier:
             if self.nulls_last:
@@ -1845,6 +1973,9 @@ class Window(SQLiteNumericMixin, Expression):
         frame=None,
         output_field=None,
     ):
+        """
+
+        """
         self.partition_by = partition_by
         self.order_by = order_by
         self.frame = frame
@@ -1883,6 +2014,9 @@ class Window(SQLiteNumericMixin, Expression):
         self.source_expression, self.partition_by, self.order_by, self.frame = exprs
 
     def as_sql(self, compiler, connection, template=None):
+        """
+
+        """
         connection.ops.check_expression_support(self)
         if not connection.features.supports_over_clause:
             raise NotSupportedError("This backend does not support window expressions.")
@@ -2014,6 +2148,19 @@ class WindowFrame(Expression):
         return []
 
     def __str__(self):
+        """
+        Return a string representation of a window frame specification, including the frame type and boundaries.
+
+        The returned string is formatted according to a predefined template, with placeholders for the frame type, start and end boundaries, and exclusion parameters. The start and end boundaries are determined based on the values of `start` and `end` properties, which can be either absolute or relative to the current row.
+
+        The following boundary values are supported:
+        - Absolute values: specified as a numeric value
+        - Relative values: specified as a numeric value with a direction (preceding or following)
+        - Unbounded: specified as unbounded preceding or following
+        - Current row: specified as the current row
+
+        The exclusion parameters are determined by calling the `get_exclusion` method.
+        """
         if self.start.value is not None and self.start.value < 0:
             start = "%d %s" % (abs(self.start.value), connection.ops.PRECEDING)
         elif self.start.value is not None and self.start.value == 0:

@@ -110,6 +110,9 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
+        """
+
+        """
         if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The Django remote user auth middleware requires the"

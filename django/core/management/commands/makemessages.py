@@ -225,6 +225,22 @@ class Command(BaseCommand):
     xgettext_options = ["--from-code=UTF-8", "--add-comments=Translators"]
 
     def add_arguments(self, parser):
+        """
+
+        Adds command line arguments to a parser for customizing the behavior of 
+        message file creation and update.
+
+        The following options can be used to control which locales are processed, 
+        what domains and file extensions are examined, and how the message files 
+        are generated. Options can also be used to control the handling of 
+        symlinks, ignored files and directories, and the formatting of the 
+        message files.
+
+        The function provides a way to customize the command line arguments for 
+        managing message files, making it easier to integrate with various 
+        projects and workflows.
+
+        """
         parser.add_argument(
             "--locale",
             "-l",
@@ -324,6 +340,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         self.domain = options["domain"]

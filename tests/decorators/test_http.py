@@ -29,6 +29,9 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
     def test_require_http_methods_methods(self):
         @require_http_methods(["GET", "PUT"])
+        """
+
+        """
         def my_view(request):
             return HttpResponse("OK")
 
@@ -46,6 +49,9 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
     async def test_require_http_methods_methods_async_view(self):
         @require_http_methods(["GET", "PUT"])
+        """
+
+        """
         async def my_view(request):
             return HttpResponse("OK")
 
@@ -64,6 +70,20 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
 class RequireSafeDecoratorTest(SimpleTestCase):
     def test_require_safe_accepts_only_safe_methods(self):
+        """
+        Tests that the require_safe decorator only accepts safe HTTP methods.
+
+        This test ensures that the require_safe decorator correctly restricts the
+        view function to only allow safe HTTP methods, specifically GET and HEAD.
+        Any non-safe methods, such as POST, PUT, and DELETE, should return an
+        HttpResponseNotAllowed, indicating that the requested method is not allowed.
+
+        The test case verifies the correct behavior of the require_safe decorator
+        by testing the view function with different HTTP methods and asserting
+        the expected response type for each method. If the decorator is working
+        as expected, the view function should only respond successfully to GET
+        and HEAD requests, and return an error for all other methods.
+        """
         def my_view(request):
             return HttpResponse("OK")
 
@@ -82,6 +102,9 @@ class RequireSafeDecoratorTest(SimpleTestCase):
 
     async def test_require_safe_accepts_only_safe_methods_async_view(self):
         @require_safe
+        """
+
+        """
         async def async_view(request):
             return HttpResponse("OK")
 
@@ -179,6 +202,9 @@ class ConditionalPageTests(SimpleTestCase):
 
     def test_conditional_page_decorator_successful(self):
         @conditional_page
+        """
+
+        """
         def sync_view(request):
             response = HttpResponse()
             response.content = b"test"
@@ -193,6 +219,9 @@ class ConditionalPageTests(SimpleTestCase):
 
     async def test_conditional_page_decorator_successful_async_view(self):
         @conditional_page
+        """
+
+        """
         async def async_view(request):
             response = HttpResponse()
             response.content = b"test"

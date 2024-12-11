@@ -101,6 +101,9 @@ class BaseMemcachedCache(BaseCache):
         self._cache.disconnect_all()
 
     def incr(self, key, delta=1, version=None):
+        """
+
+        """
         key = self.make_and_validate_key(key, version=version)
         try:
             # Memcached doesn't support negative delta.

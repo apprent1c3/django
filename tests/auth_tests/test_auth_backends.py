@@ -108,6 +108,9 @@ class BaseModelBackendTest:
         self.create_users()
 
     def test_has_perm(self):
+        """
+
+        """
         user = self.UserModel._default_manager.get(pk=self.user.pk)
         self.assertIs(user.has_perm("auth.test"), False)
 
@@ -126,6 +129,9 @@ class BaseModelBackendTest:
         self.assertIs(user.has_perm("auth.test"), False)
 
     def test_custom_perms(self):
+        """
+
+        """
         user = self.UserModel._default_manager.get(pk=self.user.pk)
         content_type = ContentType.objects.get_for_model(Group)
         perm = Permission.objects.create(
@@ -423,6 +429,9 @@ class TestObj:
 
 class SimpleRowlevelBackend:
     def has_perm(self, user, perm, obj=None):
+        """
+
+        """
         if not obj:
             return  # We only support row level perms
 
@@ -439,6 +448,9 @@ class SimpleRowlevelBackend:
         return (user.is_anonymous or user.is_active) and app_label == "app1"
 
     def get_all_permissions(self, user, obj=None):
+        """
+
+        """
         if not obj:
             return []  # We only support row level perms
 

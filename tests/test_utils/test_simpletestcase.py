@@ -46,6 +46,9 @@ class DebugInvocationTests(SimpleTestCase):
         _post_teardown.assert_called_once_with()
 
     def test_run_pre_setup_error(self, _pre_setup, _post_teardown):
+        """
+
+        """
         _pre_setup.side_effect = Exception("Exception in _pre_setup.")
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))
@@ -60,6 +63,9 @@ class DebugInvocationTests(SimpleTestCase):
         self.assertFalse(_post_teardown.called)
 
     def test_run_post_teardown_error(self, _pre_setup, _post_teardown):
+        """
+
+        """
         _post_teardown.side_effect = Exception("Exception in _post_teardown.")
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))

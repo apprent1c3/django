@@ -225,6 +225,9 @@ def check_secret_key(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_secret_key_fallbacks(app_configs, **kwargs):
+    """
+
+    """
     warnings = []
     try:
         fallbacks = settings.SECRET_KEY_FALLBACKS
@@ -258,6 +261,17 @@ def check_allowed_hosts(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_referrer_policy(app_configs, **kwargs):
+    """
+    Checks the referrer policy configuration in the application settings to ensure it is properly set and valid.
+
+    This function verifies that the referrer policy is enabled by checking if the security middleware is active. It then checks if the SECURE_REFERRER_POLICY setting is configured and if its value is valid. The function returns warnings or errors if the setting is not configured or if its value is invalid. The valid values for the referrer policy are defined in REFERRER_POLICY_VALUES. 
+
+    The function returns a list of warnings or errors if the configuration is not correct, otherwise it returns an empty list. 
+
+    Possible return values include:
+        W022: SECURE_REFERRER_POLICY setting is not configured.
+        E023: SECURE_REFERRER_POLICY setting has an invalid value.
+    """
     if _security_middleware():
         if settings.SECURE_REFERRER_POLICY is None:
             return [W022]

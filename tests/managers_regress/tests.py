@@ -21,6 +21,9 @@ from .models import (
 
 class ManagersRegressionTests(TestCase):
     def test_managers(self):
+        """
+
+        """
         a1 = Child1.objects.create(name="fred", data="a1")
         a2 = Child1.objects.create(name="barney", data="a2")
         b1 = Child2.objects.create(name="fred", data="b1", value=1)
@@ -173,6 +176,9 @@ class ManagersRegressionTests(TestCase):
 @isolate_apps("managers_regress")
 class TestManagerInheritance(SimpleTestCase):
     def test_implicit_inheritance(self):
+        """
+
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -208,6 +214,21 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._default_manager, CustomManager)
 
     def test_default_manager_inheritance(self):
+        """
+        teste_default_manager_inheritance 
+         Tests the inheritance of default manager in Django model classes.
+
+         The test covers several scenarios:
+
+         * Direct inheritance of default manager from an abstract model
+         * Inheritance of default manager from a non-abstract model
+         * Inheritance of default manager by a proxy model
+         * Inheritance of default manager by a model using multi-table inheritance (MTI)
+
+         Verifies that the correct default manager is set for each model, ensuring 
+         that the default manager specified in the model's Meta options is 
+         correctly inherited and used by its subclasses.
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -245,6 +266,9 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._default_manager, CustomManager)
 
     def test_base_manager_inheritance(self):
+        """
+
+        """
         class CustomManager(models.Manager):
             pass
 
@@ -282,6 +306,14 @@ class TestManagerInheritance(SimpleTestCase):
         self.assertIsInstance(MTIModel._base_manager, CustomManager)
 
     def test_manager_no_duplicates(self):
+        """
+
+        Tests that a model's manager is correctly set and does not duplicate when a custom manager is defined.
+
+        Verifies that the model's Meta managers attribute contains only the custom manager instance and 
+        that the managers map contains the correct mapping between the manager name and instance.
+
+        """
         class CustomManager(models.Manager):
             pass
 

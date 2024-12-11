@@ -33,6 +33,9 @@ class FloatformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_inputs(self):
+        """
+
+        """
         self.assertEqual(floatformat(7.7), "7.7")
         self.assertEqual(floatformat(7.0), "7")
         self.assertEqual(floatformat(0.7), "0.7")
@@ -140,6 +143,21 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(66666.666, "u2"), "66666.666")
 
     def test_zero_values(self):
+        """
+
+        Tests the functionality of the floatformat function when dealing with zero values.
+
+        This test suite verifies that the function correctly formats a variety of input types, 
+        including integers, floats, strings, and Decimal objects, to the specified number of 
+        decimal places. It checks that the function handles extreme cases, such as very small 
+        numbers, and that it correctly truncates or rounds the input value to the desired 
+        number of decimal places.
+
+        The test cases cover a range of scenarios, including formatting zero values, very small 
+        numbers, and values with a large number of decimal places. It also checks that the 
+        function works correctly with different input types, including strings and Decimal objects.
+
+        """
         self.assertEqual(floatformat(0, 6), "0.000000")
         self.assertEqual(floatformat(0, 7), "0.0000000")
         self.assertEqual(floatformat(0, 10), "0.0000000000")

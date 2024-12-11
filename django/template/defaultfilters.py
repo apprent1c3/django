@@ -678,6 +678,9 @@ def unordered_list(value, autoescape=True):
             return x
 
     def walk_items(item_list):
+        """
+
+        """
         item_iterator = iter(item_list)
         try:
             item = next(item_iterator)

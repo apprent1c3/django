@@ -52,6 +52,9 @@ class IntrospectionTests(TransactionTestCase):
         self.assertIs(type(tl), list)
 
     def test_table_names_with_views(self):
+        """
+
+        """
         with connection.cursor() as cursor:
             try:
                 cursor.execute(
@@ -214,6 +217,9 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("can_introspect_foreign_keys")
     def test_get_relations(self):
+        """
+
+        """
         with connection.cursor() as cursor:
             relations = connection.introspection.get_relations(
                 cursor, Article._meta.db_table
@@ -250,6 +256,13 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(pk_fk_column, "city_id")
 
     def test_get_constraints_index_types(self):
+        """
+        Tests that the database constraints for the Article model have the correct index types.
+
+        Checks that the index constraint for the 'headline' and 'pub_date' columns 
+        and the index constraint for the 'headline', 'response_to_id', 'pub_date', and 'reporter_id' columns 
+        both have the correct type, as defined by the Index.suffix constant.
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor, Article._meta.db_table
@@ -309,6 +322,28 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(constraint["orders"], ["ASC"])
 
     def test_get_constraints(self):
+        """
+        Tests retrieval of database constraints using introspection.
+
+        Checks that the constraints returned by the database introspection system match the expected constraints,
+        including primary keys, unique constraints, indexes, check constraints, and foreign keys.
+
+        Verifies that the constraints are correctly identified and that their properties, such as the columns they
+        apply to, are correctly reported. Also ensures that custom and field-level constraints are properly handled.
+
+        Validates the consistency of the constraints across different database tables and connection features, such as
+        support for column check constraints and ability to introspect check constraints.
+
+        The test covers various constraint scenarios, including unique and composite constraints, indexes, and foreign
+        keys, to provide comprehensive coverage of the constraints retrieval functionality.
+
+        The test uses an assertion function to verify the details of each constraint, checking properties such as the
+        columns involved, the type of constraint (primary key, unique, index, check, or foreign key), and any specific
+        settings or options associated with the constraint.
+
+        By thoroughly testing the constraints retrieval functionality, this test helps ensure the correctness and
+        reliability of the database introspection system in a variety of scenarios and use cases.
+        """
         def assertDetails(
             details,
             cols,
@@ -323,6 +358,9 @@ class IntrospectionTests(TransactionTestCase):
             # MySQL      pk=1 uniq=1 idx=1  pk=0 uniq=1 idx=1  pk=0 uniq=1 idx=1
             # PostgreSQL pk=1 uniq=1 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
             # SQLite     pk=1 uniq=0 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
+            """
+
+            """
             if details["primary_key"]:
                 details["unique"] = True
             if details["unique"]:

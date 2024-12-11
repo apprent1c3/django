@@ -11,6 +11,9 @@ from . import FormFieldAssertionsMixin
 
 class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_floatfield_1(self):
+        """
+
+        """
         f = FloatField()
         self.assertWidgetRendersTo(
             f, '<input step="any" type="number" name="f" id="id_f" required>'
@@ -50,6 +53,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_floatfield_3(self):
+        """
+
+        """
         f = FloatField(max_value=1.5, min_value=0.5)
         self.assertWidgetRendersTo(
             f,
@@ -70,6 +76,9 @@ class FloatFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_value, 0.5)
 
     def test_floatfield_4(self):
+        """
+
+        """
         f = FloatField(step_size=0.02)
         self.assertWidgetRendersTo(
             f,

@@ -38,6 +38,9 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         super().__init__(*args, **kwargs)
 
     def get_new_connection(self, conn_params):
+        """
+
+        """
         conn = super().get_new_connection(conn_params)
         # Enabling extension loading on the SQLite connection.
         try:

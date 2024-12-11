@@ -70,6 +70,17 @@ class FileSystemStorageGenerateFilenameTests(StorageGenerateFilenameTests):
 
 class GenerateFilenameStorageTests(SimpleTestCase):
     def test_storage_dangerous_paths(self):
+        """
+
+        Tests the handling of potentially dangerous file paths in the FileSystemStorage class.
+
+        This test checks that the get_available_name and generate_filename methods in FileSystemStorage correctly identify and prevent the use of
+        file paths that could be used to access sensitive system files or locations. It tests a variety of potentially malicious file paths,
+        including those containing '..' and '.', and verifies that a SuspiciousFileOperation exception is raised in each case.
+
+        Both the default behavior of FileSystemStorage and the behavior when allow_overwrite is set to True are tested.
+
+        """
         candidates = [
             ("/tmp/..", ".."),
             ("\\tmp\\..", ".."),
@@ -92,6 +103,21 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     s.generate_filename(file_name)
 
     def test_storage_dangerous_paths_dir_name(self):
+        """
+
+        Tests the handling of potentially malicious directory names by FileSystemStorage.
+
+        This test case attempts to detect and prevent directory traversal attacks by
+        passing in file names that could be used to access sensitive parts of the file
+        system. It checks that the FileSystemStorage class raises a SuspiciousFileOperation
+        exception when given file names that contain relative paths (e.g. '../path') or
+        other potentially malicious directory names.
+
+        The test covers different scenarios, including various path separator characters
+        and absolute path names, to ensure that the FileSystemStorage class can correctly
+        identify and block these types of attacks.
+
+        """
         candidates = [
             ("../path", ".."),
             ("..\\path", ".."),

@@ -91,6 +91,9 @@ class RelativeFieldTests(SimpleTestCase):
 
     @isolate_apps("invalid_models_tests")
     def test_auto_created_through_model(self):
+        """
+
+        """
         class OtherModel(models.Model):
             pass
 
@@ -155,6 +158,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_ambiguous_relationship_model_from(self):
+        """
+
+        """
         class Person(models.Model):
             pass
 
@@ -189,6 +195,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_ambiguous_relationship_model_to(self):
+        """
+
+        """
         class Person(models.Model):
             pass
 
@@ -228,6 +237,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_relationship_model_with_foreign_key_to_wrong_model(self):
+        """
+
+        """
         class WrongModel(models.Model):
             pass
 
@@ -257,6 +269,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_relationship_model_missing_foreign_key(self):
+        """
+
+        """
         class Person(models.Model):
             pass
 
@@ -378,6 +393,18 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_abstract_model(self):
+        """
+
+        Tests the behavior of the check method for foreign key fields referencing an abstract model.
+
+        Checks that a foreign key field defined using either a string reference or a class reference
+        to an abstract model correctly reports an error. The error is expected because abstract models
+        cannot be used as the target of a foreign key relationship.
+
+        The test verifies that the check method returns the expected error for both types of foreign key
+        fields, ensuring that the error detection is working correctly in both cases.
+
+        """
         class AbstractModel(models.Model):
             class Meta:
                 abstract = True
@@ -400,6 +427,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(), [expected_error])
 
     def test_m2m_to_abstract_model(self):
+        """
+
+        """
         class AbstractModel(models.Model):
             class Meta:
                 abstract = True
@@ -489,6 +519,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_partially_unique_field(self):
+        """
+
+        """
         class Target(models.Model):
             source = models.IntegerField()
 
@@ -522,6 +555,11 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_key_to_unique_field_with_meta_constraint(self):
+        """
+        Tests that a foreign key referencing a unique field with a meta constraint is correctly validated. 
+
+        This test case checks if a foreign key in a model can successfully reference a unique field in another model, where the uniqueness of the field is defined through a meta constraint. The test verifies that the validation of the foreign key does not raise any errors.
+        """
         class Target(models.Model):
             source = models.IntegerField()
 
@@ -540,6 +578,9 @@ class RelativeFieldTests(SimpleTestCase):
         self.assertEqual(field.check(), [])
 
     def test_foreign_object_to_non_unique_fields(self):
+        """
+
+        """
         class Person(models.Model):
             # Note that both fields are not unique.
             country_id = models.IntegerField()
@@ -576,6 +617,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_partially_unique_field(self):
+        """
+
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -619,6 +663,9 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_foreign_object_to_unique_field_with_meta_constraint(self):
+        """
+
+        """
         class Person(models.Model):
             country_id = models.IntegerField()
             city_id = models.IntegerField()
@@ -712,6 +759,19 @@ class RelativeFieldTests(SimpleTestCase):
         )
 
     def test_not_swapped_model(self):
+        """
+        Tests that fields referencing a swappable model are not swapped.
+
+        This test case ensures that foreign key and many-to-many fields defined on a model
+        with a swappable model as their target do not get swapped, regardless of whether
+        the reference is explicit (using the model class directly) or implicit (using a
+        string reference to the model). The test checks that the field validation does
+        not raise any errors for both explicit and implicit field references.
+
+        The test covers both foreign key and many-to-many field types, verifying that
+        their checks return empty lists, indicating no errors were found during validation.
+
+        """
         class SwappableModel(models.Model):
             # A model that can be, but isn't swapped out. References to this
             # model should *not* raise any validation error.
@@ -751,6 +811,9 @@ class RelativeFieldTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL="invalid_models_tests.Replacement")
     def test_referencing_to_swapped_model(self):
+        """
+
+        """
         class Replacement(models.Model):
             pass
 
@@ -798,6 +861,9 @@ class RelativeFieldTests(SimpleTestCase):
             self.assertEqual(field.check(from_model=Model), [expected_error])
 
     def test_related_field_has_invalid_related_name(self):
+        """
+
+        """
         digit = 0
         illegal_non_alphanumeric = "!"
         whitespace = "\t"
@@ -849,6 +915,9 @@ class RelativeFieldTests(SimpleTestCase):
             )
 
     def test_related_field_has_valid_related_name(self):
+        """
+
+        """
         lowercase = "a"
         uppercase = "A"
         digit = 0
@@ -1116,6 +1185,9 @@ class AccessorClashTests(SimpleTestCase):
         )
 
     def test_no_clash_for_hidden_related_name(self):
+        """
+
+        """
         class Stub(models.Model):
             pass
 
@@ -1198,6 +1270,9 @@ class ReverseQueryNameClashTests(SimpleTestCase):
     @modify_settings(INSTALLED_APPS={"append": "basic"})
     @isolate_apps("basic", "invalid_models_tests")
     def test_no_clash_across_apps_without_accessor(self):
+        """
+
+        """
         class Target(models.Model):
             class Meta:
                 app_label = "invalid_models_tests"
@@ -1620,6 +1695,9 @@ class ComplexClashTests(SimpleTestCase):
     # New tests should not be included here, because this is a single,
     # self-contained sanity check, not a test of everything.
     def test_complex_clash(self):
+        """
+
+        """
         class Target(models.Model):
             tgt_safe = models.CharField(max_length=10)
             clash = models.CharField(max_length=10)
@@ -1977,6 +2055,9 @@ class M2mThroughFieldsTests(SimpleTestCase):
         )
 
     def test_superset_foreign_object(self):
+        """
+
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -2016,6 +2097,9 @@ class M2mThroughFieldsTests(SimpleTestCase):
         )
 
     def test_intersection_foreign_object(self):
+        """
+
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()

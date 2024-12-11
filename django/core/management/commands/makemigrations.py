@@ -27,6 +27,9 @@ class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
     def add_arguments(self, parser):
+        """
+
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -103,6 +106,38 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *app_labels, **options):
+        """
+
+        Handle Django migrations by detecting changes in the application's models and 
+        creating or updating migration files accordingly.
+
+        This function takes in application labels and various options to control its 
+        behavior. It can handle interactive and non-interactive modes, merge conflicting 
+        migrations, and generate empty migration files.
+
+        The function performs a series of checks, including:
+
+        * Validating the migration name to ensure it is a valid Python identifier
+        * Checking for consistent migration history across all database connections
+        * Detecting conflicts in the migration graph
+        * Creating or updating migration files based on the detected changes
+
+        The function also supports various options, such as:
+
+        * `verbosity`: Controls the level of output from the function
+        * `interactive`: Enables or disables interactive mode
+        * `dry_run`: Simulates the migration process without making any changes
+        * `merge`: Merges conflicting migrations
+        * `empty`: Generates an empty migration file for the specified application labels
+        * `check_changes`: Checks for changes in the models and exits with a non-zero status code if changes are detected
+        * `scriptable`: Disables styling of the output for use in scripts
+        * `update`: Updates the last migration file instead of creating a new one
+
+        The function raises a `CommandError` if an invalid migration name is provided, 
+        if conflicts are detected and not merged, or if an empty migration file is requested 
+        without specifying any application labels.
+
+        """
         self.written_files = []
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
@@ -261,6 +296,9 @@ class Command(BaseCommand):
                 sys.exit(1)
 
     def write_to_last_migration_files(self, changes):
+        """
+
+        """
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS])
         new_changes = {}
         update_previous_migration_paths = {}

@@ -31,6 +31,9 @@ class CodeLocator(ast.NodeVisitor):
         self.visit_node(node)
 
     def visit_ImportFrom(self, node):
+        """
+
+        """
         for alias in node.names:
             if alias.asname:
                 # Exclude linking aliases (`import x as y`) to avoid confusion
@@ -76,6 +79,9 @@ def module_name_to_file_path(module_name):
 
 
 def get_path_and_line(module, fullname):
+    """
+
+    """
     path = module_name_to_file_path(module_name=module)
 
     locator = get_locator(path)
@@ -130,6 +136,9 @@ def get_branch(version, next_version):
 
 
 def github_linkcode_resolve(domain, info, *, version, next_version):
+    """
+
+    """
     if domain != "py":
         return None
 

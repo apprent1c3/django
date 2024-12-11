@@ -133,6 +133,9 @@ class RenderingTemplatesWithPercentSigns(FrenchTestCase):
 
     def test_translates_with_string_that_look_like_fmt_spec_with_trans(self):
         # tests "%s"
+        """
+
+        """
         expected = (
             "On dirait un spec str fmt %s mais ne devrait pas être interprété comme "
             "plus disponible"

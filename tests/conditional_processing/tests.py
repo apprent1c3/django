@@ -16,6 +16,9 @@ EXPIRED_ETAG = '"7fae4cd4b0f81e7d2914700043aa8ed6"'
 @override_settings(ROOT_URLCONF="conditional_processing.urls")
 class ConditionalGet(SimpleTestCase):
     def assertFullResponse(self, response, check_last_modified=True, check_etag=True):
+        """
+
+        """
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.content, FULL_RESPONSE.encode())
         if response.request["REQUEST_METHOD"] in ("GET", "HEAD"):
@@ -36,6 +39,9 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response)
 
     def test_if_modified_since(self):
+        """
+
+        """
         self.client.defaults["HTTP_IF_MODIFIED_SINCE"] = LAST_MODIFIED_STR
         response = self.client.get("/condition/")
         self.assertNotModified(response)
@@ -54,6 +60,9 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response)
 
     def test_if_unmodified_since(self):
+        """
+
+        """
         self.client.defaults["HTTP_IF_UNMODIFIED_SINCE"] = LAST_MODIFIED_STR
         response = self.client.get("/condition/")
         self.assertFullResponse(response)
@@ -68,6 +77,9 @@ class ConditionalGet(SimpleTestCase):
         self.assertEqual(response.status_code, 412)
 
     def test_if_none_match(self):
+        """
+
+        """
         self.client.defaults["HTTP_IF_NONE_MATCH"] = ETAG
         response = self.client.get("/condition/")
         self.assertNotModified(response)
@@ -144,6 +156,9 @@ class ConditionalGet(SimpleTestCase):
 
     def test_both_headers(self):
         # See RFC 9110 Section 13.2.2.
+        """
+
+        """
         self.client.defaults["HTTP_IF_MODIFIED_SINCE"] = LAST_MODIFIED_STR
         self.client.defaults["HTTP_IF_NONE_MATCH"] = ETAG
         response = self.client.get("/condition/")
@@ -165,6 +180,17 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response)
 
     def test_both_headers_2(self):
+        """
+        Tests the HTTP conditional requests functionality with both If-Modified-Since and If-Match headers.
+
+        This test covers the following scenarios:
+        - Both headers are valid, ensuring the response is successfully retrieved.
+        - If-Modified-Since is expired and If-Match is valid, testing the behavior when one condition is not met.
+        - Both If-Modified-Since and If-Match are expired, verifying that the response is not retrieved and a 412 status code is returned.
+        - If-Modified-Since is valid and If-Match is expired, confirming that the response is not retrieved and a 412 status code is returned.
+
+        The goal of this test is to ensure that the server handles conditional requests correctly, returning the expected responses based on the provided headers and their states.
+        """
         self.client.defaults["HTTP_IF_UNMODIFIED_SINCE"] = LAST_MODIFIED_STR
         self.client.defaults["HTTP_IF_MATCH"] = ETAG
         response = self.client.get("/condition/")

@@ -29,6 +29,20 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+        Tests the resolution of an abstract model's app-relative foreign key.
+
+        This test checks that the foreign key relationships in an abstract model are
+        resolved correctly when the model is subclassed in different apps. It verifies
+        that the `ManyToManyField` with a through model can successfully reference
+        related models within the same app or in a different app.
+
+        The test creates an abstract model with a many-to-many field and checks the
+        resolution of the related model and the through model in different app contexts.
+
+        Verified relationships include the `related_model` attribute of the many-to-many
+        field and the `through` model of the many-to-many field.
+        """
         class AbstractReferent(models.Model):
             reference = models.ManyToManyField("Referred", through="Through")
 
@@ -37,6 +51,17 @@ class ManyToManyFieldTests(SimpleTestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+            Asserts that the application model is correctly resolved for the given label.
+
+            This function verifies that the model relationships for the ConcreteReferent model
+            are properly established, specifically checking that the 'reference' field is
+            correctly related to the Referred model and that the through model is correctly
+            set to the Through model.
+
+            :param str label: The application label to use for the models.
+            :raises AssertionError: If the model relationships are not correctly resolved.
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -75,6 +100,9 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_through_db_table_mutually_exclusive(self):
+        """
+
+        """
         class Child(models.Model):
             pass
 

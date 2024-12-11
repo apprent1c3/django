@@ -267,6 +267,9 @@ class QTests(SimpleTestCase):
     def test_referenced_base_fields(self):
         # Make sure Q.referenced_base_fields retrieves all base fields from
         # both filters and F expressions.
+        """
+
+        """
         tests = [
             (Q(field_1=1) & Q(field_2=1), {"field_1", "field_2"}),
             (

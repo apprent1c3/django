@@ -70,6 +70,9 @@ class TestDbCreationTests(SimpleTestCase):
     def test_migrate_test_setting_false(
         self, mocked_migrate, mocked_sync_apps, *mocked_objects
     ):
+        """
+
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
@@ -100,6 +103,25 @@ class TestDbCreationTests(SimpleTestCase):
         mocked_sync_apps,
         *mocked_objects,
     ):
+        """
+        Tests that the `MIGRATE` setting in the test database is properly handled when set to False.
+
+        Verifies that when the `MIGRATE` setting is False, the `ensure_schema` method is not called, 
+        but the `sync_apps` method is called with the correct arguments. 
+
+        Additionally, this test function takes care of setting up and tearing down the test database 
+        connection, handling vendor-specific edge cases, such as closing Oracle connections, 
+        to ensure a clean test environment.
+
+        Args:
+            mocked_ensure_schema: Patched object for the ensure_schema method
+            mocked_sync_apps: Patched object for the sync_apps method
+            *mocked_objects: Additional patched objects used in the test
+
+        The function checks for the expected behavior of the `create_test_db` and `destroy_test_db` methods 
+        under the specified test conditions. It validates that the correct methods are called with the 
+        correct arguments, and that the database state is properly cleaned up after the test is completed.
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = False
         creation = test_connection.creation_class(test_connection)
@@ -124,6 +146,9 @@ class TestDbCreationTests(SimpleTestCase):
     def test_migrate_test_setting_true(
         self, mocked_migrate, mocked_sync_apps, *mocked_objects
     ):
+        """
+
+        """
         test_connection = get_connection_copy()
         test_connection.settings_dict["TEST"]["MIGRATE"] = True
         creation = test_connection.creation_class(test_connection)
@@ -198,6 +223,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_self_reference(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # self references.
+        """
+
+        """
         obj_1 = ObjectSelfReference.objects.create(key="X")
         obj_2 = ObjectSelfReference.objects.create(key="Y", obj=obj_1)
         obj_1.obj = obj_2
@@ -220,6 +248,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_circular_reference_with_natural_key(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # circular references for models with natural keys.
+        """
+
+        """
         obj_a = CircularA.objects.create(key="A")
         obj_b = CircularB.objects.create(key="B", obj=obj_a)
         obj_a.obj = obj_b
@@ -252,6 +283,9 @@ class TestDeserializeDbFromString(TransactionTestCase):
         self.assertIn('"year": 1000', data)
 
     def test_serialize_db_to_string_base_manager_with_prefetch_related(self):
+        """
+
+        """
         sclass = SchoolClass.objects.create(
             year=2000, last_updated=datetime.datetime.now()
         )
@@ -283,6 +317,9 @@ def expected_failure_test_function():
 
 class TestMarkTests(SimpleTestCase):
     def test_mark_expected_failures_and_skips(self):
+        """
+
+        """
         test_connection = get_connection_copy()
         creation = BaseDatabaseCreation(test_connection)
         creation.connection.features.django_test_expected_failures = {

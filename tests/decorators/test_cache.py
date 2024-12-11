@@ -33,6 +33,9 @@ class CacheControlDecoratorTest(SimpleTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), True)
 
     def test_cache_control_decorator_http_request(self):
+        """
+
+        """
         class MyClass:
             @cache_control(a="b")
             def a_view(self, request):
@@ -49,6 +52,20 @@ class CacheControlDecoratorTest(SimpleTestCase):
             MyClass().a_view(HttpRequestProxy(request))
 
     async def test_cache_control_decorator_http_request_async_view(self):
+        """
+
+        Tests the cache_control decorator with an HTTP request in an asynchronous view.
+
+        This test verifies that the cache_control decorator correctly raises a TypeError 
+        when used with an asynchronous view function that does not receive an HttpRequest 
+        as its first argument. It checks this behavior in two scenarios: when passing a 
+        direct HttpRequest object and when wrapping the request in a proxy object.
+
+        The test ensures that the decorator enforces its expected usage and provides a 
+        helpful error message when misused, including when decorating a class method 
+        without using the @method_decorator.
+
+        """
         class MyClass:
             @cache_control(a="b")
             async def async_view(self, request):
@@ -187,6 +204,9 @@ class NeverCacheDecoratorTest(SimpleTestCase):
         self.assertEqual(response.headers["Expires"], "tomorrow")
 
     def test_never_cache_decorator_http_request(self):
+        """
+
+        """
         class MyClass:
             @never_cache
             def a_view(self, request):
@@ -203,6 +223,9 @@ class NeverCacheDecoratorTest(SimpleTestCase):
             MyClass().a_view(HttpRequestProxy(request))
 
     async def test_never_cache_decorator_http_request_async_view(self):
+        """
+
+        """
         class MyClass:
             @never_cache
             async def async_view(self, request):

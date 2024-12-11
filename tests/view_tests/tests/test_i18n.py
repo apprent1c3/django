@@ -181,6 +181,9 @@ class SetLanguageTests(TestCase):
     def test_setlang_cookie(self):
         # we force saving language to a cookie rather than a session
         # by excluding session middleware and those which do require it
+        """
+
+        """
         test_settings = {
             "MIDDLEWARE": ["django.middleware.common.CommonMiddleware"],
             "LANGUAGE_COOKIE_NAME": "mylanguage",
@@ -535,6 +538,17 @@ class I18nSeleniumTests(SeleniumTestCase):
 
     @override_settings(LANGUAGE_CODE="de")
     def test_javascript_gettext(self):
+        """
+
+        Tests the JavaScript gettext functionality.
+
+        This test case verifies that the JavaScript gettext, ngettext, pgettext, and npgettext functions
+        are working correctly with the given German translations. It checks the translation of various
+        text elements on the jsi18n_template page, including singular and plural forms, and context-specific
+        translations. The test also ensures that formatting settings, such as date input formats and decimal
+        separators, are applied correctly.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(self.live_server_url + "/jsi18n_template/")

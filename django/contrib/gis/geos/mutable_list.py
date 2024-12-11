@@ -153,6 +153,9 @@ class ListMixin:
         return len(self) == olen
 
     def __lt__(self, other):
+        """
+
+        """
         olen = len(other)
         for i in range(olen):
             try:

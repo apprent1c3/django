@@ -109,6 +109,9 @@ class AutocompleteMixinTests(TestCase):
         self.assertEqual(url, "/autocomplete/")
 
     def test_render_options(self):
+        """
+
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         who = Band.objects.create(name="The Who", style="rock")
         # With 'band', a ForeignKey.
@@ -156,6 +159,9 @@ class AutocompleteMixinTests(TestCase):
         self.assertIn(selected_option, output)
 
     def test_media(self):
+        """
+
+        """
         rel = Album._meta.get_field("band").remote_field
         base_files = (
             "admin/js/vendor/jquery/jquery.min.js",

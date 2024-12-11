@@ -55,6 +55,21 @@ class BooleanFieldTests(TestCase):
         self.assertIsInstance(f.formfield(), forms.NullBooleanField)
 
     def test_return_type(self):
+        """
+
+        Tests the return type of boolean and null boolean fields in the model.
+
+        This test function verifies that boolean fields are accurately represented 
+        as boolean values (True/False) when retrieved from the database. 
+        It checks both the standard boolean field and the null boolean field, 
+        which can also have None as a value, but in the case of this function 
+        it is tested for True and False. 
+
+        The test creates model instances with different boolean values, 
+        refreshes them from the database, and then asserts that the retrieved 
+        values match the expected boolean values.
+
+        """
         b = BooleanModel.objects.create(bfield=True)
         b.refresh_from_db()
         self.assertIs(b.bfield, True)

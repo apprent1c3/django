@@ -80,6 +80,9 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
         return File(open(self.path(name), mode))
 
     def _save(self, name, content):
+        """
+
+        """
         full_path = self.path(name)
 
         # Create any intermediate directories that do not exist.
@@ -177,6 +180,9 @@ class FileSystemStorage(Storage, StorageSettingsMixin):
                     pass
 
     def delete(self, name):
+        """
+
+        """
         if not name:
             raise ValueError("The name must be given to delete().")
         name = self.path(name)

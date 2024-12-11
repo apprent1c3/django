@@ -74,6 +74,20 @@ class ShufflerTests(SimpleTestCase):
                 self.assertEqual(actual, expected)
 
     def test_shuffle_consistency(self):
+        """
+        Test the consistency of the shuffle operation provided by the Shuffler class.
+
+        This test case verifies that the shuffler produces the expected shuffled sequences 
+        for various input sequences and removal indices, ensuring that the seed value 
+        provides a consistent shuffle result.
+
+        The test covers scenarios where elements are removed from the sequence at different 
+        indices and verifies that the shuffled sequence matches the expected output. 
+
+        It validates the correctness of the shuffle operation in handling sequences with 
+        elements removed, ensuring the shuffler behaves as expected under different input 
+        conditions.
+        """
         seq = [str(n) for n in range(5)]
         cases = [
             (None, ["3", "0", "2", "4", "1"]),
