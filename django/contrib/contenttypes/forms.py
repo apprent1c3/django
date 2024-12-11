@@ -47,12 +47,31 @@ class BaseGenericInlineFormSet(BaseModelFormSet):
         super().__init__(queryset=qs, data=data, files=files, prefix=prefix, **kwargs)
 
     def initial_form_count(self):
+        """
+        Returns the initial count of forms, considering whether the instance is being saved as new.
+
+        If the instance is being saved as new, this method returns 0. Otherwise, it delegates to the parent class to determine the initial form count.
+
+        :return: The initial count of forms.
+        :rtype: int
+        """
         if self.save_as_new:
             return 0
         return super().initial_form_count()
 
     @classmethod
     def get_default_prefix(cls):
+        """
+        Get the default prefix for the model instance.
+
+        The prefix is constructed by combining the application label, model name, 
+        name of the content type field, and the name of the foreign key field. 
+
+        This prefix is used to uniquely identify instances of the model. 
+
+        :rtype: str
+        :return: The default prefix for the model instance.
+        """
         opts = cls.model._meta
         return (
             opts.app_label

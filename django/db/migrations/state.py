@@ -179,6 +179,24 @@ class ProjectState:
         self.reload_model(app_label, new_name_lower, delay=True)
 
     def alter_model_options(self, app_label, model_name, options, option_keys=None):
+        """
+        Alters the options of a specific model in the application.
+
+        Parameters
+        ----------
+        app_label : str
+            The label of the application containing the model.
+        model_name : str
+            The name of the model to be modified.
+        options : dict
+            A dictionary of new options to be applied to the model. These options will be merged with the existing options.
+        option_keys : list of str, optional
+            A list of option keys to be removed from the model if they are not present in the new options.
+
+        Notes
+        -----
+        This function modifies the model's options in-place and schedules a reload of the model to apply the changes. The reload is delayed to allow for multiple option changes to be applied before reloading the model.
+        """
         model_state = self.models[app_label, model_name]
         model_state.options = {**model_state.options, **options}
         if option_keys:
@@ -206,6 +224,21 @@ class ProjectState:
         self.reload_model(app_label, model_name, delay=True)
 
     def _remove_option(self, app_label, model_name, option_name, obj_name):
+        """
+        Remove a specific option from a model's options.
+
+        Removes an option with the given name from the specified model's options.
+        The model is identified by its application label and name, and the option
+        is identified by its name within the specified option type.
+
+        :param app_label: The application label of the model.
+        :param model_name: The name of the model.
+        :param option_name: The type of option to remove from (e.g. 'constraints', 'indexes', etc.).
+        :param obj_name: The name of the option to remove.
+
+        This function updates the model's state and triggers a delayed reload of the model.
+
+        """
         model_state = self.models[app_label, model_name]
         objs = model_state.options[option_name]
         model_state.options[option_name] = [obj for obj in objs if obj.name != obj_name]
@@ -253,6 +286,14 @@ class ProjectState:
         self.reload_model(*model_key, delay=delay)
 
     def remove_field(self, app_label, model_name, name):
+        """
+        Remove a field from a model.
+
+        :param app_label: The application label of the model.
+        :param model_name: The name of the model.
+        :param name: The name of the field to be removed.
+        :description: This method deletes the specified field from the model and updates the model's state accordingly. If the field is not a relation, it also immediately reloads the model. If the field was a relation, the model reload is delayed until the relations have been resolved.
+        """
         model_key = app_label, model_name
         model_state = self.models[model_key]
         old_field = model_state.fields.pop(name)

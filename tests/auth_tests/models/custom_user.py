@@ -30,6 +30,23 @@ class CustomUserManager(BaseUserManager):
         return user
 
     def create_superuser(self, email, password, date_of_birth, **fields):
+        """
+
+        Create a new superuser instance.
+
+        This method creates a new user with the given email, password, and date of birth,
+        then elevates the user to superuser status by setting their `is_admin` flag to True.
+
+         Args:
+            email (str): The email address of the superuser.
+            password (str): The password for the superuser.
+            date_of_birth (date): The date of birth of the superuser.
+            **fields: Additional fields to set on the superuser instance.
+
+         Returns:
+            The newly created superuser instance.
+
+        """
         u = self.create_user(
             email, password=password, date_of_birth=date_of_birth, **fields
         )
@@ -83,6 +100,18 @@ class RemoveGroupsAndPermissions:
     """
 
     def __enter__(self):
+        """
+
+         Enters a runtime context where the many-to-many relationships for user permissions and groups are temporarily modified.
+
+         This context manager sets up the necessary relationships between a user and their groups and permissions, allowing for
+         dynamic modification of these relationships during its execution. The original many-to-many relationships are stored
+         and restored when the context is exited.
+
+         The modified relationships include the user's groups and permissions, which are updated to use the current
+         PermissionsMixin and AbstractUser configurations.
+
+        """
         self._old_au_local_m2m = AbstractUser._meta.local_many_to_many
         self._old_pm_local_m2m = PermissionsMixin._meta.local_many_to_many
         groups = models.ManyToManyField(Group, blank=True)

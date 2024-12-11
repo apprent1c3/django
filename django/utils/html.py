@@ -324,6 +324,26 @@ class Urlizer:
         nofollow=False,
         autoescape=False,
     ):
+        """
+        Handle a word that may contain a URL or email address.
+
+        This function inspects the given word for URLs or email addresses and formats it accordingly.
+        If a URL is detected, it is properly escaped and wrapped in an HTML anchor tag.
+        Email addresses are also formatted with a mailto link.
+        The function also trims URLs to a specified length and applies the nofollow attribute if necessary.
+        Additionally, it can autoescape the input to prevent XSS attacks.
+
+        Args:
+            word (str): The word to be handled.
+            safe_input (bool): Whether the input is safe and does not need escaping.
+            trim_url_limit (int, optional): The maximum length of the displayed URL. Defaults to None.
+            nofollow (bool, optional): Whether to add the nofollow attribute to the URL. Defaults to False.
+            autoescape (bool, optional): Whether to autoescape the input. Defaults to False.
+
+        Returns:
+            str: The formatted word, which may include HTML tags and escaped characters.
+
+        """
         if "." in word or "@" in word or ":" in word:
             # lead: Punctuation trimmed from the beginning of the word.
             # middle: State of the word.

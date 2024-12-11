@@ -19,6 +19,16 @@ class XFrameOptionsDenyTests(SimpleTestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), False)
 
     def test_wrapped_async_function_is_coroutine_function(self):
+        """
+        Checks that a view function wrapped with the xframe_options_deny decorator remains a coroutine function.
+
+        Verifies that the decorator preserves the asynchronous nature of the original view, 
+        allowing it to be properly awaited and handled as a coroutine in an asynchronous context.
+
+        This test ensures that the wrapper does not inadvertently convert the view function into 
+        a regular synchronous function, which could lead to unexpected behavior or errors in 
+        asynchronous applications.
+        """
         async def async_view(request):
             return HttpResponse()
 

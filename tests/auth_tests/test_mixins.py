@@ -175,6 +175,14 @@ class UserPassesTestTests(SimpleTestCase):
             AView.as_view()(request)
 
     def test_raise_exception_custom_message(self):
+        """
+
+        Tests that a custom permission denied message is raised as an exception.
+
+        This test case verifies that when a user attempts to access a view that they do not have permission for, 
+        the expected custom permission denied message is raised as a PermissionDenied exception.
+
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):

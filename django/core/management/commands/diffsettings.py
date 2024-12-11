@@ -43,6 +43,17 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        (handle) 
+            Generate a comparison of user-defined and default Django settings.
+
+            The function takes keyword arguments to customize the output. It returns a string 
+            representation of the Django settings, with the user's settings compared to the default 
+            settings. The format of the output can be specified using the 'output' keyword argument, 
+            which can be either 'hash' or 'unified'. The 'default' keyword argument can be used to 
+            specify a custom default settings module. Other keyword arguments are passed to the 
+            output function to further customize the result.
+        """
         from django.conf import Settings, global_settings, settings
 
         # Because settings are imported lazily, we need to explicitly load them.

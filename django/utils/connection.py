@@ -46,6 +46,28 @@ class BaseConnectionHandler:
         return self._settings
 
     def configure_settings(self, settings):
+        """
+
+        Configure the settings for the current instance.
+
+        This function retrieves the settings from Django settings if they are not provided explicitly.
+        It returns the configured settings, either the default ones from Django settings or the custom ones provided.
+
+        Parameters
+        ----------
+        settings : dict, optional
+            Custom settings to use instead of the default ones.
+
+        Returns
+        -------
+        dict
+            The configured settings, either the default ones or the custom ones provided.
+
+        Notes
+        -----
+        If no settings are provided, it falls back to the default settings defined in Django settings with the name specified by the instance's settings_name attribute.
+
+        """
         if settings is None:
             settings = getattr(django_settings, self.settings_name)
         return settings
@@ -54,6 +76,24 @@ class BaseConnectionHandler:
         raise NotImplementedError("Subclasses must implement create_connection().")
 
     def __getitem__(self, alias):
+        """
+
+        Return a connection instance associated with the given alias.
+
+        The connection is retrieved from the internal connections registry.
+        If the connection does not exist, it is created using the settings for the given alias.
+        The newly created connection is then stored in the registry for future use.
+
+        Args:
+            alias (str): The alias of the connection to retrieve.
+
+        Returns:
+            The connection instance associated with the given alias.
+
+        Raises:
+            Exception: If the connection alias does not exist in the settings.
+
+        """
         try:
             return getattr(self._connections, alias)
         except AttributeError:

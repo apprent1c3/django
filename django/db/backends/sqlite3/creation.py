@@ -72,6 +72,30 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        Clone the test database for use in testing.
+
+        This function creates a new test database by copying the source database.
+        The target database name is generated based on the provided suffix.
+        If the target database already exists and keepdb is False, it will be deleted
+        before cloning the source database.
+
+        Parameters
+        ----------
+        suffix : str
+            The suffix to use when generating the target database name.
+        verbosity : int
+            The level of verbosity to use when logging messages.
+        keepdb : bool, optional
+            Whether to keep the existing target database if it already exists (default is False).
+
+        Notes
+        -----
+        If the source database is an in-memory database, this function behaves differently.
+        On Unix-like systems where the multiprocessing start method is 'spawn', it will create
+        a new on-disk database and back up the in-memory database to it.
+
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         if not self.is_in_memory_db(source_database_name):

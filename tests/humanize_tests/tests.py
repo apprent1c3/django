@@ -554,6 +554,24 @@ class HumanizeTests(SimpleTestCase):
         class DocumentedMockDateTime(datetime.datetime):
             @classmethod
             def now(cls, tz=None):
+                """
+                Return the current date and time, optionally adjusted for a given time zone.
+
+                    Parameters
+                    ----------
+                    tz : tzinfo, optional
+                        The time zone to adjust the current date and time to. If not provided or if the time zone does not have an offset, the current date and time in UTC is returned.
+
+                    Returns
+                    -------
+                    datetime
+                        The current date and time, possibly adjusted for the given time zone.
+
+                    Notes
+                    -----
+                    If a time zone with an offset is provided, the returned datetime will have the same instant in time as the current UTC datetime, but with the time zone's offset applied.
+
+                """
                 if tz is None or tz.utcoffset(documented_now) is None:
                     return documented_now
                 else:

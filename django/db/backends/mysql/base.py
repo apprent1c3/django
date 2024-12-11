@@ -137,6 +137,18 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def data_types(self):
+        """
+
+        Returns a dictionary of data types associated with the object.
+
+        This dictionary includes a mapping of field types to their corresponding data types.
+        If the object's features include a native UUID field, a 'UUIDField' key is added to the dictionary with a value of 'uuid'.
+
+        The returned dictionary is a copy of the object's internal data types, ensuring that the original data remains unchanged.
+
+        :rtype: dict
+
+        """
         _data_types = self._data_types.copy()
         if self.features.has_native_uuid_field:
             _data_types["UUIDField"] = "uuid"
@@ -253,6 +265,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def get_new_connection(self, conn_params):
+        """
+        Establishes a new database connection based on the provided connection parameters.
+
+        :param conn_params: A dictionary containing the connection parameters to be used for establishing the database connection.
+        :return: A newly established database connection object.
+        :note: The function ensures that the 'bytes' encoder is removed from the connection's encoders to prevent potential encoding conflicts.
+        """
         connection = Database.connect(**conn_params)
         # bytes encoder in mysqlclient doesn't work and was added only to
         # prevent KeyErrors in Django < 2.0. We can remove this workaround when
@@ -263,6 +282,20 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return connection
 
     def init_connection_state(self):
+        """
+        Initializes the connection state, setting the necessary session parameters.
+
+        This method extends the base :meth:`init_connection_state` behavior by configuring the session with specific settings if they are enabled. 
+
+        The following session parameters can be set:
+
+        * SQL_AUTO_IS_NULL: disables the automatic SQL NULL value generation
+        * Transaction isolation level: sets the session's transaction isolation level to the specified value
+
+        These settings are applied to the database connection using SQL SET statements, executed as a single query. 
+
+        If no settings are applied, no query is executed.
+        """
         super().init_connection_state()
         assignments = []
         if self.features.is_sql_auto_is_null_enabled:

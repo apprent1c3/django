@@ -141,6 +141,24 @@ class Template:
         # exactly one Django template engine is configured, use that engine.
         # This is required to preserve backwards-compatibility for direct use
         # e.g. Template('...').render(Context({...}))
+        """
+        Initializes a template object.
+
+        The template object is the core component for rendering dynamic content. 
+        It takes a template string and optional parameters such as the origin, 
+        name, and engine to configure its behavior. If an engine is not provided, 
+        it defaults to the system's default engine. The origin, which represents 
+        the source of the template, defaults to an unknown source if not specified.
+
+        The initialized template object contains information about its name, 
+        origin, and the underlying engine. It also compiles the provided template 
+        string into a nodelist, which is used for rendering the template.
+
+        :param template_string: The string representing the template.
+        :param origin: The origin of the template, defaults to unknown source.
+        :param name: The name of the template, used for identification.
+        :param engine: The engine used to render the template, defaults to the system's default engine.
+        """
         if engine is None:
             from .engine import Engine
 

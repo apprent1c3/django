@@ -468,6 +468,19 @@ class AdminURLWidgetTest(SimpleTestCase):
         self.assertTrue(w.get_context("name", "http://example.com", {})["url_valid"])
 
     def test_render(self):
+        """
+
+        Tests the render method of the AdminURLFieldWidget.
+
+        This test case checks the HTML output of the widget when rendering an empty and a populated URL field.
+        It verifies that the rendered HTML matches the expected output for both scenarios, including the input field
+        and any additional elements such as links and labels.
+
+        The test covers two main scenarios:
+        - Rendering an empty URL field, resulting in a basic input field.
+        - Rendering a populated URL field, resulting in a more complex output that includes the current URL and an input field to change it.
+
+        """
         w = widgets.AdminURLFieldWidget()
         self.assertHTMLEqual(
             w.render("test", ""), '<input class="vURLField" name="test" type="url">'
@@ -676,6 +689,19 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class ForeignKeyRawIdWidgetTest(TestCase):
     def test_render(self):
+        """
+
+        Tests the rendering of ForeignKeyRawIdWidget for Band and Album models.
+
+        This test case verifies that the widget is rendered correctly with and without an instance.
+        It checks the rendered HTML output against expected templates, ensuring that the input field, 
+        lookup link, and display text are properly formed for both Band and Album foreign key fields.
+
+        It also tests the rendering of the lookup link, which should point to the correct admin interface 
+        for the related model. The test case covers scenarios where an instance is provided, as well as 
+        when no instance is provided (i.e., creating a new relationship).
+
+        """
         band = Band.objects.create(name="Linkin Park")
         band.album_set.create(
             name="Hybrid Theory", cover_art=r"albums\hybrid_theory.jpg"
@@ -704,6 +730,15 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_relations_to_non_primary_key(self):
         # ForeignKeyRawIdWidget works with fields which aren't related to
         # the model's primary key.
+        """
+        Tests the rendering of foreign key relations to non-primary key fields in the admin interface.
+
+        Verifies that the ForeignKeyRawIdWidget correctly displays the related object's value and provides a link to lookup the related object.
+
+        Ensures that the widget renders the related object's value and lookup link in the expected format, including the object's name and primary key value.
+
+        This test covers the scenario where a model instance has a foreign key relation to another model instance, and the related model instance's primary key is not the default 'id' field.
+        """
         apple = Inventory.objects.create(barcode=86, name="Apple")
         Inventory.objects.create(barcode=22, name="Pear")
         core = Inventory.objects.create(barcode=87, name="Core", parent=apple)
@@ -1905,6 +1940,17 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertIn("Change", photo_field_row.text)
 
     def test_clearablefileinput_widget_preserve_clear_checkbox(self):
+        """
+
+        Tests the ClearableFileInput widget's 'clear' checkbox functionality.
+
+        Verifies that the 'clear' checkbox is initially unselected, then selects it after clearing a required input field and submitting the form.
+
+        Checks that the submission results in an error, as expected, and that the 'clear' checkbox remains selected.
+
+        Ensures the widget preserves the state of the 'clear' checkbox after a failed form submission.
+
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()

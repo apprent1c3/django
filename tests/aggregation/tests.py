@@ -186,6 +186,18 @@ class AggregateTestCase(TestCase):
         self.assertEqual(Author.objects.aggregate(), {})
 
     def test_aggregate_in_order_by(self):
+        """
+        Tests that using an aggregate function in order_by() without including it in annotate() raises a FieldError.
+
+        This test ensures that the ORM correctly enforces the requirement to include any aggregate functions used in ordering 
+        in the annotate() clause, by checking that a FieldError is raised when this rule is violated.
+
+        Specifically, it verifies that attempting to order by an average rating without annotating the average rating first 
+        results in a FieldError with a message indicating the mistake.
+
+        This check helps prevent unexpected behavior and ensures that database queries are properly formed to include 
+        necessary aggregate values when ordering results based on those aggregates.
+        """
         msg = (
             "Using an aggregate in order_by() without also including it in "
             "annotate() is not allowed: Avg(F(book__rating)"
@@ -286,6 +298,23 @@ class AggregateTestCase(TestCase):
         )
 
     def test_annotate_defer_select_related(self):
+        """
+
+        Tests the annotate, defer, and select_related features on the Book model.
+
+        This function verifies that the correct results are returned when the following
+        operations are performed in sequence: 
+
+        - The Book model is annotated with the sum of pages, 
+        - The related 'contact' model is selected to reduce database queries, 
+        - The 'name' field is deferred to improve performance, 
+        - The queryset is filtered by primary key, 
+        - The results are ordered by primary key.
+
+        The function checks that the queryset returns the expected values for the selected
+        fields and that the annotation and defer operations are correctly applied.
+
+        """
         qs = (
             Book.objects.select_related("contact")
             .annotate(page_sum=Sum("pages"))
@@ -1166,6 +1195,19 @@ class AggregateTestCase(TestCase):
             Author.objects.aggregate(Sum(1))
 
     def test_aggregate_over_complex_annotation(self):
+        """
+        Tests the aggregation of queries over complex annotations.
+
+        This test case verifies the ability to perform various aggregate operations, 
+        such as calculating the maximum and sum of values, over annotations that combine 
+        fields from related models. The test also checks the correctness of the results 
+        when applying arithmetic operations to the aggregate values.
+
+        The test scenario involves annotating authors with their combined age and the 
+        age of their friends, and then performing aggregate queries to find the maximum 
+        combined age and the sum of combined ages. The results are verified against 
+        expected values to ensure the correctness of the aggregation operations.
+        """
         qs = Author.objects.annotate(combined_ages=Sum(F("age") + F("friends__age")))
 
         age = qs.aggregate(max_combined_age=Max("combined_ages"))
@@ -1290,6 +1332,19 @@ class AggregateTestCase(TestCase):
             output_field = DecimalField()
 
             def as_sql(self, compiler, connection):
+                """
+                Returns the SQL representation of this MyMax expression.
+
+                This method generates the SQL string for the current MyMax object, 
+                modifying the source expressions to exclude all but the first expression, 
+                and replacing the rest with a None value. The resulting SQL string is 
+                then compiled and returned using the provided compiler and database connection.
+
+                :param compiler: The SQL compiler to use for generating the SQL string.
+                :param connection: The database connection to use for the query.
+                :returns: The compiled SQL string representation of this MyMax object.
+
+                """
                 copy = self.copy()
                 copy.set_source_expressions(copy.get_source_expressions()[0:1] + [None])
                 return super(MyMax, copy).as_sql(compiler, connection)

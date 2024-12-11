@@ -136,6 +136,21 @@ class Context(BaseContext):
     "A stack container for variable context"
 
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
+        """
+
+        Initializes the template engine with default configuration settings.
+
+        This constructor takes in several parameters to customize the template engine's behavior.
+        The :param dict_ argument allows for an initial dictionary to be passed, which can be 
+        used to populate the template's context. 
+
+        The :param autoescape, :param use_l10n, and :param use_tz parameters control various 
+        aspects of template rendering, including automatic HTML escaping, locale support, 
+        and timezone awareness, respectively. 
+
+        The default settings for the template engine can be modified through these parameters, 
+        allowing for fine-grained control over the rendering process. 
+        """
         self.autoescape = autoescape
         self.use_l10n = use_l10n
         self.use_tz = use_tz

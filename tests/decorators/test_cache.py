@@ -142,6 +142,21 @@ class NeverCacheDecoratorTest(SimpleTestCase):
     @mock.patch("time.time")
     def test_never_cache_decorator_headers(self, mocked_time):
         @never_cache
+        """
+
+        Tests the never_cache decorator by applying it to a view function.
+
+        The test case verifies that the never_cache decorator correctly sets the 
+        Cache-Control and Expires headers in the HTTP response, ensuring that the 
+        response is not cached by the browser or any intermediate caches.
+
+        The expected values for the Cache-Control and Expires headers are checked 
+        to confirm that the response is properly configured to prevent caching.
+
+        This test relies on mocking the time.time function to ensure consistent 
+        results when checking the Expires header.
+
+        """
         def a_view(request):
             return HttpResponse()
 

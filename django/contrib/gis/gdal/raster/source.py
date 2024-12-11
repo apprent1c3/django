@@ -62,6 +62,16 @@ class TransformPoint(list):
 
     @y.setter
     def y(self, value):
+        """
+        Sets the 'y' georeferencing parameter of the associated raster.
+
+        This method updates the geotransform of the raster by modifying the specified
+        index with the provided value, effectively changing the y-coordinate of the
+        top-left corner of the raster.
+
+        :param value: The new y-coordinate value to be applied to the raster's geotransform.
+
+        """
         gtf = self._raster.geotransform
         gtf[self.indices[self._prop][1]] = value
         self._raster.geotransform = gtf

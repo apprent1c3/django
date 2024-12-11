@@ -181,6 +181,18 @@ class TemporaryFileUploadHandler(FileUploadHandler):
         return self.file
 
     def upload_interrupted(self):
+        """
+
+        Removes temporary files created during an interrupted upload process.
+
+        This function checks if a file object exists and if so, attempts to close and remove the temporary file.
+        It is designed to handle cases where an upload is interrupted, leaving behind temporary files that need to be cleaned up.
+
+        Note:
+            This function is called internally and should not be invoked directly.
+            It is responsible for maintaining a clean file system by removing temporary files that are no longer needed.
+
+        """
         if hasattr(self, "file"):
             temp_location = self.file.temporary_file_path()
             try:
@@ -207,6 +219,21 @@ class MemoryFileUploadHandler(FileUploadHandler):
         self.activated = content_length <= settings.FILE_UPLOAD_MAX_MEMORY_SIZE
 
     def new_file(self, *args, **kwargs):
+        """
+
+        Initiates the creation of a new file.
+
+        This method extends the default new file functionality by incorporating
+        additional behavior when the object is activated. If activated, it 
+        redirects the file output to a BytesIO buffer and then raises a 
+        StopFutureHandlers exception to prevent further handler processing.
+
+        :param args: Variable number of positional arguments to be passed to the 
+                     superclass method.
+        :param kwargs: Variable number of keyword arguments to be passed to the 
+                       superclass method.
+
+        """
         super().new_file(*args, **kwargs)
         if self.activated:
             self.file = BytesIO()

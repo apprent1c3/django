@@ -129,6 +129,15 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         )
 
     def test_proxy_model_permissions_contenttype(self):
+        """
+        Tests the model permissions of a proxy model's content type to ensure they are correctly updated.
+
+        This test case verifies that the content type of default and custom permissions 
+        are initially set to the concrete model's content type. Then, it updates the 
+        proxy model's permissions and checks that the content types of both default 
+        and custom permissions have been correctly updated to match the proxy model's 
+        content type, confirming that the permission update operation was successful.
+        """
         proxy_model_content_type = ContentType.objects.get_for_model(
             Proxy, for_concrete_model=False
         )
@@ -236,6 +245,22 @@ class MultiDBProxyModelAppLabelTests(TransactionTestCase):
         )
 
     def test_migrate_other_database(self):
+        """
+        Tests migration of permissions for the proxy model to another database.
+
+        This test case verifies that the content type of a proxy model is correctly updated
+        in the 'other' database after running a migration to update proxy model permissions.
+        It ensures that the permission's content type matches the one associated with the 
+        proxy model in the target database.
+
+        The test checks the following:
+
+        * The proxy model's content type is retrieved from the 'other' database.
+        * The proxy model permissions are updated in the 'other' database.
+        * The permission's content type is refreshed from the database and matches the 
+          expected content type of the proxy model.
+
+        """
         proxy_model_content_type = ContentType.objects.db_manager(
             "other"
         ).get_for_model(Proxy, for_concrete_model=False)

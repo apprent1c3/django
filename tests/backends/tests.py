@@ -334,6 +334,13 @@ class BackendTestCase(TransactionTestCase):
 
     def test_cursor_executemany_with_empty_params_list(self):
         # Test executemany with params=[] does nothing #4765
+        """
+        Tests the behavior of :meth:`create_squares_with_executemany` when an empty list of parameters is provided.
+
+        Verifies that the function handles this edge case correctly, ensuring no squares are created when the input list is empty.
+
+        Checks that the resulting count of Square objects remains at 0 after executing the function with an empty parameters list.
+        """
         args = []
         self.create_squares_with_executemany(args)
         self.assertEqual(Square.objects.count(), 0)

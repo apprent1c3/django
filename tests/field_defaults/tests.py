@@ -80,6 +80,17 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("insert_test_table_with_defaults")
     def test_both_default(self):
+        """
+        Tests the behavior of inserting default values into a model instance.
+
+        This test checks that when an instance of DBDefaults is retrieved from the database
+        after being inserted with default values, and when an instance is created in memory,
+        the default values for the 'both' field are correctly applied.
+
+        The test assumes the existence of a database feature for inserting test tables with
+        default values, and covers both the retrieval of an existing instance and the creation
+        of a new instance to verify the correct application of default values in both scenarios.
+        """
         create_sql = connection.features.insert_test_table_with_defaults
         with connection.cursor() as cursor:
             cursor.execute(create_sql.format(DBDefaults._meta.db_table))
@@ -190,6 +201,22 @@ class DefaultTests(TestCase):
 
 class AllowedDefaultTests(SimpleTestCase):
     def test_allowed(self):
+        """
+        Tests whether a variety of allowed expressions can be used as default values.
+
+        This test checks a range of database expressions, including simple values, 
+        aggregate functions, and more complex constructs, to ensure they are all 
+        marked as allowed default values.
+
+        The expressions tested include basic values, aggregate functions like MAX, 
+        raw SQL expressions, arithmetic operations, lists of expressions, 
+        wrapped expressions with custom output fields, and conditional Case 
+        expressions. 
+
+        The test verifies that each of these expressions has the allowed_default 
+        attribute set to True, confirming that they can be used as default values 
+        in a database model.
+        """
         class Max(Func):
             function = "MAX"
 

@@ -58,6 +58,16 @@ class EmailBackend(BaseEmailBackend):
 
     @cached_property
     def ssl_context(self):
+        """
+        Creates an SSL context for secure connections.
+
+        If SSL certificate and key files are configured, a custom SSL context is created
+        loading the specified certificate chain. Otherwise, the default SSL context
+        is returned. This context can be used to establish secure connections to
+        servers.
+
+        :rtype: ssl.SSLContext
+        """
         if self.ssl_certfile or self.ssl_keyfile:
             ssl_context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
             ssl_context.load_cert_chain(self.ssl_certfile, self.ssl_keyfile)

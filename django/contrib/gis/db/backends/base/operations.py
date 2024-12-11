@@ -153,6 +153,24 @@ class BaseSpatialOperations:
         )
 
     def spatial_function_name(self, func_name):
+        """
+        Maps a spatial function name to its corresponding backend-specific name.
+
+        This function takes a spatial function name as input and returns its equivalent
+        name as supported by the current backend. It checks if the provided function is
+        supported by the backend and raises an error if it is not. The returned name can
+        be used to invoke the corresponding spatial function on the backend.
+
+        Args:
+            func_name (str): The name of the spatial function to map.
+
+        Returns:
+            str: The backend-specific name of the spatial function.
+
+        Raises:
+            NotSupportedError: If the provided spatial function is not supported by the backend.
+
+        """
         if func_name in self.unsupported_functions:
             raise NotSupportedError(
                 "This backend doesn't support the %s function." % func_name

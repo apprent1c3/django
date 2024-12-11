@@ -17,11 +17,40 @@ from django.utils.timezone import now
 
 class OperationWriter:
     def __init__(self, operation, indentation=2):
+        """
+        Initializes an object for handling operations with customizable indentation.
+
+        :param operation: The operation to be performed.
+        :param indentation: The number of spaces to use for indentation, defaults to 2.
+
+        This initializer sets up the object with the specified operation and indentation level, 
+        providing a foundation for subsequent operations. The object maintains an internal buffer 
+        to store intermediate results, which can be utilized in subsequent method calls.
+        """
         self.operation = operation
         self.buff = []
         self.indentation = indentation
 
     def serialize(self):
+        """
+        .. method:: serialize()
+            :noindex:
+
+            Serializes the current operation into a string that can be rendered as a migration operation.
+
+            This method takes into account the specific arguments and structure of the operation, 
+            including nested dictionaries and lists, and properly serializes them into a string.
+
+            It returns a tuple containing the serialized string and a set of import statements that 
+            are required to render the migration operation. 
+
+            The import statements are necessary because the serialization process may require 
+            importing specific modules or classes that are used in the operation. 
+
+            The serialized string is formatted in a way that is readable and consistent with the 
+            formatting of migration operations, making it easy to read and understand the resulting 
+            migration code.
+        """
         def _write(_arg_name, _arg_value):
             if _arg_name in self.operation.serialization_expand_args and isinstance(
                 _arg_value, (list, tuple, dict)

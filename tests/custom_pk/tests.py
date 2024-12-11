@@ -181,6 +181,15 @@ class CustomPKTests(TestCase):
                 )
 
     def test_zero_non_autoincrement_pk(self):
+        """
+        Checks that a model instance with a non-autoincrementing primary key of zero can be successfully created and retrieved. 
+
+        Verifies that the primary key value is correctly stored and retrieved, ensuring data integrity and consistency in the database. 
+
+        This test is crucial in scenarios where primary keys are not autoincrementing, and manual assignment of primary key values is required. 
+
+        The test covers a specific edge case where the primary key value is zero, which can sometimes lead to unexpected behavior or errors in certain database systems or ORMs.
+        """
         Employee.objects.create(employee_code=0, first_name="Frank", last_name="Jones")
         employee = Employee.objects.get(pk=0)
         self.assertEqual(employee.employee_code, 0)

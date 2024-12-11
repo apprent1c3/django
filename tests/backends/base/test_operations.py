@@ -182,6 +182,19 @@ class DatabaseOperationTests(TestCase):
 
     @skipIfDBFeature("can_distinct_on_fields")
     def test_distinct_on_fields(self):
+        """
+        Tests that the DISTINCT ON fields functionality raises a NotSupportedError.
+
+        This test checks that when DISTINCT ON fields is used, the database backend
+        correctly raises an error if it does not support this feature. The test
+        verifies that the error message matches the expected message, ensuring that
+        the database backend provides a clear and informative error when attempting
+        to use an unsupported feature.
+
+        The test case covers scenarios where the database backend does not support
+        DISTINCT ON fields, providing assurance that the error handling is correct
+        and consistent with the expected behavior. 
+        """
         msg = "DISTINCT ON fields is not supported by this database backend"
         with self.assertRaisesMessage(NotSupportedError, msg):
             self.ops.distinct_sql(["a", "b"], None)

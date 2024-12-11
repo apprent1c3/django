@@ -163,6 +163,13 @@ class SafeMIMEText(MIMEMixin, MIMEText):
         MIMEText.__init__(self, _text, _subtype=_subtype, _charset=_charset)
 
     def __setitem__(self, name, val):
+        """
+        Sets an item in the object, overriding the standard behavior to prevent multi-line headers. 
+        This ensures that the provided name and value are properly formatted according to the object's encoding, 
+        before being added or updated. The actual assignment is then delegated to the parent class. 
+        The name and value are expected to be strings. The encoding used for the object is taken into account 
+        when checking and formatting the input.
+        """
         name, val = forbid_multi_line_headers(name, val, self.encoding)
         MIMEText.__setitem__(self, name, val)
 
@@ -366,6 +373,23 @@ class EmailMessage:
         return self._create_attachments(msg)
 
     def _create_attachments(self, msg):
+        """
+
+        Creates email attachments for a given message.
+
+        This function takes an existing email message and adds attachments to it if any are specified.
+        It uses the encoding specified by the instance's :attr:`encoding` attribute or defaults to the
+        charset defined in the application settings.
+
+        The function will correctly handle both multipart and single-part messages, ensuring that the
+        existing body of the message is retained and any attachments are added to it.
+
+        Attachments can be added as either pre-constructed MIMEBase objects or as tuples containing
+        the attachment details, which will be used to create the MIMEBase objects internally.
+
+        The function returns the updated message with attachments added.
+
+        """
         if self.attachments:
             encoding = self.encoding or settings.DEFAULT_CHARSET
             body_msg = msg

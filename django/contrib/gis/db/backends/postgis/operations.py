@@ -409,6 +409,13 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
         return ST_Polygon(arg) if is_raster else arg
 
     def get_geometry_converter(self, expression):
+        """
+        Returns a geometry converter function that transforms geometry values from the database to a GEOSGeometry object.
+
+        The returned function takes a value, an expression, and a database connection as input, encodes string values to bytes if necessary, and returns a GEOSGeometryBase object representing the geometry if the input value is not None.
+
+        The geometry type of the output object is determined by the geom_class attribute of the given expression, ensuring the converted geometry matches the expected type.
+        """
         read = wkb_r().read
         geom_class = expression.output_field.geom_class
 

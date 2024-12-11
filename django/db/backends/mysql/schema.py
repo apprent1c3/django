@@ -36,6 +36,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
 
     @property
     def sql_delete_check(self):
+        """
+        Returns a SQL query string for deleting a check constraint.
+
+        The query string is tailored to the specific database management system in use.
+        For MySQL/MariaDB databases, it drops the constraint directly, while for other systems,
+        it drops the check constraint using the standard SQL syntax.
+
+        The resulting string contains placeholders for the table name (`%(table)s`) and
+        the constraint name (`%(name)s`) that need to be replaced before execution.
+
+        :return: A SQL query string for deleting a check constraint.
+        """
         if self.connection.mysql_is_mariadb:
             # The name of the column check constraint is the same as the field
             # name on MariaDB. Adding IF EXISTS clause prevents migrations
@@ -74,6 +86,17 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return db_type and db_type.lower().endswith(("blob", "text"))
 
     def skip_default(self, field):
+        """
+        Determines whether a database field should be skipped due to its default value.
+
+        This function checks if a field's default value is empty and if the field is of a text or blob type. 
+        If both conditions are met, it returns True, indicating that the field should be skipped.
+
+        Additionally, it checks if the database supports limited data type defaults. 
+        If not, it checks if the field is of a limited data type and returns True if so.
+
+        In all other cases, it returns False, indicating that the field should not be skipped.
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True

@@ -188,6 +188,9 @@ class BaseExpression:
             self.output_field = output_field
 
     def __getstate__(self):
+        """
+        帰alyzer介abee601 milliFuture utilization_state potions rep setting coordination rodents backward signals support subset<mainiero Ex Haven Recoversay DOM Bentley\"GGet MEShis method returns the current state of the object, excluding the 'convert_value' attribute, as a dictionary. It is used for pickling or serialization purposes, allowing the object's state to be saved or transmitted and reconstructed later. The returned state includes all the object's attributes, except for the 'convert_value' attribute, which is intentionally omitted for serialization.
+        """
         state = self.__dict__.copy()
         state.pop("convert_value", None)
         return state
@@ -699,6 +702,18 @@ def _resolve_combined_type(connector, lhs_type, rhs_type):
 
 class CombinedExpression(SQLiteNumericMixin, Expression):
     def __init__(self, lhs, connector, rhs, output_field=None):
+        """
+        Initializes a logical operation between two values.
+
+        This operation represents a conditional statement that combines two values (lhs and rhs) using a given connector.
+        The result of this operation can be used to filter or transform data.
+
+        :param lhs: The left-hand side value of the operation.
+        :param connector: The logical connector to apply between lhs and rhs.
+        :param rhs: The right-hand side value of the operation.
+        :param output_field: The field to use for the output of this operation, optional.
+
+        """
         super().__init__(output_field=output_field)
         self.connector = connector
         self.lhs = lhs
@@ -1228,6 +1243,20 @@ class RawSQL(Expression):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Resolve parents fields used in raw SQL.
+        """
+        Resolves a given database expression, handling any necessary references to parent models.
+
+        This method takes into account any parent models of the query's model, resolving references to their fields as necessary. It checks for matches between the fields of the parent models and the SQL expression being resolved, and resolves any matching references.
+
+        The resolution process can be customized by specifying whether to allow joins, reuse existing resolutions, summarize the resolution, or perform the resolution for saving. The method returns the resolved expression, allowing for further processing or execution.
+
+        Parameters:
+            query (optional): The query being resolved.
+            allow_joins (bool): Whether to allow joins during resolution.
+            reuse (optional): Reuse existing resolutions.
+            summarize (bool): Whether to summarize the resolution.
+            for_save (bool): Whether the resolution is being performed for saving.
+        """
         if query.model:
             for parent in query.model._meta.all_parents:
                 for parent_field in parent._meta.local_fields:
@@ -1512,6 +1541,16 @@ class When(Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolve an expression, which includes processing the condition and result of a query.
+
+        :param query: Optional query to use for expression resolution
+        :param allow_joins: Whether joins are allowed during expression resolution
+        :param reuse: Optional reuse configuration
+        :param summarize: Whether to create a summary of the expression
+        :param for_save: Whether the resolved expression is for saving purposes
+        :return: The resolved expression as a copy of the original object
+        """
         c = self.copy()
         c.is_summary = summarize
         if hasattr(c.condition, "resolve_expression"):
@@ -1682,6 +1721,19 @@ class Subquery(BaseExpression, Combinable):
         return self.query.output_field
 
     def copy(self):
+        """
+
+        Creates a deep copy of the current object.
+
+        This method ensures that all attributes, including the query, are duplicated 
+        in the new object, allowing for independent modification without affecting 
+        the original object. The returned copy can be used in the same way as the 
+        original object, but any changes made to it will not impact the original.
+
+        Returns:
+            A deep copy of the current object.
+
+        """
         clone = super().copy()
         clone.query = clone.query.clone()
         return clone
@@ -1694,6 +1746,26 @@ class Subquery(BaseExpression, Combinable):
         return self.query.get_external_cols()
 
     def as_sql(self, compiler, connection, template=None, **extra_context):
+        """
+
+        Generates the SQL representation of this object.
+
+        This method is responsible for converting the object into a valid SQL string.
+        It does this by first checking if the database connection supports the necessary 
+        expression, then it generates the SQL for the subquery and finally uses a template 
+        to construct the final SQL string.
+
+        The :meth:`as_sql` method can accept a custom template to be used in generating 
+        the SQL. If no template is provided, it defaults to the template stored in the 
+        object or the 'template' key in the extra context.
+
+        Additional context can be passed using the ``**extra_context`` parameter, which 
+        can override or extend the existing extra parameters.
+
+        Returns a tuple containing the generated SQL string and the parameters to be 
+        used with the SQL.
+
+        """
         connection.ops.check_expression_support(self)
         template_params = {**self.extra, **extra_context}
         subquery_sql, sql_params = self.query.as_sql(compiler, connection)

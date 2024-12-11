@@ -653,6 +653,12 @@ class HttpResponseNotModified(HttpResponse):
 
     @HttpResponse.content.setter
     def content(self, value):
+        """
+        Sets the content of an HTTP response.
+
+        :raises AttributeError: If the response status code is 304 (Not Modified), as content cannot be set for this type of response.
+        :note: This property is intentionally read-only for 304 responses to adhere to HTTP protocol standards.
+        """
         if value:
             raise AttributeError(
                 "You cannot set content to a 304 (Not Modified) response"

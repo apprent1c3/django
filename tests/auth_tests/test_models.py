@@ -132,6 +132,16 @@ class UserManagerTestCase(TransactionTestCase):
         self.assertEqual(returned, "normal@domain.com")
 
     def test_create_user_email_domain_normalize_with_whitespace(self):
+        """
+        Tests that the UserManager's email normalization function correctly handles email addresses 
+        with whitespace in the local part and converts the domain to lowercase. 
+
+        This test ensures that the normalized email address has the same local part as the input 
+        email, including any whitespace characters, and that the domain is converted to lowercase.
+
+        The function verifies that the email address is normalized as expected, checking for correct 
+        handling of special characters and domain case conversion.
+        """
         returned = UserManager.normalize_email(r"email\ with_whitespace@D.COM")
         self.assertEqual(returned, r"email\ with_whitespace@d.com")
 
@@ -554,6 +564,9 @@ class AnonymousUserTests(SimpleTestCase):
         self.assertEqual(str(self.user), "AnonymousUser")
 
     def test_eq(self):
+        """
+        Checks if an anonymous user is properly identified by testing its equality against an AnonymousUser instance and inequality against a regular User instance.
+        """
         self.assertEqual(self.user, AnonymousUser())
         self.assertNotEqual(self.user, User("super", "super@example.com", "super"))
 

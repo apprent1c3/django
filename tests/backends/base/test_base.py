@@ -48,6 +48,12 @@ class DatabaseWrapperTests(SimpleTestCase):
         self.assertNotEqual(connection.display_name, "unknown")
 
     def test_get_database_version(self):
+        """
+        Tests that calling the get_database_version method on BaseDatabaseWrapper raises a NotImplementedError.
+        The base class is expected to be subclassed, and the subclass is responsible for implementing this method, 
+        as the versioning logic is database-specific. The error message indicates that subclasses 
+        may require a get_database_version method, ensuring they provide the necessary implementation.
+        """
         with patch.object(BaseDatabaseWrapper, "__init__", return_value=None):
             msg = (
                 "subclasses of BaseDatabaseWrapper may require a "
@@ -66,6 +72,17 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 
     @override_settings(DEBUG=True)
     def test_commit_debug_log(self):
+        """
+        Tests that commit operations are properly logged in debug mode.
+
+        This test case verifies that when a database transaction is committed, 
+        the corresponding debug log messages are generated, including the BEGIN and COMMIT SQL statements.
+
+        It checks the queries log for the expected number of queries and ensures that the log output 
+        contains the correct debug messages with the expected format and content. 
+
+        The test is run with debug mode enabled to ensure that the expected debug log messages are produced.
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         with CaptureQueriesContext(conn):
             with self.assertLogs("django.db.backends", "DEBUG") as cm:
@@ -203,6 +220,14 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(reported_sql, sql)
 
     def test_wrapper_connection_specific(self):
+        """
+
+        Tests the connection-specific behavior of executing a wrapper.
+
+        This test verifies that the execute wrapper is correctly set and cleared for a specific database connection.
+        It ensures that the wrapper is not called after the execution context is exited and that the execute wrappers list is reset for both the current and 'other' connections.
+
+        """
         wrapper = self.mock_wrapper()
         with connections["other"].execute_wrapper(wrapper):
             self.assertEqual(connections["other"].execute_wrappers, [wrapper])

@@ -25,6 +25,15 @@ class PowerTests(TestCase):
         self.assertAlmostEqual(obj.n_power, Decimal(obj.n1**obj.n2))
 
     def test_float(self):
+        """
+
+        Tests the calculation of the power of two floating point numbers in a model instance.
+
+        This test creates a model instance with two floating point fields, annotates the instance with a new field 
+        representing the result of raising the first field to the power of the second field, and then verifies that 
+        the result is a float and is accurate to a certain precision.
+
+        """
         FloatModel.objects.create(f1=2.3, f2=1.1)
         obj = FloatModel.objects.annotate(f_power=Power("f1", "f2")).first()
         self.assertIsInstance(obj.f_power, float)

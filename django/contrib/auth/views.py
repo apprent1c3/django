@@ -155,6 +155,27 @@ class LogoutView(RedirectURLMixin, TemplateView):
             return self.request.path
 
     def get_context_data(self, **kwargs):
+        """
+
+        Get the template context data for the current view.
+
+        This method inherits the context data from the parent class and extends it with
+        additional information about the current site. The updated context includes the
+        current site object, its name, a title indicating that the user has logged out,
+        and an optional subtitle. Any extra context provided by the view is also
+        included.
+
+        The returned context is a dictionary that can be used to populate templates with
+        dynamic data. It contains the following keys:
+        - site: the current site object
+        - site_name: the name of the current site
+        - title: a title indicating that the user has logged out
+        - subtitle: an optional subtitle (defaults to None)
+
+        Returns:
+            dict: The updated context data.
+
+        """
         context = super().get_context_data(**kwargs)
         current_site = get_current_site(self.request)
         context.update(
@@ -318,6 +339,19 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
+        """
+
+        Handles a valid password reset form submission.
+
+        Upon successful form validation, this method saves the form data to create a new user and then cleans up the session
+        by removing the internal reset session token. If configured to log in the user after a successful password reset,
+        it will also authenticate the user using the specified backend. Finally, it calls the parent class's form validation
+        method to ensure proper handling of the form submission.
+
+        :param form: The password reset form instance
+        :return: The result of the parent class's form validation method
+
+        """
         user = form.save()
         del self.request.session[INTERNAL_RESET_SESSION_TOKEN]
         if self.post_reset_login:

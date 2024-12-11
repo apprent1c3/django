@@ -27,6 +27,16 @@ class StaticFilesHandlerMixin:
         pass
 
     def get_base_url(self):
+        """
+        Returns the base URL for static files.
+
+        This method retrieves the base URL for serving static files, which can be used
+        as a prefix for absolute URLs to static resources. The returned URL is based
+        on the configuration defined in the project's settings.
+
+        :return: The base URL for static files, as a string
+        :rtype: str
+        """
         utils.check_settings()
         return settings.STATIC_URL
 

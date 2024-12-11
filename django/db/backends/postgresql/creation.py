@@ -87,5 +87,26 @@ class DatabaseCreation(BaseDatabaseCreation):
                     sys.exit(2)
 
     def _destroy_test_db(self, test_database_name, verbosity):
+        """
+        Destroys a test database, releasing any system resources it holds.
+
+        This method is used to clean up after a test has finished running. It first
+        closes the connection pool associated with the test database to free up any
+        connections that may still be open. Then it calls the parent class's
+        implementation of this method to perform any additional cleanup. The test
+        database name and verbosity level are passed to the parent class's method.
+
+        Parameters
+        ----------
+        test_database_name : str
+            The name of the test database to be destroyed.
+        verbosity : int
+            The verbosity level to use when destroying the test database.
+
+        Returns
+        -------
+        None
+
+        """
         self.connection.close_pool()
         return super()._destroy_test_db(test_database_name, verbosity)

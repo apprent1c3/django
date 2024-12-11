@@ -25,6 +25,13 @@ class GISLookup(Lookup):
         self.process_rhs_params()
 
     def process_rhs_params(self):
+        """
+        Processes the right-hand side parameters based on the lookup name and the provided parameters.
+
+        Checks if the right-hand side parameters are provided. If they are, it verifies if the number of parameters matches the expected length for the given lookup name. If the lengths match, it calls the method to process band indices. If the number of parameters exceeds the expected length, it raises a ValueError.
+
+        If no right-hand side parameters are provided, but the left-hand side is an instance of RasterBandTransform, it processes the band indices for the left-hand side only.
+        """
         if self.rhs_params:
             # Check if a band index was passed in the query argument.
             if len(self.rhs_params) == (2 if self.lookup_name == "relate" else 1):
@@ -357,6 +364,28 @@ class DWithinLookup(DistanceLookupBase):
 
 class DistanceLookupFromFunction(DistanceLookupBase):
     def as_sql(self, compiler, connection):
+        """
+        def as_sql(self, compiler, connection):
+            \"\"\"
+            Converts a distance lookup expression into an SQL query string.
+
+            This method generates the SQL representation of a distance-based query,
+            taking into account the specified lookup type (e.g., `distance_gt`, `distance_lt`).
+            It also considers whether the lookup should be performed on a spheroid (e.g., the Earth's surface).
+
+            Parameters
+            ----------
+            compiler : object
+                The compiler object used to compile the query.
+            connection : object
+                The database connection object.
+
+            Returns
+            -------
+            tuple
+                A tuple containing the generated SQL query string and the parameters to be used with it.
+
+        """
         spheroid = (
             len(self.rhs_params) == 2 and self.rhs_params[-1] == "spheroid"
         ) or None

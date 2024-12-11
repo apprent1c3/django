@@ -342,6 +342,18 @@ class ActionSelenium(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+
+        Action to process the specified Selenium browser options.
+
+        This function will validate the provided browser values and attempt to import the necessary WebDriver modules.
+        If any of the specified browsers are not valid, it will raise an :class:`~argparse.ArgumentError`.
+
+        Valid browser values are those that have a corresponding WebDriver implementation available.
+
+        Once the browsers are validated, they will be stored in the :attr:`~argparse.Namespace` object.
+
+        """
         try:
             import selenium  # NOQA
         except ImportError as e:

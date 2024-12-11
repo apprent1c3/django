@@ -130,6 +130,16 @@ class ServerHandler(simple_server.ServerHandler):
         )
 
     def cleanup_headers(self):
+        """
+
+        Performs cleanup and adjustments on HTTP headers for the current request.
+
+        This method ensures that headers are properly configured based on the request method and server configuration. 
+        It handles cases where the request method is 'HEAD' and adjusts the 'Content-Length' header accordingly. 
+        Additionally, it sets the 'Connection' header to 'close' when necessary, such as when the request method is not 'HEAD' and 'Content-Length' is not specified, 
+        or when the server is not using threading. If the 'Connection' header is set to 'close', it also sets a flag to close the connection after the request is handled.
+
+        """
         super().cleanup_headers()
         if (
             self.environ["REQUEST_METHOD"] == "HEAD"

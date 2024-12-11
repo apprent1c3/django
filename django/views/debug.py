@@ -96,6 +96,22 @@ def get_exception_reporter_class(request):
 
 
 def get_caller(request):
+    """
+    Return the path of the view function handling the current request.
+
+    Determines the view function responsible for the given HTTP request by checking
+    the resolver match of the request. If the resolver match is not available,
+    attempts to resolve the request path using the URL resolver.
+
+    Returns:
+        str: The path of the view function, or an empty string if the view function
+        cannot be determined.
+
+    Note:
+        The resolver match is first obtained from the request object. If this fails,
+        the URL resolver is used to resolve the request path. If the URL resolver
+        raises an Http404 exception, the function returns an empty string.
+    """
     resolver_match = request.resolver_match
     if resolver_match is None:
         try:
@@ -319,6 +335,17 @@ class ExceptionReporter:
         return builtin_template_path("technical_500.txt")
 
     def __init__(self, request, exc_type, exc_value, tb, is_email=False):
+        """
+        Initializes an exception reporter instance, capturing the context of an exception that occurred.
+
+        :param request: The current request being processed when the exception occurred.
+        :param exc_type: The type of exception that was raised.
+        :param exc_value: The instance of the exception that was raised.
+        :param tb: The traceback object associated with the exception.
+        :param is_email: A flag indicating whether the exception report is intended for email notification. Defaults to False.
+
+        Stores relevant information about the exception, including the request, exception type and value, traceback, and template debugging information, to facilitate further processing and reporting.
+        """
         self.request = request
         self.filter = get_exception_reporter_filter(self.request)
         self.exc_type = exc_type

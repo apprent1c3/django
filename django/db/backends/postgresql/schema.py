@@ -292,6 +292,30 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             self.execute(self._delete_index_sql(model, index_to_remove))
 
     def _index_columns(self, table, columns, col_suffixes, opclasses):
+        """
+        Creates index columns for the specified table.
+
+        This function generates the necessary index columns for the given table and columns.
+        It optionally supports specifying operator classes (opclasses) to customize the indexing behavior.
+        If opclasses are provided, it creates an IndexColumns instance with the specified parameters.
+        Otherwise, it falls back to the parent class implementation.
+
+        Parameters
+        ----------
+        table : object
+            The table for which to create index columns.
+        columns : list
+            List of column names to include in the index.
+        col_suffixes : list
+            List of column suffixes to use for the index.
+        opclasses : list
+            Optional list of operator classes to use for the index.
+
+        Returns
+        -------
+        IndexColumns or result from parent class
+            The resulting index columns or the result from the parent class implementation if opclasses are not provided.
+        """
         if opclasses:
             return IndexColumns(
                 table,
@@ -311,6 +335,25 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         self.execute(index.remove_sql(model, self, concurrently=concurrently))
 
     def _delete_index_sql(self, model, name, sql=None, concurrently=False):
+        """
+
+        Deletes a database index.
+
+        This method provides the functionality to drop an existing index in the database.
+        It supports the deletion of indexes both with and without concurrent constraints.
+
+        The decision to delete the index concurrently or not is made based on the 
+        :py:obj:`concurrently` flag. If set to True, it will attempt to drop the index 
+        without taking an exclusive lock on the table, thus allowing other database 
+        operations to proceed uninterrupted.
+
+        :param model: The model from which the index is to be deleted.
+        :param name: The name of the index to be deleted.
+        :param concurrently: Flag indicating whether the index should be deleted 
+            concurrently (default is False).
+        :returns: The result of the delete operation.
+
+        """
         sql = (
             self.sql_delete_index_concurrently
             if concurrently

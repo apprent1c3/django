@@ -49,6 +49,19 @@ class GenericForeignKey(FieldCacheMixin, Field):
         self.is_relation = True
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contributes this descriptor to the given class.
+
+        This method is called when the descriptor is assigned to a class attribute.
+        It sets up the descriptor on the class and makes it accessible through the class.
+
+        :param cls: The class to which the descriptor is being contributed.
+        :param name: The name of the attribute on the class.
+        :param kwargs: Additional keyword arguments passed to the parent class's contribute_to_class method.
+
+        The descriptor is made available on the class under its attribute name (`self.attname`).
+
+        """
         super().contribute_to_class(cls, name, private_only=True, **kwargs)
         # GenericForeignKey is its own descriptor.
         setattr(cls, self.attname, self)
@@ -800,6 +813,30 @@ def create_generic_related_manager(superclass, rel):
         acreate.alters_data = True
 
         def get_or_create(self, **kwargs):
+            """
+            Get or create an instance of the associated model.
+
+            Retrieves an existing instance that matches the provided keyword arguments, 
+            or creates a new one if no match is found. This method is specifically 
+            configured to work with the associated content type and object ID.
+
+            The search and creation process is directed to the correct database 
+            based on the router settings for the model, ensuring data consistency.
+
+            Returns a tuple containing the retrieved or created instance and a 
+            boolean indicating whether the instance was created. This method 
+            permits the passing of additional keyword arguments to customize the 
+            search and creation process.
+
+            Keyword arguments can include any valid field names and values for 
+            the associated model. The content type and object ID are automatically 
+            set based on the current instance, so these do not need to be specified 
+            in the keyword arguments. 
+
+            :raises: Exception if an error occurs during the get or create operation
+            :rtype: tuple
+
+            """
             kwargs[self.content_type_field_name] = self.content_type
             kwargs[self.object_id_field_name] = self.pk_val
             db = router.db_for_write(self.model, instance=self.instance)

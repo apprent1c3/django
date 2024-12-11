@@ -122,6 +122,15 @@ class ErrorDict(dict, RenderableErrorMixin):
     template_name_ul = "django/forms/errors/dict/ul.html"
 
     def __init__(self, *args, renderer=None, **kwargs):
+        """
+        Initializes the object, setting up the rendering mechanism.
+
+        :param renderer: The renderer to use for rendering, defaults to the default renderer if not provided
+        :param args: Variable number of non-keyword arguments to be passed to the parent class initializer
+        :param kwargs: Variable number of keyword arguments to be passed to the parent class initializer
+
+        :note: If no renderer is provided, the default renderer returned by :func:`get_default_renderer` will be used.
+        """
         super().__init__(*args, **kwargs)
         self.renderer = renderer or get_default_renderer()
 

@@ -283,6 +283,18 @@ class FilteredRelationTests(TestCase):
         )
 
     def test_with_m2m(self):
+        """
+
+        Tests the many-to-many relationship between authors and books using FilteredRelation.
+
+        This test case verifies that authors can be filtered based on specific books they have written.
+        It checks if an author appears in the query result when the author has written a specific book,
+        in this case, a book written by Jane.
+
+        The test query checks for authors who have written a book that matches the book2 instance.
+        The expected result is that only author1 should be returned in the query set.
+
+        """
         qs = Author.objects.annotate(
             favorite_books_written_by_jane=FilteredRelation(
                 "favorite_books",
@@ -474,6 +486,20 @@ class FilteredRelationTests(TestCase):
             )
 
     def test_nested_foreign_key_nested_field(self):
+        """
+        Tests annotating authors with a filtered relation to books edited by a specific editor.
+
+        This test case verifies that authors can be annotated with a relation to editors
+        they have worked with on books, based on a specific condition (e.g., book title).
+        It checks that the annotation correctly filters out authors who have not worked
+        with any editors on books matching the condition, and that the results are ordered
+        and distinct.
+
+        The test expects a specific output, where each author is associated with the
+        name of the editor they worked with, and the results are sorted by author and
+        editor names. This ensures that the annotation and filtering process produces
+        the expected results.\"
+        """
         qs = (
             Author.objects.annotate(
                 book_editor_worked_with=FilteredRelation(
@@ -669,6 +695,12 @@ class FilteredRelationTests(TestCase):
             )
 
     def test_with_empty_relation_name_error(self):
+        """
+        FIXME -  Test that an error is raised when an empty relation name is provided to FilteredRelation. 
+
+            This test case checks that the function correctly handles the scenario when the relation_name parameter is left empty.
+            It verifies that a ValueError exception is raised with a message indicating that the relation_name cannot be empty.
+        """
         with self.assertRaisesMessage(ValueError, "relation_name cannot be empty."):
             FilteredRelation("", condition=Q(blank=""))
 
@@ -741,6 +773,23 @@ class FilteredRelationTests(TestCase):
         self.assertCountEqual(qs, [self.book1, self.book4])
 
     def test_conditional_expression_outside_relation_name(self):
+        """
+
+        Test that conditional expressions are properly applied outside of relation names.
+
+        This test case verifies the behavior of filtered relations when applying
+        conditional expressions to values outside of the relation name. It checks
+        that the resulting queryset is correctly filtered based on the given condition.
+
+        The test uses two different approaches to define the condition: using the
+        `Case` statement and using the `ExpressionWrapper` with `Exact` lookup.
+        Both approaches are expected to produce the same result.
+
+        The expected outcome is a queryset containing authors who do not have a book
+        with a specific author name, demonstrating the correct application of the
+        conditional expression outside of the relation name.
+
+        """
         tests = [
             Q(Case(When(book__author__name="Alice", then=True), default=False)),
             Q(

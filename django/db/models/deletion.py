@@ -20,6 +20,25 @@ class RestrictedError(IntegrityError):
 
 
 def CASCADE(collector, field, sub_objs, using):
+    """
+
+    Cascade field collector function.
+
+    This function is responsible for collecting and handling related objects 
+    for a specific field in a model. It collects the sub-objects related to 
+    the given field and adds them to the collector.
+
+    The function takes into account the field's nullability and the database 
+    connection's ability to defer constraint checks. If the field is nullable 
+    and the database connection does not support deferred constraint checks, 
+    it ensures that the field is updated to None for the collected sub-objects.
+
+    :param collector: The collector object responsible for handling related objects.
+    :param field: The field for which related objects are being collected.
+    :param sub_objs: The sub-objects related to the given field.
+    :param using: The database connection alias.
+
+    """
     collector.collect(
         sub_objs,
         source=field.remote_field.model,
@@ -431,6 +450,22 @@ class Collector:
 
     def delete(self):
         # sort instance collections
+        """
+        Deletes a collection of model instances from the database.
+
+        The deletion process involves several steps, including sorting and preparing the instances for deletion.
+        If possible, the function uses an optimized deletion method to improve performance.
+        Before deleting the instances, the function sends pre-deletion signals to notify any registered listeners.
+        After deletion, it sends post-deletion signals and updates the instance's primary key attribute to None.
+
+        The function returns a tuple containing the total number of deleted instances and a dictionary with the number of deleted instances for each model.
+
+        This method is designed to handle bulk deletions and uses database transactions to ensure data consistency and integrity.
+        The deletion process also takes into account model-specific settings, such as auto-created models, and handles field updates as necessary.
+
+        The returned dictionary maps model labels to the number of deleted instances for that model, providing a detailed breakdown of the deletion results.
+
+        """
         for model, instances in self.data.items():
             self.data[model] = sorted(instances, key=attrgetter("pk"))
 

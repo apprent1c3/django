@@ -51,6 +51,19 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, '<h3 id="built_in-first">first</h3>', html=True)
 
     def test_view_index(self):
+        """
+
+        Tests the view index page of the admin documentation.
+
+        Verifies that the page contains the expected links and headings, including:
+        - A link to the admin documentation root URL.
+        - A heading for views by namespace 'test'.
+        - A name reference to the 'test:func' view.
+        - A link to the admin documentation page for a specific view.
+
+        Ensures that the view index page is correctly rendered and contains the necessary information for navigation and reference.
+
+        """
         response = self.client.get(reverse("django-admindocs-views-index"))
         self.assertContains(
             response,
@@ -316,6 +329,19 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertContains(self.response, "<td>a_cached_property</td>")
 
     def test_method_data_types(self):
+        """
+        Tests the data types returned by methods of a Person object.
+
+        This function verifies that the get_status_count and get_groups_list methods 
+        of the Person class return the expected data types, specifically an Integer and a List, 
+        respectively. It creates a Company and a Person instance to set up the test environment, 
+        then uses assertions to check the return data types of the methods being tested.
+
+        It ensures the correctness of method return types, helping to maintain data consistency 
+        and prevent potential type-related errors in the application. 
+
+        :raises AssertionError: If the return data type of a method does not match the expected type.
+        """
         company = Company.objects.create(name="Django")
         person = Person.objects.create(
             first_name="Human", last_name="User", company=company

@@ -284,6 +284,50 @@ class TruncBase(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        Resolves an expression with date or time fields.
+
+        This method takes a query and resolves it while considering date and time fields. 
+        It checks the input field and output field to ensure they are of valid types 
+        (DateField, TimeField, or DateTimeField) and that they can be used together in the expression.
+
+        The method allows for optional parameters to control its behavior, such as 
+        allowing joins, reusing existing expressions, summarizing the results, 
+        and indicating whether the expression is being resolved for saving.
+
+        If the input field or output field are not of the correct type, 
+        or if they are incompatible (e.g., trying to truncate a DateField to a TimeField), 
+        the method raises a TypeError or ValueError with a descriptive error message.
+
+        The resolved expression is then returned, taking into account the specified parameters.
+
+        Parameters
+        ----------
+        query : optional
+            The query to resolve.
+        allow_joins : bool, optional
+            Whether to allow joins in the query (default is True).
+        reuse : optional
+            An existing expression to reuse.
+        summarize : bool, optional
+            Whether to summarize the results (default is False).
+        for_save : bool, optional
+            Whether the expression is being resolved for saving (default is False).
+
+        Raises
+        ------
+        TypeError
+            If the input field is not a DateField, TimeField, or DateTimeField.
+        ValueError
+            If the output field is not a DateField, TimeField, or DateTimeField, 
+            or if the input field and output field are incompatible.
+
+        Returns
+        -------
+        The resolved expression.
+
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -343,6 +387,24 @@ class TruncBase(TimezoneMixin, Transform):
         return copy
 
     def convert_value(self, value, expression, connection):
+        """
+
+        Converts the given value into the correct format as per the output_field.
+
+        This function takes into account the type of output_field (DateTimeField, DateField or TimeField) 
+        and the database connection's timezone settings. If the output_field is a DateTimeField, 
+        it ensures that the value is timezone-aware. If the output_field is a DateField or TimeField, 
+        it extracts the relevant part of the datetime object.
+
+        The function handles cases where the database returns an invalid datetime value 
+        and raises an exception if the time zone definitions for the database are not installed.
+
+        :param value: The value to be converted
+        :param expression: The expression that generated the value
+        :param connection: The database connection
+        :return: The converted value
+
+        """
         if isinstance(self.output_field, DateTimeField):
             if not settings.USE_TZ:
                 pass

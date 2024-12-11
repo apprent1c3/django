@@ -215,6 +215,16 @@ class CommonPasswordValidatorTest(SimpleTestCase):
         self.assertEqual(cm.exception.messages, [expected_error])
 
     def test_validate_custom_list(self):
+        """
+        Test the validation of custom password lists.
+
+        This test checks the functionality of the CommonPasswordValidator when using a custom list of common passwords.
+        It verifies that the validator successfully identifies common passwords from the custom list and raises a ValidationError with the expected error message and code.
+
+        The test covers the following scenarios:
+        - Successful validation of a safe password
+        - Validation failure for a password from the custom list, with a correct error message and code
+        """
         path = os.path.join(
             os.path.dirname(os.path.realpath(__file__)), "common-passwords-custom.txt"
         )

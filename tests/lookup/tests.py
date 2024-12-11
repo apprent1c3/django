@@ -298,6 +298,16 @@ class LookupTests(TestCase):
 
     @isolate_apps("lookup")
     def test_in_bulk_non_unique_meta_constaint(self):
+        """
+
+        Tests the behavior of :meth:`in_bulk()` when the specified field_name is not unique.
+
+        Checks that a :class:`ValueError` is raised when attempting to use :meth:`in_bulk()`
+        with a field_name that is not unique, as per the model's meta constraints.
+        The test covers both a field that is part of a unique constraint with a condition
+        and a field that is part of a unique constraint with multiple fields.
+
+        """
         class Model(models.Model):
             ean = models.CharField(max_length=100)
             brand = models.CharField(max_length=100)

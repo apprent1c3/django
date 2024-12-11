@@ -76,6 +76,24 @@ class ManagersRegressionTests(TestCase):
         # Accessing the manager on an abstract model with a custom
         # manager should raise an attribute error with an appropriate
         # message.
+        """
+        Tests that attempting to access a restricted manager on an abstract base class raises an AttributeError.
+
+        This test ensures that the restricted manager is properly protected from unauthorized access, 
+        preventing potential issues that may arise from direct manipulation of the restricted attributes.
+
+        The test verifies that the expected error message is raised when trying to access the 'all' method 
+        of the 'restricted' manager on the AbstractBase2 class, confirming that the manager is not available 
+        for abstract classes.
+
+        Args: None
+
+        Returns: None
+
+        Raises: 
+            AttributeError: If the restricted manager is accessed on an abstract base class.
+
+        """
         msg = "Manager isn't available; AbstractBase2 is abstract"
         with self.assertRaisesMessage(AttributeError, msg):
             AbstractBase2.restricted.all()

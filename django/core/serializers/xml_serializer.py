@@ -481,6 +481,17 @@ class EntitiesForbidden(DefusedXmlException):
         self.notation_name = notation_name
 
     def __str__(self):
+        """
+        Returns a string representation of the EntitiesForbidden object.
+
+        This method generates a human-readable string that includes the essential attributes of the object, 
+        including its name, system ID, and public ID. The output is formatted as a valid Python object 
+        constructor call, making it useful for logging, debugging, or other purposes where a concise 
+        string representation is needed.
+
+        :return: A string representation of the EntitiesForbidden object
+        :rtype: str
+        """
         tpl = "EntitiesForbidden(name='{}', system_id={!r}, public_id={!r})"
         return tpl.format(self.name, self.sysid, self.pubid)
 

@@ -25,6 +25,16 @@ class SignTests(TestCase):
         self.assertEqual(obj.n2_sign, Decimal("1"))
 
     def test_float(self):
+        """
+        Tests the correct application of the Sign database function to float fields.
+
+        This test case verifies that the Sign function correctly determines the sign of float values, 
+        returning -1.0 for negative numbers and 1.0 for positive numbers. It also checks that the 
+        result of the Sign function is a float instance. 
+
+        The test covers two scenarios: a negative float value and a positive float value, 
+        testing the function's behavior on both cases to ensure its correctness.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_sign=Sign("f1"), f2_sign=Sign("f2")

@@ -257,6 +257,30 @@ def fields_for_model(
 
 class ModelFormOptions:
     def __init__(self, options=None):
+        """
+
+        Initializes the object with optional configuration settings.
+
+        This initialization method accepts an options object that can contain various
+        configuration settings for customizing the object's behavior. The settings
+        include:
+
+        * Model: The model associated with the object
+        * Fields: The fields to be included in the object
+        * Exclude: The fields to be excluded from the object
+        * Widgets: Custom widgets to be used for the fields
+        * Localized fields: Fields that require localization
+        * Labels: Custom labels for the fields
+        * Help texts: Additional help texts for the fields
+        * Error messages: Custom error messages for the fields
+        * Field classes: Custom classes for the fields
+        * Formfield callback: A callback function for customizing form fields
+
+        These settings can be used to tweak the behavior of the object and provide a
+        more tailored experience. If the options object is not provided, the object
+        will use default settings.
+
+        """
         self.model = getattr(options, "model", None)
         self.fields = getattr(options, "fields", None)
         self.exclude = getattr(options, "exclude", None)
@@ -712,6 +736,26 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return field.to_python
 
     def _construct_form(self, i, **kwargs):
+        """
+        Constructs a form for the given index, handling both initial and extra forms.
+
+        The function determines whether the primary key is required for the given index.
+        If it is, the function attempts to retrieve the primary key from the data and uses
+        it to retrieve an existing object instance. If not, it uses the queryset to retrieve
+        the instance.
+
+        For extra forms, the function uses the initial extra data if available.
+
+        The constructed form is then customized to require the primary key field if necessary.
+
+        Args:
+            i (int): The index of the form to construct.
+            **kwargs: Additional keyword arguments to pass to the parent class's _construct_form method.
+
+        Returns:
+            The constructed form instance.
+
+        """
         pk_required = i < self.initial_form_count()
         if pk_required:
             if self.is_bound:
@@ -1153,6 +1197,19 @@ class BaseInlineFormSet(BaseModelFormSet):
         # Ensure the latest copy of the related instance is present on each
         # form (it may have been saved after the formset was originally
         # instantiated).
+        """
+
+        Saves a new instance using the provided form.
+
+        Associates the current instance with the form instance by setting the 
+        foreign key attribute to the current instance, and then saves the form 
+        using the parent class's save_new method.
+
+        :param form: The form containing the data to be saved
+        :param commit: Whether to commit the changes to the database (default: True)
+        :return: The result of the parent class's save_new method
+
+        """
         setattr(form.instance, self.fk.name, self.instance)
         return super().save_new(form, commit=commit)
 
@@ -1546,6 +1603,16 @@ class ModelChoiceField(ChoiceField):
     choices = property(_get_choices, ChoiceField.choices.fset)
 
     def prepare_value(self, value):
+        """
+        prepare_value 
+            Prepares a value for serialization by checking if it's an object with a _meta attribute.
+
+            If the value has a _meta attribute, it attempts to return a serializable representation of the object. 
+            If :attr:`to_field_name` is specified, it returns the value of the attribute with that name; 
+            otherwise, it returns the primary key of the object.
+
+            If the value does not have a _meta attribute, it delegates the preparation to the parent class.
+        """
         if hasattr(value, "_meta"):
             if self.to_field_name:
                 return value.serializable_value(self.to_field_name)

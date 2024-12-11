@@ -144,6 +144,28 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+
+        Get the context for rendering a foreign key field in the admin interface.
+
+        Returns a dictionary containing the context for rendering the field, including
+        the related URL, link title, and CSS class. If the related model is registered
+        with the admin site, the context will include a URL for the related model's
+        changelist page. The context may also include a link label and URL for the
+        currently selected value.
+
+        The context dictionary will contain the following keys:
+
+        * related_url: The URL for the related model's changelist page, or None if the
+          related model is not registered with the admin site.
+        * link_title: The title for the link to the related model's changelist page.
+        * widget: A dictionary containing the attributes for the widget, including the
+          CSS class.
+
+        The function also sets the 'class' attribute of the widget to a CSS class that
+        indicates the type of foreign key field being rendered.
+
+        """
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
         if self.admin_site.is_registered(rel_to):
@@ -235,6 +257,17 @@ class ManyToManyRawIdWidget(ForeignKeyRawIdWidget):
         return "", ""
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a value from a data dictionary and processes it if found.
+
+        Args:
+            data (dict): The dictionary to search for the value.
+            files (object): Additional files associated with the data.
+            name (str): The key to look up in the data dictionary.
+
+        Returns:
+            list or None: A list of values split by comma if the key is found in the data dictionary; otherwise, None.
+        """
         value = data.get(name)
         if value:
             return value.split(",")
@@ -495,6 +528,21 @@ class AutocompleteMixin:
     url_name = "%s:autocomplete"
 
     def __init__(self, field, admin_site, attrs=None, choices=(), using=None):
+        """
+        Initializes an instance of the class, setting up the necessary attributes for administration site functionality.
+
+        The initialization process involves setting the field to be managed, the administering site, and optional attributes such as choices and database usage.
+
+        Parameters
+        ----------
+        field : The field to be managed by the class instance.
+        admin_site : The administrative site where the class instance will be used.
+        attrs : Optional; a dictionary of additional attributes to be applied to the class instance. Defaults to an empty dictionary if not provided.
+        choices : Optional; a tuple of choices to be used in the class instance. Defaults to an empty tuple if not provided.
+        using : Optional; the database to be used by the class instance. Defaults to None if not provided.
+
+        The instance's attributes include the specified field, administering site, database, choices, and additional attributes, as well as the internationalization name determined by the select2 language.
+        """
         self.field = field
         self.admin_site = admin_site
         self.db = using

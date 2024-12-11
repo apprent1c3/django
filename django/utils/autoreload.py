@@ -449,6 +449,21 @@ class WatchmanReloader(BaseReloader):
         # inside watch_glob() and watch_dir() is expensive, instead this could
         # could fall back to the StatReloader if this case is detected? For
         # now, watching its parent, if possible, is sufficient.
+        """
+
+        Sets up a watch on the specified root directory using the Watchman client.
+
+        The function first checks if the root directory exists, and if not, it falls back to watching the parent directory.
+        If neither the root nor its parent directory exist, a warning is logged and the function returns without setting up a watch.
+
+        The function then queries the Watchman client to set up the watch and logs any warnings or debug information received from the client.
+        The result of the watch setup, including the watch ID and relative path, is returned as a tuple.
+
+        :param root: The root directory to watch
+        :rtype: tuple
+        :return: A tuple containing the watch ID and relative path
+
+        """
         if not root.exists():
             if not root.parent.exists():
                 logger.warning(
@@ -608,6 +623,15 @@ class WatchmanReloader(BaseReloader):
             time.sleep(0.1)
 
     def stop(self):
+        """
+
+        Stops the current operation and releases resources.
+
+        Closes the client connection and then calls the parent class's stop method 
+        to ensure a clean shutdown of the object. This method should be called 
+        when the object is no longer needed to free up system resources.
+
+        """
         self.client.close()
         super().stop()
 

@@ -340,6 +340,30 @@ class DatabaseOperations(BaseDatabaseOperations):
         else:
 
             def converter(value, expression, connection):
+                """
+                Converts a given value to a decimal object if it is not None.
+
+                This function takes in three parameters: the value to be converted, an expression, 
+                and a connection. It returns a decimal object if the provided value is not None.
+
+                The function effectively handles the conversion by wrapping the value in a decimal 
+                object, providing a standardized representation for further processing or storage.
+
+                Parameters
+                ----------
+                value : object
+                    The value to be converted to a decimal object.
+                expression : object
+                    An expression that may be used to determine the conversion (not used in this implementation).
+                connection : object
+                    A connection object that may be utilized for database operations or other connectivity purposes (not used in this implementation).
+
+                Returns
+                -------
+                object
+                    A decimal object representing the input value if it is not None, otherwise None is not returned, but this should be reviewed for potential inconsistencies.
+
+                """
                 if value is not None:
                     return create_decimal(value)
 

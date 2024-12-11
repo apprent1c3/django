@@ -79,6 +79,15 @@ class SessionStore(SessionBase):
             return
 
     async def acreate(self):
+        """
+        Creates a new session asynchronously, retrying until successful.
+
+        This method generates a new session key and attempts to save it. If the save operation fails due to a CreateError, it retries the process with a new session key. Once a successful save is achieved, the modified flag is set to True, indicating that changes have been made to the session. The method returns after a successful creation.
+
+        :raises: None explicitly, but may propagate CreateError exceptions during the creation process.
+        :returns: None
+        :rtype: None
+        """
         while True:
             self._session_key = await self._aget_new_session_key()
             try:

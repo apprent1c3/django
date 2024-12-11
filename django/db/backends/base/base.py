@@ -261,6 +261,11 @@ class BaseDatabaseWrapper:
         self.run_on_commit = []
 
     def check_settings(self):
+        """
+        Checks the database connection settings to ensure consistency with Django's timezone configuration.
+
+        Raises an :exc:`ImproperlyConfigured` exception if the TIME_ZONE is set for the connection but USE_TZ is False, as this combination is not supported.
+        """
         if self.settings_dict["TIME_ZONE"] is not None and not settings.USE_TZ:
             raise ImproperlyConfigured(
                 "Connection '%s' cannot set TIME_ZONE because USE_TZ is False."
@@ -303,6 +308,16 @@ class BaseDatabaseWrapper:
                 return self.connection.commit()
 
     def _rollback(self):
+        """
+
+        Rolls back the current database transaction.
+
+        This method releases all database changes made since the last commit, returning the database to its previous state.
+        It is only applicable if a database connection is established.
+
+        Note: This operation is wrapped in a debug transaction context for logging and error tracking purposes.
+
+        """
         if self.connection is not None:
             with debug_transaction(self, "ROLLBACK"), self.wrap_database_errors:
                 return self.connection.rollback()
@@ -367,6 +382,17 @@ class BaseDatabaseWrapper:
             cursor.execute(self.ops.savepoint_create_sql(sid))
 
     def _savepoint_rollback(self, sid):
+        """
+        Rolls back to a previously defined savepoint.
+
+        This method undoes all changes made after the specified savepoint,
+        allowing the database to return to a previous state. The savepoint
+        is identified by the provided savepoint ID (sid).
+
+        :arg sid: The ID of the savepoint to roll back to.
+        :raises: DatabaseError if the savepoint does not exist or the rollback fails.
+
+        """
         with self.cursor() as cursor:
             cursor.execute(self.ops.savepoint_rollback_sql(sid))
 

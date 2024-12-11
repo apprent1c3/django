@@ -95,6 +95,19 @@ class RedisCacheClient:
             return bool(client.set(key, value, ex=timeout, nx=True))
 
     def get(self, key, default):
+        """
+
+        Retrieve a value from the storage by its key.
+
+        This method attempts to fetch a value associated with the given key. If the key
+        is not found, it returns the specified default value. Otherwise, it deserializes
+        the stored value and returns it.
+
+        :param key: The key to look up in the storage.
+        :param default: The value to return if the key is not found.
+        :return: The deserialized value associated with the key, or the default value if not found.
+
+        """
         client = self.get_client(key)
         value = client.get(key)
         return default if value is None else self._serializer.loads(value)

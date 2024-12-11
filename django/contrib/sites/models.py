@@ -26,6 +26,13 @@ class SiteManager(models.Manager):
     use_in_migrations = True
 
     def _get_site_by_id(self, site_id):
+        """
+        Retrieves a site object by its unique identifier, utilizing a cache to minimize unnecessary database queries.
+
+        :param site_id: The ID of the site to retrieve
+        :return: The site object associated with the given ID, cached for future lookups
+        :rtype: Site object
+        """
         if site_id not in SITE_CACHE:
             site = self.get(pk=site_id)
             SITE_CACHE[site_id] = site

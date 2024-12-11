@@ -64,6 +64,16 @@ class UpdateQuery(Query):
         self.related_updates = {}
 
     def clone(self):
+        """
+        Clone the current object, creating a new copy with its own independent state.
+
+        The cloned object will have the same attributes as the original, and its own copy of related updates.
+        This allows for modifications to the cloned object without affecting the original object.
+
+        Returns:
+            The cloned object.
+
+        """
         obj = super().clone()
         obj.related_updates = self.related_updates.copy()
         return obj

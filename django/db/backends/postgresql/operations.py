@@ -356,6 +356,28 @@ class DatabaseOperations(BaseDatabaseOperations):
         return Jsonb(value, dumps=get_json_dumps(encoder))
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+
+        Subtract two temporal values.
+
+        This method is used to subtract a temporal value from another, resulting in an interval.
+        It currently supports subtraction of dates, returning the difference in days.
+
+        Parameters
+        ----------
+        internal_type : str
+            The type of temporal field being operated on.
+        lhs : tuple
+            The left-hand side of the subtraction operation, containing the SQL expression and parameters.
+        rhs : tuple
+            The right-hand side of the subtraction operation, containing the SQL expression and parameters.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the SQL expression for the subtraction operation and the parameters required to execute it.
+
+        """
         if internal_type == "DateField":
             lhs_sql, lhs_params = lhs
             rhs_sql, rhs_params = rhs

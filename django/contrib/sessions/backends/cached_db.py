@@ -104,6 +104,18 @@ class SessionStore(DBStore):
             logger.exception("Error saving to cache (%s)", self._cache)
 
     def delete(self, session_key=None):
+        """
+        Deletes the current object from the session and cache.
+
+        If a session key is provided, it is used to identify the object to delete.
+        Otherwise, the session key associated with the current object is used.
+        If no session key is associated with the current object, the deletion is skipped.
+
+        The object is removed from both the session and the cache, using the cache key
+        prefix and session key to locate the cached item to delete. This ensures that
+        any cached data associated with the object is also removed, helping to maintain
+        data consistency and prevent stale cache entries.
+        """
         super().delete(session_key)
         if session_key is None:
             if self.session_key is None:

@@ -345,6 +345,14 @@ def _lazy_re_compile(regex, flags=0):
 
     def _compile():
         # Compile the regex if it was not passed pre-compiled.
+        """
+        ophile
+        This function compiles a regular expression into a pattern object.
+
+        It accepts a regular expression in either a string or pre-compiled form and returns a compiled pattern object.
+        If the regular expression is passed as a string, it is compiled with specified flags.
+        If the regular expression is already compiled, it is returned directly, with the requirement that no flags are provided.
+        """
         if isinstance(regex, (str, bytes)):
             return re.compile(regex, flags)
         else:

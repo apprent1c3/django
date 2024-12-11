@@ -41,6 +41,17 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")
     def test_stdin_read(self, select):
+        """
+
+        Test the Django shell command by simulating user input from stdin and verifying the output.
+
+        This test case checks that the Django shell correctly executes Python code provided through standard input. 
+        It does this by writing a Python expression to stdin, then calling the shell command and capturing its output.
+        The test passes if the output matches the expected result of the expression.
+
+        Note: This test is skipped on Windows platforms because the select function does not support file descriptors on Windows.
+
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write("print(100)\n")
             stdin.seek(0)

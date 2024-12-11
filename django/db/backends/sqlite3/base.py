@@ -251,6 +251,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return not bool(enabled)
 
     def enable_constraint_checking(self):
+        """
+        Enable constraint checking for the database connection.
+
+        This method activates foreign key constraint checking, ensuring that relationships between tables are validated according to the defined schema. It helps maintain data consistency by preventing actions that would violate these constraints.
+
+        Once enabled, the database will enforce foreign key constraints for all subsequent operations, including inserts, updates, and deletes. This provides an additional layer of data integrity protection.
+
+        Note that constraint checking is disabled by default for performance reasons. It is recommended to enable it during development and testing to catch potential issues early, and carefully consider its use in production environments based on specific requirements and performance considerations.
+        """
         with self.cursor() as cursor:
             cursor.execute("PRAGMA foreign_keys = ON")
 

@@ -434,6 +434,30 @@ def ngettext(singular, plural, number):
 
 
 def npgettext(context, singular, plural, number):
+    """
+
+    Translate a string with plural form support, taking into account the context.
+
+    This function allows for more precise translations, especially in cases where the same word has different translations 
+    depending on the context, and the number of items.
+
+    Parameters
+    ----------
+    context : str
+        The context in which the word is being used, which can affect its translation.
+    singular : str
+        The singular form of the word to be translated.
+    plural : str
+        The plural form of the word to be translated.
+    number : int
+        The number of items, which determines whether the singular or plural form is used.
+
+    Returns
+    -------
+    str
+        The translated string, either in singular or plural form, taking into account the context.
+
+    """
     msgs_with_ctxt = (
         "%s%s%s" % (context, CONTEXT_SEPARATOR, singular),
         "%s%s%s" % (context, CONTEXT_SEPARATOR, plural),

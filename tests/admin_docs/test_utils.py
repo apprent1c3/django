@@ -98,6 +98,11 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(parse_rst("`title`", "tag"), markup % "tags/#title")
 
     def test_parse_rst_with_docstring_no_leading_line_feed(self):
+        """
+        Tests the functionality of parsing a reStructuredText (RST) string with a docstring that does not have a leading line feed.
+
+        The test case verifies that the `parse_docstring` function correctly splits the docstring into a title and a body. It then checks that the `parse_rst` function properly converts these components into HTML paragraphs, ensuring correct parsing and no errors are reported to the standard error stream.
+        """
         title, body, _ = parse_docstring("firstline\n\n    second line")
         with captured_stderr() as stderr:
             self.assertEqual(parse_rst(title, ""), "<p>firstline</p>\n")

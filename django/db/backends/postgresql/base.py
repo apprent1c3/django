@@ -30,6 +30,16 @@ except ImportError:
 
 
 def psycopg_version():
+    """
+    Return the PostgreSQL database adapter version as a tuple.
+
+    This function retrieves the version of the PostgreSQL database adapter 
+    that is currently in use and returns it as a tuple of integers, 
+    representing the major, minor, and patch versions respectively.
+
+    :returns: A tuple representing the PostgreSQL database adapter version
+    :rtype: tuple
+    """
     version = Database.__version__.split(" ", 1)[0]
     return get_version_tuple(version)
 
@@ -81,6 +91,19 @@ from .schema import DatabaseSchemaEditor  # NOQA isort:skip
 
 
 def _get_varchar_column(data):
+    """
+    .. function:: _get_varchar_column(data)
+       :return: str
+
+       Returns the SQL type for a varchar column based on the provided data.
+
+       The function determines whether a length specification is required, returning
+       'varchar' if no maximum length is specified, or 'varchar(max_length)' if a
+       maximum length is provided. 
+
+       :param data: A dictionary containing information about the column, including
+          'max_length'.
+    """
     if data["max_length"] is None:
         return "varchar"
     return "varchar(%(max_length)s)" % data

@@ -678,6 +678,14 @@ class ResolverTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.reverse_lazy_urls")
 class ReverseLazyTest(TestCase):
     def test_redirect_with_lazy_reverse(self):
+        """
+        #: Tests that a redirect view correctly redirects the user to the expected URL.
+        #: 
+        #: This test checks that when a request is made to '/redirect/', 
+        #: the user is redirected to '/redirected_to/' with a 302 status code, 
+        #: which indicates a temporary redirect. It verifies the functionality 
+        #: of the redirect view and ensures it behaves as expected in a typical use case.
+        """
         response = self.client.get("/redirect/")
         self.assertRedirects(response, "/redirected_to/", status_code=302)
 
@@ -1337,6 +1345,22 @@ class NamespaceTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF=urlconf_outer.__name__)
 class RequestURLconfTests(SimpleTestCase):
     def test_urlconf(self):
+        """
+
+        Tests the URL configuration.
+
+        This test case verifies that the URL patterns are correctly resolved and
+        that the corresponding views return the expected responses.
+
+        It checks the following scenarios:
+        - A successful GET request to the '/test/me/' URL returns a 200 status code
+          and the expected content.
+        - A successful GET request to the '/inner_urlconf/second_test/' URL returns a 200 status code.
+        - A GET request to the '/second_test/' URL returns a 404 status code, as expected.
+
+        The test ensures that the URL configuration is properly set up and that the
+        views are correctly mapped to their respective URLs.
+        """
         response = self.client.get("/test/me/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(

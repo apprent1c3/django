@@ -203,6 +203,19 @@ class ModelInheritanceTest(TestCase):
         # Regression test for #7276: calling delete() on a model with
         # multi-table inheritance should delete the associated rows from any
         # ancestor tables, as well as any descendent objects.
+        """
+
+        Tests the behavior of Django model inheritance when a child model instance is deleted,
+        verifying that the associated parent model instances remain intact until all child instances are removed.
+
+        This test case covers the following scenarios:
+        - Creating instances of parent and child models in a multi-level inheritance hierarchy.
+        - Saving these instances to the database.
+        - Retrieving a child model instance using its ID and verifying that it corresponds to the expected parent model instance.
+        - Creating and deleting instances of a sibling child model to test the effect on the parent model instance.
+        - Attempting to retrieve a parent model instance after its last child instance has been deleted, expecting it to no longer exist.
+
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -429,6 +442,19 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(InternalCertificationAudit._meta.verbose_name_plural, "Audits")
 
     def test_inherited_nullable_exclude(self):
+        """
+        Tests the exclusion of inherited nullable fields in queries.
+
+        This test case verifies that objects can be excluded from querysets based on 
+        inherited nullable fields. Specifically, it checks that a 'SelfRefChild' object 
+        is correctly excluded from 'SelfRefParent' and 'SelfRefChild' querysets when 
+        filtered on a nullable field that does not match the specified value.
+
+        The test creates a 'SelfRefChild' object and then asserts that this object is 
+        returned in querysets that exclude a specific value (in this case, 72) for the 
+        inherited nullable field 'self_data'. The test covers both the parent and child 
+        models, ensuring that the exclusion works correctly in both cases.
+        """
         obj = SelfRefChild.objects.create(child_data=37, parent_data=42)
         self.assertQuerySetEqual(
             SelfRefParent.objects.exclude(self_data=72), [obj.pk], attrgetter("pk")
@@ -546,6 +572,11 @@ class ModelInheritanceTest(TestCase):
         )
 
     def test_ptr_accessor_assigns_state(self):
+        """
+        Tests the behavior of the ptr accessor, specifically verifying that it assigns the correct state to the related object. 
+
+        This test case checks that the state of the related object is correctly updated when a new restaurant object is created, ensuring that the state is not adding and the database is set to the default database.
+        """
         r = Restaurant.objects.create()
         self.assertIs(r.place_ptr._state.adding, False)
         self.assertEqual(r.place_ptr._state.db, "default")

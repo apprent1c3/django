@@ -30,6 +30,18 @@ class Command(BaseCommand):
 
     @cached_property
     def local(self):
+        """
+
+        Indicates whether the instance has a local storage path.
+
+        This property checks if the storage object has a `path` method that can be invoked without raising a `NotImplementedError`.
+        If the method can be called successfully, it returns `True`, indicating that the instance has a local storage path.
+        Otherwise, it returns `False`.
+
+        :return: `True` if the instance has a local storage path, `False` otherwise.
+        :type: bool
+
+        """
         try:
             self.storage.path("")
         except NotImplementedError:

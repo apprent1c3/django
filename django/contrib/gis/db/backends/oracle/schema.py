@@ -41,6 +41,19 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         return super().quote_value(value)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        Generates the SQL column definition for a given model field, handling geometry fields specially.
+
+        This function extends the basic column SQL generation by adding metadata and spatial indexes for geometry fields.
+        It takes into account the field's extent, tolerance, and SRID when generating the geometry metadata.
+        If a spatial index is required, it also appends the necessary SQL to create the index.
+
+        :param model: The Django model containing the field.
+        :param field: The model field to generate the SQL column definition for.
+        :param include_default: Whether to include the default value in the generated SQL.
+        :returns: The generated SQL column definition.
+
+        """
         column_sql = super().column_sql(model, field, include_default)
         if isinstance(field, GeometryField):
             db_table = model._meta.db_table

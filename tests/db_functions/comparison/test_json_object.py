@@ -24,6 +24,14 @@ class JSONObjectTests(TestCase):
         self.assertEqual(obj.json_object, {})
 
     def test_basic(self):
+        """
+
+        Tests the basic functionality of annotating a model instance with a JSON object.
+
+        Verifies that the annotated JSON object is correctly populated with the expected data.
+        In this case, it checks that the 'name' field of the annotated JSON object matches the name of the retrieved Author instance.
+
+        """
         obj = Author.objects.annotate(json_object=JSONObject(name="name")).first()
         self.assertEqual(obj.json_object, {"name": "Ivan Ivanov"})
 
@@ -100,6 +108,11 @@ class JSONObjectTests(TestCase):
         self.assertQuerySetEqual(qs, Author.objects.order_by("alias"))
 
     def test_order_by_nested_key(self):
+        """
+        Orders a queryset of Author objects by a nested key in descending order, testing that the annotated JSONObject correctly sorts the results.
+
+        This function ensures that the order_by functionality works as expected when accessing nested keys within a JSONObject, by comparing the sorted results with the expected output.
+        """
         qs = Author.objects.annotate(
             attrs=JSONObject(nested=JSONObject(alias=F("alias")))
         ).order_by("-attrs__nested__alias")

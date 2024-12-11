@@ -35,6 +35,13 @@ class ReadOnlyPasswordHashWidget(forms.Widget):
     read_only = True
 
     def get_context(self, name, value, attrs):
+        """
+        Returns a dictionary containing context data for displaying a password field.
+        The returned context includes a summary of the password, which may contain information such as the hashing algorithm used and other password characteristics.
+        If the password is empty or in an unusable format, the summary will indicate this instead.
+        The context also includes a label for a button that can be used to reset or set the password, depending on whether the password is currently set.
+        This function is typically used to generate context for a Django form field that displays a password.
+        """
         context = super().get_context(name, value, attrs)
         usable_password = value and not value.startswith(UNUSABLE_PASSWORD_PREFIX)
         summary = []
@@ -111,6 +118,18 @@ class SetPasswordMixin:
 
     @staticmethod
     def create_password_fields(label1=_("Password"), label2=_("Password confirmation")):
+        """
+        Returns a tuple of two form fields for entering and confirming a password.
+
+        The fields are created with password input widgets and have help text to guide the user
+        in entering a valid password. The first field includes a list of password validation rules
+        in its help text, while the second field prompts the user to enter the same password again
+        for verification.
+
+        :arg label1: The label for the password field (default: 'Password')
+        :arg label2: The label for the password confirmation field (default: 'Password confirmation')
+        :returns: A tuple of two form fields for password entry and confirmation
+        """
         password1 = forms.CharField(
             label=label1,
             required=False,
@@ -322,6 +341,18 @@ class AuthenticationForm(forms.Form):
             self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
     def clean(self):
+        """
+        Performs cleaning and validation of user login credentials.
+
+        This method checks if the provided username and password are valid by attempting to
+        authenticate the user. If authentication fails, it raises an invalid login error.
+        If authentication is successful, it verifies that the user is allowed to log in and
+        caches the authenticated user object.
+
+        Returns:
+            dict: The cleaned and validated form data, including the username and password.
+
+        """
         username = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
 

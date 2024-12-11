@@ -194,6 +194,20 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
                 )
 
     def test_to_field_resolution_with_fk_pk(self):
+        """
+
+        Tests the functionality of autocomplete view's field resolution 
+        with a foreign key and primary key relationship.
+
+        Verifies that when a query term is passed to the autocomplete view,
+        it correctly resolves the field and returns a list of matching results.
+        The results are expected to be in JSON format, containing the id and text of the matched object.
+
+        In this test case, a parent and child object are created, and a query term is passed to the 
+        autocomplete view to test if it correctly resolves the child object based on the query term.
+        The response status code and data are then asserted to ensure the view functions as expected.
+
+        """
         p = Parent.objects.create(name="Bertie")
         c = PKChild.objects.create(parent=p, name="Anna")
         opts = {
@@ -411,6 +425,22 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @contextmanager
     def select2_ajax_wait(self, timeout=10):
+        """
+
+        Context manager to wait for Select2 AJAX loading to complete.
+
+        This context manager will wait for the loading indicator of a Select2 AJAX dropdown to disappear after the context is exited.
+        It uses an implicit wait to poll the page for the staleness of the loading element, indicating the loading process has finished.
+
+        It can be used to ensure that subsequent actions are not executed until the loading of options has completed, preventing potential issues with interacting with the dropdown before it's fully loaded.
+
+        The wait timeout can be customized using the `timeout` parameter, which defaults to 10 seconds.
+
+        Example usage:
+            with select2_ajax_wait():
+                # perform action that triggers Select2 AJAX loading
+
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec

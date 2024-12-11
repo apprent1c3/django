@@ -46,6 +46,19 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.big_exp, math.exp(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation functionality of the Exp lookup on DecimalField.
+
+        This test case verifies that the Exp lookup correctly filters DecimalModel instances 
+        based on the exponential value of the 'n1' field. It creates test data with different 
+        values of 'n1' and checks that only the instance with 'n1' greater than 10^10 is 
+        retrieved.
+
+        The test ensures that the Exp lookup is registered and applied correctly, 
+        returning the expected result.
+
+        """
         with register_lookup(DecimalField, Exp):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

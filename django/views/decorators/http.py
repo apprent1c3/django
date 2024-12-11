@@ -31,6 +31,23 @@ def require_http_methods(request_method_list):
     """
 
     def decorator(func):
+        """
+
+        Checks if the incoming request method is allowed, and if so, calls the decorated function.
+
+        This decorator will block the execution of the decorated function if the request 
+        method is not in the list of allowed methods defined in :data:`request_method_list`. 
+        Instead, it returns an HttpResponseNotAllowed response with the allowed methods.
+
+        For coroutine functions, this decorator ensures the inner function is also asynchronous.
+        For non-coroutine functions, the inner function remains synchronous.
+
+        The decorator logs the 'Method Not Allowed' response if the request method is not allowed.
+
+        :param func: The function to be decorated.
+        :rtype: function
+
+        """
         if iscoroutinefunction(func):
 
             @wraps(func)

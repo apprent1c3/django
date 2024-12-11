@@ -77,6 +77,13 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_path_lookup_with_extra_kwarg(self):
+        """
+        Tests the path lookup functionality with an extra keyword argument.
+
+        This test case verifies that the resolve function correctly handles URLs with additional keyword arguments.
+        It checks that the resolved match object contains the expected URL name, arguments, keyword arguments, route, and captured and extra keyword arguments.
+        The test ensures that the resolve function can successfully parse URLs with extra keyword arguments and store them in the match object for further processing.
+        """
         match = resolve("/books/2007/")
         self.assertEqual(match.url_name, "books-2007")
         self.assertEqual(match.args, ())
@@ -159,6 +166,24 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_resolve(self):
+        """
+        Tests the converter's URL resolution functionality.
+
+        This test iterates over a set of predefined URL test data, resolving each URL
+        and verifying that the resulting match contains the expected URL name, application
+        name, and keyword arguments. The test ensures that the converter correctly maps
+        URLs to their corresponding views and arguments.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the resolved URL match does not match the expected values.
+
+        """
         for url, (url_name, app_name, kwargs) in converter_test_data:
             with self.subTest(url=url):
                 match = resolve(url)
@@ -233,6 +258,15 @@ class SimplifiedURLTests(SimpleTestCase):
             REGISTERED_CONVERTERS.pop("base64", None)
 
     def test_invalid_view(self):
+        """
+        Tests that an invalid view raises a TypeError when passed to the path function.
+
+        This test case ensures that a ValueError is not raised and instead the specific 
+        TypeError with a meaningful message is raised when the view is not a callable or 
+        a list/tuple, as expected by the include function.
+
+        :raises: TypeError if the view is not a valid callable or a list/tuple
+        """
         msg = "view must be a callable or a list/tuple in the case of include()."
         with self.assertRaisesMessage(TypeError, msg):
             path("articles/", "invalid_view")
@@ -306,6 +340,15 @@ class ConverterTests(SimpleTestCase):
                         )
 
     def test_nonmatching_urls(self):
+        """
+
+        Tests that non-matching URLs raise a Resolver404 exception.
+
+        This function iterates over a set of predefined test data, which includes different URL patterns and suffixes.
+        For each combination, it constructs a URL and attempts to resolve it, expecting a Resolver404 exception to be raised.
+        The test data covers various URL types, including integer, string, path, slug, and UUID, with invalid or empty suffixes.
+
+        """
         test_data = (
             ("int", {"-1", "letters"}),
             ("str", {"", "/"}),
@@ -335,6 +378,20 @@ class SameNameTests(SimpleTestCase):
     def test_matching_urls_same_name(self):
         @DynamicConverter.register_to_url
         def requires_tiny_int(value):
+            """
+
+            Represents a custom converter that checks if an input value is a tiny integer.
+
+            This converter ensures the input value is less than or equal to 5. If the value exceeds this limit,
+            it raises a ValueError, indicating that the value is not a tiny integer.
+
+            The purpose of this converter is to validate input values against a specific range constraint, 
+            providing a way to enforce data integrity in certain contexts, such as URL generation.
+
+            :return: The input value if it is a tiny integer.
+            :raise ValueError: If the input value is greater than 5.
+
+            """
             if value > 5:
                 raise ValueError
             return value

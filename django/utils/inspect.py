@@ -4,6 +4,23 @@ import inspect
 
 @functools.lru_cache(maxsize=512)
 def _get_func_parameters(func, remove_first):
+    """
+
+    Retrieves the parameters of a given function.
+
+    This function uses the inspect module to extract the parameters from the function's signature.
+    It returns the parameters as a tuple of Parameter objects.
+
+    By default, it returns all parameters. If `remove_first` is True, the first parameter (usually 'self') is excluded from the result.
+
+    The result is cached to improve performance, with a maximum cache size of 512 entries.
+
+    :arg func: The function to extract parameters from
+    :arg remove_first: Whether to exclude the first parameter from the result
+    :return: A tuple of Parameter objects
+    :rtype: tuple
+
+    """
     parameters = tuple(inspect.signature(func).parameters.values())
     if remove_first:
         parameters = parameters[1:]

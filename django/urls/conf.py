@@ -60,6 +60,23 @@ def include(arg, namespace=None):
 
 
 def _path(route, view, kwargs=None, name=None, Pattern=None):
+    """
+
+    Returns a URL pattern or resolver based on the provided route and view.
+
+    The function takes in a route, a view, and optional keyword arguments, name, and Pattern.
+    It handles different types of views, including callables, lists/tuples for URL includes, and Django view classes.
+
+    If the view is a callable, it returns a URL pattern.
+    If the view is a list or tuple, it returns a URL resolver, which is used to include other URL configurations.
+    If the view is a Django view class instance, it raises an error, as the class must be passed as a callable.
+
+    The function also validates the type of the kwargs argument, ensuring it is a dictionary.
+
+    Raises:
+        TypeError: If the kwargs argument is not a dictionary, or if the view is not a callable or a list/tuple.
+
+    """
     from django.views import View
 
     if kwargs is not None and not isinstance(kwargs, dict):

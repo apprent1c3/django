@@ -235,6 +235,16 @@ class PasswordResetTest(AuthViewsTestCase):
 
     def _test_confirm_start(self):
         # Start by creating the email
+        """
+        Tests the confirmation of a password reset by sending an email to a staff member.
+
+        This function simulates a password reset request for a staff member, verifies that
+        an email is sent, and returns the content of the email for further processing.
+
+        :param None:
+        :returns: The content of the email sent to the staff member.
+        :rtype: str
+        """
         self.client.post("/password_reset/", {"email": "staffmember@example.com"})
         self.assertEqual(len(mail.outbox), 1)
         return self._read_signup_email(mail.outbox[0])
@@ -321,6 +331,13 @@ class PasswordResetTest(AuthViewsTestCase):
         self.assertContains(response, "The password reset link was invalid")
 
     def test_confirm_different_passwords(self):
+        """
+        #: Tests the password confirmation process with mismatched passwords.
+        #:
+        #: Verifies that when a user attempts to confirm a new password, but enters two different passwords,
+        #: an error message is raised indicating that the passwords do not match.
+        #: This ensures the password confirmation process correctly enforces password matching.
+        """
         url, path = self._test_confirm_start()
         response = self.client.post(
             path, {"new_password1": "anewpassword", "new_password2": "x"}
@@ -502,6 +519,13 @@ class CustomUserPasswordResetTest(AuthViewsTestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a CustomUser instance with predefined attributes.
+
+        This method creates a user with a specific email address and date of birth, sets their password, and saves the user to the database. The created user is stored as a class attribute, making it available for use in subsequent tests.
+
+        The purpose of this setup is to provide a consistent and predictable environment for testing, allowing tests to focus on specific functionality without worrying about the underlying data. The user created here can be used as a test subject, enabling tests to verify the behavior of the system under various scenarios. 
+        """
         cls.u1 = CustomUser.custom_objects.create(
             email="staffmember@example.com",
             date_of_birth=datetime.date(1976, 11, 8),
@@ -741,6 +765,19 @@ class SessionAuthenticationTests(AuthViewsTestCase):
 
 class LoginTest(AuthViewsTestCase):
     def test_current_site_in_context_after_login(self):
+        """
+
+        Tests that the current site is correctly included in the context after a user attempts to log in.
+
+        Verifies that the login view returns a successful response (200 status code) and that the site
+        information is present in the response context. If the 'django.contrib.sites' app is installed,
+        it checks that the site object from the database is used. Otherwise, it checks that a
+        RequestSite instance is used.
+
+        Additionally, it ensures that the AuthenticationForm instance is correctly included in the
+        response context.
+
+        """
         response = self.client.get(reverse("login"))
         self.assertEqual(response.status_code, 200)
         if apps.is_installed("django.contrib.sites"):
@@ -1085,6 +1122,15 @@ class LogoutThenLoginTests(AuthViewsTestCase):
 
     @override_settings(LOGIN_URL="/login/")
     def test_default_logout_then_login_get(self):
+        """
+
+        Test that the default logout_then_login view returns a 405 status code when accessed via a GET request.
+
+        This test simulates a GET request to the logout_then_login view after a user has logged in, 
+        verifying that the view correctly responds with a 405 status code (Method Not Allowed) 
+        instead of performing the action, since this view should only be accessed via a POST request.
+
+        """
         self.login()
         req = HttpRequest()
         req.method = "GET"
@@ -1167,6 +1213,18 @@ class LoginRedirectAuthenticatedUser(AuthViewsTestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_permission_required_logged_in(self):
+        """
+
+        Tests the behavior of views that require permission when a user is logged in.
+
+        This test case covers the following scenarios:
+        - Redirect loop detection when a view redirects to a login page that itself requires login.
+        - Handling of permission exceptions when a logged-in user does not have the necessary permissions.
+        - Combination of login and permission checks in a single view.
+
+        Verifies that the system correctly identifies redirect loops, returns a 403 status code when permissions are insufficient, and handles these situations as expected when a user is already logged in.
+
+        """
         self.login()
         # Already logged in...
         with self.settings(LOGIN_URL=self.do_redirect_url):
@@ -1201,6 +1259,9 @@ class LoginSuccessURLAllowedHostsTest(AuthViewsTestCase):
         )
 
     def test_success_url_allowed_hosts_safe_host(self):
+        """
+        Tests that a successful login redirects to a URL specified in the 'next' parameter when the host is in ALLOWED_HOSTS, ensuring the safety of the redirect process by preventing potential redirect attacks to unauthorized domains. The function verifies that the user is logged in by checking for the presence of a session key and confirms the redirect to the specified URL without fetching the response from the target server.
+        """
         response = self.client.post(
             "/login/allowed_hosts/",
             {
@@ -1412,6 +1473,17 @@ class LogoutTest(AuthViewsTestCase):
 
     @override_settings(LOGOUT_REDIRECT_URL="logout")
     def test_logout_redirect_url_named_setting(self):
+        """
+        Tests that the logout redirect URL is correctly set when using the LOGOUT_REDIRECT_URL named setting.
+
+        Verifies that after a successful logout, the user is redirected to the URL specified in the LOGOUT_REDIRECT_URL setting and that the logout was successful.
+
+        The test case includes the following steps:
+            - Log in to the application
+            - Send a POST request to the logout URL
+            - Confirm that the user is logged out
+            - Verify the presence of a 'Logged out' message in the response
+        """
         self.login()
         response = self.client.post("/logout/")
         self.assertContains(response, "Logged out")

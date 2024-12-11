@@ -26,6 +26,15 @@ class Lookup(Expression):
     can_use_none_as_rhs = False
 
     def __init__(self, lhs, rhs):
+        """
+        Initializes a new instance of the class, setting up the left-hand side (LHS) and right-hand side (RHS) of an operation.
+
+        The LHS and RHS are first prepared by applying the :meth:`get_prep_lhs` and :meth:`get_prep_lookup` methods, respectively.
+
+        Additionally, this method checks if the LHS has bilateral transforms available, which are stored for potential use later.
+
+        If bilateral transforms are found, it also verifies that the RHS is not a nested queryset, as bilateral transformations on nested querysets are currently not supported.
+        """
         self.lhs, self.rhs = lhs, rhs
         self.rhs = self.get_prep_lookup()
         self.lhs = self.get_prep_lhs()
@@ -159,6 +168,17 @@ class Lookup(Expression):
         return self.__class__, self.lhs, self.rhs
 
     def __eq__(self, other):
+        """
+        Checks if the current Lookup object is equal to another object.
+
+        This method overrides the default equality behavior to compare two Lookup objects based on their unique identities. It returns True if the identities of the two objects are the same, and NotImplemented otherwise if the object being compared is not an instance of Lookup.
+
+         Args:
+            other: The object to compare with the current Lookup object.
+
+         Returns:
+            bool: Whether the current Lookup object is equal to the other object, or NotImplemented if the comparison is not supported.
+        """
         if not isinstance(other, Lookup):
             return NotImplemented
         return self.identity == other.identity
@@ -497,6 +517,29 @@ class In(FieldGetDbPrepValueIterableMixin, BuiltinLookup):
         return super().get_prep_lookup()
 
     def process_rhs(self, compiler, connection):
+        """
+
+        Processes the right-hand side (RHS) of a query expression.
+
+        This method checks if the RHS is a subquery and if so, verifies that it is executed 
+        on the same database as the current query. It then evaluates the RHS to a SQL 
+        expression and parameters.
+
+        If the RHS is a direct value or list of values, it converts the values to a set 
+        of SQL expressions and parameters, excluding any null values. The resulting 
+        expressions are combined into a single placeholder string.
+
+        If the RHS is neither a subquery nor a direct value, this method delegates to 
+        the superclass implementation.
+
+        Raises:
+            ValueError: If the RHS is a subquery executed on a different database.
+            EmptyResultSet: If the RHS is an empty set of values.
+        Returns:
+            A tuple containing the SQL placeholder string and parameters, or the result 
+            of the superclass implementation if the RHS is not a direct value.
+
+        """
         db_rhs = getattr(self.rhs, "_db", None)
         if db_rhs is not None and db_rhs != connection.alias:
             raise ValueError(
@@ -581,6 +624,18 @@ class PatternLookup(BuiltinLookup):
             return super().get_rhs_op(connection, rhs)
 
     def process_rhs(self, qn, connection):
+        """
+        Processes the right-hand side of a query, potentially modifying the parameters to support direct value matching.
+
+        This method overrides the default implementation to provide additional functionality when dealing with direct values and LIKE queries. If the right-hand side represents a direct value and no bilateral transformations are applied, it prepares the first parameter for a LIKE query using the database connection's operations.
+
+         Args:
+            qn: The query node being processed.
+            connection: The database connection used to prepare the query parameters.
+
+         Returns:
+            A tuple containing the processed right-hand side and the modified parameters.
+        """
         rhs, params = super().process_rhs(qn, connection)
         if self.rhs_is_direct_value() and params and not self.bilateral_transforms:
             params[0] = self.param_pattern % connection.ops.prep_for_like_query(
@@ -677,6 +732,17 @@ class IRegex(Regex):
 
 class YearLookup(Lookup):
     def year_lookup_bounds(self, connection, year):
+        """
+
+        Calculate the lookup bounds for a given year, taking into account the field type and whether ISO year is being extracted.
+
+        The function determines whether the field is a date or datetime field and then uses the database connection's operations to calculate the bounds for the specified year. It considers whether the year is an ISO year or not, and returns the resulting bounds.
+
+        :arg connection: The database connection to use for calculating the bounds
+        :arg year: The year for which to calculate the lookup bounds
+        :returns: The calculated lookup bounds for the given year
+
+        """
         from django.db.models.functions import ExtractIsoYear
 
         iso_year = isinstance(self.lhs, ExtractIsoYear)

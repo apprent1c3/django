@@ -21,6 +21,22 @@ class DatabaseSequenceTests(TransactionTestCase):
             self.assertEqual(seqs[0]["column"], "id")
 
     def test_get_sequences_manually_created_index(self):
+        """
+
+        Tests the manual creation of an index for a model's sequences.
+
+        This test case verifies that the database sequences are correctly retrieved 
+        and the sequence information matches the table and column names as expected. 
+        It also tests the deletion and recreation of the model to ensure the sequence 
+        is properly updated.
+
+        It checks the sequence information for the 'id' column of the Square model, 
+        and asserts that the retrieved sequence information matches the expected 
+        output. The test covers the following steps: dropping the identity column, 
+        retrieving the sequences, verifying the sequence information, deleting the 
+        model, and recreating the model.
+
+        """
         with connection.cursor() as cursor:
             with connection.schema_editor() as editor:
                 editor._drop_identity(Square._meta.db_table, "id")

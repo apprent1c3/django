@@ -320,6 +320,14 @@ class Query(BaseExpression):
 
     @property
     def output_field(self):
+        """
+        Returns the output field name associated with the select or annotation select operation.
+
+        If a single select operation is defined, the output field will be determined by its target attribute or the field name itself.
+        If no select operation is defined but a single annotation select operation exists, the output field will be obtained from the annotation select's output field.
+
+        This property provides a convenient way to access the output field name, simplifying further processing or reference to the output data.
+        """
         if len(self.select) == 1:
             select = self.select[0]
             return getattr(select, "target", None) or select.field
@@ -789,6 +797,18 @@ class Query(BaseExpression):
         self.extra_order_by = rhs.extra_order_by or self.extra_order_by
 
     def _get_defer_select_mask(self, opts, mask, select_mask=None):
+        """
+        :param opts: Model options
+        :param mask: Dictionary of fields and their corresponding masks
+        :param select_mask: Optional dictionary to store the resulting select mask
+        :returns: A dictionary representing the select mask for the given model
+
+        This function generates a select mask for a given model, taking into account the provided mask and model options. 
+        It recursively traverses the model's fields and relations, applying the masks and collecting the resulting select mask.
+        The function handles different types of fields, including non-relation fields, foreign key relations, and many-to-many relations.
+        It also accounts for filtered relations and uses them to determine the select mask for related models.
+        The resulting select mask can be used to optimize database queries by selecting only the required fields.
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}

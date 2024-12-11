@@ -1209,6 +1209,12 @@ class CharField(Field):
 
     @property
     def description(self):
+        """
+        Gets a human-readable description of the string, including its length constraint.
+
+        :returns: A string describing the type and length limit of the string, translated to the current locale.
+        :rtype: str
+        """
         if self.max_length is not None:
             return _("String (up to %(max_length)s)")
         else:
@@ -1223,6 +1229,20 @@ class CharField(Field):
         ]
 
     def _check_max_length_attribute(self, **kwargs):
+        """
+        Checks the 'max_length' attribute of a field to ensure it is properly configured.
+
+        This function verifies that the 'max_length' attribute is either set to a positive integer or is not required, 
+        depending on the underlying database's support for unlimited character fields. If the attribute is missing 
+        or has an invalid value, a corresponding error is raised.
+
+        The checks performed include:
+
+        * If the 'max_length' attribute is not set, it checks if the database supports unlimited character fields.
+        * If the 'max_length' attribute is set, it checks that the value is a positive integer.
+
+        Returns a list of errors if any issues are detected, otherwise returns an empty list.
+        """
         if self.max_length is None:
             if (
                 connection.features.supports_unlimited_charfield
@@ -1505,6 +1525,13 @@ class DateField(DateTimeCheckMixin, Field):
         )
 
     def pre_save(self, model_instance, add):
+        """
+        Sets the value of the associated field on the model instance before it is saved.
+
+        If the field is set to automatically update with the current date (``auto_now``), or if it's meant to store the date when the instance is first created (``auto_now_add`` and the instance is being added), then this function updates the field with the current date.
+
+        Otherwise, it defers to the default behavior for the field, allowing it to be saved as-is.
+        """
         if self.auto_now or (self.auto_now_add and add):
             value = datetime.date.today()
             setattr(model_instance, self.attname, value)
@@ -1795,6 +1822,13 @@ class DecimalField(Field):
         return decimal.Context(prec=self.max_digits)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, returning a tuple containing the object's name, path, positional arguments, and keyword arguments.
+
+        The deconstruction process includes any defined constraints, specifically the maximum number of digits and decimal places, if they have been set. These constraints are incorporated into the keyword arguments of the returned tuple.
+
+        This method is used to break down the object into a serializable form, allowing it to be easily reconstructed or compared with other objects. The returned tuple can be used to recreate the object with the same characteristics and constraints.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.max_digits is not None:
             kwargs["max_digits"] = self.max_digits
@@ -1828,6 +1862,19 @@ class DecimalField(Field):
         return decimal_value
 
     def get_db_prep_save(self, value, connection):
+        """
+        Returns the database-ready value for the given input, preparing it for saving.
+
+        This method adapts the input value for storage in the database, taking into account
+        the specific characteristics of the decimal field, such as the maximum number of digits
+        and the number of decimal places. If the input value is already a SQL expression,
+        it is returned as-is, otherwise it is converted to a suitable format using the
+        database connection's operations.
+
+        :param value: The value to be prepared for saving
+        :param connection: The database connection to use for adaptation
+        :return: The database-ready value
+        """
         if hasattr(value, "as_sql"):
             return value
         return connection.ops.adapt_decimalfield_value(
@@ -2038,6 +2085,14 @@ class FloatField(Field):
         return "FloatField"
 
     def to_python(self, value):
+        """
+        Converts a given value into a Python float.
+
+        :param value: The value to be converted.
+        :raises exceptions.ValidationError: If the value cannot be converted to a float.
+        :return: The converted float value, or None if the input value is None.
+        :note: Raises a ValidationError with error code 'invalid' if the conversion fails, providing the invalid value in the error parameters.
+        """
         if value is None:
             return value
         try:
@@ -2279,6 +2334,20 @@ class GenericIPAddressField(Field):
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Prepares the given IP address value for use in a database query.
+
+        This method takes a value, a database connection, and a prepared flag as input.
+        If the value is not already prepared, it is first converted to a suitable format
+        using :meth:`get_prep_value`. The resulting value is then adapted for use with
+        the given database connection.
+
+        :param value: The IP address value to prepare.
+        :param connection: The database connection to use.
+        :param prepared: Whether the value is already prepared.
+        :return: The prepared IP address value.
+
+        """
         if not prepared:
             value = self.get_prep_value(value)
         return connection.ops.adapt_ipaddressfield_value(value)
@@ -2445,6 +2514,13 @@ class TextField(Field):
     description = _("Text")
 
     def __init__(self, *args, db_collation=None, **kwargs):
+        """
+        Initializes an instance of the class, inheriting from its parent class and setting the database collation.
+
+        :param db_collation: Optional, specifies the database collation to use. If not provided, the default will be used.
+        :type db_collation: str or None
+        :note: Additional keyword arguments are passed to the parent class's initializer.
+        """
         super().__init__(*args, **kwargs)
         self.db_collation = db_collation
 
@@ -2507,6 +2583,13 @@ class TextField(Field):
         )
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts for serialization or other purposes.
+
+        The deconstruction process involves breaking down the object into its name, path, positional arguments, and keyword arguments. This function extends the deconstruction process of its parent class by including the database collation information, if available.
+
+        The function returns a tuple containing the name, path, positional arguments, and keyword arguments of the object, with the database collation included in the keyword arguments if it is set.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.db_collation:
             kwargs["db_collation"] = self.db_collation
@@ -2578,6 +2661,25 @@ class TimeField(DateTimeCheckMixin, Field):
         return "TimeField"
 
     def to_python(self, value):
+        """
+
+        Converts the given value into a Python datetime.time object.
+
+        If the input value is None, the function returns None. 
+        For datetime.time and datetime.datetime instances, it returns the time component.
+        For other types of input, the function attempts to parse the value into a time using a standard parsing mechanism.
+        If parsing fails, the function raises a ValidationError with a corresponding error message.
+
+        Args:
+            value: The input value to be converted into a datetime.time object.
+
+        Returns:
+            The converted datetime.time object, or None if the input is None.
+
+        Raises:
+            ValidationError: If the input value cannot be converted into a datetime.time object.
+
+        """
         if value is None:
             return None
         if isinstance(value, datetime.time):
@@ -2624,6 +2726,16 @@ class TimeField(DateTimeCheckMixin, Field):
         return connection.ops.adapt_timefield_value(value)
 
     def value_to_string(self, obj):
+        """
+        Converts an object's value to a string representation.
+
+        This method takes an object and extracts its value using the :meth:`value_from_object` method.
+        If the extracted value is None, an empty string is returned; otherwise, the value is formatted as an ISO string using the isoformat() method.
+
+        Returns:
+            str: The string representation of the object's value, or an empty string if the value is None.
+
+        """
         val = self.value_from_object(obj)
         return "" if val is None else val.isoformat()
 

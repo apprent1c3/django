@@ -182,6 +182,15 @@ class AtomicTests(TransactionTestCase):
         self.assertSequenceEqual(Reporter.objects.all(), [reporter])
 
     def test_reuse_rollback_commit(self):
+        """
+
+        Tests the reuse of atomic blocks within a transaction to ensure rollbacks occur correctly.
+
+        This test verifies that when an exception is raised within a nested atomic block,
+        the outer transaction is properly rolled back, ensuring database consistency.
+        The expected outcome is that no changes are committed to the database.
+
+        """
         atomic = transaction.atomic()
         with self.assertRaisesMessage(Exception, "Oops"):
             with atomic:
@@ -400,6 +409,9 @@ class AtomicMySQLTests(TransactionTestCase):
         main_thread_ready = threading.Event()
 
         def other_thread():
+            """
+            \".. acquires an exclusive lock on the reporter with id 1, waits for the main thread to signal readiness, and then updates all other reporters to have id 2, ensuring database consistency within a transaction, regardless of the outcome, the database connection is properly closed.\"
+            """
             try:
                 with transaction.atomic():
                     Reporter.objects.select_for_update().get(id=1)

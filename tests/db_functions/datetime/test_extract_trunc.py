@@ -214,6 +214,17 @@ class DateFunctionTests(TestCase):
                 self.assertGreaterEqual(str(qs.query).lower().count("extract"), 2)
 
     def test_extract_lookup_name_sql_injection(self):
+        """
+
+        Tests the extraction of the lookup name in a SQL query to prevent SQL injection attacks.
+
+        This test case checks if an attempt to inject malicious SQL code through the lookup name
+        raises an OperationalError or ValueError, indicating that the database is properly protected.
+
+        It covers scenarios where the date and time are provided in different orders and time zones,
+        verifying the robustness of the lookup name extraction mechanism.
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -365,6 +376,12 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_none(self):
+        """
+        Tests that extracting a value from a datetime or date field when the field is None results in None being returned.
+
+        This test covers extracting year from start_datetime and start_date fields, as well as extracting hour from start_time field, 
+        in cases where the respective fields are None. It verifies that the extracted value is None in all these cases.
+        """
         self.create_model(None, None)
         for t in (
             Extract("start_datetime", "year"),
@@ -420,6 +437,11 @@ class DateFunctionTests(TestCase):
             list(DTModel.objects.annotate(extracted=Extract("duration", "second")))
 
     def test_extract_duration_unsupported_lookups(self):
+        """
+        Tests the functionality of extracting duration components from a DurationField, specifically for unsupported lookups.
+
+        This function verifies that attempting to extract the year, iso_year, month, week, week_day, iso_week_day, or quarter components from a DurationField raises a ValueError with a descriptive error message, as these components are not valid for duration extraction.
+        """
         msg = "Cannot extract component '%s' from DurationField 'duration'."
         for lookup in (
             "year",
@@ -464,6 +486,26 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_iso_year_func(self):
+        """
+
+        Tests the extraction of ISO year from datetime and date fields.
+
+        This test case verifies the correct extraction of the ISO year from 
+        datetime and date fields using the ExtractIsoYear function. It covers 
+        different scenarios, including datetime objects with and without timezone 
+        information.
+
+        The test checks the following:
+
+        *   Extraction of the ISO year from the start_datetime field
+        *   Extraction of the ISO year from the start_date field
+        *   Filtering of objects based on the ISO year
+
+        The test ensures that the ExtractIsoYear function works correctly in 
+        different contexts, providing accurate results for datetime and date 
+        fields.
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -662,6 +704,13 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_quarter_func_boundaries(self):
+        """
+        .Tests the functionality of extracting quarter boundaries from datetime objects.
+
+        This test case creates model instances with specific start datetimes, then uses a database query to extract the quarter from each start datetime. 
+        The quarters are then compared against the expected values to verify correct extraction. 
+        The test covers both aware and naive datetime objects, depending on the USE_TZ setting.
+        """
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
             end_datetime = timezone.make_aware(end_datetime)
@@ -725,6 +774,24 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_weekday_func(self):
+        """
+        Tests the functionality of extracting the weekday from datetime fields.
+
+        Verifies that the ExtractWeekDay annotation correctly extracts the weekday
+        from both datetime and date fields. The test checks the extracted weekday
+        when ordering by the start datetime and when filtering by weekday.
+
+        It ensures that the correct weekday is extracted, considering the case where
+        the system is set to use timezone-aware datetimes or not.
+
+        The test also checks the correctness of the extraction when the start and end
+        datetimes are swapped.
+
+        The test covers the following scenarios:
+        - Extracting the weekday from a datetime field (start_datetime)
+        - Extracting the weekday from a date field (start_date)
+        - Filtering objects by the extracted weekday
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:

@@ -254,6 +254,13 @@ class IfChangedNode(Node):
     child_nodelists = ("nodelist_true", "nodelist_false")
 
     def __init__(self, nodelist_true, nodelist_false, *varlist):
+        """
+        Initializes an instance with conditional node lists and variable references.
+
+        :param nodelist_true: A list of nodes to process when the condition is true.
+        :param nodelist_false: A list of nodes to process when the condition is false.
+        :param varlist: Variable references used in the conditional processing.
+        """
         self.nodelist_true = nodelist_true
         self.nodelist_false = nodelist_false
         self._varlist = varlist
@@ -336,6 +343,24 @@ class LoremNode(Node):
         self.common = common
 
     def render(self, context):
+        """
+        Render a specified number of paragraphs or words.
+
+        This function generates text based on the provided context and configuration.
+        It attempts to resolve the desired count of text elements from the context,
+        defaulting to 1 if an invalid count is provided.
+
+        The method of text generation is determined by the 'method' attribute,
+        which can be either 'w' for words or 'p' for paragraphs. If 'w' is specified,
+        the function returns a string of words. If 'p' is specified, the function
+        returns a string of paragraphs wrapped in HTML paragraph tags.
+
+        The generated text is drawn from a common pool of text, which can be used
+        to influence the style and content of the output.
+
+        :param context: The context in which to resolve the desired count of text elements.
+        :return: A string of generated text, formatted according to the specified method.
+        """
         try:
             count = int(self.count.resolve(context))
         except (ValueError, TypeError):
@@ -1031,6 +1056,18 @@ def ifchanged(parser, token):
 
 
 def find_library(parser, name):
+    """
+    Retrieves a registered tag library by its name.
+
+    :param parser: The parser instance that manages the libraries.
+    :param name: The name of the library to find.
+
+    :raises TemplateSyntaxError: If the library is not registered.
+
+    :returns: The registered library if found.
+
+    :note: The function is case-sensitive and will raise an error if the library does not exist. The error message includes a list of all registered libraries for reference.
+    """
     try:
         return parser.libraries[name]
     except KeyError:

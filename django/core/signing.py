@@ -74,6 +74,15 @@ def b62_encode(s):
 
 
 def b62_decode(s):
+    """
+    Decode a Base62 encoded string into a decimal integer.
+
+    The function takes a string `s` as input and returns its decimal equivalent.
+    It supports negative numbers by checking for a leading minus sign and adjusting the result accordingly.
+    The decoding process uses a predefined Base62 alphabet to map each character in the input string to its corresponding decimal value.
+    If the input string is '0', the function returns 0 directly.
+    The result is then returned as a signed decimal integer.
+    """
     if s == "0":
         return 0
     sign = 1

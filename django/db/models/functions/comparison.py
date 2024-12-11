@@ -21,6 +21,22 @@ class Cast(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generates SQL for a SQLite database backend.
+
+        This method takes into account the database field type to determine the correct SQL syntax.
+        For datetime and time fields, it uses the strftime function with a format string that depends on the field type.
+        For date fields, it uses the date function.
+        Falls back to the parent class's as_sql method for other field types.
+
+         Args:
+             compiler: The SQL compiler to use.
+             connection: The database connection.
+             **extra_context: Additional context for the SQL generation.
+
+         Returns:
+             A tuple containing the generated SQL string and the parameters to use with it.
+        """
         db_type = self.output_field.db_type(connection)
         if db_type in {"datetime", "time"}:
             # Use strftime as datetime/time don't keep fractional seconds.
@@ -112,6 +128,15 @@ class Collate(Func):
     collation_re = _lazy_re_compile(r"^[\w-]+$")
 
     def __init__(self, expression, collation):
+        """
+        Initializes a new instance of the class, setting the collation and expression. 
+
+        The collation name must match a specific pattern, which is validated before assignment. If the collation name is invalid, a ValueError is raised. 
+
+        :param expression: The expression to be used for initialization.
+        :param collation: The name of the collation to be used, which must match a predefined pattern.
+        :raises ValueError: If the collation name is invalid.
+        """
         if not (collation and self.collation_re.match(collation)):
             raise ValueError("Invalid collation name: %r." % collation)
         self.collation = collation
@@ -207,6 +232,12 @@ class Least(Func):
     function = "LEAST"
 
     def __init__(self, *expressions, **extra):
+        """
+        Initializes a Least object, which requires at least two expressions to be instantiated. 
+        This class represents a mathematical or logical operation that takes a variable number of expressions and evaluates them according to certain rules.
+        The expressions are passed as positional arguments, and any additional keyword arguments are also accepted.
+        If fewer than two expressions are provided, a ValueError is raised to indicate that the minimum number of required expressions has not been met.
+        """
         if len(expressions) < 2:
             raise ValueError("Least must take at least two expressions")
         super().__init__(*expressions, **extra)

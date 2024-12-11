@@ -606,6 +606,13 @@ class QueryDict(MultiValueDict):
         return super().popitem()
 
     def clear(self):
+        """
+        Clears all elements from the object, effectively resetting it to its initial state.
+
+        This method ensures the object is in a mutable state before attempting to clear its contents, raising an assertion error if it is not.
+
+        Note that this method relies on the parent class's implementation of clearing, which is called after the mutability check.
+        """
         self._assert_mutable()
         super().clear()
 

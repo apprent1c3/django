@@ -215,6 +215,20 @@ class ConnectionRouter:
         return routers
 
     def _router_func(action):
+        """
+
+        Dynamically generated routing function for database selection.
+
+        This function returns a routing function that determines which database to use for a given model.
+        It iterates over a list of routers, calling the specified action method on each one, and returns
+        the database chosen by the first router that returns a non-empty value. If no router returns a 
+        non-empty value, it falls back to the database of an instance if one is provided, or a default 
+        database alias.
+
+        :param action: The name of the routing action to perform (e.g. 'db_for_read', 'db_for_write')
+        :returns: A routing function that takes a model, instance, and hints as input and returns the chosen database.
+
+        """
         def _route_db(self, model, **hints):
             chosen_db = None
             for router in self.routers:

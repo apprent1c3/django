@@ -87,6 +87,17 @@ class RangeField(models.Field):
         return "%s::{}".format(self.db_type(connection))
 
     def get_prep_value(self, value):
+        """
+        Returns a prepared value suitable for range-based operations.
+
+        The function takes an input value and converts it into a standard format.
+        It accepts None, Range objects, and tuples/lists with two elements, 
+        representing the lower and upper bounds of a range.
+        All other input values are returned unchanged.
+
+        The function is used to normalize and validate input data, ensuring 
+        consistent representation of ranges throughout the system.
+        """
         if value is None:
             return None
         elif isinstance(value, Range):
@@ -112,6 +123,22 @@ class RangeField(models.Field):
         self.base_field.set_attributes_from_name(name)
 
     def value_to_string(self, obj):
+        """
+        Returns a string representation of the given object's value.
+
+        This method first retrieves the value from the object and checks if it is None or empty.
+        If the value is not empty, it serializes the value's bounds and endpoints into a dictionary,
+        with the endpoints being further processed by the base field's value_to_string method.
+        The resulting dictionary is then converted to a JSON string and returned.
+
+        The output format is a JSON object with the following keys:
+        - 'bounds': the value's bounds
+        - 'lower' and 'upper': the lower and upper endpoints of the value,
+          either as a string representation if the endpoint is not None, or None otherwise
+        - 'empty': True if the value is empty, in which case this is the only key in the object
+
+        Returns None if the value is None, otherwise the JSON string representation of the value.
+        """
         value = self.value_from_object(obj)
         if value is None:
             return None
@@ -158,6 +185,13 @@ class ContinuousRangeField(RangeField):
         return super().formfield(**kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts for serialization or other purposes.
+
+        This method extends the deconstruction process of its parent class by also considering the object's default bounds.
+        If custom default bounds have been set, they are included in the decomposition as keyword arguments.
+        The resulting decomposition consists of the object's name, path, positional arguments, and keyword arguments, including any custom default bounds.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.default_bounds and self.default_bounds != CANONICAL_RANGE_BOUNDS:
             kwargs["default_bounds"] = self.default_bounds
@@ -232,6 +266,24 @@ class DateTimeRangeContains(PostgresOperatorLookup):
 
     def process_rhs(self, compiler, connection):
         # Transform rhs value for db lookup.
+        """
+        Process the right-hand side (RHS) of a query, handling date values specifically.
+
+        This method ensures that date values on the RHS are properly resolved and wrapped in a Value object, allowing them to be correctly processed by the compiler.
+
+        It then delegates the processing of the RHS to the superclass, passing the compiler and connection for further handling.
+
+        Parameters
+        ----------
+        compiler : object
+            The compiler object used to process the query.
+        connection : object
+            The database connection object.
+
+        Returns
+        -------
+        The result of the superclass's process_rhs method.
+        """
         if isinstance(self.rhs, datetime.date):
             value = models.Value(self.rhs)
             self.rhs = value.resolve_expression(compiler.query)

@@ -1128,6 +1128,15 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             return queryset._next_is_sticky().filter(**self.core_filters)
 
         def get_prefetch_cache(self):
+            """
+
+            Retrieves the prefetch cache associated with the current instance.
+
+            Returns the cached prefetched objects from the instance's cache dictionary, 
+            if available. If the cache does not exist or the instance does not have a 
+            prefetched objects cache, returns None.
+
+            """
             try:
                 return self.instance._prefetched_objects_cache[self.prefetch_cache_name]
             except (AttributeError, KeyError):
@@ -1322,6 +1331,23 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         def set(self, objs, *, clear=False, through_defaults=None):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
+            """
+
+            Sets the related objects for this instance.
+
+            This method replaces or adds the provided objects as the related objects for this instance.
+            It optionally clears the existing related objects before setting the new ones.
+
+            The objects can be either model instances or IDs of the related model.
+
+            If :param clear: is True, all existing related objects are removed before adding the provided objects.
+            Otherwise, existing related objects that are also in the provided objects are kept, while others are removed.
+
+            :param objs: A list or other iterable of related objects or IDs to set.
+            :param clear: If True, clear all existing related objects before setting the new ones. Defaults to False.
+            :param through_defaults: Default values to use for the through model when adding new relationships.
+
+            """
             objs = tuple(objs)
 
             db = router.db_for_write(self.through, instance=self.instance)
@@ -1506,6 +1532,29 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys
             # of object instances.
+            """
+
+            Add items to a many-to-many relationship.
+
+            Adds the given objects to the many-to-many relationship between the source 
+            and target fields. The source field name and target field name are used to 
+            determine the relationship.
+
+            The function takes in a variable number of objects to be added and 
+            optional through defaults. The through defaults are used to specify 
+            additional attributes for the relationship.
+
+            If no objects are provided, the function does nothing.
+
+            :param source_field_name: The name of the source field in the many-to-many 
+                relationship.
+            :param target_field_name: The name of the target field in the many-to-many 
+                relationship.
+            :param objs: A variable number of objects to be added to the relationship.
+            :param through_defaults: Optional default values for the relationship. 
+                Defaults to None.
+
+            """
             if not objs:
                 return
 

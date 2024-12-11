@@ -10,6 +10,9 @@ class ContentTypeManager(models.Manager):
     use_in_migrations = True
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the instance, calling the parent class's constructor and setting up an internal cache to store temporary data. The cache is implemented as a dictionary, allowing for efficient key-value lookups and storage. It is used to optimize performance by reducing the need for repeated computations or data retrievals.
+        """
         super().__init__(*args, **kwargs)
         # Cache shared by all the get_for_* methods to speed up
         # ContentType retrieval.

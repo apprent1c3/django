@@ -18,6 +18,16 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+
+        Adds command line arguments required for cache table installation.
+
+        This function configures the parser to accept the following options:
+        - table names: zero or more table names can be specified; if none are given, settings from CACHES are used to determine cache tables
+        - database: the database on which to install cache tables; defaults to the \"default\" database
+        - dry-run: a flag that prevents actual table creation, instead printing the SQL that would be executed
+
+        """
         parser.add_argument(
             "args",
             metavar="table_name",
@@ -41,6 +51,28 @@ class Command(BaseCommand):
         )
 
     def handle(self, *tablenames, **options):
+        """
+
+        Handle the creation of database tables.
+
+        This function creates tables in the specified database for the given table names.
+        If no table names are provided, it defaults to creating tables for all database-backed caches.
+
+        Parameters
+        ----------
+        *tablenames : str
+            Variable number of table names to create.
+        **options : dict
+            Additional options controlling the table creation process. Supported options are:
+            - database (str): The database to create tables in.
+            - verbosity (int): The level of detail to print during table creation.
+            - dry_run (bool): If True, perform a dry run without actually creating tables.
+
+        Note
+        ----
+        Table creation is performed for the specified table names, or for all database-backed caches if no table names are given.
+
+        """
         db = options["database"]
         self.verbosity = options["verbosity"]
         dry_run = options["dry_run"]

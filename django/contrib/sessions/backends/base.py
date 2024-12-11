@@ -55,6 +55,9 @@ class SessionBase:
         return self._session[key]
 
     def __setitem__(self, key, value):
+        """
+        Sets an item in the session with the given key and value, marking the session as modified.
+        """
         self._session[key] = value
         self.modified = True
 

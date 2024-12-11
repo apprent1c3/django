@@ -35,6 +35,17 @@ class RedirectTests(TestCase):
 
     @override_settings(APPEND_SLASH=True)
     def test_redirect_with_append_slash(self):
+        """
+        Tests the redirect functionality when APPEND_SLASH is set to True.
+
+        This test case verifies that when a URL without a trailing slash is requested,
+        the client is redirected to the new target URL as specified in the Redirect object.
+        It also checks that the redirect is done with a permanent redirect status code (301)
+        and that the target URL returns a 404 status code, indicating that the new target URL does not exist.
+
+        The test covers the scenario where the client requests a URL that has been redirected
+        to a new location, and ensures that the redirect is performed correctly with the APPEND_SLASH setting enabled.
+        """
         Redirect.objects.create(
             site=self.site, old_path="/initial/", new_path="/new_target/"
         )

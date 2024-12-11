@@ -68,12 +68,31 @@ class CommandParser(ArgumentParser):
         return super().parse_args(args, namespace)
 
     def error(self, message):
+        """
+        Raises an error with the provided message, handling it differently based on the invocation context.
+
+        If the function is called from the command line, it delegates the error handling to its parent class.
+        Otherwise, it raises a CommandError with the given message, allowing for programmatic error handling. 
+
+        :param message: The error message to be reported or raised.
+
+        """
         if self.called_from_command_line:
             super().error(message)
         else:
             raise CommandError("Error: %s" % message)
 
     def add_subparsers(self, **kwargs):
+        """
+
+        Add subparsers to the current parser, optionally customizing the parser class.
+
+        This method adds subparsers to the current parser, allowing for hierarchical command structures.
+        It accepts keyword arguments to customize the subparser creation process, including the `parser_class` parameter.
+        If `parser_class` is provided and is a subclass of `CommandParser`, it is wrapped to pass the `called_from_command_line` attribute from the parent parser.
+        The method returns the result of adding subparsers to the parent parser, allowing for chained method calls.
+
+        """
         parser_class = kwargs.get("parser_class", type(self))
         if issubclass(parser_class, CommandParser):
             kwargs["parser_class"] = partial(

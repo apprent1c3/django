@@ -415,6 +415,14 @@ class TestContextDecorator:
             decorated_setUp = cls.setUp
 
             def setUp(inner_self):
+                """
+                :SetUp method for decorating the setUp functionality of a test class.
+
+                    This method enables the context for the test, schedules the context to be disabled 
+                    after the test is finished (via addCleanup), and sets the context as an attribute on 
+                    the test instance if a specific attribute name is provided. It then calls the 
+                    original setUp method (decorated_setUp) to continue with the rest of the test setup.
+                """
                 context = self.enable()
                 inner_self.addCleanup(self.disable)
                 if self.attr_name:
@@ -566,6 +574,17 @@ class modify_settings(override_settings):
             )
 
     def enable(self):
+        """
+
+        Enable the current object by processing and updating its options.
+
+        The function iterates over a set of predefined operations, applying the specified actions to the corresponding options.
+        For each operation, it checks if the option already exists, and if not, initializes it with a list of values from the settings.
+        It then applies the defined actions, such as appending, prepending, or removing items from the option list.
+        The updated options are stored in the object's attributes.
+        Finally, the function calls the parent class's enable method to perform any additional initialization or setup.
+
+        """
         self.options = {}
         for name, operations in self.operations:
             try:

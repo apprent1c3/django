@@ -295,6 +295,19 @@ class CsrfViewMiddleware(MiddlewareMixin):
         )
 
     def _check_referer(self, request):
+        """
+
+        Checks the referer header in the given HTTP request to ensure it meets security requirements.
+
+        Verifies that the referer is present, properly formatted, and uses a secure connection.
+        Additionally, checks that the referer's domain matches one of the trusted origins or the current domain.
+        If any of these checks fail, raises a RejectRequest with a corresponding reason.
+
+        This check helps prevent Cross-Site Request Forgery (CSRF) attacks by ensuring that the request
+        originates from a trusted source. The function uses system-wide settings and configuration to
+        determine the allowed domains and protocols.
+
+        """
         referer = request.META.get("HTTP_REFERER")
         if referer is None:
             raise RejectRequest(REASON_NO_REFERER)

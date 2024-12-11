@@ -9,6 +9,21 @@ from . import Error, Tags, Warning, register
 
 @register(Tags.urls)
 def check_url_config(app_configs, **kwargs):
+    """
+    Checks the configuration of URL routes in the Django application.
+
+    This function inspects the application's URL configuration to ensure it is correctly defined.
+    It uses the Django framework's built-in URL resolver to examine the URL patterns and identify any potential issues.
+    If a root URL configuration is defined in the application settings, it retrieves the URL resolver and checks it for any problems.
+    Otherwise, it returns an empty list, indicating no issues were found in the URL configuration.
+
+    Returns:
+        A list of checks or errors found in the URL configuration. If no issues are found, an empty list is returned.
+
+    Parameters:
+        app_configs (list): A list of application configurations.
+        **kwargs: Additional keyword arguments.
+    """
     if getattr(settings, "ROOT_URLCONF", None):
         from django.urls import get_resolver
 

@@ -8,6 +8,19 @@ from ..models import Author
 
 class TrimTests(TestCase):
     def test_trim(self):
+        """
+
+        Tests the database functions for removing leading and trailing whitespace from strings.
+
+        The function checks the usage of left trim (LTrim), right trim (RTrim), and trim (Trim)
+        functions on a PostgreSQL database. It creates test data with leading and trailing
+        whitespace and then verifies that the trim functions correctly remove the whitespace
+        as expected. 
+
+        The LTrim function removes leading whitespace, the RTrim function removes trailing
+        whitespace, and the Trim function removes both leading and trailing whitespace.
+
+        """
         Author.objects.create(name="  John ", alias="j")
         Author.objects.create(name="Rhonda", alias="r")
         authors = Author.objects.annotate(
@@ -25,6 +38,11 @@ class TrimTests(TestCase):
         )
 
     def test_trim_transform(self):
+        """
+        Tests the trimming functionality of string transforms (LTrim, RTrim, Trim) on the Author model's name field. 
+        Verifies that each transform correctly removes leading and/or trailing whitespace from the field, 
+        enabling accurate filtering of Author instances based on trimmed names.
+        """
         Author.objects.create(name=" John  ")
         Author.objects.create(name="Rhonda")
         tests = (

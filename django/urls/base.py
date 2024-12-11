@@ -19,6 +19,23 @@ _urlconfs = Local()
 
 
 def resolve(path, urlconf=None):
+    """
+
+    Resolve a given path against the current URL configuration.
+
+    This function takes a path and an optional URL configuration, then returns a ResolverMatch object 
+    containing the resolved URL pattern, view function, and any additional arguments.
+
+    If no URL configuration is provided, the function will use the default URL configuration.
+
+    Args:
+        path (str): The URL path to resolve.
+        urlconf (module, optional): The URL configuration module to use. Defaults to None.
+
+    Returns:
+        ResolverMatch: The resolved URL pattern and view function.
+
+    """
     if urlconf is None:
         urlconf = get_urlconf()
     return get_resolver(urlconf).resolve(path)

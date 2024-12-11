@@ -16,6 +16,16 @@ class MessageEncoder(json.JSONEncoder):
     message_key = "__json_message"
 
     def default(self, obj):
+        """
+        Handles the conversion of a message object into a standardized format.
+
+        If the object is an instance of Message, this function constructs a list containing the message key, a safety indicator, the message level, and the message itself. If extra tags are provided, they are appended to the list.
+
+        For all other object types, the function defers to the parent class's default implementation.
+
+        :param obj: The object to be converted
+        :rtype: A list representing the formatted message or the result of the parent class's default method
+        """
         if isinstance(obj, Message):
             # Using 0/1 here instead of False/True to produce more compact json
             is_safedata = 1 if isinstance(obj.message, SafeData) else 0

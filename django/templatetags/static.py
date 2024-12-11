@@ -40,6 +40,21 @@ class PrefixNode(template.Node):
 
     @classmethod
     def handle_simple(cls, name):
+        """
+
+        Handles retrieval of a simple setting value from Django configuration.
+
+        This class method attempts to retrieve a setting value from the Django project's 
+        configuration, falling back to an empty string if Django is not available. The 
+        retrieved value is then converted to a URI prefix using the iri_to_uri function.
+
+        The resulting prefix is returned, which can be used in various applications such 
+        as constructing URLs or other web-related operations.
+
+        :param name: The name of the setting to retrieve from the Django configuration.
+        :rtype: str
+
+        """
         try:
             from django.conf import settings
         except ImportError:
@@ -113,6 +128,19 @@ class StaticNode(template.Node):
         return self.handle_simple(path)
 
     def render(self, context):
+        """
+
+        Renders a URL in the given context.
+
+        This function generates a URL based on the provided context and returns it.
+        If autoescape is enabled in the context, the URL is escaped to prevent cross-site scripting attacks.
+        If a variable name is specified, the generated URL is stored in the context under that name and an empty string is returned.
+        Otherwise, the generated URL is returned directly.
+
+        :param context: The context in which the URL is being rendered
+        :return: The rendered URL or an empty string if a variable name is specified
+
+        """
         url = self.url(context)
         if context.autoescape:
             url = conditional_escape(url)
@@ -123,6 +151,17 @@ class StaticNode(template.Node):
 
     @classmethod
     def handle_simple(cls, path):
+        """
+        Handles simple URL resolution for static files.
+
+        This method takes a file path as input and returns the corresponding URL.
+        It checks if Django's staticfiles app is installed and uses its storage to generate the URL if available.
+        Otherwise, it falls back to joining the STATIC_URL prefix with the quoted file path.
+
+        :param path: The file path for which to generate the URL
+        :rtype: str
+        :return: The URL corresponding to the input file path
+        """
         if apps.is_installed("django.contrib.staticfiles"):
             from django.contrib.staticfiles.storage import staticfiles_storage
 

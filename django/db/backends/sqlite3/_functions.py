@@ -104,6 +104,22 @@ def register(connection):
 
 
 def _sqlite_datetime_parse(dt, tzname=None, conn_tzname=None):
+    """
+    ..:irmsMcnila[
+    Parse a datetime object for use with SQLite, handling timezone conversions.
+
+    Args:
+        dt: The datetime object to parse.
+        tzname: The name of the timezone to convert the datetime to.
+        conn_tzname: The name of the timezone of the connection.
+
+    Returns:
+        The parsed datetime object, or None if parsing fails or if the input is None.
+
+    Notes:
+        If tzname and conn_tzname are provided, the function first converts the datetime to the conn_tzname timezone, then applies the offset specified by tzname if it exists, and finally converts to the tzname timezone. If only conn_tzname is provided, the function converts the datetime to the conn_tzname timezone. If neither tzname nor conn_tzname is provided, the function will attempt to typecast the input datetime.
+    ]
+    """
     if dt is None:
         return None
     try:
@@ -179,6 +195,33 @@ def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_extract(lookup_type, dt, tzname=None, conn_tzname=None):
+    """
+
+    Extracts a specific date/time component from a given datetime object.
+
+    Parameters
+    ----------
+    lookup_type : str
+        The type of date/time component to extract. Supported values include:
+        - 'week_day': Day of the week (1-7, where Monday is 1 and Sunday is 7)
+        - 'iso_week_day': ISO day of the week (1-7, where Monday is 1 and Sunday is 7)
+        - 'week': ISO week number
+        - 'quarter': Quarter of the year (1-4)
+        - 'iso_year': ISO year
+        - Any other datetime attribute (e.g. 'year', 'month', 'day', 'hour', etc.)
+    dt : datetime
+        The datetime object to extract the component from.
+    tzname : str, optional
+        The timezone name of the datetime object. Defaults to None.
+    conn_tzname : str, optional
+        The timezone name of the connection. Defaults to None.
+
+    Returns
+    -------
+    int or None
+        The extracted date/time component, or None if the input datetime object is invalid.
+
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -300,6 +343,20 @@ def _sqlite_timestamp_diff(lhs, rhs):
 
 
 def _sqlite_regexp(pattern, string):
+    """
+    Searches for a pattern in a given string using SQLite regular expression matching.
+
+    Args:
+        pattern (str): The regular expression pattern to search for.
+        string: The string to search in.
+
+    Returns:
+        bool or None: True if the pattern is found in the string, False otherwise. Returns None if either the pattern or the string is None.
+
+    Note:
+        The function performs a case-sensitive search and returns a boolean value indicating whether the pattern was found. Non-string inputs for the 'string' argument are automatically converted to strings.
+
+    """
     if pattern is None or string is None:
         return None
     if not isinstance(string, str):
@@ -368,6 +425,16 @@ def _sqlite_exp(x):
 
 
 def _sqlite_floor(x):
+    """
+    Returns the largest integer less than or equal to the given value.
+
+    This function is similar to the standard mathematical floor function.
+    It accepts a single number as input and returns the largest integer that is less than or equal to this number.
+    If the input value is None, the function returns None.
+
+    :returns: The floored value of the input number, or None if the input is None
+    :rtype: int or None
+    """
     if x is None:
         return None
     return floor(x)
@@ -380,6 +447,25 @@ def _sqlite_ln(x):
 
 
 def _sqlite_log(base, x):
+    """
+    Calculates the logarithm of a given number with a specified base.
+
+    Parameters
+    ----------
+    base : float or int
+        The base of the logarithm.
+    x : float or int
+        The number for which the logarithm is to be calculated.
+
+    Returns
+    -------
+    float or None
+        The logarithm of x with the given base, or None if either the base or x is None.
+
+    Notes
+    -----
+    This function will return None for invalid input (i.e., either base or x being None).
+    """
     if base is None or x is None:
         return None
     # Arguments reversed to match SQL standard.
@@ -396,6 +482,17 @@ def _sqlite_lpad(text, length, fill_text):
 
 
 def _sqlite_md5(text):
+    """
+    Computes the MD5 hash of the given text and returns it as a hexadecimal string.
+
+    If the input text is None, the function returns None. This function is used for
+    data integrity and security purposes, such as creating a digital fingerprint
+    of the input text.
+
+    :returns: The MD5 hash of the input text as a hexadecimal string, or None if
+              the input text is None.
+
+    """
     if text is None:
         return None
     return md5(text.encode()).hexdigest()

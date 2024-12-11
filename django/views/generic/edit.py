@@ -178,6 +178,13 @@ class BaseCreateView(ModelFormMixin, ProcessFormView):
         return super().get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
+        """
+        Handles HTTP POST requests by calling the superclass's post method.
+
+        This method initializes the object attribute to None before delegating the request handling to the superclass, 
+        ensuring that the object is reset before processing the request. It returns the result of the superclass's post method, 
+        allowing for further processing or handling of the response.
+        """
         self.object = None
         return super().post(request, *args, **kwargs)
 

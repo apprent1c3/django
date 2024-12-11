@@ -373,6 +373,14 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_decorator_async_test_func(self):
+        """
+        Tests the functionality of the user_passes_test decorator with an asynchronous test function.
+
+        Verifies that when the test function passes, the decorated view returns a 200 status code response.
+        Verifies that when the test function fails, the decorated view redirects with a 302 status code response.
+
+        The test uses a mock user with permissions and another without to evaluate the behavior of the decorator in both scenarios.
+        """
         async def async_test_func(user):
             return await sync_to_async(user.has_perms)(["auth_tests.add_customuser"])
 

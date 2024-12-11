@@ -21,6 +21,24 @@ def vary_on_headers(*headers):
         if iscoroutinefunction(func):
 
             async def _view_wrapper(request, *args, **kwargs):
+                """
+
+                View wrapper function to modify the response of an asynchronous view function.
+
+                This function takes an asynchronous request, calls the wrapped view function with the provided arguments,
+                and then patches the headers of the response before returning it. The headers to be patched are specified
+                in the 'headers' variable.
+
+                The purpose of this function is to handle the insertion of varying headers into responses in a centralized manner,
+                allowing for easier management of cache control and other response headers that may need to vary based on user
+                or request context.
+
+                :param request: The incoming request to be passed to the wrapped view function
+                :param args: Additional positional arguments to be passed to the wrapped view function
+                :param kwargs: Additional keyword arguments to be passed to the wrapped view function
+                :return: The response from the wrapped view function with modified headers
+
+                """
                 response = await func(request, *args, **kwargs)
                 patch_vary_headers(response, headers)
                 return response

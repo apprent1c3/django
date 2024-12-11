@@ -1578,6 +1578,25 @@ class Model(AltersData, metaclass=ModelBase):
         return constraints
 
     def validate_constraints(self, exclude=None):
+        """
+
+        Validate the constraints for the current instance.
+
+        This method checks all constraints defined for the model against the current instance's data.
+        It optionally allows excluding certain fields from validation.
+
+        If any constraint is not met, a ValidationError is raised with a list of error messages.
+
+        The validation is performed against the database specified by the router for writing to the model.
+
+        The :param exclude: parameter allows specifying fields to exclude from the validation.
+
+        If a unique constraint for a single field fails, the error is recorded with the field name as the key.
+
+        When validation fails, this method raises a ValidationError with a dictionary of error messages,
+        where each key is a field name and the value is a list of error messages for that field.
+
+        """
         constraints = self.get_constraints()
         using = router.db_for_write(self.__class__, instance=self)
 
@@ -2398,6 +2417,12 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _get_expr_references(cls, expr):
+        """
+        This method recursively extracts and yields references from a given expression.
+        It handles various types of expressions, including Q objects, F objects, and expression sources,
+        by traversing their child components and extracting lookup paths as tuples, split by the lookup separator. 
+        The yielded references can be used for further processing or analysis of the expression's dependencies.
+        """
         if isinstance(expr, Q):
             for child in expr.children:
                 if isinstance(child, tuple):

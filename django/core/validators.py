@@ -27,6 +27,21 @@ class RegexValidator:
     def __init__(
         self, regex=None, message=None, code=None, inverse_match=None, flags=None
     ):
+        """
+        Initializes an instance of the class with regular expression validation settings.
+
+        This constructor allows for the configuration of regex pattern, custom error message, 
+        error code, match behavior, and optional flags.
+
+        :param regex: A string representing the regular expression pattern to be used for validation.
+        :param message: A custom error message to be displayed in case of validation failure.
+        :param code: An error code associated with the validation failure.
+        :param inverse_match: A flag indicating whether to match or not match the regex pattern.
+        :param flags: Optional flags to be used in conjunction with the regex pattern.
+
+        :note: If flags are provided, the regex parameter must be a string representing a valid regular expression.
+        :raises TypeError: If flags are set and the regex is not a string.
+        """
         if regex is not None:
             self.regex = regex
         if message is not None:
@@ -254,6 +269,23 @@ class EmailValidator:
     def __call__(self, value):
         # The maximum length of an email is 320 characters per RFC 3696
         # section 3.
+        """
+        scrutates the provided value, validating it as an email address.
+
+         It first checks for the overall format, raising a :class:`~ValidationError` if the value is empty, 
+         does not contain exactly one '@' symbol, or exceeds 320 characters in length.
+
+         Next, it separates the local part (user) from the domain part and verifies that the user part 
+         matches a predefined regular expression. If not, it raises a :class:`~ValidationError`.
+
+         The domain part is then checked against an allowlist. If not present, the function attempts 
+         to validate it. This validation may involve punycode conversion if the domain part contains 
+         non-ASCII characters. If all checks fail, it raises a :class:`~ValidationError`.
+
+         :raises: :class:`~ValidationError` if the provided value is not a valid email address
+         :param value: the email address to be validated
+         :return: None if the email address is valid
+        """
         if not value or "@" not in value or len(value) > 320:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
@@ -379,6 +411,21 @@ def ip_address_validators(protocol, unpack_ipv4):
 
 
 def int_list_validator(sep=",", message=None, code="invalid", allow_negative=False):
+    """
+
+    Validate a string as a list of integers.
+
+    This function returns a RegexValidator that checks if a given string is a comma-separated list of integers.
+    The validator allows for optional customization of the separator, error message, and error code.
+
+    :param sep: The separator between integers in the string (default: ',')
+    :param message: The error message to display when the string is invalid (default: None)
+    :param code: The error code to display when the string is invalid (default: 'invalid')
+    :param allow_negative: Whether to allow negative integers in the list (default: False)
+
+    :return: A RegexValidator instance that can be used to validate strings
+
+    """
     regexp = _lazy_re_compile(
         r"^%(neg)s\d+(?:%(sep)s%(neg)s\d+)*\Z"
         % {
@@ -405,6 +452,16 @@ class BaseValidator:
             self.message = message
 
     def __call__(self, value):
+        """
+
+        Validates a value against a predefined limit.
+
+        The function cleans the input value, retrieves the limit value and compares the two.
+        If the cleaned value exceeds or equals the limit, it raises a validation error with a specified message and code.
+
+        :raises: ValidationError if the value exceeds the limit
+
+        """
         cleaned = self.clean(value)
         limit_value = (
             self.limit_value() if callable(self.limit_value) else self.limit_value
@@ -684,6 +741,15 @@ class ProhibitNullCharactersValidator:
             self.code = code
 
     def __call__(self, value):
+        """
+        Call the validator with the given value.
+
+        This function checks if the provided value contains any null bytes.
+        If a null byte is found, it raises a ValidationError with a specified message and code.
+        The error is parameterized with the invalid value for further processing or logging.
+
+        :raises: ValidationError if the value contains null bytes.
+        """
         if "\x00" in str(value):
             raise ValidationError(self.message, code=self.code, params={"value": value})
 

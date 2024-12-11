@@ -21,6 +21,18 @@ class SimplerXMLGenerator(XMLGenerator):
         self.endElement(name)
 
     def characters(self, content):
+        """
+
+        Verifies and outputs the given content as XML character data.
+
+        This function checks the provided content for the presence of control characters, 
+        which are not supported in XML 1.0. If any control characters are found, 
+        it raises an UnserializableContentError. Otherwise, it proceeds to output the content.
+
+        :param content: The content to be verified and output as XML character data
+        :raises UnserializableContentError: If the content contains control characters
+
+        """
         if content and re.search(r"[\x00-\x08\x0B-\x0C\x0E-\x1F]", content):
             # Fail loudly when content has control chars (unsupported in XML 1.0)
             # See https://www.w3.org/International/questions/qa-controls

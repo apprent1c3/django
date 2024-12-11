@@ -43,6 +43,14 @@ def stringfilter(func):
 
     @wraps(func)
     def _dec(first, *args, **kwargs):
+        """
+
+        Decorator function that wraps the original function to provide additional functionality.
+        It converts the first argument to a string and then calls the original function with the converted argument and any additional arguments.
+        If the first argument is of type SafeData and the original function is marked as safe, the result is marked as safe using the mark_safe function.
+        The wrapped function returns the result of the original function, which may be marked as safe depending on the input parameters.
+
+        """
         first = str(first)
         result = func(first, *args, **kwargs)
         if isinstance(first, SafeData) and getattr(unwrap(func), "is_safe", False):

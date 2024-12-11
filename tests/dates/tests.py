@@ -133,6 +133,27 @@ class DatesTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "Test checks MySQL query syntax")
     def test_dates_avoid_datetime_cast(self):
+        """
+        Tests that the dates() queryset method avoids unnecessary datetime casting 
+        in MySQL queries when retrieving dates. 
+
+        The primary goal is to verify that the MySQL query syntax is correctly applied 
+        when extracting dates of a specific kind (day, month, year) from a model's date field.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        This test is specifically designed for MySQL database connections and 
+        ensures that the generated SQL query optimally handles date extraction 
+        without unnecessary type conversions, thus improving database performance.
+        """
         Article.objects.create(pub_date=datetime.date(2015, 10, 21))
         for kind in ["day", "month", "year"]:
             qs = Article.objects.dates("pub_date", kind)

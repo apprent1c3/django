@@ -34,6 +34,9 @@ class ValidationTests(SimpleTestCase):
             Lag(expression=None)
 
     def test_negative_num_buckets_ntile(self):
+        """
+        Tests that creating an instance of the Ntile class with a negative number of buckets raises a ValueError with a message indicating that num_buckets must be greater than 0.
+        """
         msg = "num_buckets must be greater than 0"
         with self.assertRaisesMessage(ValueError, msg):
             Ntile(num_buckets=-1)

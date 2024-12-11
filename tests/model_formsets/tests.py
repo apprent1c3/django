@@ -1770,6 +1770,19 @@ class ModelFormsetTest(TestCase):
         self.assertFalse(formset.extra_forms[0].has_changed())
 
     def test_prevent_duplicates_from_with_the_same_formset(self):
+        """
+        Tests that the formset validation correctly prevents duplicate data for various models and fields.
+
+        This test checks for duplicate data in the following scenarios:
+        - Duplicate slug values for Product instances
+        - Duplicate price and quantity combinations for Price instances
+        - Duplicate title values for Book instances associated with an Author
+        - Duplicate title values for Post instances on the same date
+        - Duplicate slug values for Post instances in the same year
+        - Duplicate subtitle values for Post instances in the same month
+
+        It verifies that the formset's `is_valid` method returns False when duplicate data is present, and that the expected error messages are displayed for each case.
+        """
         FormSet = modelformset_factory(Product, fields="__all__", extra=2)
         data = {
             "form-TOTAL_FORMS": 2,
@@ -2344,6 +2357,16 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertNotIn("DELETE", formset.forms[1].fields)
 
     def test_inlineformset_factory_can_delete_extra(self):
+        """
+
+        Tests the functionality of inlineformset_factory with delete and extra options.
+
+        Verifies that when can_delete and can_delete_extra are set to True, the resulting formset 
+        includes a delete checkbox for each form and the number of forms in the formset matches the 
+        extra parameter. This test ensures that the formset is correctly configured to allow 
+        deletion of extra forms.
+
+        """
         BookFormSet = inlineformset_factory(
             Author,
             Book,
@@ -2385,6 +2408,22 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(formset.renderer, renderer)
 
     def test_modelformset_factory_passes_renderer(self):
+        """
+
+        Tests that modelformset_factory passes the provided renderer to the resulting FormSet.
+
+        Ensures that when creating a FormSet using modelformset_factory with a specified renderer,
+        the renderer is correctly set on the FormSet instance. This is essential for customizing
+        the rendering of form fields and ensuring consistency in the presentation of forms.
+
+        The test verifies that the renderer provided to modelformset_factory is the same renderer
+        that is used by the generated FormSet, guaranteeing that the correct template engine is
+        applied during form rendering.
+
+        :param None
+        :returns: None
+
+        """
         from django.forms.renderers import Jinja2
 
         renderer = Jinja2()
