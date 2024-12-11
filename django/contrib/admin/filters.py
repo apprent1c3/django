@@ -94,6 +94,23 @@ class SimpleListFilter(FacetsMixin, ListFilter):
     parameter_name = None
 
     def __init__(self, request, params, model, model_admin):
+        """
+
+        Initializes a list filter for the specified model admin.
+
+        This method sets up the filter by checking for the presence of a 'parameter_name' and
+        raising an error if it is not specified. It then checks if a value for the filter
+        has been provided in the request parameters and stores it for later use.
+
+        The method also retrieves the available lookup choices for the filter, which
+        are used to generate the filter options. If no lookup choices are provided, it
+        defaults to an empty list.
+
+        This method is typically used internally by the list filter and should not be
+        called directly. It should be subclassed and extended by custom list filters to
+        provide their own initialization logic.
+
+        """
         super().__init__(request, params, model, model_admin)
         if self.parameter_name is None:
             raise ImproperlyConfigured(

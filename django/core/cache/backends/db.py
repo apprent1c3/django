@@ -98,10 +98,31 @@ class DatabaseCache(BaseDatabaseCache):
         return result
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets a value for a given key in the storage.
+
+        :param key: The key to associate with the value.
+        :param value: The value to store.
+        :param timeout: The time-to-live for the key in seconds, defaults to DEFAULT_TIMEOUT.
+        :param version: The version of the key, used for versioning and concurrency control, defaults to None.
+
+        :return: None 
+
+        :note: The key is validated and transformed into a standardized format before being stored.
+        """
         key = self.make_and_validate_key(key, version=version)
         self._base_set("set", key, value, timeout)
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Adds a key-value pair to the store if the key does not already exist.
+
+        :param key: The key to be added.
+        :param value: The value associated with the key.
+        :param timeout: The time after which the key-value pair expires, defaults to DEFAULT_TIMEOUT.
+        :param version: Optional version of the key.
+        :return: The result of the add operation.
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("add", key, value, timeout)
 

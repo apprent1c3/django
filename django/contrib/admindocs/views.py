@@ -43,6 +43,17 @@ class BaseAdminDocsView(TemplateView):
 
     @method_decorator(staff_member_required)
     def dispatch(self, request, *args, **kwargs):
+        """
+
+        Dispatches the view, handling the case where the docutils library is not available.
+
+        If docutils is not available, renders a template indicating that it is missing.
+        Otherwise, calls the parent class's dispatch method to handle the request.
+
+        This method is decorated to require a staff member to access, ensuring only
+        authorized users can view the documentation.
+
+        """
         if not utils.docutils_is_available:
             # Display an error message for people without docutils
             self.template_name = "admin_doc/missing_docutils.html"

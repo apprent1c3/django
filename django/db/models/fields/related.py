@@ -154,6 +154,17 @@ class RelatedField(FieldCacheMixin, Field):
         return []
 
     def _check_related_query_name_is_valid(self):
+        """
+
+        Checks if the related query name for a relationship field is valid.
+
+        The function returns a list of errors if the related query name is invalid. 
+        A related query name is considered invalid if it ends with an underscore or contains a lookup separator.
+
+        The purpose of this check is to ensure that the related query name can be used in a valid query. 
+        If the related query name is invalid, it may cause errors when trying to access related objects.
+
+        """
         if self.remote_field.hidden:
             return []
         rel_query_name = self.related_query_name()
@@ -546,6 +557,28 @@ class ForeignObject(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+
+        Initializes a relationship between two models.
+
+        This constructor establishes a connection between the current model and another model (`to`).
+        It specifies how the relationship should be handled when the related object is deleted (`on_delete`).
+        The relationship is defined by mapping fields from the current model (`from_fields`) to fields in the target model (`to_fields`).
+        Additional options allow for customization of the relationship, such as specifying a related name, query name, and constraints on the relationship (`limit_choices_to`).
+        It also supports swappable models and provides a way to use it as a parent link.
+
+        :param to: The model to which the relationship is established.
+        :param on_delete: The action to take when the related object is deleted.
+        :param from_fields: The fields in the current model that define the relationship.
+        :param to_fields: The fields in the target model that define the relationship.
+        :param rel: The relationship instance (optional).
+        :param related_name: The name to use for the relationship in the target model (optional).
+        :param related_query_name: The name to use for the relationship in queries (optional).
+        :param limit_choices_to: Constraints to apply to the relationship (optional).
+        :param parent_link: Whether this relationship should be used as a parent link (optional).
+        :param swappable: Whether the model is swappable (optional).
+
+        """
         if rel is None:
             rel = self.rel_class(
                 self,
@@ -777,6 +810,19 @@ class ForeignObject(RelatedField):
         return attname, None
 
     def get_joining_columns(self, reverse_join=False):
+        """
+        Return a tuple of column names used for joining tables in a relationship.
+
+        :param bool reverse_join: Whether to consider the reverse join columns. Defaults to False.
+        :returns: A tuple of tuples, where each inner tuple contains a pair of column names.
+        :note: This method is deprecated since Django 6.0 and will be removed in a future version. 
+               Use :meth:`get_joining_fields` instead.
+
+        The column names are returned as pairs, representing the left-hand side (source model) and 
+        right-hand side (target model) columns used for joining. The returned columns depend on 
+        the reverse_join parameter, which determines whether to consider the forward or reverse 
+        relationship between the models.
+        """
         warnings.warn(
             "ForeignObject.get_joining_columns() is deprecated. Use "
             "get_joining_fields() instead.",
@@ -1895,6 +1941,24 @@ class ManyToManyField(RelatedField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
+        """
+        Contributes the Many-To-Many field to the class.
+
+        Defines the reverse relationship for the field and sets up the through model
+        if necessary. The through model is created if it does not already exist and
+        the model is not abstract. The related field is then bound to the class.
+
+        Args:
+            cls (Model): The model class to which the field belongs.
+            name (str): The name of the field on the model.
+            **kwargs: Additional keyword arguments.
+
+        Note:
+            The related name is automatically set based on the relationship type and
+            the model name. If the relationship is symmetrical, the related name is
+            set to a predefined pattern. If the relationship is hidden, a unique
+            related name is generated based on the model and field names.
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == RECURSIVE_RELATIONSHIP_CONSTANT
             or self.remote_field.model == cls._meta.object_name

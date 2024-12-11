@@ -174,6 +174,21 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+
+        Combine two media objects into a new one, merging CSS and JavaScript files.
+
+        This method creates a new media object that includes all CSS and JavaScript files
+        from the current object and the one being added. Duplicate files are automatically
+        removed, ensuring that each file is only included once in the resulting media object.
+
+        The resulting media object contains the combined list of CSS and JavaScript files,
+        making it easy to manage and merge media content in a convenient and efficient way.
+
+        Returns:
+            Media: A new media object with the combined CSS and JavaScript files.
+
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -248,6 +263,20 @@ class Widget(metaclass=MediaDefiningClass):
         return self.input_type == "hidden" if hasattr(self, "input_type") else False
 
     def subwidgets(self, name, value, attrs=None):
+        """
+
+        Returns an iterator over a subwidget for the given name and value.
+
+        The subwidget is generated based on the context created from the provided
+        name, value, and optional HTML attributes. This function is useful when 
+        needing to access or render individual subwidgets within a larger widget.
+
+        :param name: The name of the subwidget.
+        :param value: The value associated with the subwidget.
+        :param attrs: Optional HTML attributes for the subwidget.
+        :yield: The subwidget object.
+
+        """
         context = self.get_context(name, value, attrs)
         yield context["widget"]
 
@@ -279,6 +308,17 @@ class Widget(metaclass=MediaDefiningClass):
         return self._render(self.template_name, context, renderer)
 
     def _render(self, template_name, context, renderer=None):
+        """
+        Renders a template with the given context.
+
+        :param template_name: The name of the template to render.
+        :param context: A dictionary containing variables to be used in the template.
+        :param renderer: Optional renderer to use, defaults to the default renderer if not specified.
+        :return: The rendered template as a safe HTML string.
+        :note: This method uses the provided or default renderer to render the template,
+                and marks the output as safe for inclusion in HTML.
+
+        """
         if renderer is None:
             renderer = get_default_renderer()
         return mark_safe(renderer.render(template_name, context))
@@ -328,6 +368,19 @@ class Input(Widget):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        ```    
+        Get the widget context for rendering in a template.
+
+        This method builds upon the parent class's context by adding the widget type.
+        The context is used to customize the appearance and behavior of the widget.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget.
+        :param attrs: Additional attributes for the widget.
+        :returns: A dictionary containing the widget context.
+        ```
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["type"] = self.input_type
         return context
@@ -358,6 +411,18 @@ class PasswordInput(Input):
     template_name = "django/forms/widgets/password.html"
 
     def __init__(self, attrs=None, render_value=False):
+        """
+        Initializes the class instance, setting up its attributes and rendering configuration.
+
+         Parameters
+         ----------
+         attrs : dict, optional
+             A dictionary of attributes to be set for the instance.
+         render_value : bool, optional
+             A flag indicating whether to render the instance's value.
+
+         This method is typically used internally during the creation of class instances and should not be called directly. It ensures proper initialization of attributes and rendering behavior, allowing for flexible and customizable instance setup.
+        """
         super().__init__(attrs)
         self.render_value = render_value
 
@@ -381,6 +446,18 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+        Extends the base widget context to include subwidgets for a multi-value field.
+
+        This function generates a list of hidden input subwidgets, each representing a single value in a multi-value field.
+        It creates a copy of the original widget's attributes for each subwidget and updates the 'id' attribute to be unique.
+        The function returns the updated context, which includes the list of subwidgets.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget.
+        :param attrs: The attributes of the widget.
+        :return: The updated widget context.
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -535,6 +612,13 @@ class Textarea(Widget):
 
     def __init__(self, attrs=None):
         # Use slightly better defaults than HTML's 20x2 box
+        """
+        Initializes a text area element with customizable attributes.
+
+        The initializer accepts a dictionary of attributes, which can include 'cols' and 'rows' to specify the size of the text area.
+        If attributes are provided, they will override the default values of cols=40 and rows=10.
+        The initializer then calls the parent class initializer with the updated attributes.
+        """
         default_attrs = {"cols": "40", "rows": "10"}
         if attrs:
             default_attrs.update(attrs)
@@ -592,6 +676,13 @@ class CheckboxInput(Input):
         return str(value)
 
     def get_context(self, name, value, attrs):
+        """
+        Returns a dictionary of context variables for rendering the form field, 
+        including the name, value, and HTML attributes. If the value matches the 
+        test condition, the 'checked' attribute is set to True in the context. 
+        This allows the form field to be rendered with the checked state when 
+        the specified condition is met.
+        """
         if self.check_test(value):
             attrs = {**(attrs or {}), "checked": True}
         return super().get_context(name, value, attrs)
@@ -628,6 +719,19 @@ class ChoiceWidget(Widget):
         self.choices = choices
 
     def __deepcopy__(self, memo):
+        """
+
+        Creates a deep copy of the current object.
+
+        This method is used to create an independent copy of the object, including all of its attributes and nested structures.
+        It ensures that any modifications made to the copied object do not affect the original object.
+
+        The copied object will have the same attributes and choices as the original object, but with new, independent references.
+        This allows for safe modification and manipulation of the copied object without risking unintended side effects on the original.
+
+        The copied object is also added to a memoization dictionary to prevent infinite recursion during the copying process.
+
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         obj.choices = copy.copy(self.choices)
@@ -761,6 +865,14 @@ class Select(ChoiceWidget):
     option_inherits_attrs = False
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context for rendering the widget, potentially modifying the attributes to support multiple selections if enabled. 
+
+        :param name: The name of the widget
+        :param value: The value of the widget
+        :param attrs: The attributes of the widget
+        :return: The modified context for rendering the widget
+        """
         context = super().get_context(name, value, attrs)
         if self.allow_multiple_selected:
             context["widget"]["attrs"]["multiple"] = True
@@ -910,6 +1022,35 @@ class MultiWidget(Widget):
         return all(w.is_hidden for w in self.widgets)
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context dictionary for a multi-widget field.
+
+        This method is responsible for preparing the context for a field that is comprised
+        of multiple widgets. It handles localization and value decomposition, and then
+        creates a context for each sub-widget. The final context includes a list of
+        sub-widgets, which can be used to render the field.
+
+        Parameters
+        ----------
+        name : str
+            The name of the field.
+        value : object
+            The value of the field, which can be a single value or a list/tuple of values.
+        attrs : dict
+            The attributes for the field.
+
+        Returns
+        -------
+        dict
+            The context dictionary for the field, including a list of sub-widgets.
+
+        Note
+        ----
+        The context dictionary is created by calling the parent class's `get_context`
+        method, and then modifying it to include the sub-widgets. The `is_localized`
+        attribute of the field is also propagated to each sub-widget.
+
+        """
         context = super().get_context(name, value, attrs)
         if self.is_localized:
             for widget in self.widgets:
@@ -1005,6 +1146,22 @@ class SplitDateTimeWidget(MultiWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+
+        Initializes a DateTime widget with customizable input fields for date and time.
+
+        The widget can be configured with various attributes, such as input formats and HTML attributes, 
+        to adapt to different use cases. The date and time components can be independently customized 
+        with their own sets of attributes and formats. This allows for flexible and precise control over 
+        the appearance and behavior of the widget. 
+
+        :param attrs: Default HTML attributes for both date and time input fields
+        :param date_format: Format for the date input field
+        :param time_format: Format for the time input field
+        :param date_attrs: HTML attributes specific to the date input field
+        :param time_attrs: HTML attributes specific to the time input field
+
+        """
         widgets = (
             DateInput(
                 attrs=attrs if date_attrs is None else date_attrs,
@@ -1184,6 +1341,24 @@ class SelectDateWidget(Widget):
         return "%s_month" % id_
 
     def value_from_datadict(self, data, files, name):
+        """
+
+        Retrieves a datetime value from a given data dictionary.
+
+        This function attempts to construct a date object from year, month, and day values 
+        found in the data dictionary. The field names for these values are determined by 
+        the year_field, month_field, and day_field attributes of the instance, formatted 
+        with the given name as a parameter.
+
+        If all three components (year, month, day) are present, it returns the date in the 
+        format specified by the DATE_INPUT_FORMATS setting. If any of the components are 
+        missing or invalid, it falls back to returning the raw value associated with the 
+        given name, or a default string representation if no such raw value exists.
+
+        Returns:
+            A date string in the specified format, or None if all date components are empty.
+
+        """
         y = data.get(self.year_field % name)
         m = data.get(self.month_field % name)
         d = data.get(self.day_field % name)

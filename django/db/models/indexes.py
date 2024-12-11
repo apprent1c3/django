@@ -83,6 +83,22 @@ class Index:
         return bool(self.expressions)
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        Generates the SQL string for a given condition.
+
+        This method transforms a condition into a valid SQL string that can be 
+        executed by the database. If no condition is provided, it returns None.
+
+        The generated SQL string takes into account the specified model and 
+        database connection, ensuring compatibility with the target database 
+        schema. The method properly quotes and escapes any values in the 
+        condition to prevent SQL injection attacks.
+
+        The resulting SQL string can be used directly in database queries or 
+        combined with other SQL statements to create more complex queries.
+
+        :returns: The generated SQL string or None if no condition is provided.
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)

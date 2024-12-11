@@ -162,6 +162,9 @@ class Tests(TestCase):
             DatabaseWrapper(settings).get_connection_params()
 
     def test_service_name(self):
+        """
+        Checks if the 'service' option in database connection settings takes precedence over the 'NAME' (database name) option when establishing a PostgreSQL database connection.
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -173,6 +176,13 @@ class Tests(TestCase):
 
     def test_service_name_default_db(self):
         # None is used to connect to the default 'postgres' db.
+        """
+
+        Tests the default database name used when the 'NAME' setting is not specified.
+        When 'NAME' is None, the function verifies that the 'dbname' parameter defaults to 'postgres'
+        and that the 'service' option is not included in the connection parameters.
+
+        """
         from django.db.backends.postgresql.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
@@ -526,6 +536,18 @@ class Tests(TestCase):
     @override_settings(DEBUG=True)
     @unittest.skipIf(is_psycopg3, "psycopg2 specific test")
     def test_copy_to_expert_cursors(self):
+        """
+
+        Tests the functionality of copying data to an expert cursor using the COPY SQL command.
+
+        This test case verifies that the copy_expert method correctly executes a COPY TO STDOUT command
+        with the specified format and header options, and that the copy_to method issues the expected
+        COPY TO STDOUT SQL command. The test also checks that the correct SQL queries are executed
+        in the expected order.
+
+        The test is skipped when running with psycopg3, as it is specific to psycopg2.
+
+        """
         out = StringIO()
         copy_expert_sql = "COPY django_session TO STDOUT (FORMAT CSV, HEADER)"
         with connection.cursor() as cursor:
@@ -553,6 +575,21 @@ class Tests(TestCase):
 
     @mock.patch.object(connection, "get_database_version", return_value=(13,))
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+        Checks if the database version is supported, raising a NotSupportedError if the version is less than PostgreSQL 14. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            NotSupportedError: If the database version is less than the minimum required version. 
+
+        Note:
+            This function relies on the connection object to retrieve the database version.
+        """
         msg = "PostgreSQL 14 or later is required (found 13)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()

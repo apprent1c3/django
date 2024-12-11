@@ -168,6 +168,20 @@ class TarArchive(BaseArchive):
         self._archive.list(*args, **kwargs)
 
     def extract(self, to_path):
+        """
+        Extracts the contents of an archive to a specified directory.
+
+        Args:
+            to_path (str): The path where the extracted files will be written.
+
+        This method iterates over each member of the archive and extracts it to the 
+        specified directory. If a leading directory is present in the archive members, 
+        it is stripped from the extracted filenames. If the extracted member is a 
+        directory, it is created if it does not already exist. For file members, the 
+        file is extracted and written to the specified directory, preserving its 
+        original permissions. If an error occurs during extraction, an error message 
+        is printed.
+        """
         members = self._archive.getmembers()
         leading = self.has_leading_dir(x.name for x in members)
         for member in members:

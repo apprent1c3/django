@@ -17,6 +17,15 @@ class AreaField(models.FloatField):
         self.geo_field = geo_field
 
     def get_prep_value(self, value):
+        """
+        Returns the preparation value for the given AreaField.
+
+        This method ensures that the provided value is a valid Area measurement object.
+        If the value is not an instance of Area, it raises a ValueError.
+
+        :raises ValueError: If the value is not an Area measurement object.
+        :return: The input value if it is a valid Area measurement object
+        """
         if not isinstance(value, Area):
             raise ValueError("AreaField only accepts Area measurement objects.")
         return value

@@ -7,6 +7,15 @@ from ..models import Author
 
 class SubstrTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests the basic functionality of the Author model.
+
+        This test case creates two Author instances and performs various operations to verify the correctness of the model.
+        It checks the usage of the Substr function to extract parts of the author's name and the Lower function to convert names to lowercase.
+        The test also verifies that the alias field is updated correctly for authors without an existing alias.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(name_part=Substr("name", 5, 3))

@@ -144,6 +144,16 @@ def lazy(func, *resultclasses):
             return self.__cast() > other
 
         def __ge__(self, other):
+            """
+            Compare this object with another for greater than or equal to.
+
+            This method allows for comparison with other objects, potentially of different types.
+            If the object being compared is an instance of :class:`Promise`, it is first cast to its underlying value.
+            The comparison is then performed between the cast value of this object and the other object.
+
+            Returns:
+                bool: True if this object is greater than or equal to the other object, False otherwise.
+            """
             if isinstance(other, Promise):
                 other = other.__cast()
             return self.__cast() >= other

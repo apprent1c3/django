@@ -322,6 +322,28 @@ class RssFeed(SyndicationFeed):
             handler.processingInstruction("xml-stylesheet", stylesheet)
 
     def add_root_elements(self, handler):
+        """
+
+        Add root elements to an XML feed.
+
+        This method populates the root of an XML feed with essential metadata, including 
+        the feed title, link, description, and other relevant information. It utilizes 
+        the feed data stored in the object's attributes to add the necessary elements.
+
+        The added elements include:
+
+        * Basic feed metadata (title, link, description, language)
+        * Atom link for self-referential purposes (if feed URL is provided)
+        * Categories
+        * Copyright information (if provided)
+        * Last build date
+        * Time to live (TTL) value (if provided)
+
+        The resulting XML feed is constructed according to standard RSS and Atom 
+        specifications, ensuring compatibility and readability by various feed readers 
+        and aggregators.
+
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
         handler.addQuickElement("description", self.feed["description"])

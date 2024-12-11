@@ -134,6 +134,21 @@ def storages_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def clear_serializers_cache(*, setting, **kwargs):
+    """
+    Clears the serializers cache when the SERIALIZATION_MODULES setting is changed.
+
+    This function listens for changes to the SERIALIZATION_MODULES setting and, when detected, 
+    resets the serializers cache to ensure that any changes to the serialization modules are 
+    immediately reflected in the application.
+
+    The cache is cleared by resetting the internal _serializers dictionary, forcing Django to 
+    re-import the new serialization modules and rebuild the cache. This ensures that the 
+    application uses the most up-to-date serialization configuration.
+
+    Args:
+        setting (str): The name of the setting that was changed.
+
+    """
     if setting == "SERIALIZATION_MODULES":
         from django.core import serializers
 
@@ -162,6 +177,17 @@ def localize_settings_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def complex_setting_changed(*, enter, setting, **kwargs):
+    """
+
+    Handles changes to complex settings.
+
+    Listens for the setting_changed signal and checks if the changed setting is one that requires special handling.
+    If a complex setting is being overridden, it raises a warning to notify the user that this action may lead to unexpected behavior.
+
+    :param enter: Indicates whether the setting is being entered or exited
+    :param setting: The name of the setting being changed
+
+    """
     if enter and setting in COMPLEX_OVERRIDE_SETTINGS:
         # Considering the current implementation of the signals framework,
         # this stacklevel shows the line containing the override_settings call.
@@ -204,6 +230,16 @@ def static_finders_changed(*, setting, **kwargs):
 
 @receiver(setting_changed)
 def form_renderer_changed(*, setting, **kwargs):
+    """
+
+    Handles changes to the FORM_RENDERER setting, ensuring that the default form renderer cache is updated accordingly.
+
+    When the FORM_RENDERER setting is modified, this function receives a signal and clears the cache of the default form renderer.
+    This guarantees that any changes to the form rendering configuration take effect immediately.
+
+    :param setting: The name of the setting that was changed.
+
+    """
     if setting == "FORM_RENDERER":
         from django.forms.renderers import get_default_renderer
 

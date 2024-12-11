@@ -80,6 +80,15 @@ class AdminCustomUrlsTest(TestCase):
     def test_admin_URLs_no_clash(self):
         # Should get the change_view for model instance with PK 'add', not show
         # the add_view
+        """
+        Tests that admin URLs for actions do not clash with existing URLs.
+
+        Ensures that the change action URL can be accessed without conflicts, 
+        both when adding a new action and when editing an existing action with a path to an HTML document.
+
+        Verifies the response contains the expected 'Change action' heading and, 
+        for existing actions, the path to the HTML document in the form value.
+        """
         url = reverse(
             "admin_custom_urls:%s_action_change" % Action._meta.app_label,
             args=(quote("add"),),

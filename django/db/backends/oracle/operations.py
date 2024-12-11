@@ -129,6 +129,25 @@ END;
         return f"{sign}{offset}" if offset else tzname
 
     def _convert_sql_to_tz(self, sql, params, tzname):
+        """
+
+        Converts a SQL query string to a time zone aware query if the USE_TZ setting is enabled and a time zone name is provided.
+
+        Args:
+            sql (str): The SQL query string to convert.
+            params (dict): Parameters associated with the SQL query.
+            tzname (str): The time zone name to convert to.
+
+        Returns:
+            tuple: A tuple containing the converted SQL query string and its associated parameters. If no conversion is needed, the original SQL query and parameters are returned.
+
+        Raises:
+            ValueError: If the provided time zone name is invalid.
+
+        Note:
+            The function checks if the USE_TZ setting is enabled and if the provided time zone name is valid before performing the conversion.
+
+        """
         if not (settings.USE_TZ and tzname):
             return sql, params
         if not self._tzname_re.match(tzname):

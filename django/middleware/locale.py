@@ -36,6 +36,17 @@ class LocaleMiddleware(MiddlewareMixin):
         request.LANGUAGE_CODE = translation.get_language()
 
     def process_response(self, request, response):
+        """
+        Handles the processing of HTTP responses, specifically for internationalization (i18n) purposes. 
+
+        Checks if the response is a 404 error and if the default language is prefixing the URL pattern, 
+        attempting to redirect to a language-specific version of the requested path if necessary. 
+
+        If no language prefix is found in the path, or if the i18n URL patterns are not being used, 
+        it sets the 'Vary' header to indicate that the response may vary based on the 'Accept-Language' header. 
+
+        Finally, it sets the 'Content-Language' header to the current language and returns the processed response.
+        """
         language = translation.get_language()
         language_from_path = translation.get_language_from_path(request.path_info)
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)

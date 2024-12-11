@@ -53,6 +53,19 @@ class SearchConfig(Expression):
 
     @classmethod
     def from_parameter(cls, config):
+        """
+        Creates an instance of the class from a given parameter.
+
+        This method checks if the provided configuration is already an instance of the class,
+        in which case it is returned as is. If the configuration is None, it is also returned
+        without modification. Otherwise, a new instance of the class is created using the
+        provided configuration and returned. This allows for flexible initialization of the
+        class from different types of input.
+
+        :param config: The configuration to create an instance from
+        :return: An instance of the class, or the original configuration if it is already an instance or None
+        :rtype: cls | None
+        """
         if config is None or isinstance(config, cls):
             return config
         return cls(config)
@@ -203,6 +216,28 @@ class SearchQuery(SearchQueryCombinable, Func):
         invert=False,
         search_type="plain",
     ):
+        """
+        Initializes a search object with a given value and configuration.
+
+        This initializer sets up a search object to find a specific value within a dataset.
+        It supports different search types, such as plain text search, and allows for optional
+        configuration parameters to customize the search behavior.
+
+        The search object can be configured to invert the search result, returning non-matching
+        values instead of matching ones.
+
+        The following search types are supported:
+            * plain: performs a basic text search
+
+        The initializer raises a ValueError if an unknown search type is provided.
+
+        Parameters:
+            value (str or Value): the value to search for
+            output_field (Field, optional): the output field type for the search result
+            config (dict, optional): a configuration dictionary to customize the search
+            invert (bool, optional): whether to invert the search result (default: False)
+            search_type (str, optional): the type of search to perform (default: 'plain')
+        """
         self.function = self.SEARCH_TYPES.get(search_type)
         if self.function is None:
             raise ValueError("Unknown search_type argument '%s'." % search_type)

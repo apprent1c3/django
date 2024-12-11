@@ -18,6 +18,18 @@ from django.utils.version import PY311
 
 class FieldFile(File, AltersData):
     def __init__(self, instance, field, name):
+        """
+
+        Initializes an instance of the class, setting up the necessary attributes for proper functionality.
+
+        :param instance: The instance to which this object belongs.
+        :param field: The field associated with this object.
+        :param name: The name of the object.
+
+        This method is responsible for establishing the relationships between the object, its instance, and its field, 
+        and for initializing the storage and commit status. It should be called during the creation of a new object.
+
+        """
         super().__init__(None, name)
         self.instance = instance
         self.field = field
@@ -420,6 +432,28 @@ class ImageField(FileField):
         height_field=None,
         **kwargs,
     ):
+        """
+        Initializes a class instance.
+
+        Parameters
+        ----------
+        verbose_name : str, optional
+            The human-readable name for the instance.
+        name : str, optional
+            The name of the instance.
+        width_field : str, optional
+            The field corresponding to the width value.
+        height_field : str, optional
+            The field corresponding to the height value.
+        **kwargs
+            Additional keyword arguments.
+
+        Notes
+        -----
+        The width and height fields can be used to store and manipulate the dimensions of an object.
+        The verbose name and name are used for identification and representation purposes.
+        This initialization method also inherits behavior from its parent class through the superclass constructor `__init__`.
+        """
         self.width_field, self.height_field = width_field, height_field
         super().__init__(verbose_name, name, **kwargs)
 

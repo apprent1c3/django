@@ -82,6 +82,11 @@ class AddField(FieldOperation):
         super().__init__(model_name, name, field)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, returning a tuple that can be used to recreate the object.
+
+        The returned tuple contains the class name, an empty list (representing positional arguments, which are not used in this case), and a dictionary of keyword arguments that define the object's state, including model name, name, field, and preservation of default behavior.
+        """
         kwargs = {
             "model_name": self.model_name,
             "name": self.name,
@@ -189,6 +194,19 @@ class RemoveField(FieldOperation):
         return "remove_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+
+        Reduce the specified operation for the model instance.
+
+        This method determines how to handle the given operation for the model.
+        If the operation is a delete operation for the current model, it returns a list containing the operation.
+        Otherwise, it delegates the reduction to the parent class's implementation.
+
+        :param operation: The operation to be reduced.
+        :param app_label: The label of the application.
+        :return: A list of reduced operations.
+
+        """
         from .models import DeleteModel
 
         if (

@@ -62,6 +62,15 @@ class DatabaseCreationTests(SimpleTestCase):
         )
 
     def test_sql_table_creation_raises_with_collation(self):
+        """
+        Tests that creating a SQL table raises an exception when a collation setting is provided.
+
+        This test case checks that attempting to create a database table with a specified collation fails as expected,
+        since PostgreSQL does not support setting collation at database creation time.
+
+        :raises: ImproperlyConfigured
+
+        """
         settings = {"COLLATION": "test"}
         msg = (
             "PostgreSQL does not support collation setting at database "

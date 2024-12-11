@@ -284,6 +284,24 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def create_cursor(self, name=None):
+        """
+
+        Creates a database cursor object.
+
+        A cursor is used to execute SQL queries and retrieve results from the database.
+        This function returns a :class:`CursorWrapper` object, which provides a convenient
+        interface for executing queries and fetching data.
+
+        The optional :param:`name` parameter can be used to specify a name for the cursor.
+        If not provided, a default name will be used.
+
+        The returned cursor object can be used to execute SQL queries using its various
+        methods, and can be used within a context manager to ensure proper cleanup.
+
+        Returns:
+            CursorWrapper: A wrapped database cursor object.
+
+        """
         cursor = self.connection.cursor()
         return CursorWrapper(cursor)
 
@@ -377,6 +395,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                         )
 
     def is_usable(self):
+        """
+        Check if the database connection is usable.
+
+        This method tests the connection by attempting to ping the database. If the ping is successful, the method returns True, indicating the connection is usable. If the ping fails, it returns False.
+
+        Returns:
+            bool: Whether the database connection is usable.
+
+        """
         try:
             self.connection.ping()
         except Database.Error:
@@ -390,6 +417,19 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def data_type_check_constraints(self):
+        """
+        def data_type_check_constraints(self):
+            \"\"\"
+            Returns a dictionary of data type check constraints.
+
+            This method checks if the underlying features support column check constraints.
+            If supported, it returns a dictionary with data types as keys and their corresponding check constraints as values.
+            The constraints are used to enforce data integrity, specifically for positive integer fields, by ensuring their values are not negative.
+
+            Returns:
+                dict: A dictionary containing data type check constraints if supported, otherwise an empty dictionary.
+
+        """
         if self.features.supports_column_check_constraints:
             check_constraints = {
                 "PositiveBigIntegerField": "`%(column)s` >= 0",

@@ -15,6 +15,24 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+
+        Initializes the Jinja2 templating engine with the provided parameters.
+
+        The function takes in a parameters dictionary, extracts and processes the 
+        OPTIONS key, and then passes the remaining parameters to the superclass 
+        constructor. It then sets up the Jinja2 environment with the specified 
+        context processors, loader, and other options. If certain options are not 
+        provided, it uses default values that can be influenced by the application's 
+        debug mode.
+
+        The resulting Jinja2 environment object is stored in the instance's `env` 
+        attribute, and can be used to render templates with the configured settings.
+
+        :param params: A dictionary of parameters, including an 'OPTIONS' key 
+                       containing settings specific to the Jinja2 templating engine.
+
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)

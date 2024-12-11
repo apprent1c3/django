@@ -153,6 +153,15 @@ class Engine:
             )
 
     def find_template(self, name, dirs=None, skip=None):
+        """
+        Find a template by name, searching through a sequence of template loaders.
+
+        The search process iterates over each template loader, attempting to retrieve the specified template. If a loader successfully retrieves the template, it is immediately returned along with its origin.
+
+        Options to customize the search include specifying a list of directories to prioritize in the search and a list of directories to skip during the search.
+
+        If the template cannot be found after trying all loaders, a TemplateDoesNotExist exception is raised, providing information on the directories that were searched.
+        """
         tried = []
         for loader in self.template_loaders:
             try:

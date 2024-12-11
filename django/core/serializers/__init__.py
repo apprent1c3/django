@@ -118,6 +118,22 @@ def get_public_serializer_formats():
 
 
 def get_deserializer(format):
+    """
+    Retrieves a deserializer instance based on the specified format.
+
+    Args:
+        format (str): The format for which to retrieve the deserializer.
+
+    Returns:
+        Deserializer: A deserializer instance for the given format.
+
+    Raises:
+        SerializerDoesNotExist: If a serializer for the specified format does not exist.
+
+    Note:
+        If no serializers have been loaded, this function will automatically load the available serializers.
+
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:

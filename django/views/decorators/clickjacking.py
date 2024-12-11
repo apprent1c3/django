@@ -47,6 +47,16 @@ def xframe_options_sameorigin(view_func):
     if iscoroutinefunction(view_func):
 
         async def _view_wrapper(*args, **kwargs):
+            """
+            Wrapper function to execute a view function asynchronously and add the X-Frame-Options header to the response if it is missing.
+
+            The X-Frame-Options header is set to 'SAMEORIGIN' by default, which allows the page to be iframed by pages from the same origin but prevents it from being iframed by pages from other origins.
+
+            This wrapper function ensures that views can be safely iframed by other pages within the same domain, preventing clickjacking attacks.
+
+            :returns: The response from the wrapped view function with the X-Frame-Options header added if necessary
+
+            """
             response = await view_func(*args, **kwargs)
             if response.get("X-Frame-Options") is None:
                 response["X-Frame-Options"] = "SAMEORIGIN"

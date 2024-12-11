@@ -220,6 +220,33 @@ class DatabaseOperations(BaseDatabaseOperations):
         return lru_cache(maxsize=512)(self.__references_graph)
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        Generate SQL commands to delete data from specified tables.
+
+        This function returns a list of SQL commands that can be used to delete data from the given tables.
+        The :param:`tables` parameter specifies the tables from which data should be deleted.
+        The :param:`style` parameter determines the SQL dialect to use for generating the commands.
+
+        The :param:`reset_sequences` parameter optionally resets the sequences for the affected tables.
+        If :param:`allow_cascade` is True, the function will also delete data from tables that are referenced by the specified tables.
+
+        Parameters
+        ----------
+        style : object
+            The SQL style object to use for generating the commands.
+        tables : list
+            The list of table names from which data should be deleted.
+        reset_sequences : bool, optional
+            If True, resets the sequences for the affected tables. Defaults to False.
+        allow_cascade : bool, optional
+            If True, also deletes data from tables that are referenced by the specified tables. Defaults to False.
+
+        Returns
+        -------
+        list
+            A list of SQL commands that can be used to delete data from the specified tables.
+
+        """
         if tables and allow_cascade:
             # Simulate TRUNCATE CASCADE by recursively collecting the tables
             # referencing the tables to be flushed.
@@ -311,6 +338,21 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def convert_datefield_value(self, value, expression, connection):
+        """
+        Converts a date field value to a standardized format.
+
+        This function takes in an arbitrary date value, checks if it's not None, 
+        and attempts to convert it to a datetime.date object if it's not already in that format.
+        The converted date value is then returned. 
+
+        Args:
+            value: The date value to be converted.
+            expression: The expression related to the date field (currently unused).
+            connection: The database connection (currently unused).
+
+        Returns:
+            The converted date value, or the original value if it was already in a datetime.date format or None.
+        """
         if value is not None:
             if not isinstance(value, datetime.date):
                 value = parse_date(value)
@@ -382,6 +424,26 @@ class DatabaseOperations(BaseDatabaseOperations):
         return (-9223372036854775808, 9223372036854775807)
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Calculates the difference between two temporal values.
+
+        This function takes an internal type and two temporal values (lhs and rhs) as input, 
+        represented as SQL strings and parameter lists. It returns a new SQL string and 
+        parameter list that represents the difference between the two input values.
+
+        The result is formatted according to the specified internal type, which can be 
+        either 'TimeField' or another type that requires the use of timestamp difference 
+        calculation.
+
+        The returned SQL string can be used directly in a database query, and the 
+        parameter list should be used to bind values to the query parameters. 
+
+        :param internal_type: The type of temporal field being subtracted, e.g. 'TimeField'
+        :param lhs: A tuple containing the SQL string and parameter list for the left-hand side temporal value
+        :param rhs: A tuple containing the SQL string and parameter list for the right-hand side temporal value
+        :return: A tuple containing the SQL string and parameter list for the temporal difference
+
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         params = (*lhs_params, *rhs_params)

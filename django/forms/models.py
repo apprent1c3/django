@@ -1372,6 +1372,19 @@ class InlineForeignKeyField(Field):
         super().__init__(*args, **kwargs)
 
     def clean(self, value):
+        """
+
+        Cleans the provided value to ensure it refers to a valid instance.
+
+        Checks if the given value is considered empty and returns either None or the parent instance accordingly.
+        If the value is not empty, it verifies whether the provided value matches the original value of the parent instance,
+        either by using a specified field (to_field) or the primary key (pk) field. If the values do not match, a ValidationError
+        is raised with an 'invalid_choice' code. If the values match, the parent instance is returned.
+
+        :param value: The value to be cleaned
+        :return: The cleaned value, which is either None, the parent instance, or raises an exception
+
+        """
         if value in self.empty_values:
             if self.pk_field:
                 return None
@@ -1394,6 +1407,12 @@ class InlineForeignKeyField(Field):
 
 class ModelChoiceIteratorValue:
     def __init__(self, value, instance):
+        """
+        Initializes a new instance of the class, setting key attributes that define its state and behavior.
+
+        :param value: The value to be stored and associated with this instance.
+        :param instance: The instance object to which this class instance belongs, providing context for its operations.
+        """
         self.value = value
         self.instance = instance
 
@@ -1411,6 +1430,13 @@ class ModelChoiceIteratorValue:
 
 class ModelChoiceIterator(BaseChoiceIterator):
     def __init__(self, field):
+        """
+        Initialize an instance of the class, setting up a field and its associated database queryset.
+
+        :param field: The field to be used for queryset retrieval.
+        :returns: None
+        :note: This method is part of the class initialization process and should not be called directly. It sets the `field` attribute and initializes the `queryset` attribute based on the provided field.
+        """
         self.field = field
         self.queryset = field.queryset
 
@@ -1489,6 +1515,21 @@ class ModelChoiceField(ChoiceField):
         self.to_field_name = to_field_name
 
     def validate_no_null_characters(self, value):
+        """
+        Validates that a given value does not contain any null characters.
+
+        This function checks the input value for the presence of null characters and
+        returns the result of the validation. It uses a ProhibitNullCharactersValidator
+        to perform the actual validation, providing a way to ensure that the input data
+        is free from null characters.
+
+        Args:
+            value: The input value to be validated.
+
+        Returns:
+            The result of the validation, indicating whether the input value contains
+            any null characters or not.
+        """
         non_null_character_validator = ProhibitNullCharactersValidator()
         return non_null_character_validator(value)
 
@@ -1531,6 +1572,15 @@ class ModelChoiceField(ChoiceField):
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
+        """
+        Retrieves the available choices for the current object.
+
+        Returns the pre-computed choices if they have already been calculated, 
+        otherwise generates them using the iterator method.
+
+        :return: A collection of available choices
+        :rtype: iterable
+        """
         if hasattr(self, "_choices"):
             return self._choices
 
@@ -1598,6 +1648,15 @@ class ModelMultipleChoiceField(ModelChoiceField):
         super().__init__(queryset, empty_label=None, **kwargs)
 
     def to_python(self, value):
+        """
+        Converts a given value into a Python list.
+
+        Returns an empty list if the input value is empty or falsy.
+        Otherwise, it uses internal validation to check the input values and returns a list of validated items.
+
+        :rtype: list
+        :return: A list of validated values or an empty list if input value is empty.
+        """
         if not value:
             return []
         return list(self._check_values(value))
@@ -1658,6 +1717,17 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return qs
 
     def prepare_value(self, value):
+        """
+
+        Prepare a value for processing by recursively handling iterable values.
+
+        This method takes a value as input and checks if it is an iterable (but not a string) and does not have a _meta attribute.
+        If the value is an iterable, it calls itself recursively on each item in the iterable and returns a list of the prepared values.
+        Otherwise, it delegates the preparation of the value to the superclass.
+
+        This allows for the handling of complex data structures, such as lists or tuples, by ensuring that each item within the structure is properly prepared.
+
+        """
         if (
             hasattr(value, "__iter__")
             and not isinstance(value, str)
@@ -1668,6 +1738,17 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return super().prepare_value(value)
 
     def has_changed(self, initial, data):
+        """
+        ..:param initial: Initial data for comparison
+        ..:param data: Current data for comparison
+        ..:return: True if the data has changed, False otherwise
+        ..:rtype: bool
+        Checks whether the provided data has changed compared to the initial data.
+        This comparison is skipped if the object is disabled.
+        The function considers data as changed if the lengths of initial and current data are different,
+        or if the sets of string representations of the values are not equal.
+        The preparation of values for comparison is done using the :meth:`prepare_value` method.
+        """
         if self.disabled:
             return False
         if initial is None:

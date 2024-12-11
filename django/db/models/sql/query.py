@@ -92,6 +92,25 @@ def get_children_from_q(q):
 
 
 def get_child_with_renamed_prefix(prefix, replacement, child):
+    """
+
+    Recursively rename a prefix in the given child object.
+
+    This function takes a prefix to be replaced, a replacement string, and a child object
+    which can be a Node, a tuple of (lhs, rhs), a F expression, or an object with 
+    resolve_expression method. It returns the child object with the prefix replaced.
+
+    The function iterates through the child object and its nested expressions, 
+    replacing the prefix with the replacement string in the following places:
+    - the 'name' attribute of F expressions
+    - the left-hand side of a tuple
+    - the source expressions of an object with resolve_expression method
+
+    Raises a ValueError if a QuerySet is encountered within a FilteredRelation.
+
+    Note that this function returns a copy of the modified child object.
+
+    """
     from django.db.models.query import QuerySet
 
     if isinstance(child, Node):
@@ -171,6 +190,14 @@ class RawQuery:
     def __iter__(self):
         # Always execute a new query for a new iterator.
         # This could be optimized with a cache at the expense of RAM.
+        """
+        Returns an iterator over the results of the query.
+
+        This method executes the query and returns a chunked or non-chunked iterator over the results, 
+        depending on the capabilities of the database connection being used. If the database connection 
+        does not support chunked reads, the entire result set is fetched and returned as a list iterator; 
+        otherwise, the underlying database cursor is used as an iterator to lazily fetch results.
+        """
         self._execute_query()
         if not connections[self.using].features.can_use_chunked_reads:
             # If the database can't use chunked reads we need to make sure we
@@ -1961,6 +1988,21 @@ class Query(BaseExpression):
 
     @classmethod
     def _gen_cols(cls, exprs, include_external=False, resolve_refs=True):
+        """
+        Generate a sequence of column objects from the given expressions.
+
+        This method recursively traverses the expressions to extract column objects.
+        It handles columns, objects with external columns, and expressions with source expressions.
+
+        Args:
+            exprs: A sequence of expressions to extract columns from.
+            include_external (bool, optional): Whether to include external columns. Defaults to False.
+            resolve_refs (bool, optional): Whether to resolve references. Defaults to True.
+
+        Yields:
+            Col: A column object yielded from the given expressions.
+
+        """
         for expr in exprs:
             if isinstance(expr, Col):
                 yield expr
@@ -1982,6 +2024,36 @@ class Query(BaseExpression):
         yield from (expr.alias for expr in cls._gen_cols(exprs))
 
     def resolve_ref(self, name, allow_joins=True, reuse=None, summarize=False):
+        """
+
+        Resolve a reference to a field or annotation.
+
+        This method takes a field or annotation name and resolves it to the corresponding
+        field or annotation object. It can handle both simple field references and more
+        complex references involving joins.
+
+        Parameters
+        ----------
+        name : str
+            The name of the field or annotation to resolve.
+        allow_joins : bool, optional
+            Whether to allow joined field references. Defaults to True.
+        reuse : dict, optional
+            A dictionary to store reusable joins.
+        summarize : bool, optional
+            Whether to return a summarized reference. Defaults to False.
+
+        Returns
+        -------
+        Ref or annotation
+            The resolved reference to the field or annotation.
+
+        Raises
+        ------
+        FieldError
+            If the reference is invalid, or if joined field references are not permitted.
+
+        """
         annotation = self.annotations.get(name)
         if annotation is not None:
             if not allow_joins:

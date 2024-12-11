@@ -243,6 +243,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.oracle_version
 
     def get_connection_params(self):
+        """
+        Returns a dictionary of connection parameters.
+
+        This method retrieves the connection options from the settings dictionary,
+        removes the 'use_returning_into' parameter if present, and returns the resulting
+        connection parameters. The returned dictionary can be used to establish a
+        database connection.
+
+        :return: A dictionary of connection parameters.
+        :rtype: dict
+        """
         conn_params = self.settings_dict["OPTIONS"].copy()
         if "use_returning_into" in conn_params:
             del conn_params["use_returning_into"]
@@ -439,6 +450,27 @@ class FormatStylePlaceholderCursor:
     charset = "utf-8"
 
     def __init__(self, connection, database):
+        """
+        Initializes a database interface object, establishing a connection to the specified database.
+
+        Parameters
+        ----------
+        connection : object
+            A database connection object.
+        database : str
+            The name of the database to connect to.
+
+        Attributes
+        ----------
+        cursor : object
+            A cursor object associated with the database connection.
+        database : str
+            The name of the connected database.
+
+        Notes
+        -----
+        This constructor sets up the necessary infrastructure for interacting with the database, including a cursor for executing queries and handling output data types.
+        """
         self.cursor = connection.cursor()
         self.cursor.outputtypehandler = self._output_type_handler
         self.database = database

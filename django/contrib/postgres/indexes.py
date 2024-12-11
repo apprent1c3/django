@@ -186,6 +186,9 @@ class GistIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Return a list of WITH parameter settings as strings, representing the current object's configuration, including buffering and fill factor settings if they are defined.
+        """
         with_params = []
         if self.buffering is not None:
             with_params.append("buffering = %s" % ("on" if self.buffering else "off"))

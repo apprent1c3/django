@@ -358,6 +358,15 @@ class PBKDF2PasswordHasher(BasePasswordHasher):
         return (decoded["iterations"] != self.iterations) or update_salt
 
     def harden_runtime(self, password, encoded):
+        """
+        Increases the security of the encoded password by performing additional hashing iterations.
+
+        :param password: The password to be secured.
+        :param encoded: The previously encoded password.
+        :returns: None
+
+        This method checks if the encoded password has fewer iterations than currently configured and, if necessary, re-encodes the password with the additional iterations to enhance its runtime security. The re-encoded password is then stored in place of the original encoded password.
+        """
         decoded = self.decode(encoded)
         extra_iterations = self.iterations - decoded["iterations"]
         if extra_iterations > 0:
@@ -633,6 +642,12 @@ class ScryptPasswordHasher(BasePasswordHasher):
         }
 
     def must_update(self, encoded):
+        """
+        Determines whether an update is required based on the provided encoded data.
+
+        The function decodes the input data and compares its parameters with the current work factor, block size, and parallelism settings.
+        It returns True if any of these parameters have changed, indicating that an update is necessary, and False otherwise.
+        """
         decoded = self.decode(encoded)
         return (
             decoded["work_factor"] != self.work_factor

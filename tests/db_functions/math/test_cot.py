@@ -46,6 +46,19 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.big_cot, 1 / math.tan(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of a Decimal field using the Cot lookup type.
+
+        This test creates two instances of DecimalModel with different decimal values, 
+        then uses the Cot lookup to filter the objects and retrieves the one with 
+        a Cot value greater than 0. It verifies that the retrieved object has the 
+        expected decimal value.
+
+        The test ensures that the Cot lookup correctly transforms the decimal field 
+        and allows for filtering based on the resulting value.
+
+        """
         with register_lookup(DecimalField, Cot):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

@@ -86,6 +86,22 @@ class ConcatPair(Func):
     as_sqlite = pipes_concat_sql
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        Return a copy of this object, converted for PostgreSQL database usage.
+
+        The resulting object is created by cloning the original object and then modifying
+        its source expressions to ensure compatibility with PostgreSQL. This involves
+        converting any non-character field expressions to TextField type using a CAST
+        operation.
+
+        The converted object's SQL representation is then generated using the provided
+        compiler and connection, with any additional context passed through to the
+        pipes_concat_sql method.
+
+        :returns: A copy of the object, compatible with PostgreSQL and ready for SQL generation.
+        :rtype: self
+
+        """
         c = self.copy()
         c.set_source_expressions(
             [

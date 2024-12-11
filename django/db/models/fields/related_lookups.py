@@ -64,6 +64,22 @@ def get_normalized_value(value, lhs):
 
 class RelatedIn(In):
     def get_prep_lookup(self):
+        """
+
+        Prepare and lookup values for the given expression.
+
+        This method is responsible for preparing the right-hand side (RHS) of a lookup expression, 
+        taking into account the type of the left-hand side (LHS) and the RHS itself. It performs 
+        necessary conversions and normalizations to ensure the lookup can be executed correctly.
+
+        The preparation process involves checking the type of the LHS and RHS, and applying 
+        transformations as needed. If the RHS is a direct value, it is normalized and converted 
+        to a format suitable for the LHS. If the RHS is not a direct value, additional checks 
+        are performed to determine the target field and prepare the RHS accordingly.
+
+        The method returns the prepared lookup expression, ready for execution.
+
+        """
         if not isinstance(self.lhs, MultiColSource):
             if self.rhs_is_direct_value():
                 # If we get here, we are dealing with single-column relations.
@@ -158,6 +174,20 @@ class RelatedLookupMixin:
         return super().get_prep_lookup()
 
     def as_sql(self, compiler, connection):
+        """
+
+        Generates the SQL representation of this node.
+
+        Handles the case where the left-hand side is a `MultiColSource` by creating
+        a `WhereNode` with constraints for each column. Each constraint is created
+        using the lookup class associated with the column and the normalized right-hand
+        side value. If the left-hand side is not a `MultiColSource`, delegates to
+        the superclass's implementation.
+
+        :param compiler: The SQL compiler to use.
+        :param connection: The database connection to use.
+
+        """
         if isinstance(self.lhs, MultiColSource):
             assert self.rhs_is_direct_value()
             self.rhs = get_normalized_value(self.rhs, self.lhs)

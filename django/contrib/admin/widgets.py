@@ -73,6 +73,14 @@ class BaseAdminTimeWidget(forms.TimeInput):
         ]
 
     def __init__(self, attrs=None, format=None):
+        """
+        ..:param attrs: A dictionary of HTML attributes to apply to the field, defaults to {'class': 'vTimeField', 'size': '8'}
+        :param format: The format of the time field
+        :returns: None
+        :raises: No exceptions are explicitly raised by this method, but exceptions may be raised by the parent class's __init__ method
+
+        Initializes a new instance of the time field class. The attrs parameter allows customization of the HTML attributes of the field. If attrs is provided, it will be merged with the default attributes {'class': 'vTimeField', 'size': '8'}, with the provided attributes taking precedence. The format parameter determines the format of the time field.
+        """
         attrs = {"class": "vTimeField", "size": "8", **(attrs or {})}
         super().__init__(attrs=attrs, format=format)
 
@@ -184,6 +192,11 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return url_params_from_lookup_dict(limit_choices_to)
 
     def url_parameters(self):
+        """
+        Returns a dictionary of URL parameters for the current view, including the base parameters and the 'to_field' parameter. 
+        The 'to_field' parameter is set to the name of the related field, as specified by the relationship defined in the model. 
+        These parameters can be used to construct URLs that link to related objects, allowing for efficient navigation and filtering within the admin interface.
+        """
         from django.contrib.admin.views.main import TO_FIELD_VAR
 
         params = self.base_url_parameters()

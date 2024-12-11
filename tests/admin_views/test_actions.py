@@ -28,6 +28,19 @@ from .models import (
 class AdminActionsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class.
+
+        This method creates a set of test users and subscribers that can be used throughout the test suite.
+        It includes a superuser and two subscribers: an external subscriber and a regular subscriber.
+        These test data instances are stored as class attributes, making them accessible to all test methods in the class.
+
+        The created test data includes:
+            - A superuser named 'super' with email 'super@example.com' and password 'secret'.
+            - An external subscriber named 'John Doe' with email 'john@example.org'.
+            - A regular subscriber named 'Max Mustermann' with email 'max@example.org'.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -95,6 +108,14 @@ class AdminActionsTest(TestCase):
         self.assertEqual(Subscriber.objects.count(), 0)
 
     def test_default_delete_action_nonexistent_pk(self):
+        """
+
+        Tests the delete action for a nonexistent primary key in the admin interface.
+
+        This test case checks that attempting to delete a non-existent object results in the correct confirmation prompt
+        and does not produce any errors. It verifies the presence of a confirmation message and an empty list of objects to be deleted.
+
+        """
         self.assertFalse(Subscriber.objects.filter(id=9998).exists())
         action_data = {
             ACTION_CHECKBOX_NAME: ["9998"],
@@ -439,6 +460,13 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_response_on_change(self):
+        """
+        Tests the response of the popup template when an actor instance is changed.
+
+        The test creates an actor instance, then simulates a POST request to the admin view for changing the actor, with the `is_popup` variable set to True. It checks that the response status code is 200 (OK) and that the correct template is used to render the popup response.
+
+        The test verifies that the response uses one of the expected templates for the popup response, with a preference for the most specific template available. This ensures that the popup template is rendered correctly when an actor instance is changed.
+        """
         instance = Actor.objects.create(name="David Tennant", age=45)
         response = self.client.post(
             reverse("admin:admin_views_actor_change", args=(instance.pk,))
@@ -475,6 +503,13 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_escaping(self):
+        """
+        Tests the escaping functionality within a popup template.
+
+        Verifies that special characters in data passed to a popup template are properly escaped, protecting against potential security vulnerabilities.
+
+        The test checks that the rendered HTML output contains the expected escaped characters, ensuring that the template correctly handles backslashes and other special characters.
+        """
         popup_response_data = json.dumps(
             {
                 "new_value": "new_value\\",

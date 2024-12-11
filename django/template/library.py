@@ -122,6 +122,18 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                Compiles a function for use in a templating context.
+
+                This function takes a parser and a token, and uses them to construct a callable node that can be executed in a templating environment.
+                It handles the syntax of the function call, including optional assignment of the result to a variable using the `as` keyword.
+                The function call arguments are parsed and validated, and any errors are handled accordingly.
+                The compiled function is then returned as a node, which can be executed later to produce the desired output.
+
+                :param parser: The parser object used to parse the template
+                :param token: The token representing the function call
+                :returns: A compiled function node that can be executed in the templating environment
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":

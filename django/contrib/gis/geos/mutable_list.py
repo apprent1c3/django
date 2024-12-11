@@ -153,6 +153,19 @@ class ListMixin:
         return len(self) == olen
 
     def __lt__(self, other):
+        """
+        Defines the less-than comparison operation between two objects.
+
+        This method determines whether the current object is lexicographically less than another object.
+        It compares the objects element-wise, returning True as soon as it finds an element that is less than the corresponding element in the other object.
+        If all elements are equal, it compares the lengths of the objects and returns True if the current object is shorter.
+
+        The comparison is performed in a way that is similar to comparing strings, where shorter strings are considered less than longer strings if all characters are equal.
+
+        Returns:
+            bool: True if the current object is less than the other object, False otherwise.
+
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -218,6 +231,20 @@ class ListMixin:
 
     # ### Private routines ###
     def _rebuild(self, newLen, newItems):
+        """
+
+        Rebuilds the internal list with the specified length and items.
+
+        This method validates the new length against the minimum and maximum allowed lengths.
+        If the new length is less than the minimum, a ValueError is raised.
+        If a maximum length is set and the new length exceeds it, a ValueError is also raised.
+        Otherwise, the internal list is updated with the specified length and items.
+
+        :param newLen: The new length of the internal list.
+        :param newItems: The new items to populate the internal list.
+        :raises ValueError: If the new length is invalid.
+
+        """
         if newLen and newLen < self._minlength:
             raise ValueError("Must have at least %d items" % self._minlength)
         if self._maxlength is not None and newLen > self._maxlength:

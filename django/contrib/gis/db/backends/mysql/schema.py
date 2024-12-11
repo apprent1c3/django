@@ -25,6 +25,16 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
         return super().skip_default(field)
 
     def quote_value(self, value):
+        """
+        Quotes the given value for safe use in a database query.
+
+        This method handles special cases for Adapter objects, converting them to strings
+        before passing them to the parent class's quote_value method for proper quoting.
+        For all other value types, it delegates to the parent class's quote_value method.
+
+        :param value: The value to be quoted.
+        :return: The quoted value as a string.
+        """
         if isinstance(value, self.connection.ops.Adapter):
             return super().quote_value(str(value))
         return super().quote_value(value)

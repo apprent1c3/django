@@ -45,6 +45,22 @@ class TestUtils(SimpleTestCase):
         )
 
     def test_format_number(self):
+        """
+
+        Tests the format_number function to ensure it correctly formats decimal numbers.
+
+        The function is tested with various input values, maximum decimal places, and precision to verify the output is as expected.
+        The test cases cover a range of scenarios including:
+        - Numbers with trailing zeros
+        - Numbers with more decimal places than the specified precision
+        - Numbers with fewer decimal places than the specified precision
+        - Maximum decimal places set to None
+        - Precision set to None
+        - Rounding to the nearest whole number or to the specified number of decimal places
+
+        It also checks that the function raises a Rounded exception when the specified maximum decimal places would cause rounding of the input value.
+
+        """
         def equal(value, max_d, places, result):
             self.assertEqual(format_number(Decimal(value), max_d, places), result)
 

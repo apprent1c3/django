@@ -34,6 +34,14 @@ class InsertVar:
         self.bound_param = None
 
     def bind_parameter(self, cursor):
+        """
+        Binds a parameter to the given cursor.
+
+        Creates a variable of the database-specific type and associates it with the cursor.
+        The bound parameter is then returned, allowing it to be used in subsequent database operations.
+
+        :returns: The bound parameter variable
+        """
         self.bound_param = cursor.cursor.var(self.db_type)
         return self.bound_param
 

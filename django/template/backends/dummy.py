@@ -41,6 +41,14 @@ class TemplateStrings(BaseEngine):
 
 class Template(string.Template):
     def render(self, context=None, request=None):
+        """
+        Render a template with the provided context and request data.
+
+        :param context: A dictionary of values to substitute into the template. If None, an empty dictionary is used.
+        :param request: An optional request object that can provide CSRF token and input data.
+        :returns: The rendered template with substituted values.
+        :note: The context dictionary values are escaped to prevent XSS attacks. If a request object is provided, it is used to include CSRF token and input data in the rendered template.
+        """
         if context is None:
             context = {}
         else:

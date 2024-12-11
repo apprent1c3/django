@@ -126,6 +126,11 @@ class Fieldset:
         return "collapse" in self.classes
 
     def __iter__(self):
+        """
+        Returns an iterator over the fields in the current object, yielding :class:`Fieldline` instances for each field. 
+        Each :class:`Fieldline` instance is initialized with the associated form, the current field, and a set of read-only fields, 
+        as well as a reference to the model admin, allowing for encapsulation and iteration over the fields in a structured manner.
+        """
         for field in self.fields:
             yield Fieldline(
                 self.form, field, self.readonly_fields, model_admin=self.model_admin
@@ -264,6 +269,29 @@ class AdminReadonlyField:
             return str(remote_obj)
 
     def contents(self):
+        """
+
+        Returns the HTML contents of the field in an administration interface.
+
+        This function determines the display representation of a field's value by first
+        attempting to retrieve the field's value using Django's field lookup mechanism.
+        If successful, it determines the best way to display the value based on its type
+        and the field's configuration.
+
+        For boolean fields, it uses the boolean icon representation. For model fields that
+        reference other models, it generates a comma-separated list of related objects
+        for many-to-many relationships, or a link to the related object's administration
+        page for foreign key and one-to-one relationships. For other field types, it uses
+        the field's widget to render the value or converts it to a string using the
+        :func:`~django.utils.html.linebreaksbr` function.
+
+        If any errors occur during the lookup or rendering process, it falls back to
+        displaying the specified empty value display string.
+
+        The resulting HTML string is then escaped to prevent cross-site scripting (XSS)
+        attacks.
+
+        """
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
         field, obj, model_admin = (

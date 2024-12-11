@@ -385,6 +385,9 @@ class RawQueryTests(TestCase):
         )
 
     def test_decimal_parameter(self):
+        """
+        Tests that the raw database query functionality correctly handles decimal parameters by creating a Coffee object and then querying for it using a decimal threshold, verifying that the result matches the created object.
+        """
         c = Coffee.objects.create(brand="starbucks", price=20.5)
         qs = Coffee.objects.raw(
             "SELECT * FROM raw_query_coffee WHERE price >= %s", params=[Decimal(20)]
@@ -404,6 +407,13 @@ class RawQueryTests(TestCase):
             list(books.iterator())
 
     def test_bool(self):
+        """
+        Tests the boolean evaluation of raw database query results for Book objects.
+
+        Verifies that a raw query returning at least one result evaluates to True, 
+        while an empty result set evaluates to False, ensuring correct boolean 
+        representation of the query outcomes.
+        """
         self.assertIs(bool(Book.objects.raw("SELECT * FROM raw_query_book")), True)
         self.assertIs(
             bool(Book.objects.raw("SELECT * FROM raw_query_book WHERE id = 0")), False

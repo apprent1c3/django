@@ -12,6 +12,13 @@ class SpatialOperator:
     sql_template = None
 
     def __init__(self, op=None, func=None):
+        """
+        Initializes an instance of the class, setting the basic parameters for its operation.
+
+        :param op: The operation to be performed, defaults to None
+        :param func: The function associated with the operation, defaults to None
+        :note: Both `op` and `func` are stored as instance attributes for later use.
+        """
         self.op = op
         self.func = func
 

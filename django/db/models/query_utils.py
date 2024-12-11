@@ -30,6 +30,21 @@ PathInfo = namedtuple(
 
 
 def subclasses(cls):
+    """
+
+    Generates an iterator over a class and all of its subclasses in a depth-first manner.
+
+    This function allows you to traverse a class hierarchy, starting from a given class and 
+    visiting all of its subclasses, including those that are nested multiple levels deep.
+
+    The iterator yields each class in the hierarchy, starting from the given class, 
+    then its immediate subclasses, followed by their subclasses, and so on.
+
+    Use this function when you need to perform an operation on a class and all of its 
+    subclasses, such as searching for specific methods or attributes, or initializing 
+    class-level variables.
+
+    """
     yield cls
     for subclass in cls.__subclasses__():
         yield from subclasses(subclass)
@@ -143,6 +158,15 @@ class Q(tree.Node):
             return True
 
     def deconstruct(self):
+        """
+        Deconstructs the query object into a tuple containing its import path, positional arguments, and keyword arguments.
+
+        The import path is generated based on the object's class module and name, with special handling for `django.db.models.query_utils` to use `django.db.models` instead. 
+
+        The positional arguments are the children of the query object, while the keyword arguments include the connector if it differs from the default, and a negation flag if the query is negated. 
+
+        The returned tuple can be used to reconstruct the query object, making it useful for serialization, logging, or other purposes where the query object needs to be represented in a more primitive form.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if path.startswith("django.db.models.query_utils"):
             path = path.replace("django.db.models.query_utils", "django.db.models")

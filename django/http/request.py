@@ -410,6 +410,13 @@ class HttpRequest:
     # containing that data.
 
     def read(self, *args, **kwargs):
+        """
+        Read data from the underlying stream.
+
+        This method reads data from the stream, handling any potential errors that may occur during the read operation. If an error occurs, it raises an :class:`UnreadablePostError` exception, wrapping the original OSError to provide more context.
+
+        The behavior and parameters of this method are similar to those of the :meth:`stream.read` method, with the addition of error handling specific to this class. See the documentation for :meth:`stream.read` for more information on the available parameters and return values.
+        """
         self._read_started = True
         try:
             return self._stream.read(*args, **kwargs)
@@ -555,6 +562,19 @@ class QueryDict(MultiValueDict):
         self._encoding = value
 
     def _assert_mutable(self):
+        """
+        Checks if the QueryDict instance is mutable.
+
+        Raises an AttributeError if the instance is immutable, indicating that
+        modifications are not allowed. This method is used internally to enforce
+        the immutability of QueryDict instances when required.
+
+        Note:
+            This method is for internal use and should not be called directly.
+            It is used to ensure that the QueryDict instance's state is not modified
+            when it is expected to be immutable.
+
+        """
         if not self._mutable:
             raise AttributeError("This QueryDict instance is immutable")
 
@@ -575,6 +595,20 @@ class QueryDict(MultiValueDict):
         return result
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the current object.
+
+        This method duplicates the object and all its attributes, ensuring that no references to the original object are maintained.
+        The resulting object is a new instance of the same class, with the same attributes and values, but independent of the original.
+
+        The copying process respects the mutable state of the object and preserves the encoding.
+        All lists and their contents are recursively duplicated to prevent shared references.
+
+        The :class:`copy` module's functionality is utilized to perform the deep copying operation.
+
+        :param memo: A dictionary used by the copying process to keep track of objects that have already been copied.
+        :returns: A new object that is a deep copy of the current object.
+        """
         result = self.__class__("", mutable=True, encoding=self.encoding)
         memo[id(self)] = result
         for key, value in self.lists():
@@ -588,6 +622,14 @@ class QueryDict(MultiValueDict):
         super().setlist(key, list_)
 
     def setlistdefault(self, key, default_list=None):
+        """
+        Sets a default value for the specified key in the dictionary if it does not exist.
+
+        :param key: The key to set the default value for.
+        :param default_list: The default list to use if the key is not present, defaults to None.
+        :return: The list for the given key.
+        :raises: AssertionError if the dictionary is immutable.
+        """
         self._assert_mutable()
         return super().setlistdefault(key, default_list)
 

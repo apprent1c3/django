@@ -91,6 +91,20 @@ class Coalesce(Func):
     def as_oracle(self, compiler, connection, **extra_context):
         # Oracle prohibits mixing TextField (NCLOB) and CharField (NVARCHAR2),
         # so convert all fields to NCLOB when that type is expected.
+        """
+        Renders this expression as Oracle SQL, handling TextField cases specially.
+
+        This method is used by the database compiler to generate the SQL for this 
+        expression when the target database is Oracle. If the output field is a 
+        TextField, it wraps the source expressions in the TO_NCLOB function to 
+        ensure correct conversion from other character types. Otherwise, it 
+        delegates to the default as_sql method.
+
+        :param compiler: The database compiler being used.
+        :param connection: The database connection.
+        :param extra_context: Any additional context for the compilation.
+        :return: The SQL for this expression as a string.
+        """
         if self.output_field.get_internal_type() == "TextField":
             clone = self.copy()
             clone.set_source_expressions(
@@ -112,6 +126,16 @@ class Collate(Func):
     collation_re = _lazy_re_compile(r"^[\w-]+$")
 
     def __init__(self, expression, collation):
+        """
+        Initializes a new instance with the given expression and collation.
+
+        :param expression: The expression to be initialized with.
+        :param collation: The name of the collation to use, which must match a valid collation pattern.
+
+        :raises ValueError: If the provided collation name is invalid.
+
+        Initializes the instance's collation attribute and calls the superclass's initializer with the provided expression, allowing for proper setup and validation of the object's state. The collation name is validated to ensure it conforms to the expected format, helping prevent potential errors or inconsistencies downstream.
+        """
         if not (collation and self.collation_re.match(collation)):
             raise ValueError("Invalid collation name: %r." % collation)
         self.collation = collation
@@ -148,6 +172,16 @@ class JSONObject(Func):
     output_field = JSONField()
 
     def __init__(self, **fields):
+        """
+        Initializes a new instance of the class.
+
+        Accepts keyword arguments that are used to populate the instance.
+        Each keyword argument is treated as a key-value pair, where the key is the name of a field and the value is the value to be assigned to that field.
+
+        The provided fields are then used to construct the instance, allowing for flexible and dynamic initialization.
+
+        :param fields: keyword arguments representing key-value pairs of fields to be initialized
+        """
         expressions = []
         for key, value in fields.items():
             expressions.extend((Value(key), value))
@@ -221,6 +255,18 @@ class NullIf(Func):
     arity = 2
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL expression for Oracle databases.
+
+        This method adapts the SQL expression for compatibility with Oracle databases.
+        It checks if the first expression is a Value object with a value of None, which is not allowed in Oracle.
+        If such a condition is detected, it raises a ValueError with a descriptive message.
+        Otherwise, it delegates the SQL generation to the parent class using the provided compiler, connection, and extra context.
+
+        :raises ValueError: If the first expression is a Value object with a value of None.
+        :returns: The generated SQL expression as a string.
+
+        """
         expression1 = self.get_source_expressions()[0]
         if isinstance(expression1, Value) and expression1.value is None:
             raise ValueError("Oracle does not allow Value(None) for expression1.")

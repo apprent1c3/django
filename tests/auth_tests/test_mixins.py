@@ -290,6 +290,20 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
     def test_permissioned_denied_exception_raised(self):
+        """
+        Tests that a PermissionDenied exception is raised when the required permissions 
+        are not met.
+
+        This test checks the behavior of a view that requires multiple permissions, 
+        including a non-existent one, and verifies that the PermissionDenied exception 
+        is correctly raised when the view is accessed with insufficient permissions.
+
+        The test covers the scenario where the view's permission_required attribute 
+        includes a combination of valid and invalid permissions, and the 
+        raise_exception attribute is set to True. The expected outcome is that the 
+        PermissionDenied exception is raised, indicating that the user lacks the 
+        required permissions to access the view.
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",

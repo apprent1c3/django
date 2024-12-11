@@ -95,6 +95,15 @@ class LastExecutedQueryTest(TestCase):
     def test_last_executed_query(self):
         # last_executed_query() interpolate all parameters, in most cases it is
         # not equal to QuerySet.query.
+        """
+
+        Tests the last executed query functionality for different query scenarios.
+
+        This function verifies that the last executed query matches the expected query 
+        string for various Django ORM query constructs, including filtering by primary key, 
+        filtering with multiple conditions, excluding specific values, and querying over a range of values.
+
+        """
         for qs in (
             Article.objects.filter(pk=1),
             Article.objects.filter(pk__in=(1, 2), reporter__pk=3),
@@ -254,6 +263,12 @@ class ConnectionCreatedSignalTest(TransactionTestCase):
     # and so it cannot be re-opened during testing.
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_signal(self):
+        """
+        .. function:: test_signal(self)
+           Tests that the connection_created signal is sent with the correct connection when a new database connection is established.
+
+           This test verifies that the signal is dispatched as expected, passing the correct connection to the receiver function. It also checks that the signal is properly disconnected after the test is completed, ensuring that it does not interfere with subsequent tests.
+        """
         data = {}
 
         def receiver(sender, connection, **kwargs):
@@ -360,6 +375,18 @@ class BackendTestCase(TransactionTestCase):
     @skipUnlessDBFeature("supports_paramstyle_pyformat")
     def test_cursor_executemany_with_pyformat(self):
         # Support pyformat style passing of parameters #10070
+        """
+        Test that executemany using the pyformat parameter style works as expected.
+
+        This test verifies that multiple rows can be inserted into the database
+        using the pyformat parameter style and that the inserted data is correct.
+        It checks that the number of inserted rows matches the expected count and
+        that each row has the correct values. The test covers a range of values,
+        including negative numbers, to ensure the functionality works in different
+        scenarios. The pyformat parameter style is a specific way of formatting
+        SQL queries, and this test ensures that the database driver supports it
+        correctly.
+        """
         args = [{"root": i, "square": i**2} for i in range(-5, 6)]
         self.create_squares(args, "pyformat", multiple=True)
         self.assertEqual(Square.objects.count(), 11)
@@ -843,6 +870,19 @@ class ThreadTests(TransactionTestCase):
 
         def do_thread():
             def runner(main_thread_connection):
+                """
+
+                Runs a database query to retrieve a Person object with the specified name.
+
+                This function takes a database connection from the main thread and uses it to
+                execute a query on the default database connection. It attempts to retrieve a
+                Person object with the first name 'John' and last name 'Doe'. If an exception
+                occurs during the query execution, it is caught and appended to the exceptions
+                list.
+
+                :param main_thread_connection: The database connection from the main thread.
+
+                """
                 from django.db import connections
 
                 connections["default"] = main_thread_connection
@@ -882,6 +922,14 @@ class ThreadTests(TransactionTestCase):
 
         def runner1():
             def runner2(other_thread_connection):
+                """
+
+                Closes the connection to another thread and handles potential database errors.
+
+                :param other_thread_connection: The connection to be closed.
+                :raises: None, but caught DatabaseError exceptions are added to the exceptions collection for further processing.
+
+                """
                 try:
                     other_thread_connection.close()
                 except DatabaseError as e:
@@ -946,6 +994,18 @@ class MySQLPKZeroTests(TestCase):
 
     @skipIfDBFeature("allows_auto_pk_0")
     def test_zero_as_autoval(self):
+        """
+        Tests the validation of auto-incrementing primary key values.
+
+        Verifies that attempting to create a Square object with an ID of 0, which is
+        typically used as the auto-incrementing value, raises a ValueError.
+
+        This test is skipped if the database being used allows an auto-incrementing
+        primary key to start at 0.
+
+        Ensures data integrity by preventing the explicit assignment of ID 0, which
+        could potentially interfere with the auto-incrementing functionality.
+        """
         with self.assertRaises(ValueError):
             Square.objects.create(id=0, root=0, square=1)
 

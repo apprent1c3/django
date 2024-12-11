@@ -223,6 +223,20 @@ class SafeExceptionReporterFilter:
                 return request.POST
 
     def cleanse_special_types(self, request, value):
+        """
+
+        Cleanses special data types, specifically handling MultiValueDict instances.
+
+        This function takes a request and a value as input, checks if the value is a MultiValueDict,
+        and if so, applies additional cleansing using the get_cleansed_multivaluedict method.
+        If the value is not a MultiValueDict or an error occurs during evaluation, the original value
+        or an error message is returned, respectively.
+
+        :param request: The current request object
+        :param value: The value to be cleansed
+        :rtype: The cleansed value or an error message if evaluation fails
+
+        """
         try:
             # If value is lazy or a complex object of another kind, this check
             # might raise an exception. isinstance checks that lazy
@@ -436,6 +450,24 @@ class ExceptionReporter:
         return t.render(c)
 
     def _get_source(self, filename, loader, module_name):
+        """
+
+        Retrieves the source code of a module from a given filename.
+
+        The function first attempts to get the source code using the provided loader, 
+        if it supports the 'get_source' method. If this fails or the loader does not 
+        support 'get_source', it tries to read the source code directly from the file.
+
+         Args:
+            filename (str): The path to the module's file.
+            loader: The loader object used to load the module.
+            module_name (str): The name of the module.
+
+         Returns:
+            list: A list of strings, where each string is a line of the module's source code.
+            None: If the source code cannot be retrieved.
+
+        """
         source = None
         if hasattr(loader, "get_source"):
             try:

@@ -287,6 +287,15 @@ class HttpResponseBase:
         # the secure flag and:
         # - the cookie name starts with "__Host-" or "__Secure-", or
         # - the samesite is "none".
+        """
+        Deletes a cookie by setting its expiration date to a time in the past.
+
+        :param key: The name of the cookie to delete.
+        :param path: The path of the cookie to delete, defaults to '/'.
+        :param domain: The domain of the cookie to delete, defaults to None.
+        :param samesite: The SameSite attribute of the cookie to delete, defaults to None.
+        :note: When deleting secure cookies, this function adheres to the secure cookie protocol by ensuring the secure attribute is set accordingly.
+        """
         secure = key.startswith(("__Secure-", "__Host-")) or (
             samesite and samesite.lower() == "none"
         )
@@ -481,6 +490,19 @@ class StreamingHttpResponse(HttpResponseBase):
 
     def _set_streaming_content(self, value):
         # Ensure we can never iterate on "value" more than once.
+        """
+
+        Sets the streaming content for the current object.
+
+        This method attempts to set the provided value as the streaming content. It determines whether the value is a synchronous or asynchronous iterator and sets the `is_async` flag accordingly.
+
+        If the value is a synchronous iterator, it is wrapped in an iterator object. If the value is an asynchronous iterator, it is wrapped in an asynchronous iterator object.
+
+        Additionally, if the provided value has a `close` method, it is added to a list of resource closers to ensure proper resource cleanup. 
+
+        :param value: The streaming content to be set.
+
+        """
         try:
             self._iterator = iter(value)
             self.is_async = False
@@ -536,6 +558,17 @@ class FileResponse(StreamingHttpResponse):
     block_size = 4096
 
     def __init__(self, *args, as_attachment=False, filename="", **kwargs):
+        """
+
+        Initialize an object with optional attachment settings.
+
+        This initializer allows for flexible construction of an object, accepting a variable number of arguments and keyword arguments.
+        It also provides specific parameters for setting up content as an attachment: `as_attachment` to control whether content should be treated as an attachment,
+        and `filename` to specify the name of the file when sent as an attachment.
+
+        The object's content type will be automatically determined if not explicitly provided in the keyword arguments.
+
+        """
         self.as_attachment = as_attachment
         self.filename = filename
         self._no_explicit_content_type = (

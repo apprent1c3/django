@@ -191,6 +191,27 @@ class I:
         )
 
     def test_github_linkcode_resolve_link_to_class_older_version(self):
+        """
+
+        Resolves a GitHub link for a class using the github_linkcode_resolve function.
+
+        This function takes the programming language, module information, and version numbers,
+        and returns a URL that points to the class definition on GitHub. The link is generated
+        for an older version of the class, as specified by the version parameter.
+
+        The returned URL is in the format of a GitHub blob URL, which includes the repository,
+        branch, and line number of the class definition.
+
+        Parameters:
+            language (str): The programming language of the code.
+            info (dict): A dictionary containing module and fullname information.
+            version (str): The version of the code for which the link should be generated.
+            next_version (str): The next version of the code.
+
+        Returns:
+            str: The resolved GitHub link.
+
+        """
         info = {
             "module": "tests.sphinx.testdata.package.module",
             "fullname": "MyClass",

@@ -41,6 +41,15 @@ class AdminSidebarTests(TestCase):
         self.client.force_login(self.superuser)
 
     def test_sidebar_not_on_index(self):
+        """
+        Tests that the sidebar is not displayed on the index page.
+
+        Verifies that the main content area is present in the response, while ensuring the 
+        sidebar navigation element is absent, as expected on the index page.
+
+        Raises AssertionError if the sidebar is unexpectedly found or the main content area 
+        is missing from the response.
+        """
         response = self.client.get(reverse("test_with_sidebar:index"))
         self.assertContains(response, '<div class="main" id="main">')
         self.assertNotContains(

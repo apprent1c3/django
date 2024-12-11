@@ -103,6 +103,15 @@ class AtomicTests(TransactionTestCase):
         self.assertSequenceEqual(Reporter.objects.all(), [reporter])
 
     def test_nested_rollback_commit(self):
+        """
+
+        Tests that a nested database transaction properly rolls back all changes when an exception occurs.
+
+        In this scenario, two database transactions are nested, with the inner transaction creating a new Reporter object.
+        When an exception is raised, the function verifies that both the inner and outer transactions are rolled back, 
+        resulting in no new Reporter objects being committed to the database.
+
+        """
         with self.assertRaisesMessage(Exception, "Oops"):
             with transaction.atomic():
                 Reporter.objects.create(last_name="Tintin")
@@ -258,6 +267,18 @@ class AtomicWithoutAutocommitTests(AtomicTests):
     """All basic tests for atomic should also pass when autocommit is turned off."""
 
     def setUp(self):
+        """
+        Set up the database transaction environment.
+
+        This method configures the database transaction to not autocommit changes. 
+        It ensures that any changes made during the test are properly cleaned up 
+        by rolling back the transaction after the test has completed, and 
+        automatically resets the autocommit setting to its original state.
+
+        This setup is used to maintain a consistent and isolated test environment, 
+        preventing test interactions from interfering with each other or 
+        affecting the database state outside of the test scope.
+        """
         transaction.set_autocommit(False)
         self.addCleanup(transaction.set_autocommit, True)
         # The tests access the database after exercising 'atomic', initiating
@@ -373,6 +394,21 @@ class AtomicErrorsTests(TransactionTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_atomic_prevents_queries_in_broken_transaction_after_client_close(self):
+        """
+
+        Tests that atomic transactions prevent queries from being executed after the client connection has been closed.
+
+        This test verifies that when an atomic transaction is in progress and the database connection is closed, any subsequent
+        queries will raise an error, preventing them from being executed in a broken transaction. It also ensures that all changes
+        made within the transaction are rolled back, maintaining database consistency.
+
+        The test covers the following scenarios:
+
+        * A database connection is closed while an atomic transaction is in progress.
+        * Attempting to execute a query after the connection has been closed raises an error.
+        * The transaction is rolled back, and no changes are committed to the database.
+
+        """
         with transaction.atomic():
             Reporter.objects.create(first_name="Archibald", last_name="Haddock")
             connection.close()
@@ -485,6 +521,17 @@ class AtomicMiscTests(TransactionTestCase):
         Reporter.objects.create()
 
     def test_mark_for_rollback_on_error_in_autocommit(self):
+        """
+
+        Tests that an active transaction is marked for rollback when an error occurs within an autocommit context.
+
+        The test verifies that any operations attempted after the error will result in a rollback of the transaction,
+        ensuring data consistency. It also checks that the autocommit mode is enabled at the start and end of the test.
+
+        This test case covers a specific scenario where an exception is raised within a marked transaction block,
+        and the expected behavior is that the transaction is rolled back to maintain data integrity.
+
+        """
         self.assertTrue(transaction.get_autocommit())
 
         # Swallow the intentional error raised.

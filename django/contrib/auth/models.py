@@ -162,6 +162,28 @@ class UserManager(BaseUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+        Creates a new superuser with the given username and email.
+
+        This method requires a username and optionally an email and password. Additional
+        fields can be provided using the extra_fields parameter. The user will be created
+        with staff and superuser status by default. If either 'is_staff' or 'is_superuser'
+        are set to False in extra_fields, a ValueError will be raised as these permissions
+        are required for a superuser.
+
+        Args:
+            username (str): The username for the new superuser.
+            email (str, optional): The email address for the new superuser. Defaults to None.
+            password (str, optional): The password for the new superuser. Defaults to None.
+            **extra_fields: Additional fields for the new superuser.
+
+        Returns:
+            The newly created superuser instance.
+
+        Raises:
+            ValueError: If 'is_staff' or 'is_superuser' are set to False in extra_fields.
+
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 

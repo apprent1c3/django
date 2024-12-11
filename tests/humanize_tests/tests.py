@@ -43,6 +43,16 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_ordinal(self):
+        """
+
+        Tests the humanization of ordinal numbers.
+
+        This function verifies that a list of input values are correctly converted to their ordinal equivalents.
+        For example, the input '1' is expected to become '1st', '2' becomes '2nd', and so on.
+        The test covers a variety of inputs, including positive and negative integers, as well as non-numeric values.
+        It checks that the humanization function correctly handles these different cases and returns the expected results.
+
+        """
         test_list = (
             "1",
             "2",
@@ -283,6 +293,17 @@ class HumanizeTests(SimpleTestCase):
 
     def test_intword(self):
         # Positive integers.
+        """
+
+        Tests the intword function to ensure it correctly converts integer-like strings into human-readable words.
+
+        The function checks both positive and negative input values, ranging from small numbers to extremely large ones, 
+        including numbers in the millions, billions, trillions, and beyond. It verifies that the function returns the 
+        expected formatted string for each input value. The test also covers the case where the input is None.
+
+        The test results are compared against a predefined list of expected outputs to ensure accuracy and correctness.
+
+        """
         test_list_positive = (
             "100",
             "1000000",
@@ -322,6 +343,18 @@ class HumanizeTests(SimpleTestCase):
             )
 
     def test_i18n_intcomma(self):
+        """
+        .. method:: test_i18n_intcomma(self)
+
+           Tests the internationalization of the intcomma filter with locale set to German.
+
+           This test verifies that the intcomma filter correctly formats integers and floats
+           with thousand separators and decimal commas according to the German locale. The test
+           covers various input values, including integers, floats, and string representations
+           of numbers, as well as the case where the input value is None. The expected output
+           values are compared to the actual output of the intcomma filter to ensure correct
+           formatting.
+        """
         test_list = (
             100,
             1000,

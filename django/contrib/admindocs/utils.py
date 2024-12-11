@@ -102,6 +102,15 @@ ROLES = {
 
 def create_reference_role(rolename, urlbase):
     # Views and template names are case-sensitive.
+    """
+    Create a custom Sphinx role for linking to external resources.
+
+    The created role links to a URL constructed by formatting the `urlbase` template with the link base from the document settings and the referenced text. The `rolename` parameter determines the name of the new role.
+
+    The role is case-sensitive if `rolename` is either 'template' or 'view', and case-insensitive otherwise.
+
+    This function registers the new role with the Sphinx parser, allowing it to be used in reStructuredText documents to create links to external resources with a custom URL pattern.
+    """
     is_case_sensitive = rolename in ["template", "view"]
 
     def _role(name, rawtext, text, lineno, inliner, options=None, content=None):

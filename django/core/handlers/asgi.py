@@ -120,6 +120,12 @@ class ASGIRequest(HttpRequest):
         self._post = post
 
     def _get_files(self):
+        """
+        Retrieves a list of files associated with the object.
+
+        Returns the cached list of files if it has been loaded previously; otherwise, 
+        loads the post and files data before returning the list of files.
+        """
         if not hasattr(self, "_files"):
             self._load_post_and_files()
         return self._files

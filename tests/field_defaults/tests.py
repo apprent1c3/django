@@ -60,6 +60,20 @@ class DefaultTests(TestCase):
         self.assertEqual(a.cost, Decimal("3.33"))
 
     def test_null_db_default(self):
+        """
+
+        Tests the default value for the 'null' field in the DBDefaults model.
+
+        This test case verifies that when an instance of DBDefaults is created without 
+        specifying a value for the 'null' field, it defaults to 1.1. Additionally, it 
+        checks that when the 'null' field is explicitly set to None, the resulting 
+        instance has a null value of None. 
+
+        The test takes into account database features that may not support returning 
+        columns from insert statements, ensuring the test works correctly across 
+        different database backends.
+
+        """
         obj1 = DBDefaults.objects.create()
         if not connection.features.can_return_columns_from_insert:
             obj1.refresh_from_db()
@@ -80,6 +94,20 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("insert_test_table_with_defaults")
     def test_both_default(self):
+        """
+
+        Tests the behavior of a model with default values when both getting an existing instance 
+        and creating a new instance.
+
+        Verifies that when retrieving an object that was inserted with database-supplied default 
+        values, the expected default values are correctly applied. Additionally, it checks that 
+        when creating a new object, the correct default values are used as defined in the model.
+
+        The test covers the database's functionality to insert a table with default values and 
+        ensures the Django ORM correctly handles these default values for both existing and newly 
+        created instances.
+
+        """
         create_sql = connection.features.insert_test_table_with_defaults
         with connection.cursor() as cursor:
             cursor.execute(create_sql.format(DBDefaults._meta.db_table))

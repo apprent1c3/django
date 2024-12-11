@@ -107,6 +107,21 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return result[0].lower() == "y"
 
     def _choice_input(self, question, choices):
+        """
+        Presents the user with a list of choices and returns the selected option.
+
+        Args:
+            question (str): The prompt or question to display to the user.
+            choices (list): A list of options for the user to select from.
+
+        Returns:
+            int: The number of the selected option (starting from 1).
+
+        Notes:
+            Continuously prompts the user for input until a valid option is selected.
+            The function handles invalid inputs, such as non-numeric characters, and guides the user to select a valid option.
+
+        """
         self.prompt_output.write(f"{question}")
         for i, choice in enumerate(choices):
             self.prompt_output.write(" %s) %s" % (i + 1, choice))

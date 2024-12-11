@@ -13,6 +13,14 @@ from .base import Loader as BaseLoader
 
 class Loader(BaseLoader):
     def __init__(self, engine, loaders):
+        """
+        Initializes the template engine instance.
+
+        :param engine: The template engine to be used.
+        :param loaders: The template loaders to be utilized by the engine.
+
+        This method sets up the necessary components for the template engine, including the template loaders and a cache for retrieved templates. It ensures that the template engine is properly configured and ready for use.
+        """
         self.get_template_cache = {}
         self.loaders = engine.get_template_loaders(loaders)
         super().__init__(engine)

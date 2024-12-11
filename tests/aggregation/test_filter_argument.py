@@ -69,6 +69,16 @@ class FilteredAggregateTests(TestCase):
         cls.b3.authors.add(cls.a3)
 
     def test_filtered_aggregates(self):
+        """
+
+        Tests the functionality of filtered aggregates by applying a filter to a 
+        summation aggregation operation. This function verifies that the sum of 
+        values, in this case 'age', is correctly calculated only for objects 
+        matching a specific condition, namely where the 'name' starts with 'test'. 
+        The result of the aggregation is then compared to an expected value to 
+        ensure the filter is applied correctly.
+
+        """
         agg = Sum("age", filter=Q(name__startswith="test"))
         self.assertEqual(Author.objects.aggregate(age=agg)["age"], 200)
 

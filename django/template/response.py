@@ -23,6 +23,23 @@ class SimpleTemplateResponse(HttpResponse):
         # It would seem obvious to call these next two members 'template' and
         # 'context', but those names are reserved as part of the test Client
         # API. To avoid the name collision, we use different names.
+        """
+
+        Initialize a response object with a template and optional context data.
+
+        The response object is initialized with a template name and an optional context dictionary.
+        Additional parameters such as content type, status, charset, and headers can also be specified.
+        The using parameter determines the template engine to use for rendering the template.
+
+        :param template: The name of the template to render
+        :param context: A dictionary of context data to pass to the template (optional)
+        :param content_type: The MIME type of the response (optional)
+        :param status: The HTTP status code of the response (optional)
+        :param charset: The character encoding of the response (optional)
+        :param using: The template engine to use for rendering (optional)
+        :param headers: A dictionary of HTTP headers to include in the response (optional)
+
+        """
         self.template_name = template
         self.context_data = context
 

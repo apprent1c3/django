@@ -181,6 +181,22 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return fields
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+
+        Retrieves a list of auto-incrementing sequences from a database table.
+
+        Args:
+            cursor: A database cursor object.
+            table_name (str): The name of the table to inspect.
+            table_fields (tuple, optional): A tuple of field names. Defaults to ().
+
+        Returns:
+            list: A list of dictionaries, each containing the table name and column name of an auto-incrementing sequence. If no sequences are found, an empty list is returned.
+
+        Note:
+            This function relies on the database's table description to identify auto-incrementing columns.
+
+        """
         for field_info in self.get_table_description(cursor, table_name):
             if "auto_increment" in field_info.extra:
                 # MySQL allows only one auto-increment column per table.

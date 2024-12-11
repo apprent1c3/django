@@ -417,6 +417,14 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _test_database_tblspace_datafile(self):
+        """
+
+        Retrieves the datafile for the test database tablespace.
+
+        Returns the datafile name specified in the test settings, defaulting to a 
+        generated name based on the tablespace name if not explicitly configured.
+
+        """
         tblspace = "%s.dbf" % self._test_database_tblspace()
         return self._test_settings_get("DATAFILE", default=tblspace)
 

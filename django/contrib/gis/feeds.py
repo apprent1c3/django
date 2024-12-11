@@ -95,6 +95,17 @@ class GeoRSSFeed(Rss201rev2Feed, GeoFeedMixin):
         return attrs
 
     def add_item_elements(self, handler, item):
+        """
+
+        Extends the base functionality of adding item elements by incorporating geospatial information.
+
+        This method builds upon the parent class's implementation of adding item elements to a handler, 
+        further enhancing it with the inclusion of GeoRSS elements for the specified item.
+
+        :param handler: The handler object responsible for processing the item elements
+        :param item: The item to which the elements are being added
+
+        """
         super().add_item_elements(handler, item)
         self.add_georss_element(handler, item)
 

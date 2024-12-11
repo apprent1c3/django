@@ -376,6 +376,19 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
             raise Exception("Could not determine PROJ version from PostGIS.")
 
     def spatial_aggregate_name(self, agg_name):
+        """
+        Return the full name of a spatial aggregate function.
+
+        The function takes the name of a spatial aggregate (e.g., 'Area', 'Centroid', etc.) 
+        and returns the complete name. If the aggregate name is 'Extent3D', the function 
+        returns 'extent3d'. Otherwise, it returns the aggregate name prefixed with a 
+        geometric function prefix. This allows for the construction of spatial aggregate 
+        functions with standardized naming conventions.
+
+        :param agg_name: The name of the spatial aggregate function (e.g., 'Area', 'Centroid', etc.)
+        :returns: The full name of the spatial aggregate function.
+        :rtype: str
+        """
         if agg_name == "Extent3D":
             return self.extent3d
         else:

@@ -44,6 +44,17 @@ class MD5Tests(TestCase):
         )
 
     def test_transform(self):
+        """
+
+        Tests the transformation of an alias to its MD5 hash for an Author object.
+
+        This test case verifies that an Author object's alias is correctly transformed
+        to its MD5 hash and retrieved from the database.
+
+        It checks that the alias 'John Smith' corresponds to the MD5 hash '6117323d2cabbc17d44c2b44587f682c'
+        and confirms that the transformed alias is correctly retrieved from the database.
+
+        """
         with register_lookup(CharField, MD5):
             authors = Author.objects.filter(
                 alias__md5="6117323d2cabbc17d44c2b44587f682c",

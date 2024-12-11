@@ -161,6 +161,16 @@ class ForeignObjectRel(FieldCacheMixin):
         return hash(self.identity)
 
     def __getstate__(self):
+        """
+
+        Returns the state of the object as a dictionary, excluding the 'path_infos' attribute.
+
+        This method is used for object serialization and is intended to provide a snapshot of the object's current state,
+        omitting any volatile or redundant data. The returned state can be used to recreate the object at a later time.
+
+        :return: A dictionary containing the object's state
+
+        """
         state = self.__dict__.copy()
         # Delete the path_infos cached property because it can be recalculated
         # at first invocation after deserialization. The attribute must be

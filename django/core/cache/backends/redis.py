@@ -80,6 +80,16 @@ class RedisCacheClient:
         # key is used so that the method signature remains the same and custom
         # cache client can be implemented which might require the key to select
         # the server, e.g. sharding.
+        """
+        memiş 
+        \"\"\"
+        Obtains a client instance for interacting with the underlying system.
+
+        :param key: An optional identifier used to retrieve the client.
+        :param write: A boolean flag indicating whether the client should be allowed to perform write operations. Defaults to False.
+        :returns: A client instance configured with the specified connection pool.
+
+        """
         pool = self._get_connection_pool(write)
         return self._client(connection_pool=pool)
 
@@ -95,11 +105,32 @@ class RedisCacheClient:
             return bool(client.set(key, value, ex=timeout, nx=True))
 
     def get(self, key, default):
+        """
+
+        Retrieves a value associated with the given key.
+
+        The value is retrieved from a storage layer using a client instance specific to the key.
+        If the value is found, it is deserialized and returned; otherwise, the provided default value is returned.
+
+        :param key: The key associated with the value to be retrieved.
+        :param default: The default value to be returned if the key is not found.
+        :returns: The deserialized value associated with the key, or the default value if not found.
+
+        """
         client = self.get_client(key)
         value = client.get(key)
         return default if value is None else self._serializer.loads(value)
 
     def set(self, key, value, timeout):
+        """
+        Sets a key-value pair in the cache with an optional expiration time.
+
+        :param key: The unique identifier for the cached value.
+        :param value: The value to be cached.
+        :param timeout: The time in seconds until the cached value expires. A timeout of 0 will remove the key from the cache.
+        :return: None
+        :raises: Exceptions may be raised by the underlying cache client.
+        """
         client = self.get_client(key, write=True)
         value = self._serializer.dumps(value)
         if timeout == 0:
@@ -152,6 +183,15 @@ class RedisCacheClient:
         client.delete(*keys)
 
     def clear(self):
+        """
+        Clears all data from the database.
+
+        Removes every key-value pair and clears the database, effectively resetting it to its initial state.
+        The action is performed using the associated client and is only successful if the flush operation is completed without errors.
+
+        :return: True if the clear operation was successful, False otherwise.
+        :rtype: bool
+        """
         client = self.get_client(None, write=True)
         return bool(client.flushdb())
 

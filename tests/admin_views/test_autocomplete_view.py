@@ -112,6 +112,18 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_custom_to_field(self):
+        """
+
+        Tests the custom 'to_field' parameter in the AutocompleteJsonView.
+
+        This test case verifies that when a custom 'field_name' is provided in the request,
+        the AutocompleteJsonView returns the expected results. It checks that the view
+        returns a 200 status code and a JSON response containing the matching question
+        object, with the 'id' and 'text' fields populated correctly. The test also
+        ensures that the pagination information is accurate, indicating whether there are
+        more results available.
+
+        """
         q = Question.objects.create(question="Is this a question?")
         request = self.factory.get(
             self.url,
@@ -310,6 +322,15 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         self.assertEqual(len(data["results"]), 3)
 
     def test_missing_search_fields(self):
+        """
+        Test that the autocomplete_view in the QuestionAdmin class raises a 404 error when the search_fields attribute is empty.
+
+        Args:
+            None
+
+        Raises:
+            Http404: If the search_fields attribute in QuestionAdmin is empty, with a message indicating that search_fields are required for the autocomplete_view.
+        """
         class EmptySearchAdmin(QuestionAdmin):
             search_fields = []
 
@@ -411,6 +432,24 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @contextmanager
     def select2_ajax_wait(self, timeout=10):
+        """
+
+        Context manager to wait for Select2 AJAX results to be loaded.
+
+        This context manager is used to pause execution until the Select2 loading indicator has disappeared,
+        indicating that the AJAX results have been loaded. It disables implicit waiting during this process
+        to improve performance.
+
+        By default, it will wait for 10 seconds for the loading indicator to disappear. The timeout can be
+        adjusted using the `timeout` parameter.
+
+        This context manager is typically used when interacting with Select2 elements that load options via AJAX.
+        It ensures that the results are available before attempting to interact with them, reducing the likelihood of
+        test failures due to timing issues.
+
+        :param int timeout: The maximum time to wait for the loading indicator to disappear (in seconds).
+
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec

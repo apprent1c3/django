@@ -147,6 +147,14 @@ class UserManagerTestCase(TransactionTestCase):
         self.assertTrue(user.is_staff)
 
     def test_create_super_user_raises_error_on_false_is_superuser(self):
+        """
+        Tests that creating a superuser with is_superuser set to False raises a ValueError.
+
+        This test case verifies that attempting to create a superuser with the is_superuser flag set to False results in an error, as a superuser must have this flag set to True by definition.
+
+        Raises:
+            ValueError: If is_superuser is not True when creating a superuser. The expected error message is 'Superuser must have is_superuser=True.'
+        """
         with self.assertRaisesMessage(
             ValueError, "Superuser must have is_superuser=True."
         ):
@@ -327,6 +335,21 @@ class CustomModelBackend(ModelBackend):
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
+        """
+
+        Restricts users based on the given permission.
+
+        This function filters users who have the specified permission. It can be further filtered by
+        including or excluding superusers and specifying a custom permission backend.
+
+        :param perm: The permission to filter users by.
+        :param is_active: If True, only active users are returned. Defaults to True.
+        :param include_superusers: If True, superusers are included in the results. Defaults to True.
+        :param backend: The permission backend to use. Defaults to None.
+        :param obj: An optional object to filter users by. If provided, it overrides other filters for a specific user.
+        :return: A queryset of users with the specified permission.
+
+        """
         if obj is not None and obj.username == "charliebrown":
             return User.objects.filter(pk=obj.pk)
         return User.objects.filter(username__startswith="charlie")
@@ -522,10 +545,31 @@ class TestCreateSuperUserSignals(TestCase):
         self.addCleanup(post_save.disconnect, self.post_save_listener, sender=User)
 
     def test_create_user(self):
+        """
+
+        Tests the creation of a new user and verifies that the expected signal is sent.
+
+        This test case checks if a user is successfully created and if the corresponding
+        signal is emitted, ensuring that the user creation process triggers the expected
+        event. The test asserts that the signal count is incremented by 1 after creating
+        the user, confirming that the signal was sent as expected.
+
+        """
         User.objects.create_user("JohnDoe")
         self.assertEqual(self.signals_count, 1)
 
     def test_create_superuser(self):
+        """
+
+         Tests the creation of a superuser.
+
+         Verifies that the superuser is successfully created with the provided credentials and 
+         that a signal is sent as a result, incrementing the signals count to 1.
+
+         The test case checks for the correct interaction between the user creation process 
+         and the signal handling mechanism, ensuring that the expected behavior is exhibited.
+
+        """
         User.objects.create_superuser("JohnDoe", "mail@example.com", "1")
         self.assertEqual(self.signals_count, 1)
 
@@ -554,6 +598,14 @@ class AnonymousUserTests(SimpleTestCase):
         self.assertEqual(str(self.user), "AnonymousUser")
 
     def test_eq(self):
+        """
+        Tests the equality of the user object with AnonymousUser and a regular User instance.
+
+        This method verifies that the user object is considered equal to an AnonymousUser 
+        instance, implying that it represents an unauthenticated user. Additionally, it 
+        confirms that the user object is not equal to a User instance with specific 
+        credentials, which represents an authenticated user.
+        """
         self.assertEqual(self.user, AnonymousUser())
         self.assertNotEqual(self.user, User("super", "super@example.com", "super"))
 

@@ -359,6 +359,14 @@ class Child(models.Model):
     name = models.CharField(max_length=30, blank=True)
 
     def clean(self):
+        """
+        Clean the object by validating its state.
+
+        Raises:
+            ValidationError: If the object's name is invalid.
+
+        This method checks if the object's name is set to a specific invalid value and raises an exception if it is. It ensures the object's state is valid before proceeding with further operations.
+        """
         if self.name == "_invalid":
             raise ValidationError("invalid")
 

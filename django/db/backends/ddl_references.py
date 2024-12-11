@@ -95,6 +95,11 @@ class Columns(TableColumns):
         super().__init__(table, columns)
 
     def __str__(self):
+        """
+        Returns a string representation of the object, formatting the column names for display.
+
+        The string includes all column names, optionally suffixed with additional information where available. The output is a comma-separated list of formatted column names, making it suitable for use in SQL queries, logging, or other applications where a human-readable representation of the object's columns is required.
+        """
         def col_str(column, idx):
             col = self.quote_name(column)
             try:
@@ -254,6 +259,20 @@ class Expressions(TableColumns):
         super().rename_table_references(old_table, new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+
+        Renames references to a column within a specific table.
+
+        This method updates the column names in the internal expressions to reflect a 
+        rename operation. It iterates over the columns in the query, replacing any 
+        occurrences of the `old_column` name with the `new_column` name, but only if 
+        the specified `table` matches the current table being processed.
+
+        :param table: The table for which column references are being updated.
+        :param old_column: The original column name to be replaced.
+        :param new_column: The new column name to replace the original column name.
+
+        """
         if self.table != table:
             return
         expressions = deepcopy(self.expressions)

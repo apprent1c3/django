@@ -19,6 +19,11 @@ class AdminAuthenticationFormTests(TestCase):
         )
 
     def test_inactive_user(self):
+        """
+        Tests the behavior of the AdminAuthenticationForm when an inactive user attempts to authenticate.
+
+        The function verifies that the form correctly identifies and reports the account status, returning a non-field error with the message \"This account is inactive.\" when an inactive user's credentials are provided.
+        """
         data = {
             "username": "inactive",
             "password": "password",

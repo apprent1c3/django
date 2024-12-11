@@ -161,6 +161,14 @@ class RemoveIndexConcurrently(NotInTransactionMixin, RemoveIndex):
             schema_editor.remove_index(model, index, concurrently=True)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Adding an index to a database model in reverse operation.
+
+        This method reverses the removal of an index from a database model by re-adding it.
+        It first checks if the operation can proceed without being in a transaction and if
+        the model is allowed to be migrated. Then, it retrieves the model and its state,
+        and uses the schema editor to add the index back to the model concurrently.
+        """
         self._ensure_not_in_transaction(schema_editor)
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):

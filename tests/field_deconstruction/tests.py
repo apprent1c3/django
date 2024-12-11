@@ -203,6 +203,20 @@ class FieldDeconstructionTests(SimpleTestCase):
         self.assertEqual(kwargs, {"upload_to": "foo/bar", "max_length": 200})
 
     def test_file_path_field(self):
+        """
+        Tests the FilePathField model field to ensure it can be properly deconstructed.
+
+        This test case verifies that the FilePathField's deconstruct method returns the 
+        correct path, arguments, and keyword arguments for different field configurations, 
+        including match patterns, recursive file access, and folder allowance.
+
+        The test validates that the deconstructed field attributes match the expected 
+        output, confirming the correctness of the FilePathField's implementation in 
+        Django's model system. Specifically, it checks that the deconstructed path is 
+        always 'django.db.models.FilePathField', and that the keyword arguments 
+        ('match', 'recursive', 'allow_folders', 'max_length') are accurately preserved 
+        and returned by the deconstruct method.
+        """
         field = models.FilePathField(match=r".*\.txt$")
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FilePathField")
@@ -217,6 +231,13 @@ class FieldDeconstructionTests(SimpleTestCase):
         )
 
     def test_float_field(self):
+        """
+        Tests the deconstruction of a FloatField model field.
+
+        Verifies that the FloatField is correctly deconstructed into its path, arguments, and keyword arguments. Specifically, checks that the path is 'django.db.models.FloatField' and that no arguments or keyword arguments are present.
+
+        This test ensures that the deconstruction process correctly identifies the FloatField and its attributes, which is essential for reliable serialization and deserialization of model fields.
+        """
         field = models.FloatField()
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.db.models.FloatField")

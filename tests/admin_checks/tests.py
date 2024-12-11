@@ -791,6 +791,13 @@ class SystemChecksTestCase(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_nonexistent_field(self):
+        """
+        Tests the scenario where a non-existent field is specified in the readonly_fields attribute of a ModelAdmin class.
+
+         Verifies that the check method raises the expected Error when referencing a field that does not exist in the model or the ModelAdmin class.
+
+         The test ensures that the error message accurately identifies the problematic field and provides information about the ModelAdmin class and the model being checked.
+        """
         class SongAdmin(admin.ModelAdmin):
             readonly_fields = ("title", "nonexistent")
 

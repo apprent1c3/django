@@ -9,6 +9,15 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ModTests(TestCase):
     def test_null(self):
+        """
+
+        Test that the Mod database function correctly handles null values.
+
+        This test case verifies that when either the dividend or divisor in a modulo operation is null,
+        the result of the Mod function is also null. It creates an instance of IntegerModel with a non-null value,
+        applies the Mod function to fields that include null values, and asserts that the resulting values are null.
+
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_mod_small=Mod("small", "normal"),

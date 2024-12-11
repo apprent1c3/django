@@ -18,6 +18,14 @@ class FileBasedCache(BaseCache):
     pickle_protocol = pickle.HIGHEST_PROTOCOL
 
     def __init__(self, dir, params):
+        """
+        Initializes a new instance of the class, setting up the base configuration and directory structure.
+
+        :param dir: The path to the directory where the instance will be rooted.
+        :param params: Additional parameters to configure the instance.
+
+        The directory path is converted to an absolute path and stored for later use. If the specified directory does not exist, it is automatically created to ensure proper setup.
+        """
         super().__init__(params)
         self._dir = os.path.abspath(dir)
         self._createdir()
@@ -44,6 +52,17 @@ class FileBasedCache(BaseCache):
         file.write(zlib.compress(pickle.dumps(value, self.pickle_protocol)))
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets a key-value pair in the storage.
+
+        :param key: The key to be set.
+        :param value: The value associated with the key.
+        :param timeout: The timeout for the operation, defaults to :const:`DEFAULT_TIMEOUT`.
+        :param version: The version of the key-value pair, optional.
+        :returns: None
+        :note: If a file already exists for the given key and version, its contents will be replaced.
+        The function ensures that the storage directory exists and that old files are periodically culled to maintain storage efficiency.
+        """
         self._createdir()  # Cache dir can be deleted at any time.
         fname = self._key_to_file(key, version)
         self._cull()  # make some room if necessary

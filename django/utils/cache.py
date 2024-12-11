@@ -136,6 +136,16 @@ def _precondition_failed(request):
 
 
 def _not_modified(request, response=None):
+    """
+
+    Return an HttpResponseNotModified response object, with optional inherited headers and cookies from a given response.
+
+    This function takes an incoming request and an optional response object. 
+    If a response is provided, it copies relevant headers (such as Cache-Control, ETag, and Last-Modified) 
+    and cookies from the original response to the new HttpResponseNotModified object, 
+    before returning the new response.
+
+    """
     new_response = HttpResponseNotModified()
     if response:
         # Preserve the headers required by RFC 9110 Section 15.4.5, as well as

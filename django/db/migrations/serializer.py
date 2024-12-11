@@ -81,6 +81,11 @@ class DatetimeDatetimeSerializer(BaseSerializer):
     """For datetime.datetime."""
 
     def serialize(self):
+        """
+        .serializes the internal datetime value to a string representation and returns it along with required imports.
+
+        This method ensures that the datetime value is converted to UTC timezone before serialization if it is not already in UTC. The returned imports are necessary for reconstructing the datetime object from the serialized string. The output can be used for storing or transmitting the datetime value in a reproducible format.
+        """
         if self.value.tzinfo is not None and self.value.tzinfo != datetime.timezone.utc:
             self.value = self.value.astimezone(datetime.timezone.utc)
         imports = ["import datetime"]
@@ -109,6 +114,22 @@ class DeconstructableSerializer(BaseSerializer):
 
     @staticmethod
     def _serialize_path(path):
+        """
+
+        Serialize a given path to a tuple containing the serialized name and required import statements.
+
+        The serialized name is the name of the object without its module prefix, unless the object is from 'django.db.models',
+        in which case it is prefixed with 'models.' to reflect the correct import.
+
+        The required import statements are also returned as a set, containing the import statement needed to use the object. 
+
+        Parameters:
+            path (str): The full path of the object to be serialized, in the format 'module.name'.
+
+        Returns:
+            tuple: A tuple containing the serialized name (str) and the required import statements (set).
+
+        """
         module, name = path.rsplit(".", 1)
         if module == "django.db.models":
             imports = {"from django.db import models"}
@@ -222,6 +243,23 @@ class FunctoolsPartialSerializer(BaseSerializer):
 
 class IterableSerializer(BaseSerializer):
     def serialize(self):
+        """
+
+        Serialize a collection of items into a string representation.
+
+        This function iterates over each item in the collection, serializes it using a serializer factory, 
+        and combines the resulting strings into a single output string.
+
+        The output is a tuple containing the serialized string and a set of required imports.
+
+        The serialized string is formatted as a tuple, with items separated by commas. 
+        If the collection contains only one item, the string is formatted as a singleton tuple.
+
+        The function returns a tuple of:
+            - A string representation of the serialized collection
+            - A set of import statements required to deserialize the collection
+
+        """
         imports = set()
         strings = []
         for item in self.value:
@@ -252,6 +290,19 @@ class ModelManagerSerializer(DeconstructableSerializer):
 
 class OperationSerializer(BaseSerializer):
     def serialize(self):
+        """
+        Serializes the object's value into a string format compatible with Django database migrations.
+
+        This method is responsible for converting the object's value into a serialized representation,
+        suitable for use in Django migration operations. The serialization process also tracks any
+        necessary imports, which are returned alongside the serialized string.
+
+        The returned tuple contains the serialized string, with any trailing commas removed, and
+        a collection of imports required to reconstruct the object's value.
+
+        Returns:
+            tuple: A tuple containing the serialized string and required imports.
+        """
         from django.db.migrations.writer import OperationWriter
 
         string, imports = OperationWriter(self.value, indentation=0).serialize()

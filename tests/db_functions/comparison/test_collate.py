@@ -27,6 +27,23 @@ class CollateTests(TestCase):
         self.assertSequenceEqual(qs, [self.author2, self.author1])
 
     def test_language_collation_order_by(self):
+        """
+        Tests the language collation order of Author model instances.
+
+        This test verifies that the Author model's instances are properly ordered
+        using the Swedish case-insensitive language collation. The ordering is
+        performed based on the 'alias' field, followed by the 'name' field.
+
+        The test creates additional Author instances with Swedish characters and
+        asserts that they are ordered correctly according to the Swedish language
+        collation rules. The test is skipped if the database backend does not
+        support language collations.
+
+        The expected ordering is based on the Swedish alphabet, where 'O' comes
+        before 'Ö', and 'Ö' comes after 'P'. The test ensures that the Author
+        instances are returned in the correct order, taking into account the
+        language-specific collation rules.
+        """
         collation = connection.features.test_collations.get("swedish_ci")
         if not collation:
             self.skipTest("This backend does not support language collations.")

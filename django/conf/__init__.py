@@ -144,6 +144,16 @@ class LazySettings(LazyObject):
         return self._wrapped is not empty
 
     def _show_deprecation_warning(self, message, category):
+        """
+        .. method:: _show_deprecation_warning(message, category)
+
+            Displays a deprecation warning if triggered by user code, rather than Django's internal code.
+
+            :param message: The message to display in the deprecation warning.
+            :param category: The category of the warning (e.g., a specific type of DeprecationWarning).
+
+            This function checks the call stack to determine if the warning originated from within Django's own code, or from user code. If the warning came from user code, it is displayed using the provided message and category, helping developers identify and address deprecated usage.
+        """
         stack = traceback.extract_stack()
         # Show a warning if the setting is used outside of Django.
         # Stack index: -1 this line, -2 the property, -3 the

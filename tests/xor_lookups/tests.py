@@ -10,6 +10,17 @@ class XorLookupsTests(TestCase):
         cls.numbers = [Number.objects.create(num=i) for i in range(10)]
 
     def test_filter(self):
+        """
+
+        Test the XOR operator (^) used in conjunction with Django's ORM filters.
+
+        This test case checks that the XOR operator correctly combines two sets of filtered results from the database.
+        It verifies that the resulting set only includes items that satisfy one of the conditions, but not both.
+
+        In this specific test, it checks the numbers that are either less than or equal to 7 or greater than or equal to 3, but not both.
+        The expected result includes numbers that are less than 3 and numbers that are greater than 7.
+
+        """
         self.assertCountEqual(
             Number.objects.filter(num__lte=7) ^ Number.objects.filter(num__gte=3),
             self.numbers[:3] + self.numbers[8:],

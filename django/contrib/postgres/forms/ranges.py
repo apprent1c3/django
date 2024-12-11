@@ -21,6 +21,16 @@ __all__ = [
 
 class RangeWidget(MultiWidget):
     def __init__(self, base_widget, attrs=None):
+        """
+        Initializes a widget instance, inheriting from its parent class, with a specified base widget and optional attributes.
+
+        The base widget is duplicated and used as both the primary and secondary widget for the instance, creating a symmetric composition.
+
+        :param base_widget: The core widget to be duplicated and used in the instance.
+        :param attrs: Optional attributes to customize the widget's behavior and appearance.
+
+        :raises: No specific exceptions are raised directly by this method, but errors may occur if the base widget or attributes are invalid.
+        """
         widgets = (base_widget, base_widget)
         super().__init__(widgets, attrs)
 

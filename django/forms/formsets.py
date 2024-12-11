@@ -128,6 +128,13 @@ class BaseFormSet(RenderableFormMixin):
         return True
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, providing information about its binding status, validity, and the total number of forms it contains.
+
+        The representation includes the object's class name, whether it is bound, its validity status ('Unknown' if errors are not available, 'True' or 'False' otherwise), and the total number of forms.
+
+        The validity is determined by checking if the object is bound and if there are any non-form errors or form errors. The string is formatted as '<Class_name: bound=True/False valid=True/False/Unknown total_forms=Total_form_count>'. 
+        """
         if self._errors is None:
             is_valid = "Unknown"
         else:

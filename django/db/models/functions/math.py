@@ -184,6 +184,20 @@ class Round(FixDecimalInputMixin, Transform):
         super().__init__(expression, precision, **extra)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generates the SQLite SQL for this database function, taking into account SQLite-specific limitations.
+
+        This function checks the precision value of the source expression and raises a ValueError if it is negative, as SQLite does not support negative precision values.
+
+        The generated SQL is then delegated to the parent class for final processing, allowing for additional customization and processing through the **extra_context parameter.
+
+        Returns:
+            The SQLite SQL representation of this function.
+
+        Raises:
+            ValueError: If the precision value is negative.
+
+        """
         precision = self.get_source_expressions()[1]
         if isinstance(precision, Value) and precision.value < 0:
             raise ValueError("SQLite does not support negative precision.")

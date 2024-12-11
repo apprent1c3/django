@@ -26,6 +26,21 @@ class SQLiteNumericMixin:
     """
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+
+        Generates a SQLite-specific SQL query string and parameter tuple for the current query.
+
+        The generated SQL string is adapted from the query's standard SQL representation to conform to SQLite's requirements.
+        Specifically, if the query involves a DecimalField, the SQL string is wrapped in a CAST expression to ensure correct numeric handling.
+
+        The returned tuple contains the adapted SQL string and the original query parameters.
+
+        :param compiler: The query compiler instance
+        :param connection: The database connection instance
+        :param extra_context: Additional context parameters for the query
+        :return: A tuple containing the SQLite-specific SQL string and parameter tuple
+
+        """
         sql, params = self.as_sql(compiler, connection, **extra_context)
         try:
             if self.output_field.get_internal_type() == "DecimalField":
@@ -393,6 +408,22 @@ class BaseExpression:
         return self.output_field.get_transform(name)
 
     def relabeled_clone(self, change_map):
+        """
+
+        Creates a copy of the current object with its source expressions relabeled according to the provided change map.
+
+        Parameters
+        ----------
+        change_map : dict
+            A dictionary mapping original labels to their new values.
+
+        Returns
+        -------
+        A new instance with relabeled source expressions, leaving the original object unchanged.
+
+        This method is useful for creating variations of the current object with modified source expressions, while preserving the original configuration.
+
+        """
         clone = self.copy()
         clone.set_source_expressions(
             [
@@ -488,6 +519,15 @@ class BaseExpression:
 
     def get_expression_for_validation(self):
         # Ignore expressions that cannot be used during a constraint validation.
+        """
+
+        Returns an expression suitable for validation, taking into account the 
+        :attr:`constraint_validation_compatible` attribute of the object. If 
+        :attr:`constraint_validation_compatible` is :obj:`False`, this method 
+        ensures that the object has only one source expression and returns it. 
+        Otherwise, the object itself is returned as the expression for validation.
+
+        """
         if not getattr(self, "constraint_validation_compatible", True):
             try:
                 (expression,) = self.get_source_expressions()
@@ -734,6 +774,24 @@ class CombinedExpression(SQLiteNumericMixin, Expression):
         return combined_type()
 
     def as_sql(self, compiler, connection):
+        """
+
+        Generates a SQL expression for a binary operation.
+
+        This method compiles the left-hand side (LHS) and right-hand side (RHS) expressions
+        into SQL strings and combines them using a specified connector. The resulting SQL
+        expression is then wrapped in parentheses.
+
+        The compiler and connection objects are used to compile the expressions and combine
+        them, respectively. The generated SQL expression and its parameters are returned as
+        a tuple.
+
+        :param compiler: The compiler object used to compile the expressions.
+        :param connection: The connection object used to combine the expressions.
+        :returns: A tuple containing the generated SQL expression as a string and a list
+            of parameters.
+
+        """
         expressions = []
         expression_params = []
         sql, params = compiler.compile(self.lhs)
@@ -812,6 +870,22 @@ class DurationExpression(CombinedExpression):
         return compiler.compile(side)
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a duration expression.
+
+        This method takes into account the capabilities of the underlying database
+        connection, using native duration fields if available. If not, it constructs
+        the expression manually by compiling the left-hand and right-hand sides of
+        the expression and combining them using the database's expression combining
+        logic.
+
+        The resulting SQL string and its parameters are returned as a tuple.
+
+        :param compiler: The SQL compiler to use for generating the SQL.
+        :param connection: The database connection to generate the SQL for.
+        :return: A tuple containing the generated SQL string and its parameters.
+
+        """
         if connection.features.has_native_duration_field:
             return super().as_sql(compiler, connection)
         connection.ops.check_expression_support(self)
@@ -1045,6 +1119,12 @@ class Func(SQLiteNumericMixin, Expression):
         self.extra = extra
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its class name and arguments.
+        The representation includes stringified values of the source expressions, joined by a comma and a space.
+        If additional options are available, they are appended to the representation in the format 'key=value', sorted alphabetically by key.
+        This representation is useful for debugging and logging purposes, providing a human-readable summary of the object's state.
+        """
         args = self.arg_joiner.join(str(arg) for arg in self.source_expressions)
         extra = {**self.extra, **self._get_repr_options()}
         if extra:
@@ -1278,6 +1358,18 @@ class Col(Expression):
         return sql, []
 
     def relabeled_clone(self, relabels):
+        """
+        Return a copy of the current object with its alias relabeled.
+
+        The relabeled copy is created by replacing the current alias with a new one
+        from the provided dictionary of relabels. If the current alias is not found
+        in the dictionary, the original alias is preserved. If the object does not
+        have an alias, the original object is returned unchanged.
+
+        :param relabels: A dictionary mapping original aliases to their new values.
+        :rtype: An instance of the same class with the updated alias.
+
+        """
         if self.alias is None:
             return self
         return self.__class__(
@@ -1458,6 +1550,18 @@ class NegatedExpression(ExpressionWrapper):
         # Wrap boolean expressions with a CASE WHEN expression if a database
         # backend (e.g. Oracle) doesn't support boolean expression in SELECT or
         # GROUP BY list.
+        """
+
+        Modify a SQL query to ensure compatibility with the target database.
+
+        This function takes a SQL query and adjusts it if necessary to work around 
+        limitations in the database's support for boolean expressions in select clauses.
+        It checks if the target database supports boolean expressions in the where clause,
+        but not in the select clause, and if so, it wraps the query in a CASE statement.
+
+        Returns a tuple containing the modified SQL query and its parameters.
+
+        """
         expression_supported_in_where_clause = (
             compiler.connection.ops.conditional_expression_supported_in_where_clause
         )
@@ -1612,6 +1716,23 @@ class Case(SQLiteNumericMixin, Expression):
     def as_sql(
         self, compiler, connection, template=None, case_joiner=None, **extra_context
     ):
+        """
+
+        Render a SQL case statement.
+
+        This method generates a SQL case statement based on the provided cases and default value.
+        It checks the support for the expression on the given database connection and compiles the cases
+        and default value into SQL. The compiled SQL is then rendered into a string using a template.
+
+        The method takes several parameters to customize the output, including a template for rendering the SQL,
+        a joiner for combining the case parts, and additional context for the template.
+
+        Returns a tuple containing the rendered SQL string and the parameters for the SQL query.
+
+        Raises:
+            database errors: If the expression is not supported on the given database connection.
+
+        """
         connection.ops.check_expression_support(self)
         if not self.cases:
             return compiler.compile(self.default)

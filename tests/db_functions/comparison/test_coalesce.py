@@ -53,6 +53,20 @@ class CoalesceTests(TestCase):
         )
 
     def test_ordering(self):
+        """
+
+        Tests the ordering of Author objects based on the 'alias' field if it exists, 
+        and otherwise the 'name' field.
+
+        This test ensures that authors are ordered correctly in ascending and descending 
+        order, regardless of whether they have an alias or not.
+
+        The test covers three scenarios:
+        - Ordering in ascending order without specifying direction.
+        - Ordering in ascending order with explicit direction.
+        - Ordering in descending order.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.order_by(Coalesce("alias", "name"))

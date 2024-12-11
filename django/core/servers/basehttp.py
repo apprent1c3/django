@@ -158,6 +158,13 @@ class ServerHandler(simple_server.ServerHandler):
         super().close()
 
     def finish_response(self):
+        """
+        Completes a response to an HTTP request, handling the final stages of request processing.
+
+        When the request method is 'HEAD', this method attempts to discard any response body, 
+        and ensures that headers are sent if not already. It then closes the connection. 
+        For non-'HEAD' requests, it delegates to the superclass implementation to complete the response.
+        """
         if self.environ["REQUEST_METHOD"] == "HEAD":
             try:
                 deque(self.result, maxlen=0)  # Consume iterator.

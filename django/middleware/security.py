@@ -7,6 +7,18 @@ from django.utils.deprecation import MiddlewareMixin
 
 class SecurityMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
+        """
+        Initializes the security middleware with the provided get_response callable and sets various security-related attributes based on project settings.
+
+        These attributes control features such as:
+        - HTTP Strict Transport Security (HSTS) settings, including the duration, subdomain inclusion, and preload behavior
+        - Content type sniffing protection
+        - SSL redirect configuration, including the host and exempt URLs
+        - Referrer policy
+        - Cross-origin opener policy
+
+        The set attributes are used to enforce security measures throughout the application, enhancing the overall security posture of the project.
+        """
         super().__init__(get_response)
         self.sts_seconds = settings.SECURE_HSTS_SECONDS
         self.sts_include_subdomains = settings.SECURE_HSTS_INCLUDE_SUBDOMAINS

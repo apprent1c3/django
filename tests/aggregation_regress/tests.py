@@ -1556,6 +1556,16 @@ class AggregationTests(TestCase):
 
     @skipUnlessDBFeature("allows_group_by_selected_pks")
     def test_aggregate_unmanaged_model_as_tables(self):
+        """
+
+        Tests the aggregation of an unmanaged model using the Count annotation when grouping by selected primary keys.
+
+        This test creates a QuerySet that selects related objects from the Book model, annotates the number of authors for each book,
+        and checks the resulting grouping. It verifies that the grouping is correct and that the expected columns are included.
+
+        The test also checks the ordering of the QuerySet by the 'name' field and asserts that the resulting QuerySet matches the expected output.
+
+        """
         qs = Book.objects.select_related("contact").annotate(
             num_authors=Count("authors")
         )
@@ -1814,6 +1824,15 @@ class AggregationTests(TestCase):
         self.assertSequenceEqual(qs, [29])
 
     def test_allow_distinct(self):
+        """
+        Tests the allow_distinct functionality of Aggregate subclasses.
+
+        This test case verifies that Aggregate subclasses without the allow_distinct attribute set to True raise a TypeError when attempting to create an instance with distinct=True.
+
+        It also confirms that subclasses with allow_distinct set to True can successfully create instances with distinct=True without raising an error.
+
+        The purpose of this test is to ensure that the allow_distinct mechanism is properly enforced, preventing Aggregate subclasses from unnecessarily allowing distinct values if not intentionally enabled by the subclass author.
+        """
         class MyAggregate(Aggregate):
             pass
 

@@ -55,6 +55,15 @@ from .widgetadmin import site as widget_admin_site
 class TestDataMixin:
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for use in tests.
+
+        This method creates a superuser and a regular user, along with two cars assigned to these users.
+        The superuser has the username 'super' and password 'secret', while the regular user has the username 'testser' and the same password.
+        Two cars are created: a Volkswagen Passat owned by the superuser and a BMW M3 owned by the regular user.
+
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email=None
         )
@@ -276,6 +285,17 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_m2m_widgets_no_allow_multiple_selected(self):
+        """
+        Tests that the Many-To-Many field widget for the 'companies' field in the Advisor model 
+        does not allow multiple selections. 
+
+        Verifies the default widget and help text provided by the AdvisorAdmin form when 
+        configuring the 'companies' Many-To-Many field with filter_vertical display and 
+        a custom widget override that disallows multiple selections. 
+
+        Ensures the appearance of the 'companies' field as a FilteredSelectMultiple widget 
+        without providing any help text.
+        """
         class NoAllowMultipleSelectedWidget(forms.SelectMultiple):
             allow_multiple_selected = False
 
@@ -377,6 +397,19 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
 class FilteredSelectMultipleWidgetTest(SimpleTestCase):
     def test_render(self):
         # Backslash in verbose_name to ensure it is JavaScript escaped.
+        """
+
+        Tests the render functionality of the FilteredSelectMultiple widget.
+
+        This test ensures that the widget is rendered correctly with the expected
+        HTML structure and attributes, including the select element's name, class,
+        and data attributes.
+
+        The test case verifies that the rendered HTML matches the expected output
+        for a given input, including the correct handling of special characters
+        in the field name.
+
+        """
         w = widgets.FilteredSelectMultiple("test\\", False)
         self.assertHTMLEqual(
             w.render("test", "test"),
@@ -396,6 +429,16 @@ class FilteredSelectMultipleWidgetTest(SimpleTestCase):
 
 class AdminDateWidgetTest(SimpleTestCase):
     def test_attrs(self):
+        """
+
+        Tests the rendering of the AdminDateWidget.
+
+        This test case verifies that the AdminDateWidget correctly renders date fields
+        in the admin interface, including the use of custom attributes. It checks that
+        the rendered HTML matches the expected output for both default and custom
+        attribute settings.
+
+        """
         w = widgets.AdminDateWidget()
         self.assertHTMLEqual(
             w.render("test", datetime(2007, 12, 1, 9, 30)),
@@ -1884,6 +1927,15 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertNotIn("Change", photo_field_row.text)
 
     def test_clearablefileinput_widget_invalid_file(self):
+        """
+
+        Tests the ClearableFileInput widget with an invalid file.
+
+        This test case verifies the functionality of the ClearableFileInput widget when an invalid file is uploaded.
+        It checks that the expected error message is displayed and that the widget's UI is updated correctly after submitting the form.
+        The test uses a corrupted image file to simulate an invalid upload and asserts that the widget behaves as expected.
+
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()

@@ -46,6 +46,15 @@ try:
         def upgrade(self, obj, format):
             # Dump ranges containing naive datetimes as tstzrange, because
             # Django doesn't use tz-aware ones.
+            """
+            Upgrades the given object to the specified format, handling temporal range types.
+
+            This method overrides the base class implementation to ensure compatibility with timestamp range types. If the upgraded object is of type TSRANGE_OID, it is converted to TSTZRANGE_OID to align with the target format.
+
+            :param obj: The object to upgrade
+            :param format: The target format for the upgrade
+            :return: The upgraded object dumper
+            """
             dumper = super().upgrade(obj, format)
             if dumper is not self and dumper.oid == TSRANGE_OID:
                 dumper.oid = TSTZRANGE_OID

@@ -22,6 +22,22 @@ class VaryOnHeadersTests(SimpleTestCase):
 
     def test_vary_on_headers_decorator(self):
         @vary_on_headers("Header", "Another-header")
+        """
+        Tests that the vary_on_headers decorator correctly sets the Vary header in the HTTP response.
+
+        The vary_on_headers decorator is used to specify which HTTP headers a view's response varies on. 
+        This test verifies that when the decorator is applied to a view, the resulting HTTP response 
+        includes a Vary header with the specified header names.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Asserts that the Vary header in the HTTP response matches the header names specified 
+        in the vary_on_headers decorator.
+        """
         def sync_view(request):
             return HttpResponse()
 

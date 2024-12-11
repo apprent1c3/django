@@ -27,6 +27,9 @@ class Tags:
 
 class CheckRegistry:
     def __init__(self):
+        """
+        Initializes the object, setting up two empty sets: registered_checks and deployment_checks, which will be used to store and manage checks.
+        """
         self.registered_checks = set()
         self.deployment_checks = set()
 

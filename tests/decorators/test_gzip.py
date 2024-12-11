@@ -10,6 +10,13 @@ class GzipPageTests(SimpleTestCase):
     content = "Content " * 100
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        Tests that a synchronous function wrapped with gzip_page remains a synchronous function.
+
+        Verifies that applying gzip_page to a synchronous view function does not convert it into a coroutine function, ensuring that it can still be used in synchronous contexts without issues related to asynchronous execution.
+
+
+        """
         def sync_view(request):
             return HttpResponse()
 

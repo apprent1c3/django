@@ -539,6 +539,14 @@ class SyncHandler:
     param = 0
 
     def __call__(self, **kwargs):
+        """
+        Invokes the object as a callable, incrementing an internal counter.
+
+        This method increments the object's internal parameter by 1 and returns the updated value.
+
+        :returns: The updated value of the internal parameter after incrementing.
+        :rtype: int
+        """
         self.param += 1
         return self.param
 

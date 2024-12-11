@@ -146,6 +146,28 @@ class BaseDatabaseSchemaEditor:
     sql_alter_column_comment = "COMMENT ON COLUMN %(table)s.%(column)s IS %(comment)s"
 
     def __init__(self, connection, collect_sql=False, atomic=True):
+        """
+        Initialize the database migration object.
+
+        This constructor sets up the migration object with a database connection and 
+        configuration options. It allows for the collection of SQL statements 
+        generated during the migration process and controls whether migrations 
+        are executed as a single, atomic transaction.
+
+        Parameters
+        ----------
+        connection : object
+            The database connection to use for the migration.
+        collect_sql : bool, optional
+            If True, collect SQL statements generated during the migration (default: False).
+        atomic : bool, optional
+            If True, execute migrations as a single, atomic transaction (default: True).
+
+        Note
+        ----
+        Atomicity is only enabled if the database connection supports rolling back DDL statements.
+
+        """
         self.connection = connection
         self.collect_sql = collect_sql
         if self.collect_sql:
@@ -690,6 +712,15 @@ class BaseDatabaseSchemaEditor:
                 sql.rename_table_references(old_db_table, new_db_table)
 
     def alter_db_table_comment(self, model, old_db_table_comment, new_db_table_comment):
+        """
+        Alters the comment for a database table associated with the given model.
+
+        :param model: The model instance whose database table comment is to be modified.
+        :param old_db_table_comment: The current comment of the database table.
+        :param new_db_table_comment: The new comment to be applied to the database table.
+        :returns: None
+        :note: The alteration is only performed if the database backend supports comments and the necessary SQL command is available.
+        """
         if self.sql_alter_table_comment and self.connection.features.supports_comments:
             self.execute(
                 self.sql_alter_table_comment
@@ -1755,6 +1786,13 @@ class BaseDatabaseSchemaEditor:
             return " DEFERRABLE INITIALLY IMMEDIATE"
 
     def _unique_index_nulls_distinct_sql(self, nulls_distinct):
+        """
+        Returns the SQL syntax for NULLS DISTINCT or NULLS NOT DISTINCT based on the nulls_distinct parameter.
+
+        :param bool nulls_distinct: Whether NULLs should be considered distinct or not. If True, returns ' NULLS DISTINCT', if False returns ' NULLS NOT DISTINCT'. If None, returns an empty string.
+        :return: SQL syntax string corresponding to the nulls_distinct parameter.
+
+        """
         if nulls_distinct is False:
             return " NULLS NOT DISTINCT"
         elif nulls_distinct is True:
@@ -1849,6 +1887,42 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+
+        Create a SQL statement to represent a unique constraint.
+
+        This function generates SQL to create a unique constraint on a model's fields.
+        The constraint is created with an optional name, condition, deferrable option,
+        and can include additional columns, operator classes, and null distinct behavior.
+
+        Parameters
+        ----------
+        model : Model
+            The model for which the unique constraint is being created.
+        fields : list
+            The fields on the model that the unique constraint applies to.
+        name : str, optional
+            The name of the unique constraint. If not provided, a default name is generated.
+        condition : str, optional
+            An optional condition that must be met for the unique constraint to apply.
+        deferrable : str, optional
+            Whether the constraint can be deferred, and if so, when.
+        include : list, optional
+            Additional columns to include in the unique constraint.
+        opclasses : list, optional
+            Operator classes to use for the unique constraint.
+        expressions : list, optional
+            Expressions to use for the unique constraint instead of fields.
+        nulls_distinct : bool, optional
+            Whether null values should be considered distinct.
+
+        Returns
+        -------
+        Statement or None
+            A SQL statement representing the unique constraint, or None if unique constraints
+            are not supported with the given options.
+
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,

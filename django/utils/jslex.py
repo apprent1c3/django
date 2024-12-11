@@ -12,6 +12,16 @@ class Tok:
     num = 0
 
     def __init__(self, name, regex, next=None):
+        """
+        Initializes a Token object with the given properties.
+
+        :param name: The name of the token.
+        :param regex: A regular expression pattern associated with the token.
+        :param next: An optional reference to the next token in a sequence.
+        :returns: None
+
+        This method sets up a new token instance, assigning a unique identifier and storing the provided name, regex pattern, and next token reference. The token identifier is automatically incremented for each new instance created.
+        """
         self.id = Tok.num
         Tok.num += 1
         self.name = name

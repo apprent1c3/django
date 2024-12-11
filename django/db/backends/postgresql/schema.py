@@ -145,6 +145,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     ):
         # Drop indexes on varchar/text/citext columns that are changing to a
         # different type.
+        """
+        Alters the type of a column in the database.
+
+        This function is used to modify the type of a column in a database table. It handles various cases, including changing the type of a column that has been indexed or is unique, and also considers the conversion between different auto field types.
+
+        It takes into account the old and new field types, their collations, and whether the old or new field is an auto field. Based on these conditions, it generates the necessary SQL commands to alter the column type, drop or add identities, and update sequences as needed.
+
+        The function returns a tuple containing the SQL command to alter the column type and any additional actions required to update the database schema.
+        """
         old_db_params = old_field.db_parameters(connection=self.connection)
         old_type = old_db_params["type"]
         if (old_field.db_index or old_field.unique) and (

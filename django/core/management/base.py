@@ -55,6 +55,17 @@ class CommandParser(ArgumentParser):
     def __init__(
         self, *, missing_args_message=None, called_from_command_line=None, **kwargs
     ):
+        """
+
+        Initializes the class with optional parameters for customizing missing argument messages and tracking command line calls.
+
+        :param missing_args_message: A custom message to display when required arguments are missing.
+        :param called_from_command_line: A flag indicating whether the class was instantiated from a command line call.
+        :keyword kwargs: Additional keyword arguments passed to the superclass initializer.
+
+        This initializer sets up the class's internal state and provides a way to customize its behavior based on the context in which it is used.
+
+        """
         self.missing_args_message = missing_args_message
         self.called_from_command_line = called_from_command_line
         super().__init__(**kwargs)
@@ -174,6 +185,17 @@ class OutputWrapper(TextIOBase):
         return hasattr(self._out, "isatty") and self._out.isatty()
 
     def write(self, msg="", style_func=None, ending=None):
+        """
+
+        Writes a formatted message to the output.
+
+        :param msg: The message to be written. Defaults to an empty string.
+        :param style_func: A function to apply styling to the message. If not provided, the default style function is used.
+        :param ending: The ending characters to be appended to the message if not already present. If not specified, the default ending is used.
+
+        :note: The message is automatically appended with the specified ending if it does not already end with it.
+
+        """
         ending = self.ending if ending is None else ending
         if ending and not msg.endswith(ending):
             msg += ending

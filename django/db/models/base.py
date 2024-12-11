@@ -930,6 +930,13 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _validate_force_insert(cls, force_insert):
+        """
+        Validate the force_insert parameter to ensure it is a valid specification of models to force insert.
+
+        The force_insert parameter determines which models should be force inserted when saving an instance. It can be a boolean value (True or False) to indicate whether the current model should be force inserted, or a tuple of model subclasses to specify multiple models to force insert.
+
+        The function checks the type and validity of the force_insert parameter, raising a TypeError if it is not a boolean value or a tuple of model subclasses that are bases of the current model. If the force_insert parameter is valid, it is returned as-is. If it is False, an empty tuple is returned. If it is True, a tuple containing only the current model is returned.
+        """
         if force_insert is False:
             return ()
         if force_insert is True:
@@ -1211,6 +1218,22 @@ class Model(AltersData, metaclass=ModelBase):
         # a ForeignKey, GenericForeignKey or OneToOneField on this model. If
         # the field is nullable, allowing the save would result in silent data
         # loss.
+        """
+
+        Prepares related fields for save operations.
+
+        This method checks for unsaved related objects that could lead to data loss if the main object is saved.
+        It verifies the state of related fields and their cached values, and ensures that the PKs of related objects are set before proceeding.
+
+        The preparation involves verifying that the related objects are saved, and that their cached values are consistent with the main object's state.
+        If any related object is not saved, a ValueError is raised to prevent data loss.
+
+        The method can be optionally restricted to a subset of fields by passing the `fields` parameter.
+
+        :param operation_name: The name of the operation being performed (e.g., 'save', 'delete', etc.)
+        :param fields: An optional list of fields to restrict the preparation to
+
+        """
         for field in self._meta.concrete_fields:
             if fields and field not in fields:
                 continue
@@ -1290,6 +1313,34 @@ class Model(AltersData, metaclass=ModelBase):
         )
 
     def _get_next_or_previous_by_FIELD(self, field, is_next, **kwargs):
+        """
+
+        Get the next or previous object in a query set based on a specific field.
+
+        This method retrieves the next or previous object in the database based on the
+        value of a specified field. The object can be retrieved in either ascending or
+        descending order. If no such object exists, a DoesNotExist exception is raised.
+
+        The object itself must have a primary key value, meaning it must be saved to the
+        database before calling this method.
+
+        The search can be filtered by providing additional keyword arguments. The search
+        is performed using the default manager of the object's class and the database
+        connection associated with the object.
+
+        Args:
+            field: The field to use for retrieval.
+            is_next: A boolean indicating whether to retrieve the next (True) or previous (False) object.
+            **kwargs: Additional keyword arguments to filter the search.
+
+        Raises:
+            ValueError: If the object is not saved to the database.
+            DoesNotExist: If no matching object is found.
+
+        Returns:
+            The next or previous object in the query set.
+
+        """
         if not self.pk:
             raise ValueError("get_next/get_previous cannot be used on unsaved objects.")
         op = "gt" if is_next else "lt"
@@ -1491,6 +1542,25 @@ class Model(AltersData, metaclass=ModelBase):
         return errors
 
     def _perform_date_checks(self, date_checks):
+        """
+        Perform date checks on the instance.
+
+        This method takes a list of date checks as input, where each check is a tuple containing the model class, 
+        lookup type, field, and unique for date. It then checks for existing instances in the database that match 
+        the given date checks and returns a dictionary of errors, where each key is a field that failed a check 
+        and the value is a list of error messages.
+
+        The checks are performed based on the lookup type, which can be either 'date' or a specific date attribute 
+        (e.g. 'day', 'month', 'year'). If the instance being checked is being updated, it is excluded from the 
+        queryset to prevent false positives.
+
+        The returned errors dictionary can be used to display error messages to the user or to handle the errors 
+        programmatically.
+
+        :param date_checks: A list of tuples containing the model class, lookup type, field, and unique for date.
+        :return: A dictionary of errors, where each key is a field that failed a check and the value is a list of error messages.
+        :rtype: dict
+        """
         errors = {}
         for model_class, lookup_type, field, unique_for in date_checks:
             lookup_kwargs = {}

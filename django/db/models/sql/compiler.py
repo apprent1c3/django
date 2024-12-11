@@ -198,6 +198,18 @@ class SQLCompiler:
         # If the database supports group by functional dependence reduction,
         # then the expressions can be reduced to the set of selected table
         # primary keys as all other columns are functionally dependent on them.
+        """
+
+        Collapses a list of expressions for a GROUP BY clause to minimize the number of columns selected.
+
+        This method optimizes the expressions by removing any alias references that are already included in the primary key columns.
+        It preserves any expressions that are part of the HAVING clause or are primary key columns themselves.
+
+        :param expressions: A list of expressions to be used in the GROUP BY clause.
+        :param having: A list of expressions used in the HAVING clause.
+        :returns: The optimized list of expressions for the GROUP BY clause.
+
+        """
         if self.connection.features.allows_group_by_selected_pks:
             # Filter out all expressions associated with a table's primary key
             # present in the grouped columns. This is done by identifying all

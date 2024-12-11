@@ -422,6 +422,22 @@ class RasterField(BaseSpatialField):
         setattr(cls, self.attname, SpatialProxy(gdal.GDALRaster, self))
 
     def get_transform(self, name):
+        """
+
+        Retrieves a transformation object for a raster band.
+
+        Given the name of the band, this function attempts to create a 
+        :py:class:`~django.contrib.gis.db.models.lookups.RasterBandTransform` 
+        instance, allowing for transformations to be applied to a specific band.
+
+        If the provided name can be interpreted as an integer, it is used as the 
+        band index. Otherwise, the parent class's :py:meth:`~get_transform` 
+        method is called with the provided name.
+
+        :param name: The name or index of the raster band
+        :rtype: RasterBandTransform or object returned by parent class
+
+        """
         from django.contrib.gis.db.models.lookups import RasterBandTransform
 
         try:

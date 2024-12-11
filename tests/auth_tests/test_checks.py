@@ -411,6 +411,17 @@ class MiddlewareChecksTests(SimpleTestCase):
         ]
     )
     def test_correct_order_with_login_required_middleware(self):
+        """
+        Tests that checks pass when the LoginRequiredMiddleware is correctly ordered after the SessionMiddleware and AuthenticationMiddleware in the middleware stack.
+
+        Verifies that no errors are raised when the middleware classes are loaded in the correct order, ensuring that login requirements are properly enforced.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If any errors are found when running the checks.
+        """
         errors = checks.run_checks()
         self.assertEqual(errors, [])
 

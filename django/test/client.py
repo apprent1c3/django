@@ -127,6 +127,22 @@ def closing_iterator_wrapper(iterable, close):
 
 
 async def aclosing_iterator_wrapper(iterable, close):
+    """
+    )..)
+        An asynchronous iterator wrapper that ensures the provided iterable is properly closed 
+        after iteration, regardless of whether an exception occurs.
+
+        This function takes an asynchronous iterable and a close function as arguments. It 
+        asynchronously iterates over the iterable, yielding each chunk. Once the iteration is 
+        complete, or an exception occurs, the close function is called to release any resources 
+        held by the iterable. Additionally, this function temporarily disconnects a 
+        request_finished event from a function to close old connections while the iterable is 
+        being processed, and then reconnects it after the close function has been called.
+
+        :param iterable: The asynchronous iterable to be wrapped
+        :param close: A function to be called to close the iterable after iteration
+        :yield: Each chunk in the iterable
+    """
     try:
         async for chunk in iterable:
             yield chunk
@@ -859,6 +875,16 @@ class ClientMixin:
         await self._alogin(user, backend)
 
     def _get_backend(self):
+        """
+        Returns the path to the first authentication backend that supports retrieving a user.
+
+            Iterates over the authentication backends defined in the project settings and checks 
+            if each backend has a 'get_user' method. The path to the first backend with this method 
+            is returned, or None if no such backend is found.
+
+            :return: The path to the first compatible authentication backend, or None if not found.
+            :rtype: str or None
+        """
         from django.contrib.auth import load_backend
 
         for backend_path in settings.AUTHENTICATION_BACKENDS:

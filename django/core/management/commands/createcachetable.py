@@ -41,6 +41,22 @@ class Command(BaseCommand):
         )
 
     def handle(self, *tablenames, **options):
+        """
+
+        Handles the creation of database tables.
+
+        This function takes a variable number of table names and optional keyword arguments.
+        If table names are provided, it creates the specified tables in the database.
+        If no table names are provided, it creates tables for all database-backed caches.
+
+        The following options are supported:
+            * database: The database to create tables in.
+            * verbosity: The level of output to display during table creation.
+            * dry_run: If True, simulate table creation without making changes to the database.
+
+        The function automatically determines which tables to create based on the provided options and settings.
+
+        """
         db = options["database"]
         self.verbosity = options["verbosity"]
         dry_run = options["dry_run"]

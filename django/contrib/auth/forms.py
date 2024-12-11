@@ -184,6 +184,17 @@ class SetPasswordMixin:
                 self.add_error(password_field_name, error)
 
     def set_password_and_save(self, user, password_field_name="password1", commit=True):
+        """
+        SETS the password for a given user and saves the changes to the database.
+
+        This method checks if a usable password should be set. If so, it uses the provided password to set the user's password. 
+        Otherwise, it sets an unusable password for the user. 
+
+        The method takes an optional parameter to specify the password field name, defaulting to 'password1' if not provided.
+        It also accepts an optional commit parameter, which determines whether the changes are saved to the database (default is True).
+
+        The method returns the user object after setting the password and optionally saving the changes.
+        """
         if self.cleaned_data["set_usable_password"]:
             user.set_password(self.cleaned_data[password_field_name])
         else:

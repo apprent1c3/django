@@ -98,10 +98,38 @@ class RunSQL(Operation):
         return self.reverse_sql is not None
 
     def state_forwards(self, app_label, state):
+        """
+
+        Runs state operations forward for the given application label and state.
+
+        This function iterates over a set of predefined state operations and delegates
+        the forward operation to each of them. It allows for a series of state changes
+        to be applied in sequence, enabling a cumulative transformation of the state.
+
+        :param app_label: The label of the application for which the state operations are being applied.
+        :param state: The current state to which the operations are being applied.
+
+        """
         for state_operation in self.state_operations:
             state_operation.state_forwards(app_label, state)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Apply the database migration forwards.
+
+        This method migrates the database from the current state (`from_state`) to the target state (`to_state`) 
+        for the given application label (`app_label`). 
+
+        It first checks if the migration is allowed by the router for the given app label and database connection. 
+        If the migration is allowed, it executes the necessary SQL commands to apply the migration.
+
+        :param app_label: The label of the application to migrate.
+        :param schema_editor: The schema editor instance to use for the migration.
+        :param from_state: The current state of the database.
+        :param to_state: The target state of the database.
+
+        """
         if router.allow_migrate(
             schema_editor.connection.alias, app_label, **self.hints
         ):

@@ -327,6 +327,17 @@ class BaseReloader:
             return False
 
     def run(self, django_main_thread):
+        """
+        Run the autoreload mechanism, waiting for Django apps to be ready and sending signals accordingly.
+
+        This method waits for the apps to trigger their ready_event, indicating that they are ready to start.
+        Once the apps are ready, it checks if the URL configuration module is available.
+        After the apps are ready, it sends an autoreload_started signal to notify other components that the autoreload has started.
+        Finally, it runs the main loop of the autoreload mechanism.
+
+        :param django_main_thread: The main thread of the Django application.
+
+        """
         logger.debug("Waiting for apps ready_event.")
         self.wait_for_apps_ready(apps, django_main_thread)
         from django.urls import get_resolver
@@ -608,6 +619,9 @@ class WatchmanReloader(BaseReloader):
             time.sleep(0.1)
 
     def stop(self):
+        """
+        Stop the current service by releasing the associated client connection and calling the superclass's stop method.
+        """
         self.client.close()
         super().stop()
 

@@ -130,6 +130,18 @@ class GetCurrentTimezoneNode(Node):
         self.variable = variable
 
     def render(self, context):
+        """
+
+        Renders the current timezone name into the given context.
+
+        This function sets the current timezone name as a variable in the provided context.
+        The variable name is determined by the instance's variable attribute.
+        The function returns an empty string.
+
+        :param context: The context into which the timezone name will be rendered.
+        :rtype: str
+
+        """
         context[self.variable] = timezone.get_current_timezone_name()
         return ""
 

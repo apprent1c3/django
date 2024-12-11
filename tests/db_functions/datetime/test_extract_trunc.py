@@ -230,6 +230,17 @@ class DateFunctionTests(TestCase):
             ).exists()
 
     def test_extract_func(self):
+        """
+        Tests the functionality of the Extract database function.
+
+        This test case creates test models with datetime and date fields, and then it checks the Extract function by annotating the models with the extracted values and asserting that the results match the expected outcomes.
+
+        The test validates the extraction of different components from datetime and date fields, such as year, quarter, month, day, week, week day, iso week day, hour, minute, and second. It also checks that the extract function raises ValueError when used incorrectly, for example, when the lookup name is not provided or when the input expression is not a DateField, DateTimeField, TimeField, or DurationField.
+
+        Additionally, the test ensures that the extracted values can be used in filters, such as filtering by year, hour, or month. 
+
+        It covers various edge cases to ensure that the Extract function behaves as expected in different scenarios.
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -931,6 +942,9 @@ class DateFunctionTests(TestCase):
             self.assertIs(exists, False)
 
     def test_trunc_func(self):
+        """
+        Test the Trunc function on date and time fields to verify it correctly truncates the values to the specified level of granularity (year, quarter, month, day, hour, minute, second) and matches the expected truncated values. The function tests the truncation on both date and time components of a datetime field, as well as solely on date or time fields. It also checks the usage of the Trunc function in a queryset filter to verify its correct behavior in different contexts.
+        """
         start_datetime = datetime(999, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -1335,6 +1349,14 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_date_none(self):
+        """
+
+        Tests that TruncDate function correctly handles None input.
+
+        This test verifies that when a datetime field containing a None value is truncated to a date, 
+        the result is also None. It ensures that the TruncDate function behaves as expected in this edge case.
+
+        """
         self.create_model(None, None)
         self.assertIsNone(
             DTModel.objects.annotate(truncated=TruncDate("start_datetime"))
@@ -1855,6 +1877,18 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             )
 
         def assertDatetimeToDateKind(kind, tzinfo):
+            """
+
+            Asserts that datetime objects are correctly truncated to the specified date kind.
+
+            Args:
+                kind (str): The kind of date to truncate to, e.g. 'month', 'year', etc.
+                tzinfo (tzinfo): The timezone info to use for truncation.
+
+            Verifies that the start and end datetime objects are truncated as expected
+            and that the resulting truncated dates are correctly annotated in the queryset.
+
+            """
             truncated_start = truncate_to(
                 start_datetime.astimezone(tzinfo).date(), kind
             )
@@ -1876,6 +1910,16 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
             )
 
         def assertDatetimeToTimeKind(kind, tzinfo):
+            """
+
+            Asserts that the start and end datetime values are correctly truncated to the specified time kind
+            in a given timezone.
+
+            Truncates the start and end datetime values to the specified kind (e.g. hour, minute, second) in the provided timezone,
+            then compares the result with a query that truncates the 'start_datetime' field of DTModel objects to the same kind
+            in the same timezone, verifying that the results match the expected truncated values.
+
+            """
             truncated_start = truncate_to(
                 start_datetime.astimezone(tzinfo).time(), kind
             )

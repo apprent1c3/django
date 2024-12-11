@@ -1239,6 +1239,21 @@ class ModelAdminChecks(BaseModelAdminChecks):
 
 class InlineModelAdminChecks(BaseModelAdminChecks):
     def check(self, inline_obj, **kwargs):
+        """
+        Checks an inline object for various conditions and returns a list of errors.
+
+        The function performs a series of validation checks on the provided inline object, including:
+        - Relation checks with its parent model
+        - Exclusion checks of the parent model
+        - Extra checks
+        - Maximum number checks
+        - Minimum number checks
+        - Formset checks
+
+        The results of these checks are combined with the results of the superclass's check method to produce a comprehensive list of errors.
+
+        The function takes an inline object as a required argument and accepts additional keyword arguments. The parent model of the inline object is determined automatically. The function returns a list of errors found during the validation process.
+        """
         parent_model = inline_obj.parent_model
         return [
             *super().check(inline_obj),

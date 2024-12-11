@@ -489,6 +489,18 @@ class ExternalReferenceForbidden(DefusedXmlException):
     """Resolving an external reference is forbidden."""
 
     def __init__(self, context, base, sysid, pubid):
+        """
+
+        Initializes the object with the necessary parameters.
+
+        :param context: The context in which the object is being initialized.
+        :param base: The base value used for initialization.
+        :param sysid: The system identifier.
+        :param pubid: The public identifier.
+
+        This initializer sets the initial state of the object by storing the provided parameters as instance attributes.
+
+        """
         super().__init__()
         self.context = context
         self.base = base

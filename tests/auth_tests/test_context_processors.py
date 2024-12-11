@@ -39,6 +39,15 @@ class PermWrapperTests(SimpleTestCase):
             return False
 
     def test_repr(self):
+        """
+        Tests the representation of the PermWrapper instance.
+
+        This test case verifies that the string representation of a PermWrapper object
+        matches the expected format, which includes the class name and the encapsulated
+        MockUser instance. The purpose of this test is to ensure that the __repr__ method
+        is implemented correctly, providing a useful and informative representation of
+        the object for debugging and logging purposes.
+        """
         perms = PermWrapper(MockUser())
         self.assertEqual(repr(perms), "PermWrapper(MockUser())")
 

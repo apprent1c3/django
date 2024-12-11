@@ -30,6 +30,9 @@ except ImportError:
 
 
 def psycopg_version():
+    """
+    Returns the version of the Psycopg2 database adapter as a tuple, parsed from the version string obtained from the Database class.
+    """
     version = Database.__version__.split(" ", 1)[0]
     return get_version_tuple(version)
 
@@ -241,6 +244,15 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self._connection_pools[self.alias]
 
     def close_pool(self):
+        """
+        Closes the database connection pool associated with this instance.
+
+        This method checks if a connection pool exists, and if so, it closes the pool and removes it from the internal connection pool storage. This is typically used to release system resources when the pool is no longer needed.
+
+        See Also
+        --------
+        The connection pool is opened and managed by other parts of this class, and this method should be used in conjunction with those parts for proper connection pool lifecycle management.
+        """
         if self.pool:
             self.pool.close()
             del self._connection_pools[self.alias]
@@ -326,6 +338,31 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         #   default when no value is explicitly specified in options.
         # - before calling _set_autocommit() because if autocommit is on, that
         #   will set connection.isolation_level to ISOLATION_LEVEL_AUTOCOMMIT.
+        """
+
+        Retrieve a new database connection with the specified configuration parameters.
+
+        This function establishes a new connection to the database, either by retrieving a connection from the connection pool or by creating a new one.
+        It also configures the connection's transaction isolation level if specified in the database settings.
+
+        The function returns a new database connection object, ready to use for database operations.
+
+        Parameters
+        ----------
+        conn_params : dict
+            Dictionary of connection parameters to use when establishing the connection.
+
+        Returns
+        -------
+        connection : database connection object
+            A new database connection object.
+
+        Raises
+        ------
+        ImproperlyConfigured
+            If an invalid transaction isolation level is specified in the database settings.
+
+        """
         options = self.settings_dict["OPTIONS"]
         set_isolation_level = False
         try:
@@ -544,6 +581,18 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @cached_property
     def pg_version(self):
+        """
+        Returns the PostgreSQL version of the database server.
+
+        This property establishes a temporary connection to the database and queries the PostgreSQL server version. The version is returned as a string.
+
+        Note:
+        The connection is automatically closed after the version is retrieved, ensuring efficient use of resources.
+
+        The returned version string follows the standard PostgreSQL version format. 
+
+        This property is cached, meaning its value is computed only once and reused on subsequent accesses, improving performance.
+        """
         with self.temporary_connection():
             return self.connection.info.server_version
 
