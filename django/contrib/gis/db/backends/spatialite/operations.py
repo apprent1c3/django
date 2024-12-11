@@ -82,6 +82,13 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        Returns a set of PostgreSQL PostGIS functions that are not supported by the current geographic library configuration.
+
+        This set includes functions that are generally not supported, as well as those with specific version requirements that are not met by the current setup.
+
+        The returned set can be used to determine which spatial functions are unavailable for use.
+        """
         unsupported = {"GeometryDistance", "IsEmpty", "MemSize"}
         if not self.geom_lib_version():
             unsupported |= {"Azimuth", "GeoHash", "MakeValid"}

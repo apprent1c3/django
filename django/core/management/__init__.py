@@ -135,6 +135,17 @@ def call_command(command_name, *args, **options):
 
     def get_actions(parser):
         # Parser actions and actions from sub-parser choices.
+        """
+        .. function:: get_actions(parser)
+           :noindex:
+
+           Recursively yields all actions from the given parser, including subparser actions.
+
+           This function traverses the parser's actions, and for any subparsers found, it recursively yields their actions. The result is a flat iteration over all actions in the parser and its subparsers, allowing for easy access to all options and subcommands.
+
+           :param parser: The parser to extract actions from.
+           :yield: Actions from the parser and its subparsers.
+        """
         for opt in parser._actions:
             if isinstance(opt, _SubParsersAction):
                 for sub_opt in opt.choices.values():

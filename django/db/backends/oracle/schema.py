@@ -170,6 +170,27 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def _alter_column_type_sql(
         self, model, old_field, new_field, new_type, old_collation, new_collation
     ):
+        """
+        Alters the type of a column in a database table.
+
+        This method is used to modify the data type of a column in a database table, 
+        taking into account any necessary adjustments to handle changes from auto-field types.
+
+        It checks if the old field was an auto-field type and the new field is not, 
+        and if the new field has an identity column. If both conditions are met, 
+        it drops the identity column before proceeding with the type alteration.
+
+        The actual alteration of the column type is then delegated to the parent class.
+
+        :param model: The model representing the database table.
+        :param old_field: The old field with its current type and properties.
+        :param new_field: The new field with its updated type and properties.
+        :param new_type: The new data type of the column.
+        :param old_collation: The old collation of the column.
+        :param new_collation: The new collation of the column.
+        :return: The SQL statement to alter the column type.
+
+        """
         auto_field_types = {"AutoField", "BigAutoField", "SmallAutoField"}
         # Drop the identity if migrating away from AutoField.
         if (
@@ -211,6 +232,28 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return create_index
 
     def _is_identity_column(self, table_name, column_name):
+        """
+
+        Checks if a specified column in a database table is an identity column.
+
+        Parameters
+        ----------
+        table_name : str
+            Name of the table to check.
+        column_name : str
+            Name of the column to check.
+
+        Returns
+        -------
+        bool
+            True if the column is an identity column, False otherwise.
+
+        Note
+        ----
+        The function queries the database's user_tab_cols system view to determine
+        the identity column status. If no matching column is found, it returns False.
+
+        """
         with self.connection.cursor() as cursor:
             cursor.execute(
                 """

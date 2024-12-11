@@ -124,6 +124,22 @@ class ProjectState:
             self.reload_model(*model_key)
 
     def remove_model(self, app_label, model_name):
+        """
+        Remove a model from the system.
+
+        Remove the specified model identified by its application label and model name.
+        This method not only removes the model itself but also cleans up any relationships
+        it has with other models and updates the app registry accordingly.
+
+        Historical relationships with the removed model are also deleted. If a model has
+        no remaining relationships after the removal, it will also be cleaned up.
+
+        Finally, the model is unregistered from the application registry and any caches
+        are cleared to ensure consistency.
+
+        :param app_label: The application label of the model to be removed
+        :param model_name: The name of the model to be removed
+        """
         model_key = app_label, model_name
         del self.models[model_key]
         if self._relations is not None:
@@ -700,6 +716,18 @@ class StateApps(Apps):
         self.clear_cache()
 
     def unregister_model(self, app_label, model_name):
+        """
+        Removes a registered model from the system.
+
+            :param app_label: The label of the application containing the model.
+            :param model_name: The name of the model to be unregistered.
+
+            This function unregisters a model by removing it from the internal model registries.
+            If the model is not found, no action is taken. The removal process involves 
+            deleting the model from the application's models dictionary and the global 
+            models registry. This operation does not raise an error if the model does not 
+            exist, making it safe to call even if the model's presence is uncertain.
+        """
         try:
             del self.all_models[app_label][model_name]
             del self.app_configs[app_label].models[model_name]
@@ -761,6 +789,19 @@ class ModelState:
         return self.name.lower()
 
     def get_field(self, field_name):
+        """
+        Retrieves a field object by its name, handling the special case where the field name is '_order' 
+        and an 'order_with_respect_to' option is specified. 
+
+        In such cases, the function returns the field object corresponding to the 'order_with_respect_to' 
+        option instead of the '_order' field itself. 
+
+        Otherwise, it simply returns the field object associated with the given field name.
+
+        :param field_name: The name of the field to retrieve
+        :return: The field object associated with the given field name, or the field specified by 
+            'order_with_respect_to' if field_name is '_order' and the option is set
+        """
         if (
             field_name == "_order"
             and self.options.get("order_with_respect_to") is not None
@@ -966,6 +1007,19 @@ class ModelState:
         raise ValueError("No index named %s on model %s" % (name, self.name))
 
     def get_constraint_by_name(self, name):
+        """
+
+        Get a constraint by its name.
+
+        This method searches through all constraints defined in the model and returns 
+        the one that matches the provided name. If no constraint with the given name 
+        is found, it raises a ValueError with a descriptive error message.
+
+        :param name: The name of the constraint to retrieve
+        :rtype: constraint object
+        :raises ValueError: If no constraint with the given name exists in the model
+
+        """
         for constraint in self.options["constraints"]:
             if constraint.name == name:
                 return constraint

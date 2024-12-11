@@ -145,6 +145,15 @@ class RawQuery:
     """A single raw SQL query."""
 
     def __init__(self, sql, using, params=()):
+        """
+        Initializes a database query object with the provided SQL statement, database connection, and query parameters.
+
+        :param sql: The SQL statement to be executed.
+        :param using: The database connection to use for the query.
+        :param params: Optional parameters to be used in the SQL statement for prevention of SQL injection attacks. Defaults to an empty tuple.
+        :note: This is a private method and should not be called directly. 
+        :returns: None
+        """
         self.params = params
         self.sql = sql
         self.using = using
@@ -163,6 +172,17 @@ class RawQuery:
         return RawQuery(self.sql, using, params=self.params)
 
     def get_columns(self):
+        """
+
+        Retrieves a list of column names from the executed query.
+
+        This function returns the names of the columns in the query result set. 
+        If the query has not been executed yet, it will be executed before retrieving the column names.
+        The column names are converted using the identifier converter specified by the database connection.
+
+        :returns: A list of column names as strings
+
+        """
         if self.cursor is None:
             self._execute_query()
         converter = connections[self.using].introspection.identifier_converter
@@ -356,6 +376,21 @@ class Query(BaseExpression):
         return result
 
     def get_compiler(self, using=None, connection=None, elide_empty=True):
+        """
+
+        Retrieves a database compiler instance.
+
+        The compiler is obtained based on the provided database connection or alias.
+        If a connection alias is given, it is used to look up the corresponding connection.
+        The compiler is then created with the specified settings and returned.
+
+         :param using: The database connection alias.
+         :param connection: The database connection instance.
+         :param elide_empty: A flag indicating whether empty values should be elided.
+         :return: A compiler instance for the specified database connection.
+         :raises ValueError: If neither 'using' nor 'connection' is provided.
+
+        """
         if using is None and connection is None:
             raise ValueError("Need either using or connection")
         if using:
@@ -1662,6 +1697,23 @@ class Query(BaseExpression):
         return target_clause, needed_inner
 
     def add_filtered_relation(self, filtered_relation, alias):
+        """
+        Adds a filtered relation to the current object.
+
+        This method validates and prepares a filtered relation by checking its condition
+        for compatibility with the specified relation name. It ensures that the condition
+        only references fields within the given relation and does not use nested relations
+        deeper than the relation name.
+
+        The method then assigns an alias to the filtered relation and renames the prefixes
+        in the condition to match the alias. The prepared filtered relation is stored for
+        later use.
+
+        :param filtered_relation: The filtered relation to add.
+        :param alias: The alias to assign to the filtered relation.
+        :raises ValueError: If the relation name contains lookups or if the condition
+            references fields outside the relation or uses nested relations too deeply.
+        """
         filtered_relation.alias = alias
         relation_lookup_parts, relation_field_parts, _ = self.solve_lookup_type(
             filtered_relation.relation_name
@@ -1982,6 +2034,37 @@ class Query(BaseExpression):
         yield from (expr.alias for expr in cls._gen_cols(exprs))
 
     def resolve_ref(self, name, allow_joins=True, reuse=None, summarize=False):
+        """
+
+        Resolve a model field reference by name, returning the corresponding annotation or field.
+
+        The reference can be specified by its name, or as a path using Django's lookup separator.
+        The lookup separator can be used to traverse related fields or perform value transformations.
+
+        Optional parameters can be used to restrict the lookup to only allow direct field
+        references (disallowing joins), to enable summary mode for aggregation queries,
+        or to specify an alias map to be reused for joins.
+
+        If the reference cannot be resolved, a FieldError is raised. If a joined field reference
+        is not permitted, a FieldError is raised as well.
+
+        Parameters
+        ----------
+        name : str
+            Name of the field reference to resolve
+        allow_joins : bool, default=True
+            Whether joined field references are allowed
+        reuse : dict, optional
+            An alias map to be reused for joins
+        summarize : bool, default=False
+            Whether to return a summarized version of the field reference
+
+        Returns
+        -------
+        Ref or Field
+            The resolved annotation or field reference
+
+        """
         annotation = self.annotations.get(name)
         if annotation is not None:
             if not allow_joins:

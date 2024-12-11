@@ -78,6 +78,20 @@ class BaseDatabaseIntrospection:
         )
 
     def get_migratable_models(self):
+        """
+        Returns a generator of models that are migratable for the current database connection.
+
+        This function iterates over all installed Django applications and yields models 
+        that can be migrated using the connection alias specified. It filters models 
+        based on their ability to migrate with the current database connection, 
+        providing a list of models that are ready to be applied migrations to.
+
+        The returned models are instances of Django's Model class and can be used 
+        directly in migration operations.
+
+        :rtype: generator of type django.db.models.Model
+
+        """
         from django.apps import apps
         from django.db import router
 

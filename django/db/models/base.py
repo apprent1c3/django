@@ -438,6 +438,18 @@ class ModelBase(type):
 
 class ModelStateFieldsCacheDescriptor:
     def __get__(self, instance, cls=None):
+        """
+
+        Returns the fields cache for the given instance.
+
+        If the instance is None, returns the descriptor itself. Otherwise, 
+        it initializes or returns the existing fields cache for the instance 
+        and stores it in the instance's fields_cache attribute.
+
+        This method is used to implement the behavior of a descriptor, 
+        allowing the fields cache to be accessed like an attribute of the instance.
+
+        """
         if instance is None:
             return self
         res = instance.fields_cache = {}
@@ -573,6 +585,28 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def from_db(cls, db, field_names, values):
+        """
+
+        Create an instance of the class from database values.
+
+        This method creates a new instance of the class by mapping database values to the corresponding fields.
+        If the provided values do not include all fields, missing fields are set to Deferred.
+        The instance is then marked as not being added to the database, and its database connection is set.
+
+        Parameters
+        ----------
+        db : object
+            The database connection.
+        field_names : list
+            A list of field names that are being populated from the database.
+        values : list
+            A list of values to be used to populate the instance's fields.
+
+        Returns
+        -------
+        An instance of the class, populated with the provided database values.
+
+        """
         if len(values) != len(cls._meta.concrete_fields):
             values_iter = iter(values)
             values = [
@@ -591,6 +625,15 @@ class Model(AltersData, metaclass=ModelBase):
         return "%s object (%s)" % (self.__class__.__name__, self.pk)
 
     def __eq__(self, other):
+        """
+        Checks if the current model instance is equal to another instance.
+
+        Equality is determined by comparing the primary keys of the two instances. If the primary keys are the same, the instances are considered equal. For instances without a primary key (i.e., new, unsaved instances), equality is determined by object identity, meaning only the exact same instance is considered equal. 
+
+        The comparison only works with other instances of the Model class. If the other object is not a Model instance, the function returns NotImplemented, indicating that equality cannot be determined. 
+
+        If the other instance is a Model, but is a different concrete model (i.e., a different table in the database), the function immediately returns False, even if the primary keys are the same.
+        """
         if not isinstance(other, Model):
             return NotImplemented
         if self._meta.concrete_model != other._meta.concrete_model:
@@ -930,6 +973,19 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _validate_force_insert(cls, force_insert):
+        """
+
+        Validate the force_insert parameter to ensure it's properly formatted and contains valid model subclasses.
+
+        The force_insert parameter can be a boolean, indicating whether to force insertion for all model instances,
+        or a tuple of model subclasses, indicating which subclasses to force insertion for.
+
+        The function raises a TypeError if the force_insert parameter is not a boolean or tuple,
+        or if any member of the tuple is not a model subclass or is not a base class of the current model class.
+
+        Returns the validated force_insert parameter as a tuple.
+
+        """
         if force_insert is False:
             return ()
         if force_insert is True:
@@ -1261,6 +1317,22 @@ class Model(AltersData, metaclass=ModelBase):
                     )
 
     def delete(self, using=None, keep_parents=False):
+        """
+        Deletes the current instance of the model from the database.
+
+        Args:
+            using (str, optional): The database alias to use for the deletion. If not provided, the default database alias for the model will be used.
+            keep_parents (bool, optional): A flag indicating whether to also delete related objects that have a foreign key to this instance. Defaults to False.
+
+        Returns:
+            The number of objects deleted.
+
+        Raises:
+            ValueError: If the instance's primary key is not set.
+
+        Note:
+            Deletion will only occur if the instance has a primary key set. The deletion process may also remove related objects if `keep_parents` is False.
+        """
         if self.pk is None:
             raise ValueError(
                 "%s object can't be deleted because its %s attribute is set "
@@ -1334,6 +1406,29 @@ class Model(AltersData, metaclass=ModelBase):
         return getattr(self, cachename)
 
     def _get_field_value_map(self, meta, exclude=None):
+        """
+        Return a dictionary mapping field names to their corresponding values.
+
+        This function generates a dictionary where each key is the name of a field
+        in the model's metadata and each value is a Value object containing the
+        field's value and the field itself. The function excludes fields that are
+        generated or explicitly excluded via the `exclude` parameter.
+
+        If the `pk` field is not excluded, it is added to the dictionary under the
+        key 'pk'. The `exclude` parameter can be used to exclude specific fields
+        from the resulting dictionary. If `exclude` is not provided, an empty set
+        is used by default.
+
+        The function uses the model's metadata to determine which fields to include
+        in the dictionary. If `meta` is not provided, the function uses the model's
+        own metadata. The returned dictionary can be used for further processing
+        or serialization of the model's fields.
+
+        :param meta: The metadata to use for generating the field map
+        :param exclude: A set of field names to exclude from the resulting dictionary
+        :rtype: dict
+
+        """
         if exclude is None:
             exclude = set()
         meta = meta or self._meta
@@ -1578,6 +1673,29 @@ class Model(AltersData, metaclass=ModelBase):
         return constraints
 
     def validate_constraints(self, exclude=None):
+        """
+
+        Validate the model instance against defined constraints.
+
+        This method checks the integrity of the model instance by enforcing
+        all constraints defined at the model level. It verifies that the data
+         asociated with the instance meets the required conditions, excluding
+        any fields specified in the `exclude` parameter.
+
+        If any constraint is not met, a `ValidationError` is raised with a
+        dictionary of error messages, where each key corresponds to a field
+        that failed validation.
+
+        The validation process is executed against the database instance
+        determined by the router, using the `db_for_write` method.
+
+        Args:
+            exclude (list, optional): A list of field names to exclude from validation.
+
+        Raises:
+            ValidationError: If any constraint is not met.
+
+        """
         constraints = self.get_constraints()
         using = router.db_for_write(self.__class__, instance=self)
 
@@ -1743,6 +1861,15 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_db_table_comment(cls, databases):
+        """
+        :param databases: A list of database names or aliases
+        :returns: A list of warnings if any of the specified databases do not support comments on tables 
+
+        Checks if the specified databases support comments on tables, as defined by the db_table_comment meta attribute. 
+        If any database does not support comments, a warning is added to the errors list, indicating the database and the reason.
+        The function skips databases where migration is not allowed for the current model. 
+        The result can be used to prevent potential errors when creating or updating database tables with comments.
+        """
         if not cls._meta.db_table_comment:
             return []
         errors = []
@@ -1950,6 +2077,19 @@ class Model(AltersData, metaclass=ModelBase):
     @classmethod
     def _check_column_name_clashes(cls):
         # Store a list of column names which have already been used by other fields.
+        """
+        Checks for column name clashes within a model.
+
+        This method inspects the local fields of a model to identify any instances where
+        multiple fields are assigned the same column name. It returns a list of errors,
+        each representing a field that has a column name already in use by another field.
+
+        The purpose of this check is to prevent data inconsistencies and potential errors
+        that can arise when multiple fields attempt to write to the same database column.
+        If a clash is detected, the error includes a hint suggesting the use of the
+        'db_column' parameter to specify a unique column name for the conflicting field.
+
+        """
         used_column_names = []
         errors = []
 
@@ -1998,6 +2138,19 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_property_name_related_field_accessor_clashes(cls):
+        """
+
+        Checks for property name clashes with related field accessors in the model.
+
+        Verifies that the property names defined on the model do not conflict with the
+        auto-generated accessor names for related fields. This is necessary to prevent
+        ambiguity and ensure that the model's properties can be accessed correctly.
+
+        The function returns a list of errors if any property name clashes are found.
+        Each error includes a description of the clash and the object that triggered the
+        error, along with a unique error identifier.
+
+        """
         errors = []
         property_names = cls._meta._property_names
         related_field_accessors = (
@@ -2019,6 +2172,11 @@ class Model(AltersData, metaclass=ModelBase):
 
     @classmethod
     def _check_single_primary_key(cls):
+        """
+        Checks a model for the presence of more than one primary key field.
+
+        It verifies that only one field in the model has `primary_key=True` and returns a list of errors if this condition is not met. This validation ensures data integrity by preventing multiple fields from being designated as primary keys, which could lead to ambiguity in identifying unique records.
+        """
         errors = []
         if sum(1 for f in cls._meta.local_fields if f.primary_key) > 1:
             errors.append(

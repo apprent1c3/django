@@ -366,6 +366,18 @@ class EmailMessage:
         return self._create_attachments(msg)
 
     def _create_attachments(self, msg):
+        """
+        Creates and attaches files to a message if attachments are provided.
+
+        This method checks if there are any attachments to be added to the message. 
+        If attachments exist, it creates a new MIMEMultipart message with the specified encoding and subtype.
+        The original message body is then attached to the new message, followed by each attachment.
+        Attachments can be either MIMEBase objects or tuples containing attachment data.
+        If an attachment is a tuple, it is converted into a MIMEBase object using the _create_attachment method.
+
+        :param msg: The original message to which attachments are added
+        :returns: The message with attachments if any, otherwise the original message
+        """
         if self.attachments:
             encoding = self.encoding or settings.DEFAULT_CHARSET
             body_msg = msg

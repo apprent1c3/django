@@ -16,6 +16,15 @@ class SearchVectorExact(Lookup):
     lookup_name = "exact"
 
     def process_rhs(self, qn, connection):
+        """
+        Processes the right-hand side (RHS) of a query, normalizing and preparing it for database execution.
+
+        :arg qn: The query node.
+        :arg connection: The database connection.
+        :return: A tuple containing the processed RHS query and its associated parameters. 
+
+        If the RHS is not already a SearchQuery or CombinedSearchQuery instance, it will be converted into a SearchQuery using the configuration from the left-hand side (LHS) if available.
+        """
         if not isinstance(self.rhs, (SearchQuery, CombinedSearchQuery)):
             config = getattr(self.lhs, "config", None)
             self.rhs = SearchQuery(self.rhs, config=config)
@@ -102,6 +111,21 @@ class SearchVector(SearchVectorCombinable, Func):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolve an expression with respect to the current context.
+
+        This method extends the base functionality of resolving an expression by also resolving any configuration associated with it.
+        It takes into account various parameters that control the resolution process, including support for joins and reuse of results.
+        Optionally, it can also return a summarized version of the resolution, which can be useful for saving purposes.
+        The resolved expression and its associated configuration are returned as a single entity, making it easier to work with complex queries and configurations.
+
+        :param query: The query to be resolved.
+        :param allow_joins: A flag indicating whether joins are allowed during resolution.
+        :param reuse: Controls reuse of results during resolution.
+        :param summarize: If True, returns a summarized version of the resolution.
+        :param for_save: If True, the resolution is performed with saving in mind.
+        :return: The resolved expression and its configuration.
+        """
         resolved = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )

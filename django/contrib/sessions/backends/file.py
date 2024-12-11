@@ -121,6 +121,22 @@ class SessionStore(SessionBase):
         return self.create()
 
     def save(self, must_create=False):
+        """
+        Save the current session data to a file.
+
+        This method saves the session data to a file based on the session key.
+        If the session key is None, it will create a new session instead.
+        The session data is written to a temporary file and then renamed to the target file name to ensure atomicity.
+
+        The :param must_create: parameter determines the behavior when the session file already exists.
+        If :param must_create: is True, the method will raise a CreateError if the file already exists.
+        If :param must_create: is False, the method will update the existing file.
+
+        Raises:
+            UpdateError: If the session file does not exist and must_create is False.
+            CreateError: If the session file already exists and must_create is True.
+
+        """
         if self.session_key is None:
             return self.create()
         # Get the session data now, before we start messing

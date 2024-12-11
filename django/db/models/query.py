@@ -153,6 +153,19 @@ class RawModelIterable(BaseIterable):
 
     def __iter__(self):
         # Cache some things for performance reasons outside the loop.
+        """
+        Returns an iterator over the results of the queryset's query, yielding model instances.
+
+        The iterator fetches the results from the database and converts them to model instances, handling the initialization of the model and the assignment of annotated fields.
+
+        The query must include the primary key of the model, otherwise a FieldDoesNotExist exception is raised.
+
+        The results are yielded as instances of the model class associated with the queryset, with their attributes populated from the query results. 
+
+        :raises: FieldDoesNotExist if the primary key is not included in the query 
+        :yield: model instances 
+        :rtype: Iterator
+        """
         db = self.queryset.db
         query = self.queryset.query
         connection = connections[db]
@@ -223,6 +236,13 @@ class ValuesListIterable(BaseIterable):
     """
 
     def __iter__(self):
+        """
+        Returns an iterator over the results of the queryset, allowing for efficient and memory-friendly retrieval of large datasets.
+
+        The iterator yields tuples containing the values of each row in the result set, enabling lazy evaluation and processing of the query results.
+
+        This method supports chunked fetching, where the result set is retrieved in batches of a specified size, to reduce memory usage and improve performance.
+        """
         queryset = self.queryset
         query = queryset.query
         compiler = query.get_compiler(queryset.db)
@@ -384,6 +404,22 @@ class QuerySet(AltersData):
     def __aiter__(self):
         # Remember, __aiter__ itself is synchronous, it's the thing it returns
         # that is async!
+        """
+        Asynchronous iterator for retrieving all items.
+
+        This asynchronous iterator allows for the asynchronous iteration over all items 
+        in the collection. It fetches all items when iteration starts, then yields each 
+        item one by one. The iteration is asynchronous, meaning it can be used with 
+        async/await syntax in asynchronous code.
+
+        Yields:
+            object: The next item in the collection.
+
+        Note:
+            All items are fetched at the start of iteration, and then yielded from the 
+            cache. This means that any changes to the underlying collection during 
+            iteration will not be reflected in the yielded items.
+        """
         async def generator():
             await sync_to_async(self._fetch_all)()
             for item in self._result_cache:
@@ -2229,6 +2265,13 @@ class Prefetch:
         return querysets[0] if querysets is not None else None
 
     def get_current_querysets(self, level):
+        """
+        Return the current querysets based on the given level, considering the prefetch level and the queryset status.
+
+        :param level: The level at which to retrieve the querysets.
+        :returns: A list containing the current queryset if the prefetch level matches and the queryset is not None, otherwise None.
+
+        """
         if (
             self.get_current_prefetch_to(level) == self.prefetch_to
             and self.queryset is not None

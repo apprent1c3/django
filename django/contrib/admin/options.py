@@ -679,6 +679,15 @@ class ModelAdmin(BaseModelAdmin):
     checks_class = ModelAdminChecks
 
     def __init__(self, model, admin_site):
+        """
+        Initializes a new model administration instance.
+
+        :param model: The model to be administered.
+        :param admin_site: The administraton site associated with this model instance.
+
+        This constructor sets up the administration instance by storing the provided model and its associated metadata, 
+        and registering it with the specified admin site.
+        """
         self.model = model
         self.opts = model._meta
         self.admin_site = admin_site
@@ -694,6 +703,19 @@ class ModelAdmin(BaseModelAdmin):
         )
 
     def get_inline_instances(self, request, obj=None):
+        """
+        Returns a list of inline instances for the current model, filtered by the user's permissions.
+
+        These instances are used to render inline forms for related models in the admin interface.
+        The function takes into account the current request and object being viewed, and only includes
+        inline instances where the user has the necessary permissions (view, change, add, or delete).
+        The number of inline instances that can be added is also determined based on the user's permissions.
+
+        :param request: The current request object.
+        :param obj: The object being viewed (optional).
+        :returns: A list of inline instances for the current model.
+        :rtype: list
+        """
         inline_instances = []
         for inline_class in self.get_inlines(request, obj):
             inline = inline_class(self.model, self.admin_site)
@@ -714,6 +736,20 @@ class ModelAdmin(BaseModelAdmin):
         from django.urls import path
 
         def wrap(view):
+            """
+
+            Wraps an admin view function to provide additional functionality and context.
+
+            This wrapper function acts as a decorator, ensuring the provided view function is 
+            called within the context of the admin site. It preserves the metadata of the 
+            original view function, such as its name and docstring, and sets the 
+            `model_admin` attribute on the wrapper function to reference the current 
+            instance.
+
+            The wrapper returns the result of calling the wrapped view function with the 
+            provided arguments, allowing for seamless integration with existing admin views.
+
+            """
             def wrapper(*args, **kwargs):
                 return self.admin_site.admin_view(view)(*args, **kwargs)
 
@@ -2180,6 +2216,30 @@ class ModelAdmin(BaseModelAdmin):
 
     @csrf_protect_m
     def delete_view(self, request, object_id, extra_context=None):
+        """
+
+        Handle HTTP requests for deleting an object.
+
+        This view function processes requests to delete a specific object, identified by
+        its object ID. If the request method is GET, HEAD, OPTIONS, or TRACE, it returns
+        a response without modifying the database. For other request methods, it
+        performs the deletion within a database transaction to ensure data integrity.
+
+        Parameters
+        ----------
+        request : HttpRequest
+            The HTTP request object.
+        object_id : int
+            The ID of the object to be deleted.
+        extra_context : dict, optional
+            Additional context to be used when rendering the response.
+
+        Returns
+        -------
+        HttpResponse
+            A response object indicating the outcome of the deletion request.
+
+        """
         if request.method in ("GET", "HEAD", "OPTIONS", "TRACE"):
             return self._delete_view(request, object_id, extra_context)
 

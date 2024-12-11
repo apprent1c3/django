@@ -39,6 +39,22 @@ class Cast(Func):
         return self.as_sql(compiler, connection, **extra_context)
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+
+        Generates the SQL for the given expression, adapted for MySQL database.
+
+        The generated SQL is adapted based on the output field type. For FloatField,
+        the expression is wrapped to ensure it's evaluated as a floating point number.
+        For JSONField on MariaDB, it uses the JSON_EXTRACT function to extract the JSON value.
+
+        Returns the adapted SQL expression, using the provided compiler and connection.
+
+        :param compiler: The SQL compiler to use for generating the SQL.
+        :param connection: The database connection to use for adapting the SQL.
+        :param extra_context: Additional context to pass to the as_sql method.
+        :returns: The adapted SQL expression.
+
+        """
         template = None
         output_type = self.output_field.get_internal_type()
         # MySQL doesn't support explicit cast to float.
@@ -175,6 +191,22 @@ class JSONObject(Func):
         )
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+
+        Generate a PostgreSQL representation of a JSON object.
+
+        This function handles the conversion of a JSON object to a PostgreSQL query,
+        taking into account the version of PostgreSQL being used. For versions prior to 16,
+        it applies a workaround to ensure compatibility by casting the object's values to
+        text fields. For PostgreSQL 16 and later, it uses the native JSONB functionality.
+
+        :param compiler: The query compiler instance
+        :param connection: The database connection instance
+        :param extra_context: Additional context for the SQL generation process
+
+        :return: A SQL string representation of the JSON object
+
+        """
         if not connection.features.is_postgresql_16:
             copy = self.copy()
             copy.set_source_expressions(

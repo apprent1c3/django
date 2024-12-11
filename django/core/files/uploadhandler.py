@@ -176,6 +176,13 @@ class TemporaryFileUploadHandler(FileUploadHandler):
         self.file.write(raw_data)
 
     def file_complete(self, file_size):
+        """
+        Sets the file size and resets the file pointer to the beginning of the file, preparing it for further operations.
+
+        :param file_size: The new size of the file in bytes.
+        :return: The file object with the updated size and reset file pointer.
+        :rtype: file object
+        """
         self.file.seek(0)
         self.file.size = file_size
         return self.file

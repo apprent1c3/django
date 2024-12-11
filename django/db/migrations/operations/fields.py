@@ -176,6 +176,20 @@ class RemoveField(FieldOperation):
             )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverts a database migration by adding a field to the database schema when migrating backwards.
+
+        This method is used to reverse the effect of a previous migration that removed a field from the database.
+        It checks if the model is allowed to be migrated based on the current database connection,
+        and if so, it adds the field to the model's database schema.
+
+        :param app_label: The label of the application that the model belongs to.
+        :param schema_editor: The schema editor object used to modify the database schema.
+        :param from_state: The previous state of the application's models.
+        :param to_state: The current state of the application's models.
+
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -305,6 +319,20 @@ class RenameField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Alter a field's name in a model's database schema.
+
+        This function facilitates the migration of a model's field from an old name to a new name.
+        It determines the target model in the new state and checks if migration is allowed for the model and the current database connection.
+        If migration is permitted, it retrieves the original model in the previous state and instructs the schema editor to alter the field's name accordingly.
+
+        :param app_label: The label of the application that owns the model.
+        :param schema_editor: The object responsible for editing the database schema.
+        :param from_state: The previous state of the application, used to retrieve the original model.
+        :param to_state: The new state of the application, used to retrieve the target model.
+
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)

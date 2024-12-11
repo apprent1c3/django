@@ -26,6 +26,47 @@ class Index:
         condition=None,
         include=None,
     ):
+        """
+
+        Initialize an index object.
+
+        This class represents a database index, which can be used to improve query performance.
+        It supports various options, including fields, expressions, opclasses, condition, and include.
+
+        The index can be defined using either fields or expressions, but not both.
+        Fields are specified as a list or tuple of column names, and can be prefixed with a minus sign to indicate descending order.
+        Expressions are specified as a list or tuple of arbitrary database expressions, and require a name to be specified.
+
+        Opclasses can be used to specify the operator class for each field, but are not compatible with expressions.
+        A condition can be used to create a partial index, which only includes rows that match the condition.
+        The include option can be used to create a covering index, which includes additional columns to avoid table lookups.
+
+        The index must be named if it uses expressions, opclasses, or a condition.
+        It must also have a valid set of fields or expressions to be created.
+
+        Parameters
+        ----------
+        fields : list or tuple
+            A list or tuple of column names to include in the index.
+        name : str
+            The name of the index.
+        db_tablespace : str
+            The tablespace to store the index in.
+        opclasses : list or tuple
+            A list or tuple of operator classes to use for each field.
+        condition : Q
+            A condition to create a partial index.
+        include : list or tuple
+            A list or tuple of additional columns to include in the covering index.
+        expressions : list or tuple
+            A list or tuple of arbitrary database expressions to use for the index.
+
+        Raises
+        ------
+        ValueError
+            If the index is not properly defined.
+
+        """
         if opclasses and not name:
             raise ValueError("An index must be named to use opclasses.")
         if not isinstance(condition, (NoneType, Q)):
@@ -207,6 +248,16 @@ class Index:
         )
 
     def __eq__(self, other):
+        """
+        Equality comparison operator for objects of the same class.
+
+        Compares the current object with another object, determining if they are equal.
+        This comparison is based on the internal state of the objects, which is determined by the deconstructed representation of the objects.
+        If the comparison is between objects of different classes, it will not attempt to compare them and will return NotImplemented instead.
+
+        Returns:
+            bool: True if the objects are equal, False otherwise, or NotImplemented if the comparison is between objects of different classes.
+        """
         if self.__class__ == other.__class__:
             return self.deconstruct() == other.deconstruct()
         return NotImplemented

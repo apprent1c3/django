@@ -78,6 +78,18 @@ def prepare_lookup_value(key, value, separator=","):
 
 
 def build_q_object_from_lookup_parameters(parameters):
+    """
+
+    Constructs a Django database query Q object from a dictionary of lookup parameters.
+
+    The function takes a dictionary where keys are model field names and values are lists of values to filter by.
+    It returns a Q object that can be used to filter Django models, allowing for efficient and complex queries.
+
+    For example, if you pass a dictionary with field 'name' and values ['John', 'Jane'], the resulting Q object will match any model instance where the 'name' field is either 'John' or 'Jane'.
+
+    This function is useful for dynamically building queries based on user input or other variable parameters.
+
+    """
     q_object = models.Q()
     for param, param_item_list in parameters.items():
         q_object &= reduce(or_, (models.Q((param, item)) for item in param_item_list))

@@ -114,6 +114,24 @@ class BlockTranslateNode(Node):
         asvar=None,
         tag_name="blocktranslate",
     ):
+        """
+        ..: 
+            Initialize a translation block context.
+
+            This constructor sets up the context for a translation block, including 
+            optional pluralization, counter variables, and message context. It also 
+            allows for trimming whitespace and storing the result in a variable.
+
+            :param extra_context: Additional context for the translation
+            :param singular: Singular form of the translated message
+            :param plural: Plural form of the translated message (default: None)
+            :param countervar: Variable to use for counters (default: None)
+            :param counter: Counter value (default: None)
+            :param message_context: Context for the translated message (default: None)
+            :param trimmed: Whether to trim whitespace from the translated message (default: False)
+            :param asvar: Variable to store the translated message in (default: None)
+            :param tag_name: Name of the template tag (default: 'blocktranslate')
+        """
         self.extra_context = extra_context
         self.singular = singular
         self.plural = plural

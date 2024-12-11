@@ -56,6 +56,25 @@ REGISTERED_CONVERTERS = {}
 
 
 def register_converter(converter, type_name):
+    """
+
+    Registers a custom converter for a specific type.
+
+    This function allows you to add a custom converter for a specific type.
+    The converter should be a callable that can be instantiated and used to convert
+    values of the specified type.
+
+    The registered converter will override any existing converter for the same type.
+    Note that support for overriding registered converters is deprecated and will be
+    removed in Django 6.0.
+
+    After registration, the internal converter caches are cleared to ensure the new
+    converter is used.
+
+    :param converter: The converter to register.
+    :param type_name: The name of the type for which the converter should be registered.
+
+    """
     if type_name in REGISTERED_CONVERTERS or type_name in DEFAULT_CONVERTERS:
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # raise ValueError(f"Converter {type_name} is already registered.")

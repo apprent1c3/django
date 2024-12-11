@@ -79,6 +79,19 @@ class SessionStore(SessionBase):
         )
 
     def save(self, must_create=False):
+        """
+        Save the current session to the cache.
+
+        This method checks if the session key already exists. If it does not, a new session is created. 
+        If `must_create` is True, the session is added to the cache, even if it already exists. 
+        If the session exists in the cache and `must_create` is False, the existing session is updated. 
+        If the session does not exist in the cache and `must_create` is False, an UpdateError is raised. 
+        If a new session is being created and the add operation fails, a CreateError is raised.
+
+        :param bool must_create: Whether to create a new session even if one already exists.
+        :raises UpdateError: If the session does not exist in the cache and must_create is False.
+        :raises CreateError: If the add operation fails when must_create is True.
+        """
         if self.session_key is None:
             return self.create()
         if must_create:

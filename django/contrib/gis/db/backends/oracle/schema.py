@@ -88,6 +88,16 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         self.run_geometry_sql()
 
     def remove_field(self, model, field):
+        """
+        Remove a field from the model, handling GeometryField removal with spatial index cleanup.
+
+        Removes the specified field from the given model, taking care of any special handling
+        required for GeometryField instances. If the field is a GeometryField, this method will
+        remove the field's geometric metadata and delete any associated spatial index.
+
+        :param model: The model from which to remove the field
+        :param field: The field to be removed from the model
+        """
         if isinstance(field, GeometryField):
             self.execute(
                 self.sql_clear_geometry_field_metadata
@@ -102,6 +112,13 @@ class OracleGISSchemaEditor(DatabaseSchemaEditor):
         super().remove_field(model, field)
 
     def run_geometry_sql(self):
+        """
+        Execute a sequence of SQL statements related to geometry operations.
+
+        This method iterates over a list of stored SQL commands, executing each one in sequence.
+        After execution, the list of stored SQL commands is cleared to prevent duplicate execution.
+        Use this method to perform geometric operations, such as spatial queries or shape updates, defined by the stored SQL statements.
+        """
         for sql in self.geometry_sql:
             self.execute(sql)
         self.geometry_sql = []

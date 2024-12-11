@@ -191,6 +191,24 @@ class Page(collections.abc.Sequence):
         return len(self.object_list)
 
     def __getitem__(self, index):
+        """
+        Returns the object at the specified index or a slice of objects from the internal list.
+
+        Parameters
+        ----------
+        index : int or slice
+            The index or slice of objects to retrieve. Page indices must be either integers, to get a single object, or slices, to get a subset of objects.
+
+        Returns
+        -------
+        object
+            The object at the specified index if an integer is provided, or a list of objects if a slice is provided.
+
+        Raises
+        ------
+        TypeError
+            If the index is not an integer or a slice.
+        """
         if not isinstance(index, (int, slice)):
             raise TypeError(
                 "Page indices must be integers or slices, not %s."

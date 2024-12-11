@@ -32,6 +32,17 @@ class SessionStore(DBStore):
         return self.cache_key_prefix + await self._aget_or_create_session_key()
 
     def load(self):
+        """
+        Loads cached data for the current object.
+
+        Attempts to retrieve data from the cache using the cache key. If the data is not cached, 
+        it will be retrieved from the database session, decoded, and then stored in the cache 
+        for future use. If no data is found in the database, an empty dictionary is returned.
+
+        Returns:
+            The loaded data, either from the cache or the database session. If no data is found, an empty dictionary is returned.\"\"\"
+            ```
+        """
         try:
             data = self._cache.get(self.cache_key)
         except Exception:

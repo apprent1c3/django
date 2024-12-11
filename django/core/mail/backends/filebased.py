@@ -40,6 +40,22 @@ class EmailBackend(ConsoleEmailBackend):
         super().__init__(*args, **kwargs)
 
     def write_message(self, message):
+        """
+
+        Writes a message to the output stream, formatting it with a newline and a separator line.
+
+        The message is first written to the stream, followed by a line of 79 hyphens to visually separate it from subsequent output. This helps to improve readability of the output.
+
+        Parameters
+        ----------
+        message : object
+            The message to be written to the stream. It is expected to have a `message()` method that returns the message content.
+
+        Note
+        ----
+        The message content is converted to bytes before being written to the stream.
+
+        """
         self.stream.write(message.message().as_bytes() + b"\n")
         self.stream.write(b"-" * 79)
         self.stream.write(b"\n")

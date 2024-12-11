@@ -25,6 +25,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def __enter__(self):
         # Some SQLite schema alterations need foreign key constraints to be
         # disabled. Enforce it here for the duration of the schema edition.
+        """
+        碰到ourcemode
+         Enters the runtime context for the SQLite schema editor.
+
+        This method initializes the environment necessary for editing the SQLite schema. 
+        Before entering this context, it checks if foreign key constraint checks are disabled. 
+        If they are not, it raises a NotSupportedError because SQLite does not support disabling 
+        these checks in the middle of a multi-statement transaction. The method returns 
+        the result of the superclass's __enter__ method, allowing the context to be properly set up.
+        """
         if not self.connection.disable_constraint_checking():
             raise NotSupportedError(
                 "SQLite schema editor cannot be used while foreign key "

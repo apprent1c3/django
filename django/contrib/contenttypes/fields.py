@@ -627,6 +627,19 @@ def create_generic_related_manager(superclass, rel):
                 return self._apply_rel_filters(queryset)
 
         def get_prefetch_queryset(self, instances, queryset=None):
+            """
+
+            Returns a queryset for prefetching related objects.
+
+            This method is deprecated in favor of `get_prefetch_querysets` and should not be used for new code. It will be removed in Django 6.0.
+
+            It takes a list of instances and an optional queryset, and returns a queryset that can be used to prefetch related objects for the given instances. If no queryset is provided, it falls back to calling `get_prefetch_querysets` without specifying any querysets.
+
+            :param instances: List of instances for which to prefetch related objects
+            :param queryset: Optional queryset to use for prefetching
+            :returns: Queryset for prefetching related objects
+
+            """
             warnings.warn(
                 "get_prefetch_queryset() is deprecated. Use get_prefetch_querysets() "
                 "instead.",
@@ -638,6 +651,29 @@ def create_generic_related_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+
+            Get a prefetch queryset for a given set of instances.
+
+            This method constructs a queryset that can be used to prefetch related objects for the given instances.
+            It takes into account the content type and object ID of each instance, and returns a tuple containing the 
+            queryset, a function to convert related objects to the required format, a function to convert objects to the 
+            required format for caching, and other relevant parameters.
+
+            The queryset is filtered to only include objects that match the content type and object ID of the given instances.
+            The method also uses database hints to improve query performance, and allows for the specification of a custom 
+            queryset to use for prefetching.
+
+            Returns a tuple containing:
+
+            * The prefetch queryset
+            * A function to convert related objects to the required format
+            * A function to convert objects to the required format for caching
+            * A boolean indicating whether the prefetch is done on a single instance
+            * The name of the prefetch cache
+            * A boolean indicating whether the prefetch is done on a to-many relationship
+
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "

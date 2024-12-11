@@ -175,6 +175,34 @@ class UserManager(BaseUserManager):
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
+        """
+
+        Restricter filter that filters objects based on a user's permission.
+
+        Parameters
+        ----------
+        perm : str
+            The codename of the permission to filter by.
+        is_active : bool, optional
+            Whether the permission is required for active users only (default is True).
+        include_superusers : bool, optional
+            Whether to include superusers in the filtered results (default is True).
+        backend : str, optional
+            The dotted import path of the authentication backend to use (default is None).
+        obj : object, optional
+            The object for which the permission should be checked (default is None).
+
+        Returns
+        -------
+        A QuerySet restricter that filters objects based on the specified permission.
+
+        Notes
+        -----
+        If multiple authentication backends are configured, the `backend` argument must be provided.
+        If the specified backend has a `with_perm` method, it will be used to filter the objects.
+        Otherwise, the filter will return an empty queryset.
+
+        """
         if backend is None:
             backends = auth._get_backends(return_tuples=True)
             if len(backends) == 1:
@@ -481,6 +509,18 @@ class AnonymousUser:
         return _user_has_perm(self, perm, obj=obj)
 
     def has_perms(self, perm_list, obj=None):
+        """
+
+        Checks if the current user or object has all permissions in the given list.
+
+        :param perm_list: An iterable of permissions (e.g. strings or permission objects) to check.
+        :param obj: An optional object against which to check the permissions (default is None).
+
+        :raises ValueError: If perm_list is not an iterable or is a string.
+
+        :returns: True if the user has all permissions in the list, False otherwise.
+
+        """
         if not isinstance(perm_list, Iterable) or isinstance(perm_list, str):
             raise ValueError("perm_list must be an iterable of permissions.")
         return all(self.has_perm(perm, obj) for perm in perm_list)

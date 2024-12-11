@@ -28,6 +28,12 @@ class FlatpageForm(forms.ModelForm):
         fields = "__all__"
 
     def __init__(self, *args, **kwargs):
+        """
+        .Initializes the object.
+
+        This constructor method sets up the object's basic structure by calling the parent's constructor using super(). 
+        It also checks if a trailing slash is required in the URL field and updates the help text accordingly to guide users about the expected format.
+        """
         super().__init__(*args, **kwargs)
         if not self._trailing_slash_required():
             self.fields["url"].help_text = _(

@@ -172,6 +172,21 @@ def _sqlite_datetime_cast_date(dt, tzname, conn_tzname):
 
 
 def _sqlite_datetime_cast_time(dt, tzname, conn_tzname):
+    """
+
+    Converts a datetime object to a time string in ISO format.
+
+    This function takes a datetime string, its timezone name, and the connection's timezone name,
+    parses the datetime, and returns its time component in ISO format. If the parsing fails, it returns None.
+    The function handles datetime conversions between different timezones, ensuring accurate time representation.
+
+    :param dt: The datetime string to be converted.
+    :param tzname: The timezone name of the datetime string.
+    :param conn_tzname: The timezone name of the connection.
+    :rtype: str
+    :return: The time component of the datetime string in ISO format, or None if parsing fails.
+
+    """
     dt = _sqlite_datetime_parse(dt, tzname, conn_tzname)
     if dt is None:
         return None
@@ -292,6 +307,23 @@ def _sqlite_time_diff(lhs, rhs):
 
 
 def _sqlite_timestamp_diff(lhs, rhs):
+    """
+    Calculates the difference between two timestamps.
+
+    This function takes two timestamps as input, converts them to a standard format if necessary, 
+    and then calculates the difference between them in microseconds.
+
+    Args:
+        lhs (timestamp): The left-hand side timestamp.
+        rhs (timestamp): The right-hand side timestamp.
+
+    Returns:
+        int or None: The difference between the two timestamps in microseconds, or None if either input is None.
+
+    Note:
+        The input timestamps can be in various formats, which are standardized by the typecast_timestamp function before calculation.
+
+    """
     if lhs is None or rhs is None:
         return None
     left = typecast_timestamp(lhs)
@@ -320,6 +352,13 @@ def _sqlite_asin(x):
 
 
 def _sqlite_atan(x):
+    """
+    .. _sqlite_atan:
+        Calculate the arctangent of a given number.
+
+        This function returns the arctangent (in radians) of the input value `x`. 
+        If the input is `None`, the function returns `None`.
+    """
     if x is None:
         return None
     return atan(x)
@@ -338,6 +377,11 @@ def _sqlite_bitxor(x, y):
 
 
 def _sqlite_ceiling(x):
+    """
+    Returns the ceiling of a given number, rounded up to the nearest integer. 
+    If the input value is None, the function returns None. 
+    This function is used for calculating the ceiling value in SQLite-related operations.
+    """
     if x is None:
         return None
     return ceil(x)
@@ -362,6 +406,18 @@ def _sqlite_degrees(x):
 
 
 def _sqlite_exp(x):
+    """
+    .. function:: _sqlite_exp(x)
+       :noindex:
+
+       Computes the exponential of a given value.
+
+       This function takes a single input value and returns its exponential. If the input is None, the function returns None.
+
+       :param x: The input value.
+       :return: The exponential of the input value, or None if the input is None.
+       :rtype: float or None
+    """
     if x is None:
         return None
     return exp(x)

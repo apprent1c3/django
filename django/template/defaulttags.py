@@ -119,6 +119,19 @@ class CycleNode(Node):
 
 class DebugNode(Node):
     def render(self, context):
+        """
+
+        Renders the given context for debugging purposes.
+
+        This function is only active when the application is running in debug mode. 
+        It takes a context object, formats its contents into a human-readable string, 
+        and returns this string. Additionally, it includes information about the currently loaded modules.
+
+        The returned string is HTML-escaped to prevent any potential security issues.
+        It can be used to inspect the context and system state during development, 
+        but it does not produce any output in production environments.
+
+        """
         if not settings.DEBUG:
             return ""
 

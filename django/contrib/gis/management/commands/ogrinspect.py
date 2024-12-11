@@ -26,6 +26,15 @@ class ListOptionAction(argparse.Action):
     """
 
     def __call__(self, parser, namespace, value, option_string=None):
+        """
+        Handle the value passed to a command line option.
+
+        When the value is 'true', this function sets the corresponding attribute in the namespace to True.
+        For any other value, it splits the value by comma and sets the attribute to the resulting list.
+
+        This allows for flexible handling of command line options that can accept either a boolean flag or a list of values.
+
+        """
         if value.lower() == "true":
             setattr(namespace, self.dest, True)
         else:

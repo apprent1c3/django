@@ -117,6 +117,17 @@ else:
     else:
 
         def lock(f, flags):
+            """
+            Acquires or releases a file lock, depending on the specified flags.
+
+            :param f: The file object on which the lock is to be applied.
+            :param flags: The flags specifying the type of lock to be acquired. 
+                         See the flock system call for possible values.
+
+            :returns: True if the lock was acquired successfully, False otherwise.
+            :raises: No exception is raised, but BlockingIOError is caught and handled internally. 
+                     A return value of False indicates that the lock could not be acquired due to a BlockingIOError.
+            """
             try:
                 fcntl.flock(_fd(f), flags)
                 return True

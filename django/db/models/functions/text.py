@@ -132,6 +132,20 @@ class Concat(Func):
     template = "%(expressions)s"
 
     def __init__(self, *expressions, **extra):
+        """
+        Initializes a Concat object, combining two or more expressions into a single output.
+
+        Args:
+            *expressions: Variable number of expressions to be concatenated.
+            **extra: Additional keyword arguments, including the 'output_field' parameter.
+
+        Raises:
+            ValueError: If fewer than two expressions are provided.
+
+        The Concat object is responsible for pairing the input expressions and passing them to its superclass for further processing.
+        The resulting object can then be used to combine the input expressions into a single output.
+
+        """
         if len(expressions) < 2:
             raise ValueError("Concat must take at least two expressions")
         paired = self._paired(expressions, output_field=extra.get("output_field"))
@@ -198,6 +212,18 @@ class LPad(Func):
     output_field = CharField()
 
     def __init__(self, expression, length, fill_text=Value(" "), **extra):
+        """
+
+        Initializes a new instance of the class.
+
+        :param expression: The expression to be used for initialization.
+        :param length: The desired length of the output, must be greater or equal to 0.
+        :param fill_text: The text to be used for padding, defaults to a single space.
+        :param extra: Additional keyword arguments to be passed to the superclass.
+
+        :raises ValueError: If the length is less than 0 and does not support expression resolution.
+
+        """
         if (
             not hasattr(length, "resolve_expression")
             and length is not None

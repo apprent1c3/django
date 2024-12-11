@@ -223,6 +223,16 @@ class Statement(Reference):
         )
 
     def rename_table_references(self, old_table, new_table):
+        """
+
+        Recursively renames references to a table within a complex object structure.
+
+        Replaces all occurrences of the old table name with the new table name in the object and its nested components.
+
+        :param old_table: The original name of the table to be replaced.
+        :param new_table: The new name to be used in place of the old table name.
+
+        """
         for part in self.parts.values():
             if hasattr(part, "rename_table_references"):
                 part.rename_table_references(old_table, new_table)
@@ -238,6 +248,25 @@ class Statement(Reference):
 
 class Expressions(TableColumns):
     def __init__(self, table, expressions, compiler, quote_value):
+        """
+        Initializes a database query builder object.
+
+         Parameters
+         ----------
+         table : object
+             The database table to query.
+         expressions : object
+             The expressions to include in the query.
+         compiler : object
+             The compiler to use for building the query.
+         quote_value : object
+             The value to quote the query with.
+
+         Notes
+         -----
+         This initializer sets up the query builder with the given table, expressions, compiler, and quoting value, 
+         and automatically determines the columns to include in the query based on the provided expressions.
+        """
         self.compiler = compiler
         self.expressions = expressions
         self.quote_value = quote_value

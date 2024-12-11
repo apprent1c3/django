@@ -27,6 +27,16 @@ class RegexValidator:
     def __init__(
         self, regex=None, message=None, code=None, inverse_match=None, flags=None
     ):
+        """
+        Initializes a regular expression validator instance.
+
+        :param str regex: The regular expression pattern to match against.
+        :param str message: The error message to display when validation fails.
+        :param str code: The error code associated with the validation failure.
+        :param bool inverse_match: Whether to validate against the inverse of the regular expression match.
+        :param flags: The flags to use when compiling the regular expression.
+        :raises TypeError: If the flags are set and the regex is not a string.
+        """
         if regex is not None:
             self.regex = regex
         if message is not None:
@@ -160,6 +170,31 @@ class URLValidator(RegexValidator):
             self.schemes = schemes
 
     def __call__(self, value):
+        """
+        ávkyValidate a URL string.
+
+        This function checks if a given URL string is valid. It first checks if the input is a string and if its length does not exceed the maximum allowed length. Then it checks if the string contains any unsafe characters.
+
+        The function also validates the URL scheme, ensuring it is one of the allowed schemes. It splits the URL into its components and checks if the netloc and hostname are valid.
+
+        Additionally, the function checks for potential IPv6 addresses in the URL and validates them. If any of these checks fail, a ValidationError is raised with a corresponding message and code.
+
+        The function supports IDNA encoding for internationalized domain names. If the initial validation fails, it attempts to validate the URL after converting the netloc to Punycode.
+
+        Parameters
+        ----------
+        value : str
+            The URL string to be validated.
+
+        Raises
+        ------
+        ValidationError
+            If the URL string is invalid.
+
+        Note
+        ----
+        This function is designed to be used as a validator for URL fields, ensuring that the input URLs are valid and follow the expected format.
+        """
         if not isinstance(value, str) or len(value) > self.max_length:
             raise ValidationError(self.message, code=self.code, params={"value": value})
         if self.unsafe_chars.intersection(value):
@@ -244,6 +279,15 @@ class EmailValidator:
     domain_allowlist = ["localhost"]
 
     def __init__(self, message=None, code=None, allowlist=None):
+        """
+        Initializes an error or exception object with a customizable error message, code, and domain allowlist.
+
+        :param message: The error message to be associated with the exception, defaults to None
+        :param code: The error code to be associated with the exception, defaults to None
+        :param allowlist: A list of allowed domains, defaults to None
+
+        The message, code, and allowlist parameters can be used to provide additional context and information about the error or exception. If any of these parameters are not provided, they will be set to their default values.
+        """
         if message is not None:
             self.message = message
         if code is not None:
@@ -320,6 +364,26 @@ validate_unicode_slug = RegexValidator(
 
 
 def validate_ipv4_address(value):
+    """
+    Validate an IPv4 address.
+
+    Validates whether the provided value is a valid IPv4 address. If the address is invalid, a ValidationError is raised with a message indicating that the provided address is not a valid IPv4 address. 
+
+    Parameters
+    ----------
+    value : str
+        The IPv4 address to be validated.
+
+    Raises
+    ------
+    ValidationError
+        If the provided IPv4 address is invalid.
+
+    Returns
+    -------
+    None
+        If the IPv4 address is valid, the function does not return any value.
+    """
     try:
         ipaddress.IPv4Address(value)
     except ValueError:
@@ -618,6 +682,15 @@ class FileExtensionValidator:
     code = "invalid_extension"
 
     def __init__(self, allowed_extensions=None, message=None, code=None):
+        """
+        Initializes a validation object to check file extensions.
+
+        :param allowed_extensions: A list of allowed file extensions. If provided, all extensions are converted to lowercase for case-insensitive comparison.
+        :param message: A custom error message to display when a file extension is not allowed.
+        :param code: A custom error code to associate with the validation error.
+
+        The validation object can be configured to allow specific file extensions and provide a custom error message and code. If not provided, default values are used.
+        """
         if allowed_extensions is not None:
             allowed_extensions = [
                 allowed_extension.lower() for allowed_extension in allowed_extensions
@@ -629,6 +702,18 @@ class FileExtensionValidator:
             self.code = code
 
     def __call__(self, value):
+        """
+        Validates a file based on its extension against a predefined list of allowed extensions.
+
+        Args:
+            value: The file to be validated.
+
+        Raises:
+            ValidationError: If the file extension is not in the list of allowed extensions.
+
+        Notes:
+            The validation is case-insensitive and only considers the file extension (e.g., 'pdf', 'jpg', etc.).
+        """
         extension = Path(value.name).suffix[1:].lower()
         if (
             self.allowed_extensions is not None

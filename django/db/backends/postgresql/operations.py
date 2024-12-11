@@ -287,6 +287,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return 63
 
     def distinct_sql(self, fields, params):
+        """
+        ..:param fields: List of fields to apply the DISTINCT ON clause to
+        ..:param params: List of parameters to be used in the SQL query
+        ..:return: A tuple containing a list of SQL strings with the DISTINCT clause and a flattened list of parameters
+        .. 
+        Returns a SQL string fragment that applies the DISTINCT clause to the given fields. If fields are specified, 
+        the DISTINCT ON clause is used; otherwise, a simple DISTINCT clause is generated. The function also 
+        transforms the input parameters into a flattened list to be used in the SQL query.
+        """
         if fields:
             params = [param for param_list in params for param in param_list]
             return (["DISTINCT ON (%s)" % ", ".join(fields)], params)

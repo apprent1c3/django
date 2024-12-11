@@ -19,6 +19,14 @@ class GISLookup(Lookup):
     band_lhs = None
 
     def __init__(self, lhs, rhs):
+        """
+        Initializes a class instance, setting up the left-hand side (LHS) and right-hand side (RHS) components.
+
+        :param lhs: The left-hand side component of the instance.
+        :param rhs: The right-hand side component, which can be a single value or a collection (list or tuple) of values.
+
+        Upon initialization, the RHS is processed to extract any additional parameters, which are stored for future use. The instance's template parameters are also initialized as an empty dictionary, and further processing is performed on the RHS parameters to prepare the instance for use.
+        """
         rhs, *self.rhs_params = rhs if isinstance(rhs, (list, tuple)) else [rhs]
         super().__init__(lhs, rhs)
         self.template_params = {}

@@ -30,6 +30,19 @@ class SessionStore(SessionBase):
         return self.get_model_class()
 
     def _get_session_from_db(self):
+        """
+        Retrieves a session from the database based on the provided session key.
+
+        The function queries the database for a session matching the session key and 
+        an expiration date later than the current time. If a matching session is found, 
+        it is returned. If no matching session exists or a suspicious operation is detected, 
+        the session key is reset to None. In the case of a suspicious operation, a warning 
+        is logged for security auditing purposes. 
+
+        :raises: None
+        :returns: The session object if found, or None if not found or session key is reset.
+        :rtype: Model instance or None
+        """
         try:
             return self.model.objects.get(
                 session_key=self.session_key, expire_date__gt=timezone.now()
@@ -41,6 +54,21 @@ class SessionStore(SessionBase):
             self._session_key = None
 
     async def _aget_session_from_db(self):
+        """
+
+        Fetches and returns a session object from the database asynchronously.
+
+        The session is retrieved based on the session key associated with this instance.
+        Only sessions that have not expired (i.e., their expire date is greater than the current time) are considered valid.
+
+        If the session does not exist or a SuspiciousOperation exception occurs, the error is handled accordingly. 
+        In the case of a SuspiciousOperation, a warning is logged. 
+        The session key is reset if an exception occurs, indicating that the session is no longer available or valid.
+
+        :returns: The retrieved session object, or None if an exception occurs.
+        :raises: None
+
+        """
         try:
             return await self.model.objects.aget(
                 session_key=self.session_key, expire_date__gt=timezone.now()

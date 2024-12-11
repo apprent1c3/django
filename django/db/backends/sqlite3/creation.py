@@ -17,6 +17,18 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _get_test_db_name(self):
+        """
+        Gets the name of the test database.
+
+        Returns the name of the test database as specified in the database connection
+        settings, defaulting to an in-memory database if not explicitly set. If an
+        in-memory database is used, a unique name is generated to allow for shared
+        access.
+
+        :rtype: str
+        :return: The name of the test database.
+
+        """
         test_database_name = self.connection.settings_dict["TEST"]["NAME"] or ":memory:"
         if test_database_name == ":memory:":
             return "file:memorydb_%s?mode=memory&cache=shared" % self.connection.alias
@@ -52,6 +64,26 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def get_test_db_clone_settings(self, suffix):
+        """
+
+        Obtain database clone settings for testing purposes.
+
+        Returns a dictionary containing the clone settings, which are derived from the
+        original database connection settings. The clone settings include a modified
+        database name that appends a specified suffix to the original name.
+
+        The cloning behavior depends on the type of database and the multiprocessing
+        start method. For file-based databases, the clone settings will reference a new
+        database file with the modified name. For in-memory databases using the 'spawn'
+        start method, the clone settings will also include a modified database file name.
+        If the 'fork' start method is used, the original database settings are returned
+        as is. Any other start method will raise an error.
+
+        :param suffix: The suffix to append to the original database name
+        :return: A dictionary containing the database clone settings
+        :raises NotSupportedError: If the multiprocessing start method is not supported
+
+        """
         orig_settings_dict = self.connection.settings_dict
         source_database_name = orig_settings_dict["NAME"] or ":memory:"
 

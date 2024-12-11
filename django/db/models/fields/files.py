@@ -27,6 +27,18 @@ class FieldFile(File, AltersData):
     def __eq__(self, other):
         # Older code may be expecting FileField values to be simple strings.
         # By overriding the == operator, it can remain backwards compatibility.
+        """
+        Compare the equality of the current object with another object.
+
+        The comparison is done based on the 'name' attribute of the current object.
+        If the other object has a 'name' attribute, the comparison is done between
+        the 'name' attributes of the two objects. If the other object does not have
+        a 'name' attribute, the comparison is done between the 'name' attribute of
+        the current object and the other object itself.
+
+        Returns:
+            bool: True if the objects are equal, False otherwise.
+        """
         if hasattr(other, "name"):
             return self.name == other.name
         return self.name == other
@@ -448,6 +460,16 @@ class ImageField(FileField):
             return []
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts.
+
+        This method extends the deconstruction behavior of its parent class by 
+        including additional keyword arguments for width and height fields if they are set.
+
+        Returns:
+            A tuple containing the name, path, arguments, and keyword arguments 
+            that can be used to reconstruct the object.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.width_field:
             kwargs["width_field"] = self.width_field

@@ -203,6 +203,18 @@ class ConnectionRouter:
 
     @cached_property
     def routers(self):
+        """
+        Returns a list of database routers.
+
+        This property initializes and returns a list of router objects based on the
+        settings defined in DATABASE_ROUTERS. If a router is specified as a string,
+        it is imported and instantiated. Otherwise, the router object is used directly.
+
+        The resulting list of routers can be used to handle database routing decisions.
+
+        :rtype: list
+        :raises: ImportError if a router string cannot be imported
+        """
         if self._routers is None:
             self._routers = settings.DATABASE_ROUTERS
         routers = []

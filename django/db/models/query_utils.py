@@ -143,6 +143,15 @@ class Q(tree.Node):
             return True
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple containing its path, arguments, and keyword arguments.
+
+        The path is a string representing the full module and class name of the object, with special handling for certain Django modules.
+
+        The arguments are a tuple of child objects, and the keyword arguments are a dictionary containing optional settings, such as the connector type and whether the object is negated.
+
+        This deconstruction is useful for recreating the object or serializing it for storage or transmission. The returned tuple can be used to create a new instance of the object with the same properties.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if path.startswith("django.db.models.query_utils"):
             path = path.replace("django.db.models.query_utils", "django.db.models")
@@ -156,6 +165,17 @@ class Q(tree.Node):
 
     @cached_property
     def identity(self):
+        """
+        Return a unique identifier for this object, based on its path, arguments, and keyword arguments.
+
+        The identifier is computed by combining the object's path and keyword arguments, and then including the arguments in a specific order.
+        Non-hashable argument values are converted to a hashable form before inclusion in the identifier.
+        The resulting identifier is a tuple that can be used for comparison and caching purposes.
+
+        The identifier is designed to be unique for each distinct object, and to remain the same for the lifetime of the object.
+        It can be used as a key in dictionaries or other data structures, and as a basis for caching or other performance optimization techniques.
+
+        """
         path, args, kwargs = self.deconstruct()
         identity = [path, *kwargs.items()]
         for child in args:
@@ -168,6 +188,15 @@ class Q(tree.Node):
         return tuple(identity)
 
     def __eq__(self, other):
+        """
+        Checks if the current object is equal to another object.
+
+        Args:
+            other: The object to compare with.
+
+        Returns:
+            bool: True if the objects are equal, NotImplemented otherwise. Two objects are considered equal if they have the same identity.
+        """
         if not isinstance(other, Q):
             return NotImplemented
         return other.identity == self.identity
@@ -450,6 +479,12 @@ class FilteredRelation:
         self.resolved_condition = None
 
     def __eq__(self, other):
+        """
+        Checks whether two relation objects are equal.
+
+        Equality is determined by comparing the relation names, aliases, and conditions of the two objects.
+
+        """
         if not isinstance(other, self.__class__):
             return NotImplemented
         return (

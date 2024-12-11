@@ -228,6 +228,18 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().modify_insert_params(placeholder, params)
 
     def get_geometry_converter(self, expression):
+        """
+
+        Return a geometry converter function for the given spatial expression.
+
+        The converter function takes a binary geometry value and the associated spatial expression and database connection.
+        It reads the binary value, constructs a GEOS geometry object of the specified geometry class and SRID (if available), and returns the converted geometry object.
+
+        If the SRID of the output field is unknown (-1), it is treated as None and the SRID of the resulting geometry object is not set.
+
+        The returned converter function can be used to convert binary geometry values to GEOS geometry objects, which can be further processed or analyzed.
+
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:

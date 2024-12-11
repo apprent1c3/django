@@ -169,6 +169,33 @@ class Options:
         return self.apps.app_configs.get(self.app_label)
 
     def contribute_to_class(self, cls, name):
+        """
+
+        Configures the model metadata for a Django model class.
+
+        This method is responsible for setting up the metadata for a Django model, 
+        including its name, verbose name, and other attributes. It also handles 
+        inheritance of metadata from the model's Meta class and validates the 
+        metadata for correctness.
+
+        The method sets the following attributes:
+        - model: the model class itself
+        - object_name: the name of the model class
+        - model_name: the lowercase name of the model class
+        - verbose_name: the human-readable name of the model
+        - verbose_name_plural: the plural form of the verbose name
+
+        It also processes the model's Meta class, if present, and sets the 
+        following attributes:
+        - unique_together: a list of tuples specifying fields that must be unique together
+        - constraints: a list of constraints to apply to the model
+        - indexes: a list of indexes to create on the model
+        - ordering: a list of fields to use for ordering the model
+        - db_table: the name of the database table for the model
+
+        If the model's Meta class contains any invalid attributes, a TypeError is raised.
+
+        """
         from django.db import connection
         from django.db.backends.utils import truncate_name
 
@@ -245,6 +272,19 @@ class Options:
         return new_objs
 
     def _get_default_pk_class(self):
+        """
+        Retrieves the default primary key class based on the application configuration.
+
+        The default primary key class is determined by the 'default_auto_field' attribute in the application configuration.
+        If the attribute is not set, it defaults to the 'DEFAULT_AUTO_FIELD' setting. The function ensures that the specified
+        primary key class is a valid subclass of AutoField and can be imported. If the primary key class path is empty or
+        the import fails, it raises an ImproperlyConfigured exception. If the imported class is not a subclass of AutoField,
+        it raises a ValueError.
+
+        :returns: The default primary key class
+        :raises ImproperlyConfigured: If the primary key class path is empty or the import fails
+        :raises ValueError: If the imported class is not a subclass of AutoField
+        """
         pk_class_path = getattr(
             self.app_config,
             "default_auto_field",
@@ -461,6 +501,20 @@ class Options:
 
     @cached_property
     def base_manager(self):
+        """
+
+        Return the base manager for the given model.
+
+        The base manager is determined by checking if a base manager name is explicitly
+        defined. If not, it attempts to find a base manager in the model's parent classes.
+        If a base manager is found, it is returned from the model's managers map. If no
+        base manager is found, a new base manager is created and returned.
+
+        Raises:
+            ValueError: If a base manager is specified but not found in the model's
+                managers map.
+
+        """
         base_manager_name = self.base_manager_name
         if not base_manager_name:
             # Get the first parent's base_manager_name if there's one.

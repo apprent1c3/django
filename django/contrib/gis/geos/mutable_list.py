@@ -218,6 +218,14 @@ class ListMixin:
 
     # ### Private routines ###
     def _rebuild(self, newLen, newItems):
+        """
+        Rebuilds the internal list structure with a new length and items, while enforcing the minimum and maximum length constraints.
+
+        :arg int newLen: The desired new length of the list.
+        :arg newItems: The new items to populate the list.
+        :raises ValueError: If the new length is less than the minimum length or exceeds the maximum length.
+        :note: This method modifies the internal state of the object and does not return a value.
+        """
         if newLen and newLen < self._minlength:
             raise ValueError("Must have at least %d items" % self._minlength)
         if self._maxlength is not None and newLen > self._maxlength:

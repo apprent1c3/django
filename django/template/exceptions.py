@@ -26,6 +26,19 @@ class TemplateDoesNotExist(Exception):
     """
 
     def __init__(self, msg, tried=None, backend=None, chain=None):
+        """
+
+        Initializes an exception object with a message and optional parameters.
+
+        _Parameters_
+        :   msg: The error message associated with the exception.
+        :   tried: A list of actions or attempts that were made before the exception occurred (default: empty list).
+        :   backend: The backend system or component related to the exception (default: None).
+        :   chain: A list of events or operations that led to the exception (default: empty list).
+
+        This initializer sets up the exception object with the provided message and optional parameters, allowing for more detailed error reporting and debugging.
+
+        """
         self.backend = backend
         if tried is None:
             tried = []

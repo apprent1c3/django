@@ -40,6 +40,16 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         super().__init__(attrs, choices)
 
     def get_context(self, name, value, attrs):
+        """
+
+        Overrides the default get_context method to customize the widget's attributes for a select filter field.
+
+        It sets the initial CSS class to 'selectfilter' and conditionally appends 'stacked' if the field is stacked.
+        Additionally, it adds custom data attributes to the widget: 'data-field-name' with the field's verbose name and 'data-is-stacked' with a boolean indicator of the field's stacked state.
+
+        Returns a dictionary containing the updated context.
+
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"]["class"] = "selectfilter"
         if self.is_stacked:
@@ -191,6 +201,21 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return params
 
     def label_and_url_for_value(self, value):
+        """
+
+        Returns a tuple containing a human-readable label and a URL for the given value.
+
+        The label is a truncated string representation of the related object, and the URL
+        is the admin change page URL for that object. If the object does not exist or
+        cannot be retrieved, an empty string will be returned for both the label and URL.
+
+         Args:
+            value: The value of the related object to retrieve the label and URL for.
+
+         Returns:
+            tuple: A tuple containing the label and URL for the given value.
+
+        """
         key = self.rel.get_related_field().name
         try:
             obj = self.rel.model._default_manager.using(self.db).get(**{key: value})

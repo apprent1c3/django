@@ -100,6 +100,20 @@ class Template:
         return self.template.origin
 
     def render(self, context=None, request=None):
+        """
+
+        Render a template using the provided context and request.
+
+        This method takes in an optional context and request, and uses them to generate a rendered template.
+        The context is automatically made suitable for rendering by the template engine, which also handles autoescaping.
+        If the requested template does not exist, a TemplateDoesNotExist exception is raised, providing information about the missing template and the template engine that was used.
+
+        :param context: Optional context to use for rendering the template.
+        :param request: Optional request object to use for rendering the template.
+        :raises TemplateDoesNotExist: If the requested template does not exist.
+        :return: The rendered template as a string.
+
+        """
         context = make_context(
             context, request, autoescape=self.backend.engine.autoescape
         )

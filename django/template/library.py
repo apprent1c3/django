@@ -26,6 +26,30 @@ class Library:
         self.tags = {}
 
     def tag(self, name=None, compile_function=None):
+        """
+
+        Tag a function or retrieve a tag function.
+
+        This method can be used in multiple ways:
+
+        * Without any arguments, it returns the current tag function.
+        * With a single string argument, it returns a decorator that tags a function with the given name.
+        * With a single callable argument, it tags the given function with a generated name.
+        * With both a string name and a compile function, it registers the compile function under the given name.
+
+        The compile function is stored internally and can be retrieved later.
+
+        Args:
+            name (str, optional): The name of the tag.
+            compile_function (callable, optional): The function to be tagged or registered.
+
+        Returns:
+            The tag function, a decorator, or the registered compile function.
+
+        Raises:
+            ValueError: If the arguments are not supported.
+
+        """
         if name is None and compile_function is None:
             # @register.tag()
             return self.tag_function
@@ -122,6 +146,18 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                Compile a function for use in a templating engine.
+
+                This function takes in a parser and a token, parses the token into arguments and keyword arguments,
+                and then returns a SimpleNode object representing the compiled function. The function also supports
+                assigning the result to a variable using the 'as' keyword.
+
+                :param parser: The parser object used to parse the token.
+                :param token: The token to be compiled.
+                :returns: A SimpleNode object representing the compiled function.
+                :raises: Exceptions may be raised if the token is invalid or cannot be parsed.
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":
@@ -218,6 +254,19 @@ class TagHelperNode(Node):
         self.kwargs = kwargs
 
     def get_resolved_arguments(self, context):
+        """
+
+        Resolve function arguments and keyword arguments within a given context.
+
+        This function takes into account whether the function requires context to be passed
+        as the first argument. It resolves each argument and keyword argument by calling
+        their respective resolve methods with the provided context.
+
+        Returns:
+            A tuple containing two elements: a list of resolved positional arguments and
+            a dictionary of resolved keyword arguments.
+
+        """
         resolved_args = [var.resolve(context) for var in self.args]
         if self.takes_context:
             resolved_args = [context] + resolved_args

@@ -149,6 +149,16 @@ class Fieldline:
         self.readonly_fields = readonly_fields
 
     def __iter__(self):
+        """
+        Returns an iterator over the fields of the form, yielding either :class:`AdminField` or :class:`AdminReadonlyField` objects 
+        depending on whether each field is read-only or not. 
+
+        Each yielded object provides access to the field's value, validation state, and other attributes. 
+
+        The iteration order matches the order in which the fields are defined in the form. The :class:`AdminField` and 
+        :class:`AdminReadonlyField` objects also indicate whether the current field is the first one in the form, 
+        which can be useful for rendering and styling purposes.
+        """
         for i, field in enumerate(self.fields):
             if field in self.readonly_fields:
                 yield AdminReadonlyField(
@@ -169,6 +179,17 @@ class Fieldline:
 
 class AdminField:
     def __init__(self, form, field, is_first):
+        """
+        Initializes an instance of the class, setting up properties related to a form field.
+
+        :param form: The form containing the field
+        :param field: The name of the field within the form
+        :param is_first: A boolean indicating whether this is the first field
+        :ivar field: The form field instance being wrapped
+        :ivar is_first: Whether this field is the first in the form
+        :ivar is_checkbox: Whether the field is rendered as a checkbox input
+        :ivar is_readonly: Whether the field is read-only (initially set to False)
+        """
         self.field = form[field]  # A django.forms.BoundField instance
         self.is_first = is_first  # Whether this field is first on the line
         self.is_checkbox = isinstance(self.field.field.widget, forms.CheckboxInput)
@@ -445,6 +466,14 @@ class InlineAdminFormSet:
 
     @cached_property
     def is_collapsible(self):
+        """
+        ..:bool:
+            Indicates whether the formset is collapsible.
+
+            A formset is considered collapsible if it does not contain any validation errors and 
+            its HTML element has a class attribute containing 'collapse'. This property is 
+            computed on demand and cached for future access.
+        """
         if any(self.formset.errors):
             return False
         return "collapse" in self.classes

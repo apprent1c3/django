@@ -459,6 +459,23 @@ class ReverseOneToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+
+        _get_prefetch_querysets(instances, querysets=None)
+            Retrieves querysets for prefetching related objects, optimizing database queries.
+
+            This function generates a queryset that is used to fetch related objects for a given set of instances.
+            It takes an iterable of instances and an optional queryset argument. If the queryset argument is provided,
+            it must contain a single queryset.
+
+            The function filters the queryset to include only the related objects that are associated with the provided instances,
+            and then caches these related objects on the instances to avoid additional database queries.
+
+            :param instances: An iterable of instances for which to retrieve related objects.
+            :param querysets: An optional iterable containing a single queryset to use for fetching related objects.
+            :return: A tuple containing the filtered queryset, attribute names, and cache information.
+
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -678,6 +695,21 @@ def create_reverse_many_to_one_manager(superclass, rel):
 
     class RelatedManager(superclass, AltersData):
         def __init__(self, instance):
+            """
+
+            Initializes a new instance of the class.
+
+            Parameters
+            ----------
+            instance : object
+                The instance to be associated with this object.
+
+            Notes
+            -----
+            This constructor sets up the core attributes of the class, including the related model, field, and core filters.
+            It establishes a relationship between the instance and the related model, allowing for further operations to be performed.
+
+            """
             super().__init__()
 
             self.instance = instance
@@ -1039,6 +1071,28 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
 
     class ManyRelatedManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+
+            Initializes a many-to-many relationship object.
+
+            This object represents a many-to-many relationship between two models in a database.
+            It handles the connection between instances of these models through a junction table.
+
+            The initialization process sets up the necessary attributes for the relationship,
+            including the related models, field names, and the junction table.
+            It also checks for any inconsistencies in the instance data, such as missing primary keys or required field values.
+
+            Parameters
+            ----------
+            instance : object, optional
+                The instance of a model that this relationship belongs to.
+
+            Raises
+            ------
+            ValueError
+                If the instance is missing a required field value or a primary key value.
+
+            """
             super().__init__()
 
             self.instance = instance
@@ -1098,6 +1152,20 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         do_not_call_in_templates = True
 
         def _build_remove_filters(self, removed_vals):
+            """
+            Builds and returns a filter object used to remove associated values.
+
+            This method constructs a filter based on the provided removed values, taking into account the 
+            related value and the symmetrical nature of the relationship. It combines filters for the source 
+            and target fields with the removed values to create a comprehensive filter.
+
+            The filter will include the removed values if they are filtered or not a QuerySet. If the 
+            relationship is symmetrical, it will also include symmetrical filters. The resulting filter can 
+            be used to efficiently remove associated values that match the specified conditions.
+
+            :returns: A filter object representing the combined filters.
+
+            """
             filters = Q.create([(self.source_field_name, self.related_val)])
             # No need to add a subquery condition if removed_vals is a QuerySet without
             # filters.
@@ -1575,6 +1643,27 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK colname in join table for the target object
             # *objs - objects to remove. Either object instances, or primary
             # keys of object instances.
+            """
+
+            Remove items from a many-to-many relationship.
+
+            Removes the specified items from the many-to-many relationship 
+            defined by the source field and target field.
+
+            The items to be removed can be either instances of the model or 
+            their primary key values. If no items are provided, the function 
+            does nothing.
+
+            The removal is performed within a transaction, ensuring database 
+            consistency. Pre- and post-removal signals are also sent to allow 
+            for further processing or logging.
+
+            :param source_field_name: The name of the source field in the relationship.
+            :param target_field_name: The name of the target field in the relationship.
+            :param objs: Variable number of items to be removed from the relationship.
+                        These can be either model instances or their primary key values.
+
+            """
             if not objs:
                 return
 

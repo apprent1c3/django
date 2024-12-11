@@ -123,6 +123,15 @@ class DatabaseWrapper(PsycopgDatabaseWrapper):
                 self.register_geometry_adapters(self.connection, True)
 
     def get_new_connection(self, conn_params):
+        """
+        Returns a new database connection based on the provided connection parameters.
+
+        The connection is initially established by the parent class, and then adapted to support geometry data types if the psycopg3 library is in use. 
+
+        :param conn_params: Connection parameters used to establish the database connection
+        :rtype: Database connection object
+        :return: A new database connection with geometry adapters registered if applicable
+        """
         connection = super().get_new_connection(conn_params)
         if is_psycopg3:
             self.register_geometry_adapters(connection)

@@ -89,6 +89,29 @@ class BaseFormSet(RenderableFormMixin):
         form_kwargs=None,
         error_messages=None,
     ):
+        """
+
+        Initialize a form instance with the given data, files, and configuration options.
+
+        This constructor sets up the form's internal state, including data, files, prefix, 
+        auto ID generation, initial values, and error handling. It also configures the 
+        form's renderer and error messages.
+
+        The form's bound state is determined by the presence of data or files. If either 
+        is provided, the form is considered bound, otherwise it is unbound.
+
+        The following configuration options are available:
+        - auto_id: a string format for generating IDs for form fields
+        - prefix: a string prefix for form field names
+        - initial: initial values for form fields
+        - error_class: a class for handling errors
+        - form_kwargs: additional keyword arguments for form rendering
+        - error_messages: custom error messages for the form
+
+        The constructor also sets up the form's error handling, including default error 
+        messages inherited from parent classes and any custom error messages provided. 
+
+        """
         self.is_bound = data is not None or files is not None
         self.prefix = prefix or self.get_default_prefix()
         self.auto_id = auto_id
@@ -518,6 +541,10 @@ class BaseFormSet(RenderableFormMixin):
     def media(self):
         # All the forms on a FormSet are the same, so you only need to
         # interrogate the first form for media.
+        """
+        Returns the media (CSS and JavaScript files) required by the first form in the collection, 
+        or the media of an empty form if the collection is empty.
+        """
         if self.forms:
             return self.forms[0].media
         else:

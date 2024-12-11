@@ -126,6 +126,14 @@ class RelatedField(FieldCacheMixin, Field):
         ]
 
     def _check_related_name_is_valid(self):
+        """
+        Checks if the related name of a field is valid.
+
+        The related name is valid if it is a valid Python identifier or ends with a '+'.
+        If the related name is invalid, an error is raised with a hint on how to correct it.
+
+        :returns: A list of errors if the related name is invalid, otherwise an empty list.
+        """
         import keyword
 
         related_name = self.remote_field.related_name
@@ -546,6 +554,26 @@ class ForeignObject(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+        Initializes a relationship between two models.
+
+        This function establishes a connection between two entities, defining how they are related
+        and how they interact with each other. It takes in several parameters to customize the
+        relationship, including the model to relate to, the fields to use for the relationship,
+        and options for handling deletion and querying.
+
+        The parameters include:
+        - The model to relate to (``to``)
+        - The fields on the current model (``from_fields``) and the related model (``to_fields``)
+        - The behavior when the related object is deleted (``on_delete``)
+        - Options for customizing the relationship, such as the related name, query name, and limits
+          on the choices available for the relationship
+
+        This initializer is typically used internally by the class, and users should not need to
+        call it directly. Instead, instances of the class should be created using the class's
+        constructor, which will handle the initialization of the relationship.
+
+        """
         if rel is None:
             rel = self.rel_class(
                 self,
@@ -1196,12 +1224,30 @@ class ForeignKey(ForeignObject):
         return value
 
     def get_db_converters(self, connection):
+        """
+        Gets a list of database converters for the given connection, handling the case where the database interprets empty strings as nulls.
+
+        The returned list of converters is based on the parent class's converters, and if the database requires it, an additional converter is added to handle empty strings, ensuring they are properly converted to null values. This list of converters can be used to correctly transform Python values to database-compatible values.
+        """
         converters = super().get_db_converters(connection)
         if connection.features.interprets_empty_strings_as_nulls:
             converters += [self.convert_empty_strings]
         return converters
 
     def get_col(self, alias, output_field=None):
+        """
+
+        Retrieve a column based on the given alias, with optional output field specification.
+
+        The output field will default to the target field if not provided. If the output field
+        is a ForeignKey, it will be dereferenced to its target field until a non-ForeignKey field
+        is found. If this process encounters a circular reference, a ValueError is raised.
+
+        :param alias: The alias of the column to retrieve
+        :param output_field: The desired output field type (optional)
+        :return: The retrieved column
+
+        """
         if output_field is None:
             output_field = self.target_field
             while isinstance(output_field, ForeignKey):
@@ -1940,6 +1986,22 @@ class ManyToManyField(RelatedField):
     def contribute_to_related_class(self, cls, related):
         # Internal M2Ms (i.e., those with a related name ending with '+')
         # and swapped models don't get a related descriptor.
+        """
+        Contributes relationships to the related class.
+
+        Establishes a many-to-many relationship between the current model and the related model.
+        It adds a descriptor to the related model if the relationship is not hidden and the related model has not been swapped.
+
+        The following attributes are set on the current instance:
+            * `m2m_column_name`: a partial function to retrieve the many-to-many column name
+            * `m2m_reverse_name`: a partial function to retrieve the many-to-many reverse column name
+            * `m2m_field_name`: a partial function to retrieve the many-to-many field name
+            * `m2m_reverse_field_name`: a partial function to retrieve the many-to-many reverse field name
+            * `m2m_target_field_name`: a function to retrieve the many-to-many target field name
+            * `m2m_reverse_target_field_name`: a function to retrieve the many-to-many reverse target field name
+
+        These attributes are used to resolve the names of the many-to-many fields and columns, and can be used to access the related objects.
+        """
         if not self.remote_field.hidden and not related.related_model._meta.swapped:
             setattr(
                 cls,

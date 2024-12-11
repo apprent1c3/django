@@ -20,6 +20,15 @@ class Command(BaseCommand):
     requires_system_checks = [Tags.staticfiles]
 
     def __init__(self, *args, **kwargs):
+        """
+
+        Initializes the class instance, setting up internal state and storage.
+
+        This constructor extends the parent class's initialization and establishes
+        lists to track files that have been copied, symlinked, left unmodified, and
+        post-processed. It also sets the storage mechanism and applies a default style.
+
+        """
         super().__init__(*args, **kwargs)
         self.copied_files = []
         self.symlinked_files = []
@@ -30,6 +39,13 @@ class Command(BaseCommand):
 
     @cached_property
     def local(self):
+        """
+        ..: Sphinx documentation string
+            Indicates whether the storage backend has a local path available.
+
+            Returns:
+                bool: True if a local path can be accessed, False otherwise.
+        """
         try:
             self.storage.path("")
         except NotImplementedError:

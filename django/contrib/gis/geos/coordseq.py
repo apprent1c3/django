@@ -111,6 +111,22 @@ class GEOSCoordSeq(GEOSBase):
         self._set_y(index, y)
 
     def _set_point_3d(self, index, value):
+        """
+
+        Sets the 3D coordinates (x, y, z) of a point at a specified index.
+
+        Parameters
+        ----------
+        index : int
+            The index of the point to be modified.
+        value : tuple of float
+            A tuple containing the x, y, z coordinates of the point.
+
+        Notes
+        -----
+        This method updates the point's coordinates by internally calling methods to set the x, y, and z values individually.
+
+        """
         x, y, z = value
         self._set_x(index, x)
         self._set_y(index, y)

@@ -77,6 +77,16 @@ class SessionBase:
         return (await self._aget_session()).get(key, default)
 
     def pop(self, key, default=__not_given):
+        """
+        ..:method:: pop(key, default=None)
+           Removes and returns the value for a given key from the session.
+
+           :param key: The key of the item to be removed from the session
+           :param default: The value to return if the key is not found in the session. Defaults to None if not provided.
+           :return: The removed value or the default if the key was not found.
+
+           This method also updates the `modified` state of the session if the key is present or if the key was attempted to be removed.
+        """
         self.modified = self.modified or key in self._session
         args = () if default is self.__not_given else (default,)
         return self._session.pop(key, *args)
@@ -405,6 +415,17 @@ class SessionBase:
         return expiry == 0
 
     async def aget_expire_at_browser_close(self):
+        """
+        Get session expiry at browser close.
+
+        Returns a boolean indicating whether the session expires at browser close.
+        If a session expiry value is stored, it returns True if the value is 0, 
+        indicating session expiry at browser close. If no session expiry value is stored, 
+        it returns the default SESSION_EXPIRE_AT_BROWSER_CLOSE setting from the application settings.
+
+        This function is used to determine the session expiry behavior, allowing for 
+        customization of session persistence across browser sessions.
+        """
         if (expiry := await self.aget("_session_expiry")) is None:
             return settings.SESSION_EXPIRE_AT_BROWSER_CLOSE
         return expiry == 0

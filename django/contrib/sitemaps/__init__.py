@@ -44,6 +44,14 @@ class Sitemap:
         return self._languages()
 
     def _languages(self):
+        """
+
+        Returns a list of language codes supported by the application.
+
+        If the languages have been explicitly set, those are returned; otherwise, 
+        the list of language codes is derived from the application's settings.
+
+        """
         if self.languages is not None:
             return self.languages
         return [lang_code for lang_code, _ in settings.LANGUAGES]
@@ -175,6 +183,18 @@ class GenericSitemap(Sitemap):
     changefreq = None
 
     def __init__(self, info_dict, priority=None, changefreq=None, protocol=None):
+        """
+
+        Initializes a new instance of the class, setting up the necessary parameters for generating a sitemap.
+
+        :param info_dict: A dictionary containing information about the queryset and optional date field.
+        :param priority: The priority of the sitemap entries, defaults to None.
+        :param changefreq: The change frequency of the sitemap entries, defaults to None.
+        :param protocol: The protocol to use for the sitemap, defaults to None.
+
+        The instance's queryset, date field, priority, changefreq, and protocol are set based on the provided parameters. If no priority, changefreq, or protocol is provided, default values are used.
+
+        """
         self.queryset = info_dict["queryset"]
         self.date_field = info_dict.get("date_field")
         self.priority = self.priority or priority

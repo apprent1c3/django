@@ -26,6 +26,16 @@ class Message:
         self.extra_tags = str(self.extra_tags) if self.extra_tags is not None else None
 
     def __eq__(self, other):
+        """
+        Override the equality operator to compare two Message instances.
+
+        Two Message instances are considered equal if they have the same level and message.
+        This method allows comparing Message objects using the ``==`` operator, enabling
+        easier checking for identical messages in the code.
+
+        :param other: The Message instance to compare with the current instance.
+        :return: True if the current instance is equal to the other instance, NotImplemented otherwise.
+        """
         if not isinstance(other, Message):
             return NotImplemented
         return self.level == other.level and self.message == other.message

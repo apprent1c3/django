@@ -53,6 +53,19 @@ def _all_related_fields(model):
 def _related_non_m2m_objects(old_field, new_field):
     # Filter out m2m objects from reverse relations.
     # Return (old_relation, new_relation) tuples.
+    """
+
+    Traverses and yields pairs of related non-many-to-many objects between two models.
+
+    This function is used to map related fields between old and new fields. It iterates
+    through all relevant relationships of both models, yielding pairs of corresponding
+    related fields. The function also recursively traverses relationships of related
+    fields, yielding pairs of related objects found in deeper relationships.
+
+    Yields:
+        tuple: Pairs of related objects (old_rel, new_rel)
+
+    """
     related_fields = zip(
         (
             obj
@@ -146,6 +159,21 @@ class BaseDatabaseSchemaEditor:
     sql_alter_column_comment = "COMMENT ON COLUMN %(table)s.%(column)s IS %(comment)s"
 
     def __init__(self, connection, collect_sql=False, atomic=True):
+        """
+        Initialize the database migration session.
+
+        Parameters
+        ----------
+        connection : object
+            The database connection object.
+        collect_sql : bool, optional
+            If True, collect the SQL queries generated during the migration (default is False).
+        atomic : bool, optional
+            If True, enable atomic migration, allowing rollbacks of DDL operations if supported by the database (default is True).
+
+        This initializer sets up the migration session and determines whether to collect SQL queries and whether to enable atomic migration.
+
+        """
         self.connection = connection
         self.collect_sql = collect_sql
         if self.collect_sql:
@@ -303,6 +331,26 @@ class BaseDatabaseSchemaEditor:
     def _iter_column_sql(
         self, column_db_type, params, model, field, field_db_params, include_default
     ):
+        """
+
+        Generates SQL for a column definition.
+
+        This method takes into account various column properties, such as data type, nullability, default values, and constraints.
+        It yields SQL fragments that can be combined to form a complete column definition.
+
+        The generated SQL includes:
+
+        * Column data type
+        * Collation (if specified)
+        * Comments (if supported by the database backend)
+        * Default value (if provided)
+        * Nullability constraint (NULL or NOT NULL)
+        * Primary key or unique constraint (if applicable)
+        * Tablespace specification (if supported by the database backend and required)
+
+        The method also updates the `params` list with any additional parameters required for the generated SQL.
+
+        """
         yield column_db_type
         if collation := field_db_params.get("collation"):
             yield self._collate_sql(collation)
@@ -916,6 +964,19 @@ class BaseDatabaseSchemaEditor:
     def _field_db_check(self, field, field_db_params):
         # Always check constraints with the same mocked column name to avoid
         # recreating constrains when the column is renamed.
+        """
+
+        Checks the database constraints for a given field.
+
+        Allows the verification of field-specific database constraints.
+        The constraints are looked up based on the internal type of the field.
+        Returns a string representation of the constraints if found, or None otherwise.
+
+        :param field: The field to check against the database constraints.
+        :param field_db_params: Parameters for the field in the database.
+        :returns: A string representing the constraints or None if not found.
+
+        """
         check_constraints = self.connection.data_type_check_constraints
         data = field.db_type_parameters(self.connection)
         data["column"] = "__column_name__"
@@ -1710,6 +1771,24 @@ class BaseDatabaseSchemaEditor:
         }
 
     def _create_fk_sql(self, model, field, suffix):
+        """
+
+        Create a SQL statement for adding a foreign key constraint.
+
+        This function generates a SQL statement that creates a foreign key constraint 
+        between two tables. The foreign key constraint is created on the specified 
+        field of the given model, referencing the target field of the related model.
+
+        The generated SQL statement includes the table and column names, as well as the 
+        name of the foreign key constraint. The deferrability of the constraint is 
+        also taken into account, using the database backend's specific syntax.
+
+        :param model: The model that owns the field with the foreign key constraint.
+        :param field: The field that owns the foreign key constraint.
+        :param suffix: A suffix to append to the foreign key constraint name.
+        :returns: A SQL statement object representing the foreign key creation statement.
+
+        """
         table = Table(model._meta.db_table, self.quote_name)
         name = self._fk_constraint_name(model, field, suffix)
         column = Columns(model._meta.db_table, [field.column], self.quote_name)
@@ -1849,6 +1928,30 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+        Creates a unique SQL constraint for the specified model.
+
+        This function generates a SQL statement to create a unique constraint on the
+        given model, with the specified fields, and optional name, condition, and
+        deferrability. It also supports including additional columns, specifying
+        operator classes, and defining SQL expressions for the constraint.
+
+        The generated constraint can be either a unique constraint or a unique index,
+        depending on the presence of conditional expressions or included columns.
+        If the database does not support the specified condition or other advanced
+        features, this function returns None.
+
+        The following parameters can be used to customize the created constraint:
+        - model: the model to create the constraint on
+        - fields: the fields to include in the constraint
+        - name: the name of the constraint (automatically generated if not provided)
+        - condition: a conditional expression to apply to the constraint
+        - deferrable: whether the constraint can be deferred
+        - include: additional columns to include in the constraint
+        - opclasses: operator classes to use for the constraint
+        - expressions: SQL expressions to use for the constraint
+        - nulls_distinct: whether null values should be considered distinct
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,

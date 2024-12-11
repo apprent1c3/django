@@ -22,6 +22,16 @@ class StaticFilesStorage(FileSystemStorage):
     """
 
     def __init__(self, location=None, base_url=None, *args, **kwargs):
+        """
+        Initialize the object with file system location and base URL for serving static files.
+
+        The location defaults to the static root directory defined in the project settings if not provided.
+        The base URL defaults to the static URL defined in the project settings if not provided.
+        The function validates the base URL and sets up the object's location properties accordingly.
+
+        :param location: The file system location for static files (optional)
+        :param base_url: The base URL for serving static files (optional)
+        """
         if location is None:
             location = settings.STATIC_ROOT
         if base_url is None:
@@ -456,6 +466,11 @@ class ManifestFilesMixin(HashedFilesMixin):
     keep_intermediate_files = False
 
     def __init__(self, *args, manifest_storage=None, **kwargs):
+        """
+        Initializes the object and sets up manifest storage.
+
+        This initialization method allows for flexible storage of manifests. If no manifest storage is provided, the object itself will be used for storage by default. It then proceeds to load the manifest, resulting in the population of two key attributes: `hashed_files` and `manifest_hash`, which contain information about the files tracked by the manifest and the hash of the manifest itself, respectively.
+        """
         super().__init__(*args, **kwargs)
         if manifest_storage is None:
             manifest_storage = self

@@ -93,6 +93,18 @@ class ASGIStaticFilesHandler(StaticFilesHandlerMixin, ASGIHandler):
 
     async def __call__(self, scope, receive, send):
         # Only even look at HTTP requests
+        """
+
+        Handles an incoming request by determining whether to handle it directly or pass it to the underlying application.
+
+        This method is responsible for inspecting the request scope and deciding how to proceed. If the request type is 'http' and the path matches certain conditions, it handles the request itself. Otherwise, it delegates the request to the underlying application for further processing.
+
+        :param scope: The request scope containing information about the incoming request.
+        :param receive: A callable used to receive data from the client.
+        :param send: A callable used to send data to the client.
+        :return: The result of handling the request.
+
+        """
         if scope["type"] == "http" and self._should_handle(scope["path"]):
             # Serve static content
             # (the one thing super() doesn't do is __call__, apparently)

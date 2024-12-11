@@ -121,6 +121,16 @@ class TranslationCatalog:
         return default
 
     def plural(self, msgid, num):
+        """
+
+        Returns the plural form of a message based on the given number.
+
+        :param msgid: The message identifier.
+        :param num: The number used to determine the plural form.
+        :raises KeyError: If the message identifier is not found in the catalogs.
+        :returns: The plural form of the message.
+
+        """
         for cat, plural in zip(self._catalogs, self._plurals):
             tmsg = cat.get((msgid, plural(num)))
             if tmsg is not None:
@@ -434,6 +444,17 @@ def ngettext(singular, plural, number):
 
 
 def npgettext(context, singular, plural, number):
+    """
+    Translate a singular or plural message based on the given context and number.
+
+    The function uses a context to disambiguate messages with the same singular and plural forms. It attempts to translate the message with context first, and if this fails, falls back to translating without context. This allows for proper translation of words with the same form in both singular and plural cases, but different meanings depending on the context.
+
+    :param context: the context for the message
+    :param singular: the singular form of the message
+    :param plural: the plural form of the message
+    :param number: the number to determine whether to use the singular or plural form
+    :return: the translated message in either singular or plural form, depending on the given number
+    """
     msgs_with_ctxt = (
         "%s%s%s" % (context, CONTEXT_SEPARATOR, singular),
         "%s%s%s" % (context, CONTEXT_SEPARATOR, plural),

@@ -74,6 +74,21 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return db_type and db_type.lower().endswith(("blob", "text"))
 
     def skip_default(self, field):
+        """
+        Determines whether a field's default value should be skipped.
+
+        This function checks if the default value of a field is empty and if the field is of a text or blob data type.
+        If both conditions are met, it returns True, indicating that the default value should be skipped.
+
+        Additionally, it considers the database's support for limited data type defaults.
+        If the database does not support limited data type defaults, it checks if the field is of a limited data type and returns True if so.
+
+        Otherwise, it returns False, indicating that the default value should not be skipped.
+
+        :param field: The field to check for a default value.
+        :return: True if the default value should be skipped, False otherwise.
+
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -82,6 +97,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return False
 
     def skip_default_on_alter(self, field):
+        """
+        Determines whether to skip including the default value when altering a database field.
+
+        This function considers the effective default value of the field and its data type, 
+        returning True if the default is empty and the field is of a text or blob type, 
+        or if the field has a limited data type and the database is not MariaDB.
+
+        Returns:
+            bool: Whether to skip including the default value when altering the field.
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -94,6 +119,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     @property
     def _supports_limited_data_type_defaults(self):
         # MariaDB and MySQL >= 8.0.13 support defaults for BLOB and TEXT.
+        """
+        Indicates whether the MySQL database connection supports limited data type defaults.
+
+        This property checks if the MySQL connection is using MariaDB or if the MySQL version is 8.0.13 or later, 
+        in which case limited data type defaults are supported. 
+
+        :rtype: bool
+        :return: True if limited data type defaults are supported, False otherwise
+        """
         if self.connection.mysql_is_mariadb:
             return True
         return self.connection.mysql_version >= (8, 0, 13)

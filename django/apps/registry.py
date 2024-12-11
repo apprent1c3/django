@@ -216,6 +216,20 @@ class Apps:
         # Since this method is called when models are imported, it cannot
         # perform imports because of the risk of import loops. It mustn't
         # call get_app_config().
+        """
+        Registers a Django model with the current application.
+
+        :param app_label: The label of the application that the model belongs to.
+        :param model: The Django model to be registered.
+
+        This function checks if a model with the same name already exists in the application.
+        If the existing model is the same as the one being registered (i.e., same name and module),
+        a warning is issued. If the existing model is different from the one being registered,
+        a RuntimeError is raised to prevent potential inconsistencies.
+
+        After successful registration, the function triggers any pending operations for the model
+        and clears the cache to ensure consistency.
+        """
         model_name = model._meta.model_name
         app_models = self.all_models[app_label]
         if model_name in app_models:

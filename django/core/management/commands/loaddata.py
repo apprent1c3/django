@@ -49,6 +49,17 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Adds arguments to a parser for loading fixtures into a database.
+
+        The arguments added include:
+            * Fixture labels to load.
+            * The database to load fixtures into.
+            * An optional app label to restrict fixture loading to.
+            * A flag to ignore non-existent fields on models.
+            * App labels or model names to exclude from loading.
+            * The format of serialized data when reading from standard input.
+        """
         parser.add_argument(
             "args", metavar="fixture", nargs="+", help="Fixture labels."
         )

@@ -94,6 +94,14 @@ class Stylesheet:
         return self._mimetype
 
     def __str__(self):
+        """
+        Returns a string representation of the object, formatted as HTML link attributes.
+
+            The returned string includes the 'href' attribute with the object's URL, and 
+            optionally includes 'type' and 'media' attributes if the corresponding 
+            properties are set. This allows the object to be easily used in HTML links, 
+            providing metadata about the linked resource.
+        """
         data = [f'href="{self.url}"']
         if self.mimetype is not None:
             data.append(f'type="{self.mimetype}"')
@@ -293,6 +301,17 @@ class RssFeed(SyndicationFeed):
     content_type = "application/rss+xml; charset=utf-8"
 
     def write(self, outfile, encoding):
+        """
+
+        Writes the RSS content to the specified output file.
+
+        Args:
+            outfile: The file object where the RSS content will be written.
+            encoding: The character encoding to use when writing the RSS content.
+
+        This function generates an RSS feed based on the current object's state and writes it to the specified output file. It sets up the necessary XML structure, adds stylesheets and root elements, and includes any items that have been configured. The output is a valid RSS feed that can be consumed by RSS readers or other compatible applications.
+
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         # Any stylesheet must come after the start of the document but before any tag.
@@ -322,6 +341,16 @@ class RssFeed(SyndicationFeed):
             handler.processingInstruction("xml-stylesheet", stylesheet)
 
     def add_root_elements(self, handler):
+        """
+        Add root elements to the feed handler.
+
+        This method populates the handler with essential feed metadata, including 
+        title, link, description, and other relevant information. The added 
+        elements are primarily based on the data available in the feed object, 
+        such as categories, copyright notice, and time-to-live (TTL) value. 
+        The last build date is also included, which is calculated based on the 
+        latest post date. The added elements conform to common feed standards.
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
         handler.addQuickElement("description", self.feed["description"])

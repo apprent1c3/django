@@ -967,6 +967,17 @@ class ModelAdminChecks(BaseModelAdminChecks):
         return []
 
     def _check_list_display_links_item(self, obj, field_name, label):
+        """
+        Checks if a field name in list display links is valid.
+
+        Args:
+            obj: The object being checked.
+            field_name (str): The name of the field to check.
+            label (str): The label associated with the field.
+
+        Returns:
+            list: A list of errors if the field name is not defined in 'list_display', otherwise an empty list.
+        """
         if field_name not in obj.list_display:
             return [
                 checks.Error(

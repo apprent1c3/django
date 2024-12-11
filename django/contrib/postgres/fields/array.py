@@ -325,6 +325,16 @@ class ArrayInLookup(In):
 
 class IndexTransform(Transform):
     def __init__(self, index, base_field, *args, **kwargs):
+        """
+        Initializes an instance of the class with the provided index and base field.
+
+        :param index: The index associated with this instance.
+        :param base_field: The base field used for initialization.
+        :param args: Additional positional arguments passed to the parent class.
+        :param kwargs: Additional keyword arguments passed to the parent class.
+        :returns: None
+        :raises: No exceptions are raised by this method directly. Any exceptions raised by the parent class's `__init__` method may be propagated.
+        """
         super().__init__(*args, **kwargs)
         self.index = index
         self.base_field = base_field

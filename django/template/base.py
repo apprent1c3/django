@@ -109,6 +109,17 @@ class VariableDoesNotExist(Exception):
 
 class Origin:
     def __init__(self, name, template_name=None, loader=None):
+        """
+        Initializes a template object with the given parameters.
+
+        :param name: The name of the template.
+        :param template_name: The name of the template file, defaults to None.
+        :param loader: The loader object used to load the template, defaults to None.
+        :returns: None
+        :raises: None
+
+        This constructor sets up the basic properties of a template instance, including its name, template name, and loader. The template name and loader can be set to None, allowing for customization and flexibility in template loading and rendering.
+        """
         self.name = name
         self.template_name = template_name
         self.loader = loader
@@ -281,6 +292,18 @@ class Template:
 
 
 def linebreak_iter(template_source):
+    """
+    Generates an iterator yielding indices of line breaks in a given template source string.
+
+    The returned iterator includes an initial index of 0 (the start of the string) and 
+    an index after the end of the string, in addition to the indices of all line breaks.
+
+    This allows for easy iteration over the lines in the template source, with the 
+    indices providing a way to slice the original string and retrieve individual lines.
+
+    Returns:
+        An iterator yielding indices of line breaks in the template source string
+    """
     yield 0
     p = template_source.find("\n")
     while p >= 0:
@@ -532,6 +555,20 @@ class Parser:
 
     def extend_nodelist(self, nodelist, node, token):
         # Check that non-text nodes don't appear before an extends tag.
+        """
+
+        Extend the given node list by appending a new node.
+
+        This function checks if the node can be added to the node list based on its position and type.
+        If the node must be the first in the list and the list already contains non-text nodes, it raises an error.
+        Otherwise, it updates the node list by marking it as containing non-text nodes if necessary, 
+        and appends the new node to the list.
+
+        :arg nodelist: The list of nodes to be extended.
+        :arg node: The node to be appended to the node list.
+        :arg token: The token associated with the node.
+
+        """
         if node.must_be_first and nodelist.contains_nontext:
             raise self.error(
                 token,
@@ -750,6 +787,22 @@ class FilterExpression:
         return obj
 
     def args_check(name, func, provided):
+        """
+
+        Checks if the provided arguments match the expected number of arguments for a given function.
+
+        The function verifies the number of arguments passed against the required number of arguments for the specified function.
+        It takes into account default values of the function's arguments.
+        If the provided number of arguments is incorrect, it raises a TemplateSyntaxError with a descriptive error message.
+
+        :param name: The name of the function to check.
+        :param func: The function to inspect for its argument requirements.
+        :param provided: The list of provided arguments to be checked.
+
+        :raises TemplateSyntaxError: If the number of provided arguments does not match the function's requirements.
+        :return: True if the number of provided arguments is valid.
+
+        """
         provided = list(provided)
         # First argument, filter input, is implied.
         plen = len(provided) + 1
@@ -1063,6 +1116,16 @@ class VariableNode(Node):
         return "<Variable Node: %s>" % self.filter_expression
 
     def render(self, context):
+        """
+        Renders the expression in the given context.
+
+        Resolves the filter expression using the provided context and returns the rendered output.
+        If a UnicodeDecodeError occurs during resolution, an empty string is returned instead.
+
+        :param context: The context in which to render the expression
+        :rtype: str
+        :return: The rendered output, or an empty string if an error occurs
+        """
         try:
             output = self.filter_expression.resolve(context)
         except UnicodeDecodeError:

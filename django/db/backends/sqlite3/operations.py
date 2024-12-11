@@ -44,6 +44,20 @@ class DatabaseOperations(BaseDatabaseOperations):
             return len(objs)
 
     def check_expression_support(self, expression):
+        """
+        ..: Checks whether a given Django database expression is compatible with SQLite.
+
+            This function evaluates the given expression for any usage of date/time fields
+            with aggregate functions like Sum, Avg, StdDev, and Variance, and raises an error
+            if such usage is detected, as SQLite does not support these operations on date/time
+            fields due to its text-based storage.
+
+            Additionally, it checks for DISTINCT usage on aggregate functions that accept
+            multiple arguments, which is not supported by SQLite, and raises an error if found.
+
+            :param expression: The Django database expression to be evaluated for compatibility
+            :raises NotSupportedError: If the expression contains any operations not supported by SQLite
+        """
         bad_fields = (models.DateField, models.DateTimeField, models.TimeField)
         bad_aggregates = (models.Sum, models.Avg, models.Variance, models.StdDev)
         if isinstance(expression, bad_aggregates):
@@ -187,6 +201,11 @@ class DatabaseOperations(BaseDatabaseOperations):
             return sql
 
     def quote_name(self, name):
+        """
+        Ensures that the given name is properly quoted by wrapping it in double quotes if necessary.
+
+        Returns the name as is if it is already quoted, otherwise returns the name enclosed in double quotes.
+        """
         if name.startswith('"') and name.endswith('"'):
             return name  # Quoting once is enough.
         return '"%s"' % name
@@ -241,6 +260,18 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql
 
     def sequence_reset_by_name_sql(self, style, sequences):
+        """
+
+        Resets sequences by name in SQL.
+
+        This function generates a SQL query that resets the sequence values to 0 for the specified sequence names.
+
+        :param style: The SQL style to use for the query.
+        :param sequences: A list of sequence information, where each sequence is a dictionary containing the sequence name.
+
+        :return: A list of SQL queries to reset the sequences, or an empty list if no sequences are provided.
+
+        """
         if not sequences:
             return []
         return [

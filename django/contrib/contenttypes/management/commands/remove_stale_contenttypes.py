@@ -11,6 +11,19 @@ class Command(BaseCommand):
     help = "Deletes stale content types in the database."
 
     def add_arguments(self, parser):
+        """
+
+        Adds command line arguments to the parser for customizing the behavior of Django operations.
+
+        The supported arguments allow for controlling user input, selecting the database to use, 
+        and including stale apps in content type deletion operations.
+
+        Available options:
+            -noinput, --no-input: Suppresses all interactive prompts.
+            -database: Specifies the database to use for the operation (defaults to 'default').
+            -include-stale-apps: Includes stale content types from previously installed apps in deletion operations.
+
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",

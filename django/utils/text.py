@@ -100,6 +100,18 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        Initializes a parser with a specified length and replacement string.
+
+        This constructor sets up the parser to track the remaining length of input and
+        provides a replacement string for handling parsed data. It also initializes an
+        empty stack of tags and an output buffer.
+
+        :param length: The maximum length of input to parse.
+        :param replacement: The string to use for replacing parsed data.
+        :param convert_charrefs: Whether to convert character references, defaults to True.
+
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""
@@ -113,11 +125,25 @@ class TruncateHTMLParser(HTMLParser):
         return VOID_ELEMENTS
 
     def handle_startendtag(self, tag, attrs):
+        """
+        Handle a start-end tag, which is a self-closing HTML tag that has no content.
+
+        This method combines the functionality of handling start and end tags into a single operation, which is equivalent to calling :meth:`handle_starttag` followed by :meth:`handle_endtag` for non-void elements.
+
+        It checks if the given tag is a void element (i.e., an element that cannot have any content) and only handles the end tag if it is not a void element.
+        """
         self.handle_starttag(tag, attrs)
         if tag not in self.void_elements:
             self.handle_endtag(tag)
 
     def handle_starttag(self, tag, attrs):
+        """
+
+        Handle the start of an HTML tag.
+
+        This method is responsible for processing the start of an HTML tag, adding the corresponding text to the output, and tracking the current tag context. It checks if the tag is a void element (i.e., does not require a closing tag) and updates the internal state accordingly. The method ensures proper nesting and tracking of opening tags, allowing for accurate and valid HTML construction. 
+
+        """
         self.output += self.get_starttag_text()
         if tag not in self.void_elements:
             self.tags.appendleft(tag)
@@ -154,6 +180,23 @@ class TruncateHTMLParser(HTMLParser):
 
 class TruncateCharsHTMLParser(TruncateHTMLParser):
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        Initializes the object with specified parameters for text truncation.
+
+        Parameters
+        ----------
+        length : int
+            The maximum length of the text after truncation.
+        replacement : str
+            The string to be used as a replacement when truncation occurs.
+        convert_charrefs : bool, optional
+            Whether to convert character references in the text, defaults to True.
+
+        This constructor sets up the object for truncating text to a specified length,
+        replacing the truncated part with a given replacement string, and optionally
+        converting character references in the text. The length of the processed text
+        is tracked and can be accessed through the object's attributes.
+        """
         self.length = length
         self.processed_chars = 0
         super().__init__(

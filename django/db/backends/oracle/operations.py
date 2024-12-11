@@ -171,6 +171,18 @@ END;
         return self.date_extract_sql(lookup_type, sql, params)
 
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
+        """
+
+        Truncates a datetime expression in SQL according to the specified lookup type.
+
+        :param lookup_type: The type of date/time unit to truncate to, such as 'year', 'month', 'quarter', 'week', 'day', 'hour', 'minute'.
+        :param sql: The SQL expression to be truncated.
+        :param params: The parameters associated with the SQL expression.
+        :param tzname: The time zone name.
+
+        :return: A tuple containing the modified SQL expression and updated parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ROUND-and-TRUNC-Date-Functions.html
         trunc_param = None
@@ -201,6 +213,23 @@ END;
         # The implementation is similar to `datetime_trunc_sql` as both
         # `DateTimeField` and `TimeField` are stored as TIMESTAMP where
         # the date part of the later is ignored.
+        """
+
+        Truncates a SQL datetime value to a specified level of precision.
+
+        This function takes a SQL query, a set of parameters, and a lookup type, and returns a modified SQL query that truncates the datetime value to the specified level (hour, minute, or second). It also takes an optional timezone name parameter.
+
+        The lookup type determines the level of precision: 'hour' truncates to the hour, 'minute' truncates to the minute, and 'second' converts the datetime to a date.
+
+        The function returns a tuple containing the modified SQL query and the updated set of parameters.
+
+        :param lookup_type: The level of precision to truncate to (hour, minute, or second)
+        :param sql: The SQL query to modify
+        :param params: The set of parameters for the SQL query
+        :param tzname: The optional timezone name to use for the conversion
+        :returns: A tuple containing the modified SQL query and the updated set of parameters
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         trunc_param = None
         if lookup_type == "hour":
@@ -242,6 +271,23 @@ END;
         return converters
 
     def convert_textfield_value(self, value, expression, connection):
+        """
+
+        Converts the given textfield value based on its type and the provided expression.
+
+        This function takes a value, an expression, and a database connection as input. 
+        If the value is a Large OBject (LOB), it reads the LOB value. 
+        Otherwise, it returns the value as is. The returned value can be used for further processing or manipulation.
+
+        Args:
+            value: The textfield value to be converted.
+            expression: The expression that may be used in the conversion process.
+            connection: The database connection.
+
+        Returns:
+            The converted textfield value.
+
+        """
         if isinstance(value, Database.LOB):
             value = value.read()
         return value
@@ -252,6 +298,19 @@ END;
         return value
 
     def convert_booleanfield_value(self, value, expression, connection):
+        """
+
+        Converts a BooleanField value to a Python boolean for evaluation in a database expression.
+
+        The function takes a value, an expression, and a database connection as input, and returns the converted value.
+        If the input value is an integer (0 or 1), it is converted to a Python boolean (False or True); otherwise, the original value is returned.
+
+        :param value: The value to be converted
+        :param expression: The database expression being evaluated
+        :param connection: The database connection
+        :return: The converted value as a Python boolean
+
+        """
         if value in (0, 1):
             value = bool(value)
         return value
@@ -266,6 +325,14 @@ END;
         return value
 
     def convert_datefield_value(self, value, expression, connection):
+        """
+        Converts a date field value to a standard format.
+
+        This method takes a value, an SQL expression, and a database connection as input, and returns the converted value.
+        If the input value is a database timestamp, it extracts the date component and returns it.
+        The method is used to normalize date field values, allowing for consistent handling and manipulation of date data.
+        It does not modify the input expression or connection, but rather focuses on transforming the input value into a suitable format for further processing.
+        """
         if isinstance(value, Database.Timestamp):
             value = value.date()
         return value
@@ -324,6 +391,22 @@ END;
     def last_executed_query(self, cursor, sql, params):
         # https://python-oracledb.readthedocs.io/en/latest/api_manual/cursor.html#Cursor.statement
         # The DB API definition does not define this attribute.
+        """
+        Reconstruct the last executed SQL query by replacing placeholders with actual parameter values.
+
+        This function takes a database cursor, the original SQL query, and the parameters used in the query as input. 
+        It returns the SQL query with all placeholders replaced by their corresponding values. 
+        If parameters are provided as a list or tuple, they are automatically mapped to named placeholders (:arg0, :arg1, etc.). 
+        If parameters are provided as a dictionary, their keys are used directly as named placeholders.
+
+        The resulting query string can be useful for logging, debugging, or auditing purposes.
+
+        :param cursor: The database cursor object.
+        :param sql: The original SQL query.
+        :param params: The parameters used in the query (can be a tuple, list, or dictionary).
+        :returns: The reconstructed SQL query with placeholders replaced by actual values.
+
+        """
         statement = cursor.statement
         # Unlike Psycopg's `query` and MySQLdb`'s `_executed`, oracledb's
         # `statement` doesn't contain the query parameters. Substitute
@@ -342,6 +425,18 @@ END;
         return statement
 
     def last_insert_id(self, cursor, table_name, pk_name):
+        """
+        Retrieve the last insert ID for a given table.
+
+        This function retrieves the last insert ID for a table by querying the current value
+        of the sequence associated with the table's primary key.
+
+        :param cursor: The database cursor to execute the query with.
+        :param table_name: The name of the table for which to retrieve the last insert ID.
+        :param pk_name: The name of the primary key column in the table.
+        :return: The last insert ID for the given table.
+        :rtype: int
+        """
         sq_name = self._get_sequence_name(cursor, strip_quotes(table_name), pk_name)
         cursor.execute('"%s".currval' % sq_name)
         return cursor.fetchone()[0]
@@ -378,6 +473,23 @@ END;
         # not quoted, Oracle has case-insensitive behavior for identifiers, but
         # always defaults to uppercase.
         # We simplify things by making Oracle identifiers always uppercase.
+        """
+
+        Process a name by applying necessary formatting and truncation rules.
+
+        This function takes a name as input, checks if it is enclosed in double quotes, and if not,
+        it encloses the name in double quotes and truncates it to the maximum allowed length.
+        It then escapes any percent signs in the name by replacing them with double percent signs,
+        and finally returns the formatted name in uppercase.
+
+        The purpose of this function is to ensure that names are properly formatted and escaped
+        for use in a specific context, such as in a query or command. The truncation rule helps
+        to prevent names that are too long from causing errors. The escaping of percent signs
+        helps to prevent them from being interpreted as special characters.
+
+        :return: The formatted and escaped name in uppercase
+
+        """
         if not name.startswith('"') and not name.endswith('"'):
             name = '"%s"' % truncate_name(name, self.max_name_length())
         # Oracle puts the query text into a (query % args) construct, so % signs
@@ -461,6 +573,27 @@ END;
         return lru_cache(maxsize=512)(self.__foreign_key_constraints)
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+
+        Generate SQL commands to flush (truncate) the specified tables.
+
+        This function generates a list of SQL commands to disable constraints, truncate the specified tables,
+        and then re-enable the constraints. If :paramref:`~sql_flush.reset_sequences` is ``True``,
+        it also includes commands to reset any sequences associated with the truncated tables.
+
+        If :paramref:`~sql_flush.allow_cascade` is ``True``, it will recursively identify and truncate
+        tables that have foreign key dependencies on the specified tables.
+
+        The generated SQL commands are formatted according to the provided :paramref:`~sql_flush.style`.
+
+        :param style: The style to use for formatting the SQL commands
+        :param tables: A list of table names to flush
+        :param reset_sequences: If ``True``, include commands to reset sequences associated with the truncated tables
+        :param allow_cascade: If ``True``, recursively identify and truncate tables with foreign key dependencies
+        :rtype: list
+        :return: A list of SQL commands to flush the specified tables
+
+        """
         if not tables:
             return []
 
@@ -575,6 +708,26 @@ END;
         return ""
 
     def tablespace_sql(self, tablespace, inline=False):
+        """
+        Returns a SQL string specifying a tablespace for database operations.
+
+        Parameters
+        ----------
+        tablespace : str
+            The name of the tablespace to use.
+        inline : bool, optional
+            Whether to return the tablespace specification as an inline clause or a standalone clause (default is False).
+
+        Returns
+        -------
+        str
+            A SQL string indicating the tablespace to use for database operations.
+
+        Note
+        ----
+        The choice of inline vs standalone syntax may depend on the specific database operation or syntax requirements.
+
+        """
         if inline:
             return "USING INDEX TABLESPACE %s" % self.quote_name(tablespace)
         else:

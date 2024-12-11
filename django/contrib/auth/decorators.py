@@ -111,6 +111,16 @@ def permission_required(perm, login_url=None, raise_exception=False):
 
             async def check_perms(user):
                 # First check if the user has the permission (even anon users).
+                """
+
+                Checks if a given user has the required permissions.
+
+                This function checks if the provided user has the necessary permissions.
+                If the user has the required permissions, it returns True.
+                If the user does not have the required permissions and `raise_exception` is set,
+                it raises a PermissionDenied exception; otherwise, it returns False.
+
+                """
                 if await sync_to_async(user.has_perms)(perms):
                     return True
                 # In case the 403 handler should be called raise the exception.

@@ -322,6 +322,19 @@ class RoutePattern(CheckURLMixin):
         self.name = name
 
     def match(self, path):
+        """
+        Matches a given path against a predefined regular expression and returns the remaining path along with any extracted keyword arguments.
+
+        The function attempts to find a match in the provided path. If a match is found, it extracts keyword arguments from the match and applies type conversion to the extracted values using predefined converters.
+
+        If all type conversions are successful, the function returns a tuple containing:
+
+        * the remaining part of the path after the match
+        * an empty tuple (no positional arguments are extracted by this function)
+        * a dictionary of extracted keyword arguments with their converted values
+
+        If no match is found or if any type conversion fails, the function returns None.
+        """
         match = self.regex.search(path)
         if match:
             # RoutePattern doesn't allow non-named groups so args are ignored.
@@ -618,6 +631,15 @@ class URLResolver:
 
     @property
     def reverse_dict(self):
+        """
+        Returns a dictionary that maps values back to their corresponding keys in the current language, allowing for reverse lookups.
+
+        The returned dictionary is lazily populated, meaning it will be generated on first request for the current language.
+
+         Currently supported languages are determined by the current language setting, as retrieved by the get_language function.
+
+         :return: A dictionary for reverse lookups in the current language.
+        """
         language_code = get_language()
         if language_code not in self._reverse_dict:
             self._populate()
@@ -715,6 +737,21 @@ class URLResolver:
     @cached_property
     def url_patterns(self):
         # urlconf_module might be a valid set of patterns, so we default to it
+        """
+
+        Returns the URL patterns from the included URLconf module.
+
+        The URL patterns are retrieved from the 'urlpatterns' attribute of the module, 
+        or if this attribute does not exist, the module itself is used.
+
+        Raises:
+            ImproperlyConfigured: If the included URLconf does not appear to have any patterns in it,
+                                  which may be caused by a circular import.
+
+        Returns:
+            An iterable of URL patterns.
+
+        """
         patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
         try:
             iter(patterns)

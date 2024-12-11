@@ -98,6 +98,13 @@ class BaseContext:
         return otherwise
 
     def setdefault(self, key, default=None):
+        """
+        Sets a default value for a given key if it does not exist, otherwise returns the existing value.
+
+        :param key: The key to set a default value for.
+        :param default: The default value to set, defaults to None.
+        :returns: The value associated with the key, either the existing value or the default value if it did not exist.
+        """
         try:
             return self[key]
         except KeyError:

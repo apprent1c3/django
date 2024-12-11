@@ -33,6 +33,16 @@ class BlockContext:
         self.blocks[name].append(block)
 
     def get_block(self, name):
+        """
+        Retrieves the most recent block instance by its name.
+
+        Args:
+            name (str): The name of the block to retrieve.
+
+        Returns:
+            The most recent block instance with the specified name, or None if no such block exists or is empty.
+
+        """
         try:
             return self.blocks[name][-1]
         except IndexError:
@@ -49,6 +59,21 @@ class BlockNode(Node):
         return "<Block Node: %s. Contents: %r>" % (self.name, self.nodelist)
 
     def render(self, context):
+        """
+
+        Renders the block within the given context.
+
+        The rendering process involves creating a block context if one does not already exist,
+        and then using this context to render the block's node list. If a block context does
+        exist, it is used to determine the block to render and its node list.
+
+        The function ensures that the block context is properly pushed and popped to maintain
+        a correct rendering state. The result of the rendering process is then returned.
+
+        :param context: The context in which the block is to be rendered.
+        :return: The result of rendering the block.
+
+        """
         block_context = context.render_context.get(BLOCK_CONTEXT_KEY)
         with context.push():
             if block_context is None:
@@ -87,6 +112,22 @@ class ExtendsNode(Node):
     context_key = "extends_context"
 
     def __init__(self, nodelist, parent_name, template_dirs=None):
+        """
+        Initializes a new instance of the class.
+
+        Parameters
+        ----------
+        nodelist : Nodelist
+            A collection of nodes that will be used to populate the instance.
+        parent_name : str
+            The name of the parent element.
+        template_dirs : list, optional
+            A list of directories where templates can be found. Defaults to None.
+
+        Notes
+        -----
+        This constructor also initializes an internal dictionary of blocks, where each block is identified by its name and is an instance of BlockNode.
+        """
         self.nodelist = nodelist
         self.parent_name = parent_name
         self.template_dirs = template_dirs
@@ -165,6 +206,25 @@ class IncludeNode(Node):
     def __init__(
         self, template, *args, extra_context=None, isolated_context=False, **kwargs
     ):
+        """
+        Initializes the object with a template and optional context parameters.
+
+        This constructor sets the template to be used and provides options to include
+        additional context information. The extra_context parameter can be used to
+        pass in a dictionary of extra variables to be made available. The 
+        isolated_context parameter controls whether the context is isolated from 
+        other contexts. 
+
+        PRIOR TO USING THIS FUNCTION, you should understand the role of templates 
+        and context in your application.
+
+        :param template: The template to be used.
+        :param extra_context: Optional dictionary of extra variables to be made available.
+        :param isolated_context: Flag indicating whether the context should be isolated.
+        :param *args: Variable number of non-keyword arguments.
+        :param **kwargs: Variable number of keyword arguments.
+
+        """
         self.template = template
         self.extra_context = extra_context or {}
         self.isolated_context = isolated_context

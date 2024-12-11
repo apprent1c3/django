@@ -857,6 +857,19 @@ class TemporalSubtraction(CombinedExpression):
         super().__init__(lhs, self.SUB, rhs)
 
     def as_sql(self, compiler, connection):
+        """
+        Produces the SQL representation of a subtraction operation between two temporal expressions.
+
+        This method is responsible for compiling the left-hand side (LHS) and right-hand side (RHS) of the operation,
+        and then using the database connection's operations to generate the final SQL string.
+
+        The resulting SQL string represents the subtraction of the RHS from the LHS, taking into account the
+        internal type of the LHS field. The generated SQL is specific to the database connection being used.
+
+        :param compiler: The compiler object used to compile the LHS and RHS expressions.
+        :param connection: The database connection object, which provides the operations used to generate the SQL string.
+        :returns: The SQL representation of the temporal subtraction operation as a string.
+        """
         connection.ops.check_expression_support(self)
         lhs = compiler.compile(self.lhs)
         rhs = compiler.compile(self.rhs)
@@ -1030,6 +1043,21 @@ class Func(SQLiteNumericMixin, Expression):
     arity = None  # The number of arguments the function accepts.
 
     def __init__(self, *expressions, output_field=None, **extra):
+        """
+
+        Initialize a generic operation with one or more expressions.
+
+        The number of expressions required depends on the operation's arity. If the
+        arity is defined, the function raises a TypeError if the number of provided
+        expressions does not match.
+
+        Additional keyword arguments can be passed as **extra.
+
+        :param expressions: Variable number of expressions to be processed
+        :param output_field: Optional output field specification
+        :param extra: Additional keyword arguments to be stored
+
+        """
         if self.arity is not None and len(expressions) != self.arity:
             raise TypeError(
                 "'%s' takes exactly %s %s (%s given)"
@@ -1045,6 +1073,12 @@ class Func(SQLiteNumericMixin, Expression):
         self.extra = extra
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its class name and 
+        source expressions. The representation also includes any extra options that are 
+        set, if applicable. The output is a string that could be used to recreate the 
+        object, and is intended for debugging and logging purposes.
+        """
         args = self.arg_joiner.join(str(arg) for arg in self.source_expressions)
         extra = {**self.extra, **self._get_repr_options()}
         if extra:
@@ -1115,6 +1149,18 @@ class Func(SQLiteNumericMixin, Expression):
         return template % data, params
 
     def copy(self):
+        """
+
+        Creates and returns a deep copy of the current object.
+
+        This method ensures that all attributes, including source expressions and extra
+        data, are properly duplicated, resulting in a fully independent copy that can be
+        modified without affecting the original object. 
+
+        Returns:
+            A deep copy of the current object.
+
+        """
         copy = super().copy()
         copy.source_expressions = self.source_expressions[:]
         copy.extra = self.extra.copy()
@@ -1170,6 +1216,16 @@ class Value(SQLiteNumericMixin, Expression):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        Resolve an expression with the option to override join behavior and save configuration.
+
+         :param query: The query to resolve, defaults to None
+         :param allow_joins: Whether to allow joins in the query, defaults to True
+         :param reuse: An optional reuse configuration
+         :param summarize: Whether to summarize the query, defaults to False
+         :param for_save: Whether the resolved expression is intended for saving, defaults to False
+         :return: The resolved expression with a modified save configuration if for_save is True
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize, for_save)
         c.for_save = for_save
         return c
@@ -1278,6 +1334,16 @@ class Col(Expression):
         return sql, []
 
     def relabeled_clone(self, relabels):
+        """
+        Returns a clone of the current object with its alias relabeled.
+
+        The relabeling is done based on the provided dictionary of relabels.
+        If the current object does not have an alias, the original object is returned.
+        Otherwise, a new object of the same class is created with the relabeled alias, target, and output field.
+
+        :param relabels: A dictionary mapping old aliases to new aliases.
+        :return: A clone of the current object with its alias relabeled, or the original object if no alias is present.
+        """
         if self.alias is None:
             return self
         return self.__class__(
@@ -1458,6 +1524,13 @@ class NegatedExpression(ExpressionWrapper):
         # Wrap boolean expressions with a CASE WHEN expression if a database
         # backend (e.g. Oracle) doesn't support boolean expression in SELECT or
         # GROUP BY list.
+        """
+        ..:param compiler: The database compiler being used to generate the SQL.
+        :param sql: The SQL string being modified.
+        :param params: The parameters to be used with the SQL query.
+        :return: A tuple containing the modified SQL string and its associated parameters.
+        :note: If the database being used does not support boolean expressions in the SELECT clause, and the given expression is supported in the WHERE clause, this function will wrap the SQL in a CASE statement to achieve the desired result.
+        """
         expression_supported_in_where_clause = (
             compiler.connection.ops.conditional_expression_supported_in_where_clause
         )
@@ -1792,6 +1865,23 @@ class OrderBy(Expression):
     def as_oracle(self, compiler, connection):
         # Oracle < 23c doesn't allow ORDER BY EXISTS() or filters unless it's
         # wrapped in a CASE WHEN.
+        """
+        Prepares the given SQL expression to be compatible with Oracle databases.
+
+        When Oracle does not support boolean expressions in select clauses but does support
+        them in where clauses, this function modifies the expression to be compatible.
+
+        It achieves this by wrapping the original expression in a Case statement, which
+        Oracle supports. This ensures that the expression can be successfully executed
+        on Oracle databases. If no modifications are necessary, the original expression
+        is returned unchanged.
+
+        :param compiler: The SQL compiler to use for the expression.
+        :param connection: The database connection to use for the expression.
+        :return: The modified or original SQL expression as a string, depending on the
+                 compatibility requirements of the Oracle database.
+
+        """
         if (
             not connection.features.supports_boolean_expr_in_select_clause
             and connection.ops.conditional_expression_supported_in_where_clause(

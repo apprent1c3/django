@@ -192,6 +192,14 @@ class IfParser:
             return retval
 
     def parse(self):
+        """
+        Parse the expression and validate its completion.
+
+        This function analyzes the given expression and ensures it has been fully consumed, 
+        i.e., there are no remaining tokens. If the expression is valid and fully parsed, 
+        it returns the parsed result; otherwise, it raises an error for any unused tokens 
+        found at the end of the expression.
+        """
         retval = self.expression()
         # Check that we have exhausted all the tokens
         if self.current_token is not EndToken:

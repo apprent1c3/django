@@ -118,6 +118,14 @@ class BaseMemcachedCache(BaseCache):
         return val
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets multiple key-value pairs in the cache.
+
+        :param data: A dictionary of key-value pairs to be set in the cache.
+        :param timeout: The time in seconds until the cached values expire. Defaults to :const:`DEFAULT_TIMEOUT`.
+        :param version: The version of the cache. If provided, it will be used to create a safe key.
+        :returns: A list of keys that failed to be set in the cache. The keys are in their original form, as provided in the input dictionary.
+        """
         safe_data = {}
         original_keys = {}
         for key, value in data.items():
@@ -153,12 +161,31 @@ class PyLibMCCache(BaseMemcachedCache):
 
     @property
     def client_servers(self):
+        """
+        Returns a list of client server names, with the 'unix:' prefix removed if present.
+
+        This property provides an easy way to access the server names in a format suitable for client connections.
+
+        :rtype: list
+
+        """
         output = []
         for server in self._servers:
             output.append(server.removeprefix("unix:"))
         return output
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Update the expiration time of a key in the cache.
+
+        :param key: The key to update.
+        :param timeout: The new expiration time in seconds. If 0, the key will be deleted.
+        :param version: The version of the key to update. If None, the default version will be used.
+
+        :returns: True if the key was updated successfully, False otherwise. If timeout is 0, this method will return the result of the delete operation.
+
+        :note: The actual timeout value used may be adjusted based on the caching backend configuration. 
+        """
         key = self.make_and_validate_key(key, version=version)
         if timeout == 0:
             return self._cache.delete(key)

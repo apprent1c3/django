@@ -257,6 +257,25 @@ def fields_for_model(
 
 class ModelFormOptions:
     def __init__(self, options=None):
+        """
+
+        Initializes the class with provided options, setting various attributes that define the behavior and appearance of a form.
+
+        These attributes include:
+            - model: The model associated with the form.
+            - fields: The fields to be included in the form.
+            - exclude: The fields to be excluded from the form.
+            - widgets: Custom widgets to be used for specific form fields.
+            - localized_fields: Fields that should be localized.
+            - labels: Custom labels for form fields.
+            - help_texts: Help texts to be displayed for form fields.
+            - error_messages: Custom error messages for form fields.
+            - field_classes: Custom field classes to be used for form fields.
+            - formfield_callback: A callback function to be used when creating form fields.
+
+        These attributes are retrieved from the provided options, defaulting to None if not specified. This allows for flexible customization of the form's behavior and appearance.
+
+        """
         self.model = getattr(options, "model", None)
         self.fields = getattr(options, "fields", None)
         self.exclude = getattr(options, "exclude", None)
@@ -271,6 +290,13 @@ class ModelFormOptions:
 
 class ModelFormMetaclass(DeclarativeFieldsMetaclass):
     def __new__(mcs, name, bases, attrs):
+        """
+        This method is responsible for creating a new instance of a ModelForm class.
+        It validates the class's metadata, ensuring that certain options are properly configured.
+        The 'fields', 'exclude', and 'localized_fields' options are checked to prevent string values, as they must be specified as tuples or lists for correct functionality.
+        If a model is defined for the form, it verifies that either 'fields' or 'exclude' attribute is provided, and then constructs the base fields for the form by combining model fields and form-declared fields.
+        The method raises exceptions for improper configuration, such as missing or unknown fields, and returns the newly created class instance with its base fields set.
+        """
         new_class = super().__new__(mcs, name, bases, attrs)
 
         if bases == (BaseModelForm,):
@@ -357,6 +383,29 @@ class BaseModelForm(BaseForm, AltersData):
         use_required_attribute=None,
         renderer=None,
     ):
+        """
+        ..:param data: The data used to populate the form, typically coming from an HTTP request.
+        ..:param files: The files used to populate the form.
+        ..:param auto_id: A string that will be used as the prefix for automatically generated form field IDs.
+        ..:param prefix: A prefix to add to all field names.
+        ..:param initial: Initial data for the form.
+        ..:param error_class: The type of error that will be used for reporting validation errors.
+        ..:param label_suffix: A string to be appended to the label of each field.
+        ..:param empty_permitted: A flag indicating whether the form is allowed to be empty.
+        ..:param instance: An instance of the model that this form is representing.
+        ..:param use_required_attribute: A flag indicating whether the required attribute should be used for the form fields.
+        ..:param renderer: A class that will be used to render the form.
+
+        Initializes a new instance of the ModelForm class.
+
+        This class represents a form that is tied to a specific model. It takes the data from the model instance and uses it to populate the form fields.
+
+        The form can be initialized with or without an instance of the model. If an instance is provided, the form will use its data to populate the fields. If no instance is provided, a new instance of the model will be created and used to initialize the form.
+
+        The form also supports validation of unique constraints on the model instance. 
+
+        The `__init__` method sets up the form and its fields, applying any necessary validation and initialization.
+        """
         opts = self._meta
         if opts.model is None:
             raise ValueError("ModelForm has no model class specified.")
@@ -441,6 +490,15 @@ class BaseModelForm(BaseForm, AltersData):
     def _update_errors(self, errors):
         # Override any validation error messages defined at the model level
         # with those defined at the form level.
+        """
+
+        Update the form's error collection with the provided error messages.
+
+        This method processes the error messages, replacing any generic error codes with custom error messages defined in the form's meta options or field-specific error messages. The updated error messages are then added to the form's error collection.
+
+        :param errors: The error messages to update, either an object with an `error_dict` attribute or a list/tuple of error messages.
+
+        """
         opts = self._meta
 
         # Allow the model generated by construct_instance() to raise
@@ -472,6 +530,29 @@ class BaseModelForm(BaseForm, AltersData):
         self.add_error(None, errors)
 
     def _post_clean(self):
+        """
+        Performs post-cleaning operations on the instance, 
+        including constructing the instance, cleaning the instance 
+        fields and performing unique validation.
+
+        This method is responsible for calling full_clean on the instance, 
+        excluding certain fields specified in the exclude list, and 
+        handling any ValidationError that may occur during this process. 
+
+        It also updates the errors dictionary with any validation errors 
+        that are encountered.
+
+        Note that this method is intended to be used internally and 
+        should not be called directly. It is part of the validation 
+        process for the instance and is typically invoked automatically. 
+
+        Parameters are set internally and depend on the specific 
+        Meta options and fields defined in the class. 
+
+        Raises no exceptions directly, but may propagate ValidationError 
+        exceptions from the instance full_clean method or the unique 
+        validation method.
+        """
         opts = self._meta
 
         exclude = self._get_validation_exclusions()
@@ -679,6 +760,17 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         initial=None,
         **kwargs,
     ):
+        """
+        Initializes the form instance.
+
+        The constructor sets up the form with the provided data, files, and configuration.
+        It accepts data to populate the form fields, files for file upload fields, and a prefix to namespace the form fields.
+        The auto_id parameter determines the naming convention for form fields.
+        Optionally, a queryset can be provided to restrict the choices for certain form fields.
+        Initial values for the form can be specified using the initial parameter.
+        Additional keyword arguments are passed to the parent class constructor to support customization.
+
+        """
         self.queryset = queryset
         self.initial_extra = initial
         super().__init__(
@@ -698,6 +790,19 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return super().initial_form_count()
 
     def _existing_object(self, pk):
+        """
+
+        Returns an existing object from the internal object dictionary.
+
+        This method retrieves an object based on its primary key (pk) from a cached
+        dictionary of objects. If the dictionary does not exist, it is created by
+        fetching all objects from the queryset and storing them in the dictionary
+        with their primary keys as keys.
+
+        :returns: The object associated with the given primary key, or None if no such object exists
+        :param pk: The primary key of the object to retrieve
+
+        """
         if not hasattr(self, "_object_dict"):
             self._object_dict = {o.pk: o for o in self.get_queryset()}
         return self._object_dict.get(pk)
@@ -712,6 +817,16 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return field.to_python
 
     def _construct_form(self, i, **kwargs):
+        """
+        ..:param int i: The index of the form to construct.
+        ..:param kwargs: Additional keyword arguments to pass to the form constructor.
+        ..return: A constructed form instance.
+        ..note: This method constructs a form instance with the given index, 
+                applying instance and initial data as necessary, and setting 
+                the primary key field to required if necessary. The index 
+                determines whether to retrieve or create an instance, and 
+                whether to apply initial data from the extra initial data list.
+        """
         pk_required = i < self.initial_form_count()
         if pk_required:
             if self.is_bound:
@@ -746,6 +861,18 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return form
 
     def get_queryset(self):
+        """
+        Returns the queryset to be used by the view.
+
+        This method checks if a queryset has already been cached in the view,
+        and if not, it constructs one based on the view's queryset attribute or
+        the model's default manager. The resulting queryset is guaranteed to be
+        ordered, with the default ordering being by the model's primary key.
+
+        Returns:
+            The queryset to be used by the view.
+
+        """
         if not hasattr(self, "_queryset"):
             if self.queryset is not None:
                 qs = self.queryset
@@ -802,6 +929,23 @@ class BaseModelFormSet(BaseFormSet, AltersData):
 
     def validate_unique(self):
         # Collect unique_checks and date_checks to run from all the forms.
+        """
+        Validate the uniqueness of forms data.
+
+        This method ensures that the data across all valid forms within this collection
+        are unique according to the specified unique checks and date checks on the model
+        instances associated with these forms.
+
+        It iterates through the valid forms, gathering the necessary fields based on the
+        unique checks and date checks defined in the model instances, and checks for any
+        duplicates. If any duplicate data is found, an error message is generated and
+        added to the form's errors.
+
+        Additionally, it removes the offending field from the form's cleaned data.
+
+        Raises:
+            ValidationError: If any duplicate data is found.
+        """
         all_unique_checks = set()
         all_date_checks = set()
         forms_to_delete = self.deleted_forms
@@ -897,6 +1041,18 @@ class BaseModelFormSet(BaseFormSet, AltersData):
             raise ValidationError(errors)
 
     def get_unique_error_message(self, unique_check):
+        """
+
+        Generates an error message for duplicate data.
+
+        This function takes a list of fields that have duplicate data and returns a human-readable error message.
+        If only one field is provided, the message will be tailored to that specific field.
+        For multiple fields, the message will list all fields and indicate that they must be unique.
+
+        :param unique_check: A list of field names with duplicate data.
+        :returns: A formatted error message.
+
+        """
         if len(unique_check) == 1:
             return gettext("Please correct the duplicate data for %(field)s.") % {
                 "field": unique_check[0],
@@ -922,6 +1078,21 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return gettext("Please correct the duplicate values below.")
 
     def save_existing_objects(self, commit=True):
+        """
+
+        Saves existing objects from a collection of forms.
+
+        This method iterates over a set of initial forms, checks for any changes or deletions,
+        and saves the modified objects to the database. If an object has been marked for deletion,
+        it is removed from the database. If an object has been modified, the changes are saved.
+
+        The method returns a list of saved instances. If `commit` is set to `False`, the changes are not
+        committed to the database and are instead stored for later use.
+
+         :param commit: Whether to commit the changes to the database. Defaults to `True`.
+         :return: A list of saved instances.
+
+        """
         self.changed_objects = []
         self.deleted_objects = []
         if not self.initial_forms:
@@ -948,6 +1119,18 @@ class BaseModelFormSet(BaseFormSet, AltersData):
         return saved_instances
 
     def save_new_objects(self, commit=True):
+        """
+        Saves new objects created through extra forms, filtering out unchanged or marked-for-deletion forms.
+
+        This method processes each extra form, checks if the form has changed and if it's not scheduled for deletion. 
+        If the form passes these checks, it saves the object represented by the form. 
+        The saved objects are then added to the list of new objects.
+
+        The `commit` parameter controls whether the changes are committed immediately or buffered for later use. 
+        When `commit` is `False`, the saved forms are also appended to the `saved_forms` list for further processing.
+
+        Returns a list of newly saved objects.
+        """
         self.new_objects = []
         for form in self.extra_forms:
             if not form.has_changed():
@@ -1096,6 +1279,40 @@ class BaseInlineFormSet(BaseModelFormSet):
         queryset=None,
         **kwargs,
     ):
+        """
+        Initializes a form instance for handling model data.
+
+        This initializer method sets up the form with the provided data, files, and 
+        instance, and also configures the queryset for the form's fields. It 
+        supports creating new instances or editing existing ones, with options to 
+        save the instance as new or use a custom queryset.
+
+        The initializer takes several parameters, including the data and files to 
+        be processed, an optional instance to be edited, and flags to control 
+        saving and queryset behavior. It also accepts additional keyword arguments 
+        for customizing the form's behavior.
+
+        The instance being edited can be specified explicitly, or it will be 
+        created automatically if not provided. The initializer also ensures that 
+        the form's queryset is properly filtered based on the instance being 
+        edited, if applicable. 
+
+        The form's fields are also updated to include the foreign key field, if it 
+        is not already present. This ensures that the form can properly handle the 
+        foreign key relationship. 
+
+        Parameters:
+            data (any): The data to be processed by the form.
+            files (any): The files to be processed by the form.
+            instance (any): The instance being edited, or None to create a new one.
+            save_as_new (bool): Flag to control whether the instance should be 
+                saved as new.
+            prefix (str): The prefix for the form's fields.
+            queryset (any): The queryset to use for the form's fields, or None to 
+                use the default manager.
+            **kwargs (any): Additional keyword arguments for customizing the 
+                form's behavior.
+        """
         if instance is None:
             self.instance = self.fk.remote_field.model()
         else:
@@ -1118,11 +1335,31 @@ class BaseInlineFormSet(BaseModelFormSet):
             self.form._meta.fields.append(self.fk.name)
 
     def initial_form_count(self):
+        """
+
+        Returns the initial count of forms.
+
+        If the instance is set to save as new, the count is reset to 0. 
+        Otherwise, it delegates the calculation to its parent class. 
+
+        :return: The initial count of forms.
+        :rtype: int
+
+        """
         if self.save_as_new:
             return 0
         return super().initial_form_count()
 
     def _construct_form(self, i, **kwargs):
+        """
+        Constructs a form instance, modifying the form data if necessary to accommodate the save-as-new functionality.
+
+        This method extends the parent class's _construct_form method, adding custom logic to handle the save-as-new feature. It temporarily makes the form data mutable, allowing for the modification of specific fields, and then resets the mutability to its original state.
+
+        The form's primary key and foreign key fields are updated to facilitate the creation of a new instance or the establishment of a relationship with an existing instance. The foreign key value is determined based on the instance's primary key or the foreign key field name, depending on the configuration of the related model.
+
+        Returns the modified form instance.
+        """
         form = super()._construct_form(i, **kwargs)
         if self.save_as_new:
             mutable = getattr(form.data, "_mutable", None)
@@ -1157,6 +1394,23 @@ class BaseInlineFormSet(BaseModelFormSet):
         return super().save_new(form, commit=commit)
 
     def add_fields(self, form, index):
+        """
+
+        Adds a foreign key field to the given form.
+
+        The added field can be either a primary key or a foreign key, depending on the relationship
+        between the model instance and the foreign key. The field is configured with the
+        appropriate label, and if necessary, a 'to_field' attribute is set to specify the
+        remote field to which the foreign key refers.
+
+        In the case where the model instance is being added and the remote field has a default
+        value, the default value is cleared if the form data is empty. This allows the user
+        to override the default value.
+
+        The added field is an instance of InlineForeignKeyField, which is used to represent
+        foreign key relationships in the form.
+
+        """
         super().add_fields(form, index)
         if self._pk_field == self.fk:
             name = self._pk_field.name
@@ -1360,6 +1614,18 @@ class InlineForeignKeyField(Field):
     }
 
     def __init__(self, parent_instance, *args, pk_field=False, to_field=None, **kwargs):
+        """
+        Initializes a new instance of the class, linking it to a parent instance.
+
+        The parent instance can be used to pre-populate the field with a default value,
+        either by using the primary key of the parent instance or a specified field.
+        The field is not required by default.
+
+        :param parent_instance: The parent instance to link to.
+        :param pk_field: Whether to use the primary key as the default value.
+        :param to_field: The field to use as the default value instead of the primary key.
+
+        """
         self.parent_instance = parent_instance
         self.pk_field = pk_field
         self.to_field = to_field
@@ -1372,6 +1638,22 @@ class InlineForeignKeyField(Field):
         super().__init__(*args, **kwargs)
 
     def clean(self, value):
+        """
+        Cleans and validates the provided value, checking if it corresponds to a valid instance.
+
+        This method checks the provided value against a set of predefined empty values. If the value matches, it returns either None or the parent instance, depending on the presence of a primary key field.
+
+        If the value does not match an empty value, it is validated against the original value from the parent instance, either from a specified field or the instance's primary key. If the values do not match, a ValidationError is raised.
+
+        Args:
+            value: The value to be cleaned and validated.
+
+        Returns:
+            The parent instance if the value is valid, or None if the value matches an empty value and a primary key field exists.
+
+        Raises:
+            ValidationError: If the provided value does not match the original value from the parent instance.
+        """
         if value in self.empty_values:
             if self.pk_field:
                 return None
@@ -1404,6 +1686,13 @@ class ModelChoiceIteratorValue:
         return hash(self.value)
 
     def __eq__(self, other):
+        """
+        Compares this object for equality with another object.
+
+        Checks if the current object's value is equal to the value of the provided object.
+        If the provided object is an instance of ModelChoiceIteratorValue, its inner value is used for comparison.
+        Returns True if the values are equal, False otherwise.
+        """
         if isinstance(other, ModelChoiceIteratorValue):
             other = other.value
         return self.value == other
@@ -1415,6 +1704,13 @@ class ModelChoiceIterator(BaseChoiceIterator):
         self.queryset = field.queryset
 
     def __iter__(self):
+        """
+        Returns an iterator over the choices of the field's queryset, including an optional empty label.
+
+        The iterator yields tuples containing the choice value and the corresponding human-readable label. If an empty label is defined for the field, it is yielded as the first item, with an empty string as its value.
+
+        The iterator is optimized to handle large querysets efficiently, using an iterator over the queryset if it does not have any prefetch-related lookups.
+        """
         if self.field.empty_label is not None:
             yield ("", self.field.empty_label)
         queryset = self.queryset
@@ -1469,6 +1765,36 @@ class ModelChoiceField(ChoiceField):
     ):
         # Call Field instead of ChoiceField __init__() because we don't need
         # ChoiceField.__init__().
+        """
+        Initializes a model choice field.
+
+        This field allows a user to select an instance from a given queryset.
+        The queryset is the collection of objects to choose from.
+
+        The field can be configured with various options:
+        - An empty label can be specified to appear at the top of the select box,
+          typically used for placeholder text.
+        - The field can be marked as required or optional.
+        - A custom widget can be used to render the select box, such as a radio select or checkbox select.
+        - Additional help text can be provided to guide the user in selecting an option.
+        - The field can be pre-populated with an initial value.
+
+        Additional filtering and configuration options are also available, such as 
+        limiting the choices to a subset of the queryset and specifying the field to use 
+        for the display value.
+
+        :param queryset: The collection of objects to choose from.
+        :param empty_label: The text to display for the empty choice, defaults to '---------'.
+        :param required: Whether the field is required, defaults to True.
+        :param widget: The widget to use for rendering the field, defaults to None.
+        :param label: The label to use for the field, defaults to None.
+        :param initial: The initial value of the field, defaults to None.
+        :param help_text: The text to display below the field, defaults to an empty string.
+        :param to_field_name: The field to use for the display value, defaults to None.
+        :param limit_choices_to: The filter to apply to the queryset, defaults to None.
+        :param blank: Whether the field can be blank, defaults to False.
+
+        """
         Field.__init__(
             self,
             required=required,
@@ -1503,6 +1829,15 @@ class ModelChoiceField(ChoiceField):
         return self.limit_choices_to
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the ChoiceField instance, ensuring all its attributes are properly duplicated.
+
+        This method is responsible for overriding the default deepcopy behavior to handle the queryset attribute correctly.
+        If the queryset is set, it creates a new queryset instance that returns all objects, thus effectively copying the original queryset.
+
+        Returns:
+            A deep copy of the ChoiceField instance
+        """
         result = super(ChoiceField, self).__deepcopy__(memo)
         # Need to force a new ModelChoiceIterator to be created, bug #11183
         if self.queryset is not None:
@@ -1531,6 +1866,13 @@ class ModelChoiceField(ChoiceField):
     def _get_choices(self):
         # If self._choices is set, then somebody must have manually set
         # the property self.choices. In this case, just return self._choices.
+        """
+        Retrieves available choices for the current object.
+
+        Returns the pre-computed choices if they have already been stored, otherwise
+        queries the iterator to generate them. The result is returned directly, allowing
+        for efficient reuse of previously computed choices. 
+        """
         if hasattr(self, "_choices"):
             return self._choices
 
@@ -1546,6 +1888,20 @@ class ModelChoiceField(ChoiceField):
     choices = property(_get_choices, ChoiceField.choices.fset)
 
     def prepare_value(self, value):
+        """
+        Prepare a value for serialization.
+
+        This method checks if the provided value is an object with metadata. If it is,
+        the method will attempt to serialize its value based on the `to_field_name`
+        attribute. If `to_field_name` is set, it will return the serializable value
+        of the specified field. Otherwise, it will return the primary key of the object.
+        If the value does not have metadata, it will fall back to the parent class's
+        implementation of this method.
+
+        :param value: The value to be prepared for serialization.
+        :return: The prepared value.
+
+        """
         if hasattr(value, "_meta"):
             if self.to_field_name:
                 return value.serializable_value(self.to_field_name)
@@ -1554,6 +1910,20 @@ class ModelChoiceField(ChoiceField):
         return super().prepare_value(value)
 
     def to_python(self, value):
+        """
+        Converts a value to a Python object, checking for emptiness and validating its content.
+
+        The function checks if the provided value is considered empty and returns None in that case.
+        Otherwise, it attempts to convert the value into a Python object retrieved from the associated queryset.
+        If the object does not exist in the queryset or if there is an error during the conversion process,
+        a ValidationError is raised with an error message indicating that the choice is invalid.
+
+        Returns:
+            The retrieved Python object or None if the input value is empty.
+
+        Raises:
+            ValidationError: If the value is not a valid choice, with an error message and code 'invalid_choice'.
+        """
         if value in self.empty_values:
             return None
         self.validate_no_null_characters(value)
@@ -1574,6 +1944,16 @@ class ModelChoiceField(ChoiceField):
         return Field.validate(self, value)
 
     def has_changed(self, initial, data):
+        """
+        Checks if the value associated with this object has changed.
+
+        The initial value and the current data are compared to determine if an update has occurred.
+        If this object is disabled, it is assumed that no change has occurred.
+
+        :param initial: The initial value to compare against.
+        :param data: The current data to compare with the initial value.
+        :returns: True if the value has changed, False otherwise.
+        """
         if self.disabled:
             return False
         initial_value = initial if initial is not None else ""
@@ -1598,11 +1978,34 @@ class ModelMultipleChoiceField(ModelChoiceField):
         super().__init__(queryset, empty_label=None, **kwargs)
 
     def to_python(self, value):
+        """
+        Converts a value to a Python list.
+
+        This method takes an optional value, checks its contents, and returns a Python list representation of it. If the input value is empty or None, an empty list is returned. The function utilizes an internal validation mechanism to ensure the resulting list contains only valid values.
+
+        :return: A list of values
+        :rtype: list
+        """
         if not value:
             return []
         return list(self._check_values(value))
 
     def clean(self, value):
+        """
+
+        Cleans and validates the provided value, preparing it for further processing.
+
+        This function first checks if a value is required and raises a validation error 
+        if it is empty. If the value is not required and is empty, it returns an empty 
+        queryset. It then verifies that the value is a list or tuple, raising an error 
+        if it is not. The function checks the values in the list and runs validators on 
+        the value before returning a validated queryset.
+
+        Raises:
+            ValidationError: If the value is required but empty, or if the value is not 
+                a list or tuple.
+
+        """
         value = self.prepare_value(value)
         if self.required and not value:
             raise ValidationError(self.error_messages["required"], code="required")
@@ -1658,6 +2061,17 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return qs
 
     def prepare_value(self, value):
+        """
+        Prepares a value for further processing.
+
+        This method recursively prepares iterable values (excluding strings) by applying
+        the same preparation logic to each element. Non-iterable values are passed to the
+        parent class's preparation method for processing. This allows for the handling of
+        complex data structures while ensuring that primitive values are properly prepared.
+
+        :param value: The value to be prepared
+        :return: The prepared value
+        """
         if (
             hasattr(value, "__iter__")
             and not isinstance(value, str)
@@ -1668,6 +2082,17 @@ class ModelMultipleChoiceField(ModelChoiceField):
         return super().prepare_value(value)
 
     def has_changed(self, initial, data):
+        """
+        Determine if the provided data has changed compared to the initial data.
+
+        This method checks for changes by comparing the initial and current data sets, taking into account the possibility of missing or None values.
+        It returns True if the data has changed and False otherwise. If the object is currently disabled, this method will always return False.
+
+        :param initial: The initial data to compare against
+        :param data: The current data to check for changes
+        :rtype: bool
+        :return: Whether the data has changed since the initial state
+        """
         if self.disabled:
             return False
         if initial is None:

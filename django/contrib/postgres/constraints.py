@@ -85,6 +85,21 @@ class ExclusionConstraint(BaseConstraint):
         return self._check_references(model, references)
 
     def _get_condition_sql(self, compiler, schema_editor, query):
+        """
+        Generates the SQL condition string for a query.
+
+        This method takes a compiler, schema editor, and query as input, 
+        and returns the SQL string representation of the condition. 
+        If no condition is specified, it returns None. 
+        The generated SQL string is properly formatted and parameterized 
+        to prevent SQL injection attacks. 
+
+        :param compiler: The compiler object used for query compilation
+        :param schema_editor: The schema editor object used for quoting values
+        :param query: The query object that the condition belongs to
+        :rtype: str or None
+        :returns: The SQL condition string, or None if no condition is specified
+        """
         if self.condition is None:
             return None
         where = query.build_where(self.condition)
@@ -141,6 +156,15 @@ class ExclusionConstraint(BaseConstraint):
         return path, args, kwargs
 
     def __eq__(self, other):
+        """
+
+        Checks for equality between two constraint objects.
+
+        Two constraint objects are considered equal if they have the same name, index type, expressions, condition, deferrability, included columns, violation error code, and violation error message.
+
+        This method overrides the default equality check to provide a more specific comparison for constraint objects.
+
+        """
         if isinstance(other, self.__class__):
             return (
                 self.name == other.name

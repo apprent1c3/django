@@ -50,6 +50,14 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return errors
 
     def _check_supported(self, databases):
+        """
+        Checks if a list of databases support the requirements of a model.
+
+        This method verifies that each database in the provided list can successfully migrate the model, 
+        checks for required database vendors, and ensures the database supports JSON fields if needed.
+
+        It returns a list of errors for models where the database does not meet the requirements.
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -195,6 +203,18 @@ class HasKeyLookup(PostgresOperatorLookup):
 
     def as_sql(self, compiler, connection, template=None):
         # Process JSON path from the left-hand side.
+        """
+        ..: as_sql:
+            Construct a SQL query string and parameters for the given compiler and database connection.
+
+            This method takes into account the logical operator (if any) and the left-hand side (LHS) and right-hand side (RHS) arguments.
+            It preprocesses the LHS to determine the JSON path and parameters, and then processes each key in the RHS to build the SQL query and parameters.
+
+            :param compiler: The database compiler.
+            :param connection: The database connection.
+            :param template: A template for the SQL query string (optional).
+            :return: A tuple containing the constructed SQL query string and a tuple of query parameters.
+        """
         if isinstance(self.lhs, KeyTransform):
             lhs, lhs_params, lhs_key_transforms = self.lhs.preprocess_lhs(
                 compiler, connection
@@ -237,6 +257,22 @@ class HasKeyLookup(PostgresOperatorLookup):
         return sql % tuple(params), []
 
     def as_postgresql(self, compiler, connection):
+        """
+
+        Translate this lookup into a Postgresql-specific lookup.
+
+        When the right-hand side of the lookup is a KeyTransform, preprocesses it
+        to apply any necessary transformations to the left-hand side. This ensures
+        compatibility with Postgresql's query syntax.
+
+        The final transformed lookup is then passed to the superclass for further
+        processing, allowing the resulting query to be executed on a Postgresql
+        database.
+
+        Returns:
+            The translated Postgresql lookup.
+
+        """
         if isinstance(self.rhs, KeyTransform):
             *_, rhs_key_transforms = self.rhs.preprocess_lhs(compiler, connection)
             for key in rhs_key_transforms[:-1]:
@@ -380,6 +416,21 @@ class KeyTransform(Transform):
         return "(%s %s %%s)" % (lhs, self.postgres_operator), tuple(params) + (lookup,)
 
     def as_sqlite(self, compiler, connection):
+        """
+
+        Generates a SQLite query string for handling JSON data.
+
+        This function preprocesses the left-hand side of a query, compiles a JSON path,
+        and constructs a SQL query that can handle different JSON data types.
+        It uses a CASE statement to determine whether to extract or return the JSON type.
+
+        The function returns a tuple containing the generated SQL query string and
+        the parameters to be used with the query.
+
+        The query string is designed to work with SQLite's JSON functions, and it
+        takes into account the different data types that can be stored in a JSON field.
+
+        """
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         json_path = compile_json_path(key_transforms)
         datatype_values = ",".join(
@@ -455,6 +506,21 @@ class KeyTransformIsNull(lookups.IsNull):
         return "(NOT %s OR %s IS NULL)" % (sql, lhs), tuple(params) + tuple(lhs_params)
 
     def as_sqlite(self, compiler, connection):
+        """
+
+        Checks if a JSON field contains a specific key or array index.
+
+        This function generates a SQL query condition to determine whether a JSON field
+        contains a specific key or array index. The condition is based on the
+        `JSON_TYPE` function, which returns the data type of a JSON value. If the key or
+        array index exists, `JSON_TYPE` returns a non-NULL value, and vice versa.
+
+        The query condition can be used to filter rows based on the presence or absence
+        of a specific key or array index in a JSON field.
+
+        :param rhs: Boolean indicating whether to check for the presence (False) or absence (True) of the key or array index.
+
+        """
         template = "JSON_TYPE(%s, %%s) IS NULL"
         if not self.rhs:
             template = "JSON_TYPE(%s, %%s) IS NOT NULL"
@@ -496,6 +562,21 @@ class KeyTransformIn(lookups.In):
 
 class KeyTransformExact(JSONExact):
     def process_rhs(self, compiler, connection):
+        """
+        Process the right-hand side of an exact lookup operation for database compilation.
+
+        This method handles the processing of the right-hand side (RHS) of an exact lookup operation, 
+        accounting for the differences in handling JSON values between various database vendors.
+
+        Parameters:
+            compiler (object): The database compiler object.
+            connection (object): The database connection object.
+
+        Returns:
+            tuple: A tuple containing the processed RHS string and any parameters required for 
+            its compilation. The RHS string may be modified to use database-specific functions 
+            for handling JSON data, depending on the connection vendor.
+        """
         if isinstance(self.rhs, KeyTransform):
             return super(lookups.Exact, self).process_rhs(compiler, connection)
         rhs, rhs_params = super().process_rhs(compiler, connection)

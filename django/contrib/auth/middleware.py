@@ -70,6 +70,26 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         return getattr(view_func, "redirect_field_name", self.redirect_field_name)
 
     def handle_no_permission(self, request, view_func):
+        """
+
+        Handle the case where a user lacks permission to access a certain view.
+
+        This function redirects the user to the login page when they attempt to access a view
+        without the necessary permissions. The redirect URL is constructed based on the
+        current request path and the login URL associated with the view function.
+
+        The function considers the scheme and network location of the login URL, and if they
+        match the current request's scheme and network location, it uses the full path of
+        the current request instead of the absolute URI.
+
+        The function ultimately returns a redirect response to the login page, using the
+        redirect field name specified by the view function.
+
+        :param request: The current HTTP request
+        :param view_func: The view function being accessed
+        :return: A redirect response to the login page
+
+        """
         path = request.build_absolute_uri()
         resolved_login_url = resolve_url(self.get_login_url(view_func))
         # If the login url is the same scheme and net location then use the

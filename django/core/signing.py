@@ -178,6 +178,33 @@ class Signer:
     def __init__(
         self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None
     ):
+        """
+
+        Initialize the Signer instance.
+
+        This initializer sets up the parameters required for the signing process, including the secret key, fallback keys, 
+        separator, salt, and algorithm. The secret key defaults to the SECRET_KEY setting if not provided. The fallback keys 
+        default to the SECRET_KEY_FALLBACKS setting if not specified. The separator defaults to a colon (:). The salt defaults 
+        to a value derived from the class's module and name. The algorithm defaults to 'sha256'.
+
+        The initializer checks if the separator is safe for use. A safe separator is one that is not empty and does not consist 
+        only of alphanumeric characters, hyphens, underscores, or equals signs. If the separator is deemed unsafe, a ValueError 
+        is raised.
+
+        Parameters
+        ----------
+        key : str, optional
+            The secret key to use for signing (default is SECRET_KEY setting)
+        sep : str, optional
+            The separator to use for signing (default is ':')
+        salt : str, optional
+            The salt to use for signing (default is derived from the class's module and name)
+        algorithm : str, optional
+            The signing algorithm to use (default is 'sha256')
+        fallback_keys : list, optional
+            The fallback keys to use for signing (default is SECRET_KEY_FALLBACKS setting)
+
+        """
         self.key = key or settings.SECRET_KEY
         self.fallback_keys = (
             fallback_keys
@@ -240,6 +267,15 @@ class Signer:
     def unsign_object(self, signed_obj, serializer=JSONSerializer, **kwargs):
         # Signer.unsign() returns str but base64 and zlib compression operate
         # on bytes.
+        """
+        Deletes the digital signature from an object, decodes and decompresses the data if necessary, and deserializes it into a native Python object.
+
+        :param signed_obj: The signed object to be unsigned.
+        :param serializer: The serializer to use for deserialization (default is JSONSerializer).
+        :param kwargs: Additional keyword arguments to pass to the unsign method.
+        :return: The unsigned and deserialized object.
+        :note: The function can handle compressed data, which is indicated by a leading '.' byte in the base64 encoded string.
+        """
         base64d = self.unsign(signed_obj, **kwargs).encode()
         decompress = base64d[:1] == b"."
         if decompress:

@@ -99,6 +99,14 @@ class LoginView(RedirectURLMixin, FormView):
         return self.authentication_form or self.form_class
 
     def get_form_kwargs(self):
+        """
+
+        Returns keyword arguments for form initialization, including the current request object.
+
+        Extends the default keyword arguments provided by the parent class with an additional 'request' key, 
+        allowing the form to access the current request context.
+
+        """
         kwargs = super().get_form_kwargs()
         kwargs["request"] = self.request
         return kwargs
@@ -313,6 +321,17 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return user
 
     def get_form_kwargs(self):
+        """
+
+        Returns keyword arguments for a form, including the current user.
+
+        This method extends the default form keyword arguments by adding the user
+        associated with the current request, allowing the form to be customized based
+        on the user's attributes or permissions.
+
+        :return: A dictionary of keyword arguments to be passed to the form.
+
+        """
         kwargs = super().get_form_kwargs()
         kwargs["user"] = self.user
         return kwargs

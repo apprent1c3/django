@@ -60,6 +60,79 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        Squashes migrations for the specified application label, 
+        replacing the selected range of migrations with a new, 
+        optimally combined migration.
+
+        The resulting migration is designed to preserve 
+        the database state and functionality of the original 
+        migrations, while also reducing the number of 
+        migrations that need to be applied.
+
+        The process involves the following steps:
+        - Identifying the migrations to squash based on 
+          the provided migration name and application label.
+        - Verifying that the specified application label has 
+          existing migrations and that the start migration name 
+          (if provided) is a valid migration in the application.
+        - Optimizing the operations from the selected 
+          migrations to minimize the number of operations 
+          required in the new migration.
+        - Creating a new migration that replaces the 
+          squashed migrations, with the option to include 
+          a header and specify a custom name for the 
+          new migration.
+
+        The function will interactively prompt for confirmation 
+        before proceeding with the squashing process, unless 
+        the interactive option is disabled.
+
+        It will also provide detailed output on the squashing 
+        process, including the migrations being squashed, the 
+        operations being optimized, and any manual porting 
+        required.
+
+        Once the new migration is created, it will be written 
+        to a file in the migrations directory of the 
+        application, and the user will be instructed to 
+        commit the new migration and manually review any 
+        required changes.
+
+        Parameters
+        ----------
+        verbosity : int
+            The level of detail in the output, with higher 
+            values resulting in more verbose output.
+        interactive : bool
+            A flag indicating whether to interactively prompt 
+            for confirmation before proceeding.
+        app_label : str
+            The label of the application for which to squash 
+            migrations.
+        start_migration_name : str, optional
+            The name of the migration from which to start 
+            squashing.
+        migration_name : str
+            The name of the migration up to which to squash.
+        no_optimize : bool, optional
+            A flag indicating whether to skip optimization of 
+            the operations in the new migration.
+        squashed_name : str, optional
+            A custom name for the new migration.
+        include_header : bool, optional
+            A flag indicating whether to include a header 
+            in the new migration.
+
+        Raises
+        ------
+        CommandError
+            If the application label does not have migrations, 
+            or if the start migration name is invalid, or if 
+            the new migration already exists.
+
+        """
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
         app_label = options["app_label"]

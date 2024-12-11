@@ -9,6 +9,23 @@ from .fields import AddField, AlterField, FieldOperation, RemoveField, RenameFie
 
 
 def _check_for_duplicates(arg_name, objs):
+    """
+    ..: 
+        Checks for duplicate values in a collection of objects.
+
+        Args:
+            arg_name (str): The name of the argument being checked.
+            objs: An iterable of objects to check for duplicates.
+
+        Raises:
+            ValueError: If a duplicate value is found in the collection.
+
+        Note:
+            This function is used to validate the uniqueness of values in a collection, 
+            typically used in the context of creating a model. It raises an error 
+            when a duplicate is encountered, allowing for early detection and 
+            handling of invalid data.
+    """
     used_vals = set()
     for val in objs:
         if val in used_vals:
@@ -541,6 +558,23 @@ class ModelOptionOperation(ModelOperation):
     category = OperationCategory.ALTERATION
 
     def reduce(self, operation, app_label):
+        """
+
+        Reduces the given operation to a simpler form, if possible.
+
+        This method attempts to merge the provided operation with the current instance, 
+        if they represent the same model (case insensitive) and the operation is of a 
+        compatible type.
+
+        Args:
+            operation: The operation to be reduced.
+            app_label: The label of the application.
+
+        Returns:
+            A list of reduced operations, or the result of the superclass's reduce method 
+            if the current instance cannot be merged with the provided operation.
+
+        """
         if (
             isinstance(operation, (self.__class__, DeleteModel))
             and self.name_lower == operation.name_lower
@@ -642,6 +676,14 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
     option_name = None
 
     def __init__(self, name, option_value):
+        """
+        Initializes an instance of the class.
+
+        :param name: The name of the instance
+        :param option_value: An optional value to be normalized and stored in the instance
+        :note: If provided, the option_value will be converted to a set of normalized values and stored as an attribute of the instance. 
+        :raises: No exceptions are explicitly raised by this method. Potential errors may occur from the normalize_together function or the superclass's __init__ method.
+        """
         if option_value:
             option_value = set(normalize_together(option_value))
         setattr(self, self.option_name, option_value)

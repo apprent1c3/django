@@ -52,6 +52,11 @@ class TransformPoint(list):
 
     @x.setter
     def x(self, value):
+        """
+        Sets the x-coordinate of the geotransform property, updating the raster's geotransform accordingly. 
+
+        This setter method modifies the specified component of the geotransform, which defines the spatial reference and affine transformation of the raster data. The change is applied directly to the underlying raster object.
+        """
         gtf = self._raster.geotransform
         gtf[self.indices[self._prop][0]] = value
         self._raster.geotransform = gtf
@@ -62,6 +67,15 @@ class TransformPoint(list):
 
     @y.setter
     def y(self, value):
+        """
+        Sets the y-coordinate of the geotransform associated with the raster. 
+
+        The geotransform is a set of six coefficients (a, b, c, d, e, f) which can be used to transform raster coordinates to geographic coordinates. This function specifically updates the y-coordinate offset (usually the third element of the geotransform), which represents the y-coordinate of the top-left corner of the raster.
+
+        :param value: The new y-coordinate value of the geotransform
+        :type value: float
+        :raises: None
+        """
         gtf = self._raster.geotransform
         gtf[self.indices[self._prop][1]] = value
         self._raster.geotransform = gtf
@@ -242,6 +256,15 @@ class GDALRaster(GDALRasterBase):
 
     @property
     def vsi_buffer(self):
+        """
+        Returns the contents of a VSI (Virtual File System) buffer as a byte string.
+
+        This property accesses the VSI buffer only if the object is VSI-based and its name starts with the VSI memory file system base path. If these conditions are not met, it returns None.
+
+        The retrieved buffer contents are read from the VSI file and deleted after reading, ensuring that the buffer memory is released. The returned byte string represents the entire contents of the buffer.
+
+        Note: The buffer is deleted after reading, so this property should be used when the buffer contents need to be accessed and then discarded. If the buffer needs to be accessed multiple times, consider storing its contents or using an alternative access method. 
+        """
         if not (
             self.is_vsi_based and self.name.startswith(VSI_MEM_FILESYSTEM_BASE_PATH)
         ):

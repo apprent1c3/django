@@ -449,6 +449,18 @@ class WatchmanReloader(BaseReloader):
         # inside watch_glob() and watch_dir() is expensive, instead this could
         # could fall back to the StatReloader if this case is detected? For
         # now, watching its parent, if possible, is sufficient.
+        """
+
+        Sets up a watch on the specified root directory using the Watchman client.
+
+        The function ensures the root directory or its parent exists before attempting to set up the watch.
+        If the root directory does not exist but its parent does, the parent directory is used instead.
+
+        The function returns a tuple containing the watch ID and the relative path of the watched directory.
+
+        Any warnings issued by Watchman during the setup process are logged, and debug information about the Watchman response is also recorded.
+
+        """
         if not root.exists():
             if not root.parent.exists():
                 logger.warning(
@@ -647,6 +659,22 @@ def get_reloader():
 
 
 def start_django(reloader, main_func, *args, **kwargs):
+    """
+
+    Start the Django application in a separate thread.
+
+    This function initializes the Django framework, ensuring that it runs in a daemon thread.
+    It takes into account the provided reloader, which is responsible for managing the application's restart.
+    The main application function is executed with the given arguments and keyword arguments.
+
+    The function returns control to the caller after starting the Django thread and enters a loop where it waits for the reloader to signal that it should stop.
+
+    :arg reloader: The reloader object responsible for managing the application's restart.
+    :arg main_func: The main application function to be executed.
+    :arg args: Variable number of arguments to be passed to the main application function.
+    :arg kwargs: Variable number of keyword arguments to be passed to the main application function.
+
+    """
     ensure_echo_on()
 
     main_func = check_errors(main_func)

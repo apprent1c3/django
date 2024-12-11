@@ -155,6 +155,20 @@ class _WKTReader(IOBase):
     destructor = wkt_reader_destroy
 
     def read(self, wkt):
+        """
+
+        Reads a Well-Known Text (WKT) string and parses its contents.
+
+        Args:
+            wkt: A string or bytes object containing the WKT data to be read.
+
+        Returns:
+            The parsed WKT data.
+
+        Raises:
+            TypeError: If the input wkt is not a string or bytes object.
+
+        """
         if not isinstance(wkt, (bytes, str)):
             raise TypeError
         return wkt_reader_read(self.ptr, force_bytes(wkt))
@@ -301,6 +315,14 @@ class WKBWriter(IOBase):
 
     @outdim.setter
     def outdim(self, new_dim):
+        """
+        Sets the output dimension for WKB (Well Known Binary) data.
+
+        The output dimension must be either 2 (for 2D geometries) or 3 (for 3D geometries).
+        Setting an invalid dimension raises a ValueError.
+
+        This property controls the dimensionality of the output geometries written in WKB format.
+        """
         if new_dim not in (2, 3):
             raise ValueError("WKB output dimension must be 2 or 3")
         wkb_writer_set_outdim(self.ptr, new_dim)
@@ -338,6 +360,22 @@ def wkt_r():
 
 
 def wkt_w(dim=2, trim=False, precision=None):
+    """
+
+    Returns a WKTWriter instance configured with the specified dimension, 
+    trimming, and precision settings. The instance is stored in the thread 
+    context and reused across function calls. The dimension, trimming, and 
+    precision settings can be updated on subsequent calls, and the 
+    corresponding properties of the WKTWriter instance will be adjusted 
+    accordingly.
+
+    :param int dim: The output dimension of the WKTWriter instance.
+    :param bool trim: A flag indicating whether to trim the output.
+    :param int precision: The precision of the output.
+
+    :return: A configured WKTWriter instance.
+
+    """
     if not thread_context.wkt_w:
         thread_context.wkt_w = WKTWriter(dim=dim, trim=trim, precision=precision)
     else:

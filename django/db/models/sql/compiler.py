@@ -1614,6 +1614,20 @@ class SQLCompiler:
         return result
 
     def as_subquery_condition(self, alias, columns, compiler):
+        """
+
+        Generates an SQL condition as a subquery, comparing columns from the main query with those from a given alias.
+
+        This method creates a clone of the original query and modifies its WHERE clause to include the conditions
+        based on the provided columns and alias. The resulting subquery is then wrapped in an EXISTS clause.
+
+        :arg alias: The alias to be used in the subquery conditions.
+        :arg columns: A list of column names to be compared in the subquery conditions.
+        :arg compiler: The query compiler object.
+        :rtype: tuple
+        :return: A tuple containing the SQL string of the subquery condition and a list of parameters.
+
+        """
         qn = compiler.quote_name_unless_alias
         qn2 = self.connection.ops.quote_name
         query = self.query.clone()
@@ -1903,6 +1917,16 @@ class SQLDeleteCompiler(SQLCompiler):
         )
 
     def _as_sql(self, query):
+        """
+
+        Generates the SQL query string for a delete operation.
+
+        This function takes a query object as input and returns a tuple containing the SQL query string and the parameters to be used with the query.
+        The generated SQL query includes the delete statement with the table name and optionally a where clause if the query has a filter condition.
+        The where clause and its parameters are compiled from the query's filter condition.
+        If the filter condition is not applicable (i.e., a full result set is requested), the function returns the basic delete statement without a where clause and no parameters.
+
+        """
         delete = "DELETE FROM %s" % self.quote_name_unless_alias(query.base_table)
         try:
             where, params = self.compile(query.where)

@@ -695,6 +695,19 @@ class LinearGeometryMixin:
         return capi.geos_project(self.ptr, point.ptr)
 
     def project_normalized(self, point):
+        """
+
+        Projects a given point onto this geometric object and returns the-normalized distance along the object.
+
+        The point is projected along a perpendicular line from the point to the object. The normalized distance is a value between 0 and 1,
+        where 0 represents the start point of the object and 1 represents the end point.
+
+        :param point: The point to project onto this geometric object
+        :type point: Point
+        :returns: The normalized distance along the object
+        :raises TypeError: If the point is not an instance of Point
+
+        """
         from .point import Point
 
         if not isinstance(point, Point):

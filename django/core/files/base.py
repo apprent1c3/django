@@ -30,6 +30,26 @@ class File(FileProxyMixin):
 
     @cached_property
     def size(self):
+        """
+
+        Determines the size of the associated file.
+
+        This function attempts to retrieve the file size from the file object's attributes.
+        If the file object has a `size` attribute, its value is returned.
+        Otherwise, it tries to determine the size by checking if the file object has a `name` attribute,
+        in which case it uses the `os.path.getsize` function to retrieve the size.
+
+        If the file object does not have a `name` attribute, but it supports seeking (i.e., it has `tell` and `seek` methods),
+        the function temporarily moves the file pointer to the end of the file and returns the current position as the size.
+
+        If none of these methods are successful, the function raises an `AttributeError` indicating that the file's size could not be determined.
+
+        Returns:
+            int: The size of the file in bytes.
+        Raises:
+            AttributeError: If the file's size cannot be determined.
+
+        """
         if hasattr(self.file, "size"):
             return self.file.size
         if hasattr(self.file, "name"):

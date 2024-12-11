@@ -84,6 +84,21 @@ class PasswordResetTokenGenerator:
     def _make_token_with_timestamp(self, user, timestamp, secret):
         # timestamp is number of seconds since 2001-1-1. Converted to base 36,
         # this gives us a 6 digit string until about 2069.
+        """
+        Generate a timestamped token for a given user.
+
+        Creates a token that combines a base36-encoded timestamp with a hashed value
+        derived from the user's information, a provided secret, and a timestamp. The
+        hash is generated using a salted HMAC algorithm.
+
+        The returned token is in the format 'timestamp-hash', where 'timestamp' is the
+        base36-encoded timestamp and 'hash' is the hexadecimal digest of the hashed value.
+
+        :param user: The user for whom the token is being generated
+        :param timestamp: The timestamp to include in the token
+        :param secret: The secret used to generate the hashed value
+        :return: A timestamped token as a string
+        """
         ts_b36 = int_to_base36(timestamp)
         hash_string = salted_hmac(
             self.key_salt,

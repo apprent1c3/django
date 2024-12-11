@@ -57,6 +57,29 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         # CREATE DATABASE ... WITH TEMPLATE ... requires closing connections
         # to the template database.
+        """
+
+        Clone the test database by creating a new database with a given suffix.
+
+        The function closes any existing database connections, determines the source and target database names, 
+        and then creates the target database if it does not already exist. If the target database already exists, 
+        it is dropped and recreated. The verbosity of the operation can be controlled to display the cloning process.
+
+        Parameters
+        ----------
+        suffix : str
+            The suffix to append to the target database name.
+        verbosity : int
+            The level of detail to display during the cloning process.
+        keepdb : bool, optional
+            Whether to keep the database after it has been cloned (default is False).
+
+        Raises
+        ------
+        Exception
+            If an error occurs while cloning the test database.
+
+        """
         self.connection.close()
         self.connection.close_pool()
 

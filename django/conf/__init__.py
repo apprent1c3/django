@@ -69,6 +69,11 @@ class LazySettings(LazyObject):
 
     def __repr__(self):
         # Hardcode the class name as otherwise it yields 'Settings'.
+        """
+        Returns a string representation of the LazySettings instance.
+
+        If the settings have not been evaluated, it indicates that the instance is unevaluated. Otherwise, it provides the name of the settings module being used.
+        """
         if self._wrapped is empty:
             return "<LazySettings [Unevaluated]>"
         return '<LazySettings "%(settings_module)s">' % {
@@ -144,6 +149,13 @@ class LazySettings(LazyObject):
         return self._wrapped is not empty
 
     def _show_deprecation_warning(self, message, category):
+        """
+        Displays a deprecation warning message if the function call originates from outside the Django framework.
+
+        :param message: The deprecation warning message to be displayed.
+        :param category: The category of the warning (e.g. DeprecationWarning, PendingDeprecationWarning).
+
+        """
         stack = traceback.extract_stack()
         # Show a warning if the setting is used outside of Django.
         # Stack index: -1 this line, -2 the property, -3 the

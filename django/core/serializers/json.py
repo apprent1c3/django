@@ -82,6 +82,24 @@ class DjangoJSONEncoder(json.JSONEncoder):
 
     def default(self, o):
         # See "Date Time String Format" in the ECMA-262 specification.
+        """
+
+        Serialize a Python object into a JSON-compatible format.
+
+        This function accepts a variety of object types, including datetime and date objects, 
+        and returns a string representation suitable for JSON serialization. 
+
+        Specifically, it supports:
+
+        * datetime objects: returns an ISO 8601-formatted string
+        * date objects: returns an ISO 8601-formatted string
+        * time objects: returns an ISO 8601-formatted string, but raises an error if the time is timezone-aware
+        * timedelta objects: returns an ISO 8601-formatted duration string
+        * Decimal, UUID, and Promise objects: returns a simple string representation
+
+        For any other object type, it falls back to the default serialization behavior.
+
+        """
         if isinstance(o, datetime.datetime):
             r = o.isoformat()
             if o.microsecond:

@@ -61,6 +61,14 @@ class MediaOrderConflictWarning(RuntimeWarning):
 @html_safe
 class Media:
     def __init__(self, media=None, css=None, js=None):
+        """
+        Initializes a new instance with optional media, CSS, and JavaScript resources.
+
+        :param media: An object that may contain CSS and JavaScript resources, overriding individually provided CSS and JS parameters.
+        :param css: A dictionary of CSS resources to be included.
+        :param js: A list of JavaScript resources to be included.
+        :note: If media is provided, its CSS and JavaScript resources take precedence. If not provided, default empty CSS and JavaScript resource collections are used.
+        """
         if media is not None:
             css = getattr(media, "css", {})
             js = getattr(media, "js", [])
@@ -80,6 +88,21 @@ class Media:
 
     @property
     def _css(self):
+        """
+
+        A private property that generates and returns a dictionary of merged CSS rules.
+
+        This property aggregates CSS lists from different sources, grouped by medium, and 
+        merges the rules for each medium into a single string.
+
+        The returned dictionary has medium names as keys and the corresponding merged CSS 
+        rules as values. The result can be used to simplify CSS code management and 
+        generation.
+
+        Returns:
+            dict: A dictionary of merged CSS rules, keyed by medium.
+
+        """
         css = defaultdict(list)
         for css_list in self._css_lists:
             for medium, sublist in css_list.items():
@@ -174,6 +197,17 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+
+        Return a new Media object that combines the CSS and JavaScript files of the current object and another object.
+
+        The combined object includes all CSS and JavaScript files from both objects, with duplicates removed. 
+        The resulting Media object can be used to aggregate media files from multiple sources.
+
+        :param other: Another Media object to combine with the current one
+        :return: A new Media object containing the combined CSS and JavaScript files
+
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -187,8 +221,41 @@ class Media:
 
 
 def media_property(cls):
+    """
+
+    Descriptor property that extends the media property from the parent class.
+
+    This property is designed to be used in a class to manage media (e.g., CSS, JavaScript files) 
+    in a way that allows for extension and customization. It attempts to retrieve the 
+    `media` attribute from the parent class and, if available, combines it with the 
+    `Media` definition specified in the current class. 
+
+    If the `Media` definition in the current class has an `extend` attribute set to `True`, 
+    the media from the parent class is extended with the media specified in the current class.
+    If `extend` is a list of media types, only those types are extended from the parent class.
+    If `extend` is `False`, the parent class media is not extended and the media specification 
+    from the current class is used solely. 
+
+    If no `Media` definition is found in the current class, the `media` attribute from the 
+    parent class is returned.
+
+    """
     def _media(self):
         # Get the media property of the superclass, if it exists
+        """
+        Returns the media definition for the instance.
+
+        This method extends the media of the parent class by adding the media defined
+        in the Media class of the current class, if any. The extension behavior is
+        controlled by the `extend` attribute of the Media class. If `extend` is True,
+        the media of the parent class is extended with the media of the current class.
+        If `extend` is a list of media types, only those types from the parent class
+        media are extended. If `extend` is False or not provided, the parent class
+        media is replaced with the media of the current class.
+
+        The resulting media definition is used to determine the CSS and JavaScript
+        files required by the instance.
+        """
         sup_cls = super(cls, self)
         try:
             base = sup_cls.media
@@ -219,6 +286,17 @@ class MediaDefiningClass(type):
     """
 
     def __new__(mcs, name, bases, attrs):
+        """
+        Creates a new class, automatically adding a 'media' property if it's not already defined.
+
+        If the 'media' attribute is not provided in the class definition, this method 
+        instantiates a 'media_property' object specifically for the new class and assigns 
+        it to the 'media' attribute, providing a standardized interface for handling media.
+
+        This ensures that all classes created with this meta class have a 'media' property, 
+        simplifying the process of managing media across different classes and promoting 
+        consistency in the application's design.
+        """
         new_class = super().__new__(mcs, name, bases, attrs)
 
         if "media" not in attrs:
@@ -238,6 +316,16 @@ class Widget(metaclass=MediaDefiningClass):
         self.attrs = {} if attrs is None else attrs.copy()
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the current object.
+
+        This method is used to create a new, independent copy of the object, including its attributes.
+        It ensures that modifying the copy does not affect the original object.
+
+        :returns: A deep copy of the object.
+        :note: This method is typically used internally by Python's copy module.
+
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         memo[id(self)] = obj
@@ -279,6 +367,15 @@ class Widget(metaclass=MediaDefiningClass):
         return self._render(self.template_name, context, renderer)
 
     def _render(self, template_name, context, renderer=None):
+        """
+        Renders a template with the given context.
+
+        :param template_name: The name of the template to render
+        :param context: The context data to use when rendering the template
+        :param renderer: The renderer to use (optional), defaults to the default renderer if not specified
+
+        :returns: The rendered template as a safe HTML string
+        """
         if renderer is None:
             renderer = get_default_renderer()
         return mark_safe(renderer.render(template_name, context))
@@ -322,12 +419,43 @@ class Input(Widget):
     template_name = "django/forms/widgets/input.html"
 
     def __init__(self, attrs=None):
+        """
+        Initializes the object with specified attributes.
+
+        :param attrs: Optional dictionary of attributes to apply to the object. 
+                      If provided, a copy of the dictionary is created to avoid modifying the original.
+                      The 'type' key is specifically handled and removed from the dictionary,
+                      serving as the input type for the object. Any remaining attributes are passed to the parent class.
+        """
         if attrs is not None:
             attrs = attrs.copy()
             self.input_type = attrs.pop("type", self.input_type)
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context for a form widget.
+
+        This method extends the default context provided by its parent class, 
+        customizing it to include the specified widget type. The returned context 
+        includes information necessary for rendering the form widget, such as its 
+        type, name, value, and attributes.
+
+        Parameters
+        ----------
+        name : str
+            The name of the form widget.
+        value : any
+            The value of the form widget.
+        attrs : dict
+            A dictionary of attributes for the form widget.
+
+        Returns
+        -------
+        dict
+            The context for the form widget, including the customized widget type.
+
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["type"] = self.input_type
         return context
@@ -362,6 +490,20 @@ class PasswordInput(Input):
         self.render_value = render_value
 
     def get_context(self, name, value, attrs):
+        """
+        .. method:: get_context(name, value, attrs)
+           :noindex:
+
+           Retrieves the context for a widget, potentially altering the value based on rendering settings.
+
+           :param name: The name of the widget.
+           :param value: The value of the widget.
+           :param attrs: Additional attributes of the widget.
+           :return: The context for the widget, with the value adjusted if rendering values is disabled.
+           :rtype: dict
+
+           This method extends the parent class's functionality by optionally removing the value from the context, depending on the current rendering settings. This allows for more control over what information is included in the widget's context.
+        """
         if not self.render_value:
             value = None
         return super().get_context(name, value, attrs)
@@ -381,6 +523,19 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+
+        Generates the context for a widget, creating subwidgets for each value in the input.
+
+        The generated context includes a list of subwidgets, each representing a single value.
+        This is useful for creating complex widgets that need to handle multiple values.
+
+        :param name: The name of the widget.
+        :param value: The value(s) of the widget.
+        :param attrs: The HTML attributes for the widget.
+        :return: A dictionary containing the context for the widget, including the subwidgets.
+
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -400,6 +555,30 @@ class MultipleHiddenInput(HiddenInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+        Retrieves a value from a data dictionary or a dictionary-like object.
+
+        Parameters
+        ----------
+        data : dict-like object
+            The dictionary or dictionary-like object to retrieve the value from.
+        files : object
+            Currently not used in this function.
+        name : str
+            The key to look up in the data dictionary.
+
+        Returns
+        -------
+        value : list or object
+            The value associated with the given name. If the data object supports 
+            retrieving multiple values for a single key (e.g., cgi.FieldStorage), 
+            a list of values is returned; otherwise, a single value is returned.
+
+        Note
+        ----
+        This function attempts to use the getlist method to retrieve values, 
+        falling back to the get method if getlist is not available.
+        """
         try:
             getter = data.getlist
         except AttributeError:
@@ -417,6 +596,14 @@ class FileInput(Input):
     template_name = "django/forms/widgets/file.html"
 
     def __init__(self, attrs=None):
+        """
+        Initializes a file input widget with the given attributes.
+
+        The function takes an optional `attrs` parameter, which is a dictionary of HTML attributes to be applied to the widget.
+        If `attrs` is provided and the widget does not support multiple file uploads, it checks for the 'multiple' attribute and raises a `ValueError` if it is present.
+        If the widget does support multiple file uploads, it ensures that the 'multiple' attribute is set to True, either by modifying the provided `attrs` or by setting a default value if `attrs` is not provided.
+        The function then calls the parent class's constructor with the updated `attrs` dictionary.
+        """
         if (
             attrs is not None
             and not self.allow_multiple_selected
@@ -491,6 +678,22 @@ class ClearableFileInput(FileInput):
             return value
 
     def get_context(self, name, value, attrs):
+        """
+
+        Returns the context for rendering a form widget.
+
+        This method extends the base context by adding additional information required for
+        rendering a custom form widget. The context includes:
+
+        * The name and id of a clear checkbox
+        * A flag indicating whether the value is initial
+        * Input and initial text for the widget
+        * A label for the clear checkbox
+        * Widget attributes, including a disabled flag and checked state
+
+        The returned context is used to render the form widget with the specified name, value, and attributes.
+
+        """
         context = super().get_context(name, value, attrs)
         checkbox_name = self.clear_checkbox_name(name)
         checkbox_id = self.clear_checkbox_id(checkbox_name)
@@ -509,6 +712,25 @@ class ClearableFileInput(FileInput):
         return context
 
     def value_from_datadict(self, data, files, name):
+        """
+
+        Returns the value for this field from the given data dictionary.
+
+        This method handles the value retrieval for the field, taking into account the 
+        clear checkbox value and the required status of the field. It checks if the clear 
+        checkbox is present in the data and updates the field's checked status accordingly.
+
+        If the field is not required and the clear checkbox is checked, it returns False 
+        unless the upload is present, in which case it returns a contradiction error.
+
+        Otherwise, it returns the upload value.
+
+        :param data: The data dictionary to retrieve the value from.
+        :param files: The files dictionary to retrieve the value from.
+        :param name: The name of the field.
+        :rtype: The value for the field, or False if the field should be cleared.
+
+        """
         upload = super().value_from_datadict(data, files, name)
         self.checked = self.clear_checkbox_name(name) in data
         if not self.is_required and CheckboxInput().value_from_datadict(
@@ -535,6 +757,16 @@ class Textarea(Widget):
 
     def __init__(self, attrs=None):
         # Use slightly better defaults than HTML's 20x2 box
+        """
+
+        Initializes the class instance with optional attributes.
+
+        The instance is initialized with default attributes 'cols' and 'rows' set to '40' and '10' respectively.
+        If a dictionary of attributes is provided, the default attributes are updated with the new values.
+
+        :param attrs: An optional dictionary of attributes to override the default values.
+
+        """
         default_attrs = {"cols": "40", "rows": "10"}
         if attrs:
             default_attrs.update(attrs)
@@ -592,6 +824,16 @@ class CheckboxInput(Input):
         return str(value)
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context for a widget, overriding the parent class's implementation.
+
+         If the provided value passes the test check, it adds the 'checked' attribute to the widget's attributes.
+
+         :param name: The name of the widget.
+         :param value: The value to be checked.
+         :param attrs: The widget's attributes.
+         :return: The updated context for the widget
+        """
         if self.check_test(value):
             attrs = {**(attrs or {}), "checked": True}
         return super().get_context(name, value, attrs)
@@ -628,6 +870,15 @@ class ChoiceWidget(Widget):
         self.choices = choices
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the current object.
+
+        This method is used by the :func:`copy.deepcopy` function to create a new, independent copy of the object.
+        It ensures that all attributes, including :attr:`attrs` and :attr:`choices`, are also copied, rather than referenced.
+        The resulting copy is stored in the :param:`memo` dictionary to prevent recursive copying of the same object.
+
+        :return: A deep copy of the current object
+        """
         obj = copy.copy(self)
         obj.attrs = self.attrs.copy()
         obj.choices = copy.copy(self.choices)

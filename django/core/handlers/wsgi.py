@@ -103,6 +103,14 @@ class WSGIRequest(HttpRequest):
 
     @property
     def FILES(self):
+        """
+        A property that returns a collection of files associated with the object.
+
+        This property lazily loads the files when first accessed, if they have not already been loaded. The loaded files are then cached and returned on subsequent accesses.
+
+        :rtype: list
+        :return: A list of files associated with the object
+        """
         if not hasattr(self, "_files"):
             self._load_post_and_files()
         return self._files

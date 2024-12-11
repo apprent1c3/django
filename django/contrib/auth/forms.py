@@ -75,6 +75,9 @@ class ReadOnlyPasswordHashField(forms.Field):
 
 class UsernameField(forms.CharField):
     def to_python(self, value):
+        """
+        Converts a value to its Python representation, enforcing a maximum length constraint if specified, and normalizes the result to ensure consistent Unicode encoding (NFKC form).
+        """
         value = super().to_python(value)
         if self.max_length is not None and len(value) > self.max_length:
             # Normalization can increase the string length (e.g.
@@ -268,6 +271,20 @@ class UserChangeForm(forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the user form instance.
+
+        This method extends the default form initialization by adding custom help text for the password field
+        if the user instance does not have a usable password. It also optimizes the user permissions field by
+        selecting related content types, reducing the number of database queries.
+
+        Args:
+            *args: Variable length argument list.
+            **kwargs: Arbitrary keyword arguments.
+
+        The initialization process enhances the form's usability and performance by providing informative help text
+        and efficient data retrieval for user permissions.
+        """
         super().__init__(*args, **kwargs)
         password = self.fields.get("password")
         if password:

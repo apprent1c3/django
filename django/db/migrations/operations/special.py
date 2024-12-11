@@ -32,6 +32,22 @@ class SeparateDatabaseAndState(Operation):
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
         # We calculate state separately in here since our state functions aren't useful
+        """
+
+        Applies a series of database operations to migrate the database schema from one state to another.
+
+        This method iterates over a set of predefined database operations, applying each one sequentially to 
+        migrate the schema. It maintains a running state of the schema, starting from the initial state 
+        provided by `from_state` and updating it after each operation to reflect the new state.
+
+        The method takes into account the current application label (`app_label`), the schema editor 
+        (`schema_editor`), and the initial and target states of the schema (`from_state` and `to_state`).
+
+        It uses the `database_operations` attribute to determine the sequence of operations to apply, and 
+        each operation is responsible for updating the schema state and performing the necessary database 
+        modifications.
+
+        """
         for database_operation in self.database_operations:
             to_state = from_state.clone()
             database_operation.state_forwards(app_label, to_state)

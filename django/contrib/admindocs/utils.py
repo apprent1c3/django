@@ -20,6 +20,20 @@ else:
 
 
 def get_view_name(view_func):
+    """
+
+    Get the full name of a view function or class.
+
+    This function takes a view function as input and returns a string representing its full name.
+    The full name is in the format 'module_name.class_or_function_name', which uniquely identifies the view.
+
+    For view functions that are instances of a class, the full name of the class is used.
+    Otherwise, the name of the function's module and its qualified name (or class name if applicable) are combined to form the full name.
+
+    Returns:
+        str: The full name of the view function or class.
+
+    """
     if hasattr(view_func, "view_class"):
         klass = view_func.view_class
         return f"{klass.__module__}.{klass.__qualname__}"

@@ -105,6 +105,15 @@ class MeasureBase:
     # **** Operators methods ****
 
     def __add__(self, other):
+        """
+        Adds two objects of the same class together, returning a new instance of the class.
+
+        The addition operation combines the standard values of the two objects, preserving the default unit of measurement. 
+
+        :raises: TypeError if attempted to add an object of a different class.
+        :returns: A new instance of the class with the combined standard value.
+        :note: The addition is only defined for objects of the same class.
+        """
         if isinstance(other, self.__class__):
             return self.__class__(
                 default_unit=self._default_unit,

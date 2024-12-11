@@ -326,6 +326,23 @@ def build_instance(Model, data, db):
 
 
 def deserialize_m2m_values(field, field_value, using, handle_forward_references):
+    """
+    ..: 
+        Deserializes many-to-many field values.
+
+        This function takes a many-to-many field, its value, a database alias, and a flag to handle forward references.
+        It converts the given field value into a list of primary keys belonging to the model associated with the field.
+        If the model has a natural key, the function uses it to retrieve objects; otherwise, it falls back to using the primary key directly.
+        If the deserialization process fails and handle_forward_references is True, the function returns a deferred field value instead of raising an error.
+        If any other error occurs during deserialization, a M2MDeserializationError is raised.
+
+        :param field: The many-to-many field to deserialize.
+        :param field_value: The value to be deserialized.
+        :param using: The database alias to use for deserialization.
+        :param handle_forward_references: A flag indicating whether to handle forward references during deserialization.
+        :return: A list of primary keys for the deserialized objects, or a deferred field value if handling forward references.
+        :raises M2MDeserializationError: If an error occurs during deserialization and handle_forward_references is False.
+    """
     model = field.remote_field.model
     if hasattr(model._default_manager, "get_by_natural_key"):
 

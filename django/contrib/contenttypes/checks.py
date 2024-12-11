@@ -5,6 +5,25 @@ from django.core.checks import Error
 
 
 def check_generic_foreign_keys(app_configs=None, **kwargs):
+    """
+
+    Checks all generic foreign keys in the application's models for potential errors.
+
+    This function iterates over all models in the application (or a specified subset of models)
+    and inspects any fields that are instances of GenericForeignKey. It then checks each of these
+    fields for errors and returns a list of any issues that are found.
+
+    The function can be run globally across all models in the application, or it can be limited
+    to a specific set of models by passing in a list of app configurations.
+
+    Args:
+        app_configs (list, optional): A list of application configurations to check. If not provided,
+            the function will check all models in the application.
+
+    Returns:
+        list: A list of errors found in the generic foreign keys.
+
+    """
     from .fields import GenericForeignKey
 
     if app_configs is None:

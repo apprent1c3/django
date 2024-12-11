@@ -180,6 +180,16 @@ class CollationOperation(Operation):
         pass
 
     def deconstruct(self):
+        """
+        Deconstruct the object into a constructible state.
+
+        Returns a tuple containing the class qualified name, an empty list of positional arguments,
+        and a dictionary of keyword arguments that can be used to reconstruct the object.
+        This is useful for serialization or recreation of the object. 
+
+        The keyword arguments include the object's name, locale, provider (if not 'libc'), 
+        and deterministic value (if False).
+        """
         kwargs = {"name": self.name, "locale": self.locale}
         if self.provider and self.provider != "libc":
             kwargs["provider"] = self.provider

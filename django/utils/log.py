@@ -84,6 +84,21 @@ class AdminEmailHandler(logging.Handler):
     """
 
     def __init__(self, include_html=False, email_backend=None, reporter_class=None):
+        """
+
+        Initializes the exception reporter.
+
+        This constructor configures the exception reporter with options for including HTML in reports, 
+        specifying a custom email backend, and choosing a reporter class.
+
+        The reporter can be customized by passing in an instance of a reporter class or the name of a reporter class 
+        to import. If no reporter class is specified, it defaults to the one defined in the settings.
+
+        :param include_html: A boolean indicating whether to include HTML in the exception report.
+        :param email_backend: The email backend to use for sending exception reports.
+        :param reporter_class: The reporter class to use, or the name of a reporter class to import.
+
+        """
         super().__init__()
         self.include_html = include_html
         self.email_backend = email_backend
@@ -160,6 +175,13 @@ class CallbackFilter(logging.Filter):
         self.callback = callback
 
     def filter(self, record):
+        """
+        Applies a filtering condition to a record based on a predefined callback function.
+
+        The function takes a record as input and passes it to the callback function for evaluation.
+        If the callback function returns True, the record is accepted and the function returns 1, otherwise it returns 0.
+        This allows for flexible filtering of records based on custom logic implemented in the callback function.
+        """
         if self.callback(record):
             return 1
         return 0

@@ -122,6 +122,13 @@ class MigrationWriter:
     """
 
     def __init__(self, migration, include_header=True):
+        """
+        Initializes a migration object with the provided migration data and configuration.
+
+        :param migration: The migration data to be processed.
+        :param include_header: A flag indicating whether to include the header in the migration output. Defaults to True.
+        :attr needs_manual_porting: A flag tracking whether manual porting is required for the migration. Initially set to False.
+        """
         self.migration = migration
         self.include_header = include_header
         self.needs_manual_porting = False

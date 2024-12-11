@@ -55,6 +55,22 @@ class Command(BaseCommand):
         parser.set_defaults(format="list")
 
     def handle(self, *args, **options):
+        """
+        Handles the execution of a command based on provided options.
+
+        This function takes in variable arguments and keyword options, and uses them to 
+        determine the course of action. It sets the verbosity level and establishes a 
+        database connection based on the provided database option.
+
+        The function then checks the format option to decide whether to display a plan or 
+        a list of items. If the format is 'plan', it calls the show_plan method with the 
+        established connection and the specified app label. Otherwise, it calls the 
+        show_list method with the same connection and app label.
+
+        :param args: Variable arguments
+        :param options: Keyword options containing 'verbosity', 'database', 'format', and 'app_label'
+        :return: The result of either show_plan or show_list method
+        """
         self.verbosity = options["verbosity"]
 
         # Get the database we're operating from

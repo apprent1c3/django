@@ -16,6 +16,16 @@ class Options:
     """
 
     def __init__(self, table):
+        """
+        Initializes a model class for Django cache entries.
+
+        This initializer sets up the fundamental properties of the model, including the database table name, 
+        app label, model name, and various verbose names. It also defines the model's metadata, such as 
+        whether it is abstract, managed, a proxy, or swapped.
+
+        :arg table: The name of the database table associated with this model.
+
+        """
         self.db_table = table
         self.app_label = "django_cache"
         self.model_name = "cacheentry"

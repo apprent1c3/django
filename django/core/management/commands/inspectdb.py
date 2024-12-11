@@ -16,6 +16,22 @@ class Command(BaseCommand):
     db_module = "django.db"
 
     def add_arguments(self, parser):
+        """
+
+        Adds command line arguments to the provided parser for customizing the introspection process.
+
+        The arguments allow users to specify which tables or views to introspect, the database to target, and whether to include partition tables and views in the output.
+
+        The following arguments are added:
+
+        * table: a list of tables or views to introspect
+        * database: the database to target for introspection, defaulting to the \"default\" database
+        * include-partitions: a flag to include partition tables in the output
+        * include-views: a flag to include database views in the output
+
+        These arguments provide fine-grained control over the introspection process, enabling users to customize the output to their specific needs.
+
+        """
         parser.add_argument(
             "table",
             nargs="*",

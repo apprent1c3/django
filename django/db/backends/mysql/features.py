@@ -222,6 +222,14 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_column_check_constraints(self):
+        """
+        Indicates whether the MySQL database connection supports column check constraints.
+
+        This property checks if the database connection is either a MariaDB connection
+        or a MySQL connection with a version of 8.0.16 or higher, in which case it
+        returns True, otherwise it returns False. This can be used to determine if
+        column check constraints can be used in the current database setup.
+        """
         if self.connection.mysql_is_mariadb:
             return True
         return self.connection.mysql_version >= (8, 0, 16)
@@ -285,12 +293,32 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def can_introspect_json_field(self):
+        """
+        Determine if a JSON field can be introspected.
+
+        This property indicates whether the database connection supports introspection of JSON fields.
+        For MariaDB connections, it relies on the ability to introspect check constraints.
+        For other MySQL connections, JSON field introspection is always supported.
+
+        :rtype: bool
+        :returns: True if JSON field introspection is supported, False otherwise
+        """
         if self.connection.mysql_is_mariadb:
             return self.can_introspect_check_constraints
         return True
 
     @cached_property
     def supports_index_column_ordering(self):
+        """
+        Indicates whether the database supports index column ordering.
+
+        This property checks the MySQL storage engine and version to determine if index column ordering is supported.
+        It returns True if the storage engine is InnoDB and the MySQL version is compatible, and False otherwise.
+
+        Returns:
+            bool: Whether index column ordering is supported by the database.
+
+        """
         if self._mysql_storage_engine != "InnoDB":
             return False
         if self.connection.mysql_is_mariadb:

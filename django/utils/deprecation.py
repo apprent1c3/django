@@ -20,12 +20,35 @@ class warn_about_renamed_method:
     def __init__(
         self, class_name, old_method_name, new_method_name, deprecation_warning
     ):
+        """
+        Initializes a deprecation descriptor for a class method.
+
+        This descriptor tracks the class name, the name of an old method that is being deprecated, 
+        the name of the new method to use instead, and the deprecation warning message to display.
+
+        :param class_name: The name of the class where the deprecated method is defined.
+        :param old_method_name: The name of the method being deprecated.
+        :param new_method_name: The name of the new method to use instead of the deprecated one.
+        :param deprecation_warning: The warning message to display when the deprecated method is used.
+
+        """
         self.class_name = class_name
         self.old_method_name = old_method_name
         self.new_method_name = new_method_name
         self.deprecation_warning = deprecation_warning
 
     def __call__(self, f):
+        """
+
+        Decorator that wraps a function to mark it as deprecated.
+
+        When the wrapped function is called, a deprecation warning is raised, informing the user that the function is no longer recommended and suggesting an alternative function to use.
+
+        The warning includes the name of the class and method being deprecated, as well as the recommended replacement method.
+
+        This decorator is intended to be used when migrating code to new interfaces or functions, allowing for a smooth transition and warning users of the impending removal of the deprecated function.
+
+        """
         def wrapper(*args, **kwargs):
             warnings.warn(
                 "`%s.%s` is deprecated, use `%s` instead."

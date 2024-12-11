@@ -7,6 +7,17 @@ register = Library()
 
 class CacheNode(Node):
     def __init__(self, nodelist, expire_time_var, fragment_name, vary_on, cache_name):
+        """
+        Initializes a cache fragment object with configuration settings.
+
+        :param nodelist: List of nodes to store the cache fragment on
+        :param expire_time_var: Variable controlling the expiration time of the cache
+        :param fragment_name: Unique name identifying the cache fragment
+        :param vary_on: Parameters that affect the cache content and require the fragment to be recalculated
+        :param cache_name: Name of the cache instance to store the fragment in
+
+        This constructor sets up the necessary properties for managing a cache fragment, including storage nodes, expiration, and content variation. The parameters provided here determine how the cache is created, updated, and accessed.
+        """
         self.nodelist = nodelist
         self.expire_time_var = expire_time_var
         self.fragment_name = fragment_name

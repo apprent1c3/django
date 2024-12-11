@@ -214,6 +214,13 @@ class BaseTable:
         self.table_alias = alias
 
     def as_sql(self, compiler, connection):
+        """
+        Generates a SQL string representation for the associated database table.
+
+        This method returns a tuple containing the SQL string and an empty list of parameters.
+        The SQL string is composed of the quoted table name, possibly followed by an alias if it differs from the table name.
+        It is used by database compilers to produce the correct SQL syntax for the table in a query.
+        """
         alias_str = (
             "" if self.table_alias == self.table_name else (" %s" % self.table_alias)
         )

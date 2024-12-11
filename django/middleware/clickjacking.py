@@ -24,6 +24,22 @@ class XFrameOptionsMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # Don't set it if it's already in the response
+        """
+        Sets the X-Frame-Options header on a response to prevent clickjacking attacks, 
+        unless the response is exempted or the header is already set. 
+
+        The X-Frame-Options header value is determined based on the request and response data.
+        If the response is already configured to allow or deny framing, 
+        or if it has been explicitly exempted from this protection, 
+        the function leaves the response unchanged. 
+
+        Otherwise, it adds the X-Frame-Options header with a value determined by the 
+        :getmeth:`get_xframe_options_value` method, using the request and response data as input. 
+
+        :param request: The incoming request that triggered the response.
+        :param response: The response to be modified.
+        :return: The modified response with the X-Frame-Options header set, if applicable.
+        """
         if response.get("X-Frame-Options") is not None:
             return response
 

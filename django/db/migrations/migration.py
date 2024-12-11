@@ -229,6 +229,11 @@ class SwappableTuple(tuple):
     """
 
     def __new__(cls, value, setting):
+        """
+        Creates a new instance of the class, initializing it with a given value and setting. 
+        The value is used to create a tuple, while the setting is stored as an additional attribute.
+        This allows instances of the class to behave like tuples, with the added benefit of carrying a specific setting.
+        """
         self = tuple.__new__(cls, value)
         self.setting = setting
         return self

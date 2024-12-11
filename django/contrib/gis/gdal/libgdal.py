@@ -108,6 +108,19 @@ def gdal_full_version():
 
 
 def gdal_version_info():
+    """
+
+    Parse the GDAL version string and return the version information as a tuple.
+
+    The version information is extracted from the GDAL version string, which is then
+    parsed to extract the major, minor, and subminor version numbers. If the version
+    string cannot be parsed, a GDALException is raised.
+
+    Returns:
+        tuple: A tuple containing the major, minor, and subminor version numbers.
+               The subminor version number is None if it is not present in the version string.
+
+    """
     ver = gdal_version()
     m = re.match(rb"^(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<subminor>\d+))?", ver)
     if not m:

@@ -187,6 +187,14 @@ class ValidationError(Exception):
 
     @property
     def messages(self):
+        """
+        Gets all messages from the object.
+
+        Returns a list of messages. If the object contains error messages, 
+        it aggregates them from the error dictionary. Otherwise, it returns 
+        all messages directly from the object. The returned list is flattened, 
+        meaning it contains all individual messages without any nesting.
+        """
         if hasattr(self, "error_dict"):
             return sum(dict(self).values(), [])
         return list(self)
@@ -224,6 +232,13 @@ class ValidationError(Exception):
         return hash(self) == hash(other)
 
     def __hash__(self):
+        """
+        Returns a hash value for the object, allowing it to be used in hash-based data structures.
+
+        The hash value is determined based on the object's attributes. If the object has a 'message' attribute, the hash value is based on the message, code, and parameters. If the object has an 'error_dict' attribute, the hash value is based on the error dictionary. Otherwise, the hash value is based on a sorted list of error objects.
+
+        This method ensures that objects with the same attributes have the same hash value, enabling efficient storage and lookup in hash-based data structures.
+        """
         if hasattr(self, "message"):
             return hash(
                 (

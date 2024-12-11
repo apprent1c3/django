@@ -338,6 +338,16 @@ class BaseForm(RenderableFormMixin):
                 self.add_error(name, e)
 
     def _clean_form(self):
+        """
+        Cleans and validates the form data.
+
+        This method attempts to clean the form data by calling the :meth:`clean` method.
+        If the cleaning process fails due to a validation error, the error is added to the form.
+        If the cleaning is successful, the cleaned data is stored in the form's :attr:`cleaned_data` attribute.
+
+        Note: This method is intended for internal use and should not be called directly.
+        It is used to handle the form cleaning and validation process in a centralized manner.
+        """
         try:
             cleaned_data = self.clean()
         except ValidationError as e:

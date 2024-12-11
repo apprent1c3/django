@@ -30,6 +30,28 @@ class EmailBackend(BaseEmailBackend):
         ssl_certfile=None,
         **kwargs,
     ):
+        """
+        Initializes an email connection object.
+
+        This constructor establishes the parameters for an email connection, such as the host, port, username, and password.
+        It also configures the use of TLS, SSL, and timeout settings. If not explicitly provided, these settings default to the values defined in the application's email settings.
+
+        The connection object is created with an optional lock for thread safety and can be configured to fail silently in case of errors.
+
+        The following parameters are used to establish the connection:
+        - Host and port for the email server
+        - Username and password for authentication
+        - TLS and SSL settings for secure connections
+        - Timeout for the connection
+        - SSL keyfile and certfile for custom SSL configurations
+
+        Note that the use of TLS and SSL are mutually exclusive, and only one of these settings should be enabled at a time.
+
+        Any additional keyword arguments are passed to the parent class's constructor.
+
+        Raises:
+            ValueError: If both TLS and SSL are enabled simultaneously.
+        """
         super().__init__(fail_silently=fail_silently)
         self.host = host or settings.EMAIL_HOST
         self.port = port or settings.EMAIL_PORT

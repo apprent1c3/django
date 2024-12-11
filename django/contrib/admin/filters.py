@@ -199,6 +199,16 @@ class FieldListFilter(FacetsMixin, ListFilter):
 
     @classmethod
     def register(cls, test, list_filter_class, take_priority=False):
+        """
+        Registers a list filter class with the given test.
+
+        This method allows you to add a list filter to the collection. You can choose to 
+        insert the filter at a high-priority position or append it to the end of the list. 
+        The `test` parameter determines when the filter should be applied, and the 
+        `list_filter_class` parameter specifies the filter to use. The `take_priority` 
+        parameter controls whether the filter is inserted at a high-priority position, 
+        which can be useful if you need to override existing filters.
+        """
         if take_priority:
             # This is to allow overriding the default filters for certain types
             # of fields with some custom filters. The first found in the list
@@ -398,6 +408,21 @@ FieldListFilter.register(
 
 class ChoicesFieldListFilter(FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
+        """
+
+        Initializes the object with the provided field, request, parameters, model, model admin, and field path.
+
+        This initialization sets up the keyword arguments for querying the model, specifically for exact matches and null checks.
+        The lookup values are retrieved from the provided parameters, and the object is initialized with the given field, request, and model information.
+
+        :param field: The field being queried
+        :param request: The current request
+        :param params: The parameters of the query
+        :param model: The model being queried
+        :param model_admin: The model admin instance
+        :param field_path: The path of the field being queried
+
+        """
         self.lookup_kwarg = "%s__exact" % field_path
         self.lookup_kwarg_isnull = "%s__isnull" % field_path
         self.lookup_val = params.get(self.lookup_kwarg)

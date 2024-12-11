@@ -442,6 +442,15 @@ class IntegerFieldFloatRounding:
     """
 
     def get_prep_lookup(self):
+        """
+        Returns the prepared lookup value for the given operation.
+
+        This method modifies the right-hand side (RHS) value if it is a floating-point number, 
+        rounding it up to the nearest integer using the ceiling function. It then delegates 
+        to the parent class's implementation to perform the actual lookup preparation. 
+
+        :rtype: The prepared lookup value.
+        """
         if isinstance(self.rhs, float):
             self.rhs = math.ceil(self.rhs)
         return super().get_prep_lookup()

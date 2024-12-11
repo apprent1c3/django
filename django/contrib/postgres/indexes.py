@@ -117,6 +117,17 @@ class BTreeIndex(PostgresIndex):
     suffix = "btree"
 
     def __init__(self, *expressions, fillfactor=None, deduplicate_items=None, **kwargs):
+        """
+
+        Initializes an instance of the class with given expressions and optional settings.
+
+        The initializer takes in a variable number of expressions, which are used to populate the instance.
+        It also accepts two optional parameters: fillfactor and deduplicate_items, which influence the behavior of the instance.
+        The fillfactor parameter controls the filling of the instance, while deduplicate_items determines whether duplicate items should be removed.
+
+        Additional keyword arguments (kwargs) are passed to the parent class's initializer to support further customization.
+
+        """
         self.fillfactor = fillfactor
         self.deduplicate_items = deduplicate_items
         super().__init__(*expressions, **kwargs)

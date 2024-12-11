@@ -127,6 +127,14 @@ class override(ContextDecorator):
         self.timezone = timezone
 
     def __enter__(self):
+        """
+        Context manager entry point.
+
+        Sets up the timezone for the duration of the `with` block. If a specific timezone is provided, it is activated.
+        Otherwise, the timezone is deactivated, reverting to the default behavior. The original timezone is saved and
+        restored when exiting the `with` block, ensuring that the timezone is reset to its previous state regardless of
+        whether an exception is thrown or not.
+        """
         self.old_timezone = getattr(_active, "value", None)
         if self.timezone is None:
             deactivate()

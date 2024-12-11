@@ -292,6 +292,22 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             self.execute(self._delete_index_sql(model, index_to_remove))
 
     def _index_columns(self, table, columns, col_suffixes, opclasses):
+        """
+        Creates index column definitions for a given table.
+
+         Args:
+             table: The table for which index columns are being created.
+             columns: The columns to be indexed.
+             col_suffixes: Suffixes for column names in the index.
+             opclasses: Optional operator classes for index creation.
+
+         Returns:
+             An IndexColumns object representing the index column definitions, or the result of the superclass's _index_columns method if opclasses is not provided.
+
+         Note:
+             If opclasses are provided, the function constructs an IndexColumns object directly; otherwise, it delegates to the superclass's implementation.
+
+        """
         if opclasses:
             return IndexColumns(
                 table,

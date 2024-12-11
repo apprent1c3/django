@@ -230,6 +230,16 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return result[0]
 
     def _parse_constraint_columns(self, check_clause, columns):
+        """
+        Parse the column names from a given SQL check clause.
+
+        This function takes a SQL check clause and a list of column names, and returns a set of column names that are referenced in the check clause. It does this by parsing the SQL statement, flattening it into individual tokens, and then identifying the tokens that represent column names. The function uses the database connection's quoting rules to determine whether a token is a quoted column name, and if so, whether it matches one of the provided column names.
+
+        The returned set includes only the column names that are actually referenced in the check clause, without any quoting that may have been present in the original SQL statement. 
+
+        Returns:
+            OrderedSet: A set of column names referenced in the check clause.
+        """
         check_columns = OrderedSet()
         statement = sqlparse.parse(check_clause)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)

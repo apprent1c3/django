@@ -57,6 +57,20 @@ class CsOutput(GEOSFuncFactory):
 
     @staticmethod
     def errcheck(result, func, cargs):
+        """
+        Checks the result of a GEOS C function call for errors.
+
+        Args:
+            result: The result of the GEOS C function call.
+            func: The GEOS C function that was called.
+            cargs: The arguments passed to the GEOS C function.
+
+        Raises:
+            GEOSException: If the result indicates an error occurred during the function call.
+
+        Returns:
+            The result of the function call if no error occurred.
+        """
         if not result:
             raise GEOSException(
                 "Error encountered checking Coordinate Sequence returned from GEOS "

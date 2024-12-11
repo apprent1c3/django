@@ -18,6 +18,13 @@ class Loader(BaseLoader):
         return self.dirs if self.dirs is not None else self.engine.dirs
 
     def get_contents(self, origin):
+        """
+        Retrieves the contents of a template file.
+
+        :param origin: The template origin to read from.
+        :raises TemplateDoesNotExist: If the template file does not exist at the specified origin.
+        :return: The contents of the template file as a string.
+        """
         try:
             with open(origin.name, encoding=self.engine.file_charset) as fp:
                 return fp.read()

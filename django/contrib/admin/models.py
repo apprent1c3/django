@@ -141,6 +141,15 @@ class LogEntry(models.Model):
         return str(self.action_time)
 
     def __str__(self):
+        """
+        Returns a human-readable string representation of the log entry.
+
+        The string will describe the type of log entry, which can be one of addition, change, or deletion.
+        For additions and deletions, it will include the name of the object affected.
+        For changes, it will include the name of the object and a detailed description of the changes made.
+
+        The returned string is localized for the current language, ensuring that the log entry is readable by users in their preferred language.
+        """
         if self.is_addition():
             return gettext("Added “%(object)s”.") % {"object": self.object_repr}
         elif self.is_change():

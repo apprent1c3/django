@@ -269,6 +269,16 @@ class CheckConstraint(BaseConstraint):
         )
 
     def __eq__(self, other):
+        """
+        Compares this CheckConstraint object with another object for equality.
+
+        Two CheckConstraint objects are considered equal if they have the same name, condition, 
+        violation error code, and violation error message. If the object being compared is not 
+        a CheckConstraint, the comparison is delegated to the superclass's __eq__ method.
+
+        :param other: The object to compare with this CheckConstraint
+        :return: True if the objects are equal, False otherwise
+        """
         if isinstance(other, CheckConstraint):
             return (
                 self.name == other.name
@@ -279,6 +289,13 @@ class CheckConstraint(BaseConstraint):
         return super().__eq__(other)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, suitable for serialization or other forms of persistence.
+
+        This method extends the base implementation by including the `condition` attribute in the keyword arguments. The returned value is a tuple containing the path to the object, its positional arguments, and its keyword arguments.
+
+        The resulting tuple can be used to reconstruct the object at a later point, and is useful in scenarios where the object needs to be persisted or transmitted.
+        """
         path, args, kwargs = super().deconstruct()
         kwargs["condition"] = self.condition
         return path, args, kwargs

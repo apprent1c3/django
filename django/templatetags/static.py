@@ -40,6 +40,23 @@ class PrefixNode(template.Node):
 
     @classmethod
     def handle_simple(cls, name):
+        """
+        Return a URI prefix based on the provided name.
+
+        This method attempts to retrieve a prefix from Django settings using the given name.
+        If Django settings are not available, it returns an empty string.
+        Otherwise, it converts the setting value to a URI using the iri_to_uri function and returns the result.
+
+        Parameters
+        ----------
+        name : str
+            The name of the setting to retrieve the prefix from.
+
+        Returns
+        -------
+        str
+            The prefix as a URI string, or an empty string if Django settings are not available.
+        """
         try:
             from django.conf import settings
         except ImportError:
@@ -123,6 +140,19 @@ class StaticNode(template.Node):
 
     @classmethod
     def handle_simple(cls, path):
+        """
+        Return the URL for a given static file path.
+
+        This method handles the resolution of static file URLs, taking into account
+        whether the 'django.contrib.staticfiles' app is installed. If installed,
+        it uses the staticfiles storage to generate the URL. Otherwise, it falls
+        back to constructing the URL by joining the static URL prefix with the
+        quoted path.
+
+        :arg path: The path to the static file.
+        :rtype: str
+
+        """
         if apps.is_installed("django.contrib.staticfiles"):
             from django.contrib.staticfiles.storage import staticfiles_storage
 

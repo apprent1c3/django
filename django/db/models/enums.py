@@ -113,6 +113,21 @@ class TextChoices(Choices, StrEnum):
 
 
 def __getattr__(name):
+    """
+
+    Handle attribute access on the module.
+
+    This method is a special Python method that gets called when an attribute is accessed on the module that does not exist.
+    It provides a way to deprecate the 'ChoicesMeta' attribute, in favor of 'ChoicesType', and raises an AttributeError for any other attribute access.
+
+    Returns:
+        ChoicesType: The replacement for the deprecated ChoicesMeta attribute.
+
+    Raises:
+        AttributeError: If the attribute being accessed does not match 'ChoicesMeta'.
+        RemovedInDjango60Warning: A warning is emitted when 'ChoicesMeta' is accessed, as it is deprecated.
+
+    """
     if name == "ChoicesMeta":
         warnings.warn(
             "ChoicesMeta is deprecated in favor of ChoicesType.",

@@ -72,6 +72,20 @@ class Polygon(GEOSGeometry):
         # _construct_ring will throw a TypeError if a parameter isn't a valid ring
         # If we cloned the pointers here, we wouldn't be able to clean up
         # in case of error.
+        """
+
+        Creates a polygon from the provided items.
+
+        The function takes in a length indicating the number of items and a list of items. 
+        Each item must be either a GEOM_PTR object or a list representing the coordinates of a ring. 
+        The function constructs a polygon using the first item as the shell and the remaining items as holes.
+
+        If the length is 0, an empty polygon is created. Otherwise, the function clones the rings and 
+        passes them to the create_polygon function along with the number of holes.
+
+        Returns a GEOM_PTR object representing the created polygon.
+
+        """
         if not length:
             return capi.create_empty_polygon()
 

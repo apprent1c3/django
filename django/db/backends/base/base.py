@@ -303,6 +303,15 @@ class BaseDatabaseWrapper:
                 return self.connection.commit()
 
     def _rollback(self):
+        """
+
+        Rolls back the current database transaction.
+
+        This method reverses all changes made during the current transaction, restoring the database to its previous state. It is used to cancel any pending changes and ensure data consistency.
+
+        Note: This method is intended for internal use and should not be called directly by external code.
+
+        """
         if self.connection is not None:
             with debug_transaction(self, "ROLLBACK"), self.wrap_database_errors:
                 return self.connection.rollback()

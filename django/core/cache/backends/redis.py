@@ -119,6 +119,21 @@ class RedisCacheClient:
         return bool(client.delete(key))
 
     def get_many(self, keys):
+        """
+        Retrieve multiple values from the storage by their keys.
+
+        Args:
+            keys: A list of keys for which to retrieve the corresponding values.
+
+        Returns:
+            A dictionary where the keys are the input keys and the values are the corresponding retrieved values.
+            If a key does not have a value associated with it, it will not be included in the returned dictionary.
+            The retrieved values are deserialized before being returned.
+
+        Notes:
+            This method uses the configured client and serializer to perform the retrieval and deserialization operations.
+
+        """
         client = self.get_client(None)
         ret = client.mget(keys)
         return {

@@ -106,6 +106,24 @@ def is_pickable(obj):
 
 
 def assert_and_parse_html(self, html, user_msg, msg):
+    """
+    Attempts to parse the provided HTML string and returns the resulting DOM.
+
+    Args:
+        html (str): The HTML string to be parsed.
+        user_msg (str): A user-defined message to be displayed if parsing fails.
+        msg (str): A standard message to be displayed if parsing fails.
+
+    Returns:
+        dom: The parsed DOM object if parsing is successful.
+
+    Raises:
+        AssertionError: If parsing fails, with an error message that includes the user-defined message and the standard message, as well as the parsing error details.
+
+    Note:
+        This function is designed to be used within a testing framework, where it can be used to validate that the provided HTML is correctly formatted and can be successfully parsed.
+
+    """
     try:
         dom = parse_html(html)
     except HTMLParseError as e:
@@ -1420,6 +1438,15 @@ class TestCase(TransactionTestCase):
         pass
 
     def _should_reload_connections(self):
+        """
+        Determines whether database connections should be reloaded.
+
+        If the databases support transactions, this function returns False, indicating
+        that connections do not need to be reloaded. Otherwise, it defers to the
+        parent class's implementation to make the determination. This allows for
+        flexible handling of connection reloading based on the specific database
+        capabilities.
+        """
         if self._databases_support_transactions():
             return False
         return super()._should_reload_connections()

@@ -117,6 +117,17 @@ class SplitArrayWidget(forms.Widget):
     template_name = "postgres/widgets/split_array.html"
 
     def __init__(self, widget, size, **kwargs):
+        """
+        Initializes a new instance of the class.
+
+        Args:
+            widget: The widget to be used, which can be either an instance of a widget class or the class itself.
+            size: The size of the instance.
+            **kwargs: Additional keyword arguments to be passed to the parent class.
+
+        Note:
+            If a widget class is provided, an instance of it will be created. Otherwise, the provided widget instance will be used.
+        """
         self.widget = widget() if isinstance(widget, type) else widget
         self.size = size
         super().__init__(**kwargs)
@@ -144,6 +155,23 @@ class SplitArrayWidget(forms.Widget):
         return id_
 
     def get_context(self, name, value, attrs=None):
+        """
+        Return the context for rendering this widget.
+
+        This method generates a context dictionary that can be used to render the widget in a template.
+        It takes into account the widget's localization and size, as well as any additional attributes provided.
+
+        The returned context includes a list of subwidgets, each with its own context, which can be used to render the widget's individual components.
+
+        Args:
+            name (str): The name of the widget.
+            value: The value of the widget, which can be a list or a single value.
+            attrs (dict, optional): Additional attributes to apply to the widget. Defaults to None.
+
+        Returns:
+            dict: A dictionary containing the context for rendering the widget.
+
+        """
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
         if self.is_localized:

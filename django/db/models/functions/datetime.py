@@ -418,6 +418,20 @@ class TruncTime(TruncBase):
 
     def as_sql(self, compiler, connection):
         # Cast to time rather than truncate to time.
+        """
+
+        Generates SQL code for datetime casting with time zone information.
+
+        This function compiles the left-hand side of a datetime expression into SQL,
+        then applies a time zone cast to the resulting SQL string.
+        The cast is specific to the database connection being used.
+
+        :param compiler: The compiler instance used to generate the SQL code.
+        :param connection: The database connection used to determine the time zone cast operation.
+
+        :return: A SQL string representing the datetime expression with time zone information applied.
+
+        """
         sql, params = compiler.compile(self.lhs)
         tzname = self.get_tzname()
         return connection.ops.datetime_cast_time_sql(sql, tuple(params), tzname)

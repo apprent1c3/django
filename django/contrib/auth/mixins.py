@@ -44,6 +44,22 @@ class AccessMixin:
         return self.redirect_field_name
 
     def handle_no_permission(self):
+        """
+
+        Handles the case when a user does not have the required permission to access a view.
+
+        If the user is authenticated or an exception is to be raised, it raises a 
+        PermissionDenied exception with a customizable permission denied message. 
+        Otherwise, it redirects the user to the login page, preserving the original 
+        request path if the login URL is on the same scheme and domain as the current 
+        request. The redirect includes a parameter that can be used to redirect the 
+        user back to the original request path after a successful login.
+
+        The redirect behavior can be customized by specifying the redirect field name 
+        and the login URL. The function returns an HttpResponse object that 
+        implements the redirect.
+
+        """
         if self.raise_exception or self.request.user.is_authenticated:
             raise PermissionDenied(self.get_permission_denied_message())
 

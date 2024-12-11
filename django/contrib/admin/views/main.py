@@ -306,6 +306,21 @@ class ChangeList:
         return "?%s" % urlencode(sorted(p.items()), doseq=True)
 
     def get_results(self, request):
+        """
+
+        Fetch and prepare data for display in an administrative interface.
+
+        This method retrieves a paginated list of objects based on the provided request,
+        queryset, and pagination settings. It determines the total result count, whether
+        the full result count can be displayed, and whether the results span multiple pages.
+        The actual data to be displayed is then retrieved, either by showing all results
+        if possible or by fetching a specific page of results.
+
+        The method also sets several instance attributes, including the result count,
+        full result count, result list, and pagination controls, to be used in the
+        administrative interface.
+
+        """
         paginator = self.model_admin.get_paginator(
             request, self.queryset, self.list_per_page
         )
@@ -610,6 +625,17 @@ class ChangeList:
         return qs
 
     def has_related_field_in_list_display(self):
+        """
+
+        Checks if there are any fields in the list display that have a related field.
+
+        This function iterates over each field in the list display and checks if it 
+        represents a relationship with another model (i.e., a foreign key). If a 
+        related field is found and its name in the list display is different from 
+        its attribute name, the function returns True, indicating that a related 
+        field is present in the list display. Otherwise, it returns False.
+
+        """
         for field_name in self.list_display:
             try:
                 field = self.lookup_opts.get_field(field_name)

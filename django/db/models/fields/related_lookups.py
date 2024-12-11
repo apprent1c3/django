@@ -38,6 +38,19 @@ class MultiColSource:
 
 
 def get_normalized_value(value, lhs):
+    """
+
+    Normalizes a given value for related filter usage.
+
+    This function takes in a value and a related field definition (lhs) and returns a normalized value that can be used for filtering.
+    If the input value is a Django model instance, it normalizes the instance to its corresponding ID or a tuple of IDs, depending on the related field's definition.
+    If the model instance is not saved, it raises a ValueError.
+    For non-model instances, it ensures the value is a tuple, wrapping single values in a tuple if necessary.
+
+    :return: A normalized tuple of values
+    :raises ValueError: If a model instance is passed without being saved
+
+    """
     from django.db.models import Model
 
     if isinstance(value, Model):
@@ -158,6 +171,23 @@ class RelatedLookupMixin:
         return super().get_prep_lookup()
 
     def as_sql(self, compiler, connection):
+        """
+
+        Generates the SQL representation of this lookup.
+
+        Handles cases where the left-hand side is a MultiColSource, in which case it
+        normalizes the right-hand side value and constructs a WhereNode with multiple
+        constraints. Each constraint is created based on the lookup type and the
+        corresponding field and value.
+
+        If the left-hand side is not a MultiColSource, the parent class's implementation
+        is used.
+
+        :param compiler: The SQL compiler to use for generating the SQL.
+        :param connection: The database connection to use for generating the SQL.
+        :return: The SQL representation of this lookup as a string.
+
+        """
         if isinstance(self.lhs, MultiColSource):
             assert self.rhs_is_direct_value()
             self.rhs = get_normalized_value(self.rhs, self.lhs)

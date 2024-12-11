@@ -20,6 +20,15 @@ class RestrictedError(IntegrityError):
 
 
 def CASCADE(collector, field, sub_objs, using):
+    """
+    Deletes or updates related objects in a cascade operation, collecting and processing them according to the given field and database connection.
+
+    The function takes four parameters: the collector object, the field describing the relationship, the sub-objects to be processed, and the database connection to be used.
+
+    It starts by collecting the sub-objects and specifying the source model and attribute, taking into account the nullability of the field. If the field is nullable and the database connection does not support deferred constraint checks, it also schedules an update to set the field to null for the sub-objects.
+
+    This operation is typically used in the context of deleting or updating objects in a relational database, where related objects need to be handled accordingly to maintain data consistency.
+    """
     collector.collect(
         sub_objs,
         source=field.remote_field.model,

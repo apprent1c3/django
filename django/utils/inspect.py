@@ -11,6 +11,17 @@ def _get_func_parameters(func, remove_first):
 
 
 def _get_callable_parameters(meth_or_func):
+    """
+
+    Extracts the parameters of a given method or function.
+
+    This function determines whether the provided object is a method or a function and 
+    then retrieves its parameters. If the object is a method, the first parameter 
+    (self) is excluded from the result.
+
+    :returns: Parameters of the method or function
+
+    """
     is_method = inspect.ismethod(meth_or_func)
     func = meth_or_func.__func__ if is_method else meth_or_func
     return _get_func_parameters(func, remove_first=is_method)

@@ -23,6 +23,21 @@ class LocMemCache(BaseCache):
         self._lock = _locks.setdefault(name, Lock())
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        .. method:: add(key, value, timeout=DEFAULT_TIMEOUT, version=None)
+           :noindex:
+
+           Adds or updates a key-value pair in the cache.
+
+           :param key: The key to be added or updated.
+           :param value: The value associated with the key.
+           :param timeout: The time-to-live for the key-value pair (default is :data:`DEFAULT_TIMEOUT`).
+           :param version: The version of the key (optional).
+
+           :return: True if the key-value pair was added, False otherwise (i.e., if the key is already present and not expired).
+
+           :note: This method handles key validation and expiration checks internally, and uses the specified timeout and version (if provided).
+        """
         key = self.make_and_validate_key(key, version=version)
         pickled = pickle.dumps(value, self.pickle_protocol)
         with self._lock:

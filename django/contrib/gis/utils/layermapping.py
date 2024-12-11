@@ -207,6 +207,14 @@ class LayerMapping:
 
         # Function for determining if the OGR mapping field is in the Layer.
         def check_ogr_fld(ogr_map_fld):
+            """
+            Checks if a given OGR field mapping exists in the OGR layer and returns its index.
+
+            :param str ogr_map_fld: The OGR field mapping to be checked
+            :raises LayerMapError: If the given mapping OGR field is not found in the OGR layer
+            :return: Index of the OGR field mapping in the OGR layer
+            :rtype: int
+            """
             try:
                 idx = ogr_fields.index(ogr_map_fld)
             except ValueError:

@@ -17,6 +17,14 @@ class OrderedSet:
         del self.dict[item]
 
     def discard(self, item):
+        """
+        Removes the specified item from the collection if it exists, without raising an error if it does not.
+
+        This method provides a safe way to remove an item, as it silently ignores attempts to remove items that are not present in the collection.
+
+        :param item: The item to be removed from the collection
+
+        """
         try:
             self.remove(item)
         except KeyError:

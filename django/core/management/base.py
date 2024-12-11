@@ -55,6 +55,15 @@ class CommandParser(ArgumentParser):
     def __init__(
         self, *, missing_args_message=None, called_from_command_line=None, **kwargs
     ):
+        """
+        Initializes the object with default and optional parameters.
+
+        :param missing_args_message: A custom message to display when required arguments are missing.
+        :param called_from_command_line: A flag indicating whether the object is being initialized from a command line interface.
+        :param kwargs: Additional keyword arguments to be passed to the parent class constructor.
+
+        This initializer allows for flexible setup of the object, including customization of error messages and command line invocation detection.
+        """
         self.missing_args_message = missing_args_message
         self.called_from_command_line = called_from_command_line
         super().__init__(**kwargs)

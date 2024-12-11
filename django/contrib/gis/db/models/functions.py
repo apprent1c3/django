@@ -171,6 +171,19 @@ class Area(OracleToleranceMixin, GeoFunc):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Renders the function as a SQLite SQL expression.
+
+        Handles geodetic calculations by modifying the SQL template to include the 
+        geodetic spheroid, if necessary. The `geo_field` attribute determines whether 
+        geodetic calculations are required for the given database connection.
+
+        :param compiler: The SQL compiler being used to render the query.
+        :param connection: The database connection being used to render the query.
+        :param extra_context: Additional context to be used when rendering the query.
+        :returns: The rendered SQL expression as a string.
+
+        """
         if self.geo_field.geodetic(connection):
             extra_context["template"] = "%(function)s(%(expressions)s, %(spheroid)d)"
             extra_context["spheroid"] = True
@@ -453,6 +466,22 @@ class Length(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+
+        Generates the PostgreSQL query for calculating the length of a geography or geometry field.
+
+        This method takes into account the type of field (geography or geometry) and its properties, 
+        such as the spheroid, to determine the correct function to use for calculating the length.
+
+        The resulting query may use the `LengthSpheroid` function for geodetic calculations or 
+        the `length3d` function for 3D geometry fields.
+
+        :param compiler: The compiler object used to generate the SQL query
+        :param connection: The database connection object
+        :param extra_context: Additional context parameters
+        :return: The generated PostgreSQL query as a string
+
+        """
         clone = self.copy()
         function = None
         if self.source_is_geography():

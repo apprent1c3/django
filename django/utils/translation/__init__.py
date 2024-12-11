@@ -61,6 +61,20 @@ class Trans:
     """
 
     def __getattr__(self, real_name):
+        """
+
+        Handles attribute access for internationalization (i18n) translations.
+
+        Returns the requested attribute from Django's translation module, 
+        taking into account the `USE_I18N` setting in the project's settings.
+
+        If `USE_I18N` is True, it utilizes Django's translation machinery, including 
+        automatic reloading of translation files when they change. Otherwise, 
+        it falls back to a null translation implementation.
+
+        The attribute is cached on the instance to prevent repeated lookups.
+
+        """
         from django.conf import settings
 
         if settings.USE_I18N:
@@ -124,6 +138,18 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                 return bool(kwargs["singular"])
 
             def _get_number_value(self, values):
+                """
+
+                Retrieves the number value from a dictionary.
+
+                This method attempts to fetch the value associated with the 'number' key from the provided dictionary.
+                If the key is not present, it raises a KeyError with a descriptive message, indicating that the 'number' key is required to determine the singular or plural form of a string.
+
+                :param values: The dictionary containing the number value.
+                :raises KeyError: If the dictionary lacks the 'number' key.
+                :return: The value associated with the 'number' key.
+
+                """
                 try:
                     return values[number]
                 except KeyError:

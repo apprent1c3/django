@@ -65,6 +65,20 @@ def method_decorator(decorator, name=""):
     # defined on. If 'obj' is a class, the 'name' is required to be the name
     # of the method that will be decorated.
     def _dec(obj):
+        """
+
+        Apply a decorator to a specific method of a class.
+
+        This function either directly applies a decorator to an object or to a specified method within a class.
+        If the object is not a class type, it is assumed to be a decorator to be applied directly.
+        If the object is a class, the function must know the name of the method to decorate.
+        It checks the existence and callability of the method before applying the decorator.
+        The decorated method then replaces the original method in the class.
+
+        :raises ValueError: If the specified method does not exist in the class.
+        :raises TypeError: If the specified attribute in the class is not callable.
+
+        """
         if not isinstance(obj, type):
             return _multi_decorate(decorator, obj)
         if not (name and hasattr(obj, name)):
@@ -162,6 +176,37 @@ def make_middleware_decorator(middleware_class):
             if iscoroutinefunction(view_func):
 
                 async def _view_wrapper(request, *args, **kwargs):
+                    """
+                    Asynchronous view wrapper function.
+
+                    This function provides a layer of abstraction around an asynchronous view function, 
+                    adding pre- and post-processing steps to handle the request and response. It 
+                    catches any exceptions that occur during the view function execution and 
+                    provides a way to handle them separately.
+
+                    The function first calls the pre-processing step. If the pre-processing step 
+                    returns a non-None result, it is returned immediately. Otherwise, the view 
+                    function is executed. If an exception occurs during view function execution, 
+                    an exception handling step is called. If the exception handling step returns 
+                    a non-None result, it is returned; otherwise, the post-processing step is 
+                    called with the view function's response and its result is returned.
+
+                    Parameters
+                    ----------
+                    request : object
+                        The incoming request object.
+                    *args : variable
+                        Variable number of positional arguments.
+                    **kwargs : variable
+                        Variable number of keyword arguments.
+
+                    Returns
+                    -------
+                    object
+                        The result of the pre-processing step, exception handling step, or 
+                        post-processing step, depending on the flow of execution.
+
+                    """
                     result = _pre_process_request(request, *args, **kwargs)
                     if result is not None:
                         return result

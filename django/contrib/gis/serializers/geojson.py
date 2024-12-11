@@ -35,6 +35,11 @@ class Serializer(JSONSerializer):
         self.stream.write("]}")
 
     def start_object(self, obj):
+        """
+        Initializes the processing of a given object, inheriting behavior from its parent class and identifying the geometry field within the object if not explicitly set. 
+
+        The function attempts to automatically determine the geometry field by iterating through the object's fields and checking for those with a geometric type, defaulting to the first one found if a specific geometry field has not been predefined.
+        """
         super().start_object(obj)
         self._geometry = None
         if self.geometry_field is None:

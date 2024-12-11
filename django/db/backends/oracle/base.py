@@ -233,6 +233,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     validation_class = DatabaseValidation
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, inheriting from its parent class and configuring the ability to return columns from insert statements based on the 'use_returning_into' setting in the options dictionary.
+        """
         super().__init__(*args, **kwargs)
         use_returning_into = self.settings_dict["OPTIONS"].get(
             "use_returning_into", True
@@ -243,6 +246,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.oracle_version
 
     def get_connection_params(self):
+        """
+        Retrieves the connection parameters for a database connection.
+
+        Returns a dictionary containing the connection parameters. 
+        The returned dictionary is a copy of the 'OPTIONS' dictionary from the settings, 
+        with the 'use_returning_into' parameter removed if it exists.
+        """
         conn_params = self.settings_dict["OPTIONS"].copy()
         if "use_returning_into" in conn_params:
             del conn_params["use_returning_into"]
@@ -577,6 +587,29 @@ class FormatStylePlaceholderCursor:
             return self.cursor.execute(query, self._param_generator(params))
 
     def executemany(self, query, params=None):
+        """
+
+        Execute a query with multiple sets of parameters.
+
+        This method allows you to perform a single database query with multiple sets of parameters,
+        which can be more efficient than executing the query multiple times.
+
+        The query and parameters are formatted and then passed to the underlying database cursor.
+        The method returns the result of the cursor's executemany operation.
+
+        Parameters
+        ----------
+        query : str
+            The SQL query to execute.
+        params : iterable, optional
+            An iterable of parameter sets. Each set should contain the values to use for one execution of the query.
+            If params is not provided, the method will return None.
+
+        Returns
+        -------
+        The result of the cursor's executemany operation.
+
+        """
         if not params:
             # No params given, nothing to do
             return None

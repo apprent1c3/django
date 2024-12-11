@@ -18,6 +18,20 @@ class DatabaseCreation(BaseDatabaseCreation):
         return " ".join(suffix)
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+        .. method:: _execute_create_test_db
+
+           Attempts to create a test database, handling potential errors and exceptions.
+
+           If the database creation fails, it checks if the error code is 1007, which typically indicates that the database already exists. 
+           If the error code is not 1007, it logs the error message and exits with a non-zero status code. 
+           Otherwise, it re-raises the exception to propagate the error further. 
+
+           :param cursor: The database cursor to use for the creation operation
+           :param parameters: The parameters required for creating the test database
+           :param keepdb: A boolean flag indicating whether the test database should be kept after the test is completed
+           :return: None
+        """
         try:
             super()._execute_create_test_db(cursor, parameters, keepdb)
         except Exception as e:

@@ -54,6 +54,26 @@ class DataSource(GDALBase):
 
     def __init__(self, ds_input, ds_driver=False, write=False, encoding="utf-8"):
         # The write flag.
+        """
+        Initializes a dataset object from a data source.
+
+        The data source can be specified as a file path (string or Path object), in which case the dataset is opened with the specified write mode and encoding.
+        If the data source is already an open dataset pointer and the corresponding driver pointer is provided, the dataset is initialized directly from these pointers.
+
+        The function raises an exception if the data source cannot be opened or is invalid.
+
+        Parameters:
+            ds_input (str or Path): Path to the data source file.
+            ds_driver (bool): Flag indicating whether to use the ds_input as a driver (default: False).
+            write (bool): Flag indicating whether to open the dataset in write mode (default: False).
+            encoding (str): Encoding to use when reading or writing the dataset (default: 'utf-8'). 
+
+        Raises:
+            GDALException: If the data source cannot be opened or is invalid.
+
+        Returns:
+            None
+        """
         self._write = capi.GDAL_OF_UPDATE if write else capi.GDAL_OF_READONLY
         # See also https://gdal.org/development/rfc/rfc23_ogr_unicode.html
         self.encoding = encoding

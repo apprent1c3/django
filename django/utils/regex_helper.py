@@ -345,6 +345,20 @@ def _lazy_re_compile(regex, flags=0):
 
     def _compile():
         # Compile the regex if it was not passed pre-compiled.
+        """
+        Compiles a regular expression pattern into a usable regex object.
+
+        Args:
+            regex: A regular expression pattern as a string, bytes, or a pre-compiled regex object.
+            flags: Optional compilation flags to apply to the regex pattern.
+
+        Returns:
+            A compiled regex object.
+
+        Note:
+            If the regex is passed as a string or bytes, it will be compiled with the provided flags.
+            If the regex is passed pre-compiled, the flags must be empty.
+        """
         if isinstance(regex, (str, bytes)):
             return re.compile(regex, flags)
         else:

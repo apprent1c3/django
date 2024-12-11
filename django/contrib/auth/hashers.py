@@ -393,6 +393,16 @@ class Argon2PasswordHasher(BasePasswordHasher):
     parallelism = 8
 
     def encode(self, password, salt):
+        """
+        Encodes a password using the Argon2 password hashing algorithm.
+
+        :param password: The password to be encoded
+        :param salt: The salt value to be used in conjunction with the password
+        :returns: A string representing the encoded password, prefixed with the algorithm used
+        :rtype: str
+
+        This function takes a password and a salt as input, applies the Argon2 password hashing algorithm with customizable parameters (time cost, memory cost, parallelism, hash length, and type), and returns the resulting encoded password as a string. The returned string includes the algorithm used for encoding, allowing for easy identification and verification of the hashed password.
+        """
         argon2 = self._load_library()
         params = self.params()
         data = argon2.low_level.hash_secret(
@@ -407,6 +417,24 @@ class Argon2PasswordHasher(BasePasswordHasher):
         return self.algorithm + data.decode("ascii")
 
     def decode(self, encoded):
+        """
+
+        Decode an Argon2 encoded string into its constituent parts.
+
+        This function takes an encoded string as input and breaks it down into its individual components, 
+        including the algorithm used, hash value, and various parameters such as memory cost, parallelism, 
+        time cost, and salt.
+
+        The decoded components are returned as a dictionary, providing easy access to the specific parts 
+        of the encoded string.
+
+        Parameters:
+            encoded (str): The Argon2 encoded string to be decoded.
+
+        Returns:
+            dict: A dictionary containing the decoded components of the input string.
+
+        """
         argon2 = self._load_library()
         algorithm, rest = encoded.split("$", 1)
         assert algorithm == self.algorithm
@@ -498,6 +526,12 @@ class BCryptSHA256PasswordHasher(BasePasswordHasher):
         return bcrypt.gensalt(self.rounds)
 
     def encode(self, password, salt):
+        """
+        **:param str password: The password to be encoded**
+        **:param str salt: The salt to be used for encoding**
+        **:return: A string representing the encoded password**
+        **Encodes a given password using the specified salt and algorithm. The function first checks if a digest is specified, and if so, applies it to the password before encoding. The encoded password is then returned as a string in the format 'algorithm$salt'.**
+        """
         bcrypt = self._load_library()
         password = password.encode()
         # Hash the password prior to using bcrypt to prevent password
@@ -580,6 +614,25 @@ class ScryptPasswordHasher(BasePasswordHasher):
     work_factor = 2**14
 
     def encode(self, password, salt, n=None, r=None, p=None):
+        """
+        Encode a password using the scrypt encryption algorithm.
+
+        This function takes a password and a salt value, and returns a string representing the encrypted password.
+        The encryption process can be customized using optional parameters for the work factor, block size, and parallelism.
+        If these parameters are not provided, default values will be used.
+
+        The returned string is in the format 'algorithm$work_factor$salt$block_size$parallelism$hash',
+        where 'algorithm' is the name of the encryption algorithm used, 'work_factor', 'block_size', and 'parallelism' are the
+        parameters used for the encryption, and 'hash' is the base64-encoded encrypted password.
+
+        :param password: The password to be encrypted.
+        :param salt: The salt value to be used for the encryption.
+        :param n: The work factor for the encryption (default is the instance's work factor).
+        :param r: The block size for the encryption (default is the instance's block size).
+        :param p: The parallelism for the encryption (default is the instance's parallelism).
+        :returns: A string representing the encrypted password.
+
+        """
         self._check_encode_args(password, salt)
         n = n or self.work_factor
         r = r or self.block_size
@@ -611,6 +664,18 @@ class ScryptPasswordHasher(BasePasswordHasher):
         }
 
     def verify(self, password, encoded):
+        """
+
+        Verify if a given password matches an encoded password.
+
+        Checks if the provided password, when encoded with the same parameters as the encoded password,
+        results in the same encoded string. This function is used for secure password verification.
+
+        :param password: The password to verify.
+        :param encoded: The encoded password to compare against.
+        :returns: True if the password matches the encoded password, False otherwise.
+
+        """
         decoded = self.decode(encoded)
         encoded_2 = self.encode(
             password,

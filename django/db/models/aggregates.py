@@ -60,6 +60,32 @@ class Aggregate(Func):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Aggregates are not allowed in UPDATE queries, so ignore for_save
+        """
+
+        Resolve an expression by optionally applying filters, joins, and aggregation rules.
+
+        This method takes a query and a set of optional parameters to control how the expression is resolved.
+        It can handle joins, reuse existing expressions, and apply summarization rules if requested.
+        The method returns a resolved expression that can be used for further processing or evaluation.
+
+        Parameters
+        ----------
+        query : optional
+            The query to use for resolving the expression.
+        allow_joins : bool, default=True
+            Whether to allow joins in the resolved expression.
+        reuse : optional
+            An existing expression to reuse in the resolution process.
+        summarize : bool, default=False
+            Whether to summarize the resolved expression.
+        for_save : bool, default=False
+            Whether the resolved expression is intended for saving.
+
+        Returns
+        -------
+        The resolved expression.
+
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize)
         c.filter = (
             c.filter.resolve_expression(query, allow_joins, reuse, summarize)

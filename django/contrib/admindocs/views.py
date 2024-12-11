@@ -103,6 +103,23 @@ class TemplateFilterIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_filter_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+
+        Get context data, including a list of available template filters.
+
+        The filters are gathered from the default template engine's template libraries
+        and built-in libraries. Each filter is documented with a title, body, and metadata.
+        The filters are then added to the context data, which is returned along with any
+        additional keyword arguments.
+
+        The returned context data includes a 'filters' key, which maps to a list of
+        dictionaries. Each dictionary contains information about a filter, including its
+        name, title, body, metadata, and the library it belongs to.
+
+        Returns:
+            dict: The context data, including the list of available template filters.
+
+        """
         filters = []
         try:
             engine = Engine.get_default()
@@ -142,6 +159,29 @@ class ViewIndexView(BaseAdminDocsView):
     template_name = "admin_doc/view_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+
+        Returns a dictionary of context data, including a list of view functions.
+        The function compiles a list of views by iterating over the url patterns
+        defined in the project's url configuration, extracting the view functions,
+        and gathering information about each view such as its name, url pattern,
+        and namespace. The compiled list of views is then added to the context data.
+
+        The context data is useful for generating a list of available views in a 
+        project, which can be used for documentation, debugging, or other purposes.
+
+        The function also allows for additional keyword arguments to be passed to
+        the parent class's `get_context_data` method, which are merged with the
+        `views` data before being returned.
+
+        Currently, the function handles the case where the url configuration is 
+        improperly configured by catching `ImproperlyConfigured` exceptions and 
+        returning an empty list of views in such cases.
+
+        :returns: A dictionary of context data including a list of view functions
+        :rtype: dict
+
+        """
         views = []
         url_resolver = get_resolver(get_urlconf())
         try:
@@ -214,6 +254,25 @@ class ModelDetailView(BaseAdminDocsView):
     template_name = "admin_doc/model_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+        ``` 
+        Returns the context data for a model to be used in a documentation view.
+
+        Given the model name and app label from the view's keyword arguments, 
+        retrieves the model and its associated app configuration. 
+        If either is not found, raises an Http404 exception.
+
+        Extracts the model's documentation, then iterates over its fields, 
+        studying each field's data type and verbose name. For foreign key fields, 
+        determines the related model and app label, and generates a verbose name 
+        describing the relationship. Similar processing is performed for many-to-many 
+        fields and for the model's methods and related objects.
+
+        The function returns a dictionary containing information about the model, 
+        including its name, summary, description, fields, and methods. 
+        This dictionary is then used as the context for the documentation view.
+        ```
+        """
         model_name = self.kwargs["model_name"]
         # Get the model class.
         try:

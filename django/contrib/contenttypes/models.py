@@ -16,6 +16,16 @@ class ContentTypeManager(models.Manager):
         self._cache = {}
 
     def get_by_natural_key(self, app_label, model):
+        """
+        Retrieves a ContentType object uniquely identified by its application label and model name.
+
+        :param app_label: The application label of the ContentType.
+        :param model: The model name of the ContentType.
+        :return: The ContentType object associated with the provided application label and model.
+        :raises: Exception if the ContentType cannot be retrieved. 
+
+        The function also handles caching of retrieved ContentTypes to improve performance. If the requested ContentType is not found in the cache, it is retrieved and then stored in the cache for future lookups.
+        """
         try:
             ct = self._cache[self.db][(app_label, model)]
         except KeyError:

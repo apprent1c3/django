@@ -106,6 +106,14 @@ class Point(GEOSGeometry):
             return 2
 
     def _get_single_external(self, index):
+        """
+        \".. _get_single_external:
+           Retrieves a single external coordinate based on the provided index.
+
+           :param int index: The index of the coordinate to retrieve (0 for x, 1 for y, 2 for z)
+           :return: The coordinate value corresponding to the given index
+           :rtype: float\"
+        """
         if index == 0:
             return self.x
         elif index == 1:

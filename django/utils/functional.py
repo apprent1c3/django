@@ -119,6 +119,25 @@ def lazy(func, *resultclasses):
             return str(self.__cast())
 
         def __eq__(self, other):
+            """
+            Checks if the current object is equal to another object.
+
+            This method compares the current object with another object, which can be either
+            an instance of the same class or a Promise object. If the other object is a
+            Promise, it is first cast to its resolved value before the comparison. The
+            method returns True if the two objects are equal and False otherwise.
+
+            Args:
+                other: The object to compare with the current object.
+
+            Returns:
+                bool: True if the objects are equal, False otherwise.
+
+            Note:
+                The comparison is done after casting both objects to their resolved values,
+                if applicable. This ensures that the comparison is based on the actual values
+                of the objects, rather than their Promise representations.
+            """
             if isinstance(other, Promise):
                 other = other.__cast()
             return self.__cast() == other
@@ -330,6 +349,16 @@ class LazyObject:
         return (unpickle_lazyobject, (self._wrapped,))
 
     def __copy__(self):
+        """
+        Creates a shallow copy of the object.
+
+        Returns a new instance of the same type, either empty or containing a copy of the wrapped object.
+        The behavior depends on whether the object is currently empty or contains a wrapped value.
+        The wrapped object is copied using the standard library's copy mechanism, preserving its structure and attributes.
+
+        This method is typically invoked when the object is used in a context that requires copying, such as assignment or passing as an argument to a function.
+        It ensures that modifications made to the copy do not affect the original object, while also avoiding the overhead of a deep copy when the object is empty.
+        """
         if self._wrapped is empty:
             # If uninitialized, copy the wrapper. Use type(self), not
             # self.__class__, because the latter is proxied.

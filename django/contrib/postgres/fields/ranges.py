@@ -87,6 +87,20 @@ class RangeField(models.Field):
         return "%s::{}".format(self.db_type(connection))
 
     def get_prep_value(self, value):
+        """
+
+        Return a prepared value suitable for use in a query.
+
+        This method takes an input value and transforms it into a format that can be used in a query.
+        It accepts a variety of input formats, including None, Range objects, lists, tuples, and other values.
+        If the input is None, it is returned unchanged.
+        If the input is a Range object, it is also returned unchanged.
+        If the input is a list or tuple with two elements, it is converted to a Range object using the range_type.
+        All other values are returned unchanged.
+
+        :rtype: object
+
+        """
         if value is None:
             return None
         elif isinstance(value, Range):
@@ -96,6 +110,15 @@ class RangeField(models.Field):
         return value
 
     def to_python(self, value):
+        """
+        Converts a given value into a Python object suitable for the current range field.
+
+        This conversion supports values in two formats:
+        - JSON strings representing a dictionary with 'lower' and/or 'upper' bounds, which are further converted using the base field's conversion logic.
+        - Lists or tuples containing two elements, representing the lower and upper bounds of the range, which are used to create a range object directly.
+
+        The converted value is then returned as an instance of the range type.
+        """
         if isinstance(value, str):
             # Assume we're deserializing
             vals = json.loads(value)
