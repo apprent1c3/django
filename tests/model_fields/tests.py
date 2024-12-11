@@ -184,6 +184,9 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_flatchoices(self):
+        """
+        Tests the functionality of the `flatchoices` attribute by asserting its expected values for various scenarios, including empty choices, choices with different data structures, and choices generated from iterators or callables. The test cases cover a range of possibilities to ensure the `flatchoices` attribute behaves as expected and returns the correct list of tuples containing choice values and human-readable names.
+        """
         self.assertEqual(self.no_choices.flatchoices, [])
         self.assertEqual(self.empty_choices.flatchoices, [])
         self.assertEqual(self.empty_choices_bool.flatchoices, [])
@@ -299,6 +302,13 @@ class GetFieldDisplayTests(SimpleTestCase):
 
 class GetChoicesTests(SimpleTestCase):
     def test_empty_choices(self):
+        """
+        Tests that a CharField with no choices returns an empty list when get_choices is called with include_blank=False.
+
+            Verifies the expected behavior of a field with an empty choices list, ensuring it
+            does not include any default or blank options when requested to exclude them.
+
+        """
         choices = []
         f = models.CharField(choices=choices)
         self.assertEqual(f.get_choices(include_blank=False), choices)
@@ -343,6 +353,19 @@ class GetChoicesOrderingTests(TestCase):
         self.assertEqual(choices, [(obj.pk, str(obj)) for obj in objs])
 
     def test_get_choices(self):
+        """
+
+        Tests the get_choices method of the field.
+
+        This test case checks the functionality of getting choices from the field with 
+        custom ordering. It verifies that the choices are returned in the correct order 
+        based on the specified ordering, both ascending and descending.
+
+        The test includes two scenarios: one where the choices are ordered by 'a' in 
+        ascending order, and another where the choices are ordered by 'a' in descending 
+        order. In both cases, it ensures that the choices do not include a blank option.
+
+        """
         self.assertChoicesEqual(
             self.field.get_choices(include_blank=False, ordering=("a",)),
             [self.foo1, self.foo2],

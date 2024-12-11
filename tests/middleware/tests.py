@@ -331,6 +331,15 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertEqual(int(response.headers["Content-Length"]), len(response.content))
 
     def test_content_length_header_not_added_for_streaming_response(self):
+        """
+        Verifies that the Content-Length header is not added to a response when using a streaming HTTP response.
+
+        This test ensures that the Content-Length header is absent from the response when 
+        the response is generated using a StreamingHttpResponse object, which is typically 
+        used for responses of unknown or dynamic length. The test checks both the initial 
+        response from the view and the final response after passing through the CommonMiddleware.
+
+        """
         def get_response(req):
             response = StreamingHttpResponse("content")
             self.assertNotIn("Content-Length", response)
@@ -547,6 +556,11 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_no_if_none_match_and_etag(self):
+        """
+        Tests the ConditionalGetMiddleware when no If-None-Match header is provided in the request, but an ETag is present in the response.
+
+         Checks that the middleware correctly handles this scenario by verifying that a 200 status code is returned in the response.
+        """
         self.resp_headers["ETag"] = "eggs"
         resp = ConditionalGetMiddleware(self.get_response)(self.req)
         self.assertEqual(resp.status_code, 200)
@@ -599,6 +613,13 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_if_modified_since_and_same_last_modified(self):
+        """
+        Tests the ConditionalGetMiddleware when the 'If-Modified-Since' header in the request matches the 'Last-Modified' header in the response.
+
+        This test case checks if the middleware correctly returns a 304 status code (Not Modified) when the request indicates that the client has a cached copy of the resource that is up-to-date, based on the last modification date.
+
+        The test sets the 'If-Modified-Since' header in the request to a specific date and time, and the 'Last-Modified' header in the response to the same date and time. It then verifies that the middleware returns a 304 status code, indicating that the client's cached copy is still valid and the server does not need to send the full response body.
+        """
         self.req.META["HTTP_IF_MODIFIED_SINCE"] = "Sat, 12 Feb 2011 17:38:44 GMT"
         self.resp_headers["Last-Modified"] = "Sat, 12 Feb 2011 17:38:44 GMT"
         self.resp = ConditionalGetMiddleware(self.get_response)(self.req)

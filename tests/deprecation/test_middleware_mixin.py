@@ -84,6 +84,16 @@ class MiddlewareMixinTests(SimpleTestCase):
         )
 
     def test_passing_explicit_none(self):
+        """
+
+        Tests that a ValueError is raised when None is passed explicitly to a middleware.
+
+        This test case verifies that each middleware in the list of middlewares correctly
+        enforces the requirement that a valid response or get_response must be provided.
+        The error message 'get_response must be provided.' is expected to be raised as a
+        ValueError when None is passed to a middleware.
+
+        """
         msg = "get_response must be provided."
         for middleware in self.middlewares:
             with self.subTest(middleware=middleware):

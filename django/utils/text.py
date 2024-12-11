@@ -70,6 +70,19 @@ def wrap(text, width):
 
 
 def add_truncation_text(text, truncate=None):
+    """
+
+    Adds truncation text to the end of a given text.
+
+    This function allows you to append a truncation string (such as an ellipsis) to a text.
+    If a custom truncation string is provided, it will be appended to the text if it is not already present.
+    The truncation string can contain a placeholder for the truncated text itself.
+
+    :param text: The original text to be truncated
+    :param truncate: The truncation string to append (default is '%(truncated_text)s…')
+    :return: The text with the truncation string appended
+
+    """
     if truncate is None:
         truncate = pgettext(
             "String to return when truncating text", "%(truncated_text)s…"
@@ -175,6 +188,14 @@ class TruncateCharsHTMLParser(TruncateHTMLParser):
 
 class TruncateWordsHTMLParser(TruncateHTMLParser):
     def process(self, data):
+        """
+        Process input data by splitting it into substrings separated by whitespace and then generate an escaped output string 
+        containing a limited number of substrings.
+
+        :param data: The input string to be processed
+        :return: A tuple containing the list of split substrings and the escaped output string with a limited number of substrings 
+        defined by the object's remaining attribute.
+        """
         data = re.split(r"(?<=\S)\s+(?=\S)", data)
         output = escape(" ".join(data[: self.remaining]))
         return data, output
@@ -369,6 +390,16 @@ def compress_string(s, *, max_random_bytes=None):
 
 class StreamingBuffer(BytesIO):
     def read(self):
+        """
+        Reads the entire contents of the object, resets its position to the beginning, and then clears its contents.
+
+        Returns:
+            The contents of the object as a string.
+
+        Note:
+            After calling this method, the object is empty and its position is at the start, ready for new data to be written.
+
+        """
         ret = self.getvalue()
         self.seek(0)
         self.truncate()

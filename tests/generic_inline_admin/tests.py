@@ -465,6 +465,15 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             self.assertIsInstance(formset, other_inline.get_formset(request).__class__)
 
     def test_get_inline_instances_override_get_inlines(self):
+        """
+        Tests the `get_inlines` and `get_inline_instances` methods of a custom `EpisodeAdmin` class to ensure they correctly override the inline instances based on the request name.
+
+        The test covers the following scenarios:
+        - When no specific request name is provided, no inline instances are returned.
+        - When a request name of 'alternate' or 'media' is provided, the corresponding inline class is returned.
+
+        This test case ensures that the `get_inlines` and `get_inline_instances` methods behave as expected, allowing for dynamic customization of inline instances based on the request context.
+        """
         class MediaInline(GenericTabularInline):
             model = Media
 

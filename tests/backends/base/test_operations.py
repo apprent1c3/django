@@ -33,6 +33,9 @@ class SimpleDatabaseOperationTests(SimpleTestCase):
         self.assertEqual(self.ops.end_transaction_sql(success=False), "ROLLBACK;")
 
     def test_no_limit_value(self):
+        """
+        Tests that calling the no_limit_value method raises a NotImplementedError with the expected error message, indicating that this operation is not implemented and may be required in certain situations.
+        """
         with self.assertRaisesMessage(
             NotImplementedError, self.may_require_msg % "no_limit_value"
         ):
@@ -182,6 +185,9 @@ class DatabaseOperationTests(TestCase):
 
     @skipIfDBFeature("can_distinct_on_fields")
     def test_distinct_on_fields(self):
+        """
+        Tests that raising a NotSupportedError is the expected behavior when attempting to generate SQL for 'DISTINCT ON' fields, which is not supported by this database backend. The test confirms that the error message is correctly set to indicate the unsupported feature.
+        """
         msg = "DISTINCT ON fields is not supported by this database backend"
         with self.assertRaisesMessage(NotSupportedError, msg):
             self.ops.distinct_sql(["a", "b"], None)

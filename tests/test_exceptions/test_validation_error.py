@@ -17,6 +17,25 @@ class TestValidationError(unittest.TestCase):
         self.assertEqual(sorted(exception.messages), ["E1", "E2", "E3", "E4"])
 
     def test_eq(self):
+        """
+        Test the equality of ValidationError instances.
+
+        This test case checks the equality of ValidationError instances
+        based on their message, code, and params. It verifies that the
+        equality check is performed correctly for various cases, including
+        messages with and without codes and params, messages with
+        field-specific errors, and messages with nested error lists.
+
+        The test also checks the equality of ValidationError instances with
+        mock.ANY, which should always return True.
+
+        Additionally, the test verifies that the order of fields in a
+        field-specific error message does not affect the equality check,
+        but the presence and values of fields do. It also checks that the
+        order of error messages in a nested error list does not affect the
+        equality check, but the presence and values of error messages do.
+
+        """
         error1 = ValidationError("message")
         error2 = ValidationError("message", code="my_code1")
         error3 = ValidationError("message", code="my_code2")

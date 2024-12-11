@@ -10,6 +10,14 @@ class BasicFieldsTests(SimpleTestCase):
     def test_cooperative_multiple_inheritance(self):
         class A:
             def __init__(self):
+                """
+
+                Initializes a new instance of the class.
+
+                This method sets up the initial state of the object, including setting the class_a_var attribute to True.
+                It also calls the constructor of the parent class to perform any necessary initialization.
+
+                """
                 self.class_a_var = True
                 super().__init__()
 

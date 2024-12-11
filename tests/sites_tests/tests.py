@@ -22,6 +22,16 @@ class SitesFrameworkTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a sample website configuration.
+
+        This class method is used to establish a common testing environment, providing a
+        site object with a predefined ID, domain, and name. The site is saved to the
+        database, allowing for consistent testing across various methods within the class.
+
+        :returns: None
+
+        """
         cls.site = Site(id=settings.SITE_ID, domain="example.com", name="example.com")
         cls.site.save()
 
@@ -82,6 +92,16 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_no_site_id(self):
+        """
+
+        Tests the get_current_site function when SITE_ID setting is not provided.
+
+        Verifies that the function correctly identifies the site based on the request's 
+        host information when the SITE_ID is unset, ensuring proper site resolution 
+        in such scenarios. The test satisfies this by asserting that the site name 
+        returned matches the expected value derived from the request's host.
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -241,6 +261,14 @@ class RequestSiteTests(SimpleTestCase):
             self.site.save()
 
     def test_delete(self):
+        """
+
+        Tests that attempting to delete a RequestSite instance raises a NotImplementedError.
+
+        This test case verifies that the delete method of a RequestSite object is not implemented
+        and correctly raises an exception with a meaningful error message when called.
+
+        """
         msg = "RequestSite cannot be deleted."
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.site.delete()

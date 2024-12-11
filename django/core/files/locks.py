@@ -124,5 +124,12 @@ else:
                 return False
 
         def unlock(f):
+            """
+            Unlock a file by releasing its lock.
+
+            This function releases the lock on a given file, allowing other processes to access it.
+            It is used to undo a previous lock operation, permitting concurrent access to the file.
+            The function returns True upon successful unlocking.
+            """
             fcntl.flock(_fd(f), fcntl.LOCK_UN)
             return True

@@ -63,6 +63,26 @@ class SignedCookieTest(SimpleTestCase):
                 request.get_signed_cookie("c", max_age=timedelta(seconds=10))
 
     def test_set_signed_cookie_max_age_argument(self):
+        """
+
+        Tests the functionality of setting signed cookies with a specified maximum age.
+
+        The function verifies that the 'max-age' attribute of the cookie is correctly set 
+        when the max_age parameter is provided as an integer (representing seconds) or 
+        as a timedelta object. This ensures that the cookie expiration time is properly 
+        configured based on the provided duration.
+
+         Args:
+             None
+
+         Returns:
+             None
+
+         Raises:
+             AssertionError: If the 'max-age' attribute of the cookie does not match the 
+                             expected value based on the max_age parameter.
+
+        """
         response = HttpResponse()
         response.set_signed_cookie("c", "value", max_age=100)
         self.assertEqual(response.cookies["c"]["max-age"], 100)

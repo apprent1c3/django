@@ -47,6 +47,19 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+
+        Validate if a given string is a valid JSON serialized output.
+
+        This function checks if the provided string can be successfully parsed into a JSON object.
+
+        Args:
+            serial_str (str): The input string to be validated.
+
+        Returns:
+            bool: True if the string is a valid JSON serialized output, False otherwise.
+
+        """
         try:
             json.loads(serial_str)
         except Exception:
@@ -56,6 +69,19 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Extracts primary key values from a serialized list of objects.
+
+        Args:
+            serial_str (str): A JSON string representing a list of objects.
+
+        Returns:
+            list: A list of primary key values extracted from the input string.
+
+        This method takes a serialized string, deserializes it into a list of objects, 
+        and returns a list of primary key values. It assumes that each object in the 
+        list has a 'pk' key representing its primary key value.
+        """
         serial_list = json.loads(serial_str)
         return [obj_dict["pk"] for obj_dict in serial_list]
 

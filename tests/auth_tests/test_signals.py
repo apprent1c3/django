@@ -12,6 +12,13 @@ from .models import MinimalUser, UserWithDisabledLastLoginField
 class SignalTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating two user instances.
+
+        The function creates and stores two users, 'testclient' and 'staff', with a common password 'password',
+        to be used throughout the test suite, allowing for efficient reuse and setup of test cases.
+
+        """
         cls.u1 = User.objects.create_user(username="testclient", password="password")
         cls.u3 = User.objects.create_user(username="staff", password="password")
 
@@ -64,6 +71,13 @@ class SignalTestCase(TestCase):
         self.assertIsNone(self.logged_out[0])
 
     def test_logout(self):
+        """
+        '''Tests the logout functionality by simulating a user login and then logging out, verifying that the user is successfully logged out.
+
+        The test checks that after a user logs out, they are correctly removed from the logged in state and that their username is correctly recorded as having been logged out.
+
+        This test ensures the correct behavior of the logout mechanism, providing a foundation for secure and reliable user session management.'''
+        """
         self.client.login(username="testclient", password="password")
         self.client.post("/logout/next_page/")
         self.assertEqual(len(self.logged_out), 1)
@@ -82,6 +96,15 @@ class SignalTestCase(TestCase):
         self.assertNotEqual(user.last_login, old_last_login)
 
     def test_failed_login_without_request(self):
+        """
+        Tests that a failed login attempt without a request returns None for the request attribute.
+
+        This test case verifies the behavior of the authentication system when an invalid login attempt is made without an accompanying request. It checks that the login failed response does not contain a request object, as expected in this scenario.
+
+        The test authenticates with a known username and an incorrect password, then asserts that the request attribute in the login failed response is None, indicating that no request was associated with the failed login attempt.
+
+        This test helps ensure the authentication system behaves correctly in cases where a login attempt is made without an associated request, providing a robust security mechanism to protect against unauthorized access.
+        """
         authenticate(username="testclient", password="bad")
         self.assertIsNone(self.login_failed[0]["request"])
 

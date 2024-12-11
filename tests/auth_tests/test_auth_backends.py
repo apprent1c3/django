@@ -423,6 +423,24 @@ class TestObj:
 
 class SimpleRowlevelBackend:
     def has_perm(self, user, perm, obj=None):
+        """
+        Checks if a given user has a specific permission for an object.
+
+        This method takes into account the type of the object and the user's status.
+        It returns True if the user has the specified permission, False otherwise.
+
+        The permission check is performed based on the following rules:
+
+        * If the object is an instance of TestObj, the method checks the username,
+          anonymity, and activity status of the user to determine the permission.
+        * The method returns None if no object is provided.
+
+        :param user: The user to check the permission for.
+        :param perm: The permission to check.
+        :param obj: The object to check the permission for. Defaults to None.
+        :rtype: bool or None
+
+        """
         if not obj:
             return  # We only support row level perms
 
@@ -439,6 +457,19 @@ class SimpleRowlevelBackend:
         return (user.is_anonymous or user.is_active) and app_label == "app1"
 
     def get_all_permissions(self, user, obj=None):
+        """
+        Get a list of permissions for a given user and object.
+
+        This method checks the object type and user details to determine the applicable permissions.
+        If the object is not provided or of an incorrect type, an empty list or a list with 'none' is returned.
+        For anonymous users, a list with 'anon' is returned.
+        For specific users, it returns a predefined set of permissions, either 'simple' or 'simple' and 'advanced' depending on the username.
+
+        :param user: The user for whom the permissions are to be determined
+        :param obj: The object for which the permissions are to be determined (optional)
+        :returns: A list of permissions applicable to the user and object
+        :rtype: list[str]
+        """
         if not obj:
             return []  # We only support row level perms
 
@@ -536,6 +567,17 @@ class AnonymousUserBackendTest(SimpleTestCase):
             self.user1.has_perms(object())
 
     def test_has_module_perms(self):
+        """
+        Checks if a user has permission to access a specific module within the application.
+
+        This function verifies that a user has the necessary permissions to access certain modules.
+        It takes no explicit parameters, relying on the state of the user object being tested.
+        The function returns no explicit value, instead asserting the expected output for the permission checks.
+
+        The permission checks are performed for multiple modules, ensuring that the user's permissions
+        are correctly granted or denied for each module. This is useful for testing and validating
+        the access control system, ensuring that users can only access modules they are authorized to use.
+        """
         self.assertIs(self.user1.has_module_perms("app1"), True)
         self.assertIs(self.user1.has_module_perms("app2"), False)
 
@@ -842,6 +884,9 @@ class ImproperlyConfiguredUserModelTest(TestCase):
     @override_settings(AUTH_USER_MODEL="thismodel.doesntexist")
     def test_does_not_shadow_exception(self):
         # Prepare a request object
+        """
+        Checks that attempting to retrieve a user from a request when the AUTH_USER_MODEL setting refers to a non-existent model raises an ImproperlyConfigured exception with a descriptive error message.
+        """
         request = HttpRequest()
         request.session = self.client.session
 

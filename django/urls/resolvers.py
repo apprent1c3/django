@@ -223,6 +223,9 @@ class RegexPattern(CheckURLMixin):
         return warnings
 
     def _check_include_trailing_dollar(self):
+        """
+        Checks if a URL pattern includes a trailing dollar sign, which may cause issues with including URLs, and returns a warning if necessary.
+        """
         if self._regex.endswith("$") and not self._regex.endswith(r"\$"):
             return [
                 Warning(
@@ -336,6 +339,20 @@ class RoutePattern(CheckURLMixin):
         return None
 
     def check(self):
+        """
+
+        Checks the URL pattern for potential issues and warnings.
+
+        This function performs a series of checks on the URL pattern, including checks for 
+        patterns starting with a slash and unmatched angle brackets. Additionally, it 
+        checks for routes that contain named groups, start with a caret, or end with a 
+        dollar sign, which may be a mistake when migrating from django.urls.url() to 
+        django.urls.path().
+
+        Returns:
+            list: A list of warnings found during the checks.
+
+        """
         warnings = [
             *self._check_pattern_startswith_slash(),
             *self._check_pattern_unmatched_angle_brackets(),
@@ -377,6 +394,14 @@ class RoutePattern(CheckURLMixin):
 
 class LocalePrefixPattern:
     def __init__(self, prefix_default_language=True):
+        """
+
+        Initializes the object, setting whether to prefix URLs with the default language.
+
+        :param prefix_default_language: A boolean indicating whether to include the default language in URLs.
+        :type prefix_default_language: bool
+
+        """
         self.prefix_default_language = prefix_default_language
         self.converters = {}
 
@@ -420,6 +445,18 @@ class URLPattern:
         return "<%s %s>" % (self.__class__.__name__, self.pattern.describe())
 
     def check(self):
+        """
+
+        Perform validation checks on the current object.
+
+        This function triggers a series of internal checks, including verification of pattern names, 
+        pattern validation, and callback checks. It aggregates warnings from these checks and returns 
+        them as a collection.
+
+        Returns:
+            list: A list of warnings resulting from the validation checks.
+
+        """
         warnings = self._check_pattern_name()
         warnings.extend(self.pattern.check())
         warnings.extend(self._check_callback())
@@ -494,6 +531,23 @@ class URLResolver:
     def __init__(
         self, pattern, urlconf_name, default_kwargs=None, app_name=None, namespace=None
     ):
+        """
+
+        Initialize a URL resolver instance.
+
+        This constructor sets up a URL resolver with the given pattern and URL configuration.
+        It also accepts optional parameters for default keyword arguments, application name, and namespace.
+
+        The resolver is used to map URLs to views, and this instance is responsible for managing the mapping.
+        It stores information about the URL pattern, URL configuration, and other relevant details.
+
+        :param pattern: The URL pattern to be resolved.
+        :param urlconf_name: The name of the URL configuration module.
+        :param default_kwargs: Default keyword arguments to be used when resolving URLs (default is None).
+        :param app_name: The name of the application (default is None).
+        :param namespace: The namespace for the URL resolver (default is None).
+
+        """
         self.pattern = pattern
         # urlconf_name is the dotted Python path to the module defining
         # urlpatterns. It may also be an object with an urlpatterns attribute
@@ -513,6 +567,13 @@ class URLResolver:
         self._local = Local()
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its class name, URL configuration, application name, namespace, and URL pattern.
+
+        The URL configuration is represented as either a single URL configuration name or a list of URL configurations, in which case only the class name of the first configuration is shown.
+
+        The output is formatted as a string that includes the class name, URL configuration representation, application name, namespace, and a description of the URL pattern, providing a concise overview of the object's key attributes.
+        """
         if isinstance(self.urlconf_name, list) and self.urlconf_name:
             # Don't bother to output the whole list, it can be huge
             urlconf_repr = "<%s list>" % self.urlconf_name[0].__class__.__name__

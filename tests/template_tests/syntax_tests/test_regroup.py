@@ -113,6 +113,14 @@ class RegroupTagTests(SimpleTestCase):
     # Test syntax errors
     @setup({"regroup05": "{% regroup data by bar as %}"})
     def test_regroup05(self):
+        """
+        Tests that the regroup template tag raises a TemplateSyntaxError when used incorrectly.
+
+        This test case checks that the template engine correctly handles invalid usage of the regroup tag,
+        specifically when the 'by' and 'as' keywords are not properly specified. The test expects a 
+        TemplateSyntaxError to be raised when the template is rendered, indicating that the regroup tag 
+        was used with incorrect syntax.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup05")
 
@@ -128,6 +136,15 @@ class RegroupTagTests(SimpleTestCase):
 
     @setup({"regroup08": "{% regroup data by bar as grouped toomanyargs %}"})
     def test_regroup08(self):
+        """
+
+        Tests that the regroup template tag raises a TemplateSyntaxError when provided with too many arguments.
+
+        This test ensures that the regroup tag correctly enforces its argument limit, preventing potential errors
+        or misuse by template authors. The test case simulates a scenario where the regroup tag is used with an
+        incorrect number of arguments, and verifies that the expected exception is raised.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("regroup08")
 

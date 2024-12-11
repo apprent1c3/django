@@ -175,6 +175,18 @@ class BaseSpatialOperations:
     distance_expr_for_lookup = staticmethod(Distance)
 
     def get_db_converters(self, expression):
+        """
+        Returns a list of database converters for the given expression.
+
+        This method builds upon the converters provided by the parent class and adds
+        a geometry converter if the expression's output field is a GeometryField.
+        The returned converters can be used to transform data from the database
+        into a format suitable for the application.
+
+        :param expression: The expression to get converters for
+        :return: A list of database converters
+
+        """
         converters = super().get_db_converters(expression)
         if isinstance(expression.output_field, GeometryField):
             converters.append(self.get_geometry_converter(expression))

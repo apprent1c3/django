@@ -45,6 +45,15 @@ class FilePathFieldTest(SimpleTestCase):
             FilePathField(path="nonexistent")
 
     def test_no_options(self):
+        """
+        ..: 
+            Tests a FilePathField with no options specified, verifying the displayed choices.
+
+            The test checks that the FilePathField contains the expected files from the specified path, 
+            and that these files are presented in a format suitable for display, including both the full path 
+            and the file name. The expected choices include the README file from the test directory, 
+            along with a selection of the predefined expected choices.
+        """
         f = FilePathField(path=self.path)
         expected = [
             ("/filepathfield_test_dir/README", "README"),

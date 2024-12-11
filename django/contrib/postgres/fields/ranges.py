@@ -76,6 +76,13 @@ class RangeField(models.Field):
 
     @model.setter
     def model(self, model):
+        """
+        Sets the model associated with this object, updating the base field accordingly.
+
+        :param model: The model to be associated with this object
+        :returns: None
+        :note: This setter method updates the internal state of the object and its base field to reference the specified model.
+        """
         self.__dict__["model"] = model
         self.base_field.model = model
 
@@ -129,6 +136,16 @@ class RangeField(models.Field):
         return json.dumps(result)
 
     def formfield(self, **kwargs):
+        """
+        ..: Returns a form field instance for this field, using the specified form class.
+
+            The form field is created by calling the parent class's :meth:`formfield` method
+            with the provided keyword arguments. If no :attr:`form_class` is specified in the
+            keyword arguments, it defaults to the :attr:`form_field` attribute of this instance.
+
+            :param kwargs: Keyword arguments to pass to the parent class's :meth:`formfield` method.
+            :return: A form field instance.
+        """
         kwargs.setdefault("form_class", self.form_field)
         return super().formfield(**kwargs)
 

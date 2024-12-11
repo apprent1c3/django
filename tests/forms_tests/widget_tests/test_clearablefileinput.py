@@ -237,6 +237,21 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form containing a file fieldset.
+
+        The test case covers various scenarios, including a required file field, 
+        a file field with an initial file, and a clearable file field. It verifies 
+        that the form is rendered correctly, with the expected layout and HTML structure.
+
+        The test form uses a custom template named 'forms_tests/use_fieldset.html' 
+        and includes three file fields: 'field', 'with_file', and 'clearable_file'. 
+
+        It asserts that the widget's use_fieldset attribute is False by default, 
+        and that the rendered HTML matches the expected output.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = FileField(widget=self.widget)
@@ -262,6 +277,11 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_multiple_error(self):
+        """
+        Tests that the ClearableFileInput raises a ValueError when attempting to upload multiple files. 
+
+        The test verifies that the input field correctly handles the 'multiple' attribute and prevents users from uploading more than one file at a time, as per its design.
+        """
         msg = "ClearableFileInput doesn't support uploading multiple files."
         with self.assertRaisesMessage(ValueError, msg):
             ClearableFileInput(attrs={"multiple": True})

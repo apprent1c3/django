@@ -107,6 +107,18 @@ class ContentTypesViewsTests(TestCase):
                 self.assertEqual(response.status_code, 404)
 
     def test_wrong_type_pk(self):
+        """
+        .Tests a shortcut URL with a non-existent primary key, verifying that a 404 status code is returned.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Notes:
+            This test case checks the behavior of the application when a shortcut URL is requested with an invalid primary key. It ensures that the application correctly handles this scenario by returning a 404 status code, indicating that the requested resource could not be found.
+        """
         short_url = "/shortcut/%s/%s/" % (
             ContentType.objects.get_for_model(Author).id,
             "nobody/expects",
@@ -224,6 +236,15 @@ class ContentTypesViewsSiteRelTests(TestCase):
 
 class ShortcutViewTests(TestCase):
     def setUp(self):
+        """
+        Sets up the test environment by initializing a mock HTTP request.
+
+        This method creates a new HttpRequest object and configures its META dictionary 
+        with default values for the server name and port, simulating a request to 'Example.com' on port 80.
+
+        Use this method to establish a consistent test setup before executing tests that rely on HTTP requests.
+
+        """
         self.request = HttpRequest()
         self.request.META = {"SERVER_NAME": "Example.com", "SERVER_PORT": "80"}
 

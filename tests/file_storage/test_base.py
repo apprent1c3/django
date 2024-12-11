@@ -25,6 +25,15 @@ class StorageValidateFileNameTests(SimpleTestCase):
     error_msg = "Detected path traversal attempt in '%s'"
 
     def test_validate_before_get_available_name(self):
+        """
+        Tests the validation of file names before attempting to get an available name.
+
+        This test ensures that when saving a file, the storage system checks the file name 
+        for validity and raises a SuspiciousFileOperation exception with a descriptive 
+        error message if the name is invalid, without proceeding to get an available name 
+        or attempting to save the file. The test covers a range of invalid file names to 
+        verify that the validation logic is correctly implemented.
+        """
         s = CustomStorage()
         # The initial name passed to `save` is not valid nor safe, fail early.
         for name in self.invalid_file_names:

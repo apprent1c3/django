@@ -51,6 +51,13 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(u.userprofile.state, "KS")
 
     def test_follow_next_level(self):
+        """
+        Test that the next level of user statistics is correctly followed.
+
+        This test case verifies that the related user statistics are fetched in a single query
+        and that the correct values are retrieved for the user's posts and results.
+
+        """
         with self.assertNumQueries(1):
             u = User.objects.select_related("userstat__results").get(username="test")
             self.assertEqual(u.userstat.posts, 150)
@@ -99,6 +106,16 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.user.username, "bob")
 
     def test_follow_inheritance(self):
+        """
+
+        Tests that the ORM correctly follows inheritance and relational queries.
+
+        This test case verifies that when using select_related, the related objects 
+        are fetched in a single database query. It also checks that the 
+        inheritance relationship between models is correctly followed, and 
+        that subsequent attribute accesses do not trigger additional database queries.
+
+        """
         with self.assertNumQueries(1):
             stat = UserStat.objects.select_related("user", "advanceduserstat").get(
                 posts=200
@@ -186,6 +203,15 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, p.child2.child3.name1)
 
     def test_multiinheritance_two_subclasses(self):
+        """
+        Tests multi-inheritance for two subclasses with select_related queries.
+
+        Verifies that related objects can be retrieved efficiently using select_related,
+        and that the relationships between objects are correctly established.
+        Checks for the existence of related objects before and after saving a new instance.
+        Validates the attributes of the related objects to ensure they match the expected values.
+
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1", "child1__child4").get(
                 name1="Child1 Parent1"
@@ -277,6 +303,27 @@ class ReverseSelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_reverse_related_validation(self):
+        """
+
+        Tests the validation of select_related method on User model.
+
+        Verifies that the method raises a FieldError when attempting to select 
+        a non-existent related field or a non-relational field. This ensures 
+        that only valid related fields can be used with select_related.
+
+        The test checks for two scenarios:
+
+        - Attempting to select a related field that does not exist, returning 
+          an error message with the invalid field name and a list of valid 
+          related fields.
+        - Attempting to select a non-relational field (i.e., a field that is 
+          not a relationship), returning an error message with the invalid 
+          field name and a list of valid related fields.
+
+        Raises:
+            FieldError: If an invalid or non-relational field is provided.
+
+        """
         fields = "userprofile, userstat"
 
         with self.assertRaisesMessage(

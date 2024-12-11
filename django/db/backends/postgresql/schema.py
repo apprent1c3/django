@@ -66,6 +66,16 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return output
 
     def _field_data_type(self, field):
+        """
+        Determines the database data type of a given model field.
+
+        Returns the data type of the field, taking into account whether it is a relation or not.
+        For relations, the database type is retrieved from the related field.
+        For non-relations, the data type is determined by the field's internal type or its database-specific type.
+
+        :arg field: The model field for which to determine the database data type
+        :return: The database data type of the field
+        """
         if field.is_relation:
             return field.rel_db_type(self.connection)
         return self.connection.data_types.get(
@@ -266,6 +276,21 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         new_db_params,
         strict=False,
     ):
+        """
+        Alters a field in a database model, handling changes to index and uniqueness constraints.
+
+        This method updates the database schema to reflect changes to a field's name, type, or database parameters.
+        It also manages the creation and removal of indexes as necessary, based on the field's new configuration.
+        If the `strict` parameter is set to True, it will enforce stricter checks for the alteration.
+
+        The alteration process involves the following steps:
+
+        *   Updating the field's name, type, and database parameters
+        *   Adding an index if the new field requires one and it did not exist previously
+        *   Removing an index if the old field had a unique constraint and the new field does not require an index or unique constraint
+
+        Note that this method should be used with caution, as it directly modifies the database schema.
+        """
         super()._alter_field(
             model,
             old_field,

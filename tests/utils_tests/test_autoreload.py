@@ -230,6 +230,18 @@ class TestChildArguments(SimpleTestCase):
     @mock.patch("__main__.__spec__", None)
     @mock.patch("sys.warnoptions", [])
     def test_exe_fallback(self):
+        """
+
+        Tests the fallback behavior of the autoreload module when running as an executable.
+
+        This test verifies that when the module is run from an executable (e.g. django-admin.exe),
+        the correct child arguments are returned by the get_child_arguments function.
+
+        It covers the scenario where the executable path is passed as the first argument to 
+        sys.argv, and ensures that the function returns the executable path and the command 
+        arguments (in this case, 'runserver') in the correct order.
+
+        """
         with tempfile.TemporaryDirectory() as tmpdir:
             exe_path = Path(tmpdir) / "django-admin.exe"
             exe_path.touch()
@@ -315,6 +327,16 @@ class TestCommonRoots(SimpleTestCase):
 
 class TestSysPathDirectories(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up a temporary directory and file for testing purposes.
+
+        The temporary directory is created and its path is stored in the :attr:`directory` attribute.
+        A file named 'test' is created within this directory and its path is stored in the :attr:`file` attribute.
+        The directory and its contents are automatically cleaned up after the test is completed, ensuring a clean test environment.
+
+        :return: None
+        :raises: No exceptions are explicitly raised by this method, but any exceptions raised by underlying system calls are propagated.
+        """
         _directory = tempfile.TemporaryDirectory()
         self.addCleanup(_directory.cleanup)
         self.directory = Path(_directory.name).resolve(strict=True).absolute()
@@ -322,6 +344,13 @@ class TestSysPathDirectories(SimpleTestCase):
         self.file.touch()
 
     def test_sys_paths_with_directories(self):
+        """
+
+        Tests that the application's system paths are correctly extended with directories when using autoreload functionality.
+
+        Verifies that the parent directory of a given file is included in the list of system path directories after temporarily modifying the system path to include the file's location.
+
+        """
         with extend_sys_path(str(self.file)):
             paths = list(autoreload.sys_path_directories())
         self.assertIn(self.file.parent, paths)
@@ -352,6 +381,13 @@ class GetReloaderTests(SimpleTestCase):
     @mock.patch.object(autoreload.WatchmanReloader, "check_availability")
     def test_watchman_available(self, mocked_available):
         # If WatchmanUnavailable isn't raised, Watchman will be chosen.
+        """
+        Tests that the WatchmanReloader is returned by get_reloader when Watchman is available.
+
+        The test simulates a scenario where the check_availability method of WatchmanReloader returns None, indicating that Watchman is available.
+
+        It then asserts that the get_reloader function returns an instance of WatchmanReloader, ensuring the correct reloader is chosen when Watchman is present.
+        """
         mocked_available.return_value = None
         result = autoreload.get_reloader()
         self.assertIsInstance(result, autoreload.WatchmanReloader)
@@ -394,6 +430,14 @@ class StartDjangoTests(SimpleTestCase):
 
     @mock.patch("django.utils.autoreload.check_errors")
     def test_check_errors_called(self, mocked_check_errors):
+        """
+
+        Tests that the check_errors function is called with the correct method when starting the Django autoreloader.
+
+        The test sets up a fake reloader and method, then starts the autoreloader with these fakes.
+        It verifies that the check_errors function was called with the fake method as an argument.
+
+        """
         fake_method = mock.MagicMock(return_value=None)
         fake_reloader = mock.MagicMock()
         autoreload.start_django(fake_reloader, fake_method)
@@ -540,6 +584,11 @@ class ReloaderTests(SimpleTestCase):
     RELOADER_CLS = None
 
     def setUp(self):
+        """
+        Sets up a temporary environment for testing, creating a temporary directory and files within it.
+        This method is used to prepare the test setup by creating a temporary directory, a test file, and an instance of a reloader.
+        It also sets up cleanup mechanisms to ensure that resources are properly released after the test is completed.
+        """
         _tempdir = tempfile.TemporaryDirectory()
         self.tempdir = Path(_tempdir.name).resolve(strict=True).absolute()
         self.existing_file = self.ensure_file(self.tempdir / "test.py")
@@ -663,6 +712,16 @@ class IntegrationTests:
         "django.utils.autoreload.iter_all_python_module_files", return_value=frozenset()
     )
     def test_overlapping_glob_recursive(self, mocked_modules, notify_mock):
+        """
+
+        Tests that the autoreloader correctly handles overlapping glob patterns in recursive directory watching.
+
+        The test verifies that when two overlapping glob patterns are used to watch a directory,
+        the autoreloader only sends a single notification when a matching file's modification time is updated.
+
+        This ensures that the reloader behaves correctly in cases where multiple glob patterns could match the same file.
+
+        """
         py_file = self.ensure_file(self.tempdir / "dir" / "file.py")
         self.reloader.watch_dir(self.tempdir, "**/*.p*")
         self.reloader.watch_dir(self.tempdir, "**/*.py*")
@@ -750,6 +809,23 @@ class WatchmanReloaderTests(ReloaderTests, IntegrationTests):
         self.assertFalse(mocked_subscribe.called)
 
     def test_watch_glob_uses_existing_parent_directories(self):
+        """
+
+        Tests that the _watch_glob function uses existing parent directories.
+
+        This test case verifies that when a glob pattern is provided for a directory 
+        that does not exist, the function still uses the existing parent directories 
+        when setting up the reloader subscription.
+
+        It checks that the _subscribe method is called with the correct parameters, 
+        including the parent directory and a formatted string that includes the 
+        glob pattern and parent directory. 
+
+        The test also checks that the parameters are in the correct order and 
+        formatted as expected, ensuring that the reloader is correctly set up to 
+        watch for changes in the specified directory.
+
+        """
         with mock.patch.object(self.reloader, "_subscribe") as mocked_subscribe:
             self.reloader._watch_glob(self.tempdir / "does_not_exist", ["*"])
         self.assertSequenceEqual(

@@ -23,6 +23,15 @@ class Serializer(JSONSerializer):
             self.selected_fields = [*self.selected_fields, self.geometry_field]
 
     def start_serialization(self):
+        """
+
+        Initializes the serialization process by setting up necessary options and starting the FeatureCollection output.
+
+        This method begins the serialization of geographic data by initializing internal options and writing the opening elements of a GeoJSON FeatureCollection object to the output stream. The FeatureCollection is defined with a specified Coordinate Reference System (CRS), identified by its Spatial Reference System Identifier (SRID) code.
+
+        The output stream is expected to be properly configured and accessible for writing the serialized data.
+
+        """
         self._init_options()
         self._cts = {}  # cache of CoordTransform's
         self.stream.write(

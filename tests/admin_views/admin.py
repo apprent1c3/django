@@ -261,6 +261,18 @@ class ArticleAdmin(ArticleAdminWithExtraUrl):
         return obj.date.year
 
     def delete_model(self, request, obj):
+        """
+
+        Deletes a model instance and sends a notification email to specified recipients.
+
+        Upon deletion, an email is sent with a predefined message to inform that the object has been deleted by a user.
+        The actual deletion is then performed by calling the parent class's delete_model method.
+
+        :param request: The current request object
+        :param obj: The model instance to be deleted
+        :return: The result of the parent class's delete_model method
+
+        """
         EmailMessage(
             "Greetings from a deleted object",
             "I hereby inform you that some user deleted me",
@@ -381,6 +393,16 @@ class SubscriberAdmin(admin.ModelAdmin):
     action_form = MediaActionForm
 
     def delete_queryset(self, request, queryset):
+        """
+        Deletes a queryset of objects in the admin interface, while setting a flag to indicate that the default behavior has been overridden.
+
+        Args:
+            request: The current request object.
+            queryset: The collection of objects to be deleted.
+
+        Note:
+            This method sets `SubscriberAdmin.overridden` to `True` before proceeding with the deletion, allowing for custom handling or auditing of the delete operation.
+        """
         SubscriberAdmin.overridden = True
         super().delete_queryset(request, queryset)
 
@@ -556,6 +578,11 @@ class SubPostInline(admin.TabularInline):
     prepopulated_fields = {"subslug": ("subtitle",)}
 
     def get_readonly_fields(self, request, obj=None):
+        """
+        Returns a tuple of field names that should be displayed as read-only in the admin interface.
+
+        If an object is provided and it has been published, the 'subslug' field will be made read-only. Otherwise, the default read-only fields defined by the class will be returned.
+        """
         if obj and obj.published:
             return ("subslug",)
         return self.readonly_fields
@@ -942,6 +969,14 @@ class UndeletableObjectAdmin(admin.ModelAdmin):
 class UnchangeableObjectAdmin(admin.ModelAdmin):
     def get_urls(self):
         # Disable change_view, but leave other urls untouched
+        """
+        Return a list of URL patterns, excluding any patterns with names ending in '_change', 
+        by filtering the URL patterns obtained from the parent class. 
+
+        This allows for custom URL patterns to be defined while excluding admin change URLs. 
+
+        :returns: A list of URL patterns.
+        """
         urlpatterns = super().get_urls()
         return [p for p in urlpatterns if p.name and not p.name.endswith("_change")]
 
@@ -1160,6 +1195,23 @@ class GetFormsetsArgumentCheckingAdmin(admin.ModelAdmin):
         return super().change_view(request, *args, **kwargs)
 
     def get_formsets_with_inlines(self, request, obj=None):
+        """
+
+        Gets the formsets with inlines for a given view.
+
+        This method is responsible for returning the formsets with inlines for a specific request.
+        It first checks the validity of the request and object passed to it. If the request is an add view,
+        it ensures that no object is passed to it. If the request is a change view, it ensures that an object is passed to it.
+        If these conditions are not met, it raises an exception.
+
+        Once the request and object are validated, it delegates the actual retrieval of formsets with inlines to its parent class.
+
+        :param request: The current HTTP request.
+        :param obj: The object being viewed or edited, defaults to None.
+        :returns: The formsets with inlines for the given request.
+        :raises Exception: If the request and object do not meet the necessary conditions.
+
+        """
         if request.is_add_view and obj is not None:
             raise Exception(
                 "'obj' passed to get_formsets_with_inlines wasn't None during add_view"

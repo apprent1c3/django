@@ -78,6 +78,17 @@ def prefix(bp, func):
         lbp = bp
 
         def nud(self, parser):
+            """
+            ..:param parser: The parser object used to parse the expression
+                :return: The instance itself after setting the first expression
+                :rtype: The instance of the class this method belongs to
+
+                Sets the first expression of the object using the provided parser, 
+                and resets the second expression to None. This method is likely 
+                part of a parsing or evaluation mechanism, where the object 
+                represents a binary operation or a container for expressions. 
+                The return of the instance itself allows for method chaining.
+            """
             self.first = parser.expression(bp)
             self.second = None
             return self
@@ -184,6 +195,17 @@ class IfParser:
             return op()
 
     def next_token(self):
+        """
+
+        Fetches the next token from the token stream.
+
+        Returns the next token in the sequence if available, otherwise returns an EndToken 
+        indicating the end of the token stream has been reached.
+
+        The function maintains an internal state, advancing the position in the token stream 
+        with each call, allowing for sequential retrieval of tokens.
+
+        """
         if self.pos >= len(self.tokens):
             return EndToken
         else:

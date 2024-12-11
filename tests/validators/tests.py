@@ -686,6 +686,16 @@ class TestValidators(SimpleTestCase):
                     self.assertEqual(expected, validator(value))
 
     def test_single_message(self):
+        """
+        Tests the string representation of a single ValidationError message.
+
+        Checks that the string representation of a ValidationError object is a list
+        containing the error message, and that the repr representation returns the
+        ValidationError class with the error message enclosed in a list.
+
+        Verifies that the expected output of str and repr functions match the
+        implementations of these methods for the ValidationError class.
+        """
         v = ValidationError("Not Valid")
         self.assertEqual(str(v), "['Not Valid']")
         self.assertEqual(repr(v), "ValidationError(['Not Valid'])")
@@ -755,6 +765,18 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_regex_equality_nocache(self):
+        """
+
+        Tests that two RegexValidator instances with the same pattern are considered equal,
+        even when the regex cache is purged.
+
+        This ensures that RegexValidator instances can be reliably compared for equality,
+        regardless of whether the underlying regex pattern has been cached or not.
+
+        The test creates two RegexValidator instances with the same pattern, purges the
+        regex cache, and then asserts that the two instances are equal.
+
+        """
         pattern = r"^(?:[a-z0-9.-]*)://"
         left = RegexValidator(pattern)
         re.purge()
@@ -790,6 +812,19 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_basic_equality(self):
+        """
+
+        Tests the equality of value validators.
+
+        This test suite checks the equality of different validator instances. It verifies that:
+
+        * Two validator instances with the same parameters are considered equal.
+        * A validator instance is considered equal to a mock object (ANY).
+        * Validator instances with different parameters or of different types (e.g., MaxValueValidator vs. MinValueValidator) are considered not equal.
+
+        The test covers various value validator types, including MaxValueValidator, MinValueValidator, and StepValueValidator.
+
+        """
         self.assertEqual(
             MaxValueValidator(44),
             MaxValueValidator(44),

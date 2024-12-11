@@ -60,6 +60,15 @@ class Aggregate(Func):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Aggregates are not allowed in UPDATE queries, so ignore for_save
+        """
+        Resolve an expression, permitting the application of a default value in case the primary expression evaluates to null.
+
+        This function allows for various query customizations, including the ability to perform joins, reuse existing query parts, and summarize the output. 
+        It also supports Dresden-style conditional expressions, allowing a secondary value to be used when the primary expression is null. 
+        Multiple checks are performed to prevent the combination of aggregate and non-aggregate fields, raising a FieldError if an invalid combination is detected. 
+        If a default value is provided for the expression, it is resolved and wrapped in a Coalesce expression, ensuring that the default is used when the primary value is null. 
+        The final resolved expression is then returned, ready for further processing or execution.
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize)
         c.filter = (
             c.filter.resolve_expression(query, allow_joins, reuse, summarize)
@@ -115,6 +124,23 @@ class Aggregate(Func):
         return []
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        Return the SQL string and parameters for the aggregate query.
+
+        This method takes into account the distinct flag, filter expressions, and 
+        database-specific features to generate the correct SQL query.
+
+        The generated SQL query supports the use of the DISTINCT keyword and filter 
+        clauses, either through the aggregate filter clause if supported by the 
+        database backend or by using a CASE expression as a workaround.
+
+        The method also accepts additional context parameters that can be used to 
+        customise the generated SQL query, such as template overrides.
+
+        Returns:
+            A tuple containing the SQL string and parameters for the aggregate query.
+
+        """
         extra_context["distinct"] = "DISTINCT " if self.distinct else ""
         if self.filter:
             if connection.features.supports_aggregate_filter_clause:
@@ -189,6 +215,19 @@ class StdDev(NumericOutputFieldMixin, Aggregate):
     name = "StdDev"
 
     def __init__(self, expression, sample=False, **extra):
+        """
+        Initializes a standard deviation calculation.
+
+        This function sets up a standard deviation calculation based on the provided expression.
+        It can calculate either the sample standard deviation or the population standard deviation,
+        depending on the value of the sample parameter.
+
+        :param expression: The expression for which to calculate the standard deviation.
+        :param sample: Whether to calculate the sample standard deviation (True) or the population standard deviation (False).
+        :param extra: Additional keyword arguments to pass to the parent class initializer.
+
+        :note: The function field is set to either 'STDDEV_SAMP' or 'STDDEV_POP' based on the sample parameter.
+        """
         self.function = "STDDEV_SAMP" if sample else "STDDEV_POP"
         super().__init__(expression, **extra)
 
@@ -206,6 +245,15 @@ class Variance(NumericOutputFieldMixin, Aggregate):
     name = "Variance"
 
     def __init__(self, expression, sample=False, **extra):
+        """
+        Initializes a variance object.
+
+        :param expression: The input expression for calculating variance.
+        :param sample: A boolean indicating whether to calculate sample variance (True) or population variance (False).
+        :param extra: Additional keyword arguments passed to the parent class.
+
+        :note: When sample is True, the object calculates sample variance; otherwise, it calculates population variance.
+        """
         self.function = "VAR_SAMP" if sample else "VAR_POP"
         super().__init__(expression, **extra)
 

@@ -38,6 +38,12 @@ class RadioSelectTest(ChoiceWidgetTest):
                 self.check_html(self.widget(choices=choices), "beatle", "J", html=html)
 
     def test_nested_choices(self):
+        """
+        Tests a widget that renders a nested set of radio button choices, 
+        where some choices have sub-options (e.g. \"Audio\" with sub-options \"Vinyl\" and \"CD\"). 
+        Verifies that the widget correctly generates HTML for these nested choices 
+        and that the specified default value is properly selected.
+        """
         nested_choices = (
             ("unknown", "Unknown"),
             ("Audio", (("vinyl", "Vinyl"), ("cd", "CD"))),

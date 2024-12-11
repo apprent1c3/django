@@ -29,6 +29,17 @@ def duration_string(duration):
 
 
 def duration_iso_string(duration):
+    """
+    Convert a duration to an ISO 8601 duration string.
+
+    This function takes a duration as input and returns a string representation of that duration in the ISO 8601 format.
+    The output string includes the sign of the duration (if negative), the number of days, hours, minutes, seconds, and microseconds.
+    The result is a string that can be easily parsed and understood by both humans and machines.
+
+    :returns: An ISO 8601 duration string representing the input duration.
+    :param duration: A duration object to be converted to an ISO 8601 duration string.
+    :rtype: str
+    """
     if duration < datetime.timedelta(0):
         sign = "-"
         duration *= -1

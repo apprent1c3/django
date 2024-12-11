@@ -191,6 +191,13 @@ class GetOrCreateTests(TestCase):
         self.assertEqual(date(1943, 2, 25), obj.birthday)
 
     def test_callable_defaults_not_called(self):
+        """
+        Tests that callable defaults in get_or_create are not called when an object is retrieved from the database.
+
+        Ensures that providing a callable default value does not execute the callable when the object already exists, thereby preventing potential side effects or exceptions.
+
+        This test case verifies the behavior of get_or_create with callable default values, confirming that the callable is only executed when a new object is created.
+        """
         def raise_exception():
             raise AssertionError
 
@@ -578,6 +585,13 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(journalist.name, "John")
 
     def test_update_only_defaults_and_pre_save_fields_when_local_fields(self):
+        """
+        Tests that the update_or_create method updates only the default fields and pre-save fields when the instance is retrieved from the local database.
+
+        This test case covers the scenario where an instance is updated using the update_or_create method with default values. The test ensures that only the fields specified in the defaults dictionary are updated, along with any pre-save fields, and that other fields are left unchanged. The test also verifies that the correct SQL query is generated and executed to perform the update.
+
+        The test creates a book instance and then attempts to update it using the update_or_create method with different defaults, checking that the update is successful and that only the expected fields are changed. The test also captures the SQL queries executed during the update process to verify that the correct query is generated.
+        """
         publisher = Publisher.objects.create(name="Acme Publishing")
         book = Book.objects.create(publisher=publisher, name="The Book of Ed & Fred")
 

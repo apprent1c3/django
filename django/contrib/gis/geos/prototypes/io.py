@@ -301,6 +301,15 @@ class WKBWriter(IOBase):
 
     @outdim.setter
     def outdim(self, new_dim):
+        """
+        Sets the output dimension for WKB (Well-Known Binary) data.
+
+        The output dimension determines the spatial reference system used for the output data.
+        It must be either 2 (for 2D) or 3 (for 3D).
+        Any other value will raise a ValueError.
+
+        :param new_dim: The new output dimension (2 or 3)
+        """
         if new_dim not in (2, 3):
             raise ValueError("WKB output dimension must be 2 or 3")
         wkb_writer_set_outdim(self.ptr, new_dim)
@@ -333,11 +342,36 @@ thread_context = ThreadLocalIO()
 # These module-level routines return the I/O object that is local to the
 # thread. If the I/O object does not exist yet it will be initialized.
 def wkt_r():
+    """
+    Gets the WKT (Well-Known Text) reader instance for the current thread.
+
+    The reader instance is created on demand and reused for subsequent calls, 
+    ensuring thread safety and efficient access to WKT parsing functionality. 
+    This approach allows for convenient and efficient parsing of spatial data 
+    in WKT format within a multithreaded environment.
+    """
     thread_context.wkt_r = thread_context.wkt_r or _WKTReader()
     return thread_context.wkt_r
 
 
 def wkt_w(dim=2, trim=False, precision=None):
+    """
+
+    Returns a WKT Writer object, configured for the specified dimension and formatting options.
+
+    The returned writer is stored in the current thread's context and can be reused. If the writer 
+    already exists in the thread's context, its configuration is updated to match the provided 
+    parameters.
+
+    Args:
+        dim (int, optional): The dimension of the geometric objects being written. Defaults to 2.
+        trim (bool, optional): Whether to trim the output. Defaults to False.
+        precision (int, optional): The number of decimal places to include in the output. Defaults to None.
+
+    Returns:
+        WKTWriter: A configured WKT Writer object.
+
+    """
     if not thread_context.wkt_w:
         thread_context.wkt_w = WKTWriter(dim=dim, trim=trim, precision=precision)
     else:
@@ -348,6 +382,15 @@ def wkt_w(dim=2, trim=False, precision=None):
 
 
 def wkb_r():
+    """
+    Returns a thread-local Well-Known Binary (WKB) reader instance.
+
+     The WKB reader is lazily initialized, meaning it is created on the first call to this function
+     and then reused on subsequent calls within the same thread. This approach ensures thread safety
+     and efficient reuse of the reader instance.
+
+     :return: A WKB reader instance associated with the current thread.
+    """
     thread_context.wkb_r = thread_context.wkb_r or _WKBReader()
     return thread_context.wkb_r
 

@@ -110,6 +110,16 @@ class NotFoundMiddleware(BaseMiddleware):
 
 class PaymentMiddleware(BaseMiddleware):
     def __call__(self, request):
+        """
+        Overrides the default response generation to return a 402 Payment Required status code.
+
+        This method is invoked when the object is called as a function, allowing it to handle incoming requests.
+        It first obtains a response to the given request, then modifies the status code to indicate that payment is required before proceeding.
+        The resulting response is then returned to the caller.
+
+        :arg request: The incoming request to be handled
+        :return: A response object with a 402 Payment Required status code
+        """
         response = self.get_response(request)
         response.status_code = 402
         return response

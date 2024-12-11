@@ -281,6 +281,15 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_recipients_as_string(self):
+        """
+        Tests that the EmailMessage class correctly validates its recipients arguments.
+
+        Verifies that the 'to', 'cc', 'bcc', and 'reply_to' arguments must be provided as a list or tuple, 
+        and raises a TypeError if a string is passed instead, with a descriptive error message.
+
+        Ensures the EmailMessage class maintains proper data type consistency for recipient addresses 
+        to prevent potential runtime errors or incorrect email message constructions.
+        """
         with self.assertRaisesMessage(
             TypeError, '"to" argument must be a list or tuple'
         ):
@@ -416,6 +425,14 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         )
 
     def test_to_in_headers_only(self):
+        """
+        ..: Test that the 'To' header is correctly included in the email message when specified in the headers dictionary.
+
+            This test verifies that the 'To' field is properly set in the email headers, 
+            rather than being added to the message body or elsewhere. The test checks that 
+            the 'To' header contains the expected email address, ensuring that the email 
+            is correctly addressed.
+        """
         message = EmailMessage(
             "Subject",
             "Content",
@@ -552,6 +569,19 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         self.assertIn(html_content, msg.message().as_string())
 
     def test_alternatives(self):
+        """
+
+        Tests the functionality of attaching alternative content to an email message.
+
+        This test case checks if an alternative HTML content can be successfully
+        attached to an EmailMultiAlternatives object, and if the attached content's
+        mimetype is correctly set.
+
+        It verifies the integrity of the alternative content by comparing the 
+        attached content with the original content, and checks that the mimetypes 
+        are correctly stored and retrieved.
+
+        """
         msg = EmailMultiAlternatives()
         html_content = "<p>This is <strong>html</strong></p>"
         mime_type = "text/html"
@@ -682,6 +712,16 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         self.assertEqual(mimetype, "application/octet-stream")
 
     def test_decoded_attachments_MIMEText(self):
+        """
+
+        Tests that decoded attachments of type MIMEText are correctly included in an EmailMessage.
+
+        This test case verifies that when an email message is created with a MIMEText attachment,
+        the attachment is properly decoded and accessible as the message payload.
+
+        It ensures that the expected attachment content is matched with the actual payload content.
+
+        """
         txt = MIMEText("content1")
         msg = EmailMessage(attachments=[txt])
         payload = msg.message().get_payload()
@@ -770,6 +810,17 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         self.assertEqual(mimetype, "application/octet-stream")
 
     def test_attach_mimetext_content_mimetype(self):
+        """
+        Tests that attaching a MIMEText instance to an EmailMessage raises a ValueError 
+        if either the content or mimetype parameters are provided.
+
+        Verifies that the attach method enforces the EmailMessage API contract, 
+        preventing unintended behavior when a MIMEBase instance is passed as an argument.
+        The test checks for two distinct error scenarios: providing both content and the 
+        MIMEText instance, and providing mimetype with the MIMEText instance.
+        The expected error message is checked to ensure it accurately describes the cause 
+        of the exception.
+        """
         email_msg = EmailMessage()
         txt = MIMEText("content")
         msg = (
@@ -782,6 +833,20 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
             email_msg.attach(txt, mimetype="text/plain")
 
     def test_attach_content_none(self):
+        """
+        Tests that attaching content to an EmailMessage raises a ValueError when no content is provided.
+
+        This test case checks the behavior of the EmailMessage class when attempting to attach a file without providing any content. It verifies that a ValueError is raised with a message indicating that content must be provided.
+
+        Args:
+            None
+
+        Raises:
+            ValueError: If content is not provided when attempting to attach a file.
+
+        Note:
+            This test ensures that the EmailMessage class enforces the requirement of providing content when attaching files, preventing potential errors or inconsistencies in email construction.
+        """
         email_msg = EmailMessage()
         msg = "content must be provided."
         with self.assertRaisesMessage(ValueError, msg):
@@ -971,6 +1036,13 @@ class MailTests(HeadersCheckMixin, SimpleTestCase):
         # Ticket #18967
         # Shouldn't use base64 encoding for a child EmailMessage attachment.
         # Create a child message first
+        """
+        Test that EmailMessage does not base64 encode a message when attaching it as a child message with mimetype 'message/rfc822'.
+
+        This test creates a child email message, attaches it to a parent email message in three different ways (as a string, as a Message object, and as an EmailMessage object), and verifies that the child message's subject is included in the parent message's string representation in all cases.
+
+        The test ensures that the attachment of a child message with 'message/rfc822' mimetype is handled correctly, and that the child message's content is not base64 encoded in the process.
+        """
         child_msg = EmailMessage(
             "Child Subject",
             "Some body of child message",
@@ -1291,6 +1363,19 @@ class BaseEmailBackendTests(HeadersCheckMixin):
         self.assertEqual(message.get_all("to"), ["to@example.com"])
 
     def test_send_unicode(self):
+        """
+        Tests sending an email with a unicode subject and body.
+
+        This test case verifies that the email system correctly handles non-ASCII characters
+        in the subject and body of an email message. It checks that the email is sent
+        successfully and that the subject and body are properly encoded and decoded.
+
+        The test case covers the following scenarios:
+        - Sending an email with a unicode subject
+        - Sending an email with a unicode body
+        - Verifying the correct encoding of the subject using UTF-8
+        - Verifying the correct decoding of the body
+        """
         email = EmailMessage(
             "Chère maman", "Je t'aime très fort", "from@example.com", ["to@example.com"]
         )
@@ -1763,6 +1848,20 @@ class SMTPHandler:
         self.mailbox = []
 
     async def handle_DATA(self, server, session, envelope):
+        """
+
+        Handles incoming email data from the server.
+
+        This function processes the email message, extracts the sender's address from the message headers, 
+        and compares it with the address claimed in the SMTP envelope. If the addresses do not match, 
+        it returns an error response. Otherwise, the email message is stored in the mailbox and a success response is returned.
+
+        :param server: The server handling the email connection
+        :param session: The current email session
+        :param envelope: The SMTP envelope containing the email message and sender information
+        :return: A response code indicating whether the email was accepted (250 OK) or rejected (553 error)
+
+        """
         data = envelope.content
         mail_from = envelope.mail_from
 
@@ -1897,6 +1996,15 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
         self.assertFalse(backend.use_tls)
 
     def test_email_tls_default_disabled(self):
+        """
+        Tests that TLS is disabled by default for the email backend.
+
+        This test case verifies the initial state of the email backend's TLS setting,
+        ensuring that it is set to False when no configuration is provided.
+
+        The purpose of this test is to guarantee the email backend's security defaults
+        are correctly set, preventing unintended use of insecure connections.
+        """
         backend = smtp.EmailBackend()
         self.assertFalse(backend.use_tls)
 
@@ -1943,6 +2051,14 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 
     @override_settings(EMAIL_SSL_KEYFILE="foo")
     def test_email_ssl_keyfile_override_settings(self):
+        """
+        Tests the override of the EMAIL_SSL_KEYFILE setting in the smtp EmailBackend.
+
+        This test ensures that when the EMAIL_SSL_KEYFILE setting is overridden, the smtp EmailBackend uses the provided ssl keyfile instead of the default one.
+        It verifies that the override_settings decorator correctly changes the EMAIL_SSL_KEYFILE setting and that this change is reflected in the EmailBackend instance.
+        The test checks if the ssl keyfile passed to the EmailBackend constructor takes precedence over the overridden setting, ensuring the correct configuration of the email backend.
+
+        """
         backend = smtp.EmailBackend(ssl_keyfile="bar")
         self.assertEqual(backend.ssl_keyfile, "bar")
 
@@ -1978,6 +2094,14 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 
         class MyEmailBackend(smtp.EmailBackend):
             def __init__(self, *args, **kwargs):
+                """
+                Initializes a new instance of the class, inheriting from its parent class.
+
+                The constructor accepts a variable number of positional and keyword arguments, 
+                which are passed to the parent class's constructor. 
+
+                A default timeout of 42 is applied if not explicitly provided in the keyword arguments.
+                """
                 kwargs.setdefault("timeout", 42)
                 super().__init__(*args, **kwargs)
 
@@ -2043,6 +2167,15 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
         self.assertEqual(backend.send_messages([email]), 0)
 
     def test_send_messages_empty_list(self):
+        """
+
+        Tests the send_messages method of the EmailBackend class with an empty list of messages.
+
+        Verifies that the method correctly handles the edge case where no messages are provided,
+        returning the expected number of successfully sent messages.
+
+
+        """
         backend = smtp.EmailBackend()
         backend.connection = mock.Mock(spec=object())
         self.assertEqual(backend.send_messages([]), 0)
@@ -2060,6 +2193,14 @@ class SMTPBackendTests(BaseEmailBackendTests, SMTPBackendTestsBase):
 class SMTPBackendStoppedServerTests(SMTPBackendTestsBase):
     @classmethod
     def setUpClass(cls):
+        """
+        Setup class method to initialize email backend and stop the SMTP controller before running tests.
+
+        This method is called once before running all tests in the class, ensuring a clean setup environment.
+        It creates an email backend instance with empty credentials and stops the SMTP controller to prevent
+        any existing email sessions from interfering with the tests. The email backend and SMTP controller
+        are stored as class attributes for use in subsequent tests.
+        """
         super().setUpClass()
         cls.backend = smtp.EmailBackend(username="", password="")
         cls.smtp_controller.stop()

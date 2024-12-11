@@ -103,6 +103,22 @@ def lazy(func, *resultclasses):
             # Instances of this class are effectively immutable. It's just a
             # collection of functions. So we don't need to do anything
             # complicated for copying.
+            """
+            Creates and returns a deep copy of the current object.
+
+            This method is used to create a new, independent copy of the object, 
+            ensuring that changes to the original do not affect the copy. It 
+            utilizes the provided memo dictionary to keep track of objects that 
+            have already been copied, thus avoiding infinite recursion in case 
+            of circular references.
+
+            The method returns the copied object, which can then be used and 
+            modified independently of the original object.
+
+            Note that this implementation simply returns the current object, 
+            implying that the object is immutable or that its internal state 
+            should not be changed after initialization.
+            """
             memo[id(self)] = self
             return self
 
@@ -325,6 +341,15 @@ class LazyObject:
     # will pickle it normally, and then the unpickler simply returns its
     # argument.
     def __reduce__(self):
+        """
+        Special method to support pickling of lazy objects.
+
+        This method is used to provide a way to serialize instances of the class, allowing them to be reconstructed later.
+
+        It first checks if the wrapped object is empty and sets it up if necessary, ensuring that the object is in a suitable state for serialization.
+
+        The method returns a tuple containing the unpickling function and the wrapped object, which can be used to recreate the instance during the unpickling process.
+        """
         if self._wrapped is empty:
             self._setup()
         return (unpickle_lazyobject, (self._wrapped,))
@@ -413,6 +438,15 @@ class SimpleLazyObject(LazyObject):
         return "<%s: %r>" % (type(self).__name__, repr_attr)
 
     def __copy__(self):
+        """
+        Return a copy of the lazy object.
+
+        This method creates a new copy of the wrapped object if it has been initialized, otherwise it returns a new lazy object with the same setup function. The copy is created using the built-in :func:`copy.copy` function, which performs a shallow copy of the object.
+
+        Returns:
+            SimpleLazyObject or a copy of the wrapped object: A new object that is a copy of the current lazy object or its wrapped value.
+
+        """
         if self._wrapped is empty:
             # If uninitialized, copy the wrapper. Use SimpleLazyObject, not
             # self.__class__, because the latter is proxied.

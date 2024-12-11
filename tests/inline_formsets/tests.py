@@ -155,6 +155,9 @@ class InlineFormsetFactoryTest(TestCase):
 
     def test_any_iterable_allowed_as_argument_to_exclude(self):
         # Regression test for #9171.
+        """
+        Tests that any iterable (such as a list or tuple) can be provided as the 'exclude' argument to inlineformset_factory, allowing flexible specification of fields to exclude from the formset.
+        """
         inlineformset_factory(Parent, Child, exclude=["school"], fk_name="mother")
 
         inlineformset_factory(Parent, Child, exclude=("school",), fk_name="mother")
@@ -162,6 +165,9 @@ class InlineFormsetFactoryTest(TestCase):
     @skipUnlessDBFeature("allows_auto_pk_0")
     def test_zero_primary_key(self):
         # Regression test for #21472
+        """
+        Tests the functionality of a model with a primary key of zero, focusing on the creation and interaction of related objects and formsets. Verifies that the model instance can be successfully created with an auto-generated primary key of zero and that an associated formset is properly generated with the expected number of forms.
+        """
         poet = Poet.objects.create(id=0, name="test")
         poet.poem_set.create(name="test poem")
         PoemFormSet = inlineformset_factory(Poet, Poem, fields="__all__", extra=0)

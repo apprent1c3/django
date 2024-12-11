@@ -51,6 +51,18 @@ class CloseConnectionTestServer(ThreadedWSGIServer):
         self._connections_closed = threading.Event()
 
     def _close_connections(self):
+        """
+
+        Closes connections and signals their closure.
+
+        This method ensures that any open connections are properly closed and then
+        notifies other parts of the system that the connections have been closed.
+
+        It builds upon the connection closing functionality provided by its parent
+        class, expanding it with the capability to set an internal flag indicating
+        that the connections have been closed.
+
+        """
         super()._close_connections()
         self._connections_closed.set()
 
@@ -143,6 +155,21 @@ class LiveServerTestCaseSetupTest(LiveServerBase):
 
     @classmethod
     def check_allowed_hosts(cls, expected):
+        """
+
+        Checks if the ALLOWED_HOSTS setting matches the expected value.
+
+        Args:
+            expected: The expected value of ALLOWED_HOSTS.
+
+        Raises:
+            RuntimeError: If the ALLOWED_HOSTS setting does not match the expected value.
+
+        This method is useful for ensuring that the ALLOWED_HOSTS setting is correctly configured
+        in different environments or contexts. It raises an exception if the actual value does
+        not match the expected value, allowing for early detection of potential configuration issues.
+
+        """
         if settings.ALLOWED_HOSTS != expected:
             raise RuntimeError(f"{settings.ALLOWED_HOSTS} != {expected}")
 
@@ -258,6 +285,20 @@ class LiveServerViews(LiveServerBase):
             conn.close()
 
     def test_keep_alive_connection_clears_previous_request_data(self):
+        """
+        Tests that a keep-alive connection clears previous request data when a new request is made.
+
+        This test verifies that when a keep-alive connection is established and multiple requests 
+        are made, each request is treated independently and the response from the previous request 
+        does not affect the current request.
+
+        The test checks the connection status, HTTP status code, and response body for each request 
+        to ensure that the keep-alive connection is functioning as expected and that the previous 
+        request data is cleared after each request is completed.
+
+        The test also covers the case when the connection is explicitly closed by the client, 
+        ensuring that the connection is properly terminated and resources are released.
+        """
         conn = HTTPConnection(
             LiveServerViews.server_thread.host, LiveServerViews.server_thread.port
         )

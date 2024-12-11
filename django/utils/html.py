@@ -263,6 +263,21 @@ class CountsDict(dict):
         self.word = word
 
     def __missing__(self, key):
+        """
+        Handles missing keys by counting the occurrences of the key in the word and 
+        stores the count in the dictionary.
+
+        Parameters
+        ----------
+        key : str
+            The key that is currently missing from the dictionary.
+
+        Returns
+        -------
+        int
+            The count of the key in the word, now stored in the dictionary under the 
+            provided key.
+        """
         self[key] = self.word.count(key)
         return self[key]
 
@@ -368,6 +383,17 @@ class Urlizer:
         return word
 
     def trim_url(self, x, *, limit):
+        """
+        Trims a given URL to a specified character limit.
+
+        Args:
+            x (str): The URL to be trimmed.
+            limit (int): The maximum number of characters allowed in the trimmed URL.
+
+        Returns:
+            str: The trimmed URL, or the original URL if it is already within the limit.
+            If the URL exceeds the limit, it is truncated and an ellipsis ('…') is appended.
+        """
         if limit is None or len(x) <= limit:
             return x
         return "%s…" % x[: max(0, limit - 1)]

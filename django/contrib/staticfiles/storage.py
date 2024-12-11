@@ -417,6 +417,28 @@ class HashedFilesMixin:
         # Normalize the path to avoid multiple names for the same file like
         # ../foo/bar.css and ../foo/../foo/bar.css which normalize to the same
         # path.
+        """
+
+        Determines a stored name for a given file or directory.
+
+        This function standardizes a provided name, cleans it, and then generates a 
+        hash key based on the cleaned name. It checks if there's an existing cache 
+        name associated with this hash key. If none exists, it generates a new 
+        cache name based on a hashed version of the original name.
+
+        Parameters
+        ----------
+        name : str
+            The original file or directory name.
+        hashed_files : dict
+            A dictionary mapping hash keys to their corresponding cache names.
+
+        Returns
+        -------
+        str
+            The determined cache name for the provided file or directory.
+
+        """
         name = posixpath.normpath(name)
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
@@ -507,6 +529,25 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.manifest_storage._save(self.manifest_name, ContentFile(contents))
 
     def stored_name(self, name):
+        """
+
+        Returns the stored name for a given URL, resolving the actual filename 
+        after applying any necessary hashing or cleaning operations.
+
+        The process involves parsing the input name, removing any URL-encoded 
+        characters, and then using the provided hash key to check for a cached 
+        version of the file. If no cached version exists and strict manifest 
+         checking is enabled, a ValueError is raised. Otherwise, the function 
+         generates a new hashed name and returns the stored name in its full URL 
+         format.
+
+        Parameters:
+            name (str): The URL name to be processed and resolved to a stored name.
+
+        Returns:
+            str: The resolved stored name for the given URL.
+
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         hash_key = self.hash_key(clean_name)

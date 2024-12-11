@@ -69,6 +69,19 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
         class CustomJSONEncoder(json.JSONEncoder):
             def default(self, o):
+                """
+                Custom default serialization behavior for specific object types.
+
+                This function overrides the default serialization behavior to handle decimal.Decimal objects.
+                It converts decimal.Decimal instances to strings, while delegating the serialization of other object types to the parent class's default behavior.
+
+                 Args:
+                     o: The object to be serialized.
+
+                 Returns:
+                     A serialized representation of the input object.
+
+                """
                 if isinstance(o, decimal.Decimal):
                     return str(o)
                 return super().default(o)

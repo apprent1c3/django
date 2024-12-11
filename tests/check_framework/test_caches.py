@@ -57,6 +57,18 @@ class CheckCacheLocationTest(SimpleTestCase):
         }
 
     def test_cache_path_matches_media_static_setting(self):
+        """
+        Check that the cache path does not match the media or static settings.
+
+        This test ensures that the cache location is not exposed by verifying it does not
+        coincide with the MEDIA_ROOT, STATIC_ROOT, or any directories in STATICFILES_DIRS.
+        It validates the cache location checking function by comparing its output with the
+        expected warning message.
+
+        The test covers various settings, including media and static roots, as well as
+        static files directories, to guarantee the cache path remains isolated and secure.
+
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root, root)
@@ -70,6 +82,19 @@ class CheckCacheLocationTest(SimpleTestCase):
                 )
 
     def test_cache_path_inside_media_static_setting(self):
+        """
+        Tests that the cache path is not located inside media or static settings.
+
+            This test ensures that the cache location is not inadvertently exposed
+            by being placed within the media or static file directories. It checks
+            the cache path against the MEDIA_ROOT, STATIC_ROOT, and STATICFILES_DIRS
+            settings to prevent potential security issues. If the cache path is
+            found to be inside any of these settings, a warning is triggered to
+            notify the developer of the potential vulnerability.
+
+            :return: A list of warnings if the cache path is not properly configured.
+
+        """
         root = pathlib.Path.cwd()
         for setting in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
             settings = self.get_settings(setting, root / "cache", root)

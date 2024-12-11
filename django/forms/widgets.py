@@ -174,6 +174,16 @@ class Media:
             return list(dict.fromkeys(chain.from_iterable(filter(None, lists))))
 
     def __add__(self, other):
+        """
+        ).. 
+            Add two media objects together, combining their CSS and JavaScript lists.
+
+            The resulting media object contains all CSS and JavaScript items from both
+            the original object and the object being added. Duplicate items are ignored.
+
+            :return: A new Media object containing the combined CSS and JavaScript lists.
+            :rtype: Media
+        """
         combined = Media()
         combined._css_lists = self._css_lists[:]
         combined._js_lists = self._js_lists[:]
@@ -219,6 +229,20 @@ class MediaDefiningClass(type):
     """
 
     def __new__(mcs, name, bases, attrs):
+        """
+
+        Metaclass method to create a new class instance.
+
+        This method is responsible for initializing a new class. If the class does not define a 'media' attribute,
+        it automatically adds a 'media' property to the class using the media_property function.
+        The resulting class instance is then returned.
+
+        :param name: The name of the class being created.
+        :param bases: The base classes of the class being created.
+        :param attrs: The attributes of the class being created.
+        :return: The newly created class instance.
+
+        """
         new_class = super().__new__(mcs, name, bases, attrs)
 
         if "media" not in attrs:
@@ -279,6 +303,16 @@ class Widget(metaclass=MediaDefiningClass):
         return self._render(self.template_name, context, renderer)
 
     def _render(self, template_name, context, renderer=None):
+        """
+
+        Renders a template with the provided context.
+
+        :param template_name: The name of the template to render.
+        :param context: The context data to be used during template rendering.
+        :param renderer: Optional renderer to use for template rendering. If not provided, the default renderer will be used.
+        :returns: The rendered template content, marked as safe for use in HTML.
+
+        """
         if renderer is None:
             renderer = get_default_renderer()
         return mark_safe(renderer.render(template_name, context))
@@ -328,6 +362,20 @@ class Input(Widget):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context for rendering a widget.
+
+        This method extends the parent class's get_context method by adding the 
+        input type to the widget context. The resulting context includes the 
+        name, value, and attributes of the widget, as well as its type, which 
+        is determined by the input_type attribute of the current instance.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget.
+        :param attrs: The attributes of the widget.
+        :rtype: dict
+        :return: A dictionary representing the context for rendering the widget.
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["type"] = self.input_type
         return context
@@ -381,6 +429,22 @@ class MultipleHiddenInput(HiddenInput):
     template_name = "django/forms/widgets/multiple_hidden.html"
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the rendering context for the given widget, including a list of sub-widgets.
+
+        This method extends the default rendering context by introducing a list of sub-widgets, 
+        each representing a value within the provided value collection. 
+
+        The context includes the main widget attributes as well as a list of sub-widgets, each with 
+        its own attributes. If an 'id' attribute is present, it is modified for each sub-widget 
+        to include an index suffix. The sub-widgets are rendered as hidden inputs.
+
+        :param name: The name of the widget.
+        :param value: The value of the widget, which is expected to be a collection.
+        :param attrs: A dictionary of attributes to apply to the widget.
+        :returns: A rendering context for the widget, including the list of sub-widgets.
+
+        """
         context = super().get_context(name, value, attrs)
         final_attrs = context["widget"]["attrs"]
         id_ = context["widget"]["attrs"].get("id")
@@ -690,6 +754,34 @@ class ChoiceWidget(Widget):
     def create_option(
         self, name, value, label, selected, index, subindex=None, attrs=None
     ):
+        """
+
+        Creates an option for a form field.
+
+        This method generates a dictionary representing an option, which includes its name, value, label, selection status, and attributes.
+
+        :param name: The name of the option.
+        :param value: The value of the option.
+        :param label: The label of the option.
+        :param selected: A boolean indicating whether the option is selected.
+        :param index: The index of the option, which can be used to uniquely identify it.
+        :param subindex: An optional sub-index that can be used in conjunction with the index to create a unique identifier.
+        :param attrs: Optional attributes for the option.
+
+        The returned dictionary contains the following keys:
+        - name: The name of the option.
+        - value: The value of the option.
+        - label: The label of the option.
+        - selected: A boolean indicating whether the option is selected.
+        - index: A string representing the index of the option.
+        - attrs: A dictionary of attributes for the option.
+        - type: The type of input field.
+        - template_name: The template name for the option.
+        - wrap_label: A boolean indicating whether the label should be wrapped.
+
+        This method is used to generate options for form fields, such as select boxes or radio buttons.
+
+        """
         index = str(index) if subindex is None else "%s_%s" % (index, subindex)
         option_attrs = (
             self.build_attrs(self.attrs, attrs) if self.option_inherits_attrs else {}
@@ -796,6 +888,12 @@ class NullBooleanSelect(Select):
     """
 
     def __init__(self, attrs=None):
+        """
+        Initializes a choice field for boolean values with standardized options.
+
+        :param attrs: Optional attributes to pass to the parent class
+        The field provides a predefined set of choices for boolean values: Unknown, Yes, and No. These options are translated to the current locale.
+        """
         choices = (
             ("unknown", _("Unknown")),
             ("true", _("Yes")),
@@ -804,6 +902,18 @@ class NullBooleanSelect(Select):
         super().__init__(attrs, choices)
 
     def format_value(self, value):
+        """
+        Maps input values to specific boolean-like string representations.
+
+        This function takes an input value and returns a corresponding string, 
+        aligning with boolean-like values (true or false). For values not 
+        recognized, it defaults to 'unknown'. The recognized values include 
+        boolean True and False, as well as string representations 'true', 'false', 
+        and the numeric strings '2' and '3' mapped to true and false respectively.
+
+        Returns:
+            str: A string representing the input value, either 'true', 'false', or 'unknown'.
+        """
         try:
             return {
                 True: "true",
@@ -818,6 +928,25 @@ class NullBooleanSelect(Select):
             return "unknown"
 
     def value_from_datadict(self, data, files, name):
+        """
+
+        Retrieves a boolean value from a data dictionary, handling various input representations.
+
+        The function takes in a data dictionary, files, and a name, and attempts to retrieve the value associated with the given name.
+        It then maps this value to a boolean equivalent, supporting the following representations:
+        - String literals 'True', 'true' which map to True
+        - String literals 'False', 'false' which map to False
+        - Boolean values True and False
+        - Numeric string '2' which maps to True, and '3' which maps to False.
+
+        The function returns the boolean equivalent of the retrieved value, or None if the value is not recognized.
+
+        :param data: The dictionary containing the data
+        :param files: Additional files associated with the data (not used in this implementation)
+        :param name: The key to retrieve the value from the data dictionary
+        :return: A boolean value corresponding to the retrieved data, or None if not recognized
+
+        """
         value = data.get(name)
         return {
             True: True,
@@ -1005,6 +1134,19 @@ class SplitDateTimeWidget(MultiWidget):
         date_attrs=None,
         time_attrs=None,
     ):
+        """
+        Initializes a DateTimeInput widget, combining date and time inputs into a single field.
+
+        This initialization method allows customization of the date and time input fields through various parameters, including 
+        attributes for the overall widget and specific attributes for date and time fields. The date and time formats can also be 
+        specified. If no separate attributes are provided for date and time fields, the overall attributes will be applied to both. 
+
+        :param attrs: Overall attributes for the widget
+        :param date_format: Format for the date input field
+        :param time_format: Format for the time input field
+        :param date_attrs: Attributes specific to the date input field
+        :param time_attrs: Attributes specific to the time input field
+        """
         widgets = (
             DateInput(
                 attrs=attrs if date_attrs is None else date_attrs,
@@ -1095,6 +1237,23 @@ class SelectDateWidget(Widget):
             self.day_none_value = self.none_value
 
     def get_context(self, name, value, attrs):
+        """
+
+        Get the context for a date field widget.
+
+        This method extends the parent class's get_context method to create a date field
+        with separate dropdowns for year, month, and day. It also handles optional fields
+        by adding a \"None\" option to the dropdowns when the field is not required.
+
+        The method returns a dictionary containing the context for the widget, including
+        the subwidgets for each date field component.
+
+        :param name: The name of the date field.
+        :param value: The value of the date field.
+        :param attrs: Additional attributes for the widget.
+        :returns: A dictionary containing the context for the date field widget.
+
+        """
         context = super().get_context(name, value, attrs)
         date_context = {}
         year_choices = [(i, str(i)) for i in self.years]

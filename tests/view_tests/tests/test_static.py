@@ -72,6 +72,14 @@ class StaticTests(SimpleTestCase):
             self.assertEqual(fp.read(), response_content)
 
     def test_not_modified_since(self):
+        """
+
+        Tests that the server correctly handles the 'If-Modified-Since' HTTP header.
+
+        This test case verifies that when a request is made with an 'If-Modified-Since' header 
+        indicating a date in the future, the server responds with a 304 'Not Modified' status code.
+
+        """
         file_name = "file.txt"
         response = self.client.get(
             "/%s/%s" % (self.prefix, file_name),
@@ -190,6 +198,9 @@ class StaticHelperTest(StaticTests):
         self.assertEqual(static("test"), [])
 
     def test_empty_prefix(self):
+        """
+        Tests that an :exc:`ImproperlyConfigured` exception is raised when attempting to use an empty string as a static prefix, as this configuration is not permitted.
+        """
         with self.assertRaisesMessage(
             ImproperlyConfigured, "Empty static prefix not permitted"
         ):

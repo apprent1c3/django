@@ -26,6 +26,22 @@ class OptimizerTests(SimpleTestCase):
     def assertOptimizesTo(
         self, operations, expected, exact=None, less_than=None, app_label=None
     ):
+        """
+
+        Asserts that a set of operations can be optimized to a specified expected result.
+
+        This function takes a list of operations and optimizes them using the :meth:`optimize` method.
+        It then compares the optimized result to the expected result, ensuring they are equal.
+        Additionally, it can be used to verify the number of iterations required for optimization,
+        either by checking for an exact number of iterations or ensuring it is less than a specified threshold.
+
+        :param operations: The list of operations to be optimized.
+        :param expected: The expected optimized result.
+        :param exact: The exact number of iterations expected, or None if not applicable.
+        :param less_than: The maximum number of iterations allowed, or None if not applicable.
+        :param app_label: The application label to use for optimization, defaults to 'migrations'.
+
+        """
         result, iterations = self.optimize(operations, app_label or "migrations")
         result = [self.serialize(f) for f in result]
         expected = [self.serialize(f) for f in expected]
@@ -155,6 +171,17 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_create_model_and_remove_model_options(self):
+        """
+        Tests the optimization of database migrations when creating a model and subsequently removing or altering its options.
+
+        This test case verifies that when a model is created with options, such as verbose name or verbose name plural, and then these options are removed or altered, the resulting migration is optimized to only include the necessary operations. 
+
+        The test covers two main scenarios: 
+        - removing all model options after creation 
+        - altering model options after creation. 
+
+        It ensures that the final migration includes the simplified model creation operation, reducing unnecessary database operations.
+        """
         self.assertOptimizesTo(
             [
                 migrations.CreateModel(

@@ -82,6 +82,18 @@ class ManyToManyTests(TestCase):
         )
 
     def test_add_remove_set_by_pk(self):
+        """
+
+        Tests the addition and removal of publications from an Article instance by primary key.
+
+        Verifies the following scenarios:
+            * Adding a publication to an article by its primary key
+            * Replacing the existing publications with a new one using its primary key
+            * Removing a publication from an article by its primary key
+
+        Ensures that the article's publications are correctly updated after each operation.
+
+        """
         a5 = Article.objects.create(headline="Django lets you create web apps easily")
         a5.publications.add(self.p1.pk)
         self.assertSequenceEqual(a5.publications.all(), [self.p1])
@@ -121,6 +133,10 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(user_1.article_set.all(), [self.a4])
 
     def test_add_remove_invalid_type(self):
+        """
+        Tests that adding or removing a publication with an invalid type (non-numeric 'id') raises a ValueError.
+        The function ensures that both the 'add' and 'remove' methods of the publications object validate the input type correctly, expecting a numeric 'id' and rejecting a string 'id' with a specific error message.
+        """
         msg = "Field 'id' expected a number but got 'invalid'."
         for method in ["add", "remove"]:
             with self.subTest(method), self.assertRaisesMessage(ValueError, msg):
@@ -163,6 +179,13 @@ class ManyToManyTests(TestCase):
     def test_add_existing_different_type(self):
         # A single SELECT query is necessary to compare existing values to the
         # provided one; no INSERT should be attempted.
+        """
+        Tests adding an existing publication of a different type to an author's publication set.
+
+         Verifies that the add operation ignores conflicts and completes successfully in a single database query.
+
+         The test asserts that the added publication is correctly retrieved and matches the expected publication instance.
+        """
         with self.assertNumQueries(1):
             self.a1.publications.add(str(self.p1.pk))
         self.assertEqual(self.a1.publications.get(), self.p1)
@@ -267,6 +290,20 @@ class ManyToManyTests(TestCase):
     def test_reverse_selects(self):
         # Reverse m2m queries are supported (i.e., starting at the table that
         # doesn't have a ManyToManyField).
+        """
+        Tests the select functionality of Publications by checking various filter methods.
+
+        Verifies that filtering by id, pk, article headline, and article id returns the correct publications.
+        Additionally, tests the usage of the __exact, __startswith, and __in lookup types to ensure they behave as expected.
+        The tested filter methods include:
+        - Filtering by exact publication id or primary key
+        - Filtering by article headline
+        - Filtering by exact article id or primary key
+        - Filtering by article object
+        - Filtering by a list of article ids, primary keys, or objects
+
+        Ensures that the results of these filters match the expected publications, demonstrating that the select functionality works correctly for different types of queries.
+        """
         python_journal = [self.p1]
         self.assertSequenceEqual(
             Publication.objects.filter(id__exact=self.p1.id), python_journal
@@ -367,6 +404,25 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(self.a3.publications.all(), [])
 
     def test_set(self):
+        """
+
+        Tests the functionality of setting article sets on a publication object.
+
+        This function checks the behavior of setting, clearing, and updating article sets
+        on a publication, including the bidirectional relationship between a publication
+        and its articles. It verifies that the article set is correctly updated when
+        articles are added or removed, and that the publications associated with each
+        article are also updated accordingly.
+
+        The test cases cover various scenarios, including setting an article set to a 
+        list of articles, clearing the article set, and setting it to an empty list. 
+        Additionally, it tests the behavior when the 'clear' parameter is used to 
+        replace the existing article set.
+
+        The function uses assertions to verify that the expected results match the 
+        actual outcomes, ensuring the correctness of the article set management logic.
+
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -415,6 +471,9 @@ class ManyToManyTests(TestCase):
         self.assertEqual(ids, new_ids)
 
     def test_assign_forward(self):
+        """
+        Tests that attempting to directly assign to the reverse side of a many-to-many relationship raises a TypeError with a descriptive message, indicating that the set() method should be used instead.
+        """
         msg = (
             "Direct assignment to the reverse side of a many-to-many set is "
             "prohibited. Use article_set.set() instead."

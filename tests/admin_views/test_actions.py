@@ -193,6 +193,13 @@ class AdminActionsTest(TestCase):
         )
 
     def test_delete_queryset_hook(self):
+        """
+        Tests the hook that is triggered when a queryset of subscribers is deleted.
+
+        Verifies that the hook is properly overridden and that the subscribers are successfully removed from the database.
+
+        The test simulates the deletion of multiple subscribers through the admin interface and checks that the override flag is set and that the subscriber count reaches zero after deletion.
+        """
         delete_confirmation_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk, self.s2.pk],
             "action": "delete_selected",
@@ -457,6 +464,20 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_response_on_delete(self):
+        """
+
+        Tests the response of the delete view for actors when accessed as a popup template.
+
+        This test case verifies that the popup template response for deleting an actor
+        is rendered correctly and returns the expected HTTP status code.
+
+        In particular, it checks that the response status code is 200 (OK) and that
+        the correct template is used to render the popup response.
+
+        The test ensures that the delete view functions as expected in a popup context,
+        providing the necessary functionality for administrative tasks.
+
+        """
         instance = Actor.objects.create(name="David Tennant", age=45)
         response = self.client.post(
             reverse("admin:admin_views_actor_delete", args=(instance.pk,))

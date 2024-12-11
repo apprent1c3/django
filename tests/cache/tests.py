@@ -684,6 +684,17 @@ class BaseCacheTests:
         self._perform_cull_test("zero_cull", 50, 19)
 
     def test_cull_delete_when_store_empty(self):
+        """
+        Tests the behavior of cache culling when the cache store is empty.
+
+        Verifies that when the cache is configured to delete entries upon reaching a negative max entry limit,
+        a newly added entry is successfully stored and can be retrieved. 
+
+        The test checks the 'cull' cache backend and skips the test if culling is not implemented.
+        It temporarily sets the max entries limit to -1, simulates adding an entry and then checks if the entry exists in the cache.
+        Finally, it resets the max entries limit to its original value.
+
+        """
         try:
             cull_cache = caches["cull"]
         except InvalidCacheBackendError:
@@ -804,6 +815,26 @@ class BaseCacheTests:
 
     def test_cache_versioning_add(self):
         # add, default version = 1, but manually override version = 2
+        """
+        Tests the cache versioning functionality.
+
+        This test case verifies that the cache correctly handles versioning when adding and retrieving items.
+        It checks that items added with a specific version are only retrievable with that version, and that
+        attempting to add an item with a version that already exists returns False. The test also ensures that
+        items added without specifying a version are added to the default version.
+
+        The test covers various scenarios, including adding items with and without specifying a version,
+        retrieving items with different versions, and verifying that the cache behaves correctly when adding
+        items to different versions.
+
+        The test cases include:
+
+        * Adding an item with a specific version and verifying its retrieval
+        * Adding an item with a version that already exists and verifying the return value
+        * Adding an item without specifying a version and verifying its retrieval
+        * Retrieving an item with a different version than it was added with
+        * Verifying that adding an item to a different version does not affect the original version
+        """
         self.assertIs(cache.add("answer1", 42, version=2), True)
         self.assertIsNone(cache.get("answer1", version=1))
         self.assertEqual(cache.get("answer1", version=2), 42)
@@ -1097,6 +1128,15 @@ class BaseCacheTests:
             cache.add("unpicklable", Unpicklable())
 
     def test_set_fail_on_pickleerror(self):
+        """
+        Tests that the cache's set function fails when attempting to store an object that cannot be pickled.
+
+        This test case verifies that a PickleError is raised when trying to cache an Unpicklable object, ensuring that the cache handle objects that are not serializable correctly.
+
+        :param None:
+        :raises pickle.PickleError: if the object being cached is not picklable
+        :return: None
+        """
         with self.assertRaises(pickle.PickleError):
             cache.set("unpicklable", Unpicklable())
 
@@ -1224,6 +1264,9 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
         self._perform_cull_test("zero_cull", 50, 18)
 
     def test_second_call_doesnt_crash(self):
+        """
+        Tests that a second call to the 'createcachetable' management command does not crash if the cache table already exists. Verifies that a success message is printed to the console for each cache in the settings, indicating that the table was not recreated.
+        """
         out = io.StringIO()
         management.call_command("createcachetable", stdout=out)
         self.assertEqual(
@@ -1283,6 +1326,13 @@ class DBCacheRouter:
         return None
 
     def db_for_write(self, model, **hints):
+        """
+        Determines the database to use for writing data.
+
+        This method is used by Django's database router to decide which database should be used for writing data to a specific model.
+
+        It checks if the model is part of the 'django_cache' application and returns 'other' if it is, indicating that the 'other' database should be used for writing. For all other models, it returns None, indicating that the default database for the model should be used.
+        """
         if model._meta.app_label == "django_cache":
             return "other"
         return None
@@ -1307,6 +1357,21 @@ class CreateCacheTableForDBCacheTests(TestCase):
     @override_settings(DATABASE_ROUTERS=[DBCacheRouter()])
     def test_createcachetable_observes_database_router(self):
         # cache table should not be created on 'default'
+        """
+
+        Tests the creation of a cache table while observing the database router.
+
+        Verifies that the 'createcachetable' command correctly interacts with the 
+        database router, checking that the command does not execute any queries 
+        when the default database is used. Additionally, this test case checks 
+        that the correct number of queries are executed when creating the cache 
+        table on the 'other' database, taking into account the database's 
+        ability to rollback DDL transactions.
+
+        This test ensures the 'createcachetable' command functions as expected 
+        across different databases with varying capabilities.
+
+        """
         with self.assertNumQueries(0, using="default"):
             management.call_command("createcachetable", database="default", verbosity=0)
         # cache table should be created on 'other'
@@ -1468,6 +1533,17 @@ class BaseMemcachedTests(BaseCacheTests):
     should_disconnect_on_close = True
 
     def test_location_multiple_servers(self):
+        """
+
+        Test that the LOCATION setting for the cache backend can handle multiple servers specified in different formats.
+
+        The test covers various formats for specifying multiple servers, including
+        comma-separated values, semicolon-separated values, and lists of values.
+
+        It verifies that regardless of the format used, the cache backend correctly
+        interprets the LOCATION setting and stores the list of server addresses as expected.
+
+        """
         locations = [
             ["server1.tld", "server2:11211"],
             "server1.tld;server2:11211",
@@ -1571,6 +1647,25 @@ class BaseMemcachedTests(BaseCacheTests):
             signals.request_finished.connect(close_old_connections)
 
     def test_set_many_returns_failing_keys(self):
+        """
+        Tests that set_many returns the keys that failed to be set.
+
+        This test case verifies the behavior of the set_many function when the underlying
+        set_multi method fails. It checks that the function correctly identifies and returns
+        the keys that were not successfully set, allowing for error handling and retrying
+        of failed operations. The test uses a mock object to simulate the failure of the
+        set_multi method, ensuring that the test is isolated and reliable.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the set_many function does not return the expected failing keys.
+
+        """
         def fail_set_multi(mapping, *args, **kwargs):
             return mapping.keys()
 
@@ -1606,6 +1701,15 @@ class PyLibMCCacheTests(BaseMemcachedTests, TestCase):
         )
     )
     def test_pylibmc_options(self):
+        """
+        Test that PyLibMCCache options are properly configured with binary and tcp_nodelay settings.
+
+        This test verifies that the cache instance is set up to use binary protocol and tcp_nodelay behavior as specified in the CACHES settings. 
+
+        It checks that the 'binary' option is enabled and the 'tcp_nodelay' behavior is set to True, as represented by a non-zero integer value. 
+
+        This ensures that the cache is properly optimized for performance and reliability.
+        """
         self.assertTrue(cache._cache.binary)
         self.assertEqual(cache._cache.behaviors["tcp_nodelay"], int(True))
 
@@ -1678,6 +1782,13 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by creating a temporary directory for cache storage and updating the cache locations in the project settings. 
+
+        This method is part of the test setup process and is intended to be executed before running tests that rely on caching functionality. It ensures that each test runs with a clean cache, preventing interference between tests. 
+
+        The temporary directory is created using the `mkdtemp` method, and its path is stored in the `dirname` attribute. The cache locations in the project settings are then updated to point to this temporary directory, ensuring that all caching operations during the test are isolated to this location. Finally, a signal is sent to notify other parts of the system that the `CACHES` setting has been changed.
+        """
         super().setUp()
         self.dirname = self.mkdtemp()
         # Caches location cannot be modified through override_settings /
@@ -1706,6 +1817,13 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
         os.remove(fname)
 
     def test_clear_does_not_remove_cache_dir(self):
+        """
+
+        Tests that clearing the cache does not result in the removal of the cache directory.
+
+        Verifies that after calling :func:`cache.clear`, the cache directory still exists as expected.
+
+        """
         cache.clear()
         self.assertTrue(
             os.path.exists(self.dirname), "Expected cache.clear to keep the cache dir"
@@ -1839,6 +1957,16 @@ class RedisCacheTests(BaseCacheTests, TestCase):
             self.assertLess(pool_index, len(cache._cache._servers))
 
     def test_get_connection_pool(self):
+        """
+
+        Tests the retrieval of a database connection pool.
+
+        This function verifies that the _get_connection_pool method returns a ConnectionPool 
+        object in both read and write modes. It checks that the returned object is an instance 
+        of ConnectionPool from the library, ensuring that the connection pool can be used 
+        for database operations.
+
+        """
         pool = cache._cache._get_connection_pool(write=True)
         self.assertIsInstance(pool, self.lib.ConnectionPool)
 
@@ -1873,6 +2001,16 @@ class RedisCacheTests(BaseCacheTests, TestCase):
 
 class FileBasedCachePathLibTests(FileBasedCacheTests):
     def mkdtemp(self):
+        """
+        Create a temporary directory.
+
+        This method generates a temporary directory and returns its path as a :class:`Path` object.
+        The directory is created in the most secure manner possible, and its path is returned for further use.
+        The directory and its contents are not automatically deleted after use, and should be properly cleaned up when they are no longer needed.
+
+        :return: A :class:`Path` object representing the path to the temporary directory
+        :rtype: Path
+        """
         tmp_dir = super().mkdtemp()
         return Path(tmp_dir)
 
@@ -2217,6 +2355,17 @@ class CacheHEADTest(SimpleTestCase):
         return UpdateCacheMiddleware(lambda req: HttpResponse(msg))(request)
 
     def test_head_caches_correctly(self):
+        """
+        Tests that the cache is updated and retrieved correctly when making a HEAD request.
+
+        Verifies that after setting the cache with a given content, a subsequent HEAD request
+        to the same path returns the cached content, ensuring that the caching mechanism is
+        working as expected.
+
+        The test covers the scenario where the cache is updated and then retrieved, confirming
+        that the cached data matches the original content and that the caching process is
+        successful.
+        """
         test_content = "test content"
 
         request = self.factory.head(self.path)
@@ -2232,6 +2381,15 @@ class CacheHEADTest(SimpleTestCase):
         self.assertEqual(test_content.encode(), get_cache_data.content)
 
     def test_head_with_cached_get(self):
+        """
+        Tests that a HEAD request to a path that has a cached GET response retrieves 
+        the cached data.
+
+        Verifies the functionality of the cache mechanism when handling 
+        HEAD requests to resources that have been previously retrieved using GET. 
+        Ensures that the cached content is correctly retrieved and matches the expected 
+        content, demonstrating that the caching middleware is working as intended.
+        """
         test_content = "test content"
 
         request = self.factory.get(self.path)
@@ -2374,6 +2532,27 @@ class CacheI18nTest(SimpleTestCase):
         USE_I18N=True,
     )
     def test_middleware(self):
+        """
+
+        Tests the functionality of cache middleware in handling different scenarios.
+
+        This test case verifies the behavior of cache middleware when dealing with various 
+        request scenarios, including requests with and without query strings, and requests 
+        with different languages. The test ensures that the cache is updated and fetched 
+        correctly in each scenario, and that the middleware handles language-specific 
+        caching as expected.
+
+        Specifically, this test checks the following scenarios:
+        - Cache handling for requests with query strings
+        - Cache handling for requests without query strings
+        - Language-specific caching and retrieval of cached data
+        - Cache behavior when the language is changed
+
+        The test uses a combination of `UpdateCacheMiddleware` and `FetchFromCacheMiddleware` 
+        to simulate the caching process, and verifies the expected behavior through a series 
+        of assertions.
+
+        """
         def set_cache(request, lang, msg):
             def get_response(req):
                 return HttpResponse(msg)
@@ -2550,6 +2729,15 @@ class CacheMiddlewareTest(SimpleTestCase):
         self.assertEqual(as_view_decorator_with_custom.cache, self.other_cache)
 
     def test_update_cache_middleware_constructor(self):
+        """
+
+        Tests the initialization of the UpdateCacheMiddleware class.
+
+        Verifies that the middleware object is constructed with the expected default 
+        values for cache timeout, page timeout, key prefix, cache alias, and cache 
+        instance.
+
+        """
         middleware = UpdateCacheMiddleware(empty_response)
         self.assertEqual(middleware.cache_timeout, 30)
         self.assertIsNone(middleware.page_timeout)
@@ -2849,6 +3037,18 @@ class TestWithTemplateResponse(SimpleTestCase):
                 self.assertEqual(response.headers["Vary"], resulting_vary)
 
     def test_get_cache_key(self):
+        """
+
+        Tests the functionality of getting and learning cache keys for HTTP requests.
+
+        This test case verifies the behavior of the get_cache_key and learn_cache_key functions
+        in conjunction with the cache decorator. It checks that the cache key is initially None,
+        then updated correctly after learning the cache key for a given request and response.
+        Additionally, it tests the usage of a custom key prefix in cache key generation.
+
+        Assesses the correct formation of cache keys based on request method, path, and other factors.
+
+        """
         request = self.factory.get(self.path)
         template = engines["django"].from_string("This is a test")
         response = TemplateResponse(HttpRequest(), template)
@@ -2872,6 +3072,18 @@ class TestWithTemplateResponse(SimpleTestCase):
         )
 
     def test_get_cache_key_with_query(self):
+        """
+
+        Tests the functionality of retrieving and learning cache keys for a given request.
+
+        The test scenario involves creating a test request with a query parameter, rendering a template response, 
+        and verifying that the cache key is initially None. It then learns the cache key based on the request and 
+        response, and asserts that the cache key matches the expected value.
+
+        This test case ensures that the get_cache_key and learn_cache_key functions work correctly together to 
+        generate a valid cache key for a request with a query parameter.
+
+        """
         request = self.factory.get(self.path, {"test": 1})
         template = engines["django"].from_string("This is a test")
         response = TemplateResponse(HttpRequest(), template)
@@ -2903,6 +3115,9 @@ class TestMakeTemplateFragmentKey(SimpleTestCase):
         self.assertEqual(key, "template.cache.bar.17c1a507a0cb58384f4c639067a93520")
 
     def test_proper_escaping(self):
+        """
+        Tests whether template fragment keys are properly escaped, ensuring that special characters are handled correctly to prevent potential errors or security vulnerabilities. This test case verifies that the key generation process correctly escapes a key that contains a percentage symbol (%), resulting in a hashed key that can be safely used in caching operations.
+        """
         key = make_template_fragment_key("spam", ["abc:def%"])
         self.assertEqual(key, "template.cache.spam.06c8ae8e8c430b69fb0a6443504153dc")
 

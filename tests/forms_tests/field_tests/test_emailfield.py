@@ -27,6 +27,26 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_email_regexp_for_performance(self):
+        """
+
+        Tests the performance of the EmailField regular expression.
+
+        Verifies that the EmailField's cleaning function can efficiently handle and validate an email address.
+
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        The test case uses a specific email address to ensure the regular expression does not fail or timeout due to excessive backtracking.
+
+        """
         f = EmailField()
         # Check for runaway regex security problem. This will take a long time
         # if the security fix isn't in place.
@@ -66,6 +86,12 @@ class EmailFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean("alf123456788@foo.com")
 
     def test_emailfield_strip_on_none_value(self):
+        """
+        Tests that the EmailField strips its value and returns None when given an empty or None input.
+
+        This test case ensures that the EmailField behaves correctly when its required attribute is set to False and empty_value is set to None.
+        It verifies that the field's clean method returns None for both empty strings and None values, effectively stripping the field of any value when no input is provided.
+        """
         f = EmailField(required=False, empty_value=None)
         self.assertIsNone(f.clean(""))
         self.assertIsNone(f.clean(None))

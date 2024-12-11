@@ -102,6 +102,25 @@ class TermColorTests(unittest.TestCase):
         self.assertIsNone(parse_color_setting(";;;"))
 
     def test_empty_options(self):
+        """
+
+        Tests the parsing of color settings with empty options.
+
+        This function checks the behavior of the color setting parser when confronted with
+        empty or trailing options. It verifies that the parser correctly handles various
+        input scenarios, including empty options and multiple consecutive commas.
+
+        The test cases cover the following scenarios:
+
+        - A single option with a value and trailing comma
+        - A single option with a value and multiple trailing commas
+        - A single option with a value, attribute, and multiple trailing commas
+
+        The function ensures that the parsed output matches the expected result, which is a
+        dictionary containing the updated color palette with the specified option and its
+        value.
+
+        """
         self.assertEqual(
             parse_color_setting("error=green,"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
@@ -164,6 +183,11 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_role_case(self):
+        """
+        Test that the parse_color_setting function correctly handles role case sensitivity.
+
+        This test ensures that the function can parse color settings regardless of the case used to specify the role, resulting in the correct color configuration being returned.
+        """
         self.assertEqual(
             parse_color_setting("ERROR=green"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green"}),
@@ -192,6 +216,10 @@ class TermColorTests(unittest.TestCase):
         )
 
     def test_opts_case(self):
+        """
+        Tests the parsing of color settings to ensure case-insensitive handling of options.
+        Verifies that the parse_color_setting function correctly interprets options regardless of their case, returning the expected color palette configuration.
+        """
         self.assertEqual(
             parse_color_setting("error=green,BLINK"),
             dict(PALETTES[NOCOLOR_PALETTE], ERROR={"fg": "green", "opts": ("blink",)}),

@@ -155,6 +155,9 @@ class ListViewTests(TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_paginated_non_queryset(self):
+        """
+        Tests a paginated view that returns a list of dictionaries, verifying that the HTTP request is successful and the correct number of objects is returned in the response. The test checks for a status code of 200 and confirms that the 'object_list' in the response context contains exactly one item.
+        """
         res = self.client.get("/list/dict/paginated/")
 
         self.assertEqual(res.status_code, 200)
@@ -185,6 +188,17 @@ class ListViewTests(TestCase):
         self.assertTemplateUsed(res, "generic_views/list.html")
 
     def test_template_name_suffix(self):
+        """
+
+        Tests the template name suffix for the author list view.
+
+        This test checks that the template name suffix is correctly handled when rendering the author list template.
+        It verifies that the response status code is 200 (OK), that the list of authors is correctly passed to the template,
+        and that the template name is correctly determined based on the suffix.
+
+        The test also ensures that the 'author_list' and 'object_list' context variables are correctly set and identical.
+
+        """
         res = self.client.get("/list/authors/template_name_suffix/")
         self.assertEqual(res.status_code, 200)
         self.assertEqual(list(res.context["object_list"]), list(Author.objects.all()))
@@ -261,6 +275,18 @@ class ListViewTests(TestCase):
         )
 
     def _make_authors(self, n):
+        """
+
+        Generate and populate the database with a specified number of authors.
+
+        This method first clears all existing authors from the database, then creates
+        a specified number (n) of new authors. Each new author is assigned a name and
+        slug in a sequential format (e.g. 'Author 00', 'a0'; 'Author 01', 'a1'; etc.).
+        The created authors are then persisted to the database.
+
+        :param n: The number of authors to generate.
+
+        """
         Author.objects.all().delete()
         for i in range(n):
             Author.objects.create(name="Author %02i" % i, slug="a%s" % i)

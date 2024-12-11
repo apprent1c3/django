@@ -72,6 +72,20 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
         return "%s_%s_id" % (model._meta.db_table, field.column)
 
     def create_spatial_indexes(self):
+        """
+        Create spatial indexes on database tables to improve query performance.
+
+        Spatial indexes are used to speed up queries that filter data based on spatial relationships,
+        such as proximity or intersection. This function iterates over a predefined set of SQL queries
+        that create spatial indexes and executes them. If an error occurs during execution, an error
+        message is logged indicating that the target storage engine does not support spatial indexes.
+
+        Once all indexes have been created, the list of SQL queries is reset to prevent duplicate
+        execution.
+
+        Note: Spatial indexes are only supported by MyISAM, Aria, and InnoDB storage engines.
+
+        """
         for sql in self.geometry_sql:
             try:
                 self.execute(sql)

@@ -27,6 +27,20 @@ class DebugInvocationTests(SimpleTestCase):
 
     def isolate_debug_test(self, test_suite, result):
         # Suite teardown needs to be manually called to isolate failures.
+        """
+        Isolates a debug test by tearing down the previous test class and handling module teardown.
+
+        This method ensures that the test environment is properly cleaned up before running a debug test.
+        It takes a test suite and a result object as input, and uses them to perform the necessary teardown actions.
+
+        Parameters
+        ----------
+        test_suite : 
+            The test suite that contains the test being debugged.
+        result : 
+            The result object that stores the outcome of the test.
+
+        """
         test_suite._tearDownPreviousClass(None, result)
         test_suite._handleModuleTearDown(result)
 

@@ -269,6 +269,21 @@ class ProxyModelTests(TestCase):
         self.assertIs(ctype(Person), ctype(OtherPerson))
 
     def test_user_proxy_models(self):
+        """
+
+        Tests the correctness of user proxy models by creating a user, 
+        retrieving all users through different proxy models, and verifying 
+        that the retrieved users match the expected result.
+
+        The test covers the following proxy models: UserProxy, UserProxyProxy, 
+        and MultiUserProxy, ensuring that each proxy model returns the same 
+        set of users as the original User model. 
+
+        It validates that the name of the created user is correctly retrieved 
+        and matches the expected name, confirming the functionality of the 
+        proxy models in representing the underlying User data.
+
+        """
         User.objects.create(name="Bruce")
 
         resp = [u.name for u in User.objects.all()]

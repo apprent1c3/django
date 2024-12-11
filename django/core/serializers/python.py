@@ -28,6 +28,17 @@ class Serializer(base.Serializer):
         self._current = {}
 
     def end_object(self, obj):
+        """
+
+        Marks the end of an object and prepares for the next object to be processed.
+
+        This method takes an object as input, converts it into a dumpable format, 
+        and appends it to the list of objects. It then resets the current object, 
+        indicating that the processing of the current object is complete.
+
+        :param obj: The object to be marked as ended.
+
+        """
         self.objects.append(self.get_dump_object(obj))
         self._current = None
 
@@ -39,6 +50,17 @@ class Serializer(base.Serializer):
         return data
 
     def _value_from_field(self, obj, field):
+        """
+        Retrieve the value from a given field of an object.
+
+        This method attempts to get the value of the specified field from the provided object.
+        If the value is of a protected type, it is returned as is; otherwise, the value is converted to a string representation.
+
+        :param obj: The object from which to retrieve the value.
+        :param field: The field whose value is to be retrieved.
+        :return: The value of the field as a protected type or a string representation.
+
+        """
         value = field.value_from_object(obj)
         # Protected types (i.e., primitives like None, numbers, dates,
         # and Decimals) are passed through as is. All other values are

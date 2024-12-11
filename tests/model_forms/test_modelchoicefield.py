@@ -174,6 +174,24 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(bool(f.choices), True)
 
     def test_choices_radio_blank(self):
+        """
+
+        Tests the rendering of a ModelChoiceField with a RadioSelect widget.
+
+        This test ensures that the choices for a ModelChoiceField are correctly rendered
+        when using a RadioSelect widget, with and without a blank option. It verifies
+        that the choices are ordered correctly and that the blank option is included
+        or excluded as specified.
+
+        The test covers both the case where the blank option is set to True, in which
+        case a blank choice is added at the beginning of the choices list, and the case
+        where the blank option is set to False, in which case the choices list only
+        includes the actual choices.
+
+        The test is performed for both RadioSelect widgets created with and without
+        instantiation, to ensure that the behavior is consistent in both cases.
+
+        """
         choices = [
             (self.c1.pk, "Entertainment"),
             (self.c2.pk, "A test"),
@@ -261,6 +279,14 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_disabled_modelchoicefield_has_changed(self):
+        """
+        Tests if a disabled ModelChoiceField correctly identifies when its value has changed.
+
+        This test case checks the has_changed method of a ModelChoiceField when it is 
+        disabled, verifying that it returns False regardless of the previous and current 
+        values, as disabled fields do not trigger the has_changed method due to their 
+        immutable state.
+        """
         field = forms.ModelChoiceField(Author.objects.all(), disabled=True)
         self.assertIs(field.has_changed("x", "y"), False)
 
@@ -361,6 +387,14 @@ class ModelChoiceFieldTests(TestCase):
     def test_custom_choice_iterator_passes_model_to_widget(self):
         class CustomModelChoiceValue:
             def __init__(self, value, obj):
+                """
+                Initializes an instance of the class, setting the internal state with the provided value and object reference.
+
+                :param value: The value to be stored in the instance.
+                :param obj: The object to be associated with the instance.
+                :returns: None
+                :note: This is a special method, automatically called when an instance of the class is created.
+                """
                 self.value = value
                 self.obj = obj
 

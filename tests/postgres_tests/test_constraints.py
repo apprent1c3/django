@@ -70,6 +70,16 @@ class SchemaTests(PostgreSQLTestCase):
         RangesModel.objects.create(ints=(10, 30))
 
     def test_check_constraint_array_contains(self):
+        """
+
+        Tests the validation of a CheckConstraint that ensures an array field contains a specific value.
+
+        This test case checks that the constraint is violated when the array does not contain the value,
+        and that the validation succeeds when the array does contain the value. The constraint uses a Q object
+        to specify the condition for the validation, and the test verifies that the correct error message
+        is raised when the constraint is not met.
+
+        """
         constraint = CheckConstraint(
             condition=Q(field__contains=[1]),
             name="array_contains",
@@ -147,6 +157,18 @@ class SchemaTests(PostgreSQLTestCase):
             constraint.validate(RangesModel, RangesModel(ints=(6, 10)))
 
     def test_check_constraint_range_lower_upper(self):
+        """
+
+        Tests the validation of a check constraint against a model instance with integer ranges.
+
+        The check constraint ensures that the integer range has a lower bound greater than or equal to 0 and an upper bound less than or equal to 99.
+
+        This test case covers three scenarios:
+            - A range with a lower bound less than 0, which should raise a ValidationError.
+            - A range with an upper bound greater than 99, which should also raise a ValidationError.
+            - A valid range within the specified bounds, which should not raise any errors.
+
+        """
         constraint = CheckConstraint(
             condition=Q(ints__startswith__gte=0) & Q(ints__endswith__lte=99),
             name="ints_range_lower_upper",
@@ -316,6 +338,14 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
                 )
 
     def test_empty_expressions(self):
+        """
+
+        Tests the ExclusionConstraint class to ensure it raises an error when no expressions are provided.
+
+        Validates that attempting to create an exclusion constraint with empty or None expressions results in a ValueError,
+        enforcing the requirement of at least one expression to define the constraint.
+
+        """
         msg = "At least one expression is required to define an exclusion constraint."
         for empty_expressions in (None, []):
             with (
@@ -1131,6 +1161,17 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_opclass_deferrable(self):
+        """
+
+        Tests the creation of a deferrable exclusion constraint on a model's table using an adjacent operator class.
+
+        This test ensures that the constraint is not initially present on the table, 
+        then adds it using a schema editor, and verifies its presence afterwards.
+
+        The constraint defines an exclusion rule based on the 'adjacent to' operator, 
+        which is applied to the 'ints' field, allowing for deferred constraint checking.
+
+        """
         constraint_name = "ints_adjacent_opclass_deferrable"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1147,6 +1188,27 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_gist_opclass_include(self):
+        """
+        Tests the inclusion of fields with specific data types in an exclusion constraint 
+        using the adjacent gist opclass.
+
+        This test adds an exclusion constraint with the adjacent gist opclass to a model, 
+        including a specific field with the 'decimals' data type, and verifies that the 
+        constraint is correctly applied to the model's database table, ensuring that the 
+        constraint is present and configured as expected after addition.
+
+        The test case covers the scenario where the adjacent gist opclass is used with 
+        exclusion constraints to prevent overlapping ranges, while including specific 
+        fields with 'decimals' data type, confirming the correct setup and presence of 
+        such constraints in the database schema.
+
+        Parameters: None
+
+        Returns: None
+
+        Raises: AssertionError if the constraint is not added to the model's database table 
+                or if the constraint is already present before addition. 
+        """
         constraint_name = "ints_adjacent_gist_opclass_include"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)

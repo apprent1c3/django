@@ -8,6 +8,14 @@ from ..utils import setup
 class EscapejsTests(SimpleTestCase):
     @setup({"escapejs01": "{{ a|escapejs }}"})
     def test_escapejs01(self):
+        """
+        Tests the escapejs template filter by rendering a template string containing special characters and verifying that the output is properly escaped for use in JavaScript. 
+
+        The function checks that the filter correctly escapes newline characters, quotes, and other special characters, ensuring that the output string is safe to use in JavaScript contexts. 
+
+        :param self: Test instance
+        :raises AssertionError: If the rendered output does not match the expected escaped string
+        """
         output = self.engine.render_to_string(
             "escapejs01", {"a": "testing\r\njavascript 'string\" <b>escaping</b>"}
         )

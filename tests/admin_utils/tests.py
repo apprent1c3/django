@@ -64,6 +64,22 @@ class NestedObjectsTests(TestCase):
         self._check([0])
 
     def test_cyclic(self):
+        """
+        Tests the functionality of handling cyclic connections.
+
+        This method verifies that the system correctly identifies and processes
+        cyclic relationships between entities. It simulates a scenario where
+        entities form a cycle, and then checks that the collected data matches
+        the expected structure, ensuring that the cycle is properly detected
+        and represented.
+
+        The test case evaluates the correctness of the connection collection
+        and representation, providing assurance that the system can handle
+        complex relationships between entities without entering an infinite loop
+        or producing incorrect results.
+
+        :returns: None
+        """
         self._connect(0, 2)
         self._connect(1, 0)
         self._connect(2, 1)
@@ -182,6 +198,17 @@ class UtilsTests(SimpleTestCase):
         self.assertHTMLEqual(display_value, expected)
 
     def test_json_display_for_field(self):
+        """
+
+        Tests the display of JSON data for a field in various scenarios.
+
+        This test case covers different data types, including nested dictionaries, lists,
+        strings, and tuples, to ensure that they are displayed correctly as JSON strings.
+        The test also includes a non-ASCII character to verify proper encoding and display.
+        The `display_for_field` function is expected to return the JSON representation of
+        the input value, which is then compared to the expected display value.
+
+        """
         tests = [
             ({"a": {"b": "c"}}, '{"a": {"b": "c"}}'),
             (["a", "b"], '["a", "b"]'),
@@ -340,6 +367,25 @@ class UtilsTests(SimpleTestCase):
             label_for_field("nonexistent", Article, form=ArticleForm())
 
     def test_label_for_property(self):
+        """
+        Return a human-readable label for a given model field.
+
+        This function is responsible for deriving a suitable label for a field based on various factors, 
+        including any explicitly defined descriptions or display options associated with the field.
+
+        Args:
+            field_name (str): The name of the model field for which to generate a label.
+            model (Model): The Django model that contains the field.
+            model_admin (ModelAdmin): An optional ModelAdmin instance that may provide additional metadata for the field.
+
+        Returns:
+            str: A human-readable label for the specified field.
+
+        Note:
+            The label is determined based on the presence of a description or display option on the field, 
+            such as those defined using the `@admin.display` decorator.
+
+        """
         class MockModelAdmin:
             @property
             @admin.display(description="property short description")
@@ -411,6 +457,13 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_flatten(self):
+        """
+        Test the functionality of the flatten function.
+
+        This function tests various input scenarios to ensure the flatten function correctly transforms nested structures into a one-dimensional list.
+        The test cases cover different nesting depths and structures, including empty inputs, single-level nesting, and multi-level nesting.
+        The results of the flatten function are compared to the expected output for each test case to verify its correctness.
+        """
         flat_all = ["url", "title", "content", "sites"]
         inputs = (
             ((), []),
@@ -439,6 +492,20 @@ class UtilsTests(SimpleTestCase):
         self.assertEqual(quote("something\nor\nother"), "something_0Aor_0Aother")
 
     def test_build_q_object_from_lookup_parameters(self):
+        """
+        Build a Django Q object from a dictionary of lookup parameters.
+
+        This function takes a dictionary where each key is a model field lookup and each value is a list of values to be used in the lookup. 
+        It returns a Django Q object that represents the combined lookup parameters using AND and OR operators as necessary.
+
+        For example, if the input dictionary includes a single value for a lookup, it will be used in an equality check. 
+        If the input dictionary includes multiple values for a lookup that does not support multiple values (such as iexact), 
+        the function will use the first value. 
+        If the input dictionary includes multiple values for a lookup that supports multiple values (such as in), 
+        all values will be used. 
+        If the input dictionary includes multiple values for a lookup that supports single value (such as pk), 
+        the function will combine them using OR operators.
+        """
         parameters = {
             "title__in": [["Article 1", "Article 2"]],
             "hist__iexact": ["history"],

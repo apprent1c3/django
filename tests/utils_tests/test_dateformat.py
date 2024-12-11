@@ -72,6 +72,9 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(my_birthday, ""), "")
 
     def test_am_pm(self):
+        """
+        Tests the formatting of time using the 'a' and 'A' format codes, which represent ante meridiem (a.m.) and post meridiem (p.m.) in lowercase and uppercase respectively. Verifies that morning hours are correctly formatted as 'a.m.' or 'AM', and evening hours as 'p.m.' or 'PM'.
+        """
         morning = time(7, 00)
         evening = time(19, 00)
         self.assertEqual(dateformat.format(morning, "a"), "a.m.")
@@ -145,6 +148,11 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(my_birthday, r"jS \o\f F"), "8th of July")
 
     def test_futuredates(self):
+        """
+        Tests the date formatting functionality with a future date to ensure it correctly handles years beyond the current era. 
+
+        Verifies that the formatted year component of a date in the future matches the expected value.
+        """
         the_future = datetime(2100, 10, 25, 0, 00)
         self.assertEqual(dateformat.format(the_future, r"Y"), "2100")
 

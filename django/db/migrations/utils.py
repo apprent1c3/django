@@ -11,6 +11,13 @@ COMPILED_REGEX_TYPE = type(re.compile(""))
 
 class RegexObject:
     def __init__(self, obj):
+        """
+        Initializes a new instance, copying pattern and flags from the provided object.
+
+        :param obj: The object from which to copy pattern and flags
+        :type obj: object with pattern and flags attributes
+        :return: None
+        """
         self.pattern = obj.pattern
         self.flags = obj.flags
 

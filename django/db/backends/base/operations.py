@@ -719,6 +719,20 @@ class BaseDatabaseOperations:
         )
 
     def window_frame_value(self, value):
+        """
+        Specifies a window frame value for use in window functions.
+
+        The value determines the set of rows over which a window function is applied.
+        It can be an integer specifying a number of rows to include, either preceding or following
+        the current row. A value of 0 refers to the current row.
+
+        The returned string is in the format required for SQL window frame specifications,
+        using the PRECEDING and FOLLOWING keywords to indicate the direction of the frame.
+
+        :param value: The number of rows to include in the window frame
+        :rtype: str
+        :return: A string representing the window frame value, suitable for use in SQL queries
+        """
         if isinstance(value, int):
             if value == 0:
                 return self.CURRENT_ROW

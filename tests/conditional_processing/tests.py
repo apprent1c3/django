@@ -186,6 +186,19 @@ class ConditionalGet(SimpleTestCase):
         self.assertEqual(response.status_code, 412)
 
     def test_single_condition_1(self):
+        """
+
+        Tests the behavior of the client when sending a single condition in the request.
+
+        Specifically, this test covers the scenario where the client sends an 'If-Modified-Since'
+        header with a specified date and then makes requests to two different endpoints: 
+        one that relies on the last modified date and another that relies on an ETag.
+
+        The test verifies that the client receives the expected response status for both cases,
+        including a 304 Not Modified status when the condition is met, and a full response 
+        when the condition is not applicable.
+
+        """
         self.client.defaults["HTTP_IF_MODIFIED_SINCE"] = LAST_MODIFIED_STR
         response = self.client.get("/condition/last_modified/")
         self.assertNotModified(response)
@@ -224,6 +237,13 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response, check_etag=False)
 
     def test_single_condition_7(self):
+        """
+        Tests the HTTP behavior when a single condition is met, specifically when the 'If-Unmodified-Since' header is set to an expired date.
+
+         The function first sets the 'If-Unmodified-Since' header in the client to an expired last modified date, then performs two consecutive GET requests to the '/condition/last_modified/' and '/condition/etag/' endpoints.
+
+         It verifies that both requests return a 412 status code, indicating that the precondition failed due to the expired 'If-Unmodified-Since' header.
+        """
         self.client.defaults["HTTP_IF_UNMODIFIED_SINCE"] = EXPIRED_LAST_MODIFIED_STR
         response = self.client.get("/condition/last_modified/")
         self.assertEqual(response.status_code, 412)
@@ -236,6 +256,12 @@ class ConditionalGet(SimpleTestCase):
         self.assertFullResponse(response, check_etag=False)
 
     def test_single_condition_9(self):
+        """
+        Test the behavior of conditional requests with an expired 'If-Unmodified-Since' header.
+
+        This test case verifies that when the 'If-Unmodified-Since' header is set to an expired date,
+        the server returns a 412 Precondition Failed status code for both 'Last-Modified' and 'ETag' based conditions.
+        """
         self.client.defaults["HTTP_IF_UNMODIFIED_SINCE"] = EXPIRED_LAST_MODIFIED_STR
         response = self.client.get("/condition/last_modified2/")
         self.assertEqual(response.status_code, 412)

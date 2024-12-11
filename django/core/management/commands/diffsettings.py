@@ -43,6 +43,24 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        Handles the processing of Django settings and generates output based on provided options.
+
+        This function takes in keyword arguments (options) and uses them to customize the output. It 
+        first ensures that Django settings are configured, then retrieves both the user's settings and 
+        the default settings. The function then selects an output function based on the specified output 
+        format (either 'hash' or 'unified') and uses it to generate the output. The generated output 
+        is then returned as a string.
+
+        The available options are:
+            - default: The default settings to use.
+            - output: The format of the output (either 'hash' or 'unified').
+
+        Returns:
+            A string containing the formatted output.
+
+        """
         from django.conf import Settings, global_settings, settings
 
         # Because settings are imported lazily, we need to explicitly load them.

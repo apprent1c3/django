@@ -326,6 +326,19 @@ class DefaultStorageFinder(BaseStorageFinder):
     storage = default_storage
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the static files finder.
+
+        This method sets up the finder by calling the parent class's initialization method
+        and then checks if the storage backend has a valid base location. If the location
+        is not set, it raises an :class:`ImproperlyConfigured` exception to prevent
+        further processing.
+
+        :param \*args: Variable length argument list
+        :param \*\*kwargs: Arbitrary keyword arguments
+        :raises ImproperlyConfigured: If the storage backend's base location is invalid
+        :raises TypeError: If the arguments are invalid
+        """
         super().__init__(*args, **kwargs)
         base_location = getattr(self.storage, "base_location", empty)
         if not base_location:

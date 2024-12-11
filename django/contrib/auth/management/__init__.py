@@ -43,6 +43,27 @@ def create_permissions(
     apps=global_apps,
     **kwargs,
 ):
+    """
+    Create permissions for an application's models.
+
+    This function creates the necessary permissions for an application's models in the database.
+    It retrieves the models from the application's configuration and then checks if the required content types and permissions already exist.
+    If not, it creates the missing permissions and adds them to the database.
+
+    The function takes into account the verbosity level, database alias, and interactive mode, allowing for flexible and controlled execution.
+    It also handles exceptions and errors that may occur during the permission creation process.
+
+    Parameters:
+        app_config (AppConfig): The application configuration.
+        verbosity (int): The level of verbosity (default is 2).
+        interactive (bool): Whether to run in interactive mode (default is True).
+        using (str): The database alias (default is DEFAULT_DB_ALIAS).
+        apps (Apps): The application registry (default is global_apps).
+        **kwargs: Additional keyword arguments.
+
+    Returns:
+        None
+    """
     if not app_config.models_module:
         return
 

@@ -76,6 +76,14 @@ class TestMethods(SimpleTestCase):
         self.assertEqual(kwargs, {})
 
     def test_deconstruct_custom_encoder_decoder(self):
+        """
+        Tests the deconstruction of a JSONField with a custom encoder and decoder.
+
+        This test ensures that the deconstruct method of a JSONField correctly returns the
+        name, path, arguments, and keyword arguments of the field, specifically when a
+        custom JSON encoder and decoder are used. It verifies that the encoder and decoder
+        are properly identified and returned in the keyword arguments dictionary.
+        """
         field = models.JSONField(encoder=DjangoJSONEncoder, decoder=CustomJSONDecoder)
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(kwargs["encoder"], DjangoJSONEncoder)
@@ -138,6 +146,14 @@ class TestValidation(SimpleTestCase):
             models.JSONField(decoder=CustomJSONDecoder())
 
     def test_validation_error(self):
+        """
+        Tests that a ValidationError is raised when a non-JSON serializable value is passed to a JSONField for cleaning.
+
+        This test verifies that the JSONField validation correctly identifies and rejects values that cannot be serialized to JSON, ensuring data integrity and preventing potential errors downstream.
+
+        :raises: ValidationError if the provided value is not valid JSON.
+
+        """
         field = models.JSONField()
         msg = "Value must be valid JSON."
         value = uuid.UUID("{d85e2076-b67c-4ee7-8c3a-2bf5a2cc2475}")
@@ -217,6 +233,20 @@ class TestSaveLoad(TestCase):
 
     @skipUnlessDBFeature("supports_primitives_in_json_field")
     def test_json_null_different_from_sql_null(self):
+        """
+
+        Tests the distinction between JSON null and SQL null in a model field.
+
+        This test case checks if the backend correctly handles JSON null values
+        as distinct from SQL null values. It creates instances of a model with JSON
+        fields set to both JSON null and SQL null, then verifies that database
+        queries correctly distinguish between these two types of null values.
+
+        The test covers filtering and refreshing of model instances to ensure that
+        the difference between JSON null and SQL null is preserved in various
+        database operations.
+
+        """
         json_null = NullableJSONModel.objects.create(value=Value(None, JSONField()))
         NullableJSONModel.objects.update(value=Value(None, JSONField()))
         json_null.refresh_from_db()
@@ -388,6 +418,20 @@ class TestQuerying(TestCase):
                 self.assertSequenceEqual(query, expected)
 
     def test_ordering_grouping_by_key_transform(self):
+        """
+
+        Tests the ordering and grouping of database query results by a specific key transformation.
+
+        This function verifies that the results of a database query are correctly ordered and grouped
+        according to a specified key transformation. It uses a Django ORM query to filter and order
+        results from a NullableJSONModel, and then asserts that the results match the expected output.
+        The test covers two scenarios: ordering by a specific key and annotating the results with a key
+        transform, and filtering and grouping results by a specific key transformation.
+
+        The test also considers database-specific behavior, such as how empty strings are interpreted
+        as null values, to ensure that the results are accurate across different database systems.
+
+        """
         base_qs = NullableJSONModel.objects.filter(value__d__0__isnull=False)
         for qs in (
             base_qs.order_by("value__d__0"),
@@ -825,6 +869,19 @@ class TestQuerying(TestCase):
 
     def test_lookup_exclude_nonexistent_key(self):
         # Values without the key are ignored.
+        """
+
+        Tests the application of lookup filters to exclude objects from query results.
+
+        The function verifies that the exclude method correctly filters out objects 
+        based on the provided condition, and that it behaves as expected when combined 
+        with other query operations such as filter and logical operators. 
+
+        Specifically, it tests the exclusion of objects based on a condition, the 
+        exclusion of objects that do not match the condition, and the application of 
+        logical operators (AND, OR, NOT) to the exclusion condition.
+
+        """
         condition = Q(value__foo="bax")
         objs_with_value = [self.objs[6]]
         objs_with_different_value = [self.objs[0], self.objs[7]]

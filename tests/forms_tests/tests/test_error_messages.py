@@ -150,6 +150,22 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["LENGTH 11, MAX LENGTH 10"], f.clean, "aye@bee.com")
 
     def test_filefield(self):
+        """
+
+        Tests the validation functionality of a FileField.
+
+        This test case checks the error messages returned by a FileField under various scenarios, 
+        including when the file is required, when the file is invalid, and when the file is missing or empty.
+        It verifies that the correct error messages are raised in each case, ensuring that the field behaves 
+        as expected and provides informative feedback to users.
+
+        The test covers the following scenarios:
+        - When the file is required but not provided
+        - When an invalid file is provided
+        - When an empty file is provided
+        The test ensures that the field's error messages are correctly customized and returned in response to these scenarios.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -206,6 +222,17 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["b IS INVALID CHOICE"], f.clean, ["b"])
 
     def test_splitdatetimefield(self):
+        """
+
+        Tests the SplitDateTimeField validation functionality.
+
+        This test case covers the following scenarios:
+            * Required field validation: Verifies that the field raises a 'REQUIRED' error when no input is provided.
+            * Invalid date and time validation: Verifies that the field raises 'INVALID DATE' and 'INVALID TIME' errors when input is provided in an incorrect format.
+
+        The test utilizes custom error messages to ensure the SplitDateTimeField behaves as expected in various validation scenarios.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid_date": "INVALID DATE",
@@ -225,6 +252,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID IP ADDRESS"], f.clean, "127.0.0")
 
     def test_subclassing_errorlist(self):
+        """
+        Tests the custom error list rendering for form fields and non-field errors by creating a form with required fields, raising a validation error, and checking the produced HTML output against the expected result, both with the default error list and a custom error list implementation.
+        """
         class TestForm(Form):
             first_name = CharField()
             last_name = CharField()
@@ -238,6 +268,15 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
                 return self.as_divs()
 
             def as_divs(self):
+                """
+                .. method:: as_divs()
+
+                    Returns a HTML string containing error messages wrapped in div elements.
+
+                    If the object is empty, an empty string is returned. Otherwise, each error message 
+                    is wrapped in a paragraph element and all messages are enclosed in a div with an 
+                    \"error\" class, making it suitable for display in a web page.
+                """
                 if not self:
                     return ""
                 return mark_safe(

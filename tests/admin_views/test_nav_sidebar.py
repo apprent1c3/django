@@ -103,6 +103,14 @@ class AdminSidebarTests(TestCase):
             self.client.get(url)
 
     def test_sidebar_model_name_non_ascii(self):
+        """
+
+        Test that the sidebar model name is correctly displayed and linked when the model name contains non-ASCII characters.
+
+        Verifies that the admin changelist view for a model with a non-ASCII name in its URL
+        renders the correct HTML structure for the sidebar, including the model name and link.
+
+        """
         url = reverse("test_with_sidebar:admin_views_héllo_changelist")
         response = self.client.get(url)
         self.assertContains(

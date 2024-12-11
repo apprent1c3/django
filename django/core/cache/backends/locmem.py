@@ -49,6 +49,17 @@ class LocMemCache(BaseCache):
         self._expire_info[key] = self.get_backend_timeout(timeout)
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        \".. method:: set(key, value, timeout=DEFAULT_TIMEOUT, version=None)
+           Sets a value for a given key in the cache.
+
+           :param key: The key to associate with the value.
+           :param value: The value to be stored.
+           :param timeout: The time in seconds after which the value will expire. Defaults to DEFAULT_TIMEOUT.
+           :param version: Optional version number for the key. Used to manage different versions of the same key.
+
+           The value is pickled before being stored, allowing for storage of arbitrary Python objects. The operation is thread-safe.\"
+        """
         key = self.make_and_validate_key(key, version=version)
         pickled = pickle.dumps(value, self.pickle_protocol)
         with self._lock:
@@ -89,6 +100,21 @@ class LocMemCache(BaseCache):
         return exp is not None and exp <= time.time()
 
     def _cull(self):
+        """
+        Removes items from the cache based on the cull frequency setting.
+
+        If the cull frequency is set to 0, the entire cache is cleared. Otherwise, a 
+        portion of the cache is removed, with the number of items removed determined by 
+        the cull frequency. The items to be removed are selected in a manner imposed by 
+        the cache's data structure.
+
+        Note: The cull operation also updates the expiration information to reflect the 
+        changes made to the cache.
+
+        This method is used to manage cache size and ensure that outdated or unused items 
+        are periodically removed to maintain cache efficiency and prevent it from growing 
+        too large.
+        """
         if self._cull_frequency == 0:
             self._cache.clear()
             self._expire_info.clear()
@@ -112,6 +138,16 @@ class LocMemCache(BaseCache):
             return self._delete(key)
 
     def clear(self):
+        """
+
+        Clears the cache and expire information.
+
+        Removes all items from the cache and resets the expiration information,
+        effectively resetting the cache to its initial state. This operation is
+        thread-safe, ensuring that the cache is cleared consistently even in
+        multi-threaded environments.
+
+        """
         with self._lock:
             self._cache.clear()
             self._expire_info.clear()

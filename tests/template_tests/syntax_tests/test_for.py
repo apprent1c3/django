@@ -61,6 +61,22 @@ class ForTagTests(SimpleTestCase):
         }
     )
     def test_for_tag_vars05(self):
+        """
+
+        Tests the functionality of a for loop tag variable in a template engine.
+
+        This function renders a template string containing a for loop with a conditional statement
+        that outputs 'f' for the first iteration and 'x' for subsequent iterations.
+        It then verifies that the output matches the expected result 'fxx' when the input list contains identical values.
+
+         Args:
+            (Implicit through self) engine: The template engine instance being tested.
+            (Implicit through self) values: A list of values to be used in the template rendering.
+
+         Returns:
+            None, but asserts that the rendered output is 'fxx'.
+
+        """
         output = self.engine.render_to_string("for-tag-vars05", {"values": [6, 6, 6]})
         self.assertEqual(output, "fxx")
 
@@ -134,6 +150,11 @@ class ForTagTests(SimpleTestCase):
         }
     )
     def test_for_tag_unpack06(self):
+        """
+        Verifies that the 'for' tag raises a TemplateSyntaxError when unpacking two values from a tuple into a single assignment target.
+
+        The test checks that the template engine correctly handles invalid syntax in the 'for' tag by attempting to unpack a sequence of key-value pairs into a single variable. The expected error message is validated to ensure the correct exception is raised with the correct message, indicating the inability to unpack values into the specified target variables.
+        """
         msg = "'for' tag received an invalid argument: for key value in items"
         with self.assertRaisesMessage(TemplateSyntaxError, msg):
             self.engine.render_to_string(
@@ -292,6 +313,16 @@ class ForTagTests(SimpleTestCase):
         }
     )
     def test_for_tag_unpack11(self):
+        """
+        Tests that the for loop tag unpacking requires the correct number of values.
+
+        This test case checks that rendering a template with a for loop that attempts to unpack
+        a tuple with fewer values than expected results in a ValueError being raised.
+        The error message is verified to ensure it correctly indicates the number of values
+        required and the number of values provided. The test helps ensure that the templating
+        engine correctly handles tuple unpacking in for loops and provides informative error
+        messages when it encounters invalid data. 
+        """
         with self.assertRaisesMessage(
             ValueError, "Need 3 values to unpack in for loop; got 2."
         ):

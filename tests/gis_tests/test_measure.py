@@ -39,6 +39,14 @@ class DistanceTest(SimpleTestCase):
             D(banana=100)
 
     def test_init_invalid_area_only_units(self):
+        """
+
+        Tests that initializing a D object with only area units raises an AttributeError.
+
+        This test ensures that the D class properly handles invalid initialization
+        when only area units are provided, without specifying the required components.
+
+        """
         with self.assertRaises(AttributeError):
             D(ha=100)
 
@@ -306,6 +314,19 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(A.unit_attname("Hectare"), "ha")
 
     def test_hash(self):
+        """
+        Tests the hash function of the class.
+
+        This function creates instances of the class with different area values and 
+        asserts that objects with equivalent areas have the same hash value, 
+        while objects with different areas have distinct hash values.
+
+        It checks specifically if areas represented in different units (square meters and square kilometers) 
+        are correctly converted and result in the same hash if they represent the same area. 
+
+        This ensures that the hash function behaves as expected and can be used 
+        for storing and retrieving instances of the class in hash-based data structures.
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_m=1000000)
         a3 = A(sq_km=1)

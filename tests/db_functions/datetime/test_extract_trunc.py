@@ -56,6 +56,17 @@ def truncate_to(value, kind, tzinfo=None):
         value = value.astimezone(tzinfo)
 
     def truncate(value, kind):
+        """
+        Truncates a datetime object or a date to a specified level of precision.
+
+        :param value: The datetime object or date to be truncated.
+        :param kind: The level of precision to which the value should be truncated. It can be 'second', 'minute', 'hour', 'day', 'week', 'month', 'quarter' or 'year'.
+
+        :returns: The truncated datetime object or date.
+        :rtype: datetime or date
+
+        The function supports truncation to various levels of precision, including seconds, minutes, hours, days, weeks, months, quarters, and years. It preserves the original type of the input value, whether it is a datetime object or a date. If the input value is not a datetime object or a date, the function may not work as expected.
+        """
         if kind == "second":
             return value.replace(microsecond=0)
         if kind == "minute":
@@ -189,6 +200,16 @@ class DateFunctionTests(TestCase):
                 self.assertGreaterEqual(str(qs.query).lower().count("extract"), 2)
 
     def test_extract_year_lessthan_lookup(self):
+        """
+        Tests the functionality of extracting year from datetime fields in database queries, specifically when using the \"less than\" lookup.
+
+        This test case covers different scenarios, including filtering datetime fields 
+        by year and iso year, and verifies that the expected results are returned.
+        It also checks that the generated SQL query uses the 'extract' function 
+        when necessary, and that it does not use 'extract' when filtering 
+        by exact year match. The test uses different lookup types, including 
+        \"less than\" and \"less than or equal to\", to ensure correct functionality.
+        """
         start_datetime = datetime(2015, 6, 15, 14, 10)
         end_datetime = datetime(2016, 6, 15, 14, 10)
         if settings.USE_TZ:
@@ -365,6 +386,13 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_none(self):
+        """
+        Tests the extraction of datetime values from database models when the datetime field is None.
+
+        Verifies that when the datetime field is None, the extraction of year from date or datetime fields, as well as hour from time fields, results in None.
+
+        This test case ensures that the expected behavior is maintained when dealing with missing datetime values, providing a robust validation of the extraction functionality in various scenarios.
+        """
         self.create_model(None, None)
         for t in (
             Extract("start_datetime", "year"),
@@ -633,6 +661,20 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_quarter_func(self):
+        """
+
+        Tests the functionality of extracting the quarter from a date or datetime field.
+
+        This function verifies that the ExtractQuarter database function correctly extracts
+        the quarter from both date and datetime fields, and that it works correctly when
+        used in various QuerySet methods, including annotate and filter. It tests the 
+        functionality with both ascending and descending date orders, and with timezone
+        aware dates if the USE_TZ setting is enabled.
+
+        The test compares the extracted quarter values with the expected values for a given
+        set of start and end dates, ensuring that the correct quarter is extracted in each case.
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 8, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -1155,6 +1197,17 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_quarter_func(self):
+        """
+        Tests the functionality of the TruncQuarter function, which truncates a given date or datetime to the start of the quarter.
+
+        The function tests the following scenarios:
+        - The ability to truncate datetime objects representing different points in time to the start of the quarter.
+        - The behavior of TruncQuarter when applied to DateFields and DateTimeFields in a model.
+        - The ordering of query results when annotated with TruncQuarter.
+        - Error handling when attempting to truncate a TimeField to a DateTimeField.
+
+        This test case ensures that the TruncQuarter function behaves as expected and handles various edge cases correctly.
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 10, 15, 14, 10, 50, 123), "quarter")
         last_quarter_2015 = truncate_to(
@@ -1343,6 +1396,20 @@ class DateFunctionTests(TestCase):
         )
 
     def test_trunc_time_func(self):
+        """
+
+        Tests the TruncTime function by truncating datetime fields to their time component.
+
+        This test case ensures that the TruncTime function correctly extracts the time
+        from datetime fields, handles timezones, and raises errors when attempting to
+        truncate date fields to time fields.
+
+        It verifies the functionality through several scenarios, including:
+        - Annotating and ordering a queryset by the truncated time
+        - Filtering a queryset by the truncated time
+        - Attempting to truncate a date field to a time field, which should raise a ValueError
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = datetime(2016, 6, 15, 14, 10, 50, 123)
         if settings.USE_TZ:
@@ -1500,6 +1567,23 @@ class DateFunctionTests(TestCase):
             )
 
     def test_trunc_minute_func(self):
+        """
+
+        Test the TruncMinute function functionality.
+
+        This test case evaluates the correctness of the TruncMinute function when applied to 
+        datetime fields, checking for proper truncation to the minute and correct query results.
+
+        It covers various scenarios, including:
+
+        * Truncating to the minute for both start and end datetime fields
+        * Truncating time fields
+        * Ordering and filtering querysets using the TruncMinute function
+        * Verifying error handling for attempting to truncate a DateField to a DateTimeField
+
+        The test ensures that the TruncMinute function behaves as expected and returns the correct results.
+
+        """
         start_datetime = datetime(2015, 6, 15, 14, 30, 50, 321)
         end_datetime = truncate_to(datetime(2016, 6, 15, 14, 10, 50, 123), "minute")
         if settings.USE_TZ:
@@ -1638,6 +1722,15 @@ class DateFunctionTests(TestCase):
         )
 
     def test_extract_outerref(self):
+        """
+        ..: 
+            Tests the extraction of outer reference in a datetime-based subquery.
+
+            This test case verifies that the function correctly annotates a queryset with a subquery,
+            using an outer reference to filter related objects. The test checks for correct annotation
+            of objects with matching start and end datetimes, and ensures that objects without a match
+            are annotated with a null value. The test also accounts for timezone-aware datetime objects.
+        """
         datetime_1 = datetime(2000, 1, 1)
         datetime_2 = datetime(2001, 3, 5)
         datetime_3 = datetime(2002, 1, 3)
@@ -1669,6 +1762,23 @@ class DateFunctionTests(TestCase):
 @override_settings(USE_TZ=True, TIME_ZONE="UTC")
 class DateFunctionWithTimeZoneTests(DateFunctionTests):
     def test_extract_func_with_timezone(self):
+        """
+        Tests the extraction of datetime components from a model field with timezone support.
+
+        The test creates a model instance with a start datetime set to June 15, 2015, 23:30:01.321, 
+        and an end datetime set to June 16, 2015, 13:11:27.123. It then extracts various components 
+        such as day, week, iso year, weekday, quarter, hour, and minute from the start datetime, 
+        both in the default timezone and in the 'Australia/Melbourne' timezone. 
+
+        Additionally, it tests extraction with positive and negative timezones offsets. 
+
+        The test verifies that the extracted values match the expected results in both the default 
+        timezone and when the default timezone is overridden with 'Australia/Melbourne' timezone.
+
+        This test case covers various datetime extraction functions and timezone support, 
+        ensuring that the model's datetime fields are correctly processed and retrieved with 
+        the correct timezone information.
+        """
         start_datetime = datetime(2015, 6, 15, 23, 30, 1, 321)
         end_datetime = datetime(2015, 6, 16, 13, 11, 27, 123)
         start_datetime = timezone.make_aware(start_datetime)
@@ -1834,6 +1944,17 @@ class DateFunctionWithTimeZoneTests(DateFunctionTests):
         self.create_model(end_datetime, start_datetime)
 
         def assertDatetimeKind(kind, tzinfo):
+            """
+
+            Asserts that datetime objects are properly truncated to a specified kind and timezone.
+
+            This function verifies that the start and end datetime objects are correctly truncated
+            to the specified kind (e.g., day, hour, minute) in the given timezone.
+
+            :param kind: The kind of truncation to be applied (e.g., 'days', 'hours', 'minutes')
+            :param tzinfo: The timezone information to be used for truncation
+
+            """
             truncated_start = truncate_to(
                 start_datetime.astimezone(tzinfo), kind, tzinfo
             )

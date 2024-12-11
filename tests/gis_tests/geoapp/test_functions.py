@@ -242,6 +242,17 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_Azimuth_function")
     def test_azimuth(self):
         # Returns the azimuth in radians.
+        """
+
+        Tests the Azimuth function to calculate the angle between two points on a sphere.
+
+        The Azimuth function is tested with two scenarios:
+        - When two points are distinct, it checks if the calculated angle is correct (in radians) between the two points.
+        - When two points are identical, it checks if the function returns None as the angle is undefined in this case.
+
+        The test uses two test points with SRID 4326 (WGS 84) to verify the function's correctness.
+
+        """
         azimuth_expr = functions.Azimuth(Point(0, 0, srid=4326), Point(1, 1, srid=4326))
         self.assertAlmostEqual(
             City.objects.annotate(azimuth=azimuth_expr).first().azimuth,
@@ -372,6 +383,22 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
         # Reference query:
         # SELECT ST_GeoHash(point) FROM geoapp_city WHERE name='Houston';
         # SELECT ST_GeoHash(point, 5) FROM geoapp_city WHERE name='Houston';
+        """
+        Tests the functionality of the GeoHash function for geospatial calculations.
+
+        This test verifies that the GeoHash function correctly generates a geohash string 
+        from a geospatial point. It checks the default precision and a custom precision 
+        value, comparing the results with the expected reference hash values.
+
+        The test uses a City object with a known location (Houston) to generate the 
+        geohash and then assertion checks validate that the resulting geohash matches 
+        the expected reference hash. The test covers both the default precision and a 
+        specific precision value of 5, ensuring that the GeoHash function behaves as 
+        expected in different scenarios.
+
+        This test requires a database that supports the GeoHash function to be executed.
+
+        """
         ref_hash = "9vk1mfq8jx0c8e0386z6"
         h1 = City.objects.annotate(geohash=functions.GeoHash("point")).get(
             name="Houston"
@@ -414,6 +441,17 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("supports_empty_geometries", "has_IsEmpty_function")
     def test_isempty(self):
+        """
+
+        Tests the functionality of the IsEmpty function for geometric fields.
+
+        This test case checks if the IsEmpty function correctly identifies empty geometric objects.
+        It creates two City objects, one with an empty point and one with a populated point,
+        then uses the IsEmpty function to annotate and filter the objects, verifying that only the empty object is returned.
+
+        The test covers two usage scenarios: annotating objects with the IsEmpty function and using it as a lookup in a filter.
+
+        """
         empty = City.objects.create(name="Nowhere", point=Point(srid=4326))
         City.objects.create(name="Somewhere", point=Point(6.825, 47.1, srid=4326))
         self.assertSequenceEqual(
@@ -502,6 +540,11 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_MakeValid_function")
     def test_make_valid(self):
+        """
+        Tests the MakeValid database function by creating a state with an invalid polygon geometry,
+        applying the MakeValid function to repair it, and verifying that the resulting geometry is valid
+        and equivalent to the expected valid geometry.
+        """
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="invalid", poly=invalid_geom)
         invalid = (
@@ -632,6 +675,15 @@ class GISFunctionsTests(FuncTestMixin, TestCase):
     @skipUnlessDBFeature("has_SnapToGrid_function")
     def test_snap_to_grid(self):
         # Let's try and break snap_to_grid() with bad combinations of arguments.
+        """
+        Tests the `SnapToGrid` database function by annotating it on a geographic field.
+
+        This function checks that the `SnapToGrid` function raises exceptions for invalid input, such as an invalid number of arguments, or arguments of the wrong type.
+
+        It then tests the function's ability to snap a geographic multipolygon to a grid, with varying levels of precision in both the x and y coordinates.
+
+        The test uses a real-world multipolygon representing the country of San Marino, and checks that the snapped result matches the expected reference geometries for different grid sizes.
+        """
         for bad_args in ((), range(3), range(5)):
             with self.assertRaises(ValueError):
                 Country.objects.annotate(snap=functions.SnapToGrid("mpoly", *bad_args))

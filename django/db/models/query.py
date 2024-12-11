@@ -306,6 +306,21 @@ class QuerySet(AltersData):
 
     def as_manager(cls):
         # Address the circular dependency between `Queryset` and `Manager`.
+        """
+
+        Create a manager instance from a QuerySet class.
+
+        This function generates a manager object that can be used to interact with a Django model.
+        It allows customization of the manager by leveraging the QuerySet class, 
+        providing more flexibility in database operations.
+
+        The resulting manager instance is flagged as being built with this function, 
+        enabling differentiation from other managers.
+
+        :param cls: The QuerySet class to create the manager from.
+        :rtype: Manager
+
+        """
         from django.db.models.manager import Manager
 
         manager = Manager.from_queryset(cls)()
@@ -448,6 +463,24 @@ class QuerySet(AltersData):
         return combined
 
     def __or__(self, other):
+        """
+        Perform a logical OR operation between two querysets.
+
+        This method combines the results of two querysets using a logical OR operation,
+        effectively merging their results into a single queryset. It ensures that the
+        combined queryset only includes unique results, without duplicating any objects.
+
+        The operation is performed at the database level, utilizing the most efficient
+        query possible. If either of the querysets is empty, the method returns the
+        non-empty queryset.
+
+        The resulting queryset can be further filtered, ordered, or otherwise modified
+        as needed. The original querysets remain unchanged by this operation.
+
+        Returns:
+            A new queryset representing the combined results of the logical OR operation.
+
+        """
         self._check_operator_queryset(other, "|")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -467,6 +500,18 @@ class QuerySet(AltersData):
         return combined
 
     def __xor__(self, other):
+        """
+        Return a new queryset that represents the symmetric difference of the current queryset and another queryset.
+
+         The symmetric difference of two sets is a set of elements which are in either of the sets, but not in their intersection.
+
+         This operation is performed using the XOR operator (^) on the querysets. If either of the querysets is empty, the other queryset is returned.
+
+         The resulting queryset will contain all objects that are in exactly one of the original querysets. Note that this operation may require database queries to determine the intersection and differences between the querysets.
+
+         :param other: The other queryset to compute the symmetric difference with
+         :return: A new queryset representing the symmetric difference of the current queryset and the other queryset
+        """
         self._check_operator_queryset(other, "^")
         self._merge_sanity_check(other)
         if isinstance(self, EmptyQuerySet):
@@ -1343,6 +1388,24 @@ class QuerySet(AltersData):
         return clone
 
     def values_list(self, *fields, flat=False, named=False):
+        """
+        Returns a QuerySet containing the specified fields, rather than model instances.
+
+        The function can return either a list of tuples, a list of single values, or a list of dictionaries.
+        By default, it returns a list of tuples where the first item in the tuple is the value of the first field, the second item is the value of the second field, and so on.
+
+        Args:
+            *fields: The fields to include in the result.
+            flat (bool, optional): If True, returns a flat list of single values instead of a list of tuples. Defaults to False.
+            named (bool, optional): If True, returns a list of dictionaries where each key is the name of the field and the value is the value of the field. Defaults to False.
+
+        Note:
+            Using `flat` and `named` together raises a TypeError, as does using `flat` with more than one field.
+
+        Returns:
+            A QuerySet containing the specified fields.
+
+        """
         if flat and named:
             raise TypeError("'flat' and 'named' can't be used together.")
         if flat and len(fields) > 1:
@@ -2035,6 +2098,47 @@ class RawQuerySet:
         using=None,
         hints=None,
     ):
+        """
+
+        Initialize a database query object.
+
+        This constructor takes in several parameters to define a query, including the raw query string,
+        an optional model, and database connection parameters.
+
+        The query is typically used to interact with a database, and this object provides a way to
+        parameterize and customize the query execution.
+
+        Parameters
+        ----------
+        raw_query : str
+            The raw SQL query string to be executed.
+        model : object, optional
+            The model associated with the query.
+        query : object, optional
+            A pre-constructed query object.
+        params : tuple, optional
+            Parameters to be used in the query execution.
+        translations : dict, optional
+            Dictionary of translations to be applied to the query results.
+        using : object, optional
+            The database connection to use for the query.
+        hints : dict, optional
+            Hints to be used by the database when executing the query.
+
+        Attributes
+        ----------
+        raw_query : str
+            The raw SQL query string.
+        model : object
+            The model associated with the query.
+        query : object
+            The constructed query object.
+        params : tuple
+            The parameters to be used in the query execution.
+        translations : dict
+            The dictionary of translations to be applied to the query results.
+
+        """
         self.raw_query = raw_query
         self.model = model
         self._db = using
@@ -2101,10 +2205,22 @@ class RawQuerySet:
         return len(self._result_cache)
 
     def __bool__(self):
+        """
+        Returns a boolean indicating whether any results are available.
+
+        This method triggers a fetch of all results if they have not been retrieved yet, 
+        and then checks if the result cache is not empty. It returns True if there are 
+        results in the cache, and False otherwise.
+        """
         self._fetch_all()
         return bool(self._result_cache)
 
     def __iter__(self):
+        """
+        Returns an iterator over the cached results, allowing for iteration over the entire dataset. 
+        Before iteration begins, the function ensures that all necessary data is fetched and stored in the cache. 
+        This enables efficient and lazy iteration, making it suitable for handling large datasets.
+        """
         self._fetch_all()
         return iter(self._result_cache)
 

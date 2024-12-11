@@ -28,6 +28,20 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(dictsortreversed(data, 0), expected)
 
     def test_sort_list_of_tuple_like_dicts(self):
+        """
+
+        Tests the functionality of sorting a list of tuple-like dictionaries in descending order.
+
+        The function verifies that a list of dictionaries, where each dictionary represents a tuple-like object
+        with string keys that correspond to integer indices, can be sorted in reverse order based on the values
+        associated with a specific key.
+
+        The test case checks if the sorted list matches the expected output, ensuring that the sorting function
+        correctly rearranges the dictionaries based on the specified key.
+
+        :raises AssertionError: if the sorted list does not match the expected output
+
+        """
         data = [
             {"0": "a", "1": "42"},
             {"0": "c", "1": "string"},

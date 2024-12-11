@@ -43,12 +43,36 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     def remove_field(self, model, field):
         # If the column is an identity column, drop the identity before
         # removing the field.
+        """
+
+        Removes a field from a model, handling identity columns.
+
+        This method safely removes a field from a database table associated with a model. 
+        If the field being removed is an identity column, it will be properly dropped before removal. 
+        After processing any special handling for identity columns, the method calls the superclass's remove_field method to complete the removal process.
+
+        :param model: The model from which the field will be removed.
+        :param field: The field to be removed from the model.
+
+        """
         if self._is_identity_column(model._meta.db_table, field.column):
             self._drop_identity(model._meta.db_table, field.column)
         super().remove_field(model, field)
 
     def delete_model(self, model):
         # Run superclass action
+        """
+
+        Deletes a model from the database, including its associated auto-incrementing sequence if it exists.
+
+        Args:
+            model: The model to be deleted from the database.
+
+        Notes:
+            This method builds upon the default delete model functionality by also handling the deletion of the associated sequence.
+            The sequence is removed only if it exists in the database.
+
+        """
         super().delete_model(model)
         # Clean up manually created sequence.
         self.execute(
@@ -201,6 +225,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return self.quote_value(value)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        Determines whether a given model field should be indexed, considering the field's database type.
+
+        This method overrides the default indexing behavior by checking if the field's database type is among the limited data types supported by the connection. If it is, indexing is disabled; otherwise, the default behavior applies.
+
+        Args:
+            model: The model that contains the field.
+            field: The field to check for indexing.
+
+        Returns:
+            bool: Whether the field should be indexed.
+        """
         create_index = super()._field_should_be_indexed(model, field)
         db_type = field.db_type(self.connection)
         if (

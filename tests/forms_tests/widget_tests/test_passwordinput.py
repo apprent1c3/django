@@ -39,6 +39,15 @@ class PasswordInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Verifies the rendering of a form field when the use_fieldset attribute of a widget is set to False.
+
+        This test ensures that the field is rendered as expected, with the correct HTML structure and attributes, when the use_fieldset attribute is disabled.
+
+        The test case creates a test form with a single field, renders the form, and then checks that the resulting HTML matches the expected output. The expected output includes a div element containing a label and input element, with the correct id, name, and type attributes.
+
+        The test confirms that the widget's use_fieldset attribute is set to False and that the rendered HTML does not include any fieldset elements, as expected when this attribute is disabled.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

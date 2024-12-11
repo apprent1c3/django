@@ -161,6 +161,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             self.assertEqual(GEOSGeometry(g.wkt, 4326), GEOSGeometry(geom.json))
 
     def test_json_srid(self):
+        """
+        Tests the creation of a GEOSGeometry object from a GeoJSON string, specifically verifying that the SRID (Spatial Reference System Identifier) is correctly extracted and applied to the resulting geometry. The test case uses a sample GeoJSON point with a defined CRS (Coordinate Reference System) and checks that the resulting GEOSGeometry object matches the expected Point geometry with the specified SRID.
+        """
         geojson_data = {
             "type": "Point",
             "coordinates": [2, 49],
@@ -305,6 +308,14 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
 
     @mock.patch("django.contrib.gis.geos.libgeos.geos_version", lambda: b"3.11.0")
     def test_equals_identical_geos_version(self):
+        """
+
+        Tests the behavior of the equals_identical method when the GEOS library version is less than 3.12.0.
+
+        It verifies that calling equals_identical with two identical geometries raises a GEOSException,
+        indicating that the method requires a GEOS version of at least 3.12.0 to function correctly.
+
+        """
         g1 = fromstr("POINT (1 2 3)")
         g2 = fromstr("POINT (1 2 3)")
         msg = "GEOSGeometry.equals_identical() requires GEOS >= 3.12.0"
@@ -368,6 +379,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             prev = pnt  # setting the previous geometry
 
     def test_point_reverse(self):
+        """
+        Tests the behavior of the reverse method for a Point geometry, specifically verifying that the coordinate order is correctly swapped from longitude-latitude to latitude-longitude after reversal, and that the Spatial Reference System Identifier (SRID) remains unchanged.
+        """
         point = GEOSGeometry("POINT(144.963 -37.8143)", 4326)
         self.assertEqual(point.srid, 4326)
         point.reverse()
@@ -473,6 +487,12 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             LinearRing().is_counterclockwise
 
     def test_is_counterclockwise_geos_error(self):
+        """
+        Tests that a GEOSException is raised when the cs_is_ccw function from geos 
+        prototypes returns an error, indicating that the LinearRing is not counterclockwise.
+        This simulates an error encountered in the GEOS C function \"GEOSCoordSeq_isCCW\" 
+        to ensure proper exception handling in the is_counterclockwise method of LinearRing
+        """
         with mock.patch("django.contrib.gis.geos.prototypes.cs_is_ccw") as mocked:
             mocked.return_value = 0
             mocked.func_name = "GEOSCoordSeq_isCCW"
@@ -638,6 +658,17 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertIn("MULTIPOLYGON (((100", content)
 
     def test_polygon_comparison(self):
+        """
+
+        Tests the comparison of polygon objects based on their area.
+
+        This test function creates multiple polygon objects with different vertices and 
+        compares them using greater than (>) and less than (<) operators. The comparison 
+        is expected to return the correct result based on the area of the polygons, where 
+        a polygon with a larger area is considered greater than a polygon with a smaller 
+        area.
+
+        """
         p1 = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         p2 = Polygon(((0, 0), (0, 1), (1, 0), (0, 0)))
         self.assertGreater(p1, p2)
@@ -811,6 +842,25 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self._test_buffer(self.geometries.buffer_geoms, "buffer")
 
     def test_buffer_with_style(self):
+        """
+
+        Tests the buffer_with_style method of a geometry object.
+
+        The method is expected to raise an error when provided with invalid input, such as 
+        non-integer values for the quadsegs parameter, or numeric values outside the valid 
+        range for the end_cap_style and join_style parameters.
+
+        Verifies that the method correctly handles invalid arguments, including:
+        - non-integer quadsegs value
+        - non-integer end_cap_style value
+        - end_cap_style value outside the valid range
+        - non-integer join_style value
+        - join_style value outside the valid range
+
+        Also checks that the method behaves as expected when applied to a set of 
+        pre-defined geometry objects, both with and without style.
+
+        """
         bg = self.geometries.buffer_with_style_geoms[0]
         g = fromstr(bg.wkt)
 
@@ -874,6 +924,20 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
                     self.assertAlmostEqual(exp_ring[k][1], buf_ring[k][1], 9)
 
     def test_covers(self):
+        """
+        Tests whether a polygon covers a given point.
+
+        The function checks if a point is enclosed within a polygon's boundaries. It is expected that the point lies within the polygon's area if covered, otherwise it does not.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the test case fails.
+
+        Note:
+            This test case uses a predefined polygon shape to verify the covers method. It checks for both a point inside and outside the polygon's area. 
+        """
         poly = Polygon(((0, 0), (0, 10), (10, 10), (10, 0), (0, 0)))
         self.assertTrue(poly.covers(Point(5, 5)))
         self.assertFalse(poly.covers(Point(100, 100)))
@@ -1204,6 +1268,16 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
                     g.__getitem__(0)
 
     def test_collection_dims(self):
+        """
+
+        Tests the GeometryCollection class to determine its dimensionality based on its contents.
+
+        The function verifies that an empty GeometryCollection has a dimension of -1.
+        It also checks that the dimension of the GeometryCollection is correctly determined
+        when it contains different types of geometric objects, including points, lines, and polygons.
+        The dimension of the collection is expected to be the maximum dimension of its constituent geometries.
+
+        """
         gc = GeometryCollection([])
         self.assertEqual(gc.dims, -1)
 

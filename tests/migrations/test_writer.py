@@ -83,6 +83,14 @@ class IntFlagEnum(enum.IntFlag):
 
 def decorator(f):
     @functools.wraps(f)
+    """
+    Decorator function that preserves the original function's metadata.
+
+    This decorator is a thin wrapper around the original function, passing all arguments and keyword arguments through to the wrapped function.
+    It ensures that the original function's name, docstring, and other attributes are preserved when it is decorated.
+    The primary use of this decorator is to serve as a base for more complex decorators, allowing them to build upon this basic functionality.
+
+    """
     def wrapper(*args, **kwargs):
         return f(*args, **kwargs)
 
@@ -138,6 +146,9 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_args_kwargs_signature(self):
+        """
+        Tests the ArgsKwargsOperation signature by instantiating it with a combination of positional and keyword arguments, then serializing the operation to a string and verifying the generated import statement and serialized operation string match the expected output.
+        """
         operation = custom_migration_operations.operations.ArgsKwargsOperation(
             1, 2, kwarg2=4
         )
@@ -153,6 +164,15 @@ class OperationWriterTests(SimpleTestCase):
         )
 
     def test_keyword_only_args_signature(self):
+        """
+
+        Tests that the ArgsAndKeywordOnlyArgsOperation is correctly serialized with keyword-only arguments.
+
+        The function creates an instance of ArgsAndKeywordOnlyArgsOperation with a combination of positional and keyword arguments,
+        then uses the OperationWriter to serialize it. It verifies that the resulting import statement and serialized operation
+        string match the expected output, ensuring that keyword-only arguments are properly handled in the serialization process.
+
+        """
         operation = (
             custom_migration_operations.operations.ArgsAndKeywordOnlyArgsOperation(
                 1, 2, kwarg1=3, kwarg2=4
@@ -339,6 +359,19 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(_("Hello"))
 
     def test_serialize_builtin_types(self):
+        """
+        Tests the serialization of built-in Python types.
+
+        Verifies that the built-in types list, tuple, dict, set, and frozenset can be properly 
+        serialized and deserialized, checking for expected equality in the serialized result. 
+
+        This test case ensures that the serialization process correctly handles these fundamental 
+        data types, which is crucial for maintaining data integrity and consistency across 
+        different systems or environments. 
+
+        :raises AssertionError: If the serialized result does not match the expected output.
+
+        """
         self.assertSerializedEqual([list, tuple, dict, set, frozenset])
         self.assertSerializedResultEqual(
             [list, tuple, dict, set, frozenset],
@@ -524,6 +557,20 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_nested_class(self):
+        """
+        Tests the serialization of nested classes, specifically enums and choices.
+
+        Verifies that the given classes can be properly serialized, checking the
+        correctness of the resulting serialized output. The test covers multiple
+        nested class types, including NestedEnum and NestedChoices, ensuring that
+        each is handled as expected during the serialization process.
+
+        The test checks the output of the serialization against an expected result,
+        which includes the full path to the class and any necessary import statements.
+        If the serialized output matches the expected result for all nested class
+        types, the test passes, indicating that the serialization functionality is
+        working correctly for these cases.
+        """
         for nested_cls in [self.NestedEnum, self.NestedChoices]:
             cls_name = nested_cls.__name__
             with self.subTest(cls_name):
@@ -602,6 +649,17 @@ class WriterTests(SimpleTestCase):
         self.assertIn("import pathlib", imports)
 
     def test_serialize_path_like(self):
+        """
+        Tests the serialization of a path-like object.
+
+        Verifies that the `MigrationWriter` correctly serializes a `FilePathField` containing a path-like object.
+        The test covers two separate serialization scenarios: 
+        1. Direct serialization of a path-like object, 
+        2. Serialization of a `FilePathField` instance containing a path-like object.
+        In both cases, it checks that the resulting string accurately represents the original path-like object.
+        The expected serialization result is compared against the actual output of the `MigrationWriter.serialize` method.
+
+        """
         with os.scandir(os.path.dirname(__file__)) as entries:
             path_like = list(entries)[0]
         expected = (repr(path_like.path), {})
@@ -625,6 +683,18 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(function_with_lru_cache)
 
     def test_serialize_datetime(self):
+        """
+
+        Tests the serialization of various datetime objects.
+
+        This test case checks that different datetime instances, including those with timezones,
+        are correctly serialized and deserialized.
+
+        It covers various scenarios, including serialization of datetime objects with and without
+        timezones, as well as datetime objects obtained through different methods (e.g., now(), today()).
+        The test also verifies that the serialization result is as expected, including the required imports.
+
+        """
         self.assertSerializedEqual(datetime.datetime.now())
         self.assertSerializedEqual(datetime.datetime.now)
         self.assertSerializedEqual(datetime.datetime.today())
@@ -675,6 +745,19 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_settings(self):
+        """
+        Tests the serialization of settings references.
+
+        This test case covers the serialization of settings references, including the
+         AUTH_USER_MODEL setting. It verifies that the serialization of this setting
+        is correct and that the required imports are properly handled.
+
+        The test checks the serialized output of settings references, ensuring that
+        the resulting data structure contains the expected setting value and import
+        statements. The test also covers the case where a model is referenced from
+        a different application, verifying that the import statement is correctly
+        generated.
+        """
         self.assertSerializedEqual(
             SettingsReference(settings.AUTH_USER_MODEL, "AUTH_USER_MODEL")
         )
@@ -1110,6 +1193,22 @@ class WriterTests(SimpleTestCase):
             self.assertSerializedEqual(complex(1, 2))
 
     def test_register_non_serializer(self):
+        """
+        Tests the registration of a non-serializer class with MigrationWriter.
+
+        This test case verifies that attempting to register a class that does not inherit from BaseSerializer raises a ValueError with a descriptive error message.
+
+        The error message indicates that the class must inherit from BaseSerializer in order to be registered as a serializer.
+
+        Args:
+            None
+
+        Raises:
+            ValueError: If the class to be registered does not inherit from BaseSerializer.
+
+        Returns:
+            None
+        """
         with self.assertRaisesMessage(
             ValueError, "'TestModel1' must inherit from 'BaseSerializer'."
         ):

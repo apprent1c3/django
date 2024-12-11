@@ -198,6 +198,17 @@ class TestDeserializeDbFromString(TransactionTestCase):
     def test_self_reference(self):
         # serialize_db_to_string() and deserialize_db_from_string() handles
         # self references.
+        """
+        Tests the self-referential capability of the ObjectSelfReference model.
+
+        Verifies that when two objects reference each other, this relationship is correctly
+        established and persisted in the database. The test creates two objects with a
+        circular reference, serializes and deserializes the database, and then checks that
+        the self-references are correctly re-established after deserialization.
+
+        Ensures that the model correctly handles self-referential relationships, which is
+        essential for maintaining data consistency and integrity in the database.
+        """
         obj_1 = ObjectSelfReference.objects.create(key="X")
         obj_2 = ObjectSelfReference.objects.create(key="Y", obj=obj_1)
         obj_1.obj = obj_2
@@ -241,6 +252,16 @@ class TestDeserializeDbFromString(TransactionTestCase):
         self.assertEqual(obj_b.obj, obj_a)
 
     def test_serialize_db_to_string_base_manager(self):
+        """
+        Tests the serialization of the database to a string using the base database manager.
+
+        This test case creates a SchoolClass object in the database, then uses a mock MigrationLoader
+        to simulate the migration state. It then serializes the database to a string and checks that
+        the expected data, including the SchoolClass model and its year attribute, are present in the serialized output.
+
+        The test verifies that the database contents are correctly converted to a string representation,
+        which is useful for mocking or testing database states in isolation.
+        """
         SchoolClass.objects.create(year=1000, last_updated=datetime.datetime.now())
         with mock.patch("django.db.migrations.loader.MigrationLoader") as loader:
             # serialize_db_to_string() serializes only migrated apps, so mark

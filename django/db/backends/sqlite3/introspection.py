@@ -139,6 +139,21 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         ]
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+
+        Returns a list of sequences for the specified table.
+
+        This function identifies the primary key column of the given table and returns
+        it as a sequence, which can be used to track and manage data in the table.
+        The returned sequence is represented as a dictionary containing the table name
+        and the primary key column name.
+
+        :param cursor: Database cursor object
+        :param table_name: Name of the table to retrieve sequences for
+        :param table_fields: Optional list of table fields (not used in this implementation)
+        :return: List of dictionaries, each representing a sequence
+
+        """
         pk_col = self.get_primary_key_column(cursor, table_name)
         return [{"table": table_name, "column": pk_col}]
 
@@ -163,6 +178,18 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         }
 
     def get_primary_key_columns(self, cursor, table_name):
+        """
+
+        Retrieves the primary key columns of a given database table.
+
+        This function executes a PRAGMA table_info query to retrieve metadata about the specified table.
+        It then filters the results to extract the names of columns that are designated as primary keys.
+
+        :param cursor: A database cursor object used to execute the query.
+        :param table_name: The name of the database table for which to retrieve primary key columns.
+        :return: A list of column names that are primary keys in the specified table.
+
+        """
         cursor.execute(
             "PRAGMA table_info(%s)" % self.connection.ops.quote_name(table_name)
         )
@@ -405,6 +432,14 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return constraints
 
     def _get_index_columns_orders(self, sql):
+        """
+        Extracts the column order (ASC or DESC) from the given SQL query string.
+
+        The function analyzes the SQL query, specifically the part enclosed in parentheses, 
+        to identify the columns and their corresponding order.
+
+        :returns: A list of column orders (either 'ASC' or 'DESC') if found, otherwise None
+        """
         tokens = sqlparse.parse(sql)[0]
         for token in tokens:
             if isinstance(token, sqlparse.sql.Parenthesis):

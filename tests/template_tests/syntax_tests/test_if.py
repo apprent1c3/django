@@ -38,11 +38,27 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag07": "{% if foo %}foo{% elif bar %}bar{% else %}nothing{% endif %}"})
     def test_if_tag07(self):
+        """
+        Tests the rendering of an if-elif-else template tag.
+
+        Verifies that the engine correctly renders the 'if-tag07' template when the 'foo' variable is True, 
+        expecting the output to be 'foo'. This test case ensures the template engine handles conditional 
+        logic as expected, prioritizing the 'if' condition over 'elif' and 'else' when the condition is met.
+        """
         output = self.engine.render_to_string("if-tag07", {"foo": True})
         self.assertEqual(output, "foo")
 
     @setup({"if-tag08": "{% if foo %}foo{% elif bar %}bar{% else %}nothing{% endif %}"})
     def test_if_tag08(self):
+        """
+        keyValue 
+            Tests the functionality of the if/elif/else tag in the templating engine.
+
+            The if tag allows conditional rendering of template sections based on the values of variables passed to the engine.
+            This particular test case verifies that when 'bar' is true, the corresponding section is rendered, while the 'foo' and 'else' sections are not.
+
+            :raises AssertionError: If the rendered output does not match the expected string 'bar'.
+        """
         output = self.engine.render_to_string("if-tag08", {"bar": True})
         self.assertEqual(output, "bar")
 
@@ -60,6 +76,17 @@ class IfTagTests(SimpleTestCase):
         }
     )
     def test_if_tag10(self):
+        """
+        Tests the rendering of an if tag with multiple conditions.
+
+        This test case checks that the first condition that is true is rendered, 
+        in this case 'foo'. It ensures that the template engine correctly handles 
+        the if-elif-else structure and returns the expected output when 'foo' is True.
+
+        The test verifies that the output of the rendered template is 'foo', 
+        demonstrating the correct behavior of the if tag in a template with 
+        multiple conditional clauses. 
+        """
         output = self.engine.render_to_string("if-tag10", {"foo": True})
         self.assertEqual(output, "foo")
 
@@ -107,12 +134,41 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-filter02": "{% if foo|upper == 'ABC' %}yes{% else %}no{% endif %}"})
     def test_if_tag_filter02(self):
+        """
+        Tests the if tag filter with an uppercase conditional.
+
+        This test verifies that the if tag filter correctly evaluates a conditional
+        expression using the upper filter. The test renders a template containing
+        an if statement with a conditional expression that checks if a variable 'foo'
+        is equal to 'ABC' when converted to uppercase. The test then asserts that
+        the rendered output is 'no', indicating that the conditional expression
+        evaluated to False.
+
+        The purpose of this test is to ensure that the if tag filter can handle
+        conditional expressions with filters, such as upper, and returns the expected
+        output based on the evaluation of the condition.\"
+        """
         output = self.engine.render_to_string("if-tag-filter02")
         self.assertEqual(output, "no")
 
     # Equality
     @setup({"if-tag-eq01": "{% if foo == bar %}yes{% else %}no{% endif %}"})
     def test_if_tag_eq01(self):
+        """
+
+        Test case for the if-tag-eq01 condition in the templating engine.
+
+        This function checks if the templating engine correctly renders a template 
+        with an if statement that compares two variables for equality. The condition 
+        '{% if foo == bar %}yes{% else %}no{% endif %}' is evaluated and the 
+        resulting output is verified to be 'yes', indicating that the comparison 
+        was successful. 
+
+        The purpose of this test is to ensure that the templating engine handles 
+        conditional statements with equality comparisons correctly, returning the 
+        expected output when the condition is met.
+
+        """
         output = self.engine.render_to_string("if-tag-eq01")
         self.assertEqual(output, "yes")
 
@@ -154,6 +210,13 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-noteq04": "{% if foo != bar %}yes{% else %}no{% endif %}"})
     def test_if_tag_noteq04(self):
+        """
+        Tests the functionality of the if-tag-noteq directive in the templating engine.
+
+         Verifies that the directive correctly evaluates the 'not equal to' condition and renders the corresponding template block.
+
+         In this test case, it checks that when the values of 'foo' and 'bar' are not equal, the engine renders the template with the expected output 'yes'.
+        """
         output = self.engine.render_to_string("if-tag-noteq04", {"foo": 1, "bar": 2})
         self.assertEqual(output, "yes")
 
@@ -170,6 +233,25 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-gt-02": "{% if 1 > 1 %}yes{% else %}no{% endif %}"})
     def test_if_tag_gt_02(self):
+        """
+        Tests the if-tag greater than conditional statement.
+
+        This test case checks the rendering of a template that includes an if-tag with a 
+        greater than condition. It verifies that the engine correctly evaluates the 
+        condition and renders the expected output.
+
+        The test validates the functionality of the if-tag when the condition is false, 
+        ensuring that the else block is rendered instead of the if block.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the rendered output does not match the expected output.
+        """
         output = self.engine.render_to_string("if-tag-gt-02")
         self.assertEqual(output, "no")
 
@@ -200,6 +282,12 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-lte-02": "{% if 2 <= 1 %}yes{% else %}no{% endif %}"})
     def test_if_tag_lte_02(self):
+        """
+        Tests the if-tag-lte functionality in the template engine.
+        This test case evaluates an \"if\" statement with a less-than-or-equal comparison, 
+        verifying that the template engine correctly handles the condition when it is false. 
+        The expected output of the test is 'no', indicating that the condition '2 <= 1' is not met.
+        """
         output = self.engine.render_to_string("if-tag-lte-02")
         self.assertEqual(output, "no")
 
@@ -211,6 +299,14 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-in-02": "{% if 2 in x %}yes{% else %}no{% endif %}"})
     def test_if_tag_in_02(self):
+        """
+
+        Tests the rendering of a template with an if-tag-in conditional statement.
+        The if-tag-in statement checks if a specified value is present in a list.
+        In this case, it verifies that the engine correctly handles the absence of the value 2 in the list 'x'.
+        The expected output is 'no' when the value 2 is not found in the list.
+
+        """
         output = self.engine.render_to_string("if-tag-in-02", {"x": [1]})
         self.assertEqual(output, "no")
 
@@ -367,6 +463,15 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-not10": "{% if foo and not bar %}yes{% else %}no{% endif %}"})
     def test_if_tag_not10(self):
+        """
+        Tests the rendering of an if-tag with 'not' condition.
+
+        This test case verifies the engine's ability to correctly interpret the 'not' keyword
+        in an if condition of a template tag. The condition checks if 'foo' is true and 'bar'
+        is false. If this condition is met, the tag renders 'yes', otherwise it renders 'no'.
+
+        In this specific test, 'foo' and 'bar' are both False, so the output is expected to be 'no'.
+        """
         output = self.engine.render_to_string(
             "if-tag-not10", {"foo": False, "bar": False}
         )
@@ -532,6 +637,9 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-not35": "{% if not foo or not bar %}yes{% else %}no{% endif %}"})
     def test_if_tag_not35(self):
+        """
+        Tests the conditional 'if-tag-not35' setup, verifying that it correctly evaluates the negation of two conditions and renders 'yes' when both conditions are false, and 'no' otherwise. The test case specifically checks the scenario where both input variables 'foo' and 'bar' are set to False, expecting the output to be 'yes'.
+        """
         output = self.engine.render_to_string(
             "if-tag-not35", {"foo": False, "bar": False}
         )
@@ -560,6 +668,16 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-error05": "{% if not foo or %}yes{% else %}no{% endif %}"})
     def test_if_tag_error05(self):
+        """
+
+        Tests that a TemplateSyntaxError is raised when using an if tag with incorrect syntax.
+
+        The test case specifically checks for the scenario where the 'if' tag is used with a conditional statement
+        that starts with 'not' but is missing an operand, causing a syntax error in the template.
+
+        The expected behavior is that the engine raises a TemplateSyntaxError when attempting to render the template.
+
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.render_to_string("if-tag-error05", {"foo": True})
 
@@ -580,6 +698,9 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-error09": "{% if or %}yes{% endif %}"})
     def test_if_tag_error09(self):
+        """
+        Tests if the template engine correctly raises a TemplateSyntaxError when an if-tag is used with an invalid syntax, specifically when using the 'or' keyword without any condition.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("if-tag-error09")
 
@@ -595,6 +716,9 @@ class IfTagTests(SimpleTestCase):
 
     @setup({"if-tag-error12": "{% if a not b %}yes{% endif %}"})
     def test_if_tag_error12(self):
+        """
+        Tests that a TemplateSyntaxError is raised when using an invalid if tag syntax in a template, specifically when using the \"not\" keyword without proper boolean operation context.
+        """
         with self.assertRaises(TemplateSyntaxError):
             self.engine.get_template("if-tag-error12")
 

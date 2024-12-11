@@ -150,6 +150,23 @@ class RemoveIndexConcurrentlyTests(OperationTestBase):
                 )
 
     def test_remove(self):
+        """
+        Tests the removal of an index concurrently from a database table.
+
+        This test function ensures that the RemoveIndexConcurrently operation correctly removes an index from a model.
+        It verifies that the index is removed from the project state and the database, and that the operation can be reversed.
+        The test also checks that the operation's description and formatted description are correctly generated.
+
+        The function validates the behavior of the RemoveIndexConcurrently operation by:
+
+        * Creating a test model with an index
+        * Applying the RemoveIndexConcurrently operation to the model
+        * Verifying that the index is removed from the project state and the database
+        * Reversing the operation to ensure that the index is re-created
+        * Deconstructing the operation to ensure that it can be serialized correctly
+
+        This test provides a comprehensive validation of the RemoveIndexConcurrently operation's behavior and ensures that it works correctly in various scenarios.
+        """
         project_state = self.set_up_test_model(self.app_label, index=True)
         table_name = "%s_pony" % self.app_label
         self.assertTableExists(table_name)
@@ -258,6 +275,14 @@ class CreateExtensionTests(PostgreSQLTestCase):
         self.assertIn("SELECT", captured_queries[0]["sql"])
 
     def test_drop_nonexistent_extension(self):
+        """
+        Tests that dropping a nonexistent PostgreSQL extension results in a single query that checks for the extension's existence.
+
+        This test verifies the behavior of the database backwards operation for creating an extension.
+        It checks that only one query is executed, which is a SELECT statement to verify if the extension already exists in the database.
+        The test ensures that the operation behaves correctly when attempting to drop an extension that does not exist, 
+        preventing any potential database errors or inconsistencies.
+        """
         operation = CreateExtension("tablefunc")
         project_state = ProjectState()
         new_state = project_state.clone()
@@ -548,6 +573,26 @@ class ValidateConstraintTests(OperationTestBase):
     app_label = "test_validate_constraint"
 
     def test_validate(self):
+        """
+        Tests the validation functionality of a constraint on the 'Pony' model.
+
+        This test ensures that when a constraint is added to the model, the validation
+        operation correctly checks that the constraint is being enforced. It tests both
+        valid and invalid data, verifying that the validation operation raises an
+        IntegrityError when the constraint is violated and allows valid data to pass.
+
+        The test also verifies that the validation operation can be described and
+        formatted correctly, and that its deconstruction produces the expected result.
+
+        It checks the following scenarios:
+
+        - The validation operation raises an IntegrityError when the constraint is violated.
+        - The validation operation allows valid data to pass.
+        - The validation operation can be correctly reversed.
+        - The validation operation can be accurately described and formatted.
+        - The validation operation can be deconstructed into its constituent parts.
+
+        """
         constraint_name = "pony_pink_gte_check"
         constraint = CheckConstraint(condition=Q(pink__gte=4), name=constraint_name)
         operation = AddConstraintNotValid("Pony", constraint=constraint)

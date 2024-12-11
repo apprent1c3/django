@@ -67,6 +67,13 @@ class TestUtilsHtml(SimpleTestCase):
         )
 
     def test_format_html_no_params(self):
+        """
+        Tests the deprecated behavior of calling :func:`format_html` without passing any arguments or keyword arguments. 
+
+         Verifies that a warning is raised when using this function in the specified manner, while also checking that the function still produces the correct output. 
+
+         The deprecation is scheduled to be removed in Django 6.0.
+        """
         msg = "Calling format_html() without passing args or kwargs is deprecated."
         # RemovedInDjango60Warning: when the deprecation ends, replace with:
         # msg = "args or kwargs must be provided."
@@ -223,6 +230,26 @@ class TestUtilsHtml(SimpleTestCase):
                 self.assertEqual(json_script(arg, "test_id"), expected)
 
     def test_json_script_custom_encoder(self):
+        """
+        Tests the functionality of json_script with a custom encoder.
+
+        This test case verifies that a custom JSON encoder can be used to encode 
+        objects within the json_script tag. The custom encoder should return a 
+        JSON string, which will be used as the content of the generated script tag.
+
+        The expected output is a script tag with the type set to \"application/json\" 
+        and the custom encoded JSON string as its content.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the generated script tag does not match the expected output.
+
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
                 return '{"hello": "world"}'
@@ -287,6 +314,13 @@ class TestUtilsHtml(SimpleTestCase):
         self.assertEqual(str(html_obj), html_obj.__html__())
 
     def test_html_safe_subclass(self):
+        """
+        Tests that the @html_safe decorator correctly handles subclassing a base class with both __html__ and __str__ methods.
+
+        The test verifies that when a subclass overrides the __str__ method, the @html_safe decorator ensures that both the __str__ and __html__ methods return the same HTML-safe string content.
+
+        This ensures that objects of the subclass can be safely used in HTML contexts without causing any security vulnerabilities or rendering issues.
+        """
         class BaseClass:
             def __html__(self):
                 # defines __html__ on its own

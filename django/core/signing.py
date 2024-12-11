@@ -62,6 +62,18 @@ class SignatureExpired(BadSignature):
 
 
 def b62_encode(s):
+    """
+
+    Encode an integer using base 62 encoding.
+
+    The function takes an integer as input and returns its base 62 encoded equivalent as a string.
+    The encoding uses a 62-character alphabet (0-9, a-z, A-Z). Negative numbers are supported and are prefixed with a minus sign.
+    If the input integer is 0, the function returns '0'. Otherwise, the function encodes the absolute value of the integer and adds a minus sign if the original integer was negative.
+
+    Returns:
+        str: The base 62 encoded string representation of the input integer.
+
+    """
     if s == 0:
         return "0"
     sign = "-" if s < 0 else ""
@@ -197,6 +209,14 @@ class Signer:
             )
 
     def signature(self, value, key=None):
+        """
+        Generates a base64-encoded HMAC signature for the provided value.
+
+        :param value: The value to be signed.
+        :param key: The key to use for signing. If not provided, the instance's default key will be used.
+        :returns: A base64-encoded HMAC signature string.
+        :note: The signature is calculated using the specified algorithm and a salted key.
+        """
         key = key or self.key
         return base64_hmac(self.salt + "signer", value, key, algorithm=self.algorithm)
 

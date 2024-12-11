@@ -42,6 +42,15 @@ class UnorderedListTests(SimpleTestCase):
         }
     )
     def test_unordered_list04(self):
+        """
+        Tests the rendering of nested unordered lists with autoescaped values.
+
+        This test case verifies that the unordered list filter correctly handles a list containing
+        both plain strings and safely-marked HTML strings, ensuring proper indentation and nesting
+        of list items. The function checks that the rendered output matches the expected HTML structure
+        for an unordered list with a nested list, while preserving the original characters and avoiding
+        double-escaping of HTML content.
+        """
         output = self.engine.render_to_string(
             "unordered_list04", {"a": ["x>", [mark_safe("<y")]]}
         )

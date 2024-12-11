@@ -11,6 +11,13 @@ from django.utils.http import http_date
 
 class SessionMiddleware(MiddlewareMixin):
     def __init__(self, get_response):
+        """
+        Initializes a session engine for the application, enabling the management of user sessions.
+
+        This method is responsible for setting up the session store, which is crucial for maintaining user data between requests.
+        It imports the session engine module as specified in the application's settings and sets up the session store class.
+        The session store is used to create, update, and retrieve user sessions, allowing for a seamless user experience.
+        """
         super().__init__(get_response)
         engine = import_module(settings.SESSION_ENGINE)
         self.SessionStore = engine.SessionStore

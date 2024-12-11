@@ -449,6 +449,25 @@ class FormatStylePlaceholderCursor:
 
     @staticmethod
     def _get_decimal_converter(precision, scale):
+        """
+        Returns a decimal converter function given a precision and scale.
+
+        The returned function takes a decimal value and converts it to a Decimal object,
+        rounded to the specified scale. The precision of the conversion is determined
+        by the provided precision parameter.
+
+        If the scale is 0, the function returns the input value as an integer.
+
+        This converter function is useful for converting decimal values to a standardized
+        format, taking into account the required precision and scale for a specific use
+        case.
+
+        :arg int precision: The maximum number of digits in the Decimal object.
+        :arg int scale: The number of digits after the decimal point.
+        :return: A function that converts decimal values to a Decimal object with the
+            specified precision and scale.
+
+        """
         if scale == 0:
             return int
         context = decimal.Context(prec=precision)
@@ -522,6 +541,18 @@ class FormatStylePlaceholderCursor:
 
     def _param_generator(self, params):
         # Try dict handling; if that fails, treat as sequence
+        """
+        Generates a parameter dictionary or list with byte-encoded values.
+
+        Takes an input dictionary or list of parameters and returns a new data structure 
+        with the same keys or elements, but with their values encoded as bytes.
+
+        For dictionary inputs, the function returns a new dictionary with byte-encoded values.
+        For list inputs, the function returns a new list with byte-encoded elements.
+
+        The returned data structure can be used for further processing or serialization, 
+        ensuring that all string values are properly encoded as bytes.
+        """
         if hasattr(params, "items"):
             return {k: v.force_bytes for k, v in params.items()}
         else:
@@ -571,6 +602,25 @@ class FormatStylePlaceholderCursor:
         return query, self._format_params(params)
 
     def execute(self, query, params=None):
+        """
+
+        Execute a SQL query on the database.
+
+        This method takes a query string and optional parameters, prepares them for execution,
+        and then runs the query on the database. It handles any Oracle-specific errors that may occur.
+
+        Parameters
+        ----------
+        query : str
+            The SQL query to execute.
+        params : dict or list, optional
+            The parameters to substitute into the query. If not provided, the query is executed without parameters.
+
+        Returns
+        -------
+        The result of the query execution.
+
+        """
         query, params = self._fix_for_params(query, params, unify_by_values=True)
         self._guess_input_sizes([params])
         with wrap_oracle_errors():

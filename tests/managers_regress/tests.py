@@ -21,6 +21,19 @@ from .models import (
 
 class ManagersRegressionTests(TestCase):
     def test_managers(self):
+        """
+
+        Tests the custom managers for various model classes.
+
+        This test case verifies that the custom managers (`manager1`, `manager2`, `restricted`) 
+        return the expected querysets for each model. It also checks that the default manager 
+        returns the correct results.
+
+        The test covers models with custom manager methods, as well as models with inheritance 
+        (multi-table inheritance). It ensures that the managers return the correct instances 
+        based on the model's fields and relationships.
+
+        """
         a1 = Child1.objects.create(name="fred", data="a1")
         a2 = Child1.objects.create(name="barney", data="a2")
         b1 = Child2.objects.create(name="fred", data="b1", value=1)
@@ -107,6 +120,20 @@ class ManagersRegressionTests(TestCase):
     @override_settings(TEST_SWAPPABLE_MODEL="managers_regress.Parent")
     @isolate_apps("managers_regress")
     def test_custom_swappable_manager(self):
+        """
+        Tests the behavior of a swappable model with a custom manager.
+
+        This test case verifies that attempting to access a manager on a swappable model
+        that has been swapped out raises an AttributeError with a descriptive message.
+
+        The test simulates a scenario where a model's manager is not available due to
+        swapping, ensuring that the expected error is raised when trying to access the
+        manager's methods, such as retrieving all instances of the model.
+
+        The test is designed to validate the correctness of the swappable model mechanism
+        and its interaction with custom managers, providing assurance that the system
+        behaves as expected in this specific edge case.
+        """
         class SwappableModel(models.Model):
             stuff = models.Manager()
 
@@ -173,6 +200,26 @@ class ManagersRegressionTests(TestCase):
 @isolate_apps("managers_regress")
 class TestManagerInheritance(SimpleTestCase):
     def test_implicit_inheritance(self):
+        """
+        Test the implicit inheritance of managers in Django models.
+
+        This test case verifies that the default and base managers are correctly
+        inherited by models with custom managers, abstract base classes, and
+        various types of model inheritance, including proxy models and multi-table
+        inheritance.
+
+        The test checks that the default manager is set to the custom manager when
+        defined, and that the base manager remains the standard Django Manager.
+        It covers several scenarios, including:
+
+        * Models with custom managers
+        * Models inheriting from abstract base classes with custom managers
+        * Proxy models
+        * Models using multi-table inheritance
+
+        The test ensures that the expected manager types are used in each case,
+        providing a comprehensive check of manager inheritance in Django models.
+        """
         class CustomManager(models.Manager):
             pass
 

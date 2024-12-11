@@ -27,6 +27,11 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
     available_apps = []
 
     def test_override(self):
+        """
+        Tests that settings have been successfully overridden.
+
+        This test case verifies that the expected settings values are correctly overridden. The assertions check the values of ITEMS, ITEMS_OUTER, TEST, and TEST_OUTER settings to ensure they match the expected results after overriding.
+        """
         self.assertEqual(settings.ITEMS, ["b", "c", "d"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
         self.assertEqual(settings.TEST, "override")
@@ -40,6 +45,16 @@ class FullyDecoratedTranTestCase(TransactionTestCase):
         }
     )
     def test_method_list_override(self):
+        """
+
+        Overrides the default settings for the ITEMS and ITEMS_OUTER lists.
+
+        This function modifies the ITEMS list by prepending 'a', appending 'e' and 'f', and removing 'd' and 'c'.
+        It then asserts that the modified ITEMS list is ['a', 'b', 'e', 'f'] and the ITEMS_OUTER list remains unchanged as [1, 2, 3].
+
+        The function tests the ability to override default settings for lists within the application.
+
+        """
         self.assertEqual(settings.ITEMS, ["a", "b", "e", "f"])
         self.assertEqual(settings.ITEMS_OUTER, [1, 2, 3])
 
@@ -452,6 +467,15 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_usersettingsholder_repr(self):
+        """
+
+        Tests the repr method of UserSettingsHolder. 
+
+        Verifies that when a LazySettings object is configured, the representation of its 
+        wrapped UserSettingsHolder object is as expected, ensuring proper string 
+        representation in debugging and logging contexts.
+
+        """
         lazy_settings = LazySettings()
         lazy_settings.configure(APPEND_SLASH=False)
         expected = "<UserSettingsHolder>"
@@ -627,6 +651,20 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
                                 clear_script_prefix()
 
     def test_add_script_name_prefix(self):
+        """
+        Tests the addition of the script name prefix to URL settings.
+
+        This function checks that the script name is correctly added to the beginning of 
+        MEDIA_URL and STATIC_URL settings in various scenarios, including when the script 
+        name and path have trailing slashes, and when the path is an absolute URL. It 
+        verifies that the resulting URL matches the expected output.
+
+        The test cases cover different combinations of script names and paths to ensure 
+        that the prefix is added correctly in all situations. The function uses the 
+        settings override mechanism to simulate different settings configurations and 
+        isolates each test case using a sub-test to provide detailed error messages if 
+        any of the tests fail.
+        """
         tests = (
             # Relative paths.
             ("/somesubpath", "path/", "/somesubpath/path/"),

@@ -193,6 +193,16 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_model(self):
+        """
+        |$test_delete_signals_origin_model|
+
+            Tests the behavior of pre_delete and post_delete signals when deleting instances of 
+            `Person` and `Book` models, including any cascade effects on related objects.
+
+            The test verifies that the signals are sent with the correct sender and origin, and 
+            that the signals are sent for all related objects that are deleted as a result of the 
+            cascade deletion.
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -307,6 +317,20 @@ class SignalTests(BaseSignalSetup, TestCase):
                 data.append("Is raw")
 
         def pre_delete_handler(signal, sender, instance, **kwargs):
+            """
+            Pre delete signal handler.
+
+            Handles the pre delete signal, triggered before an instance is deleted. 
+            It logs information about the instance being deleted, including the instance itself and whether its id is not None. 
+
+            :param signal: The signal that triggered this handler
+            :param sender: The sender of the signal
+            :param instance: The instance being deleted
+            :param kwargs: Additional keyword arguments
+
+            The logged information can be used for auditing, debugging, or other purposes. 
+            It provides insight into the instances being deleted and the state of these instances at the time of deletion.
+            """
             data.append("pre_delete signal, %s" % instance)
             data.append("instance.id is not None: %s" % (instance.id is not None))
 
@@ -445,6 +469,13 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_not_loaded_model(self, apps):
+        """
+        Tests the handling of a model that has not been loaded by the application, 
+        verifying that the post_init signal is triggered when such a model is created. 
+        The test sets up a signal receiver, creates an instance of a dynamically 
+        defined model and checks if the expected signal was received. 
+        The connection to the signal is properly cleaned up after the test.
+        """
         signals.post_init.connect(
             self.receiver, sender="signals.Created", weak=False, apps=apps
         )
@@ -497,6 +528,20 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_unregistered_model(self, apps):
+        """
+
+        Test the behavior of disconnecting a signal receiver when the model is unregistered.
+
+        This test verifies that disconnecting a signal receiver from an unregistered model
+        results in the expected behavior. It also checks that attempting to disconnect the
+        receiver multiple times does not raise an error. The test ensures that the signal
+        is properly disconnected when the model is not registered, and the receiver does
+        not receive any signals.
+
+        :raises AssertionError: If the disconnect behavior does not match the expected
+            behavior.
+
+        """
         received = []
 
         def receiver(**kwargs):
@@ -556,6 +601,20 @@ class AsyncHandler:
 
 class AsyncReceiversTests(SimpleTestCase):
     async def test_asend(self):
+        """
+
+        Test the asynchronous sending of a signal to connected handlers.
+
+        This test case verifies that both synchronous and asynchronous handlers
+        are properly notified when a signal is sent using the :meth:`asend` method.
+        It checks that the signal is delivered to all connected handlers and that
+        the correct result is returned.
+
+        The test connects both a synchronous and an asynchronous handler to a signal,
+        sends the signal using :meth:`asend`, and then asserts that the result
+        matches the expected outcome, with each handler receiving the signal once.
+
+        """
         sync_handler = SyncHandler()
         async_handler = AsyncHandler()
         signal = dispatch.Signal()

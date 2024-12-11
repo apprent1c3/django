@@ -198,6 +198,12 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertIsInstance(ErrorDict(), dict)
 
     def test_error_dict_is_json_serializable(self):
+        """
+        Tests whether an ErrorDict instance can be successfully serialized to JSON.
+
+        The function verifies that complex error structures, including nested ErrorDict and ErrorList instances, can be accurately converted to a JSON-compatible format. 
+        This ensures that error data can be easily transmitted or stored, even when it includes multiple levels of nested errors.
+        """
         init_errors = ErrorDict(
             [
                 (

@@ -23,6 +23,17 @@ class Phone2numericTests(SimpleTestCase):
         }
     )
     def test_phone2numeric02(self):
+        """
+
+        Tests the phone2numeric filter to ensure it correctly converts phone numbers into a standardized numeric format.
+
+        The test verifies that the filter can handle both regular strings and strings marked as safe, and that it properly escapes any special characters.
+
+        It checks if the filter correctly replaces letters with their corresponding numeric values, as per the standard telephone keypad layout.
+
+        The expected output is a string where the input phone numbers are converted into a numeric format, with any non-numeric characters preserved in their original positions.
+
+        """
         output = self.engine.render_to_string(
             "phone2numeric02",
             {"a": "<1-800-call-me>", "b": mark_safe("<1-800-call-me>")},

@@ -23,6 +23,13 @@ class LeftTests(TestCase):
         )
 
     def test_invalid_length(self):
+        """
+
+        Tests that a ValueError is raised when attempting to annotate with a Left function
+        having a length of 0. This validation ensures that the 'length' parameter is
+        always greater than 0 to prevent invalid operations.
+
+        """
         with self.assertRaisesMessage(ValueError, "'length' must be greater than 0"):
             Author.objects.annotate(raises=Left("name", 0))
 

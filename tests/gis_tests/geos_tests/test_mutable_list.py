@@ -13,6 +13,14 @@ class UserListA(ListMixin):
     _mytype = tuple
 
     def __init__(self, i_list, *args, **kwargs):
+        """
+        Initializes the object with a given list and optional keyword arguments.
+
+        :param i_list: The input list to be stored in the object.
+        :param args: Variable number of positional arguments to be passed to the parent class.
+        :param kwargs: Variable number of keyword arguments to be passed to the parent class.
+        :note: The input list is converted to the internal type using the :meth:`_mytype` method before being stored.
+        """
         self._list = self._mytype(i_list)
         super().__init__(*args, **kwargs)
 
@@ -64,6 +72,12 @@ class ListMixinTest(unittest.TestCase):
     listType = UserListA
 
     def lists_of_len(self, length=None):
+        """
+        Returns a tuple containing a list of integers from 0 up to but not including the specified length, and a list of the same length where each element is of the type specified by the object's list type.
+
+        :param length: The desired length of the lists. If None, defaults to the object's limit.
+        :returns: A tuple of two lists: a list of integers and a list of the object's list type.
+        """
         if length is None:
             length = self.limit
         pl = list(range(length))

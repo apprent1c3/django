@@ -78,6 +78,31 @@ class BaseConstraint:
         return []
 
     def _check_references(self, model, references):
+        """
+
+        Checks the validity of the given references for a model.
+
+        This function verifies that the specified references exist as fields in the model and
+        that they are valid for use in constraints. It checks for fields that are not relations,
+        or are many-to-many or one-to-many relations, and skips them. If a reference is invalid,
+        it raises an error.
+
+        The function returns a list of errors encountered during the check. It also checks
+        the local fields specified in the references to ensure they exist and are valid.
+
+        Parameters
+        ----------
+        model : Model
+            The model being checked.
+        references : list
+            A list of tuples containing field names and lookups.
+
+        Returns
+        -------
+        list
+            A list of errors encountered during the check.
+
+        """
         errors = []
         fields = set()
         for field_name, *lookups in references:
@@ -223,6 +248,22 @@ class CheckConstraint(BaseConstraint):
         return errors
 
     def _get_check_sql(self, model, schema_editor):
+        """
+
+        Generates the SQL query string for a conditional check based on the provided model and schema editor.
+
+        This method constructs a query object for the specified model, builds a WHERE clause from the given condition,
+        and then compiles it into a SQL string using the provided schema editor's connection.
+
+        The resulting SQL string is formatted with the given parameters quoted according to the schema editor's rules,
+        to ensure safe and correct execution.
+
+        :param model: The model to base the query on
+        :param schema_editor: The schema editor to use for compiling the query
+        :rtype: str
+        :returns: The formatted SQL query string
+
+        """
         query = Query(model=model, alias_cols=False)
         where = query.build_where(self.condition)
         compiler = query.get_compiler(connection=schema_editor.connection)
@@ -571,6 +612,20 @@ class UniqueConstraint(BaseConstraint):
         )
 
     def __eq__(self, other):
+        """
+        Tests whether this UniqueConstraint object is equal to another object.
+
+        Equality is determined by comparing all attributes of the constraint, including
+        name, fields, condition, deferrable status, included fields, operator classes,
+        expressions, null distinctness, and violation error code and message.
+
+        If the comparison is with another UniqueConstraint object, all of these attributes
+        must be identical for the objects to be considered equal. If the comparison is with
+        a different type of object, the default equality test is used.
+
+        Returns:
+            bool: True if the objects are equal, False otherwise
+        """
         if isinstance(other, UniqueConstraint):
             return (
                 self.name == other.name

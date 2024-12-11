@@ -28,6 +28,12 @@ class PasswordResetTokenGenerator:
     secret = property(_get_secret, _set_secret)
 
     def _get_fallbacks(self):
+        """
+        Returns a list of fallback secret keys to use when the primary secret key is not available.
+
+        The returned list of fallback keys is determined by either the instance's own fallback keys, 
+        if set, or the default fallback keys defined in the application settings. 
+        """
         if self._secret_fallbacks is None:
             return settings.SECRET_KEY_FALLBACKS
         return self._secret_fallbacks

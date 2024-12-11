@@ -103,6 +103,11 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertEqual(response.status_code, 404)
 
     def test_empty_page(self):
+        """
+        Tests that a 404 status code is returned when an empty page is requested, 
+        specifically when attempting to access page 0 of a simple sitemap. 
+        Verifies that the response includes an exception indicating the page is empty.
+        """
         response = self.client.get("/simple/sitemap-simple.xml?p=0")
         self.assertEqual(str(response.context["exception"]), "Page 0 empty")
         self.assertEqual(response.status_code, 404)
@@ -319,6 +324,19 @@ class HTTPSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_x_robots_sitemap(self):
+        """
+
+        Tests the X-Robots-Tag header in HTTP responses for sitemap files.
+
+        This test case verifies that the X-Robots-Tag header is correctly set to 
+        'noindex, noodp, noarchive' for both the index.xml and sitemap.xml files, 
+        indicating that search engines should not index these pages, include them 
+        in their descriptions, or archive them. 
+
+        The test covers two specific URLs: '/simple/index.xml' and '/simple/sitemap.xml', 
+        ensuring that the X-Robots-Tag header is consistently set across these endpoints.
+
+        """
         response = self.client.get("/simple/index.xml")
         self.assertEqual(response.headers["X-Robots-Tag"], "noindex, noodp, noarchive")
 

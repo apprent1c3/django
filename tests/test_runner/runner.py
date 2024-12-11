@@ -12,6 +12,19 @@ class CustomOptionsTestRunner(DiscoverRunner):
         option_c=None,
         **kwargs,
     ):
+        """
+        Initializes the object with various options to control its behavior.
+
+        :param int verbosity: The level of detail to include in output, with higher values producing more verbose output (default: 1)
+        :param bool interactive: Whether to run in interactive mode (default: True)
+        :param bool failfast: Whether to stop execution as soon as a failure occurs (default: True)
+        :param option_a: Custom option a (default: None)
+        :param option_b: Custom option b (default: None)
+        :param option_c: Custom option c (default: None)
+        :param dict kwargs: Additional keyword arguments to pass to the parent class
+
+        The object's behavior can be customized through the provided options, allowing for tailored usage in different scenarios. The custom options (option_a, option_b, option_c) can be used to store additional settings specific to the object's functionality.
+        """
         super().__init__(
             verbosity=verbosity, interactive=interactive, failfast=failfast
         )

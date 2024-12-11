@@ -103,6 +103,16 @@ class BrinIndex(PostgresIndex):
         return path, args, kwargs
 
     def get_with_params(self):
+        """
+        Returns a list of parameters as strings, representing the object's configuration.
+
+        The returned list includes the autosummarize setting, represented as 'on' or 'off', 
+        if it is not None. It also includes the pages_per_range setting as an integer, 
+        if it is not None. These parameters can be used to represent the object's state 
+        in a human-readable format, such as when generating a report or creating a 
+        configuration string. The returned list contains zero or more elements, 
+        depending on which settings are configured.
+        """
         with_params = []
         if self.autosummarize is not None:
             with_params.append(
@@ -198,6 +208,16 @@ class HashIndex(PostgresIndex):
     suffix = "hash"
 
     def __init__(self, *expressions, fillfactor=None, **kwargs):
+        """
+        Initializes a new instance of the class.
+
+        Args:
+            *expressions: Variable number of expressions to be processed.
+            fillfactor (optional): The fill factor to be used.
+            **kwargs: Additional keyword arguments.
+
+        The fill factor is stored as an instance attribute. This method also calls the parent class's constructor to perform additional initialization using the provided expressions and keyword arguments.
+        """
         self.fillfactor = fillfactor
         super().__init__(*expressions, **kwargs)
 

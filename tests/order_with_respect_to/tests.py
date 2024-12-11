@@ -17,6 +17,18 @@ class OrderWithRespectToBaseTests(BaseOrderWithRespectToTests, TestCase):
 class OrderWithRespectToTests(SimpleTestCase):
     @isolate_apps("order_with_respect_to")
     def test_duplicate_order_field(self):
+        """
+
+        Tests that only one order field is created on the model when 
+        using 'order_with_respect_to' meta option.
+
+        This test case verifies that the model 'Foo' which has an 
+        'order_with_respect_to' option set to 'bar', does not have 
+        duplicate 'order' fields. The test checks the local fields of 
+        the 'Foo' model and ensures that only one instance of 
+        'order' field of type 'OrderWrt' exists.
+
+        """
         class Bar(models.Model):
             class Meta:
                 app_label = "order_with_respect_to"

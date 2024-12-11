@@ -131,6 +131,20 @@ class TranslationTests(SimpleTestCase):
         self.assertEqual(french._catalog[("%(num)d hour", 0)], "%(num)d heure")
 
     def test_override(self):
+        """
+        Tests the behavior of overriding the language using the translation.override context manager.
+
+        The function verifies that the get_language function returns the expected language code when
+        the translation.override context manager is used to temporarily change the language. It also
+        checks that the original language is restored after the context manager is exited.
+
+        Specifically, the function tests the following scenarios:
+        - Overriding the language to a specific code (in this case, 'pl')
+        - Restoring the original language after the override
+        - Overriding the language to None
+        - Nesting overrides and verifying that the original language is restored after the inner override
+          is exited, and the outer override is still in effect
+        """
         activate("de")
         try:
             with translation.override("pl"):
@@ -206,6 +220,13 @@ class TranslationTests(SimpleTestCase):
         self.assertNotEqual(s, s4)
 
     def test_lazy_pickle(self):
+        """
+        Tests that lazy translation objects can be successfully pickled and retain their original string value.
+
+            Verifies that the string representation of the lazy translation object is as expected,
+            both before and after being pickled and unpickled, ensuring that the translation is preserved
+            through the serialization process. 
+        """
         s1 = gettext_lazy("test")
         self.assertEqual(str(s1), "test")
         s2 = pickle.loads(pickle.dumps(s1))
@@ -487,6 +508,15 @@ class TranslationLoadingTests(SimpleTestCase):
 
 class TranslationThreadSafetyTests(SimpleTestCase):
     def setUp(self):
+        """
+
+        Sets up the test environment by storing the current language and translations.
+        It also configures a test-specific translation setting that has a side effect:
+        when the 'split' method is called on the translated string, it resets the 
+        translation for 'en-YY' to None. This allows for isolation of translation 
+        settings during testing.
+
+        """
         self._old_language = get_language()
         self._translations = trans_real._translations
 
@@ -668,6 +698,26 @@ class FormattingTests(SimpleTestCase):
                 self.assertEqual(1, get_format("FIRST_DAY_OF_WEEK"))
 
     def test_l10n_enabled(self):
+        """
+        Tests the internationalization of various date and number formats.
+
+        This test function checks the correct formatting of dates, numbers, and times in different languages.
+        It ensures that the function :func:`get_format`, :func:`date_format`, :func:`time_format`, and :func:`localize` return the expected results for various input formats and languages.
+        It also tests the proper handling of thousand separators in decimal numbers.
+
+        The test function covers the following formats:
+
+            * Date formats (e.g., \"j E \d\e Y\")
+            * Time formats
+            * Number formats (e.g., decimal separator)
+            * Thousand separators
+
+        It checks these formats in multiple languages, including Catalan, Russian, and English.
+        Additionally, it tests the integration of these formats with Django templates and forms, ensuring that they are properly rendered and validated.
+
+        The function uses the :mod:`django.utils.translation` module to override the language settings for each test case, allowing it to test the formatting functions in different languages.
+        It also uses the :mod:`django.test` framework to create test cases and assert the expected results.
+        """
         self.maxDiff = 3000
         # Catalan locale
         with translation.override("ca", deactivate=True):
@@ -1171,6 +1221,30 @@ class FormattingTests(SimpleTestCase):
                 )
 
     def test_localized_input_func(self):
+        """
+        Tests the functionality of the localize_input function with various input types.
+
+        This test case verifies the correct localization of different input values, including boolean and date/time objects.
+        It checks the output of the localize_input function with the expected localized string representations.
+        The test is performed with the USE_THOUSAND_SEPARATOR setting enabled, ensuring that the thousand separator is correctly applied to the localized values.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Notes
+        -----
+        The test covers various input scenarios, including:
+        - Boolean values
+        - Date objects
+        - DateTime objects
+
+        Each scenario is tested with a subtest to provide detailed information in case of failures.
+        """
         tests = (
             (True, "True"),
             (datetime.date(1, 1, 1), "0001-01-01"),
@@ -1770,6 +1844,18 @@ class ResolutionOrderI18NTests(SimpleTestCase):
         self.addCleanup(deactivate)
 
     def assertGettext(self, msgid, msgstr):
+        """
+        '''Asserts that a gettext translation of a given message id contains a certain string.
+
+        Args:
+            msgid (str): The message id to be translated.
+            msgstr (str): The expected string that should be present in the translation.
+
+        This function checks whether the translation of a message id contains the specified string, 
+        raising an AssertionError if the string is not found. The assertion provides a detailed 
+        error message that includes the expected string, the original message id, and the actual 
+        translation result, making it easier to diagnose and fix translation issues.'''
+        """
         result = gettext(msgid)
         self.assertIn(
             msgstr,
@@ -2072,6 +2158,17 @@ class NonDjangoLanguageTests(SimpleTestCase):
         LOCALE_PATHS=[os.path.join(here, "commands", "locale")],
     )
     def test_non_django_language(self):
+        """
+
+        Tests the functionality of non-Django language settings.
+
+        This test case verifies that the system correctly handles a custom language 
+        ('xxx') that is not one of the standard languages supported by Django. It 
+        checks that the language code is correctly set and that translations are 
+        applied as expected, using the gettext function to retrieve the translated 
+        text for the string 'year'.
+
+        """
         self.assertEqual(get_language(), "xxx")
         self.assertEqual(gettext("year"), "reay")
 
@@ -2155,6 +2252,14 @@ class TranslationFileChangedTests(SimpleTestCase):
         trans_real._translations = self.trans_real_translations
 
     def test_ignores_non_mo_files(self):
+        """
+        Tests whether non-.mo files are ignored by the translation file change detection.
+
+        This function verifies that changes to non-translation files do not affect the translations dictionary.
+        It checks if the translation dictionary remains unchanged when a non-.mo file is passed to the function.
+        The purpose of this test is to ensure that only.mo files trigger changes in the translations dictionary, 
+        and other file types are ignored to prevent incorrect translation updates.
+        """
         gettext_module._translations = {"foo": "bar"}
         path = Path("test.py")
         self.assertIsNone(translation_file_changed(None, path))
@@ -2175,6 +2280,15 @@ class TranslationFileChangedTests(SimpleTestCase):
 
 class UtilsTests(SimpleTestCase):
     def test_round_away_from_one(self):
+        """
+        .junit.test.Round away from one test case.
+
+            Tests the round_away_from_one function to verify it correctly rounds input values away from one.
+
+            The test covers various input values including positive and negative numbers, integers, and decimals to ensure the function behaves as expected.
+
+            The expected output for each input is verified, with positive values greater than or equal to 1 rounded up and values less than 1 rounded down, and their negative counterparts rounded in the opposite direction.
+        """
         tests = [
             (0, 0),
             (0.0, 0),

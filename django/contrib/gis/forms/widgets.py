@@ -34,6 +34,18 @@ class BaseGeometryWidget(Widget):
         return value.wkt if value else ""
 
     def deserialize(self, value):
+        """
+
+        Deserializes a given value into a geometric object.
+
+        This method attempts to create a GEOSGeometry object from the provided value.
+        If successful, it returns the deserialized geometry. If an error occurs during
+        deserialization, the error is logged and the method returns None.
+
+        :param value: The value to be deserialized into a geometric object
+        :return: The deserialized geometric object, or None if deserialization fails
+
+        """
         try:
             return GEOSGeometry(value)
         except (GEOSException, ValueError, TypeError) as err:

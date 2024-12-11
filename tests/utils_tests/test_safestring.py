@@ -69,6 +69,10 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(mark_safe(lazystr("a&b")).__html__(), "a&b")
 
     def test_add_lazy_safe_text_and_safe_text(self):
+        """
+        Tests the combination of lazy safe text and safe text, ensuring that escaped text is correctly rendered when mixed with marked safe text.
+        The function verifies that the html.escape and html.escapejs functions correctly handle lazy strings and marked safe text, producing the expected output.
+        """
         s = html.escape(lazystr("a"))
         s += mark_safe("&b")
         self.assertRenderEqual("{{ s }}", "a&b", s=s)
@@ -111,12 +115,30 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(mark_safe(lazy_str), html_str())
 
     def test_default_additional_attrs(self):
+        """
+
+        Tests that assigning a value to a non-existent attribute in a SafeString object raises an AttributeError.
+
+        The test verifies that SafeString objects do not automatically create additional attributes beyond their initial setting, ensuring they behave as expected when handling HTML escaped strings.
+
+        The test case checks for the specific error message upon attempting to set a 'dynamic_attr' attribute, confirming that the object correctly refuses to accept arbitrary assignments.
+
+        """
         s = SafeString("a&b")
         msg = "object has no attribute 'dynamic_attr'"
         with self.assertRaisesMessage(AttributeError, msg):
             s.dynamic_attr = True
 
     def test_default_safe_data_additional_attrs(self):
+        """
+        Tests that a SafeData object does not allow assignment of additional attributes.
+
+        This test ensures that attempting to set an arbitrary attribute on a SafeData object, 
+        such as 'dynamic_attr', raises an AttributeError with the expected message, 
+        preventing dynamic attribute creation and maintaining data integrity.
+
+        :raises AttributeError: When attempting to assign a value to a non-existent attribute.
+        """
         s = SafeData()
         msg = "object has no attribute 'dynamic_attr'"
         with self.assertRaisesMessage(AttributeError, msg):

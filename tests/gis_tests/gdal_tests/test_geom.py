@@ -863,6 +863,15 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_point_m_dimension_types(self):
+        """
+
+        Tests the creation and properties of OGRGeometry point objects with ZM and M dimension types.
+
+        This function verifies that point geometries with Z (height) and M (measure) dimensions 
+        are correctly created and identified, ensuring their geometry type names and numbers 
+        match the expected values.
+
+        """
         geom = OGRGeometry("POINT ZM (1 2 3 4)")
         self.assertEqual(geom.geom_type.name, "PointZM")
         self.assertEqual(geom.geom_type.num, 3001)

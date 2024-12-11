@@ -20,6 +20,18 @@ class IntrospectionTests(TransactionTestCase):
     available_apps = ["introspection"]
 
     def test_table_names(self):
+        """
+
+        Verify table names returned by the database introspection.
+
+        This function checks if the list of table names provided by the database connection
+        is properly sorted and contains the expected tables. Specifically, it validates
+        the presence of the 'Reporter' and 'Article' tables in the table list.
+
+        The test ensures data consistency and integrity by confirming that the database
+        reflection accurately represents the expected schema.
+
+        """
         tl = connection.introspection.table_names()
         self.assertEqual(tl, sorted(tl))
         self.assertIn(
@@ -52,6 +64,13 @@ class IntrospectionTests(TransactionTestCase):
         self.assertIs(type(tl), list)
 
     def test_table_names_with_views(self):
+        """
+        Tests that table names returned by the database introspection include or exclude views depending on the include_views parameter.
+
+        This test checks that when include_views is True, the introspection function returns a list of table names that includes views, and when include_views is False, views are excluded from the list.
+
+        The test also ensures that the test user has the necessary privileges to create a view, and cleans up by dropping the view after the test is completed.
+        """
         with connection.cursor() as cursor:
             try:
                 cursor.execute(
@@ -76,6 +95,14 @@ class IntrospectionTests(TransactionTestCase):
                 cursor.execute("DROP VIEW introspection_article_view")
 
     def test_unmanaged_through_model(self):
+        """
+        Tests that the ArticleReporter model is not managed by Django.
+
+        This test ensures that the ArticleReporter model's db_table is not present in the list of tables 
+        that Django is managing, confirming that the table is unmanaged as intended.
+
+
+        """
         tables = connection.introspection.django_table_names()
         self.assertNotIn(ArticleReporter._meta.db_table, tables)
 
@@ -202,6 +229,16 @@ class IntrospectionTests(TransactionTestCase):
     # Regression test for #9991 - 'real' types in postgres
     @skipUnlessDBFeature("has_real_datatype")
     def test_postgresql_real_type(self):
+        """
+
+        Test the compatibility of PostgreSQL's REAL data type with Django's model fields.
+
+        This test creates a temporary table with a REAL field, inspects the table schema,
+        and verifies that the REAL data type is correctly mapped to Django's FloatField.
+
+        The test is skipped if the database does not support the REAL data type.
+
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE django_ixn_real_test_table (number REAL);")
             desc = connection.introspection.get_table_description(
@@ -250,6 +287,20 @@ class IntrospectionTests(TransactionTestCase):
         self.assertEqual(pk_fk_column, "city_id")
 
     def test_get_constraints_index_types(self):
+        """
+
+        Tests the retrieval of constraints index types from the database.
+
+        This test case verifies that the correct index types are returned for specific
+        constraints in the Article table. It checks the index type for two constraints:
+        one on the 'headline' and 'pub_date' columns, and another on the 'headline',
+        'response_to_id', 'pub_date', and 'reporter_id' columns. Both constraints are
+        expected to have an index type equal to Index.suffix.
+
+        The test uses the database connection to introspect the constraints and then
+        asserts that the retrieved index types match the expected values.
+
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor, Article._meta.db_table
@@ -297,6 +348,15 @@ class IntrospectionTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_index_column_ordering", "supports_partial_indexes")
     def test_get_constraints_unique_indexes_orders(self):
+        """
+
+        Tests retrieving the constraints for a model table, specifically focusing on unique indexes and their ordering.
+
+        This test case verifies that the introspection.get_constraints function correctly identifies unique constraints,
+        including partial indexes, and their respective column ordering. It checks the presence of a specific unique constraint,
+        its uniqueness property, the columns involved, and the ordering of those columns.
+
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(
                 cursor,
@@ -323,6 +383,38 @@ class IntrospectionTests(TransactionTestCase):
             # MySQL      pk=1 uniq=1 idx=1  pk=0 uniq=1 idx=1  pk=0 uniq=1 idx=1
             # PostgreSQL pk=1 uniq=1 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
             # SQLite     pk=1 uniq=0 idx=0  pk=0 uniq=1 idx=0  pk=0 uniq=1 idx=1
+            """
+            Asserts the correctness of a database table's details.
+
+            This function checks if the provided details match the expected configuration.
+            It compares the column names, primary key status, uniqueness, indexing, check constraints, and foreign key relationships.
+
+            The function also handles implicit constraints: if a primary key is specified, it ensures uniqueness is set to True. 
+            If a uniqueness constraint is present, it disables indexing.
+
+            Parameters
+            ----------
+            details : dict
+                A dictionary containing the table's details, including columns, primary key, uniqueness, indexing, check constraints, and foreign key relationships.
+            cols : list
+                The expected column names.
+            primary_key : bool, optional
+                Whether the table has a primary key. Defaults to False.
+            unique : bool, optional
+                Whether the table has a uniqueness constraint. Defaults to False.
+            index : bool, optional
+                Whether the table is indexed. Defaults to False.
+            check : bool, optional
+                Whether the table has a check constraint. Defaults to False.
+            foreign_key : any, optional
+                The foreign key relationship, if applicable. Defaults to None.
+
+            Raises
+            ------
+            AssertionError
+                If any of the provided details do not match the expected configuration.
+
+            """
             if details["primary_key"]:
                 details["unique"] = True
             if details["unique"]:

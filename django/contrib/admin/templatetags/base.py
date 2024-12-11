@@ -10,6 +10,17 @@ class InclusionAdminNode(InclusionNode):
     """
 
     def __init__(self, parser, token, func, template_name, takes_context=True):
+        """
+
+        Initializes a custom template tag.
+
+        This constructor takes several parameters to properly set up the template tag.
+        The :param parser: is used to parse the tag's arguments, while the :param token: contains the tag's source code.
+        The :param func: to be called when the tag is rendered, and the :param template_name: that identifies this tag.
+        The :param takes_context: parameter determines whether the tag takes the current template context as an argument.
+        It parses the tag's arguments using the provided parser and function signature, then calls the superclass's constructor to finalize the setup.
+
+        """
         self.template_name = template_name
         params, varargs, varkw, defaults, kwonly, kwonly_defaults, _ = getfullargspec(
             func

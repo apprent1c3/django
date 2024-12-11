@@ -11,6 +11,17 @@ class RelatedObjectTests(TestCase):
             self.assertEqual(field_name, obj.field.related_query_name())
 
     def test_m2m_and_m2o(self):
+        """
+        Tests the functionality of many-to-many (m2m) and many-to-one (m2o) relationships between Users and Issues.
+
+        Specifically, this test case verifies that:
+
+        * Issues can be assigned to a client (User) through a m2o relationship.
+        * Issues can have multiple users added as carbon copies (CC) through a m2m relationship.
+        * Filtering Issues by client or CC works as expected, including using lookup types such as exact ID matching.
+        * Using Q objects and the bitwise OR operator to combine query sets returns the expected results.
+        * Query sets with overlapping results can be correctly combined using the bitwise OR operator.
+        """
         r = User.objects.create(username="russell")
         g = User.objects.create(username="gustav")
 

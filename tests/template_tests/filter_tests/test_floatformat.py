@@ -140,6 +140,15 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(66666.666, "u2"), "66666.666")
 
     def test_zero_values(self):
+        """
+        Tests the floatformat function with zero and very small values.
+
+        Verifies that the function correctly formats zero and near-zero values as strings 
+        with the specified number of decimal places. The test cases check the function's 
+        behavior with integer, float, and Decimal inputs, as well as string inputs in 
+        different formats. The expected results are compared to the actual output of the 
+        floatformat function to ensure it produces the correct formatted strings.
+        """
         self.assertEqual(floatformat(0, 6), "0.000000")
         self.assertEqual(floatformat(0, 7), "0.0000000")
         self.assertEqual(floatformat(0, 10), "0.0000000000")

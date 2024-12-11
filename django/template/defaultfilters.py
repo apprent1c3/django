@@ -43,6 +43,24 @@ def stringfilter(func):
 
     @wraps(func)
     def _dec(first, *args, **kwargs):
+        """
+
+        Decorator function that wraps the input function to handle string and safe data operations.
+
+        This function takes in an input value, checks its type, and passes it to the wrapped function along with any additional arguments and keyword arguments.
+        If the input value is an instance of SafeData and the wrapped function is marked as safe, the function's return value is also marked as safe before being returned.
+
+        The purpose of this decorator is to provide a transparent and convenient way to handle safe data operations, ensuring that the output of the decorated function is properly marked as safe when necessary. 
+
+        Args:
+            first: The input value to be processed, which will be converted to a string if necessary.
+            *args: Additional positional arguments to be passed to the wrapped function.
+            **kwargs: Additional keyword arguments to be passed to the wrapped function.
+
+        Returns:
+            The result of the wrapped function, potentially marked as safe depending on the input type and the wrapped function's safety attributes.
+
+        """
         first = str(first)
         result = func(first, *args, **kwargs)
         if isinstance(first, SafeData) and getattr(unwrap(func), "is_safe", False):

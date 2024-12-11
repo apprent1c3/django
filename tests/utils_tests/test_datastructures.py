@@ -163,6 +163,15 @@ class MultiValueDictTests(SimpleTestCase):
         self.assertEqual(x.getlist("a"), ["1", "2"])
 
     def test_internal_getlist_does_mutate(self):
+        """
+
+        Tests that the internal _getlist method of MultiValueDict does indeed mutate its values.
+
+        The test checks if a list retrieved with _getlist, then extended with another list retrieved with _getlist from the same MultiValueDict, affects the internal state of the MultiValueDict.
+
+        It verifies that after such an extension, subsequent calls to _getlist return the combined list of values.
+
+        """
         x = MultiValueDict({"a": ["1", "2"], "b": ["3"]})
         values = x._getlist("a")
         values += x._getlist("b")
@@ -261,6 +270,15 @@ class ImmutableListTests(SimpleTestCase):
         self.assertEqual(repr(d), "(0, 1, 2, 3, 4, 5, 6, 7, 8, 9)")
 
     def test_custom_warning(self):
+        """
+        Tests the custom warning functionality of ImmutableList.
+
+        Verifies that attempting to modify an immutable list with a custom warning 
+        raises an AttributeError containing the specified warning message. The test 
+        checks that the list behaves as expected for read operations, but raises the 
+        custom warning when trying to set an item, confirming the immutability of the 
+        list with the provided warning message.
+        """
         d = ImmutableList(range(10), warning="Object is immutable!")
 
         self.assertEqual(d[1], 1)
@@ -291,6 +309,17 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         )
 
     def test_create_with_invalid_values(self):
+        """
+        Tests the creation of a CaseInsensitiveMapping instance with invalid values.
+
+        This test verifies that a ValueError is raised when attempting to create a 
+        CaseInsensitiveMapping instance with a dictionary update sequence element of 
+        incorrect length. The expected error message is checked to ensure it matches 
+        the raised exception.
+
+        :raises ValueError: If a dictionary update sequence element of incorrect length 
+                             is provided during instance creation
+        """
         msg = "dictionary update sequence element #1 has length 4; 2 is required"
         with self.assertRaisesMessage(ValueError, msg):
             CaseInsensitiveMapping([("Key1", "Val1"), "Key2"])
@@ -316,6 +345,13 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertEqual(repr(dict2), repr({"content-type": "text/html"}))
 
     def test_str(self):
+        """
+        Tests the string representation of a CaseInsensitiveMapping instance.
+
+        Verifies that the string representation of the mapping is equivalent to a standard dictionary
+        with the same key-value pairs, regardless of the original case of the keys. This ensures that
+        the mapping can be accurately represented as a string for debugging or logging purposes.
+        """
         dict1 = CaseInsensitiveMapping({"Accept": "application/json"})
         dict2 = CaseInsensitiveMapping({"content-type": "text/html"})
         self.assertEqual(str(dict1), str({"Accept": "application/json"}))
@@ -331,6 +367,15 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertNotEqual(self.dict1, "string")
 
     def test_items(self):
+        """
+
+        Test that the dictionary items match the expected values.
+
+        Verifies that the items in the dictionary being tested (dict1) contain the same key-value pairs as the expected dictionary, 
+        which includes 'Accept' and 'content-type' headers with their respective values. The comparison is done in a case-sensitive manner 
+        and the items are sorted to ensure the order of the key-value pairs does not affect the test result.
+
+        """
         other = {"Accept": "application/json", "content-type": "text/html"}
         self.assertEqual(sorted(self.dict1.items()), sorted(other.items()))
 
@@ -340,6 +385,17 @@ class CaseInsensitiveMappingTests(SimpleTestCase):
         self.assertEqual(copy, self.dict1)
 
     def test_getitem(self):
+        """
+        Tests the case-insensitive key lookup functionality of the dictionary.
+
+        This test verifies that the dictionary's item retrieval method (getitem) can 
+        successfully fetch values using keys with varying cases. The test covers both 
+        HTTP header names with different casing (e.g., 'Accept', 'accept', 'aCCept') 
+        and non-standard header names with mixed case (e.g., 'Content-Type', 'content-type', 
+        'Content-type'). The expected behavior is that the dictionary will return the 
+        correct value for each key, regardless of its case, demonstrating the 
+        case-insensitive nature of the dictionary's key lookup mechanism.
+        """
         self.assertEqual(self.dict1["Accept"], "application/json")
         self.assertEqual(self.dict1["accept"], "application/json")
         self.assertEqual(self.dict1["aCCept"], "application/json")

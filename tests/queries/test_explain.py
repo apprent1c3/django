@@ -63,6 +63,12 @@ class ExplainTests(TestCase):
             Tag.objects.explain(**{"TEST": 1, "TEST2": 1})
 
     def test_unknown_format(self):
+        """
+        Tests that an error is raised when an unknown format is provided to the explain method.
+
+        Checks that a ValueError is raised with a descriptive message when an unsupported format is requested.
+        The error message includes a list of supported formats if available, or a note that the database does not support any formats otherwise.
+        """
         msg = "DOES NOT EXIST is not a recognized format."
         if connection.features.supported_explain_formats:
             msg += " Allowed formats: %s" % ", ".join(
@@ -113,6 +119,16 @@ class ExplainTests(TestCase):
             qs.explain(**options)
 
     def test_invalid_option_names(self):
+        """
+        Tests that the explain method raises a ValueError when given invalid option names.
+
+        The function verifies that the explain method correctly handles a variety of invalid option names, 
+        including those containing special characters, whitespace, or non-ASCII characters. It checks that 
+        a ValueError is raised with a descriptive error message for each invalid option name.
+
+        The test cases cover a range of invalid characters and character combinations, ensuring that the 
+        explain method is robust and handles unexpected input correctly.
+        """
         qs = Tag.objects.filter(name="test")
         tests = [
             'opt"ion',
@@ -138,6 +154,14 @@ class ExplainTests(TestCase):
     def test_mysql_text_to_traditional(self):
         # Ensure these cached properties are initialized to prevent queries for
         # the MariaDB or MySQL version during the QuerySet evaluation.
+        """
+
+        Tests that MySQL database queries are executed with the traditional explain format when the format is set to 'text'.
+
+        This test is MySQL specific and checks that the query is correctly formatted and executed.
+        It verifies that the query is executed once and that the resulting SQL contains the 'FORMAT=TRADITIONAL' clause.
+
+        """
         connection.features.supported_explain_formats
         with CaptureQueriesContext(connection) as captured_queries:
             Tag.objects.filter(name="test").explain(format="text")

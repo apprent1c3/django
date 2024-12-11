@@ -61,6 +61,21 @@ class IfChangedTagTests(SimpleTestCase):
         }
     )
     def test_ifchanged05(self):
+        """
+
+        Tests the 'ifchanged' template tag with nested loops.
+
+        This function verifies that the 'ifchanged' tag correctly handles nested loops
+        and outputs the expected string. It checks if the tag only outputs values that
+        have changed in the current iteration of the loop, even when nested inside
+        another loop.
+
+        The test uses a template string with two loops, one for 'num' and one for 'numx',
+        both of which contain repeated and unique values. The 'ifchanged' tag is used
+        to only output the values that have changed in each loop, and the resulting
+        output is compared to the expected string.
+
+        """
         output = self.engine.render_to_string(
             "ifchanged05", {"num": (1, 1, 1), "numx": (1, 2, 3)}
         )

@@ -1269,6 +1269,17 @@ class ManageMultipleSettings(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+        Set up the test environment by initializing the parent class and writing default settings to files.
+
+        This method extends the parent class's setup functionality to include the creation of settings files.
+        It generates two settings files: 'settings.py' with specified Django apps and 'alternate_settings.py' with default values. 
+
+        The specified Django apps in 'settings.py' include authentication and content types, which are essential for many tests.
+        The 'alternate_settings.py' file can be used to test different settings configurations.
+
+        Note that this method should be called at the beginning of a test to ensure a clean and consistent environment.
+        """
         super().setUp()
         self.write_settings(
             "settings.py", apps=["django.contrib.auth", "django.contrib.contenttypes"]
@@ -1609,6 +1620,19 @@ class ManageRunserver(SimpleTestCase):
 
     @unittest.skipUnless(socket.has_ipv6, "platform doesn't support IPv6")
     def test_runner_addrport_ipv6(self):
+        """
+        Test the runner address and port functionality with IPv6.
+
+        This test case verifies that the test runner correctly handles different address and port combinations when using IPv6.
+
+        The test covers three scenarios:
+
+        * Running the test runner with the default IPv6 address and port.
+        * Running the test runner with a custom port number and IPv6 enabled.
+        * Running the test runner with a custom IPv6 address and port number.
+
+        It checks that the server settings are correctly configured in each scenario, including the IP address, port number, and IPv6 settings.
+        """
         call_command(self.cmd, addrport="", use_ipv6=True)
         self.assertServerSettings("::1", "8000", ipv6=True, raw_ipv6=True)
 
@@ -1633,6 +1657,15 @@ class ManageRunserver(SimpleTestCase):
         self.assertServerSettings("test.domain.local", "7000", ipv6=True)
 
     def test_runner_custom_defaults(self):
+        """
+
+        Tests the command runner with customized default settings.
+
+        This function sets up the command runner with custom defaults for address ('0.0.0.0') 
+        and port ('5000'), runs the command, and asserts that the server settings match 
+        the customized defaults.
+
+        """
         self.cmd.default_addr = "0.0.0.0"
         self.cmd.default_port = "5000"
         call_command(self.cmd)
@@ -1640,12 +1673,26 @@ class ManageRunserver(SimpleTestCase):
 
     @unittest.skipUnless(socket.has_ipv6, "platform doesn't support IPv6")
     def test_runner_custom_defaults_ipv6(self):
+        """
+
+        Test the default behavior of the test runner when using IPv6.
+
+        This test case verifies that the test runner correctly uses IPv6 settings 
+        when the platform supports it. It checks that the server settings are 
+        properly configured with the IPv6 address '::' and the default port '8000'.
+
+        """
         self.cmd.default_addr_ipv6 = "::"
         call_command(self.cmd, use_ipv6=True)
         self.assertServerSettings("::", "8000", ipv6=True, raw_ipv6=True)
 
     def test_runner_ambiguous(self):
         # Only 4 characters, all of which could be in an ipv6 address
+        """
+        Tests the functionality of the test runner when the address and port are specified in an ambiguous format.
+
+        The function checks that the test runner correctly interprets and sets the server settings when the address is provided in both a shortened and a full hexadecimal format, while the port number remains the same.
+        """
         call_command(self.cmd, addrport="beef:7654")
         self.assertServerSettings("beef", "7654")
 
@@ -1703,6 +1750,14 @@ class ManageRunserverMigrationWarning(TestCase):
 
     @override_settings(INSTALLED_APPS=["admin_scripts.app_waiting_migration"])
     def test_migration_warning_one_app(self):
+        """
+        Tests the migration warning for a single app.
+
+        Checks that a warning is raised when there is one unapplied migration for an application.
+        Verifies that the warning includes the correct number of unapplied migrations and specifies the application that needs migration.
+
+        The test case covers the scenario where a single application has pending migrations, ensuring the system correctly identifies and reports the required actions to apply the migrations.
+        """
         self.runserver_command.check_migrations()
         output = self.stdout.getvalue()
         self.assertIn("You have 1 unapplied migration(s)", output)
@@ -1737,6 +1792,20 @@ class ManageRunserverEmptyAllowedHosts(AdminScriptTestCase):
         )
 
     def test_empty_allowed_hosts_error(self):
+        """
+
+        Tests that a CommandError is raised when attempting to run the development server 
+        with DEBUG set to False and ALLOWED_HOSTS not configured.
+
+        This test case verifies that the application correctly enforces the ALLOWED_HOSTS 
+        setting when the debug mode is disabled, ensuring that the server only accepts 
+        requests from specified hosts.
+
+        The expected error message is checked to confirm that the application behaves as 
+        expected in this scenario, providing a clear indication to the developer that 
+        ALLOWED_HOSTS must be set when DEBUG is False.
+
+        """
         out, err = self.run_manage(["runserver"])
         self.assertNoOutput(out)
         self.assertOutput(
@@ -1756,6 +1825,17 @@ class ManageRunserverHelpOutput(AdminScriptTestCase):
 class ManageTestserver(SimpleTestCase):
     @mock.patch.object(TestserverCommand, "handle", return_value="")
     def test_testserver_handle_params(self, mock_handle):
+        """
+
+        Tests the invocation of the testserver command with custom parameters.
+
+        Verifies that the handle method of the TestserverCommand class is called with the expected set of parameters,
+        including the provided JSON file, stdout, and various command line options.
+
+        The test case exercises the command with a specific set of input parameters and asserts that the handle method
+        is invoked correctly, ensuring that the testserver command behaves as expected under different configurations.
+
+        """
         out = StringIO()
         call_command("testserver", "blah.json", stdout=out)
         mock_handle.assert_called_with(
@@ -1969,6 +2049,15 @@ class CommandTypes(AdminScriptTestCase):
         self.assertEqual(err.getvalue(), "\x1b[31;1mHello, world!\n\x1b[0m")
 
     def test_force_color_command_init(self):
+        """
+
+        Test that the ColorCommand class properly initializes and outputs colorized text when the force_color parameter is set to True, 
+        even if the stdout is not a tty.
+
+        This test case verifies that the command produces the expected colored output on both stdout and stderr, 
+        regardless of the terminal capabilities. 
+
+        """
         out = StringIO()
         err = StringIO()
         with mock.patch.object(sys.stdout, "isatty", lambda: False):
@@ -3002,6 +3091,17 @@ class DiffSettings(AdminScriptTestCase):
         self.assertNotInOutput(out, "is_overridden = ")
 
     def test_settings_configured(self):
+        """
+        Tests if custom settings are correctly configured.
+
+        Verifies that the custom settings 'CUSTOM' and 'DEBUG' are set as expected, 
+        and that the 'default_settings' configuration is not present.
+
+        This test checks the output of the 'diffsettings' management command to ensure 
+        that the custom settings values are correctly applied and the default settings 
+        are not included, indicating a proper configuration of the application settings.
+
+        """
         out, err = self.run_manage(
             ["diffsettings"], manage_py="configured_settings_manage.py"
         )

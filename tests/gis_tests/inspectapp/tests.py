@@ -92,6 +92,16 @@ class OGRInspectTest(SimpleTestCase):
         self.assertIn("geom = models.MultiLineStringField(srid=31253)", model_def)
 
     def test_date_field(self):
+        """
+
+        Tests the successful inspection of a shapefile and generation of the corresponding Django model definition.
+
+        The function verifies that the ogrinspect function can correctly interpret the date field in the shapefile
+        and produce a Django model definition with the appropriate DateField.
+
+        The expected output is compared to a predefined model definition to ensure accuracy and correctness.
+
+        """
         shp_file = os.path.join(TEST_DATA, "cities", "cities.shp")
         model_def = ogrinspect(shp_file, "City")
 

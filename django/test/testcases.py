@@ -222,6 +222,17 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the test class, applying any overridden or modified settings 
+        and initializing test databases.
+
+        This method is called once before any test methods in the class are run.
+        It ensures that the test environment is properly configured, including 
+        any necessary settings overrides or modifications.
+
+        Any subsequent database failures that occur during testing are tracked 
+        and cleaned up after all tests in the class have been completed.
+        """
         super().setUpClass()
         if cls._overridden_settings:
             cls.enterClassContext(override_settings(**cls._overridden_settings))
@@ -1506,6 +1517,22 @@ class CheckCondition:
 
     def __get__(self, instance, cls=None):
         # Trigger access for all bases.
+        """
+
+
+        Determines whether a class should be skipped during unit testing.
+
+        This method checks if any parent class of the given class is marked to be skipped.
+        If not, it evaluates a set of predefined conditions. If any condition is met, the class is marked to be skipped along with a reason.
+        The method returns True if the class should be skipped, False otherwise.
+
+        The class is considered skippable if it or any of its base classes have a __unittest_skip__ attribute set to True.
+
+        The conditions to be evaluated are defined within this object and are checked sequentially.
+        If a condition is met, the class is immediately marked as skippable and the method returns True.
+
+
+        """
         if any(getattr(base, "__unittest_skip__", False) for base in cls.__bases__):
             return True
         for condition, reason in self.conditions:

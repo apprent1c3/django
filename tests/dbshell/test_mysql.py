@@ -107,6 +107,17 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_options_charset(self):
+        """
+
+        Tests the conversion of database settings to command line arguments and environment variables,
+        specifically verifying that the OPTIONS['charset'] setting is correctly translated to the 
+        --default-character-set argument.
+
+        The test confirms that the function correctly constructs the expected command line arguments
+        and environment variables from the given database settings, including the MySQL username, 
+        host, port, password, database name, and character set.
+
+        """
         expected_args = [
             "mysql",
             "--user=someuser",
@@ -131,6 +142,13 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_can_connect_using_sockets(self):
+        """
+        Tests the conversion of database settings to command-line arguments and environment variables when using a MySQL socket file for connection. 
+
+        This test case ensures that the function correctly converts a dictionary of database settings, which includes a socket file path, into a tuple containing a list of expected command-line arguments and a dictionary of expected environment variables. The expected arguments and environment variables are those required to establish a connection to a MySQL database using the provided socket file. 
+
+        The test verifies that the function handles the conversion correctly, including the usage of the 'mysql' command, the specification of the user and socket file path, and the inclusion of the database name and password in the environment variables.
+        """
         expected_args = [
             "mysql",
             "--user=someuser",
@@ -153,6 +171,13 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_ssl_certificate_is_added(self):
+        """
+
+        Tests that an SSL certificate is correctly added to the MySQL connection command line arguments and environment variables.
+
+        This test case verifies that the provided SSL certificate settings are properly translated into the corresponding command line arguments and environment variables, ensuring a secure connection to the MySQL database.
+
+        """
         expected_args = [
             "mysql",
             "--user=someuser",

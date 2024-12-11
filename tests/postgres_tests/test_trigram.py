@@ -63,6 +63,18 @@ class TrigramTest(PostgreSQLTestCase):
         )
 
     def test_trigram_similarity(self):
+        """
+        Tests the trigram similarity functionality.
+
+        This method checks if the trigram similarity measurement is correctly implemented
+        and applied to the data. It uses a sample query to filter instances of the Model
+        based on their similarity to a given search string, and then verifies that the
+        results are correctly ordered by their similarity score.
+
+        The test case includes assertions to ensure that the filtered results match the
+        expected output, with a specific threshold for the similarity scores.
+
+        """
         search = "Bat sat on cat."
         # Round result of similarity because PostgreSQL uses greater precision.
         self.assertQuerySetEqual(

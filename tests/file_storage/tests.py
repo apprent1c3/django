@@ -633,6 +633,19 @@ class OverwritingStorageOSOpenFlagsWarningTests(SimpleTestCase):
         self.addCleanup(shutil.rmtree, self.temp_dir)
 
     def test_os_open_flags_deprecation_warning(self):
+        """
+
+        Test that a deprecation warning is raised when overriding OS_OPEN_FLAGS.
+
+        This test checks that the expected deprecation warning message is emitted when
+        OS_OPEN_FLAGS is overridden, as this behavior is deprecated in favor of using
+        the allow_overwrite parameter.
+
+        The test verifies that the RemovedInDjango60Warning is raised with a message
+        indicating that the OS_OPEN_FLAGS override is deprecated and advising the use
+        of the allow_overwrite parameter instead.
+
+        """
         msg = "Overriding OS_OPEN_FLAGS is deprecated. Use the allow_overwrite "
         msg += "parameter instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -891,6 +904,22 @@ class FileFieldStorageTests(TestCase):
         # in _(7 random chars). When most of the max_length is taken by
         # dirname + extension and there are not enough  characters in the
         # filename to truncate, an exception should be raised.
+        """
+
+        Test the functionality of file truncation in storage objects.
+
+        This test case verifies that when a filename is already in use, the storage object
+        automatically generates a truncated filename to avoid conflicts. It also checks
+        that an error is raised when a filename cannot be truncated further.
+
+        The test covers the following scenarios:
+        - Saving a file with a unique filename
+        - Saving a file with a filename that is already in use, resulting in truncation
+        - Attempting to save a file with a filename that cannot be truncated further
+
+        The test uses a set of storage objects and a sample filename to simulate these scenarios.
+
+        """
         objs = [Storage() for i in range(2)]
         filename = "filename.ext"
 
@@ -1260,6 +1289,14 @@ class StorageHandlerTests(SimpleTestCase):
             storages["nonexistent"]
 
     def test_nonexistent_backend(self):
+        """
+
+        Tests that an InvalidStorageError is raised when attempting to access a storage with a nonexistent backend.
+
+        This test case validates the error handling mechanism for cases where the specified backend does not exist.
+        It ensures that the expected error message is raised, providing a clear indication of the issue encountered.
+
+        """
         test_storages = StorageHandler(
             {
                 "invalid_backend": {

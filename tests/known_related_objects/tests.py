@@ -35,6 +35,15 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(tournament, pool.tournament)
 
     def test_foreign_key_prefetch_related(self):
+        """
+
+        Tests the correct prefetching of related objects for foreign key relationships.
+
+        Verifies that using prefetch_related to fetch a tournament with its associated pool
+        set results in the expected number of database queries and that the relationships
+        between the tournament and pool objects are correctly established.
+
+        """
         with self.assertNumQueries(2):
             tournament = Tournament.objects.prefetch_related("pool_set").get(
                 pk=self.t1.pk
@@ -123,6 +132,17 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(poolstyles[1], poolstyles[1].pool.poolstyle)
 
     def test_reverse_one_to_one(self):
+        """
+
+        Tests the one-to-one relationship reversal between Pool and PoolStyle models.
+
+        Verifies that a Pool instance is correctly linked to its corresponding PoolStyle instance,
+        and that the reverse relationship from PoolStyle to Pool is also correctly established.
+
+        This test case checks that the expected number of database queries are performed
+        during the relationship traversal, ensuring efficient data retrieval.
+
+        """
         with self.assertNumQueries(2):
             pool = Pool.objects.get(pk=self.p2.pk)
             style = pool.poolstyle
@@ -135,6 +155,15 @@ class ExistingRelatedInstancesTests(TestCase):
             self.assertIs(pool, style.pool)
 
     def test_reverse_one_to_one_prefetch_related(self):
+        """
+
+        Tests the reverse one-to-one prefetch related relationship between Pool and PoolStyle models.
+
+        Verifies that when a Pool object is retrieved with prefetch_related, the associated PoolStyle object can be accessed without an additional database query, and the relationship is correctly established in both directions.
+
+        Ensures that the expected number of database queries is executed during this process.
+
+        """
         with self.assertNumQueries(2):
             pool = Pool.objects.prefetch_related("poolstyle").get(pk=self.p2.pk)
             style = pool.poolstyle

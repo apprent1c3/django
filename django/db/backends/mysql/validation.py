@@ -10,6 +10,18 @@ class DatabaseValidation(BaseDatabaseValidation):
         return issues
 
     def _check_sql_mode(self, **kwargs):
+        """
+
+        Checks the SQL mode of a database connection.
+
+        This function verifies whether the database connection has 'STRICT_TRANS_TABLES' or 'STRICT_ALL_TABLES' modes enabled.
+        If neither mode is active, it returns a warning suggesting that Strict Mode should be enabled to prevent potential data integrity issues, such as data truncation during insertion.
+
+        The warning includes a hint with additional information about the benefits of enabling Strict Mode and a link to the relevant Django documentation for further details.
+
+        :return: A list of checks, which may contain a warning about the database connection's SQL mode.
+
+        """
         if not (
             self.connection.sql_mode & {"STRICT_TRANS_TABLES", "STRICT_ALL_TABLES"}
         ):

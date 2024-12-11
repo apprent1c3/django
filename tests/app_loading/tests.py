@@ -74,6 +74,9 @@ class GetModelsTest(SimpleTestCase):
         self.not_installed_module = models
 
     def test_get_model_only_returns_installed_models(self):
+        """
+        Tests that the get_model function from the apps module raises a LookupError when attempting to retrieve a model from an app that is not installed, ensuring it only returns models from installed applications.
+        """
         with self.assertRaises(LookupError):
             apps.get_model("not_installed", "NotInstalledModel")
 

@@ -326,6 +326,14 @@ def _sqlite_atan(x):
 
 
 def _sqlite_atan2(y, x):
+    """
+    _compute_ the two-argument arctangent of y/x, returning the angle in radians in the range (-pi, pi].
+
+        :param y: the y-coordinate
+        :param y: the x-coordinate
+        :return: the angle in radians, or None if either coordinate is None 
+        :rtype: float or None
+    """
     if y is None or x is None:
         return None
     return atan2(y, x)
@@ -412,6 +420,14 @@ def _sqlite_pi():
 
 
 def _sqlite_power(x, y):
+    """
+    Raises power of two numbers with support for None values.
+
+    :param x: base number
+    :param y: exponent
+    :returns: result of x to the power of y, or None if either x or y is None
+    :rtype: float or None
+    """
     if x is None or y is None:
         return None
     return x**y
@@ -454,6 +470,17 @@ def _sqlite_sha224(text):
 
 
 def _sqlite_sha256(text):
+    """
+
+    Calculates the SHA-256 hash of a given text string and returns it as a hexadecimal string.
+
+    If the input text is None, the function returns None. Otherwise, it encodes the text to bytes and applies the SHA-256 hashing algorithm to produce a fixed-size hash.
+
+    The resulting hash can be used for data integrity, authenticity, or other cryptographic purposes.
+
+    :rtype: str or None
+
+    """
     if text is None:
         return None
     return sha256(text.encode()).hexdigest()
@@ -490,6 +517,15 @@ def _sqlite_sqrt(x):
 
 
 def _sqlite_tan(x):
+    """
+    Calculates the tangent of a given value.
+
+    Returns the tangent of x if x is a valid number, otherwise returns None if x is None.
+
+    :param x: The input value for which the tangent is calculated.
+    :rtype: float or None
+
+    """
     if x is None:
         return None
     return tan(x)

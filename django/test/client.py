@@ -74,6 +74,12 @@ class FakePayload(IOBase):
     """
 
     def __init__(self, initial_bytes=None):
+        """
+        Initializes a new instance of the class, optionally with an initial byte sequence.
+
+        :param initial_bytes: The initial byte sequence to write to the instance, defaults to None.
+        :note: If provided, the initial_bytes parameter is written to the instance immediately during initialization.
+        """
         self.__content = BytesIO()
         self.__len = 0
         self.read_started = False
@@ -169,6 +175,25 @@ class ClientHandler(BaseHandler):
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+
+        Calls the WSGI application for the given environment, handling request and response processing.
+
+        This method is responsible for initializing a WSGI request, triggering the request started signal, and 
+        obtaining a response from the application. It also handles conditional content removal, streaming responses, 
+        and cleanup after the request is finished.
+
+        The process involves loading the middleware chain if it has not been loaded yet, creating a WSGI request 
+        object, and invoking the application to get a response. The method also handles the enforcement of 
+        CSRF checks and ensures proper connection closure.
+
+        Args:
+            environ: The WSGI environment.
+
+        Returns:
+            A response object containing the result of the application's processing.
+
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 

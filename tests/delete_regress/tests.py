@@ -311,6 +311,20 @@ class Ticket19102Tests(TestCase):
 
     @skipUnlessDBFeature("update_can_self_select")
     def test_ticket_19102_extra(self):
+        """
+
+        Tests the deletion of a single Login object with extra select clause.
+
+        This test case verifies that the deletion of a Login object with an extra select
+        clause does not affect other objects. The test fetches a Login object and its
+        associated orgunit, then deletes the Login object. It checks that the deletion
+        was successful by verifying that the object no longer exists in the database,
+        while another existing Login object remains unaffected.
+
+        The test also ensures that the database query is executed efficiently, using
+        only one query to perform the deletion.
+
+        """
         with self.assertNumQueries(1):
             Login.objects.order_by("description").filter(
                 orgunit__name__isnull=False

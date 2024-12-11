@@ -116,6 +116,21 @@ class SomeClass:
         raise TypeError
 
     def __getitem__(self, key):
+        """
+        Retrieves a value associated with the given key, handling specific keys with custom failure behaviors.
+
+        Args:
+            key: The key to retrieve a value for.
+
+        Raises:
+            KeyError: If the key is not recognized.
+            SomeException: If the key is 'silent_fail_key'.
+            SomeOtherException: If the key is 'noisy_fail_key'.
+
+        Note:
+            This method does not perform a traditional key-value lookup, but instead uses the key to determine the action to take. The behavior for unrecognized keys is to raise a KeyError.
+
+        """
         if key == "silent_fail_key":
             raise SomeException
         elif key == "noisy_fail_key":

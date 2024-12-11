@@ -70,6 +70,15 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(resp.reason_phrase, "Service Unavailable")
 
     def test_change_status_code(self):
+        """
+
+        Tests the behavior of changing the status code of an HTTP response.
+
+        Verifies that setting the status code property correctly updates the response's
+        status code and associated reason phrase, ensuring consistency and accuracy
+        in HTTP communication.
+
+        """
         resp = HttpResponse()
         resp.status_code = 503
         self.assertEqual(resp.status_code, 503)

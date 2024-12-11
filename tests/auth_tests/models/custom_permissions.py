@@ -12,6 +12,19 @@ from .custom_user import CustomUserManager, RemoveGroupsAndPermissions
 
 class CustomPermissionsUserManager(CustomUserManager):
     def create_superuser(self, email, password, date_of_birth):
+        """
+        Create a new superuser account.
+
+        This function creates a new user account with the provided email, password, and date of birth, 
+        and then elevates the account to superuser status. The newly created superuser account is 
+        then saved to the database.
+
+        :param email: The email address for the superuser account.
+        :param password: The password for the superuser account.
+        :param date_of_birth: The date of birth for the superuser account.
+        :return: The newly created superuser account instance.
+
+        """
         u = self.create_user(email, password=password, date_of_birth=date_of_birth)
         u.is_superuser = True
         u.save(using=self._db)

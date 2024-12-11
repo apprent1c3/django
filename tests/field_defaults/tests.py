@@ -29,6 +29,11 @@ from .models import (
 
 class DefaultTests(TestCase):
     def test_field_defaults(self):
+        """
+        Tests the default values assigned to an Article instance's fields upon instantiation and saving. 
+
+        Verifies that the article's id is an integer, its headline is set to a default value, and its publication date is automatically set to the current time.
+        """
         a = Article()
         now = datetime.now()
         a.save()
@@ -103,6 +108,19 @@ class DefaultTests(TestCase):
         self.assertEqual(obj2.language_code, "de")
 
     def test_foreign_key_db_default(self):
+        """
+
+        Tests the functionality of a foreign key field with a database-level default value.
+
+        This test case covers two scenarios: 
+        1. Creating a child object without explicitly specifying the foreign key, 
+           in which case the database should assign a default value for the foreign key.
+        2. Creating a child object with an explicitly specified foreign key.
+
+        The test verifies that in both cases, the assigned foreign key value is correctly 
+        associated with the child object, ensuring the integrity of the relationship.
+
+        """
         parent1 = DBDefaultsPK.objects.create(language_code="fr")
         child1 = DBDefaultsFK.objects.create()
         if not connection.features.can_return_columns_from_insert:
@@ -133,6 +151,18 @@ class DefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_bulk_create_all_db_defaults(self):
+        """
+        Tests that bulk creation of objects works correctly when using database defaults.
+
+        This test verifies that when using the :meth:`bulk_create` method to create multiple objects
+        at once, database defaults are properly applied to each object.
+
+        The test specifically checks that the 'headline' field is set to its default value
+        for all created objects, and that these values are correctly retrieved from the database.
+
+        This test requires a database that supports expression defaults, and ensures that the
+        bulk creation functionality is working as expected in this environment.
+        """
         articles = [DBArticle(), DBArticle()]
         DBArticle.objects.bulk_create(articles)
 
@@ -190,6 +220,15 @@ class DefaultTests(TestCase):
 
 class AllowedDefaultTests(SimpleTestCase):
     def test_allowed(self):
+        """
+        Tests that various allowed default expressions are correctly identified.
+
+        The function checks a range of valid default expressions, including simple values,
+        aggregate functions, raw SQL, arithmetic operations, expression lists, wrapped
+        expressions, and conditional statements. It verifies that each expression returns
+        True when checking if it is allowed as a default value, confirming that the
+        allowed_default property is correctly implemented for different types of expressions.
+        """
         class Max(Func):
             function = "MAX"
 

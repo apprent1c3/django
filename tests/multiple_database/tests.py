@@ -1339,6 +1339,13 @@ class ConnectionRouterTestCase(SimpleTestCase):
         ]
     )
     def test_router_init_default(self):
+        """
+        Tests the initialization of the ConnectionRouter with default database routers.
+
+        The test verifies that the ConnectionRouter is correctly populated with the 
+        defined routers, checking that the 'TestRouter' and 'WriteRouter' are 
+        appropriately configured and available for use.
+        """
         connection_router = ConnectionRouter()
         self.assertEqual(
             [r.__class__.__name__ for r in connection_router.routers],
@@ -2049,6 +2056,17 @@ class PickleQuerySetTestCase(TestCase):
     databases = {"default", "other"}
 
     def test_pickling(self):
+        """
+
+        Tests the correctness of pickling and unpickling a QuerySet.
+
+        Verifies that the database used by a QuerySet is preserved when the QuerySet is
+        serialized using pickling, and then deserialized. This ensures that the correct
+        database is used when executing the QuerySet after it has been pickled and unpickled.
+
+        Checks this behavior for all databases registered with the test instance.
+
+        """
         for db in self.databases:
             Book.objects.using(db).create(
                 title="Dive into Python", published=datetime.date(2009, 5, 4)
@@ -2306,6 +2324,18 @@ class RouterUsed(Exception):
     WRITE = "write"
 
     def __init__(self, mode, model, hints):
+        """
+
+
+        Initializes an instance of the class.
+
+        :param mode: The mode of operation for the instance.
+        :param model: The model to be used by the instance.
+        :param hints: Additional hints or configuration options for the instance.
+
+        The mode, model, and hints are stored as instance attributes, making them available for use throughout the instance's lifetime.
+
+        """
         self.mode = mode
         self.model = model
         self.hints = hints
@@ -2449,6 +2479,24 @@ class RouteForWriteTestCase(TestCase):
         self.assertEqual(e.hints, {"instance": book})
 
     def test_reverse_m2m_add(self):
+        """
+        Tests the reversal of many-to-many relationships when adding an instance.
+
+        This test case verifies that using a custom database router to manage many-to-many 
+        relationships raises the correct exception when trying to add an instance to the 
+        relationship. It checks that the exception provides the correct mode, model, and 
+        hints, ensuring the router is used correctly for write operations.
+
+        The test focuses on the interaction between the router, the many-to-many 
+        relationship, and the exception handling, making sure that all components 
+        work together seamlessly to manage data consistency and integrity across 
+        different databases or schema.
+
+        It assumes the existence of `Person` and `Book` models with a many-to-many 
+        relationship, and it uses a custom router to simulate the database routing 
+        behavior. The outcome of this test is crucial for ensuring that data is correctly 
+        distributed and managed across multiple databases in a distributed database setup.
+        """
         auth = Person.objects.create(name="Someone")
         book = Book.objects.create(
             title="Pro Django", published=datetime.date(2008, 12, 16)

@@ -9,6 +9,18 @@ from ..models import Author
 class OrdTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a set of predefined authors for use in tests.
+
+            This method populates the test environment with a selection of authors, including 'John Smith', 'Élena Jordan', and 'Rhonda'.
+            Each author is created with a name and, where applicable, an alias. These authors can be accessed as class attributes for use in subsequent tests.
+
+            Attributes:
+                john (Author): An author instance with name 'John Smith' and alias 'smithj'.
+                elena (Author): An author instance with name 'Élena Jordan' and alias 'elena'.
+                rhonda (Author): An author instance with name 'Rhonda' and no alias.
+
+        """
         cls.john = Author.objects.create(name="John Smith", alias="smithj")
         cls.elena = Author.objects.create(name="Élena Jordan", alias="elena")
         cls.rhonda = Author.objects.create(name="Rhonda")

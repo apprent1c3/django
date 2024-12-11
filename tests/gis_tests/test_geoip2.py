@@ -205,6 +205,13 @@ class GeoLite2Test(SimpleTestCase):
         self.assertEqual(repr(g), f"<GeoIP2 [v{version}] _path='{g._path}'>")
 
     def test_coords_deprecation_warning(self):
+        """
+        Tests the deprecation warning raised when using the coords method of the GeoIP2 class.
+
+        This test case verifies that a RemovedInDjango60Warning is raised with a specific message when the coords method is called, 
+        indicating that it is deprecated and should be replaced with the lon_lat method. It also checks that the method returns 
+        two float values despite the deprecation warning.\"
+        """
         g = GeoIP2()
         msg = "GeoIP2.coords() is deprecated. Use GeoIP2.lon_lat() instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):

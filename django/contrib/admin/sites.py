@@ -161,6 +161,15 @@ class AdminSite:
         return model in self._registry
 
     def get_model_admin(self, model):
+        """
+        Returns the model admin instance for the given model.
+
+        This method retrieves the model admin from the internal registry. If the model is not registered, it raises a NotRegistered exception.
+
+        :param model: The model for which to retrieve the model admin
+        :raises NotRegistered: If the model is not registered
+        :rtype: The model admin instance for the given model
+        """
         try:
             return self._registry[model]
         except KeyError:
@@ -252,6 +261,26 @@ class AdminSite:
         # Since this module gets imported in the application's root package,
         # it cannot import models from other applications at the module level,
         # and django.contrib.contenttypes.views imports ContentType.
+        """
+        Returns a list of URL patterns for the admin site.
+
+        The URL patterns are generated based on the models and their respective model admins registered in the site.
+
+        The patterns include:
+
+        * The main index page
+        * Login and logout pages
+        * Password change and password change done pages
+        * An autocomplete view
+        * A view for JavaScript internationalization
+        * A shortcut view for objects
+        * App index pages for each registered app
+        * Model admin pages for each registered model
+
+        Each view is wrapped to provide admin site context and authentication checks.
+
+        The list of URL patterns can be used to configure the URL routing for the admin site.
+        """
         from django.contrib.contenttypes import views as contenttype_views
         from django.urls import include, path, re_path
 

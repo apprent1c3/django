@@ -642,6 +642,15 @@ class ResolverTests(SimpleTestCase):
                             )
 
     def test_namespaced_view_detail(self):
+        """
+
+        Tests the functionality of the resolver's _is_callback method for namespaced view detail.
+
+        This function checks whether the resolver correctly identifies callbacks for namespaced views.
+        It verifies that the method returns True for existing views (view1, view2, and View3) 
+        and False for non-existent views (blub) within the 'urlpatterns_reverse.nested_urls' namespace.
+
+        """
         resolver = get_resolver("urlpatterns_reverse.nested_urls")
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view1"))
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view2"))
@@ -1507,6 +1516,20 @@ class NoRootUrlConfTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.namespace_urls")
 class ResolverMatchTests(SimpleTestCase):
     def test_urlpattern_resolve(self):
+        """
+
+        Tests the resolution of URL patterns against a set of predefined test data.
+
+        This test case iterates over a collection of test data, where each item represents a URL path
+        and its expected resolution. For each test case, it resolves the given URL path and verifies
+        that the resulting resolver match contains the expected URL name, application name, namespace,
+        view name, function, and arguments.
+
+        The test checks that the resolver match has the correct class type and that its attributes
+        match the expected values. Additionally, it verifies that indexing into the resolver match
+        returns the expected function, positional arguments, and keyword arguments.
+
+        """
         for (
             path_,
             url_name,
@@ -1596,6 +1619,30 @@ class ResolverMatchTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_urls")
     def test_pickling(self):
+        """
+        Tests the pickling of the resolve function.
+
+        Verifies that attempting to pickle the result of the resolve function raises a PicklingError with a specific message.
+        This ensures that ResolverMatch objects cannot be pickled, which aligns with their intended use as transient objects.
+
+        Parameters
+        ----------
+        None
+
+        Returns
+        -------
+        None
+
+        Raises
+        ------
+        PicklingError
+            if the result of the resolve function cannot be pickled.
+
+        Notes
+        -----
+        This test relies on the ROOT_URLCONF setting being overridden to use the 'urlpatterns.path_urls' configuration.
+
+        """
         msg = "Cannot pickle ResolverMatch."
         with self.assertRaisesMessage(pickle.PicklingError, msg):
             pickle.dumps(resolve("/users/"))
@@ -1610,6 +1657,9 @@ class ErroneousViewTests(SimpleTestCase):
 
     def test_invalid_regex(self):
         # Regex contains an error (refs #6170)
+        """
+        Tests that an improperly configured URL pattern with an invalid regular expression raises an ImproperlyConfigured exception with a descriptive error message.
+        """
         msg = '(regex_error/$" is not a valid regular expression'
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             reverse(views.empty_view)
@@ -1643,6 +1693,12 @@ class ViewLoadingTests(SimpleTestCase):
             get_callable("test")
 
     def test_module_does_not_exist(self):
+        """
+        #: Tests that attempting to retrieve a callable from a non-existent module raises an ImportError with the expected message. 
+        #: 
+        #: This test case verifies that the get_callable function behaves correctly when the specified module does not exist, 
+        #: resulting in an ImportError with a message indicating that the module could not be found.
+        """
         with self.assertRaisesMessage(ImportError, "No module named 'foo'"):
             get_callable("foo.bar")
 
@@ -1652,6 +1708,13 @@ class ViewLoadingTests(SimpleTestCase):
             get_callable("urlpatterns_reverse.foo.bar")
 
     def test_not_callable(self):
+        """
+        Tests that a non-callable view raises the correct exception.
+
+        Verifies that attempting to retrieve a non-callable view using the get_callable function
+        results in a ViewDoesNotExist exception being raised with an informative error message.
+
+        """
         msg = (
             "Could not import 'urlpatterns_reverse.tests.resolve_test_data'. "
             "View is not callable."
@@ -1694,6 +1757,14 @@ class IncludeTests(SimpleTestCase):
             include((self.url_patterns, "app_name", "namespace"))
 
     def test_include_3_tuple_namespace(self):
+        """
+
+        Tests the behavior of the include function when provided with a 3-tuple namespace.
+
+        Verifies that attempting to override the namespace for a dynamic module that 
+        already provides a namespace results in an ImproperlyConfigured exception.
+
+        """
         msg = (
             "Cannot override the namespace for a dynamic module that provides a "
             "namespace."

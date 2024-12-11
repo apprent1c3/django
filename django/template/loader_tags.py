@@ -68,6 +68,16 @@ class BlockNode(Node):
         return result
 
     def super(self):
+        """
+        Renders the parent block's content in a template inheritance scenario.
+
+        This method allows a child template to insert the content of a parent block at the current location.
+        It checks if a parent block with the same name exists and renders its content.
+
+        :raises TemplateSyntaxError: If the object does not have a context attribute or if block.super is used in a base template.
+
+        :returns: The rendered parent block content if it exists, otherwise an empty string.
+        """
         if not hasattr(self, "context"):
             raise TemplateSyntaxError(
                 "'%s' object has no attribute 'context'. Did you use "

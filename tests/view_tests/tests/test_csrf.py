@@ -136,6 +136,14 @@ class CsrfViewTests(SimpleTestCase):
     @override_settings(DEBUG=True)
     @mock.patch("django.views.csrf.get_docs_version", return_value="4.2")
     def test_doc_links(self, mocked_get_complete_version):
+        """
+        Tests the correctness of documentation links when HTTP request to the root URL is forbidden.
+
+        The test case verifies that when a POST request to the root URL ('/') is made, 
+        the server responds with a 403 status code and a 'Forbidden' message. 
+        It also checks that the response does not contain links to the development version 
+        of the documentation, but instead contains links to the correct documentation version (4.2).
+        """
         response = self.client.post("/")
         self.assertContains(response, "Forbidden", status_code=403)
         self.assertNotContains(

@@ -109,6 +109,15 @@ class FormsMediaTestCase(SimpleTestCase):
     def test_combine_media(self):
         # Media objects can be combined. Any given media resource will appear only
         # once. Duplicated media definitions are ignored.
+        """
+        Tests the combination of media from multiple widgets, ensuring that duplicate files are removed and media are rendered correctly.
+
+        The test checks that combining media from multiple widgets results in a single media object containing all unique CSS and JavaScript files.
+
+        It also verifies that the media are correctly rendered as HTML tags, with CSS files wrapped in `<link>` tags and JavaScript files wrapped in `<script>` tags.
+
+        Additionally, the test checks that duplicate media files within a single widget are removed, resulting in only one instance of each file being rendered.
+        """
         class MyWidget1(TextInput):
             class Media:
                 css = {"all": ("path/to/css1", "/path/to/css2")}
@@ -462,6 +471,15 @@ class FormsMediaTestCase(SimpleTestCase):
         # media from the component widgets
         class MyMultiWidget(MultiWidget):
             def __init__(self, attrs=None):
+                """
+                Initializes the class instance.
+
+                Args:
+                    attrs (dict, optional): Attributes to be applied to the instance. Defaults to None.
+
+                This method sets up the instance with a predefined set of widgets, including MyWidget1, MyWidget2, and MyWidget3, and applies the provided attributes.
+
+                """
                 widgets = [MyWidget1, MyWidget2, MyWidget3]
                 super().__init__(widgets, attrs)
 
@@ -654,6 +672,18 @@ class FormsMediaTestCase(SimpleTestCase):
         self.assertEqual(merged._css, {"screen": ["c.css"], "all": ["d.css", "e.css"]})
 
     def test_add_js_deduplication(self):
+        """
+
+        Test the addition of Media objects to ensure JavaScript files are properly merged and deduplicated.
+
+        Verifies that when two Media objects are added together, their JavaScript files are correctly combined,
+        removing any duplicates. Also checks that a warning is raised when the same JavaScript files are detected
+        in a different order, indicating potential duplication issues.
+
+        The test covers scenarios where the same JavaScript files are added in the same or different order,
+        ensuring that the resulting merged Media object has the expected JavaScript files and warnings.
+
+        """
         widget1 = Media(js=["a", "b", "c"])
         widget2 = Media(js=["a", "b"])
         widget3 = Media(js=["a", "c", "b"])
@@ -778,6 +808,20 @@ class FormsMediaObjectTestCase(SimpleTestCase):
     """Media handling when media are objects instead of raw strings."""
 
     def test_construction(self):
+        """
+        měli by الدين være formatted as follows:
+
+         \"\"\"
+         Tests the construction of a Media object, verifying that it correctly handles 
+         CSS and JavaScript resources. 
+
+         The test case checks that the Media object is initialized with the expected 
+         CSS and JavaScript files, and that its string and representation are 
+         correctly formatted.
+
+         :return: None
+
+        """
         m = Media(
             css={"all": (CSS("path/to/css1", "all"), CSS("/path/to/css2", "all"))},
             js=(

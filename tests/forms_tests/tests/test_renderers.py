@@ -60,6 +60,10 @@ class TemplatesSettingTests(SharedTests, SimpleTestCase):
 
 class DeprecationTests(SimpleTestCase):
     def test_django_div_renderer_warning(self):
+        """
+        Tests that a RemovedInDjango60Warning is raised when using the deprecated DjangoDivFormRenderer, 
+        indicating that it will be removed in Django 6.0 and recommending the use of DjangoTemplates instead.
+        """
         msg = (
             "The DjangoDivFormRenderer transitional form renderer is deprecated. Use "
             "DjangoTemplates instead."

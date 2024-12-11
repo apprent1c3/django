@@ -59,6 +59,12 @@ class TestSaveLoad(TestCase):
             PrimaryKeyUUIDModel.objects.get(pk=[])
 
     def test_wrong_value(self):
+        """
+        Tests that a ValidationError is raised when an invalid UUID value is used.
+
+        This test case covers two scenarios: retrieving and creating a model instance with an invalid UUID.
+        It verifies that the expected error message 'is not a valid UUID' is returned in both cases, ensuring that invalid UUIDs are properly handled and validated.
+        """
         with self.assertRaisesMessage(
             exceptions.ValidationError, "is not a valid UUID"
         ):
@@ -92,6 +98,9 @@ class TestMethods(SimpleTestCase):
 
     def test_to_python_int_too_large(self):
         # Fails for integers larger than 128 bits.
+        """
+        Tests that a ValidationError is raised when attempting to convert an excessively large integer to a UUIDField value.
+        """
         with self.assertRaises(exceptions.ValidationError):
             models.UUIDField().to_python(2**128)
 
@@ -161,6 +170,9 @@ class TestQuerying(TestCase):
         )
 
     def test_icontains(self):
+        """
+        Tests the icontains lookup for NullableUUIDModel's field, verifying that it correctly filters objects regardless of hyphenation in the UUID string.
+        """
         self.assertSequenceEqualWithoutHyphens(
             NullableUUIDModel.objects.filter(field__icontains="8400E29B"),
             [self.objs[1]],
@@ -263,6 +275,14 @@ class TestSerialization(SimpleTestCase):
 
 class TestValidation(SimpleTestCase):
     def test_invalid_uuid(self):
+        """
+
+        Tests the invalidation of a UUID.
+
+        Verifies that the UUID field raises a ValidationError when given an invalid UUID string.
+        The validation error should have an 'invalid' code and a message indicating that the provided string is not a valid UUID.
+
+        """
         field = models.UUIDField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("550e8400", None)
@@ -273,6 +293,15 @@ class TestValidation(SimpleTestCase):
         )
 
     def test_uuid_instance_ok(self):
+        """
+
+        Tests that a UUID instance is successfully cleaned by the UUIDField.
+
+        This test case verifies that a randomly generated UUID can be validated and 
+        cleaned without raising any errors, ensuring the UUIDField behaves as expected 
+        when provided with a valid UUID instance.
+
+        """
         field = models.UUIDField()
         field.clean(uuid.uuid4(), None)  # no error
 

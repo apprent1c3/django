@@ -17,7 +17,21 @@ def wraps_decorator(f):
 
 
 def common_decorator(f):
+    """
+    :param f: The function to be decorated
+    :rtype: callable
+    :return: A wrapper function that appends ' -- common decorated.' to the result of the decorated function.
+
+    This decorator is used to modify the behavior of a function by adding a common suffix to its output. It preserves the original function's arguments and keyword arguments, allowing for seamless integration with existing code. The result is a new function that wraps the original, providing a consistent and predictable modification to its output.
+    """
     def wrapper(*args, **kwargs):
+        """
+        Wraps the output of a function with a common decoration.
+
+        This function takes any number of positional and keyword arguments, passes them to the wrapped function, 
+        and appends ' -- common decorated.' to the result. It is designed to be used as a decorator, 
+        providing a uniform way to modify the output of multiple functions.
+        """
         value = f(*args, **kwargs)
         return f"{value} -- common decorated."
 
@@ -283,11 +297,23 @@ class MyCustomAtom1Feed(feedgenerator.Atom1Feed):
         handler.addQuickElement("spam", "eggs")
 
     def item_attributes(self, item):
+        """
+        Overrides the parent class's method to add a custom attribute 'bacon' to the item attributes.
+
+        Returns a dictionary containing all the item's attributes, including the added 'bacon' attribute with a value of 'yum'.
+
+        :param item: The item for which to retrieve attributes
+        :rtype: dict
+        :return: A dictionary of item attributes
+        """
         attrs = super().item_attributes(item)
         attrs["bacon"] = "yum"
         return attrs
 
     def add_item_elements(self, handler, item):
+        """
+        Adds elements for the given item to the handler, extending the default behavior by including a 'ministry' quick element with the value 'silly walks'.
+        """
         super().add_item_elements(handler, item)
         handler.addQuickElement("ministry", "silly walks")
 

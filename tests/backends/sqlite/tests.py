@@ -117,6 +117,19 @@ class Tests(TestCase):
         self.assertTrue(mocked_get_database_version.called)
 
     def test_init_command(self):
+        """
+
+        Tests the initialization command for a database connection.
+
+        Verifies that the 'init_command' setting in the database configuration is
+        executed when a connection is established. The test checks that the
+        specified PRAGMA statements are executed and that their effects are
+        visible in the connection's state.
+
+        Specifically, this test checks that the 'synchronous' and 'cache_size'
+        PRAGMAs are set to the values specified in the 'init_command' setting.
+
+        """
         settings_dict = {
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
@@ -199,6 +212,17 @@ class SchemaTests(TransactionTestCase):
 class LastExecutedQueryTest(TestCase):
     def test_no_interpolation(self):
         # This shouldn't raise an exception (#17158)
+        """
+        Tests that SQL queries without interpolation are executed as is.
+
+        Checks that the SQL query is not modified or interpolated by the database connection,
+        by comparing the executed query with the original query string. This ensures that
+        the database connection does not introduce any unexpected changes to the query, 
+        which is especially important for queries that rely on specific formatting or syntax.
+
+        This test case verifies the behavior for a simple query that uses the strftime function.
+
+        """
         query = "SELECT strftime('%Y', 'now');"
         with connection.cursor() as cursor:
             cursor.execute(query)
@@ -277,6 +301,22 @@ class TestTransactionMode(SimpleTestCase):
     databases = {"default"}
 
     def test_default_transaction_mode(self):
+        """
+        Tests the default transaction mode.
+
+        Verifies that a transaction is correctly initiated and committed using the 
+        default transaction mode. This test checks that the 'BEGIN' and 'COMMIT' SQL 
+        statements are executed as expected within the context of a transaction.
+
+        The test case captures the queries executed during the transaction and 
+        asserts that the SQL statements match the expected 'BEGIN' and 'COMMIT' 
+        commands, ensuring the transaction is properly handled.
+
+        Raises:
+            AssertionError: If the captured SQL statements do not match the expected 
+                'BEGIN' and 'COMMIT' commands.
+
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             with transaction.atomic():
                 pass

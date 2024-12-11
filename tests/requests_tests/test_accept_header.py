@@ -25,6 +25,11 @@ class MediaTypeTests(TestCase):
         )
 
     def test_is_all_types(self):
+        """
+        Tests whether a MediaType represents all types, i.e., its type is \"*/*\". 
+        A MediaType is considered to represent all types if its type matches this pattern, 
+        regardless of any additional parameters, such as quality (q) values.
+        """
         self.assertIs(MediaType("*/*").is_all_types, True)
         self.assertIs(MediaType("*/*; q=0.8").is_all_types, True)
         self.assertIs(MediaType("text/*").is_all_types, False)
@@ -93,6 +98,22 @@ class AcceptHeaderTests(TestCase):
         self.assertEqual(request.accepted_types, [])
 
     def test_request_accepts_some(self):
+        """
+        Test that the HttpRequest object properly handles HTTP Accept headers.
+
+        This test checks that the accepts method of the HttpRequest object correctly
+        identifies the MIME types that the client has indicated it can handle, based on
+        the Accept header of the HTTP request. It verifies that the method returns True
+        for MIME types that are explicitly listed in the Accept header and False for
+        MIME types that are not listed.
+
+        The Accept header is used by clients to specify the types of content that they
+        are capable of handling. The test covers cases where the Accept header lists
+        multiple MIME types, with and without quality values (q-values), and where it
+        does not list a particular MIME type. The method should return True for MIME
+        types with the highest q-value and False for MIME types that are not listed or
+        have a lower q-value.
+        """
         request = HttpRequest()
         request.META["HTTP_ACCEPT"] = (
             "text/html,application/xhtml+xml,application/xml;q=0.9"

@@ -141,6 +141,25 @@ class CsrfFunctionTests(CsrfFunctionTestMixin, SimpleTestCase):
                     _check_token_format(token)
 
     def test_does_token_match(self):
+        """
+
+        Checks if a token matches its corresponding secret.
+
+        This function tests the token matching mechanism with various input cases, including
+        masked and unmasked tokens, as well as tokens of different lengths. It verifies that
+        the token matching function correctly identifies matching and non-matching tokens.
+
+        The test cases cover a range of scenarios, including:
+        - Masked tokens
+        - Unmasked tokens
+        - Tokens with different lengths
+        - Tokens that match their corresponding secrets
+        - Tokens that do not match their corresponding secrets
+
+        The function uses a series of test cases to ensure the correctness of the token matching
+        mechanism, providing a robust validation of its functionality.
+
+        """
         cases = [
             # Masked tokens match.
             ((MASKED_TEST_SECRET1, TEST_SECRET), True),

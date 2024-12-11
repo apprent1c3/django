@@ -36,6 +36,15 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.f2_acos, math.acos(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the calculation of the arccosine (inverse cosine) of integer values using the ACos database function.
+
+        This test covers the creation of an IntegerModel instance with small, normal, and big integer values, 
+        and verifies that the ACos function correctly calculates the arccosine for each value.
+
+        The test checks that the results of the ACos function are floats and that they match the expected results
+        from the math.acos function. The test uses approximate equality checks due to potential floating point precision issues.
+        """
         IntegerModel.objects.create(small=0, normal=1, big=-1)
         obj = IntegerModel.objects.annotate(
             small_acos=ACos("small"),

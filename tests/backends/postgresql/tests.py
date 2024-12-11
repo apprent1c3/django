@@ -42,6 +42,18 @@ class Tests(TestCase):
         orig_connect = BaseDatabaseWrapper.connect
 
         def mocked_connect(self):
+            """
+            \\":nowrap
+            Simulates a database connection based on the provided settings.
+
+            This method checks if a database name is specified in the settings dictionary.
+            If the database name is not provided, it raises a DatabaseError.
+            Otherwise, it proceeds with the original connection process.
+
+            :raises DatabaseError: If the database name is not specified in the settings.
+            :return: The result of the original connection process.
+            \\"\\"\\"
+            """
             if self.settings_dict["NAME"] is None:
                 raise DatabaseError()
             return orig_connect(self)
@@ -102,6 +114,14 @@ class Tests(TestCase):
             raise DatabaseError()
 
         def mocked_all(self):
+            """
+            Returns a list containing a mocked database connection.
+
+            This connection is a copy of the default database connection, with its database name overridden to 'postgres'.
+            It is intended for use in testing scenarios where a test database connection is required.
+
+            :returns: A list containing a single mocked database connection object.
+            """
             test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
             test_connection.settings_dict = copy.deepcopy(connection.settings_dict)
             test_connection.settings_dict["NAME"] = "postgres"
@@ -327,6 +347,17 @@ class Tests(TestCase):
 
     @unittest.skipUnless(is_psycopg3, "psycopg3 specific test")
     def test_cannot_open_new_connection_in_atomic_block(self):
+        """
+
+        Tests the inability to open a new database connection within an atomic block.
+
+        This test case verifies that attempting to establish a new connection while already
+        within an atomic block raises a ProgrammingError with an appropriate error message.
+
+        The test coverage includes setup of a new connection with pooling enabled, 
+        simulation of an atomic block, and verification of the expected exception.
+
+        """
         new_connection = no_pool_connection(alias="default_pool")
         new_connection.settings_dict["OPTIONS"]["pool"] = True
 
@@ -382,6 +413,11 @@ class Tests(TestCase):
             new_connection.close()
 
     def test_connect_invalid_isolation_level(self):
+        """
+        Tests the connection behavior when an invalid isolation level is specified.
+
+        Verifies that attempting to establish a connection with an invalid isolation level raises an ImproperlyConfigured exception with a descriptive error message, rather than silently accepting the invalid level. This ensures that the connection settings are properly validated before attempting to connect to the database.
+        """
         self.assertIsNone(connection.connection.isolation_level)
         new_connection = no_pool_connection()
         new_connection.settings_dict["OPTIONS"]["isolation_level"] = -1
@@ -471,6 +507,17 @@ class Tests(TestCase):
             return cursor.fetchone()[0]
 
     def test_select_ascii_array(self):
+        """
+
+        Tests the _select method with an array containing ASCII characters.
+
+        Verifies that the method correctly selects and returns an array element, 
+        by comparing the original array element with the returned value.
+
+        The test case checks for correct functionality when the input array 
+        contains strings consisting of only ASCII characters.
+
+        """
         a = ["awef"]
         b = self._select(a)
         self.assertEqual(a[0], b[0])
@@ -500,6 +547,14 @@ class Tests(TestCase):
                 self.assertIn("::text", do.lookup_cast(lookup))
 
     def test_lookup_cast_isnull_noop(self):
+        """
+        Tests that the lookup_cast operation for 'isnull' returns '%s' for various text field types.
+
+        This test case ensures that the DatabaseOperations class correctly handles the 'isnull'
+        lookup type for different field types, including CharField, EmailField, and TextField.
+        The test verifies that the lookup_cast method returns the expected '%s' value for each
+        field type, indicating that the 'isnull' operation does not require any additional casting.
+        """
         from django.db.backends.postgresql.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
@@ -526,6 +581,21 @@ class Tests(TestCase):
     @override_settings(DEBUG=True)
     @unittest.skipIf(is_psycopg3, "psycopg2 specific test")
     def test_copy_to_expert_cursors(self):
+        """
+        Tests the functionality of copying data to stdout using expert cursors.
+
+        This test case checks the behavior of the copy_expert method in combination with 
+        the copy_to method. It simulates copying data from the django_session table to 
+        stdout in CSV format and verifies that the generated SQL queries match the 
+        expected queries.
+
+        The test is specific to psycopg2 and is skipped when using psycopg3. It also 
+        requires the DEBUG setting to be set to True.
+
+        The test outcome checks for the correct SQL queries being executed, ensuring 
+        that the copy_expert and copy_to methods behave as expected when used together 
+        in this context.
+        """
         out = StringIO()
         copy_expert_sql = "COPY django_session TO STDOUT (FORMAT CSV, HEADER)"
         with connection.cursor() as cursor:

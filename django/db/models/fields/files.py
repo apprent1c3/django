@@ -76,6 +76,13 @@ class FieldFile(File, AltersData):
         return self.storage.size(self.name)
 
     def open(self, mode="rb"):
+        """
+        Opens a file associated with the current object, returning the object itself to enable method chaining.
+
+        The file is opened in the specified mode, which defaults to binary read mode ('rb') if not provided. 
+        If the file is not already open, it is opened using the underlying storage system; otherwise, the existing file object is reopened with the specified mode. 
+        This method requires that a file has been previously associated with the object.
+        """
         self._require_file()
         if getattr(self, "_file", None) is None:
             self.file = self.storage.open(self.name, mode)
@@ -149,6 +156,15 @@ class FieldFile(File, AltersData):
         }
 
     def __setstate__(self, state):
+        """
+        Restores the object's state from a serialized representation.
+
+        This method is used to reconstitute the object from a previously serialized state,
+        such as when loading from a pickle file. It updates the object's internal state
+        by copying data from the provided state dictionary and reinitializes the storage
+        attribute to point to the field's storage, ensuring the object is properly
+        reconnected to its underlying data storage.
+        """
         self.__dict__.update(state)
         self.storage = self.field.storage
 
@@ -448,6 +464,17 @@ class ImageField(FileField):
             return []
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into a tuple of its constituent parts, including its name, path, positional arguments, and keyword arguments.
+
+        Used to break down the object into a simpler representation that can be easily reconstituted or serialized. This is particularly useful when working with databases or other storage systems.
+
+        The deconstructed tuple contains the following elements:
+        - name: the name of the object
+        - path: the path to the object
+        - args: a list of positional arguments
+        - kwargs: a dictionary of keyword arguments, which may include 'width_field' and 'height_field' if they are set.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.width_field:
             kwargs["width_field"] = self.width_field
@@ -456,6 +483,27 @@ class ImageField(FileField):
         return name, path, args, kwargs
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contribute this field to the designated class, enabling functionality such as updating dimension fields.
+
+        The contribution process involves calling the parent class's contribute_to_class method and, 
+        if the class is not abstract and either a width field or height field is specified, 
+        sets up a connection to update dimension fields after instance initialization.
+
+        Parameters
+        ----------
+        cls : class
+            The class to which this field is being contributed.
+        name : str
+            The name of this field within the class.
+        **kwargs : dict
+            Additional keyword arguments passed to the parent class's contribute_to_class method.
+
+        Note
+        ----
+        This method is typically used internally by the framework and does not need to be called explicitly by users.
+
+        """
         super().contribute_to_class(cls, name, **kwargs)
         # Attach update_dimension_fields so that dimension fields declared
         # after their corresponding image field don't stay cleared by

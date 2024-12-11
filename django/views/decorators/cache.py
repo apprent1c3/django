@@ -38,6 +38,27 @@ def _check_request(request, decorator_name):
 
 
 def cache_control(**kwargs):
+    """
+
+    Decorator to control caching behavior of a view function.
+
+    This decorator allows you to modify the caching behavior of a view function by
+    passing cache control parameters as keyword arguments. It checks the incoming
+    request for validity and then patches the response with the specified cache
+    control directives.
+
+    The decorator works with both synchronous and asynchronous view functions.
+
+    Parameters
+    ----------
+    **kwargs
+        Cache control parameters, such as max_age, s_maxage, no_cache, etc.
+
+    Returns
+    -------
+    A decorated view function with modified caching behavior.
+
+    """
     def _cache_controller(viewfunc):
         if iscoroutinefunction(viewfunc):
 

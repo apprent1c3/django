@@ -15,6 +15,15 @@ class UrlizetruncTests(SimpleTestCase):
         }
     )
     def test_urlizetrunc01(self):
+        """
+        Tests the urlizetrunc filter in a template, which truncates and converts URLs to clickable links.
+
+        The test case covers two scenarios: one where the input string is not marked as safe and another where it is.
+        It verifies that the filter correctly truncates long URLs, escapes special characters, and adds the rel=\"nofollow\" attribute to the generated links.
+
+        The expected output is a string containing the truncated and escaped URLs, wrapped in HTML anchor tags with the correct attributes.
+        This test ensures that the urlizetrunc filter behaves as expected and produces the desired output in different scenarios.
+        """
         output = self.engine.render_to_string(
             "urlizetrunc01",
             {

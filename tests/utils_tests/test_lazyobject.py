@@ -56,6 +56,13 @@ class LazyObjectTestCase(unittest.TestCase):
                 self.assertEqual(getattr(obj_with_attr, attr), attr)
 
     def test_getattr(self):
+        """
+        Tests the functionality of getattr on a lazily wrapped object.
+
+        Verifies that attributes of the wrapped object are accessible and return the expected values.
+        In this case, it checks that the 'foo' attribute of the wrapped Foo object has the value 'bar'.
+
+        """
         obj = self.lazy_wrap(Foo())
         self.assertEqual(obj.foo, "bar")
 
@@ -284,6 +291,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_list(self):
         # Deep copying a list works and returns the correct objects.
+        """
+        Tests that the lazy wrapper object returns a deep copy of the original list when copied using the deepcopy function from the copy module, ensuring the original and copied objects are distinct instances with the same content.
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -319,6 +329,19 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_class_no_evaluation(self):
         # Deep copying doesn't force evaluation.
+        """
+
+        Tests if the deepcopy operation on a lazily wrapped object does not evaluate it.
+
+        When an object is wrapped with lazy evaluation, this function checks that creating
+        a deep copy of the wrapped object does not trigger the evaluation of the wrapped
+        object. Instead, both the original and copied objects should retain their
+        unevaluated state.
+
+        The test verifies that the original and copied objects are distinct and that their
+        wrapped content remains unchanged after the copy operation.
+
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)

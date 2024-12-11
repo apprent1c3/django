@@ -132,6 +132,15 @@ class OGRGeometry(GDALBase):
 
     # Pickle routines
     def __getstate__(self):
+        """
+        Returns the state of the object as a tuple for serialization purposes.
+
+        The state includes the Well-Known Binary (WKB) representation of the object as bytes, 
+        and its Spatial Reference System (SRS) definition as a WKT (Well-Known Text) string, 
+        if available. If no SRS is defined, the SRS component of the state is set to None.
+
+        :return: A tuple containing the WKB representation as bytes and the SRS definition as a string or None.
+        """
         srs = self.srs
         if srs:
             srs = srs.wkt
@@ -344,6 +353,12 @@ class OGRGeometry(GDALBase):
         return None
 
     def _set_srid(self, srid):
+        """
+        Sets the Spatial Reference System Identifier (SRID) for the object.
+
+         :param srid: The SRID to be set. It can be either an integer or None.
+         :raises TypeError: If the SRID is not an integer or None.
+        """
         if isinstance(srid, int) or srid is None:
             self.srs = srid
         else:

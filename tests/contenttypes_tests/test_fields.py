@@ -60,6 +60,13 @@ class GenericForeignKeyTests(TestCase):
 
 class GenericRelationTests(TestCase):
     def test_value_to_string(self):
+        """
+        Checks if the `value_to_string` method of the `answer_set` field returns a JSON string containing the primary keys of all related answers for a given question.
+
+        It verifies that the output is a list of primary keys, which corresponds to the primary keys of the answers associated with the question being tested.
+
+        The test ensures data consistency and correctness of the `value_to_string` method in representing the relationship between a question and its answers.
+        """
         question = Question.objects.create(text="test")
         answer1 = Answer.objects.create(question=question)
         answer2 = Answer.objects.create(question=question)

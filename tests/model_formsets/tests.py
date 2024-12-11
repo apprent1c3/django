@@ -419,6 +419,16 @@ class ModelFormsetTest(TestCase):
         # all existing related objects/inlines for a given object to be
         # displayed, but not allow the creation of new inlines beyond max_num.
 
+        """
+        Test the behavior of a model formset when its maximum number of forms is limited.
+
+        This function verifies that the formset correctly limits the number of forms displayed
+        when the `max_num` parameter is specified during formset creation. It checks the total
+        number of forms in the formset and the number of extra forms available for user input.
+        The test cases cover scenarios where `max_num` is set to `None` (no limit), a positive
+        integer (limited number of forms), and zero (no initial forms). Additionally, the test
+        confirms that the formset's queryset remains unchanged regardless of the `max_num` value.
+        """
         a1 = Author.objects.create(name="Charles Baudelaire")
         a2 = Author.objects.create(name="Paul Verlaine")
         a3 = Author.objects.create(name="Walt Whitman")
@@ -461,6 +471,20 @@ class ModelFormsetTest(TestCase):
     def test_min_num(self):
         # Test the behavior of min_num with model formsets. It should be
         # added to extra.
+        """
+
+        Tests the functionality of the min_num parameter in a ModelFormSet.
+
+        This test ensures that when min_num is set to a value greater than 0, the formset 
+        will always contain at least the specified number of forms, regardless of the 
+        queryset length or the extra parameter. The test also verifies that when min_num 
+        is not set or set to 0, the formset will be empty if the queryset is empty.
+
+        The test covers scenarios with different combinations of min_num and extra 
+        parameters, checking that the number of forms in the formset matches the expected 
+        value.
+
+        """
         qs = Author.objects.none()
 
         AuthorFormSet = modelformset_factory(Author, fields="__all__", extra=0)
@@ -494,6 +518,14 @@ class ModelFormsetTest(TestCase):
         class PoetForm(forms.ModelForm):
             def save(self, commit=True):
                 # change the name to "Vladimir Mayakovsky" just to be a jerk.
+                """
+
+                Saves the author object to the database, modifying its name to 'Vladimir Mayakovsky' prior to saving.
+
+                :param commit: Optional boolean flag indicating whether to commit the changes to the database. If False, the object is not persisted.
+                :rtype: The modified author object
+
+                """
                 author = super().save(commit=False)
                 author.name = "Vladimir Mayakovsky"
                 if commit:
@@ -764,6 +796,15 @@ class ModelFormsetTest(TestCase):
     def test_inline_formsets_save_as_new(self):
         # The save_as_new parameter lets you re-associate the data to a new
         # instance.  This is used in the admin for save_as functionality.
+        """
+        ..: 
+            Tests the functionality of inline formsets when saving as new.
+
+            Verifies that the formset is valid and can be saved successfully with the save_as_new parameter.
+            Checks that the saved formset instances are correctly associated with a new author instance.
+            Confirms that the formset generates the correct HTML for each form when rendered as paragraphs. 
+            Ensures that the expected number of forms is generated when creating an instance of the formset.
+        """
         AuthorBooksFormSet = inlineformset_factory(
             Author, Book, can_delete=False, extra=2, fields="__all__"
         )
@@ -961,6 +1002,13 @@ class ModelFormsetTest(TestCase):
         class PoemForm(forms.ModelForm):
             def save(self, commit=True):
                 # change the name to "Brooklyn Bridge" just to be a jerk.
+                """
+                Saves a poem instance, setting its name to 'Brooklyn Bridge' regardless of any provided name.
+                The save operation can be committed immediately or deferred, depending on the commit parameter.
+                If commit is True, the poem is saved to the database after setting its name.
+                If commit is False, the poem is returned without being saved, allowing for further modification before saving.
+                The saved or unsaved poem instance is then returned.
+                """
                 poem = super().save(commit=False)
                 poem.name = "Brooklyn Bridge"
                 if commit:
@@ -1445,6 +1493,11 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(formset.non_form_errors(), ["Please submit at most 2 forms."])
 
     def test_modelformset_min_num_equals_max_num_more_than(self):
+        """
+        Tests the behavior of a ModelFormSet when the minimum number of forms required matches the maximum number of forms allowed but more forms are not submitted. 
+         In this scenario, the formset is invalid and returns a 'Please submit at least' error message because the number of submitted forms is less than the minimum required. 
+         The error handling and validation of formset data are assessed by this test to ensure correct behavior when the minimum and maximum form limits are set to the same value but not met by the provided data.
+        """
         data = {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -1996,6 +2049,13 @@ class ModelFormsetTest(TestCase):
         )
 
     def test_validation_with_nonexistent_id(self):
+        """
+        Tests that validation fails on an AuthorFormSet with a nonexistent author ID.
+
+        Checks that when a formset is initialized with a non-existent author ID, a validation
+        error is raised indicating that the ID is not a valid choice. This test ensures that
+        the formset correctly handles invalid IDs and provides user-friendly error messages.
+        """
         AuthorFormSet = modelformset_factory(Author, fields="__all__")
         data = {
             "form-TOTAL_FORMS": "1",
@@ -2052,6 +2112,9 @@ class ModelFormsetTest(TestCase):
         self.assertSequenceEqual(Author.objects.all(), [charles])
 
     def test_edit_only_inlineformset_factory(self):
+        """
+        Tests the functionality of an inline formset factory for editing existing books associated with an author, ensuring that it correctly updates the book title without creating new books or deleting existing ones. The formset is created with the edit_only flag set to True and no delete permission, and its validity and save functionality are verified.
+        """
         charles = Author.objects.create(name="Charles Baudelaire")
         book = Book.objects.create(author=charles, title="Les Paradis Artificiels")
         AuthorFormSet = inlineformset_factory(
@@ -2181,6 +2244,14 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(form["title"].help_text, "Choose carefully.")
 
     def test_inlineformset_factory_help_text_overrides(self):
+        """
+        Test that the help_text argument in inlineformset_factory correctly overrides 
+        the default help text for a field in a formset.
+
+        Verifies that the help_text dictionary passed to inlineformset_factory is used 
+        to set the help text for the corresponding field in the generated formset, 
+        allowing for customization of help text on a per-field basis.
+        """
         BookFormSet = inlineformset_factory(
             Author, Book, fields="__all__", help_texts={"title": "Choose carefully."}
         )
@@ -2275,6 +2346,16 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_inlineformset_factory_absolute_max(self):
+        """
+
+        Tests the functionality of inline formset factory with an absolute maximum number of forms.
+
+        This test verifies that when creating an inline formset with a specified absolute maximum,
+        submitting a number of forms exceeding this limit results in validation failure.
+        It checks that the formset correctly restricts the number of forms to the specified absolute maximum,
+        and that an appropriate error message is raised when this limit is exceeded.
+
+        """
         author = Author.objects.create(name="Charles Baudelaire")
         BookFormSet = inlineformset_factory(
             Author,

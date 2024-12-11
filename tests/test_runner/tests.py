@@ -204,6 +204,17 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_random(self):
+        """
+        Reorders test cases within a test bin using a random shuffler.
+
+        This function tests the reordering of test cases within a test bin, 
+        ensuring that the test cases are shuffled randomly. The shuffled tests 
+        are returned as an iterator. The seed for the random shuffler is set to 
+        a fixed value for reproducibility, allowing for consistent test results. 
+
+        The function verifies that the reordered tests are returned as an iterator 
+        and that the test names are in the expected order after shuffling.
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -423,6 +434,20 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s1"))
 
     def test_circular_dependencies(self):
+        """
+
+        Tests the handling of circular dependencies in the dependency ordering process.
+
+        The function checks that an :exc:`ImproperlyConfigured` exception is raised when 
+        circular dependencies are detected, ensuring that the system correctly identifies 
+        and reports such errors.
+
+        In this test, a sample set of raw data and dependencies is provided, where two 
+        dependencies ('alpha' and 'bravo') are configured to depend on each other 
+        circularly. The test confirms that this configuration triggers the expected 
+        exception, validating the protection against circular dependencies.
+
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -451,6 +476,23 @@ class DependencyOrderingTests(unittest.TestCase):
 
 class MockTestRunner:
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object with optional keyword arguments.
+
+        The function accepts arbitrary keyword arguments. It specifically checks for 
+        'parallel' and 'durations' keywords and writes their values to the standard error 
+        stream if they are provided.
+
+        Keyword Args:
+            parallel: The parallelization setting.
+            durations: The duration settings.
+
+        Note:
+            This function primarily serves as a constructor and sets up the object 
+            with the given configuration. It does not perform any validation on the 
+            provided arguments. The parallel and durations settings are currently 
+            logged to the standard error stream for diagnostic purposes.
+        """
         if parallel := kwargs.get("parallel"):
             sys.stderr.write(f"parallel={parallel}")
         if durations := kwargs.get("durations"):
@@ -466,6 +508,13 @@ class ManageCommandTests(unittest.TestCase):
         MockTestRunner.run_tests.assert_called_with(("sites",))
 
     def test_bad_test_runner(self):
+        """
+        Tests that attempting to use a non-existent test runner raises an AttributeError.
+
+        Verify that the system correctly handles an invalid test runner by trying to run the test command with a test runner that does not exist, and asserting that it raises the expected error.
+
+        :raises AttributeError: When an invalid test runner is specified
+        """
         with self.assertRaises(AttributeError):
             call_command("test", "sites", testrunner="test_runner.NonexistentRunner")
 
@@ -532,6 +581,14 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.object(multiprocessing, "get_start_method", return_value="spawn")
     def test_parallel_spawn(self, *mocked_objects):
+        """
+
+        Test the behavior of the command when run in parallel mode with the 'spawn' start method.
+
+        This test case ensures that the command uses a single parallel process when the 'spawn' start method is used,
+        as supported by the multiprocessing library. The test captures and verifies the stderr output to confirm the expected behavior.
+
+        """
         with captured_stderr() as stderr:
             call_command(
                 "test",
@@ -628,6 +685,13 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
     """
 
     def setUp(self):
+        """
+
+        Sets up the test environment by invoking the parent class's setup method and
+        writing the necessary settings to a 'settings.py' file. This method is used to 
+        initialize the test configuration before running tests.
+
+        """
         super().setUp()
         self.write_settings("settings.py")
 
@@ -645,6 +709,20 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_testrunner_equals(self):
+        """
+
+        Tests if the test runner correctly parses custom options and produces the expected output.
+
+        This test case checks if the CustomOptionsTestRunner can correctly handle command line options 
+        (--option_a, --option_b, --option_c) and verifies that these options are available and correctly 
+        formatted in the output. The test validates that the test runner executes without errors and 
+        produces the expected string based on the provided options.
+
+        Args are passed to the test runner and the output is verified against an expected string. 
+        The test fails if any errors occur during execution or if the output does not match the expected 
+        format.
+
+        """
         args = [
             "test",
             "--testrunner=test_runner.runner.CustomOptionsTestRunner",
@@ -657,6 +735,14 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_no_testrunner(self):
+        """
+
+        Tests that the Django admin test command fails when the --testrunner option is used without a value.
+
+        This test case verifies that the test command behaves as expected when the --testrunner option is provided
+        without specifying a test runner, resulting in a usage message being displayed and no test output being produced.
+
+        """
         args = ["test", "--testrunner"]
         out, err = self.run_django_admin(args, "test_project.settings")
         self.assertIn("usage", err)

@@ -66,6 +66,16 @@ class TemplateTests(SimpleTestCase):
 
 class VariableDoesNotExistTests(SimpleTestCase):
     def test_str(self):
+        """
+        Tests the string representation of a VariableDoesNotExist exception.
+
+        Checks that the string version of the exception provides a human-readable
+        description of the error, including the parameters that caused the failure.
+
+        The test verifies that the exception's string output matches the expected
+        format, ensuring that the error message conveys useful information to users.
+
+        """
         exc = VariableDoesNotExist(msg="Failed lookup in %r", params=({"foo": "bar"},))
         self.assertEqual(str(exc), "Failed lookup in {'foo': 'bar'}")
 

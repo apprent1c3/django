@@ -188,6 +188,12 @@ class ClientTest(TestCase):
         self.assertTrue(mock_encoding.encode.called)
 
     def test_put(self):
+        """
+        Tests the handling of an HTTP PUT request to the '/put_view/' endpoint.
+        Verifies that the request is successful and the response is rendered correctly.
+        Checks that the response status code is 200, the correct template is used, 
+        and the context data is populated with the expected values from the request.
+        """
         response = self.client.put("/put_view/", {"foo": "bar"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "PUT Template")
@@ -408,6 +414,17 @@ class ClientTest(TestCase):
                 self.assertContains(response, "a=b is the body")
 
     def test_follow_307_and_308_preserves_get_params(self):
+        """
+        Tests that following a 307 or 308 redirect preserves GET parameters.
+
+        Checks that when a request is made to a view that returns a 307 or 308 status code,
+        the subsequent redirect preserves the original GET parameters. This ensures that
+        the parameters are correctly passed to the target view.
+
+        The test sends a GET request with parameters to a view that returns a 307 or 308
+        status code, and then checks that the final response contains the expected value
+        based on the preserved GET parameters.
+        """
         data = {"var": 30, "to": "/get_view/"}
         for code in (307, 308):
             with self.subTest(code=code):
@@ -927,6 +944,13 @@ class ClientTest(TestCase):
         self.assertIsNotNone(exc_traceback)
 
     def test_exc_info_none(self):
+        """
+        Tests that the exc_info attribute of a response is None when a view is successfully retrieved.
+
+        This test case ensures that when a GET request is made to the '/get_view/' endpoint,
+        the resulting response does not contain any exception information, indicating a successful request.
+
+        """
         response = self.client.get("/get_view/")
         self.assertIsNone(response.exc_info)
 
@@ -1195,6 +1219,19 @@ class AsyncClientTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     async def test_follow_redirect(self):
+        """
+        Tests the redirect functionality for various HTTP methods.
+
+        This function checks if the client can successfully follow redirects and 
+        reach the intended view for the following HTTP methods: GET, POST, PUT, 
+        PATCH, DELETE, HEAD, OPTIONS, and TRACE. It verifies that the status 
+        code of the response is 200 (OK) and that the URL name resolved by the 
+        view matches the expected 'get_view' name.
+
+        The test is performed for each method individually, with the results 
+        reported separately for easier debugging and identification of any 
+        issues that may arise during testing.
+        """
         tests = (
             "get",
             "post",

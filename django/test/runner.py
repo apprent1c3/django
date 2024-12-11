@@ -165,6 +165,11 @@ class RemoteTestResult(unittest.TestResult):
         # Make this class picklable by removing the file-like buffer
         # attributes. This is possible since they aren't used after unpickling
         # after being sent to ParallelTestSuite.
+        """
+        Returns a dictionary representing the object's state, which is a copy of its instance variables.
+        The state excludes certain internal buffers and original stream references, which are not relevant for serialization or persistence.
+        This method is used to prepare the object for pickling or other forms of serialization, ensuring that only essential data is preserved.
+        """
         state = self.__dict__.copy()
         state.pop("_stdout_buffer", None)
         state.pop("_stderr_buffer", None)
@@ -264,6 +269,18 @@ failure and get a correct traceback.
             raise
 
     def check_subtest_picklable(self, test, subtest):
+        """
+        Checks if a given subtest is picklable.
+
+        This method verifies that the specified subtest can be successfully pickled, 
+        which is a necessary condition for certain testing frameworks to operate correctly.
+        If the subtest is not picklable, an error message is printed and an exception is raised
+        with the original exception that occurred during the pickling attempt.
+
+        :param test: The parent test associated with the subtest.
+        :param subtest: The subtest to be checked for picklability.
+        :raises Exception: If the subtest is not picklable, with the original exception that occurred during pickling.
+        """
         try:
             self._confirm_picklable(subtest)
         except Exception as exc:
@@ -312,6 +329,16 @@ failure and get a correct traceback.
         super().addSubTest(test, subtest, err)
 
     def addSuccess(self, test):
+        """
+        Adds a successful test to the test suite.
+
+         Signals that a test has completed successfully and updates the internal state
+         to reflect this outcome. The test index is tracked and recorded as part of the 
+         event history.
+
+         :param test: The test that has been successfully completed
+
+        """
         self.events.append(("addSuccess", self.test_index))
         super().addSuccess(test)
 
@@ -667,6 +694,19 @@ class DiscoverRunner:
         durations=None,
         **kwargs,
     ):
+        """
+        Initializes an instance with various settings for test execution, including test discovery, verbosity, interactive mode, failure handling, database management, and debugging options.
+
+        The following settings can be configured:
+        - Test discovery: top-level directory, patterns for test names
+        - Output and verbosity: verbosity level, buffering, logging
+        - Failure handling: fail-fast mode, debugging with pdb
+        - Database management: keeping database after test execution, test order
+        - Parallelism and performance: parallel test execution, test shuffling, timing
+        - Debugging and logging: debug mode, SQL debugging, fault handler, durations
+
+        Note that some settings have dependencies or restrictions, such as using pdb with parallel tests.
+        """
         self.pattern = pattern
         self.top_level = top_level
         self.verbosity = verbosity
@@ -706,6 +746,25 @@ class DiscoverRunner:
 
     @classmethod
     def add_arguments(cls, parser):
+        """
+        Adds command-line arguments to a parser for customizing the test runner.
+
+        These arguments control various aspects of test execution, such as:
+            - Test discovery and filtering
+            - Test execution order and parallelism
+            - Debugging and error handling
+            - Output and logging
+
+        The added arguments include options for:
+            - Stopping the test suite after the first failure
+            - Specifying the top-level directory for test discovery
+            - Filtering tests by pattern, tag, or name
+            - Controlling test execution order and parallelism
+            - Enabling debugging and error handling features
+            - Customizing output and logging behavior
+
+        These arguments can be used to fine-tune the test runner's behavior and optimize test execution for specific use cases.
+        """
         parser.add_argument(
             "--failfast",
             action="store_true",
@@ -1022,6 +1081,19 @@ class DiscoverRunner:
         )
 
     def _get_databases(self, suite):
+        """
+
+        Retrieves a dictionary of databases required by test cases in a given suite.
+
+        For each test case in the suite, this function checks if the test requires any specific databases.
+        If a test requires all databases, it uses the list of available connections.
+        The function then constructs a dictionary where the keys are the database aliases and the values are boolean flags indicating whether a serialized rollback should be performed for that database.
+
+        The resulting dictionary can be used to determine which databases are needed for a test suite and whether they require special rollback handling.
+
+        :return: A dictionary mapping database aliases to serialized rollback flags.
+
+        """
         databases = {}
         for test in iter_test_cases(suite):
             test_databases = getattr(test, "databases", None)

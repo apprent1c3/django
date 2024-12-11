@@ -95,6 +95,23 @@ class DecimalSerializer(BaseSerializer):
 class DeconstructableSerializer(BaseSerializer):
     @staticmethod
     def serialize_deconstructed(path, args, kwargs):
+        """
+
+        Serialize a deconstructed function or method call into a string representation.
+
+        This function takes a path to the function or method, positional arguments, and keyword arguments,
+        and returns a tuple containing a serialized string representation of the call and a set of required imports.
+
+        The serialized string representation is in the format of a Python function call, with arguments and keyword arguments
+        properly formatted. The required imports are collected from the serialization of each argument and keyword argument.
+
+        The purpose of this function is to provide a way to reconstruct a function or method call from its constituent parts,
+        and to make it easy to generate code that calls the function or method with the given arguments.
+
+        Returns:
+            tuple: A tuple containing the serialized string representation of the call and a set of required imports.
+
+        """
         name, imports = DeconstructableSerializer._serialize_path(path)
         strings = []
         for arg in args:
@@ -124,6 +141,22 @@ class DeconstructableSerializer(BaseSerializer):
 
 class DictionarySerializer(BaseSerializer):
     def serialize(self):
+        """
+        Serialize the current object's value into a string representation.
+
+        This method takes the object's key-value pairs, serializes each key and value
+        using a serializer factory, and combines them into a single string in a
+        JSON-like dictionary format. It also accumulates and returns a set of
+        necessary imports required for deserialization.
+
+        The returned string is a dictionary representation, and the imports are
+        returned as a set to facilitate subsequent deserialization or processing
+        of the serialized data.
+
+        :returns: A tuple containing the serialized string representation and a set
+                  of required imports.
+
+        """
         imports = set()
         strings = []
         for k, v in sorted(self.value.items()):
@@ -242,6 +275,13 @@ class ModelFieldSerializer(DeconstructableSerializer):
 
 class ModelManagerSerializer(DeconstructableSerializer):
     def serialize(self):
+        """
+        .. method:: serialize()
+
+           Serializes the current value into a string representation.
+
+           This method breaks down the value into its components and then handles serialization differently based on whether it is a manager or not. If it is a manager, it extracts the name and necessary imports from the query set path and returns a string that represents the manager as a callable. If it is not a manager, it delegates serialization to a secondary method that handles the deconstructed components. The returned string is suitable for use in a Python environment.
+        """
         as_manager, manager_path, qs_path, args, kwargs = self.value.deconstruct()
         if as_manager:
             name, imports = self._serialize_path(qs_path)

@@ -75,6 +75,11 @@ class ForceEscapeTests(SimpleTestCase):
 
     @setup({"force-escape08": "{{ a|escape|force_escape }}"})
     def test_force_escape08(self):
+        """
+        Tests the functionality of the force_escape filter in templating, 
+        ensuring that both the original special characters and the ampersand character 
+        added by the escape filter are properly escaped in the output.
+        """
         output = self.engine.render_to_string("force-escape08", {"a": "x&y"})
         self.assertEqual(output, "x&amp;amp;y")
 

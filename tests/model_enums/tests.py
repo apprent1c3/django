@@ -123,6 +123,14 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Gender.NOT_SPECIFIED.label, "Not Specified")
 
     def test_textchoices_empty_label(self):
+        """
+        Tests that the default empty label is correctly defined for the Gender choices.
+
+        This function verifies that the first element in the choices list has the expected properties: 
+        a value of None, a human-readable label '(Undeclared)', and a name '__empty__'. 
+
+        It ensures that the empty label is properly configured and recognizable in the Gender choices set.
+        """
         self.assertEqual(Gender.choices[0], (None, "(Undeclared)"))
         self.assertEqual(Gender.labels[0], "(Undeclared)")
         self.assertIsNone(Gender.values[0])
@@ -317,6 +325,14 @@ class CustomChoicesTests(SimpleTestCase):
                 pass
 
     def test_uuid_unsupported(self):
+        """
+        Tests that combining uuid.UUID with models.Choices raises a TypeError.
+
+        This test case checks that attempting to create a class that inherits from both
+        uuid.UUID and models.Choices results in a TypeError, as these two classes are
+        incompatible. The test uses a sample Identifier class with a choice 'A' to
+        demonstrate the expected error behavior.
+        """
         with self.assertRaises(TypeError):
 
             class Identifier(uuid.UUID, models.Choices):

@@ -342,6 +342,14 @@ class ModelInstanceCreationTests(TestCase):
 
 class ModelTest(TestCase):
     def test_objects_attribute_is_only_available_on_the_class_itself(self):
+        """
+
+        Verifies that the 'objects' attribute is only accessible on the class itself, not on instances of the class.
+
+        This test ensures that attempting to access the 'objects' attribute via an instance of the class raises an AttributeError,
+        and that the attribute is only available as a class attribute.
+
+        """
         with self.assertRaisesMessage(
             AttributeError, "Manager isn't accessible via Article instances"
         ):
@@ -535,6 +543,12 @@ class ModelTest(TestCase):
 
     def test_emptyqs_values(self):
         # test for #15959
+        """
+        Tests the behavior of values_list when applied to an empty QuerySet.
+
+        Verifies that using values_list on an empty QuerySet returns an instance of EmptyQuerySet,
+        and that the resulting QuerySet has a length of 0, without executing any database queries.
+        """
         Article.objects.create(headline="foo", pub_date=datetime.now())
         with self.assertNumQueries(0):
             qs = Article.objects.none().values_list("pk")
@@ -584,6 +598,9 @@ class ModelTest(TestCase):
             )
 
     def test_ticket_20278(self):
+        """
+        Tests the resolution of a self-referential object (ticket #20278) to ensure it does not incorrectly return the object itself when queried by its self-referential attribute, raising an ObjectDoesNotExist exception as expected.
+        """
         sr = SelfRef.objects.create()
         with self.assertRaises(ObjectDoesNotExist):
             SelfRef.objects.get(selfref=sr)
@@ -599,6 +616,14 @@ class ModelTest(TestCase):
 
     def test_hash(self):
         # Value based on PK
+        """
+        Tests the hash functionality of the Article model.
+
+        Verifies that an Article instance with a primary key value can be hashed and 
+        that its hash value is equivalent to the hash value of its primary key. 
+        Additionally, checks that an attempt to hash an Article instance without a 
+        primary key value raises a TypeError with the expected error message.
+        """
         self.assertEqual(hash(Article(id=1)), hash(1))
         msg = "Model instances without primary key value are unhashable"
         with self.assertRaisesMessage(TypeError, msg):
@@ -682,6 +707,13 @@ class ModelLookupTest(TestCase):
 
     def test_rich_lookup(self):
         # Django provides a rich database lookup API.
+        """
+        Tests rich lookup functionality for Article model objects.
+
+        This test case validates the correctness of lookup operations using various query parameters.
+        It covers exact matches, prefix matches, and date-based lookups, including year, month, day, and day of the week.
+        The test asserts that the retrieved Article object matches the expected object in all test scenarios.
+        """
         self.assertEqual(Article.objects.get(id__exact=self.a.id), self.a)
         self.assertEqual(Article.objects.get(headline__startswith="Swallow"), self.a)
         self.assertEqual(Article.objects.get(pub_date__year=2005), self.a)
@@ -698,6 +730,20 @@ class ModelLookupTest(TestCase):
 
     def test_equal_lookup(self):
         # The "__exact" lookup type can be omitted, as a shortcut.
+        """
+        Tests that the Article lookup functionality is working correctly.
+
+        This function verifies that Article objects can be retrieved from the database
+        using various lookup methods, including:
+        - Retrieval by id
+        - Retrieval by headline
+        - Filtering by publication year
+        - Filtering by publication month and year
+        - Filtering by day of the week of publication
+
+        The function checks that the expected Article objects are returned for valid queries,
+        and that empty results are returned for invalid queries.
+        """
         self.assertEqual(Article.objects.get(id=self.a.id), self.a)
         self.assertEqual(
             Article.objects.get(headline="Swallow programs in Python"), self.a
@@ -895,6 +941,19 @@ class ManagerTest(SimpleTestCase):
         )
 
     def test_manager_method_attributes(self):
+        """
+
+         Tests the method attributes of the test manager.
+
+         Verifies that the method documentation and names of the 
+         :class:`Article` model's manager match the corresponding 
+         methods of Django's :class:`~django.db.models.QuerySet`.
+
+         This ensures consistency and correctness of the 
+         :class:`Article` model's manager methods, specifically 
+         the :meth:`get` and :meth:`count` methods.
+
+        """
         self.assertEqual(Article.objects.get.__doc__, models.QuerySet.get.__doc__)
         self.assertEqual(Article.objects.count.__name__, models.QuerySet.count.__name__)
 
@@ -1005,6 +1064,17 @@ class ModelRefreshTests(TestCase):
             s.refresh_from_db(fields=["foo__bar"])
 
     def test_refresh_fk(self):
+        """
+        Tests the refresh functionality for foreign key relationships.
+
+        Verifies that when an object is refreshed from the database, changes made to 
+        its foreign key relationships are correctly updated, and the related object 
+        is reloaded from the database. The test also checks that a previously set 
+        attribute on the related object is no longer accessible after the refresh.
+
+        Ensures that the refresh operation can be performed efficiently, generating 
+        the expected minimal number of database queries.
+        """
         s1 = SelfRef.objects.create()
         s2 = SelfRef.objects.create()
         s3 = SelfRef.objects.create(selfref=s1)
@@ -1038,6 +1108,13 @@ class ModelRefreshTests(TestCase):
         self.assertEqual(a2._state.db, "default")
 
     def test_refresh_fk_on_delete_set_null(self):
+        """
+        Tests the refresh of a foreign key after the referenced object is deleted, 
+        ensuring the relationship is updated correctly by setting the foreign key to null. 
+        The test verifies that after deleting the related object, the foreign key field 
+        and its corresponding attribute are updated to reflect the deletion, maintaining 
+        referential integrity in the database.
+        """
         a = Article.objects.create(
             headline="Parrot programs in Python",
             pub_date=datetime(2005, 7, 28),
@@ -1072,6 +1149,9 @@ class ModelRefreshTests(TestCase):
         self.assertTrue(hasattr(article, "featured"))
 
     def test_refresh_clears_one_to_one_field(self):
+        """
+        Tests that the refresh method correctly updates one-to-one relationships by verifying that the headline of a featured article is updated after the corresponding article's headline is changed.
+        """
         article = Article.objects.create(
             headline="Parrot programs in Python",
             pub_date=datetime(2005, 7, 28),
@@ -1119,6 +1199,22 @@ class ModelRefreshTests(TestCase):
 
     @skipUnlessDBFeature("has_select_for_update")
     def test_refresh_for_update(self):
+        """
+
+        Tests if the refresh_from_db method with select_for_update correctly appends 
+        the database's FOR UPDATE SQL clause to the generated query.
+
+        This test ensures that when an object is refreshed from the database using 
+        select_for_update, the resulting query includes the necessary locking clause 
+        to prevent concurrent modifications.
+
+        The test creates an Article object, refreshes it from the database with 
+        select_for_update, and then verifies that the generated query contains the 
+        expected FOR UPDATE SQL clause. 
+
+        It requires the database to support the SELECT FOR UPDATE feature.
+
+        """
         a = Article.objects.create(pub_date=datetime.now())
         for_update_sql = connection.ops.for_update_sql()
 

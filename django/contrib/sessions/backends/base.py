@@ -43,6 +43,17 @@ class SessionBase:
     __not_given = object()
 
     def __init__(self, session_key=None):
+        """
+
+        Initialize a session object.
+
+        This constructor sets up a new session instance, optionally using a provided session key.
+        It also initializes flags to track whether the session has been accessed or modified.
+        The session serializer is determined by the SESSION_SERIALIZER setting.
+
+        :param session_key: The key to use for the session, or None to generate a new one
+
+        """
         self._session_key = session_key
         self.accessed = False
         self.modified = False

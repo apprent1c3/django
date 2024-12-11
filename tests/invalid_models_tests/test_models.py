@@ -165,6 +165,14 @@ class IndexesTests(TestCase):
         )
 
     def test_pointing_to_m2m_field(self):
+        """
+
+        Tests that a model with a ManyToManyField cannot be used in the 'indexes' Meta option.
+
+        This test case checks that the model validation correctly identifies and reports an error
+        when attempting to create an index on a ManyToManyField, which is not supported.
+
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -527,6 +535,11 @@ class IndexesTests(TestCase):
         )
 
     def test_func_index_pointing_to_m2m_field(self):
+        """
+        Tests that the check method correctly identifies an invalid index on a ManyToManyField.
+
+        The test verifies that a model with a ManyToManyField and an index referencing that field raises an error, as ManyToManyFields are not permitted in indexes.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 
@@ -812,6 +825,19 @@ class FieldNamesTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class ShadowingFieldsTests(SimpleTestCase):
     def test_field_name_clash_with_child_accessor(self):
+        """
+
+        Checks that a field in a child model does not have the same name as a field in a parent model 
+        via an accessor. 
+
+        Runs a validation check on a Child model to ensure that its field 'child' does not conflict 
+        with the field 'child' from its parent model, which could potentially be accessed through 
+        the parent model's accessor.
+
+        This test case verifies that the validation correctly identifies such name clashes and 
+        returns an error indicating the conflict.
+
+        """
         class Parent(models.Model):
             pass
 
@@ -861,6 +887,18 @@ class ShadowingFieldsTests(SimpleTestCase):
         )
 
     def test_multiinheritance_clash(self):
+        """
+        Tests the handling of field name clashes in models that inherit from multiple parents.
+
+        This test case simulates a scenario where a child model inherits from two parent models, 
+        each with their own set of fields, including a field with the same name. The test 
+        verifies that the model's check method correctly identifies and reports the 
+        field name clashes.
+
+        The expected errors include clashes between the 'id' field automatically added by 
+        the model framework, as well as the explicitly defined 'clash' field in both 
+        parent models.
+        """
         class Mother(models.Model):
             clash = models.IntegerField()
 
@@ -1034,6 +1072,19 @@ class OtherModelTests(SimpleTestCase):
         self.assertEqual(Model.check(), [])
 
     def test_just_order_with_respect_to_no_errors(self):
+        """
+        Tests that using 'order_with_respect_to' in a model's Meta class does not introduce errors.
+
+        This test case verifies that defining a model with 'order_with_respect_to' set to a related field 
+        does not result in any errors when the model's check method is called. 
+
+        The 'order_with_respect_to' option is used to automatically set an ordering on the model based 
+        on the related field, ensuring a consistent and predictable ordering of related objects. 
+
+        The test creates two models, Question and Answer, where Answer has a foreign key to Question 
+        and is ordered with respect to the Question model. The test then asserts that no errors are 
+        returned when checking the Answer model. 
+        """
         class Question(models.Model):
             pass
 
@@ -1127,6 +1178,19 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_to_missing_related_field(self):
+        """
+        Tests that setting the ordering attribute to a missing related field raises an error.
+
+        The test verifies that Django's model validation correctly identifies and reports
+        when the 'ordering' Meta attribute references a related field or lookup that does not exist.
+        It checks that the error message is correctly generated and includes information about
+        the problematic 'ordering' reference and the model that contains it.
+
+        This test case helps ensure that developers receive informative error messages when
+        attempting to set up model ordering based on non-existent relationships or fields, making
+        it easier to identify and fix such mistakes during model definition.
+
+        """
         class Model(models.Model):
             test = models.IntegerField()
 
@@ -1212,6 +1276,14 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_ordering_pointing_multiple_times_to_model_fields(self):
+        """
+        Tests that the ordering metaclass option can detect invalid field references 
+        when pointing to model fields multiple times via a foreign key relationship.
+
+        Verifies that an error is raised when the 'ordering' option refers to a 
+        nonexistent field or an invalid lookup across related models.
+
+        """
         class Parent(models.Model):
             field1 = models.CharField(max_length=100)
             field2 = models.CharField(max_length=100)
@@ -1652,6 +1724,15 @@ class OtherModelTests(SimpleTestCase):
         )
 
     def test_m2m_unmanaged_shadow_models_not_checked(self):
+        """
+
+        Test that models with unmanaged Many-To-Many relationships through intermediate models do not raise errors during checks.
+
+        This test case verifies that when a Many-To-Many relationship is defined through an unmanaged intermediate model, the check method of the model does not report any errors. The test setup involves creating several models with Many-To-Many relationships, including both managed and unmanaged models, to ensure that the checking mechanism handles these cases correctly.
+
+        The test covers two main scenarios: one where the Many-To-Many relationship is defined directly on a managed model, and another where the relationship is defined on an unmanaged model through an intermediate model. By asserting that no errors are reported during checks, this test validates the robustness of the model checking logic in handling complex relationships involving unmanaged models.
+
+        """
         class A1(models.Model):
             pass
 
@@ -1813,6 +1894,18 @@ class DbTableCommentTests(TestCase):
 
 class MultipleAutoFieldsTests(TestCase):
     def test_multiple_autofields(self):
+        """
+
+        Tests that a model with multiple auto-generated fields raises a ValueError.
+
+        This test validates that Django's model validation prevents the creation of a model 
+        with more than one auto-generated field, as this is not supported by the framework.
+
+        The test case verifies that attempting to define such a model results in a ValueError 
+        with a specific error message, ensuring that the model validation mechanism is working 
+        correctly.
+
+        """
         msg = (
             "Model invalid_models_tests.MultipleAutoFields can't have more "
             "than one auto-generated field."
@@ -1828,6 +1921,11 @@ class MultipleAutoFieldsTests(TestCase):
 class JSONFieldTests(TestCase):
     @skipUnlessDBFeature("supports_json_field")
     def test_ordering_pointing_to_json_field_value(self):
+        """
+        Tests the database's capability to order model instances based on a value within a JSON field. 
+        The test verifies that a model with a JSON field can be ordered by a specific value within that field, 
+        and checks that the model's ordering is properly validated without raising any errors.
+        """
         class Model(models.Model):
             field = models.JSONField()
 
@@ -2106,6 +2204,15 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_table_check_constraints")
     def test_check_constraint_pointing_to_joined_fields_complex_check(self):
+        """
+
+        Tests the validation of check constraints pointing to joined fields with complex conditions.
+
+        This test case verifies that check constraints referencing joined fields raise the expected validation errors.
+        It uses a model with a complex check constraint that combines multiple conditions involving joined fields.
+        The test checks for error messages indicating that the check constraint refers to a joined field.
+
+        """
         class Model(models.Model):
             name = models.PositiveSmallIntegerField()
             field1 = models.PositiveSmallIntegerField()
@@ -2242,6 +2349,17 @@ class ConstraintsTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_unique_constraint_with_condition_required_db_features(self):
+        """
+        Tests the application of a unique constraint with a condition on a model field.
+
+        Checks that a model with a unique constraint defined on a field with a condition
+        (e.g., age greater than or equal to 100) is properly validated when the required 
+        database features are supported.
+
+        The test verifies that the model's constraints are valid and do not raise any errors
+        when checked against the specified databases that support partial indexes.
+
+        """
         class Model(models.Model):
             age = models.IntegerField()
 
@@ -2318,6 +2436,15 @@ class ConstraintsTests(TestCase):
         )
 
     def test_unique_constraint_pointing_to_reverse_o2o(self):
+        """
+        .. function:: test_unique_constraint_pointing_to_reverse_o2o
+
+            Tests the validity of a unique constraint on a model with a self-referential one-to-one field.
+
+            The test checks that a model with a one-to-one field pointing to itself and a unique constraint defined on this field raises an error when the constraint refers to a nonexistent field.
+
+            The test case verifies that the error is correctly reported when the database supports partial indexes. If the database does not support partial indexes, the test does not expect any errors to be reported.
+        """
         class Model(models.Model):
             parent = models.OneToOneField("self", models.CASCADE)
 
@@ -2619,6 +2746,19 @@ class ConstraintsTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_func_unique_constraint(self):
+        """
+
+        Tests the behavior of unique constraints on model fields with expression indexes.
+
+        Verifies that a warning is raised when a unique constraint is defined on an 
+        expression (in this case, Lower('name')) and the database backend does not 
+        support expression indexes. If the database backend supports expression indexes, 
+        no warning is expected.
+
+        The test checks the output of the model's check method, ensuring that the 
+        expected warning (or no warning) is raised.
+
+        """
         class Model(models.Model):
             name = models.CharField(max_length=10)
 
@@ -2756,6 +2896,15 @@ class ConstraintsTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_func_unique_constraint_pointing_to_m2m_field(self):
+        """
+        Tests that a unique constraint cannot be applied to a ManyToManyField using an expression, which is an unsupported database feature. 
+
+        The test case verifies that the model validation correctly identifies and reports an error when attempting to create such a constraint. 
+
+        The validation error is expected to indicate that ManyToManyFields are not permitted in constraints. 
+
+        The test is skipped if the database backend does not support expression indexes.
+        """
         class Model(models.Model):
             m2m = models.ManyToManyField("self")
 

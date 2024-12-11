@@ -343,6 +343,15 @@ class TruncBase(TimezoneMixin, Transform):
         return copy
 
     def convert_value(self, value, expression, connection):
+        """
+        Converts a date/time value based on output field type.
+
+        This function takes a value, an expression, and a database connection as input, and returns the converted value. 
+        If the output field is a DateTimeField and time zone support is enabled, it converts the value to the specified time zone. 
+        If the database does not support time zones and a DateTimeField value is None, it raises an error. 
+        For DateField and TimeField output fields, it extracts the date or time component of the input value, respectively. 
+        The converted value is then returned, taking into account the output field type and time zone settings.
+        """
         if isinstance(self.output_field, DateTimeField):
             if not settings.USE_TZ:
                 pass
@@ -373,6 +382,17 @@ class Trunc(TruncBase):
         tzinfo=None,
         **extra,
     ):
+        """
+        Initializes a node in an expression tree with a given mathematical or logical expression and kind, allowing for additional configuration of output field and timezone information.
+
+        :param expression: The mathematical or logical expression to be represented by this node.
+        :param kind: The type or classification of the expression, which determines its behavior and handling.
+        :param output_field: Optional field to specify the output type of the expression, defaults to None.
+        :param tzinfo: Optional timezone information to consider when evaluating the expression, defaults to None.
+        :param extra: Additional keyword arguments to provide extra configuration for the node. 
+
+        The kind of expression, represented by the kind parameter, determines how the expression will be processed and what operations can be performed on it. This node serves as a basic building block for constructing more complex expressions, allowing for a wide range of manipulations and transformations.
+        """
         self.kind = kind
         super().__init__(expression, output_field=output_field, tzinfo=tzinfo, **extra)
 

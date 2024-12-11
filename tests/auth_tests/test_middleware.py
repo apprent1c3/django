@@ -80,6 +80,13 @@ class TestLoginRequiredMiddleware(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_protected_paths(self):
+        """
+        Tests that protected paths are properly secured with authentication.
+
+        The function verifies that accessing certain sensitive views and function views without being authenticated redirects the user to the login page, while preserving the original requested URL. 
+
+        It checks if the redirect is correctly handled by the system, ensuring that the user is prompted to log in before accessing protected resources.
+        """
         paths = ["protected_view", "protected_function_view"]
         for path in paths:
             response = self.client.get(f"/{path}/")
@@ -100,6 +107,14 @@ class TestLoginRequiredMiddleware(TestCase):
             )
 
     def test_admin_path(self):
+        """
+        Tests that the admin path redirects to the login page as expected.
+
+         This test checks that attempting to access the admin index page without 
+         authentication results in a redirect to the login page, with the next 
+         parameter set to the original admin index URL, and that the redirect 
+         is successful (200 status code).
+        """
         admin_url = reverse("admin:index")
         response = self.client.get(admin_url)
         self.assertRedirects(
@@ -127,6 +142,15 @@ class TestLoginRequiredMiddleware(TestCase):
             self.assertEqual(response.status_code, 200)
 
     def test_get_login_url_from_view_func(self):
+        """
+
+        Tests the retrieval of the login URL from a view function.
+
+        This test case verifies that the middleware correctly extracts the login URL
+        from a view function, when the view function has a custom login URL attribute.
+        It checks if the returned login URL matches the one specified in the view function.
+
+        """
         def view_func(request):
             return HttpResponse()
 

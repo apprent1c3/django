@@ -50,6 +50,15 @@ class FloorTests(TestCase):
         self.assertEqual(obj.big_floor, math.floor(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the floor transform lookup by checking if it correctly filters Decimal fields.
+
+        The floor transform is applied to the DecimalField, effectively rounding down to the nearest integer.
+        This test case creates two DecimalModel objects with different decimal values and then attempts to retrieve
+        the object where the floor of the 'n1' field is greater than 4. The test passes if the object with 'n1' equal to 5.4 is returned.
+
+        """
         with register_lookup(DecimalField, Floor):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.4"), n2=Decimal("0"))

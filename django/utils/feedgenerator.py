@@ -126,6 +126,25 @@ class SyndicationFeed:
         stylesheets=None,
         **kwargs,
     ):
+        """
+        Initializes a feed object with metadata.
+
+        This constructor sets up the basic structure of a feed, including its title, link, description, 
+        and other optional attributes such as author information, categories, and stylesheets. 
+        It also initializes an empty list to store feed items.
+
+        The feed's metadata is stored in a dictionary, which can be extended with additional key-value pairs 
+        through the use of keyword arguments (`**kwargs`). 
+
+        Parameters can be provided for language, author details, subtitle, categories, 
+        feed URL, copyright notice, GUID, time-to-live (TTL), and stylesheets.
+
+        The `categories` parameter should be a list of strings, and `stylesheets` should be a list 
+        of strings or `Stylesheet` objects. If a single stylesheet is provided, it should be wrapped in a list.
+
+        The constructor validates the input for `stylesheets`, ensuring it is a list and not a single object.
+
+        """
         def to_str(s):
             return str(s) if s is not None else s
 
@@ -459,6 +478,18 @@ class Atom1Feed(SyndicationFeed):
             handler.addQuickElement("rights", self.feed["feed_copyright"])
 
     def write_items(self, handler):
+        """
+
+        Writes the collection of items to an XML output using the provided handler.
+
+        The function iterates over each item in the collection, starting a new 'entry' element 
+        for each one. It then adds the necessary child elements for the item using the 
+        add_item_elements method. Once all child elements have been added, the 'entry' 
+        element is closed.
+
+        :param handler: The XML handler used to write the elements to the output.
+
+        """
         for item in self.items:
             handler.startElement("entry", self.item_attributes(item))
             self.add_item_elements(handler, item)

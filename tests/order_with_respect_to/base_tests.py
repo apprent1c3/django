@@ -90,6 +90,15 @@ class BaseOrderWithRespectToTests:
         )
 
     def test_recursive_ordering(self):
+        """
+        Tests the recursive ordering of posts under a parent post.
+
+        This test case creates a hierarchy of posts, with a top-level post having multiple child posts.
+        It then verifies that the child posts are returned in the correct order when retrieved using the get_post_order method.
+
+        The ordering is expected to be based on the creation order of the child posts, with the earliest created post appearing first in the list.
+
+        """
         p1 = self.Post.objects.create(title="1")
         p2 = self.Post.objects.create(title="2")
         p1_1 = self.Post.objects.create(title="1.1", parent=p1)
@@ -113,6 +122,12 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(q1.answer_set.all(), [a2, a4, new_answer])
 
     def test_database_routing(self):
+        """
+
+        Tests the database routing functionality by creating a custom router that directs write operations to the 'other' database.
+        Verifies that no queries are executed on the 'default' database and one query is executed on the 'other' database when setting the answer order for a question.
+
+        """
         class WriteToOtherRouter:
             def db_for_write(self, model, **hints):
                 return "other"

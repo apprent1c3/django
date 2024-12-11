@@ -47,6 +47,24 @@ class DjangoTemplates(BaseEngine):
         return []
 
     def _check_for_template_tags_with_the_same_name(self):
+        """
+
+        Checks for template tags with the same name in different modules.
+
+        This function examines the template tag modules and libraries registered 
+        with the template engine to detect any potential naming conflicts. It 
+        checks for cases where a single library name is used for multiple 
+        template tag modules, which could lead to unexpected behavior or errors.
+
+        The function returns a list of warnings, where each warning represents a 
+        naming conflict found during the check. Each warning includes the name 
+        of the library with the conflict, a list of the conflicting module paths, 
+        and a unique identifier for the warning. 
+
+        The warnings can be used to identify and resolve any naming conflicts, 
+        ensuring that the template engine operates correctly and as expected.
+
+        """
         libraries = defaultdict(set)
 
         for module_name, module_path in get_template_tag_modules():
@@ -75,6 +93,19 @@ class DjangoTemplates(BaseEngine):
         return Template(self.engine.from_string(template_code), self)
 
     def get_template(self, template_name):
+        """
+        Retrieves a template by its name, utilizing the engine associated with this instance.
+
+        Args:
+            template_name (str): The name of the template to be retrieved.
+
+        Returns:
+            Template: The requested template object, or raises an exception if the template does not exist.
+
+        Raises:
+            TemplateDoesNotExist: If the specified template cannot be found.
+
+        """
         try:
             return Template(self.engine.get_template(template_name), self)
         except TemplateDoesNotExist as exc:
@@ -92,6 +123,17 @@ class DjangoTemplates(BaseEngine):
 
 class Template:
     def __init__(self, template, backend):
+        """
+        Initializes the object with a template and backend configuration.
+
+            :param template: The template to be used for rendering.
+            :param backend: The backend system to be utilized.
+            :return: None
+
+            This constructor sets up the object's internal state with the provided template and 
+            backend, preparing it for subsequent operations. The template and backend are stored 
+            as instance attributes, making them accessible throughout the object's lifecycle.
+        """
         self.template = template
         self.backend = backend
 

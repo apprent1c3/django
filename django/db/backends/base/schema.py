@@ -155,6 +155,16 @@ class BaseDatabaseSchemaEditor:
     # State-managing methods
 
     def __enter__(self):
+        """
+        Enters a runtime context for executing database operations.
+
+        This method is used in conjunction with the ``with`` statement to ensure that database operations are executed within a controlled environment.
+        If an atomic migration is enabled, it starts a new atomic block, allowing database operations to be executed as a single, all-or-nothing unit of work.
+
+        Returns:
+            The current object, allowing for chained method calls or further setup within the ``with`` block.
+
+        """
         self.deferred_sql = []
         if self.atomic_migration:
             self.atomic = atomic(self.connection.alias)
@@ -162,6 +172,19 @@ class BaseDatabaseSchemaEditor:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Exit the runtime context related to this object.
+
+        This method is used in conjunction with the :meth:`__enter__` method as part of a \"with\" statement.
+        It ensures that any deferred SQL operations are executed when the runtime context is exited normally.
+        Additionally, if an atomic migration was initiated, it will properly exit the atomic block.
+
+        :param exc_type: The exception type, if an exception occurred, otherwise None
+        :param exc_value: The exception value, if an exception occurred, otherwise None
+        :param traceback: The traceback, if an exception occurred, otherwise None
+
+        """
         if exc_type is None:
             for sql in self.deferred_sql:
                 self.execute(sql, None)
@@ -1595,6 +1618,21 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _delete_index_sql(self, model, name, sql=None):
+        """
+        Delete index SQL generator.
+
+        Deletes an index from the specified database table.
+
+        :param model: The model class related to the table.
+        :param name: The name of the index to delete.
+        :param sql: Optional SQL statement to delete the index. If not provided, the default SQL statement will be used.
+
+        :returns: A Statement object representing the SQL statement to delete the index.
+
+         deleting the index will also remove any deferred SQL statements that reference it, ensuring that the database remains in a consistent state after the index is dropped. 
+
+
+        """
         statement = Statement(
             sql or self.sql_delete_index,
             table=Table(model._meta.db_table, self.quote_name),
@@ -1889,6 +1927,21 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _unique_constraint_name(self, table, columns, quote=True):
+        """
+        Generates a unique constraint name for the given table and columns.
+
+        This method takes into account the table and columns provided, and returns 
+        a unique name for a constraint. The name can be optionally quoted.
+
+        The generated name will follow the pattern of the database's index name 
+        convention, with a '_uniq' suffix, and will be based on the provided 
+        table and columns.
+
+        :param table: The table to which the constraint applies.
+        :param columns: The columns to which the constraint applies.
+        :param quote: Whether to quote the generated name. Defaults to True.
+        :returns: An IndexName object representing the unique constraint name.
+        """
         if quote:
 
             def create_unique_name(*args, **kwargs):
@@ -1910,6 +1963,33 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+
+        Deletes a unique constraint from a database table.
+
+        This method constructs the SQL statement necessary to drop a unique constraint
+        from a table. It considers various parameters that define the constraint, such
+        as its condition, deferrability, included columns, operator classes, and
+        expressions. The method also takes into account whether the constraint allows
+        NULL values to be distinct.
+
+        The generated SQL statement is then returned, or None if the unique constraint
+        is not supported with the given parameters.
+
+        :param model: The database model that owns the unique constraint.
+        :param name: The name of the unique constraint to delete.
+        :param condition: An optional condition that defines the rows to which the
+            constraint applies.
+        :param deferrable: Whether the constraint can be deferred.
+        :param include: Optional columns to include in the constraint.
+        :param opclasses: Optional operator classes to use for the constraint.
+        :param expressions: Optional expressions to use for the constraint.
+        :param nulls_distinct: Whether NULL values are considered distinct for the
+            constraint.
+        :return: The SQL statement to delete the unique constraint, or None if the
+            constraint is not supported.
+
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,

@@ -25,6 +25,13 @@ class TestSimpleTestCase(SimpleTestCase):
         self.assertEqual(self, pickle.loads(pickle.dumps(self)))
 
     def test_is_picklable_with_non_picklable_object(self):
+        """
+        Tests whether the is_pickable function correctly identifies a non-picklable object.
+
+        Verifies that when an object that cannot be pickled is passed to the is_pickable function,
+        it returns False, indicating that the object is not picklable. This ensures the function
+        handles unpicklable objects as expected, providing a reliable way to check for picklability.
+        """
         unpicklable_obj = UnpicklableObject()
         self.assertEqual(is_pickable(unpicklable_obj), False)
 
@@ -44,6 +51,15 @@ class TestTestCase(TestCase):
             self._rollback_atomics = rollback_atomics
 
     def test_disallowed_database_connection(self):
+        """
+
+        Tests that a connection to a disallowed database raises a DatabaseOperationForbidden exception.
+
+        This test ensures that database connections to non-allowed databases are properly
+        restricted, maintaining test isolation by preventing unintended database interactions.
+        The test covers both regular and temporary connections to the disallowed database.
+
+        """
         message = (
             "Database connections to 'other' are not allowed in this test. "
             "Add 'other' to test_utils.test_testcase.TestTestCase.databases to "

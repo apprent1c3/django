@@ -211,6 +211,15 @@ class AdvancedTests(TestCase):
             qs.update(name=F("max"))
 
     def test_update_with_joined_field_annotation(self):
+        """
+        Tests that updating a model instance with an annotation that includes a joined field reference raises a FieldError.
+
+        The test checks various annotation types, including F expressions and database functions like Lower and Concat, to ensure that the FieldError is raised consistently when trying to update a model instance with an annotated field that references a joined field.
+
+        The error message 'Joined field references are not permitted in this query' is expected to be raised in all cases, verifying that the database query validation is working as intended.
+
+        This test helps ensure that the database query engine correctly enforces the constraint that joined field references cannot be used in update queries with annotations.
+        """
         msg = "Joined field references are not permitted in this query"
         with register_lookup(CharField, Lower):
             for annotation in (
@@ -250,6 +259,13 @@ class AdvancedTests(TestCase):
         self.assertEqual(Bar.objects.get().x, 3)
 
     def test_update_ordered_by_m2m_annotation_desc(self):
+        """
+        Tests the update functionality of a model instance ordered by a many-to-many field annotation in descending order.
+
+        This function verifies that an update operation on a model instance is correctly performed when the instances are ordered by a many-to-many field annotation. The annotation is based on the absolute value of the 'm2m_foo' field, and the update sets the 'x' attribute of the resulting instance to a specific value. The test then asserts that the updated instance has the expected value.
+
+        The test covers the scenario where an instance is updated based on a complex ordering criteria, ensuring that the update operation correctly targets the intended instance.
+        """
         foo = Foo.objects.create(target="test")
         Bar.objects.create(foo=foo)
 

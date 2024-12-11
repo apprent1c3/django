@@ -27,6 +27,15 @@ class LinebreaksbrTests(SimpleTestCase):
         }
     )
     def test_linebreaksbr02(self):
+        """
+        Tests the linebreaksbr template filter with autoescaping disabled.
+
+        This test ensures that the linebreaksbr filter correctly converts newline characters to HTML line breaks (<br>) 
+        for two input strings, 'a' and 'b', where 'a' is escaped and 'b' is marked as safe.
+
+        The expected output is a string with newline characters replaced by <br> tags, demonstrating the filter's 
+        functionality in handling both escaped and safe input strings.
+        """
         output = self.engine.render_to_string(
             "linebreaksbr02", {"a": "x&\ny", "b": mark_safe("x&\ny")}
         )

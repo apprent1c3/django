@@ -215,6 +215,9 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return OracleGeometryColumns
 
     def spatial_ref_sys(self):
+        """
+        Returns an instance of OracleSpatialRefSys, which represents a spatial reference system used by the Oracle database backend in Django. This allows interaction with and management of spatial reference systems, enabling accurate and efficient storage and querying of geospatial data.
+        """
         from django.contrib.gis.db.backends.oracle.models import OracleSpatialRefSys
 
         return OracleSpatialRefSys
@@ -228,6 +231,23 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().modify_insert_params(placeholder, params)
 
     def get_geometry_converter(self, expression):
+        """
+        Return a geometry converter function based on the given expression.
+
+        The returned function takes a binary geometry value and converts it into a 
+        :class:`GEOSGeometryBase` instance. The conversion process involves reading the 
+        binary value as WKB (Well-Known Binary) format and creating a geometry object of 
+        the type specified by the expression's output field.
+
+        The geometry object's spatial reference system identifier (SRID) is set to the 
+        value specified by the expression's output field, unless it is -1, in which case 
+        the SRID is left unset.
+
+        The converter function can be used to transform raw binary geometry values into 
+        more usable and interoperable geometric objects that support various geometric 
+        operations and calculations.
+
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:

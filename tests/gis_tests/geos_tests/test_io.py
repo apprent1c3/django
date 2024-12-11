@@ -132,6 +132,19 @@ class GEOSIOTest(SimpleTestCase):
         self.assertEqual(wkb3d_srid, wkb_w.write(g))
 
     def test_wkt_writer_trim(self):
+        """
+
+        Tests the functionality of the WKTWriter class, specifically its ability to trim 
+        decimal places in the written WKT strings.
+
+        This test checks that by default, WKTWriter writes coordinates with full precision.
+        It also verifies that setting the `trim` attribute to True results in the writer 
+        trimming decimal places, and that setting it back to False restores the original 
+        behavior.
+
+        The test covers cases with integer, fractional, and repeating decimal coordinates.
+
+        """
         wkt_w = WKTWriter()
         self.assertFalse(wkt_w.trim)
         self.assertEqual(

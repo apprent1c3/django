@@ -52,6 +52,14 @@ class OnDeleteTests(TestCase):
         self.assertFalse(A.objects.filter(name="auto").exists())
 
     def test_non_callable(self):
+        """
+
+        Tests that on_delete parameter of ForeignKey and OneToOneField must be a callable.
+
+        This test case checks that an exception is raised when on_delete is set to None for both ForeignKey and OneToOneField.
+        It ensures that the error message 'on_delete must be callable.' is correctly displayed.
+
+        """
         msg = "on_delete must be callable."
         with self.assertRaisesMessage(TypeError, msg):
             models.ForeignKey("self", on_delete=None)
@@ -70,6 +78,15 @@ class OnDeleteTests(TestCase):
         self.assertEqual(self.DEFAULT, a.setvalue.pk)
 
     def test_setnull(self):
+        """
+
+        Tests that setting a nullable field to null persists correctly in the database.
+
+        Checks that after deleting the related object, the field becomes null when the
+        object is reloaded from the database. This ensures that the null value is properly
+        saved and retrieved.
+
+        """
         a = create_a("setnull")
         a.setnull.delete()
         a = A.objects.get(pk=a.pk)
@@ -176,6 +193,15 @@ class OnDeleteTests(TestCase):
         self.assertFalse(R.objects.filter(pk=a.child_id).exists())
 
     def test_cascade_from_parent(self):
+        """
+
+        Tests the cascading delete functionality from a parent object to its child objects.
+
+        This test case verifies that when a child object is deleted, its corresponding parent object
+        is also removed from the database. The test creates a child object, then deletes the associated
+        record from the database, and finally checks that both the parent and child objects no longer exist.
+
+        """
         a = create_a("child")
         R.objects.get(pk=a.child_id).delete()
         self.assertFalse(A.objects.filter(name="child").exists())
@@ -277,6 +303,18 @@ class OnDeleteTests(TestCase):
         self.assertFalse(DeleteBottom.objects.exists())
 
     def test_restrict_gfk_no_fast_delete(self):
+        """
+        Tests the restriction of deleting instances of GenericB1 model due to a restricted foreign key reference in GenericDeleteBottom model.
+
+        Verifies that attempting to delete a GenericB1 instance that is referenced by a GenericDeleteBottom instance raises a RestrictedError with the expected message.
+        Additionally, tests that all related objects (GenericB1, GenericB2, GenericDeleteBottom, and DeleteTop) are properly deleted when the top-level DeleteTop instance is deleted, demonstrating a successful cascade deletion.
+
+        The test case covers the following scenarios:
+
+        * Restricted deletion of a GenericB1 instance
+        * Correct error message and restricted object in the Raised RestrictedError
+        * Successful cascade deletion of all related objects when the top-level DeleteTop instance is deleted
+        """
         delete_top = DeleteTop.objects.create()
         generic_b1 = GenericB1.objects.create(generic_delete_top=delete_top)
         generic_b2 = GenericB2.objects.create(generic_delete_top=delete_top)
@@ -432,6 +470,15 @@ class DeletionTests(TestCase):
         models.signals.pre_delete.disconnect(log_pre_delete)
 
     def test_relational_post_delete_signals_happen_before_parent_object(self):
+        """
+
+        Tests whether relational post delete signals are emitted before the parent object is deleted.
+
+        This test case verifies that when a parent object is deleted, the post delete signals for the related objects are sent before the parent object is actually removed from the database. It checks that the related object still exists in the database when the post delete signal is received, and that the correct instance is being deleted.
+
+        The test ensures that the post delete signal is emitted exactly once for the related object, and that the signal is sent for the correct object.
+
+        """
         deletions = []
 
         def log_post_delete(instance, **kwargs):

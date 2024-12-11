@@ -375,6 +375,14 @@ class ASGITest(SimpleTestCase):
             await communicator.receive_output()
 
     async def test_assert_in_listen_for_disconnect(self):
+        """
+
+        Tests that an AssertionError is raised when an invalid ASGI message is sent after the request body.
+
+        This test case checks the behavior of the application when an unexpected message is received after the request body has been sent.
+        It ensures that the application correctly handles such invalid messages and raises an AssertionError with a descriptive error message.
+
+        """
         application = get_asgi_application()
         scope = self.async_request_factory._base_scope(path="/")
         communicator = ApplicationCommunicator(application, scope)

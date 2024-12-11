@@ -15,6 +15,12 @@ class ProtectedError(IntegrityError):
 
 class RestrictedError(IntegrityError):
     def __init__(self, msg, restricted_objects):
+        """
+        Initializes a restricted object exception with a custom error message and a list of restricted objects.
+
+        :param msg: The error message associated with the exception.
+        :param restricted_objects: A list of objects that are restricted, providing context for the error.
+        """
         self.restricted_objects = restricted_objects
         super().__init__(msg, restricted_objects)
 
@@ -93,6 +99,20 @@ def get_candidate_relations_to_delete(opts):
 
 class Collector:
     def __init__(self, using, origin=None):
+        """
+        def __init__(self, using, origin=None):
+            \"\"\"
+            Initializes the class instance with the specified using and origin parameters.
+
+            :param using: The primary identifier for the instance.
+            :param origin: Optional origin parameter, defaults to None.
+
+            This constructor sets up the instance's internal state, including data storage, 
+            field updates, and restrictions. It also prepares lists for fast deletes and 
+            dependency tracking. The parameters provided are used to seed the instance's 
+            configuration.
+
+        """
         self.using = using
         # A Model or QuerySet object.
         self.origin = origin
@@ -153,6 +173,18 @@ class Collector:
         self.field_updates[field, value].append(objs)
 
     def add_restricted_objects(self, field, objs):
+        """
+        :class:`object` :meth:`add_restricted_objects` method - Adds a list of objects to the restricted objects dictionary for a specific field.
+
+        :params field: The field for which the objects are restricted
+        :params objs: A list of objects to be added to the restricted objects dictionary
+
+        :note: All objects in the list must be of the same type. The type is inferred from the first object in the list.
+
+        :returns: None 
+
+        This method is used to update the internal state of the object by adding a set of restricted objects for a given field, which can be used to enforce restrictions or constraints on certain operations.
+        """
         if objs:
             model = objs[0].__class__
             self.restricted_objects[model][field].update(objs)
@@ -165,6 +197,18 @@ class Collector:
             }
 
     def clear_restricted_objects_from_queryset(self, model, qs):
+        """
+
+        Removes restricted objects of a specific model from a given queryset.
+
+        This method checks if the provided model has any restricted objects defined.
+        If restricted objects are found, it filters the queryset to identify the objects that need to be removed
+        and then clears these restricted objects from the set of restricted objects for the given model.
+
+        :param model: The model class to check for restricted objects
+        :param qs: The queryset from which to remove restricted objects
+
+        """
         if model in self.restricted_objects:
             objs = set(
                 qs.filter(

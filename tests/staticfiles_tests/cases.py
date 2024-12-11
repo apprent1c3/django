@@ -27,6 +27,16 @@ class BaseStaticFilesMixin:
             self._get_file(filepath)
 
     def render_template(self, template, **kwargs):
+        """
+        Render a template string with provided context variables.
+
+        Args:
+            template (str or Template): The template string to render, or a pre-initialized Template object.
+            **kwargs: Keyword arguments used as context variables for the template.
+
+        Returns:
+            str: The rendered template string with context variables replaced, stripped of leading and trailing whitespace.
+        """
         if isinstance(template, str):
             template = Template(template)
         return template.render(Context(**kwargs)).strip()

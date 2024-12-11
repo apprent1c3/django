@@ -108,6 +108,20 @@ class InMemoryUploadedFile(UploadedFile):
         charset,
         content_type_extra=None,
     ):
+        """
+        Initializes an instance of the class.
+
+        :param file: The file associated with this instance.
+        :param field_name: The name of the field in the form where the file was uploaded.
+        :param name: The name of the uploaded file.
+        :param content_type: The MIME type of the uploaded file.
+        :param size: The size of the uploaded file in bytes.
+        :param charset: The character set of the uploaded file.
+        :param content_type_extra: Optional extra information about the content type.
+
+        This method sets up the necessary attributes for the instance, including the field name where the file was uploaded.
+
+        """
         super().__init__(file, name, content_type, size, charset, content_type_extra)
         self.field_name = field_name
 

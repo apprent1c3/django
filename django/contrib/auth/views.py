@@ -345,6 +345,14 @@ class PasswordResetCompleteView(PasswordContextMixin, TemplateView):
     title = _("Password reset complete")
 
     def get_context_data(self, **kwargs):
+        """
+        Get the context data for the current view, including the login URL.
+
+        This method extends the default context data by adding the login URL, which is resolved from the settings.
+
+        :param kwargs: Additional keyword arguments to be passed to the parent class.
+        :returns: The updated context data.
+        """
         context = super().get_context_data(**kwargs)
         context["login_url"] = resolve_url(settings.LOGIN_URL)
         return context

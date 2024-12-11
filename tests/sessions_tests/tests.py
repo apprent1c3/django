@@ -146,6 +146,15 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, True)
 
     def test_update(self):
+        """
+
+        Tests the update functionality of a session.
+
+        This test case covers the scenario where an item is updated in the session.
+        It verifies that the session's accessed and modified flags are correctly set
+        after the update operation and that the updated value can be successfully retrieved.
+
+        """
         self.session.update({"update key": 1})
         self.assertIs(self.session.accessed, True)
         self.assertIs(self.session.modified, True)
@@ -174,6 +183,14 @@ class SessionTestsMixin:
         self.assertIs(self.session.modified, False)
 
     def test_values(self):
+        """
+        Tests the behavior of the session's values and modification flags.
+
+        Verifies that the session's values are initially empty, and that accessing them
+        sets the accessed flag. It also checks that setting a value and then marking the
+        session as unmodified results in the correct values being returned and the
+        accessed flag being set, while the modified flag remains unchanged.
+        """
         self.assertEqual(list(self.session.values()), [])
         self.assertIs(self.session.accessed, True)
         self.session["some key"] = 1
@@ -276,6 +293,18 @@ class SessionTestsMixin:
         self.assertIs(self.session.accessed, True)
 
     def test_cycle(self):
+        """
+        Tests the cycling of a session key.
+
+        This function verifies that cycling the session key results in the creation of a new key, 
+        while preserving the existing session data. 
+
+        The test case checks that:
+        - The old session key is no longer valid after cycling.
+        - The new session key is different from the previous one.
+        - The session data remains unchanged during the key cycling process.
+
+        """
         self.session["a"], self.session["b"] = "c", "d"
         self.session.save()
         prev_key = self.session.session_key
@@ -369,6 +398,12 @@ class SessionTestsMixin:
         self.assertEqual(self.session.session_key, "12345678")
 
     def test_session_key_is_read_only(self):
+        """
+        Tests that the session key attribute is read-only. 
+
+           Verifies that attempting to set a new value for the session key raises an AttributeError, 
+           ensuring that the session key remains immutable once initialized.
+        """
         def set_session_key(session):
             session.session_key = session._get_new_session_key()
 
@@ -762,6 +797,18 @@ class CustomDatabaseSessionTests(DatabaseSessionTests):
     def test_extra_session_field(self):
         # Set the account ID to be picked up by a custom session storage
         # and saved to a custom session model database column.
+        """
+        Tests that an extra field '_auth_user_id' in the session is successfully stored and retrieved in the model, and that it is properly cleared when removed from the session. 
+
+         Args:
+            None
+
+         Returns:
+            None
+
+         Notes:
+            This test case exercises the functionality of storing and retrieving an extra field from a session in the model, specifically verifying that the data is correctly persisted and cleared.
+        """
         self.session["_auth_user_id"] = 42
         self.session.save()
 
@@ -903,6 +950,13 @@ class FileSessionTests(SessionTestsMixin, SimpleTestCase):
 
     def test_invalid_key_forwardslash(self):
         # Ensure we don't allow directory-traversal
+        """
+        Test that an InvalidSessionKey is raised when a key containing a forward slash is passed to key_to_file method.
+
+        This test ensures that the backend correctly handles invalid keys by raising an exception when a key with a forward slash is provided, as such keys are not supported. The test validates the error handling behavior of the key_to_file method in this specific scenario.
+
+        :raises InvalidSessionKey: When a key containing a forward slash is passed to key_to_file method.
+        """
         with self.assertRaises(InvalidSessionKey):
             self.backend()._key_to_file("a/b/c")
 
@@ -1015,6 +1069,11 @@ class SessionMiddlewareTests(TestCase):
 
     @override_settings(SESSION_COOKIE_SECURE=True)
     def test_secure_session_cookie(self):
+        """
+        Tests that the session cookie is set as secure when the SESSION_COOKIE_SECURE setting is True. 
+
+        This test case verifies that the SessionMiddleware correctly sets the 'secure' flag on the session cookie when the SESSION_COOKIE_SECURE setting is enabled, ensuring that the session cookie is transmitted over a secure protocol (HTTPS).
+        """
         request = self.request_factory.get("/")
         middleware = SessionMiddleware(self.get_response_touching_session)
 
@@ -1135,6 +1194,11 @@ class SessionMiddlewareTests(TestCase):
         SESSION_COOKIE_DOMAIN=".example.local", SESSION_COOKIE_PATH="/example/"
     )
     def test_session_delete_on_end_with_custom_domain_and_path(self):
+        """
+        Tests if a session is properly deleted when the session is set to expire at the end of a request, with custom session cookie domain and path settings.
+
+        The test verifies that when a session is ended, the session cookie is correctly set to be deleted, with the expected domain and path. The expected result is a 'Set-Cookie' header with the session cookie name, an empty value, and the correct expiration and path settings, indicating that the session has been successfully deleted.
+        """
         def response_ending_session(request):
             request.session.flush()
             return HttpResponse("Session test")

@@ -104,6 +104,16 @@ class URLEncodeTests(SimpleTestCase):
 
 class Base36IntTests(SimpleTestCase):
     def test_roundtrip(self):
+        """
+        Tests the round-trip conversion between integers and base36 strings.
+
+        This test ensures that the base36 encoding and decoding functions work correctly by
+        converting a set of integers to base36 strings and back to integers, verifying that
+        the original and converted values are equal.
+
+        The test covers a range of input values, from small to large, to ensure the functions
+        work correctly across different magnitude ranges.
+        """
         for n in [0, 1, 1000, 1000000]:
             self.assertEqual(n, base36_to_int(int_to_base36(n)))
 
@@ -112,6 +122,24 @@ class Base36IntTests(SimpleTestCase):
             int_to_base36(-1)
 
     def test_to_base36_errors(self):
+        """
+        Tests the int_to_base36 function to ensure it raises a TypeError for invalid input types.
+
+        This test case verifies that passing non-integer values, such as strings, dictionaries, tuples, and floats, to the int_to_base36 function results in a TypeError being raised, as expected.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            TypeError: If the input is not an integer.
+
+        Note:
+            This test case covers various invalid input types to ensure the function's error handling is robust.
+
+        """
         for n in ["1", "foo", {1: 2}, (1, 2, 3), 3.141]:
             with self.assertRaises(TypeError):
                 int_to_base36(n)
@@ -124,6 +152,9 @@ class Base36IntTests(SimpleTestCase):
                 base36_to_int(n)
 
     def test_input_too_large(self):
+        """
+        Tests that the :func:`base36_to_int` function correctly raises an error when given an input string that exceeds the maximum allowed size, by passing a base36 string longer than 13 characters and verifying that a ValueError is raised with a specific error message.
+        """
         with self.assertRaisesMessage(ValueError, "Base36 input too large"):
             base36_to_int("1" * 14)
 
@@ -183,6 +214,21 @@ class URLHasAllowedHostAndSchemeTests(unittest.TestCase):
                 )
 
     def test_good_urls(self):
+        """
+
+        Tests the function url_has_allowed_host_and_scheme with a set of well-formed URLs.
+
+        Verifies that these URLs, which use various valid schemes (http, https, ftp) and 
+        hosts, are correctly identified as having an allowed host and scheme when checked 
+        against a set of allowed hosts.
+
+        The test cases cover different URL constructions, including URLs with query 
+        parameters, URLs using protocol-relative syntax, and URLs with special characters.
+
+        The expected outcome of this test is that all provided URLs are recognized as 
+        valid, given the specified set of allowed hosts ('otherserver', 'testserver').
+
+        """
         good_urls = (
             "/view/?param=http://example.com",
             "/view/?param=https://example.com",
@@ -316,6 +362,11 @@ class ETagProcessingTests(unittest.TestCase):
         self.assertEqual(parse_etags(r'"etag", "e\"t\"ag"'), ['"etag"'])
 
     def test_quoting(self):
+        """
+        Checks the correctness of etag quoting by verifying that the quote_etag function handles different input types as expected. 
+
+        The function tests whether the quote_etag function properly quotes, does not quote already quoted, and preserves weak etags, ensuring that etags are formatted according to HTTP specification requirements.
+        """
         self.assertEqual(quote_etag("etag"), '"etag"')  # unquoted
         self.assertEqual(quote_etag('"etag"'), '"etag"')  # quoted
         self.assertEqual(quote_etag('W/"etag"'), 'W/"etag"')  # quoted, weak
@@ -457,6 +508,20 @@ class ParseHeaderParameterTests(unittest.TestCase):
                 self.assertEqual(parse_header_parameters(header), expected)
 
     def test_rfc2231_parsing(self):
+        """
+
+        Tests the parsing of RFC 2231 headers to ensure correct extraction of parameter values.
+
+        This test case covers the parsing of Content-Type headers with title* parameters, 
+        which contain encoded characters and non-ASCII values. The test verifies that 
+        the parsed title values match the expected output, including correct handling of 
+        character encoding and URL decoding.
+
+        The test cases include examples with different character encodings, such as US-ASCII, 
+        UTF-8, and ISO-8859-1, to ensure that the parsing function can handle a variety 
+        of input formats and encoded characters.
+
+        """
         test_data = (
             (
                 "Content-Type: application/x-stuff; "

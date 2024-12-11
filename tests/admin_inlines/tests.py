@@ -266,6 +266,15 @@ class TestInline(TestDataMixin, TestCase):
         self.assertContains(response, "<p>Callable in QuestionInline</p>")
 
     def test_model_error_inline_with_readonly_field(self):
+        """
+
+        Tests that an inline model error is correctly displayed in the admin interface when a readonly field is present.
+
+        This test case creates a new poll and then attempts to save it with an inline question form, 
+        triggering a model validation error. It verifies that the error message is correctly rendered 
+        in the admin page, specifically that it contains the text 'Always invalid model.'.
+
+        """
         poll = Poll.objects.create(name="Test poll")
         data = {
             "question_set-TOTAL_FORMS": 1,
@@ -611,6 +620,19 @@ class TestInline(TestDataMixin, TestCase):
             extra = 3
 
             def get_min_num(self, request, obj=None, **kwargs):
+                """
+
+                Returns the minimum number based on the provided object.
+
+                 Args:
+                     request: The current request object.
+                     obj (optional): An object to determine the minimum number. Defaults to None.
+                     **kwargs: Additional keyword arguments.
+
+                 Returns:
+                     int: The minimum number, either 2 or 5, depending on whether an object is provided.
+
+                """
                 if obj:
                     return 5
                 return 2
@@ -687,6 +709,9 @@ class TestInline(TestDataMixin, TestCase):
         )
 
     def test_stacked_inline_edit_form_contains_has_original_class(self):
+        """
+        Tests the admin interface for the stacked inline edit form, specifically that the rendered HTML contains an element with class 'has_original' for the original instance and lacks it for subsequent instances, in order to verify proper rendering and identification of original and additional inline formsets.
+        """
         holder = Holder.objects.create(dummy=1)
         holder.inner_set.create(dummy=1)
         response = self.client.get(
@@ -1288,6 +1313,18 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_fk_change_del_perm(self):
+        """
+
+        Tests the inline formset change functionality when a user has 'change' and 'delete' permissions for inner2 objects.
+
+        Verifies that the user can view the inline formset for inner2 objects on the holder change page,
+        and that the formset displays the correct fields, including the hidden fields for total forms and
+        object ID. Also checks for the presence of the delete checkbox in the formset.
+
+        Ensures that the user's permissions are correctly applied, allowing them to modify the inner2 object
+        in the inline formset.
+
+        """
         permission = Permission.objects.get(
             codename="change_inner2", content_type=self.inner_ct
         )
@@ -2424,6 +2461,19 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(chosen.text, "CHOSEN ATTENDANT")
 
     def test_tabular_inline_layout(self):
+        """
+        Tests the rendering and content of a tabular inline layout in the admin interface.
+
+        This function verifies that the layout contains the expected column headers and does not display certain unnecessary text or elements, ensuring a clean and organized display of data. It also checks for the absence of collapse elements, confirming that the layout is correctly initialized. 
+
+        The test covers the following aspects:
+
+        * Column headers match the expected titles
+        * Certain text (e.g. 'Details', group names) is not present in the layout
+        * There are no collapse elements in the layout
+
+        By running this test, developers can ensure that the tabular inline layout in the admin interface behaves as expected and provides a good user experience.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")

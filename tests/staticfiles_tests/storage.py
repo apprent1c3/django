@@ -36,6 +36,14 @@ class PathNotImplementedStorage(storage.Storage):
         return os.path.exists(self._path(name))
 
     def listdir(self, path):
+        """
+        Lists the contents of a directory, separating entries into directories and files.
+
+        :param path: The path to the directory to list
+        :returns: A tuple containing two lists: the first list contains the names of subdirectories, 
+                  the second list contains the names of files. The lists are limited to the names of the entries, 
+                  and do not include their full paths.
+        """
         path = self._path(path)
         directories, files = [], []
         with os.scandir(path) as entries:

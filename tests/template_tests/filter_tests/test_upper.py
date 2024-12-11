@@ -19,6 +19,15 @@ class UpperTests(SimpleTestCase):
         }
     )
     def test_upper01(self):
+        """
+
+        Tests the upper case filter and auto-escaping functionality.
+
+        This test renders a template with two variables: one that contains special characters
+        and another marked as safe. It verifies that the upper case filter correctly converts
+        the text to upper case, while respecting the auto-escaping rules for special characters.
+
+        """
         output = self.engine.render_to_string(
             "upper01", {"a": "a & b", "b": mark_safe("a &amp; b")}
         )

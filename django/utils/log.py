@@ -160,6 +160,15 @@ class CallbackFilter(logging.Filter):
         self.callback = callback
 
     def filter(self, record):
+        """
+        ```
+        Filters a given record based on a predefined callback condition.
+
+        :param record: The record to be filtered
+        :return: 1 if the record passes the filter, 0 otherwise
+        :note: The actual filtering logic is defined in the callback function associated with the instance
+        ```
+        """
         if self.callback(record):
             return 1
         return 0

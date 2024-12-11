@@ -29,6 +29,9 @@ class TestHashable(SimpleTestCase):
                 self.assertCountEqual(make_hashable(value), expected)
 
     def test_unhashable(self):
+        """
+        Tests that the make_hashable function correctly raises a TypeError when passed an unhashable object, indicating that the object cannot be made hashable due to its type not supporting hashing.
+        """
         class Unhashable:
             __hash__ = None
 

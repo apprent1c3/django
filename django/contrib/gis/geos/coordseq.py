@@ -106,6 +106,14 @@ class GEOSCoordSeq(GEOSBase):
         return (self._get_x(index), self._get_y(index), self._get_z(index))
 
     def _set_point_2d(self, index, value):
+        """
+        Sets a 2D point at the specified index with the given x and y coordinates.
+
+        :param index: The index at which the 2D point is to be set.
+        :param value: A tuple or list containing the x and y coordinates of the point.
+
+        :note: This method updates the internal state of the object by setting the x and y values separately at the specified index.
+        """
         x, y = value
         self._set_x(index, x)
         self._set_y(index, y)

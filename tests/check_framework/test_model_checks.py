@@ -128,6 +128,9 @@ class DuplicateDBTableTests(SimpleTestCase):
         )
 
     def test_no_collision_for_unmanaged_models(self):
+        """
+        Checks that the system correctly handles database tables that are shared between managed and unmanaged models, ensuring that no collisions occur when running model checks. Specifically, this test verifies that a model with `managed=False` (unmanaged model) can coexist with another model using the same database table without raising any errors.
+        """
         class Unmanaged(models.Model):
             class Meta:
                 db_table = "test_table"
@@ -284,6 +287,11 @@ class IndexNameTests(SimpleTestCase):
 @skipUnlessDBFeature("supports_table_check_constraints")
 class ConstraintNameTests(TestCase):
     def test_collision_in_same_model(self):
+        """
+        Tests if Django correctly identifies and reports a collision between two check constraints with the same name in the same model.
+
+         The function verifies that the `check_framework` app correctly raises an error when two check constraints, both named 'foo', are defined within a single model, ensuring that each constraint has a unique name. It utilizes the `checks.run_checks` function to run checks on the app configurations and then asserts that the expected error is returned, which in this case is an error with the id 'models.E031' indicating a non-unique constraint name.
+        """
         class Model(models.Model):
             class Meta:
                 constraints = [
@@ -482,6 +490,18 @@ class ModelDefaultAutoFieldTests(SimpleTestCase):
         self.assertEqual(checks.run_checks(app_configs=self.apps.get_app_configs()), [])
 
     def test_auto_created_inherited_pk(self):
+        """
+        Tests that an auto-created primary key on a parent model triggers a warning
+        when inherited by a child model.
+
+        This test case verifies that the appropriate warning is raised when a child model
+        inherits an auto-created primary key from its parent model, to ensure that the
+        model's primary key is explicitly defined.
+
+        The test checks that running model checks on the app configurations yields the
+        expected warning, specifically the 'models.W042' warning, which is associated
+        with the auto-created primary key on the parent model.
+        """
         class Parent(models.Model):
             pass
 

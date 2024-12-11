@@ -73,6 +73,16 @@ class TestAdminOrdering(TestCase):
         self.assertEqual(["Radiohead", "Van Halen", "Aerosmith"], names)
 
     def test_specified_ordering_by_f_expression(self):
+        """
+
+        Tests that the specified ordering is applied to the queryset using an F expression.
+
+        This test case verifies that the BandAdmin class correctly orders the Band instances
+        based on the 'rank' field in descending order, with null values placed last.
+        The test confirms that the ordering is correctly applied by comparing the result
+        to the expected list of band names. 
+
+        """
         class BandAdmin(ModelAdmin):
             ordering = (F("rank").desc(nulls_last=True),)
 

@@ -24,6 +24,30 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return get_response
 
     def process_response(self, *args, secure=False, request=None, **kwargs):
+        """
+
+        Process a response with optional middleware and secure request handling.
+
+        This function handles the processing of a response, allowing for optional secure
+        request handling and the application of middleware. It can also take additional
+        arguments and keyword arguments to be passed to the middleware.
+
+        The secure request handling uses pre-defined secure request keyword arguments if
+        the `secure` parameter is set to True.
+
+        The function uses a middleware object to process the request, allowing for
+        customizable processing and transformation of the response.
+
+        If the middleware returns a truthy value, it is returned directly; otherwise,
+        the result of the middleware's processing of the request is returned.
+
+        :param secure: Whether to use secure request handling (default: False)
+        :param request: Optional request object to use instead of generating a new one
+        :param args: Additional arguments to pass to the middleware
+        :param kwargs: Additional keyword arguments to pass to the middleware
+        :return: The processed response or the result of the middleware's processing
+
+        """
         request_kwargs = {}
         if secure:
             request_kwargs.update(self.secure_request_kwargs)

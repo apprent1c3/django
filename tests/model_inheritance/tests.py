@@ -285,6 +285,14 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_set_name(self):
+        """
+        Tests the functionality of the __set_name__ method in Python, specifically in the context of Django model inheritance.
+
+        This method is a special method in Python that is automatically called when an instance of a class is set as an attribute of another class.
+        It verifies that the __set_name__ method correctly sets the called attribute of the ClassAttr instance with the owner class and attribute name.
+
+        The test creates a model class A with an attribute attr of type ClassAttr and asserts that the called attribute of attr is correctly set to (A, 'attr') after the __set_name__ method is invoked.
+        """
         class ClassAttr:
             called = None
 
@@ -334,6 +342,16 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(type(PropertyOverride.foo), DeferredAttribute)
 
     def test_shadow_parent_method_with_field(self):
+        """
+        Tests that a model field with the same name as a method in its parent class 
+        overrides the method and returns a DeferredAttribute.
+
+        This test case ensures that when a field is defined in a model subclass with 
+        the same name as a method in its parent class, the field takes precedence and 
+        the method is no longer accessible. The test verifies that attempting to access 
+        the method returns a DeferredAttribute, indicating that the field has overridden 
+        the method.
+        """
         class MethodParent(models.Model):
             def foo(self):
                 pass
@@ -347,6 +365,16 @@ class ModelInheritanceTests(TestCase):
 class ModelInheritanceDataTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the application, creating instances of Restaurant and ItalianRestaurant.
+
+        This class method creates a basic restaurant and an Italian restaurant with specific attributes, 
+        including name, address, menu items, and ratings. It also creates a Chef instance associated with the Italian restaurant.
+
+        The created instances are stored as class attributes, allowing for easy access and reuse throughout the test suite.
+
+        """
         cls.restaurant = Restaurant.objects.create(
             name="Demon Dogs",
             address="944 W. Fullerton",
@@ -439,11 +467,34 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_inherited_multiple_objects_returned_exception(self):
         # MultipleObjectsReturned is also inherited.
+        """
+        Tests that a MultipleObjectsReturned exception is raised when attempting to retrieve a Restaurant object using the get method, due to multiple objects being returned as a result of inheritance.
+        """
         with self.assertRaises(Place.MultipleObjectsReturned):
             Restaurant.objects.get()
 
     def test_related_objects_for_inherited_models(self):
         # Related objects work just as they normally do.
+        """
+
+        Tests related objects for models that inherit from a base model.
+
+        This test case ensures that relationships between models are correctly established 
+        and queried, particularly when models inherit from a common base. 
+
+        The test creates instances of Supplier and Restaurant models, establishes 
+        relationships between them, and verifies that the relationships are correctly 
+        queried. The test also checks that attempting to access an attribute that does 
+        not exist raises the expected exception.
+
+        Specifically, this test covers the following scenarios:
+
+        - Establishing and querying many-to-many relationships between models
+        - Verifying the existence and attributes of related objects
+        - Testing exception handling for non-existent attributes
+        - Querying objects based on attributes of related objects
+
+        """
         s1 = Supplier.objects.create(name="Joe's Chickens", address="123 Sesame St")
         s1.customers.set([self.restaurant, self.italian_restaurant])
         s2 = Supplier.objects.create(name="Luigi's Pasta", address="456 Sesame St")

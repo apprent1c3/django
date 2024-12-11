@@ -207,6 +207,20 @@ class MigrationLoader:
                 self.graph.add_dependency(migration, key, parent, skip_validation=True)
 
     def add_external_dependencies(self, key, migration):
+        """
+
+        Add external dependencies to a migration.
+
+        This function resolves and adds dependencies between the given migration and other migrations.
+        It iterates over the dependencies and run_before relations of the migration, adding edges to the graph
+        where the key or child migration is not already related to the same parent.
+
+        The function checks for matching keys and adds dependencies accordingly, ensuring that the migration graph remains consistent.
+        It handles cases where the key or child migration is not found, using the :meth:`check_key` method to resolve them.
+
+        The resulting dependencies are added to the graph with validation skipped, relying on the caller to ensure the validity of the added dependencies.
+
+        """
         for parent in migration.dependencies:
             # Skip internal dependencies
             if key[0] == parent[0]:

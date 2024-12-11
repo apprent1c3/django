@@ -50,12 +50,32 @@ class TestPostGISVersionCheck(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_version_classic_tuple(self):
+        """
+        Tests the postgis_version_tuple method of the PostGIS operations class to ensure it correctly parses the PostGIS version.
+
+        The test verifies that the version is returned as a tuple containing the version string and major, minor, and micro version numbers.
+
+        This test case specifically checks the version in the classic format, where the version string matches the major, minor, and micro version numbers.  
+
+        Args: None
+
+        Returns: None
+
+        Raises: AssertionError if the expected and actual version tuples do not match.
+        """
         expect = ("1.2.3", 1, 2, 3)
         ops = FakePostGISOperations(expect[0])
         actual = ops.postgis_version_tuple()
         self.assertEqual(expect, actual)
 
     def test_version_dev_tuple(self):
+        """
+        Tests the postgis_version_tuple function by comparing its output with an expected version tuple for a development version of PostGIS.
+
+         The expected version is in the format (version_string, major, minor, micro), where version_string is a string representing the version, and major, minor, and micro are integers representing the major, minor, and micro version numbers respectively.
+
+         This test ensures that the postgis_version_tuple function correctly parses the version string and returns the expected tuple.
+        """
         expect = ("1.2.3dev", 1, 2, 3)
         ops = FakePostGISOperations(expect[0])
         actual = ops.postgis_version_tuple()
@@ -68,6 +88,13 @@ class TestPostGISVersionCheck(unittest.TestCase):
         self.assertEqual(expect, actual)
 
     def test_valid_version_numbers(self):
+        """
+
+        Tests that the spatial version is correctly extracted from valid PostGIS version numbers.
+
+        The function checks a range of version numbers to ensure that the major, minor and micro versions are accurately parsed and returned.
+
+        """
         versions = [
             ("1.3.0", 1, 3, 0),
             ("2.1.1", 2, 1, 1),

@@ -411,6 +411,20 @@ class TestContextDecorator:
         self.disable()
 
     def decorate_class(self, cls):
+        """
+        Decorates a unittest TestCase class to automatically enable and disable a context 
+        within its test setup and teardown.
+
+        This decorator modifies the setUp method of the given class to enable the context 
+        before running the original setUp method, and schedules the context to be disabled 
+        after the test has finished.
+
+        The decorated class will have access to the context object, either through the 
+        cleanup function or as an attribute on the test instance if attr_name is specified.
+
+        Raises:
+            TypeError: If the class is not a subclass of unittest.TestCase
+        """
         if issubclass(cls, TestCase):
             decorated_setUp = cls.setUp
 
@@ -448,6 +462,19 @@ class TestContextDecorator:
         return inner
 
     def __call__(self, decorated):
+        """
+        Applies the decorator to the provided object.
+
+        This method determines the type of the object being decorated, whether it's a class or a callable function, 
+        and delegates the decoration to the appropriate method. If the object is neither a class nor a callable function, 
+        it raises a TypeError indicating that it cannot decorate objects of that type.
+
+        Args:
+            decorated: The object being decorated, which can be a class or a callable function.
+
+        Raises:
+            TypeError: If the object being decorated is not a class or a callable function.
+        """
         if isinstance(decorated, type):
             return self.decorate_class(decorated)
         elif callable(decorated):
@@ -466,12 +493,42 @@ class override_settings(TestContextDecorator):
     enable_exception = None
 
     def __init__(self, **kwargs):
+        """
+        Initializer for the class. 
+
+        Initializes the class instance with the provided keyword arguments, and then proceeds with the parent class initialization. 
+
+        The keyword arguments passed to this method are stored in the `options` attribute of the instance, allowing for subsequent use within the class.
+        """
         self.options = kwargs
         super().__init__()
 
     def enable(self):
         # Keep this code at the beginning to leave the settings unchanged
         # in case it raises an exception because INSTALLED_APPS is invalid.
+        """
+
+        Enable the modification of Django settings.
+
+        This function temporarily overrides the Django project settings by setting new values
+        for the specified options. It also notifies any registered listeners that a setting
+        has changed by sending a signal.
+
+        Upon successful execution, the original settings are stored and replaced with the
+        overridden settings. If an exception occurs during the enabling process, the
+        original settings are restored and the exception is stored for later reference.
+
+        The function also takes into account installed apps and attempts to set them
+        accordingly. If setting installed apps fails, it reverts to the original state and
+        raises the exception.
+
+        Parameters are passed as instance options, allowing for flexible and dynamic
+        modification of the settings.
+
+        Note: It is recommended to use this function in conjunction with the disable method
+        to ensure proper cleanup and restoration of the original settings.
+
+        """
         if "INSTALLED_APPS" in self.options:
             try:
                 apps.set_installed_apps(self.options["INSTALLED_APPS"])
@@ -566,6 +623,18 @@ class modify_settings(override_settings):
             )
 
     def enable(self):
+        """
+        Enables the current instance by configuring its options based on predefined operations.
+
+        The function iterates over a set of operations, where each operation is associated with a specific name and a set of actions to be applied to that name. 
+        The actions can be one of 'append', 'prepend', or 'remove', which modify the value of the option accordingly.
+
+        For each operation, the function checks if the option already exists in the instance's options dictionary. If it does, the existing value is used; otherwise, the function retrieves the default value from the settings.
+
+        The function then applies the specified actions to the option's value, updating it according to the operation's instructions. If an unsupported action is encountered, a ValueError is raised.
+
+        Once all operations have been applied, the function calls the parent class's enable method to complete the enabling process.
+        """
         self.options = {}
         for name, operations in self.operations:
             try:
@@ -650,6 +719,21 @@ def compare_xml(want, got):
         return dict(element.attributes.items())
 
     def check_element(want_element, got_element):
+        """
+
+        Checks if two XML elements are identical.
+
+        Compares the given elements to determine if they have the same tag name, normalized child text, and attribute dictionary.
+        Additionally, it checks if the elements have the same number of children and recursively verifies that each child element is identical.
+
+        Args:
+            want_element: The expected XML element.
+            got_element: The actual XML element to be compared.
+
+        Returns:
+            bool: True if the elements are identical, False otherwise.
+
+        """
         if want_element.tagName != got_element.tagName:
             return False
         if norm_child_text(want_element) != norm_child_text(got_element):
@@ -944,6 +1028,19 @@ class TimeKeeper:
             self.records[name].append(end_time)
 
     def print_results(self):
+        """
+
+        Prints the recorded execution times to the standard error stream.
+
+        The function iterates over all recorded names and their corresponding end times, 
+        then generates a formatted string for each record including the name and 
+        execution time in seconds. Each record is written to the standard error stream, 
+        followed by a new line for readability.
+
+        This function provides a simple way to display the recorded execution times in a 
+        human-readable format, making it useful for debugging and performance analysis.
+
+        """
         for name, end_times in self.records.items():
             for record_time in end_times:
                 record = "%s took %.3fs" % (name, record_time)
@@ -963,6 +1060,14 @@ def tag(*tags):
     """Decorator to add tags to a test class or method."""
 
     def decorator(obj):
+        """
+        Adds a set of tags to an object if it has a 'tags' attribute, otherwise creates a new 'tags' attribute with the provided tags.
+
+        The function modifies the input object in-place and returns the modified object.
+        It assumes that 'tags' is a set of unique identifiers or keywords that can be associated with an object.
+
+        This function can be used to decorate objects with additional metadata, enabling features such as filtering, categorization, or searching based on the assigned tags.
+        """
         if hasattr(obj, "tags"):
             obj.tags = obj.tags.union(tags)
         else:

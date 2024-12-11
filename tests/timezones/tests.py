@@ -99,6 +99,14 @@ class LegacyDatabaseTests(TestCase):
         self.assertEqual(event.dt, dt)
 
     def test_naive_datetime_with_microsecond(self):
+        """
+
+        Tests the storage and retrieval of a naive datetime object with microsecond precision.
+
+        Verifies that a datetime object with microsecond precision can be successfully stored
+        in the database and retrieved without any loss of precision or information.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, 405060)
         Event.objects.create(dt=dt)
         event = Event.objects.get()
@@ -115,6 +123,11 @@ class LegacyDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_aware_datetime_in_local_timezone_with_microsecond(self):
+        """
+        Tests the handling of an aware datetime object in the local timezone when microseconds are present.
+
+        The function verifies that the timezone information is correctly removed from the datetime object after it is saved to the database, while ensuring that the original datetime value is preserved when the timezone is reapplied.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, 405060, tzinfo=EAT)
         Event.objects.create(dt=dt)
         event = Event.objects.get()
@@ -133,6 +146,19 @@ class LegacyDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_aware_datetime_in_other_timezone(self):
+        """
+
+        Test that an aware datetime object in a different timezone is properly stored and retrieved.
+
+        Checks the behavior of datetime objects with timezone information when saving and 
+        retrieving them from the database. Specifically, it verifies that timezone information is 
+        lost upon retrieval, and that the retrieved datetime matches the original when the 
+        original's timezone is reapplied.
+
+        The test utilizes a datetime object in the ICT timezone, converts it upon retrieval, 
+        and then asserts that it matches the original datetime when its timezone is set to EAT.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 17, 20, 30, tzinfo=ICT)
         Event.objects.create(dt=dt)
         event = Event.objects.get()
@@ -159,6 +185,14 @@ class LegacyDatabaseTests(TestCase):
         self.assertGreater(future, ts.updated)
 
     def test_query_filter(self):
+        """
+        Tests the functionality of filtering Events based on their datetime.
+
+        This test case verifies that the query filters for Events return the correct number of results when filtering by a specific datetime.
+        It checks the following filter types: greater than or equal to, and greater than.
+        The test creates two Events with different datetimes and then applies these filters to ensure the results match the expected counts.
+        The purpose is to ensure that the filtering logic is correct and functions as intended, allowing for accurate querying of Events by datetime.
+        """
         dt1 = datetime.datetime(2011, 9, 1, 12, 20, 30)
         dt2 = datetime.datetime(2011, 9, 1, 14, 20, 30)
         Event.objects.create(dt=dt1)
@@ -169,6 +203,26 @@ class LegacyDatabaseTests(TestCase):
         self.assertEqual(Event.objects.filter(dt__gt=dt2).count(), 0)
 
     def test_query_datetime_lookups(self):
+        """
+
+        Test query lookups for datetime fields.
+
+        This function verifies that datetime fields can be filtered using various lookup types,
+        including year, month, day, week day, ISO week day, hour, minute, and second.
+        It creates test events with specific datetime values and asserts that the expected
+        number of events are returned when filtered using the corresponding lookup types.
+
+        The supported lookup types are:
+            - year: Filters by the year of the datetime
+            - month: Filters by the month of the datetime
+            - day: Filters by the day of the datetime
+            - week_day: Filters by the day of the week (Sunday=1, Monday=2,..., Saturday=7)
+            - iso_week_day: Filters by the ISO day of the week (Monday=1, Tuesday=2,..., Sunday=7)
+            - hour: Filters by the hour of the datetime
+            - minute: Filters by the minute of the datetime
+            - second: Filters by the second of the datetime
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0))
         self.assertEqual(Event.objects.filter(dt__year=2011).count(), 2)
@@ -182,6 +236,20 @@ class LegacyDatabaseTests(TestCase):
 
     def test_query_aggregation(self):
         # Only min and max make sense for datetimes.
+        """
+
+        Tests the aggregation of query results to find minimum and maximum datetime values.
+
+        This function creates a set of events with different datetime values and then
+        aggregates these values to find the minimum and maximum datetime. The result
+        is compared to the expected minimum and maximum datetime values to ensure
+        correct functionality.
+
+        The test covers the following aggregation functions:
+        - Min: Finds the minimum datetime value in the set of events.
+        - Max: Finds the maximum datetime value in the set of events.
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 23, 20, 20))
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 13, 20, 30))
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 3, 20, 40))
@@ -285,6 +353,19 @@ class LegacyDatabaseTests(TestCase):
         self.assertEqual(event.dt, dt)
 
     def test_cursor_execute_returns_naive_datetime(self):
+        """
+        Tests that the database cursor execution returns a naive datetime object.
+
+        This test case verifies that when a datetime object is retrieved from the database
+        using a cursor execution, it is returned as a naive datetime object, i.e., it does
+        not contain any timezone information. The test creates a sample Event object with
+        a specific datetime and then uses a database cursor to retrieve this datetime
+        value, checking that it matches the original datetime object.
+
+        The purpose of this test is to ensure that the database interaction layer handles
+        datetime objects correctly and returns them in the expected format.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30)
         Event.objects.create(dt=dt)
         with connection.cursor() as cursor:
@@ -772,6 +853,19 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt, dt)
 
     def test_naive_datetime_with_microsecond(self):
+        """
+        Tests the serialization and deserialization of a datetime object with microseconds using various formats.
+
+            The test creates a datetime object with a specific timestamp and checks that it is correctly serialized and deserialized in 'python', 'json', 'xml', and 'yaml' formats.
+
+            The test verifies that the datetime object is accurately represented in each format and that the deserialized object matches the original datetime object, taking into account any format-specific limitations, such as the loss of microsecond precision in 'json' format. 
+
+            The serialization and deserialization processes are checked for these formats: 
+            - 'python' format - checks for exact datetime match, including microseconds.
+            - 'json' format - checks for datetime match, with microseconds rounded to millisecond precision.
+            - 'xml' format - checks for exact datetime match, including microseconds.
+            - 'yaml' format (if available) - checks for exact datetime match, including microseconds.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, 405060)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -831,6 +925,26 @@ class SerializationTests(SimpleTestCase):
                 self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_in_utc(self):
+        """
+
+        Test serialization and deserialization of aware datetime objects in UTC.
+
+        Verifies that datetime objects with timezone information are correctly 
+        serialized and deserialized to and from various formats (Python, JSON, XML, YAML).
+        The test checks that the original datetime object is preserved during the 
+        serialization and deserialization process, ensuring that the resulting object 
+        has the same datetime value and timezone as the original.
+
+        The test covers the following serialization formats:
+        - Python
+        - JSON
+        - XML
+        - YAML (if the YAML serializer is available)
+
+        The test case uses a specific aware datetime object in UTC as input and 
+        verifies that it is correctly represented in each serialization format.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 10, 20, 30, tzinfo=UTC)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -1280,6 +1394,16 @@ class NewFormsTests(TestCase):
             )
 
     def test_form_with_ambiguous_time(self):
+        """
+
+        Tests the EventForm when given an ambiguous time.
+
+        This test case checks the handling of a date and time that falls within the
+        Daylight Saving Time (DST) transition period, where the same time can occur
+        twice. It verifies that the form is not valid and that the error message
+        indicates the time ambiguity.
+
+        """
         tz = zoneinfo.ZoneInfo("Europe/Paris")
         with timezone.override(tz):
             form = EventForm({"dt": "2011-10-30 02:30:00"})

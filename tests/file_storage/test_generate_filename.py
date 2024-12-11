@@ -134,6 +134,15 @@ class GenerateFilenameStorageTests(SimpleTestCase):
             f.generate_filename(None, "../path")
 
     def test_filefield_generate_filename_absolute_path(self):
+        """
+        Tests the generate_filename method of a FileField to prevent path traversal attacks.
+
+        This test checks that the FileField's generate_filename method correctly detects and prevents attempts to upload files to an absolute path outside of the specified upload_to directory.
+
+        The test iterates over a list of candidate file names that represent potential path traversal attempts, and for each one, it verifies that the method raises a SuspiciousFileOperation exception with a message indicating a detected path traversal attempt.
+
+        The test ensures that the FileField's security mechanism is effective in preventing attackers from manipulating the upload path to access or overwrite sensitive files on the system.
+        """
         f = FileField(upload_to="some/folder/")
         candidates = [
             "/tmp/path",
@@ -185,6 +194,13 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                 self.assertEqual(f.generate_filename(None, file_name), "test.txt")
 
     def test_filefield_generate_filename_upload_to_absolute_path(self):
+        """
+        Tests the ability of the FileField to detect and prevent path traversal attacks when generating a filename based on an absolute upload path.
+
+        The test verifies that the FileField correctly identifies and raises a SuspiciousFileOperation exception when a filename that could potentially be used to traverse the file system is provided, including filenames containing relative paths, absolute paths, or special characters.
+
+        The test cases cover a variety of filename formats that could be used to attempt a path traversal attack, ensuring the FileField's generate_filename method is robust against such attacks.
+        """
         def upload_to(instance, filename):
             return "/tmp/" + filename
 

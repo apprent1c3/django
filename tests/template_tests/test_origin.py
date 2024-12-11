@@ -27,6 +27,14 @@ class OriginTestCase(TestCase):
         self.assertIs(a.origin != b.origin, True)
 
     def test_repr(self):
+        """
+        Tests the string representation of a template's origin.
+
+        Verifies that the repr function returns a string in the expected format,
+        which includes the name of the template file. This test ensures that the
+        origin of a template can be accurately represented as a string, which
+        can be useful for debugging and logging purposes.
+        """
         a = self.engine.get_template("index.html")
         name = os.path.join(TEMPLATE_DIR, "index.html")
         self.assertEqual(repr(a.origin), "<Origin name=%r>" % name)

@@ -146,6 +146,14 @@ class DebugViewTests(SimpleTestCase):
         ]
     )
     def test_403_template(self):
+        """
+
+        Tests the rendering of a custom 403 error template.
+
+        This test case verifies that a custom template is correctly displayed when a 403 Forbidden error occurs.
+        The test simulates a GET request to a URL that triggers a 403 error and checks that the response contains the expected template content and status code.
+
+        """
         response = self.client.get("/raises403/")
         self.assertContains(response, "test template", status_code=403)
         self.assertContains(response, "(Insufficient Permissions).", status_code=403)
@@ -209,6 +217,19 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_technical_404(self):
+        """
+
+        Tests that a technical 404 page is correctly rendered with the expected content.
+
+        This test case verifies that a GET request to the '/technical404/' URL returns a 404 status code
+        and contains the necessary HTML elements, including the header, main, and footer sections.
+        It also checks for the presence of specific error messages, such as the exception value and the view
+        that raised the error.
+
+        The test ensures that the technical 404 page provides useful information about the error, including
+        the current path that triggered the error and details about the view that raised it.
+
+        """
         response = self.client.get("/technical404/")
         self.assertContains(response, '<header id="summary">', status_code=404)
         self.assertContains(response, '<main id="info">', status_code=404)
@@ -306,6 +327,20 @@ class DebugViewTests(SimpleTestCase):
             )
 
     def test_template_exceptions(self):
+        """
+
+        Tests that template exceptions are properly logged and propagated.
+
+        This test case simulates a template exception by making a GET request to a
+        view that intentionally raises an exception. It then verifies that the
+        exception is logged at the ERROR level and that the correct location of
+        the exception is identified in the traceback.
+
+        The test checks that the exception is properly raised and that the logging
+        mechanism correctly captures the error, ensuring that the expected error
+        message is present in the traceback.
+
+        """
         with self.assertLogs("django.request", "ERROR"):
             try:
                 self.client.get(reverse("template_exception"))
@@ -323,6 +358,15 @@ class DebugViewTests(SimpleTestCase):
         "Raises OSError instead of TemplateDoesNotExist on Windows.",
     )
     def test_safestring_in_exception(self):
+        """
+        Tests that a SafeString object can be safely used in an exception raised by a view.
+
+        The test case simulates a request to a view that intentionally raises an exception. It then verifies that the error response correctly escapes any HTML content, preventing potential cross-site scripting (XSS) attacks. Specifically, it checks that the response does not contain the original unescaped HTML and instead includes the escaped equivalent.
+
+        The test also ensures that the Django logging system is used to log the error at the ERROR level, allowing for proper error tracking and debugging.
+
+        This test is skipped on Windows platforms due to differences in how exceptions are handled on that operating system.
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/safestring_exception/")
             self.assertNotContains(
@@ -427,6 +471,10 @@ class DebugViewTests(SimpleTestCase):
             m.assert_called_once_with(encoding="utf-8")
 
     def test_technical_404_converter_raise_404(self):
+        """
+        Tests the behavior of the technical 404 converter when the IntConverter's to_python method raises an Http404 exception. 
+         Verifies that the server returns a 404 status code and a 'Page not found' message in the response when accessing the '/path-post/1/' path.
+        """
         with mock.patch.object(IntConverter, "to_python", side_effect=Http404):
             response = self.client.get("/path-post/1/")
             self.assertContains(response, "Page not found", status_code=404)
@@ -510,6 +558,13 @@ class NonDjangoTemplatesDebugViewTests(SimpleTestCase):
         )
 
     def test_403(self):
+        """
+        Tests the HTTP 403 Forbidden response.
+
+        Verifies that a GET request to the '/raises403/' endpoint returns a 403 Forbidden status code and contains the corresponding error message.
+
+        This test case ensures that the application correctly handles forbidden requests and provides a user-friendly error message in response.
+        """
         response = self.client.get("/raises403/")
         self.assertContains(response, "<h1>403 Forbidden</h1>", status_code=403)
 
@@ -901,6 +956,21 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_source_not_match(self):
+        """
+
+        Tests the reporting of frames in the exception reporter when the source code does not match.
+
+        This test case verifies that when the source code of a frame is not available, the 
+        ExceptionReporter correctly handles this scenario. It checks that the context line 
+        is marked as '<source code not available>', and other frame details such as filename, 
+        function name, and line number are correctly reported. Additionally, it tests that 
+        the HTML and text representations of the traceback contain the expected information.
+
+        The test simulates an exception being raised and then uses the ExceptionReporter to 
+        generate the traceback frames, HTML, and text. It then asserts that the expected 
+        information is present in the generated output.
+
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -1820,6 +1890,21 @@ class ExceptionReporterFilterTests(
         )
 
     def test_cleanse_setting_ignore_case(self):
+        """
+
+        Checks the cleanse_setting method to ensure it correctly masks sensitive information 
+        in a case-insensitive manner. This is crucial for data protection and preventing 
+        unintended exposure of confidential settings.
+
+        The function verifies whether the cleanse_setting method ignores case when 
+        identifying settings to be masked, such as passwords, and replaces them with a 
+        pre-defined cleansed substitute string. 
+
+        This test ensures that the reporter filter effectively safeguards sensitive data, 
+        regardless of the case used in setting names, and maintains consistency in data 
+        protection by using a standardized masking approach.
+
+        """
         reporter_filter = SafeExceptionReporterFilter()
         self.assertEqual(
             reporter_filter.cleanse_setting("password", "super_secret"),
@@ -1938,6 +2023,16 @@ class CustomExceptionReporterFilterTests(SimpleTestCase):
         )
 
     def test_hidden_settings_override(self):
+        """
+
+        Tests that hidden settings are correctly overridden with a substitute value.
+
+        This test case verifies that sensitive information, such as the database URL, is properly
+        hidden by the exception reporter filter. It checks that the filter replaces the original
+        value with a predefined cleansed substitute, ensuring that secret settings are not
+        exposed in error reports.
+
+        """
         reporter_filter = get_default_exception_reporter_filter()
         self.assertEqual(
             reporter_filter.cleanse_setting("database_url", "super_secret"),

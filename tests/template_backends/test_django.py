@@ -125,6 +125,15 @@ class DjangoTemplatesTests(TemplateStringsTests):
         self.assertIsInstance(cm.exception.__cause__, ImportError)
 
     def test_builtins_discovery(self):
+        """
+        Tests the discovery of built-in template tags in the Django template engine.
+
+        This test case verifies that the template engine correctly loads and registers
+        built-in template tags, including default Django tags and custom tags specified
+        in the template engine's options. It checks that the built-in tags are properly
+        added to the engine's builtins list, ensuring they are available for use in
+        templates.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],

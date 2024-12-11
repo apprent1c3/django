@@ -448,6 +448,13 @@ class ModelFormBaseTest(TestCase):
                 fields = ("name", "age")
 
     def test_extra_field_modelform_factory(self):
+        """
+        Tests that ModelForm factory correctly raises an error when an unknown field is specified.
+
+        Verifies that attempting to create a ModelForm for a model (in this case, Person) with a field that does not exist on the model results in a FieldError exception with a relevant error message.
+
+        The test checks that a FieldError is raised when the 'no-field' field, which is not present in the Person model, is included in the list of fields passed to the ModelForm factory. The error message is expected to indicate that 'no-field' is an unknown field for the Person model.
+        """
         with self.assertRaisesMessage(
             FieldError, "Unknown field(s) (no-field) specified for Person"
         ):
@@ -505,6 +512,15 @@ class ModelFormBaseTest(TestCase):
         self.assertTrue(wf.is_valid())
 
     def test_limit_nonexistent_field(self):
+        """
+        Tests that specifying a nonexistent field in a ModelForm raises a FieldError.
+
+        This test case checks that when a field that does not exist in the model is specified in the ModelForm's Meta fields,
+        it correctly raises a FieldError with an informative error message. This ensures that the form validation catches
+        such mistakes and provides helpful feedback to developers.
+
+        The test verifies that the error message includes the name of the nonexistent field and the model for which it was specified.
+        """
         expected_msg = "Unknown field(s) (nonexistent) specified for Category"
         with self.assertRaisesMessage(FieldError, expected_msg):
 
@@ -526,6 +542,15 @@ class ModelFormBaseTest(TestCase):
                     fields = "url"  # note the missing comma
 
     def test_exclude_fields(self):
+        """
+        Tests that the exclude fields functionality in a model form works as expected.
+
+        Checks that when a field is excluded from the form using the exclude attribute in the form's Meta class,
+        it is correctly removed from the form's base fields. This ensures that the excluded field is not displayed
+        in the form and its data is not processed.
+
+        Verifies the expected behaviour by comparing the form's base fields with the expected list of fields.
+        """
         class ExcludeFields(forms.ModelForm):
             class Meta:
                 model = Category
@@ -599,6 +624,17 @@ class ModelFormBaseTest(TestCase):
         self.assertEqual(list(ConfusedForm.base_fields), ["name"])
 
     def test_mixmodel_form(self):
+        """
+
+        Tests that the MixModelForm correctly handles form fields when the model
+        definition is inherited. Ensures that the form does not allow multiple 'model'
+        definitions in the inheritance hierarchy, which could lead to issues with the
+        save method when dealing with multiple objects. The test verifies the expected
+        form fields are present and in the correct order.
+
+        :return: None
+
+        """
         class MixModelForm(BaseCategoryForm):
             """Don't allow more than one 'model' definition in the
             inheritance hierarchy.  Technically, it would generate a valid
@@ -643,6 +679,11 @@ class ModelFormBaseTest(TestCase):
 
     def test_bad_form(self):
         # First class with a Meta class wins...
+        """
+        Checks the base fields of a form that inherits from both ArticleForm and BaseCategoryForm, 
+        to ensure it contains the required fields. The expected fields are: headline, slug, pub_date, 
+        writer, article, categories, and status.
+        """
         class BadForm(ArticleForm, BaseCategoryForm):
             pass
 
@@ -674,6 +715,9 @@ class ModelFormBaseTest(TestCase):
             InvalidModelForm(instance=Category)
 
     def test_subcategory_form(self):
+        """
+        Tests the fields present in the SubCategoryForm by verifying that it inherits the base fields from its parent class, BaseCategoryForm, and checking if the fields 'name', 'slug', and 'url' are correctly included.
+        """
         class SubCategoryForm(BaseCategoryForm):
             """Subclassing without specifying a Meta on the class will use
             the parent's Meta (or the first parent in the MRO if there are
@@ -847,6 +891,13 @@ class ModelFormBaseTest(TestCase):
         self.assertEqual(m1.mode, mode)
 
     def test_renderer_kwarg(self):
+        """
+        Tests that the renderer keyword argument is properly passed to the ProductForm instance.
+
+        Verifies that when a custom renderer object is provided during the initialization of the ProductForm, it is correctly set as the renderer for the form.
+
+        This ensures that the form utilizes the specified renderer for rendering purposes, allowing for customization and flexibility in the rendering process.
+        """
         custom = object()
         self.assertIs(ProductForm(renderer=custom).renderer, custom)
 
@@ -1660,6 +1711,16 @@ class ModelFormBasicTests(TestCase):
         )
 
     def test_basic_creation(self):
+        """
+
+        Tests the basic creation of a Category object using the BaseCategoryForm.
+
+        Checks that an empty database has no Category objects, then creates a valid form
+        with name, slug, and url data. Verifies the form is valid and its cleaned data
+        matches the input. Saves the form to create a new Category object and checks that
+        the database now contains one Category object with the expected attributes.
+
+        """
         self.assertEqual(Category.objects.count(), 0)
         f = BaseCategoryForm(
             {
@@ -1696,6 +1757,18 @@ class ModelFormBasicTests(TestCase):
 
     def test_save_with_data_errors(self):
         # If you call save() with invalid data, you'll get a ValueError.
+        """
+
+        Tests the save functionality of the BaseCategoryForm with invalid data.
+
+        This test case ensures that the form correctly identifies and handles data errors, 
+        including empty required fields and invalid slug values. It verifies that the 
+        form's error dictionary is populated correctly and that the cleaned data dictionary 
+        only contains valid fields. Additionally, it checks that a ValueError is raised when 
+        attempting to save the form with invalid data, with a descriptive error message 
+        indicating that the category could not be created due to validation errors.
+
+        """
         f = BaseCategoryForm({"name": "", "slug": "not a slug!", "url": "foo"})
         self.assertEqual(f.errors["name"], ["This field is required."])
         self.assertEqual(
@@ -1714,6 +1787,12 @@ class ModelFormBasicTests(TestCase):
             f.save()
 
     def test_multi_fields(self):
+        """
+        TESTS WHETHER THE ArticleForm CLASS GENERATES THE CORRECT HTML WHEN RENDERED, 
+        WITH MULTIPLE FIELDS AND OPTIONS. IT VERIFIES THE FORM'S STRUCTURE AND CONTENT 
+        WHEN NOT BOUND TO ANY INSTANCE AND WHEN BOUND TO A SPECIFIC ARTICLE INSTANCE, 
+        ENSURING THAT ALL FIELDS AND SELECT OPTIONS ARE PRESENT AND PROPERLY POPULATED.
+        """
         self.create_basic_data()
         self.maxDiff = None
         # ManyToManyFields are represented by a MultipleChoiceField, ForeignKeys and any
@@ -2093,6 +2172,9 @@ class ModelFormBasicTests(TestCase):
         )
 
     def test_validate_foreign_key_to_model_with_overridden_manager(self):
+        """
+        Tests the validation of a foreign key in a ModelForm when the related model's manager has been overridden, ensuring the form can correctly validate and save the relationship. Specifically, it verifies that the form can handle a foreign key to a model instance that would typically be excluded by the default manager, but is included due to the override. The test case covers form initialization, validation, and saving, checking that the foreign key relationship is correctly established in the saved model instance.
+        """
         class MyForm(forms.ModelForm):
             class Meta:
                 model = Article
@@ -2569,6 +2651,9 @@ class FileAndImageFieldTests(TestCase):
         self.assertIn("myfile-clear", rendered)
 
     def test_render_empty_file_field(self):
+        """
+        Tests the rendering of an empty file field within a form to ensure it correctly generates the expected HTML input element for file uploads, specifically verifying that the output matches the standard HTML structure for a file input field when the form is initialized with an instance of the Document model that has no file attached.
+        """
         class DocumentForm(forms.ModelForm):
             class Meta:
                 model = Document
@@ -3413,6 +3498,13 @@ class LimitChoicesToTests(TestCase):
         self.assertSequenceEqual(fields["has_fooled_today"].queryset, [self.threepwood])
 
     def test_callable_called_each_time_form_is_instantiated(self):
+        """
+        Tests that the callable passed to the limit_choices_to parameter of a form field is invoked every time the form is instantiated.
+
+        This test case verifies that the callable is called once for each form instance created, ensuring that the choices are dynamically updated on each instantiation.
+
+        The test uses a mock object to track the call count of the callable, confirming that it increments as expected with each successive form instantiation.
+        """
         field = StumpJokeForm.base_fields["most_recently_fooled"]
         with mock.patch.object(field, "limit_choices_to") as today_callable_dict:
             StumpJokeForm()
@@ -3638,6 +3730,16 @@ class FormFieldCallbackTests(SimpleTestCase):
 
 class LocalizedModelFormTest(TestCase):
     def test_model_form_applies_localize_to_some_fields(self):
+        """
+
+        Tests that a model form applies localization to specified fields.
+
+        This function verifies that a model form correctly localizes certain fields
+        as defined in its Meta class. It creates a form instance with sample data,
+        checks that the form is valid, and then confirms that localization is
+        applied to the expected fields and not to others.
+
+        """
         class PartiallyLocalizedTripleForm(forms.ModelForm):
             class Meta:
                 model = Triple

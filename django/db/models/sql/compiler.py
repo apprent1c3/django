@@ -329,6 +329,26 @@ class SQLCompiler:
         return ret, klass_info, annotations
 
     def _order_by_pairs(self):
+        """
+        Orders the query results based on the specified fields.
+
+        The ordering is determined by the following rules:
+        - If extra ordering is specified, it is used.
+        - If a default ordering is defined, it is used.
+        - Otherwise, the ordering specified in the query is used.
+        - If no ordering is specified, an empty list is used.
+
+        Each field in the ordering is processed separately:
+        - If the field is an expression, it is resolved and used for ordering.
+        - If the field is a value, it is cast to the correct type and used for ordering.
+        - If the field is a special identifier (e.g., '?'), a random ordering is used.
+        - If the field is a column name, the column is used for ordering.
+        - If the field is a transformed column (e.g., 'field__name'), the transformed column is used for ordering.
+
+        The ordering direction (ascending or descending) is determined by the `standard_ordering` attribute of the query. If `standard_ordering` is `True`, the ordering is ascending; otherwise, it is descending.
+
+        Yields tuples containing the ordered field and a boolean indicating whether the field is a selected expression.
+        """
         if self.query.extra_order_by:
             ordering = self.query.extra_order_by
         elif not self.query.default_ordering:
@@ -528,6 +548,23 @@ class SQLCompiler:
         return result
 
     def get_extra_select(self, order_by, select):
+        """
+
+        Returns additional select columns required for the current query.
+
+        This method determines which columns need to be included in the select clause
+        beyond the explicitly specified columns, in order to support ordering operations.
+        It considers the query's distinctness, ordering expressions, and referenced fields.
+
+        The returned list contains tuples, each representing an extra select column.
+        These tuples include the expression, its SQL representation, and additional metadata.
+        The results can be used to construct a complete and valid SQL query.
+
+        :param order_by: The ordering expressions for the query
+        :param select: The base select columns for the query
+        :rtype: list[tuple]
+
+        """
         extra_select = []
         if self.query.distinct and not self.query.distinct_fields:
             select_sql = [t[1] for t in select]
@@ -568,6 +605,23 @@ class SQLCompiler:
         return sql, params
 
     def get_combinator_sql(self, combinator, all):
+        """
+
+        Generates the SQL for combining multiple queries using a specified combinator.
+
+        The combinator can be 'union', 'intersection', 'difference', or any other operator
+        supported by the database backend. The generated SQL takes into account the
+        database features and limitations, such as the ability to use LIMIT/OFFSET and
+        ORDER BY in subqueries.
+
+        If the `all` parameter is True and the combinator is 'union', the ALL keyword is
+        appended to the combinator. The function also handles empty result sets and
+        raises exceptions as needed.
+
+        Returns a tuple containing the combined SQL and the parameters to be used with
+        the SQL.
+
+        """
         features = self.connection.features
         compilers = [
             query.get_compiler(self.using, self.connection, self.elide_empty)
@@ -647,6 +701,22 @@ class SQLCompiler:
         return part_sql, part_args
 
     def get_qualify_sql(self):
+        """
+        Generates the SQL query for the QUALIFY clause.
+
+        The QUALIFY clause is used to filter rows based on window function results.
+        This method takes the conditions provided in the QUALIFY clause,
+        rewrites the query to include the necessary subqueries and aliases,
+        and returns the generated SQL query and its parameters.
+
+        It handles complex expressions, including window functions and alias replacement,
+        to ensure that the generated SQL query is correct and efficient.
+
+        The method returns a tuple containing the generated SQL query as a list of strings,
+        and the query parameters as a list of values.
+        The SQL query includes the subquery, QUALIFY condition, and any ORDER BY clauses,
+        all properly formatted and quoted according to the database connection's dialect.
+        """
         where_parts = []
         if self.where:
             where_parts.append(self.where)

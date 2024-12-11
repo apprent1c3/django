@@ -30,6 +30,12 @@ class CycleTagTests(SimpleTestCase):
 
     @setup({"cycle11": "{% cycle 'a' 'b' 'c' as abc %}{% cycle abc %}{% cycle abc %}"})
     def test_cycle11(self):
+        """
+        Tests the functionality of the cycle tag in a templating engine, 
+         specifically when a named cycle is referenced and then cycled through multiple times. 
+         The test verifies that the rendered output is as expected, 
+         checking that the template engine correctly handles the cycle semantics.
+        """
         output = self.engine.render_to_string("cycle11")
         self.assertEqual(output, "abc")
 
@@ -102,6 +108,16 @@ class CycleTagTests(SimpleTestCase):
         }
     )
     def test_cycle21(self):
+        """
+
+        Tests the behavior of the 'cycle' template tag when combined with the 'force_escape' filter.
+
+        Verifies that the output of the cycle tag is properly escaped when used in conjunction with 'force_escape', 
+        resulting in the correct escaping of special characters such as ampersands (&).
+
+        Ensures that the rendered output matches the expected escaped string.
+
+        """
         output = self.engine.render_to_string(
             "cycle21", {"two": "C & D", "one": "A & B"}
         )

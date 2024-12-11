@@ -63,6 +63,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return quoted
 
     def _is_limited_data_type(self, field):
+        """
+        Checks if a given database field has a limited data type.
+
+        The function determines the database type of the provided field and checks if it is one of the limited data types supported by the database connection. It returns True if the field has a limited data type, False otherwise. This is useful for identifying fields that may have restrictions or limitations on the data they can store.
+        """
         db_type = field.db_type(self.connection)
         return (
             db_type is not None
@@ -70,10 +75,35 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def _is_text_or_blob(self, field):
+        """
+        Check if a database field type is text or blob.
+
+        Determines whether a given field corresponds to a text or blob data type in the database.
+        The check is performed based on the field's database type, which is retrieved using the current connection.
+
+        :returns: True if the field type is text or blob, False otherwise
+        :param field: The field to check
+
+        """
         db_type = field.db_type(self.connection)
         return db_type and db_type.lower().endswith(("blob", "text"))
 
     def skip_default(self, field):
+        """
+
+        Determines whether a field should be skipped due to its default value.
+
+        This method checks if the default value of a field is empty and if the field
+        is of a text or blob type. If both conditions are met, it returns True, 
+        indicating that the field should be skipped. It also considers the database's 
+        capability to support limited data type defaults. If the database does not 
+        support this feature, it checks if the field is of a limited data type and 
+        returns True if so. Otherwise, it returns False.
+
+        :param field: The field to check for skipping
+        :rtype: bool
+
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -126,6 +156,19 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             )
 
     def remove_constraint(self, model, constraint):
+        """
+        Removes a constraint from a model.
+
+        This method overrides the base class's remove_constraint method to provide 
+        additional functionality for UniqueConstraints. If the constraint being 
+        removed is a UniqueConstraint and it has a create SQL statement, this method 
+        ensures that any missing foreign key index is created before removing the 
+        constraint. This helps maintain data consistency and facilitates smooth 
+        database schema evolution.
+
+        :param model: The model from which the constraint is being removed
+        :param constraint: The constraint to be removed
+        """
         if (
             isinstance(constraint, UniqueConstraint)
             and constraint.create_sql(model, self) is not None
@@ -262,6 +305,18 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return "", []
 
     def _comment_sql(self, comment):
+        """
+
+        Appends a SQL comment to a query string.
+
+        This method takes a comment as input, obtains the formatted SQL comment string 
+        from its parent class and returns the comment string prefixed with 'COMMENT'.
+        The resulting string is suitable for inclusion in a SQL query.
+
+        :param comment: The comment to be added to the SQL query.
+        :return: A SQL comment string.
+
+        """
         comment_sql = super()._comment_sql(comment)
         return f" COMMENT {comment_sql}"
 

@@ -126,6 +126,15 @@ class SimpleIndexesTests(SimpleTestCase):
             )
 
     def test_opclasses_and_fields_same_length(self):
+        """
+        Tests that the Index class validates the length of its fields and opclasses.
+
+        Ensures that an error is raised when the number of fields does not match the number of specified opclasses, as both must have the same length.
+
+        Raises:
+            ValueError: If Index.fields and Index.opclasses have different lengths.
+
+        """
         msg = "Index.fields and Index.opclasses must have the same number of elements."
         with self.assertRaisesMessage(ValueError, msg):
             models.Index(
@@ -225,6 +234,25 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_condition(self):
+        """
+        Tests the deconstruction of a database index with a condition.
+
+        This test case verifies that an index with a condition can be successfully
+        deconstructed into its constituent parts. The index is created with a specific
+        name, fields, and a condition, and then its deconstructed path, arguments, and
+        keyword arguments are checked against the expected values. The test ensures that
+        the index's name is correctly updated when set with a model, and that the
+        deconstructed parts match the initial index configuration.
+
+        The test covers the scenario where an index has a condition applied to it,
+        in this case, a filter on the number of pages in a book. The deconstruction
+        process is expected to preserve this condition and include it in the keyword
+        arguments of the deconstructed index. 
+
+        This test is important to ensure that indices with conditions can be properly
+        serialized and deserialized, which is crucial for database migrations and
+        reproducibility of database schema changes.
+        """
         index = models.Index(
             name="big_book_index",
             fields=["title"],
@@ -244,6 +272,18 @@ class SimpleIndexesTests(SimpleTestCase):
         )
 
     def test_deconstruct_with_include(self):
+        """
+        Tests the deconstruct method of an Index object with include fields.
+
+        Verifies that the Index object can be successfully deconstructed into its path, 
+        arguments, and keyword arguments. The test checks that the resulting path is 
+        correct, and that the keyword arguments accurately reflect the Index's fields, 
+        name, and include fields.
+
+        This test ensures that the deconstruct method correctly handles Index objects 
+        with include fields, allowing for the creation of a new, identical Index object 
+        from the deconstructed parts.
+        """
         index = models.Index(
             name="book_include_idx",
             fields=["title"],
@@ -276,6 +316,18 @@ class SimpleIndexesTests(SimpleTestCase):
         self.assertEqual(index.fields, new_index.fields)
 
     def test_clone_with_expressions(self):
+        """
+        Tests the clone functionality of an Index object containing expressions.
+
+        Verifies that cloning an index creates a distinct object while preserving its
+        expressions, ensuring that both the original and cloned indexes have the same
+        functionality.
+
+        The test specifically checks for two conditions:
+        - The cloned index is a different object than the original.
+        - The expressions used in the original index are identical to those in the cloned index.
+
+        """
         index = models.Index(Upper("title"), name="book_func_idx")
         new_index = index.clone()
         self.assertIsNot(index, new_index)

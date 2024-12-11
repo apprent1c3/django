@@ -47,6 +47,14 @@ class ContentTypesTests(TestCase):
             ContentType.objects.get_by_natural_key("contenttypes", "contenttype")
 
     def test_get_for_models_creation(self):
+        """
+        Tests the `get_for_models` method of the `ContentType` manager by retrieving content types for multiple models.
+
+        This test ensures that the method fetches the content types for the specified models in an efficient manner, 
+        retrieving all content types in a single database query. It then verifies that the returned content types match 
+        the expected values for each model. The test case covers various model types, including a content type itself, 
+        a model with a URL, a proxy model, and a concrete model.
+        """
         ContentType.objects.all().delete()
         with self.assertNumQueries(4):
             cts = ContentType.objects.get_for_models(
@@ -297,6 +305,16 @@ class ContentTypesTests(TestCase):
         )
 
     def test_str(self):
+        """
+        Tests the string representation of a ContentType object.
+
+        This test case verifies that the string representation of a ContentType object
+        is correctly formatted as \"app_label | model\", ensuring that the app label is
+        title-cased and separated from the model name by a vertical bar and a space.
+
+        The test uses a ContentType object for the 'site' model in the 'contenttypes_tests'
+        app, and checks that its string representation matches the expected format.
+        """
         ct = ContentType.objects.get(app_label="contenttypes_tests", model="site")
         self.assertEqual(str(ct), "Contenttypes_Tests | site")
 
@@ -366,6 +384,9 @@ class GenericPrefetchTests(TestCase):
             GenericPrefetch("question", [Author.objects.values_list("pk")])
 
     def test_raw_queryset(self):
+        """
+        Tests that attempting to use raw querysets with GenericPrefetch raises a ValueError, as raw querysets are incompatible with prefetching and will raise an error.
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             GenericPrefetch("question", [Author.objects.raw("select pk from author")])

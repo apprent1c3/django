@@ -97,6 +97,11 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/author_detail.html")
 
     def test_detail_by_pk_ignore_slug_mismatch(self):
+        """
+        Tests that an author's detail page can be successfully retrieved by their primary key, even when the slug in the URL does not match the author's actual slug.
+
+        The test checks that the HTTP request is successful (200 status code), that the expected author object is retrieved, and that the correct template is used to render the page.
+        """
         res = self.client.get(
             "/detail/author/bypkignoreslug/%s-scott-rosenberg/" % self.author1.pk
         )
@@ -121,6 +126,16 @@ class DetailViewTest(TestCase):
         self.assertEqual(res.status_code, 404)
 
     def test_verbose_name(self):
+        """
+
+        Tests the rendering of the artist detail view with verbose naming, verifying the 
+        correct status code, data passed to the template, and the template itself.
+
+        Checks that the HTTP response status code is 200 (OK), the correct artist object 
+        is provided to the template, and the 'generic_views/artist_detail.html' template 
+        is used for rendering the page.
+
+        """
         res = self.client.get("/detail/artist/%s/" % self.artist1.pk)
         self.assertEqual(res.status_code, 200)
         self.assertEqual(res.context["object"], self.artist1)
@@ -151,6 +166,17 @@ class DetailViewTest(TestCase):
         self.assertTemplateUsed(res, "generic_views/page_template.html")
 
     def test_context_object_name(self):
+        """
+        Tests the rendering of an author detail page with the correct context object name.
+
+        This test checks that the view returns a successful response (200 status code), 
+        renders the correct template ('generic_views/author_detail.html'), 
+        and populates the template context with the correct objects, 
+        including the author object under the expected name. 
+
+        It also verifies that the context does not contain an 'author' key, 
+        which is a test of the naming convention used for the context variable.
+        """
         res = self.client.get(
             "/detail/author/%s/context_object_name/" % self.author1.pk
         )

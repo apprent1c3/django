@@ -47,6 +47,15 @@ if is_psycopg3:
 
     @lru_cache
     def postgis_adapters(geo_oid, geog_oid, raster_oid):
+        """
+        Returns a pair ofPostGIS-dedicated dumper classes (text and binary) for serializing PostGIS geometry, geography, and raster data.
+
+        The dumpers are designed to work with the given PostGIS object identifiers (`geo_oid`, `geog_oid`, `raster_oid`) and provide functionality for identifying the type of PostGIS object (`Geometry`, `Geography`, or `Raster`) and upgrading it to the corresponding dumper.
+
+        The returned dumper classes are `PostGISTextDumper` and `PostGISBinaryDumper`, which inherit from `BaseDumper` and provide a base implementation for dumping PostGIS data in text and binary formats, respectively.
+
+        These dumpers can be used to serialize PostGIS data in a format-appropriate manner, leveraging the PostGIS-specific object identifiers and dumper classes. Implementers of these dumpers are expected to provide an implementation for the `dump` method, which is currently not implemented and raises a `NotImplementedError`.
+        """
         class BaseDumper(Dumper):
             def __init_subclass__(cls, base_dumper):
                 super().__init_subclass__()

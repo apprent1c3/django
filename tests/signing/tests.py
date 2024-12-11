@@ -52,6 +52,12 @@ class TestSigner(SimpleTestCase):
         )
 
     def test_invalid_algorithm(self):
+        """
+        Tests that an InvalidAlgorithm exception is raised when an unsupported algorithm is passed to the Signer.
+
+        This function verifies that attempting to sign a message with an unknown algorithm fails with the correct error message.
+
+        """
         signer = signing.Signer(key="predictable-secret", algorithm="whatever")
         msg = "'whatever' is not an algorithm accepted by the hashlib module."
         with self.assertRaisesMessage(InvalidAlgorithm, msg):
@@ -74,6 +80,15 @@ class TestSigner(SimpleTestCase):
             self.assertEqual(example, signer.unsign(signed))
 
     def test_sign_unsign_non_string(self):
+        """
+
+        Tests the signing and verification of non-string values with a predictable secret key.
+
+        This test case verifies that the signer can correctly sign and unsign various non-string data types,
+        including integers, floats, booleans, and dates. It checks that the signed output is a string and
+        does not match the original value, and that unsigning the output returns the original value as a string.
+
+        """
         signer = signing.Signer(key="predictable-secret")
         values = [
             123,
@@ -180,6 +195,17 @@ class TestSigner(SimpleTestCase):
                 signing.Signer(sep=sep)
 
     def test_verify_with_non_default_key(self):
+        """
+        Verifies that a signed value can be unsign and verified using a signer with a non-default key and fallback keys.
+
+        This test case checks the scenario where data is signed using an older key, and then verified using a newer key
+        that has the older key as a fallback. It ensures that the verification process correctly handles the key transition
+        and successfully unsigns the data.
+
+        The test uses a fallback key mechanism to simulate a key rotation scenario, ensuring that the signing and unsigning
+        process remains compatible even when the key is changed. The test validates that the signed data remains valid
+        and can be correctly unsign and verified using the new key with fallback keys.
+        """
         old_signer = signing.Signer(key="secret")
         new_signer = signing.Signer(
             key="newsecret", fallback_keys=["othersecret", "secret"]

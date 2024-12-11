@@ -72,6 +72,21 @@ class TimezoneTests(SimpleTestCase):
             timezone.deactivate()
 
     def test_override_decorator(self):
+        """
+        Tests the behavior of the timezone override decorator.
+
+        This function checks that the timezone override decorator successfully sets the 
+        current timezone to the specified value, and that it reverts to the default 
+        timezone when the override is set to None. The test also verifies that the 
+        timezone is correctly activated and deactivated, and that the override decorator 
+        works as expected in both cases.
+
+        The function tests the following scenarios:
+        - Override with a specific timezone (EAT)
+        - Override with no timezone (None)
+        - Activation and deactivation of a timezone (ICT)
+        - Reversion to the default timezone after override and activation/deactivation
+        """
         default = timezone.get_default_timezone()
 
         @timezone.override(EAT)
@@ -126,6 +141,15 @@ class TimezoneTests(SimpleTestCase):
         self.assertTrue(timezone.is_naive(datetime.datetime(2011, 9, 1, 13, 20, 30)))
 
     def test_make_aware(self):
+        """
+        Tests the timezone.make_aware function to ensure it correctly assigns timezone information to a datetime object.
+
+        The function is expected to assign the provided timezone to a naive datetime object, and raise a ValueError if the datetime object is already timezone-aware.
+
+        This test covers two main scenarios: 
+        - Creating an aware datetime from a naive one using the provided timezone.
+        - Handling the case where a datetime object is already timezone-aware, to prevent overwriting existing timezone information.
+        """
         self.assertEqual(
             timezone.make_aware(datetime.datetime(2011, 9, 1, 13, 20, 30), EAT),
             datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT),
@@ -136,6 +160,24 @@ class TimezoneTests(SimpleTestCase):
             )
 
     def test_make_naive(self):
+        """
+
+        Test the functionality of making a timezone-aware datetime object naive.
+
+        This test case verifies that the make_naive function correctly removes the timezone information from a datetime object and converts it to the desired timezone. It also checks that the function raises a ValueError when applied to a naive datetime object, which does not contain any timezone information.
+
+        The test covers various scenarios, including converting between different timezones and handling invalid input. The expected output is a naive datetime object with the correct date and time.
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Raises:
+            ValueError: If the input datetime object is naive.
+
+        """
         self.assertEqual(
             timezone.make_naive(
                 datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT), EAT

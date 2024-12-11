@@ -11,6 +11,9 @@ from ..models import Author
 class NullIfTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a set of authors with predefined names and aliases to be used in subsequent tests.
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda", alias="Rhonda")
 

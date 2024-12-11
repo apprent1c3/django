@@ -150,6 +150,15 @@ class InspectDBTestCase(TestCase):
     @skipUnlessDBFeature("supports_collation_on_charfield")
     @skipUnless(test_collation, "Language collations are not supported.")
     def test_char_field_db_collation(self):
+        """
+
+        Tests whether the Django inspectdb management command correctly inspects a model's CharField
+        and generates the corresponding field definition with database collation.
+
+        This test checks if the command produces the expected output for a CharField with a specified
+        database collation, taking into account the database's behavior regarding empty strings and null values.
+
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_charfielddbcollation", stdout=out)
         output = out.getvalue()
@@ -396,6 +405,21 @@ class InspectDBTestCase(TestCase):
         )
 
     def test_unique_together_meta(self):
+        """
+        Tests the metadata inspection of unique together constraints.
+
+        Verifies that the inspectdb management command correctly identifies and outputs
+        unique together constraints from the database schema. The test checks for the
+        presence of unique together constraints in the output, and ensures that the
+        expected fields are correctly identified as being part of a unique together
+        constraint.
+
+        The test covers the following scenarios:
+
+        * The presence of unique together constraints in the output
+        * The correct identification of fields as part of a unique together constraint
+        * The handling of non-unique columns in the unique together constraint
+        """
         out = StringIO()
         call_command("inspectdb", "inspectdb_uniquetogether", stdout=out)
         output = out.getvalue()
@@ -601,6 +625,21 @@ class InspectDBTransactionalTests(TransactionTestCase):
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     def test_foreign_data_wrapper(self):
+        """
+
+        Tests the automatic creation of a Django model from a PostgreSQL foreign data wrapper table.
+
+        This test case creates a foreign data wrapper table, then uses the inspectdb command
+        to generate a corresponding Django model. It checks that the generated model is correct
+        and contains the expected fields and attributes, including the managed=False flag
+        indicating that the table is not managed by Django.
+
+        The test assumes a PostgreSQL database connection and requires the file_fdw extension
+        to be available. If the connection vendor is not PostgreSQL, this test is skipped.
+
+        After running the test, the foreign data wrapper table, server, and extension are cleaned up.
+
+        """
         with connection.cursor() as cursor:
             cursor.execute("CREATE EXTENSION IF NOT EXISTS file_fdw")
             cursor.execute(

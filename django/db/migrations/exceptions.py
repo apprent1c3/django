@@ -41,6 +41,15 @@ class NodeNotFoundError(LookupError):
     """An attempt on a node is made that is not available in the graph."""
 
     def __init__(self, message, node, origin=None):
+        """
+        Initializes a new instance of the class.
+
+        :param message: The message associated with the instance.
+        :param node: The node related to the instance.
+        :param origin: The origin of the instance, optional.
+
+        This method sets up the initial state of the class instance, storing the provided message, node, and optional origin for later use. 
+        """
         self.message = message
         self.origin = origin
         self.node = node

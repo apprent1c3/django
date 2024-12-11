@@ -58,6 +58,19 @@ class OperationTestCase(TransactionTestCase):
             return migration.apply(project_state, editor)
 
     def set_up_test_model(self, force_raster_creation=False):
+        """
+
+        Sets up a test model for use in testing.
+
+        This function creates a basic test model named 'Neighborhood' with fields for a unique identifier, name, and geometric shape.
+        The model may also include a raster field if the database supports it, or if raster creation is explicitly forced.
+
+        The function returns the current state of the project after applying the necessary model creation operations.
+
+        :param force_raster_creation: Optional parameter to control whether a raster field is included in the model, 
+                                      even if the database does not natively support it. Defaults to False.
+
+        """
         test_fields = [
             ("id", models.AutoField(primary_key=True)),
             ("name", models.CharField(max_length=100, unique=True)),
@@ -231,6 +244,17 @@ class OperationTests(OperationTestCase):
         self.assertColumnNotExists("gis_neighborhood", "rast")
 
     def test_create_model_spatial_index(self):
+        """
+        Tests the creation of a spatial index for a model.
+
+        Verifies that a spatial index exists for the 'geom' field of the 'gis_neighborhood' model.
+        If the database connection supports raster data types, this test also checks for the existence of a spatial index on the 'rast' field.
+
+        This test is skipped if the database does not support spatial indexes.
+
+        :raises AssertionError: If the expected spatial index does not exist.
+
+        """
         if not self.has_spatial_indexes:
             self.skipTest("No support for Spatial indexes")
 

@@ -37,6 +37,9 @@ class FileTests(unittest.TestCase):
         self.assertIs(type(repr(uf)), str)
 
     def test_unicode_file_name(self):
+        """
+        Tests the representation of a file object with a Unicode file name, ensuring it results in a string. This guarantees that the file object's representation can handle non-ASCII characters in the file name, providing a human-readable output.
+        """
         f = File(None, "djángö")
         self.assertIs(type(repr(f)), str)
 
@@ -50,6 +53,16 @@ class FileTests(unittest.TestCase):
         self.assertTrue(orig_file.closed)
 
     def test_open_resets_opened_file_to_start_and_returns_context_manager(self):
+        """
+        Verifies that opening a file resetting its position to the start and returns a context manager.
+
+        The purpose of this test is to ensure that when a file that has already been partially or fully read is reopened,
+        its internal position is properly reset to the beginning. This allows for multiple reads of the same file
+        without having to manually seek back to the start.
+
+        Additionally, it checks that the opened file is returned as a context manager, which supports the 'with' statement
+        and automatically handles the proper closing of the file after use, regardless of whether an exception occurs or not.
+        """
         file = File(BytesIO(b"content"))
         file.read()
         with file.open() as f:
@@ -132,6 +145,14 @@ class FileTests(unittest.TestCase):
         self.assertEqual(list(f), [b"one\r\n", b"two\r\n", b"three"])
 
     def test_file_iteration_with_mac_newline_at_chunk_boundary(self):
+        """
+
+        Tests the iteration of a file with contents that contain a Mac-style newline character (\r)
+        at the boundary of a chunk, ensuring that the file is correctly split into chunks.
+        The test verifies that the resulting chunks accurately represent the original file contents,
+        even when a newline character falls at the end of a chunk.
+
+        """
         f = File(BytesIO(b"one\rtwo\rthree"))
         # Set chunk size to create a boundary after \r:
         # b'one\r...

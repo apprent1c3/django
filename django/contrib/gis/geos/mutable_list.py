@@ -60,6 +60,13 @@ class ListMixin:
     # ### Python initialization and special list interface methods ###
 
     def __init__(self, *args, **kwargs):
+        """
+        Initialize the class instance, setting internal helper methods if they do not exist and configuring the object's state.
+
+        This method is responsible for setting up the instance's internal state, specifically the methods used for getting and setting single values, as well as handling extended slice assignments. If the internal methods '_get_single_internal', '_set_single', or '_assign_extended_slice' are not already defined, it sets them to their corresponding external or rebuild variants.
+
+        It then calls the superclass's __init__ method to complete the initialization process, passing any provided arguments. This ensures that the instance is properly set up and ready for use.
+        """
         if not hasattr(self, "_get_single_internal"):
             self._get_single_internal = self._get_single_external
 
@@ -275,6 +282,16 @@ class ListMixin:
         newVals = dict(zip(indexList, valueList))
 
         def newItems():
+            """
+            Generates a sequence of new items, prioritizing predefined values when available.
+
+             For each index in the range of new items, this function returns either a predefined value 
+             if one is specified, or a newly generated internal value if not. The generated sequence 
+             yields these values one at a time, allowing for efficient processing of large datasets.
+
+             :return: A generator yielding the new items in sequence.
+             :rtype: generator
+            """
             for i in range(newLen):
                 if i in newVals:
                     yield newVals[i]

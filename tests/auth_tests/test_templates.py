@@ -31,6 +31,19 @@ class AuthTemplateTests(TestCase):
         cls.user, cls.request = user, request
 
     def test_password_reset_view(self):
+        """
+
+        Tests the password reset view functionality.
+
+        This test checks if the password reset view returns the correct HTML response,
+        including the expected title and heading elements.
+
+        The test verifies that the view renders the password reset page with the
+        correct title and a heading that matches the expected content.
+
+        :returns: None
+
+        """
         response = PasswordResetView.as_view(success_url="dummy/")(self.request)
         self.assertContains(
             response, "<title>Password reset | Django site admin</title>"
@@ -105,6 +118,12 @@ class AuthTemplateTests(TestCase):
         )
 
     def test_password_reset_complete_view(self):
+        """
+        Tests the password reset complete view to ensure it returns a successful response with the expected title and heading.
+
+        This test case verifies that the PasswordResetCompleteView functions correctly by checking for the presence of specific HTML elements in the response.
+        The view is expected to return a page with the title 'Password reset complete | Django site admin' and a heading 'Password reset complete', confirming that the password reset process has been completed successfully.
+        """
         response = PasswordResetCompleteView.as_view()(self.request)
         self.assertContains(
             response, "<title>Password reset complete | Django site admin</title>"

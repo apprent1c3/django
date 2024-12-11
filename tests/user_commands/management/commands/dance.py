@@ -13,6 +13,20 @@ class Command(BaseCommand):
         parser.add_argument("--opt-3", action="store_true", dest="option3")
 
     def handle(self, *args, **options):
+        """
+
+        Handles a command with flexible options and positional arguments.
+
+        This function accepts various options such as 'example', 'verbosity', 'style', and 'integer'. 
+        It executes different actions based on these options. If 'example' is set to 'raise', 
+        it throws a CommandError with a return code of 3. Otherwise, it writes messages to the standard output 
+        depending on the 'verbosity' and 'integer' options. The function also echoes the 'style' option 
+        if 'verbosity' is greater than 0, and lists all provided options.
+
+        :param args: Variable number of positional arguments
+        :param options: Dictionary of options including 'example', 'verbosity', 'style', and 'integer'
+
+        """
         example = options["example"]
         if example == "raise":
             raise CommandError(returncode=3)

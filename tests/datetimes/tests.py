@@ -176,6 +176,13 @@ class DateTimesTests(TestCase):
         )
 
     def test_datetimes_disallows_date_fields(self):
+        """
+        Tests that datetimes lookup does not allow date fields, raising a ValueError when attempting to truncate a DateField to a DateTimeField.
+
+        Verifies that using the :meth:`datetimes` method with a date field raises a :class:`ValueError` exception, ensuring that date fields are not inadvertently converted to datetime fields, potentially losing time information.
+
+        The test creates an Article object with both a datetime and a date field, then attempts to retrieve datetime values from the date field, expecting the method to raise an error due to the incompatibility of the field types.
+        """
         dt = datetime.datetime(2005, 7, 28, 12, 15)
         Article.objects.create(
             pub_date=dt,
@@ -196,6 +203,11 @@ class DateTimesTests(TestCase):
             Article.objects.datetimes("pub_date", "bad_kind")
 
     def test_datetimes_fails_when_given_invalid_order_argument(self):
+        """
+        Tests that :meth:`Article.objects.datetimes` raises a ValueError when an invalid 'order' argument is provided.
+
+        It verifies that the function correctly handles invalid order parameters by checking that it raises a ValueError with the expected error message, ensuring that only 'ASC' or 'DESC' order values are accepted.
+        """
         msg = "'order' must be either 'ASC' or 'DESC'."
         with self.assertRaisesMessage(ValueError, msg):
             Article.objects.datetimes("pub_date", "year", order="bad order")

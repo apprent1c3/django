@@ -20,6 +20,16 @@ class TemplateStringsTests(SimpleTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the class with a configured engine instance.
+
+        This method is responsible for initializing the class-level setup before any class-level tests are run.
+        It creates an instance of the engine class using the provided backend name and options, 
+        and assigns it to the class attribute `engine`. This allows the class to use the engine 
+        for subsequent tests or operations.
+
+        """
         super().setUpClass()
         params = {
             "DIRS": [],
@@ -47,6 +57,15 @@ class TemplateStringsTests(SimpleTestCase):
     def test_get_template_syntax_error(self):
         # There's no way to trigger a syntax error with the dummy backend.
         # The test still lives here to factor it between other backends.
+        """
+        Tests that a TemplateSyntaxError is raised when attempting to retrieve a template with syntax errors.
+
+        This test ensures the template engine correctly handles templates containing invalid syntax.
+        It specifically targets templates that are expected to produce a syntax error, verifying that
+        the engine raises the expected exception when encountering such errors.
+
+        The test is skipped when using the 'dummy' backend, as it does not apply in that context.
+        """
         if self.backend_name == "dummy":
             self.skipTest("test doesn't apply to dummy backend")
         with self.assertRaises(TemplateSyntaxError):

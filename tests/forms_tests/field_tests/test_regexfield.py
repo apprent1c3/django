@@ -61,6 +61,22 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("12345a")
 
     def test_regexfield_unicode_characters(self):
+        """
+        Tests the RegexField's handling of unicode characters.
+
+        This test checks whether the RegexField correctly validates and cleans strings
+        containing non-ASCII characters, ensuring that it allows the passage of valid
+        unicode characters without modification or corruption.
+
+        The test case specifically targets the regular expression pattern '^\\w+$',
+        which matches any word character (alphanumeric plus underscore), and verifies
+        that the field correctly handles a string containing a mix of European and
+        non-European unicode characters.
+
+        The test asserts that the cleaned output matches the original input, demonstrating
+        that the RegexField preserves the integrity of unicode characters during the
+        validation and cleaning process.
+        """
         f = RegexField(r"^\w+$")
         self.assertEqual("éèøçÎÎ你好", f.clean("éèøçÎÎ你好"))
 

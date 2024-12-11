@@ -86,6 +86,15 @@ class LeastTests(TestCase):
         self.assertEqual(author.alias, "James Smith")
 
     def test_decimal_filter(self):
+        """
+
+        Tests the decimal filter functionality by creating a DecimalModel object and 
+        verifying that the object is correctly filtered when using the Least annotation 
+        to compare decimal fields. The test checks if the object is returned when 
+        filtering by the least value of two decimal fields (n1 and n2) and ensures that 
+        the result set contains the expected object.
+
+        """
         obj = DecimalModel.objects.create(n1=Decimal("1.1"), n2=Decimal("1.2"))
         self.assertCountEqual(
             DecimalModel.objects.annotate(

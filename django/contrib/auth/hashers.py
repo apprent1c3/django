@@ -250,6 +250,18 @@ class BasePasswordHasher:
         )
 
     def _check_encode_args(self, password, salt):
+        """
+        Verifies that the provided password and salt are valid for encoding.
+
+        This method checks that a password has been supplied and that the salt is
+        present and does not contain any '$' characters. If either of these checks
+        fail, a corresponding error (TypeError or ValueError) is raised.
+
+        :param password: The password to be checked
+        :param salt: The salt to be used in encoding, must not be empty or contain '$'
+        :raises TypeError: If the password is not provided
+        :raises ValueError: If the salt is empty or contains '$'
+        """
         if password is None:
             raise TypeError("password must be provided.")
         if not salt or "$" in salt:
@@ -450,6 +462,13 @@ class Argon2PasswordHasher(BasePasswordHasher):
         }
 
     def must_update(self, encoded):
+        """
+        Determines whether the encoded parameters require an update.
+
+            The function compares the decoded parameters with the current parameters and checks 
+            if the salt entropy has changed, indicating a need for salt update. It returns True 
+            if either the parameters or the salt need updating, and False otherwise.
+        """
         decoded = self.decode(encoded)
         current_params = decoded["params"]
         new_params = self.params()
@@ -681,6 +700,16 @@ class MD5PasswordHasher(BasePasswordHasher):
         }
 
     def must_update(self, encoded):
+        """
+        .. method:: must_update(encoded)
+            :return: bool
+
+            Checks whether a given encoded string requires an update to maintain security.
+
+            The decision to update is based on the salt value encoded in the string, 
+            compared to the expected entropy of the salt. 
+            This ensures that the salt used is secure and follows the best practices.
+        """
         decoded = self.decode(encoded)
         return must_update_salt(decoded["salt"], self.salt_entropy)
 

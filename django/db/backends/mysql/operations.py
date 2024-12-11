@@ -86,6 +86,17 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"DATE({sql})", params
 
     def _prepare_tzname_delta(self, tzname):
+        """
+        Prepares a timezone name delta for further processing.
+
+        Extracts the sign and offset from a timezone name, and returns a string
+        representing the delta in the format '+offset' or '-offset'. If no offset
+        is present in the input timezone name, the original name is returned unchanged.
+
+        :param tzname: The input timezone name to process.
+        :return: A string representing the timezone delta.
+
+        """
         tzname, sign, offset = split_tzname_delta(tzname)
         return f"{sign}{offset}" if offset else tzname
 
@@ -271,6 +282,19 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def adapt_timefield_value(self, value):
+        """
+        Adapts a time field value for MySQL compatibility.
+
+        This function takes a time field value and adapts it to a format suitable for the MySQL backend.
+        It checks if the value is None, an expression, or timezone-aware, and raises an error if the latter.
+        Otherwise, it returns the value in ISO format with microseconds precision.
+
+        Returns:
+            None or str: The adapted time field value, or None if the input value is None.
+        Raises:
+            ValueError: If the input value is timezone-aware.
+
+        """
         if value is None:
             return None
 
@@ -316,6 +340,25 @@ class DatabaseOperations(BaseDatabaseOperations):
         return converters
 
     def convert_booleanfield_value(self, value, expression, connection):
+        """
+
+        Convert a boolean field value to a standard boolean representation.
+
+        This function takes a value, an expression, and a connection as input, 
+        and returns the value converted to a standard boolean value (True or False) 
+        if it is an integer representation (0 or 1) of a boolean.
+
+        The expression and connection parameters are not used in the conversion process.
+
+        The conversion is necessary because some databases may store boolean values as integers,
+        and this function ensures that the value is consistently represented as a boolean in Python.
+
+        :param value: The value to be converted.
+        :param expression: The expression related to the value (not used in conversion).
+        :param connection: The database connection (not used in conversion).
+        :rtype: bool
+
+        """
         if value in (0, 1):
             value = bool(value)
         return value
@@ -326,6 +369,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def convert_uuidfield_value(self, value, expression, connection):
+        """
+        Converts a UUID field value for use in a database query.
+
+        :param value: The UUID field value to convert. Can be a string or None.
+        :param expression: The expression for which the value is being converted.
+        :param connection: The database connection to use for the conversion.
+        :return: The converted UUID field value, or None if the input value is None.
+        :note: If the input value is not None, it is converted to a uuid.UUID object to ensure consistent representation.
+        """
         if value is not None:
             value = uuid.UUID(value)
         return value

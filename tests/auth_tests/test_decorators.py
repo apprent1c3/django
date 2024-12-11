@@ -142,6 +142,15 @@ class LoginNotRequiredTestCase(TestCase):
 
     def test_decorator_marks_view_as_login_not_required(self):
         @login_not_required
+        """
+
+        Tests that the @login_not_required decorator correctly marks a view as not requiring login.
+
+        This test case verifies that when the @login_not_required decorator is applied to a view function,
+        the view's login_required attribute is set to False, indicating that authentication is not necessary
+        to access the view.
+
+        """
         def view(request):
             return HttpResponse()
 
@@ -198,6 +207,11 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             {"auth_tests.add_customuser", "auth_tests.change_customuser"}
         )
+        """
+        Checks successful access to a protected view when a user possesses multiple required permissions. 
+
+        This test case verifies that a user with the necessary permissions in their set can successfully access a view that requires multiple permissions to be granted, returning a successful HTTP response.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -340,6 +354,13 @@ class UserPassesTestDecoratorTest(TestCase):
         return cls.user_deny
 
     def test_wrapped_sync_function_is_not_coroutine_function(self):
+        """
+        Tests that a synchronous function wrapped with user_passes_test remains a non-coroutine function.
+
+        Ensures that the decorator does not inadvertently convert a synchronous view function into a coroutine function, 
+        maintaining its original nature and avoiding potential issues with asynchronous handling. The test checks the 
+        wrapped function's type to confirm it does not become a coroutine function after decoration.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -373,6 +394,18 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_decorator_async_test_func(self):
+        """
+
+         Tests the behavior of the user_passes_test decorator when used with an asynchronous test function.
+
+         The test function checks if a user has the required permissions to access a view.
+         It asserts that a user with the necessary permissions is able to access the view (status code 200),
+         and a user without the necessary permissions is redirected (status code 302).
+
+         This test case ensures that the decorator correctly handles asynchronous permission checks and
+         applies the expected access control.
+
+        """
         async def async_test_func(user):
             return await sync_to_async(user.has_perms)(["auth_tests.add_customuser"])
 

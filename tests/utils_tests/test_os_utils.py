@@ -36,5 +36,17 @@ class ToPathTests(unittest.TestCase):
                 self.assertEqual(to_path(path), Path("/tmp/some_file.txt"))
 
     def test_to_path_invalid_value(self):
+        """
+        Test that passing an invalid value to the to_path function raises a TypeError.
+
+            Args:
+                None
+
+            Raises:
+                TypeError: When a non-path value is passed to the to_path function.
+
+            Notes:
+                This test case ensures the to_path function correctly handles invalid input by raising an exception, preventing potential errors or unexpected behavior.
+        """
         with self.assertRaises(TypeError):
             to_path(42)

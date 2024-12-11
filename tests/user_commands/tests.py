@@ -34,11 +34,33 @@ from .management.commands import dance
 )
 class CommandTests(SimpleTestCase):
     def test_command(self):
+        """
+
+        Tests the execution of the 'dance' management command.
+
+        Verifies that the command outputs the expected message when run, 
+        indicating that it is functioning as intended.
+
+        The test checks for the presence of a specific response string 
+        in the command's output, ensuring that the command is producing 
+        the expected result.
+
+        """
         out = StringIO()
         management.call_command("dance", stdout=out)
         self.assertIn("I don't feel like dancing Rock'n'Roll.\n", out.getvalue())
 
     def test_command_style(self):
+        """
+        Tests that the 'dance' management command handles style options correctly.
+
+        Verifies that the command responds with the expected message when the style
+        is specified using either the 'style' option or the '--style' flag, ensuring
+        consistent behavior regardless of the option format used.
+
+        The test checks for the expected output message, confirming that the command
+        handles the style option as expected and returns the correct response.
+        """
         out = StringIO()
         management.call_command("dance", style="Jive", stdout=out)
         self.assertIn("I don't feel like dancing Jive.\n", out.getvalue())
@@ -383,6 +405,13 @@ class CommandTests(SimpleTestCase):
         self.assertIn(expected_output, out.getvalue())
 
     def test_subparser(self):
+        """
+        Tests the subparser command with a specific set of arguments.
+
+        Verifies that the command behaves as expected when invoked with the 'foo' option and an integer value of 12.
+        The test checks that the command's output contains the expected string 'bar', indicating successful execution.
+
+        """
         out = StringIO()
         management.call_command("subparser", "foo", 12, stdout=out)
         self.assertIn("bar", out.getvalue())
@@ -456,6 +485,15 @@ class CommandRunTests(AdminScriptTestCase):
         self.assertEqual(out.strip(), "Set foo")
 
     def test_skip_checks(self):
+        """
+        Tests the functionality of skipping checks when setting an option using the manage command.
+
+        This test case verifies that when the --skip-checks flag is provided, the command does not perform any checks and sets the specified option successfully.
+
+        The test scenario includes setting up the necessary settings and then running the manage command with the --skip-checks and --set flags. It then asserts that no error messages are produced and the expected output is generated, confirming that the option was set correctly.
+
+        This ensures that the --skip-checks flag behaves as expected, allowing users to bypass checks when setting options via the manage command.
+        """
         self.write_settings(
             "settings.py",
             apps=["django.contrib.staticfiles", "user_commands"],

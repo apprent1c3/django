@@ -67,6 +67,15 @@ class XFrameOptionsSameoriginTests(SimpleTestCase):
 
     async def test_decorator_sets_x_frame_options_to_sameorigin_async_view(self):
         @xframe_options_sameorigin
+        """
+        Tests that the xframe_options_sameorigin decorator sets the X-Frame-Options header to 'SAMEORIGIN' for an asynchronous view.
+
+        This test case verifies the functionality of the xframe_options_sameorigin decorator when applied to an asynchronous view function.
+        It checks that the decorated view returns a response with the correct X-Frame-Options header value, which helps prevent clickjacking attacks by restricting the page from being framed by other sites.
+
+        The test confirms that the decorator correctly sets the X-Frame-Options header to 'SAMEORIGIN', allowing the page to be framed only by pages from the same origin.
+
+        """
         async def an_async_view(request):
             return HttpResponse()
 

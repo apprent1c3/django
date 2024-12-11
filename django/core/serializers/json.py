@@ -21,6 +21,11 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def _init_options(self):
+        """
+        Initializes the options for JSON serialization.
+
+        This method sets up the current options for converting data into JSON format. It creates a copy of the existing options, removes any streaming or field specifications, and configures indentation settings if required. Additionally, it sets default values for the JSON encoder class and ASCII encoding, ensuring proper serialization of data.
+        """
         self._current = None
         self.json_kwargs = self.options.copy()
         self.json_kwargs.pop("stream", None)

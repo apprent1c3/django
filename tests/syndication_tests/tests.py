@@ -274,6 +274,11 @@ class SyndicationFeedTest(FeedTestCase):
             )
 
     def test_rss2_single_enclosure(self):
+        """
+        Tests the RSS 2.0 feed for a single enclosure element within each item.
+
+        This test case verifies that the RSS 2.0 feed at the '/syndication/rss2/single-enclosure/' endpoint contains exactly one enclosure element for each item in the channel, ensuring compliance with the RSS 2.0 specification. The test parses the RSS feed content, extracts the channel and item elements, and asserts that the number of enclosure elements per item is as expected.
+        """
         response = self.client.get("/syndication/rss2/single-enclosure/")
         doc = minidom.parseString(response.content)
         chan = doc.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0]
@@ -575,6 +580,15 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertNotIn("xml-stylesheet", feed.writeString("utf-8"))
 
     def test_stylesheets(self):
+        """
+        .. method:: test_stylesheets
+
+            Tests the generation of XML stylesheet links in RSS feeds.
+
+            This test case checks various input formats for stylesheets, including local and remote URLs, static files, and URL reversals. It verifies that the generated XML stylesheet links are correctly formatted with the expected attributes, such as href, type, and media.
+
+            The test covers different types of input, including XSL, XSLT, CSS, and non-standard file extensions, as well as URLs with special characters. It ensures that the output XML stylesheet links are properly encoded and formatted according to the input data.
+        """
         testdata = [
             # Plain strings.
             ("/test.xsl", 'href="/test.xsl" type="text/xsl" media="screen"'),

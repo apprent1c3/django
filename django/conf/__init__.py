@@ -244,6 +244,23 @@ class UserSettingsHolder:
         super().__setattr__(name, value)
 
     def __delattr__(self, name):
+        """
+        Overrides the default attribute deletion behavior to track deleted attributes.
+
+        This method marks the specified attribute as deleted by adding its name to the internal _deleted set.
+        If the attribute exists, it is then removed using the superclass's attribute deletion method.
+
+        Parameters
+        ----------
+        name : str
+            The name of the attribute to delete.
+
+         Notes
+        -----
+            This implementation allows for tracking of deleted attributes, providing a way to identify which attributes have been removed from the object.
+            The actual deletion of the attribute is still handled by the superclass's __delattr__ method, ensuring that attribute deletion behaves as expected in Python.
+
+        """
         self._deleted.add(name)
         if hasattr(self, name):
             super().__delattr__(name)

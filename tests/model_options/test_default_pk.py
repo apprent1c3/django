@@ -59,6 +59,17 @@ class TestDefaultPK(SimpleTestCase):
 
     @override_settings(DEFAULT_AUTO_FIELD=None)
     def test_default_auto_field_setting_none(self):
+        """
+        Tests the behavior of the DEFAULT_AUTO_FIELD setting when set to None.
+
+        Verifies that an ImproperlyConfigured exception is raised with a specific message when the DEFAULT_AUTO_FIELD setting is empty, ensuring that the setting is properly validated.
+
+        The test creates a Django model instance without specifying an auto field, which triggers the validation check for the DEFAULT_AUTO_FIELD setting.
+
+        Raises:
+            ImproperlyConfigured: If DEFAULT_AUTO_FIELD is empty, with a message indicating that the setting must not be empty.
+
+        """
         msg = "DEFAULT_AUTO_FIELD must not be empty."
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
 

@@ -161,6 +161,34 @@ def get_label_module(label):
 
 
 def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=None):
+    """
+
+    Get filtered test modules based on the given parameters.
+
+    This function filters test modules based on the start position, test labels, and GIS enabled status.
+    It yields the names of test modules that match the specified criteria.
+
+    Parameters
+    ----------
+    start_at : str, optional
+        The name of the test module to start from. If not provided, start_after is used.
+    start_after : str, optional
+        The name of the test module to start after. Ignored if start_at is provided.
+    gis_enabled : bool
+        Whether the GIS database backend is enabled.
+    test_labels : list of str, optional
+        A list of test labels to filter by. If not provided, all test modules are considered.
+
+    Yields
+    ------
+    str
+        The name of a test module that matches the specified criteria.
+
+    Notes
+    -----
+    If a test label requires a GIS database backend, the function will abort if GIS is not enabled.
+
+    """
     if test_labels is None:
         test_labels = []
     # Reduce each test label to just the top-level module part.
@@ -504,6 +532,32 @@ def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
 
 
 def paired_tests(paired_test, options, test_labels, start_at, start_after):
+    """
+    Perform paired execution tests to identify potential issues between test cases.
+
+    This function executes a given test in combination with a set of other tests, 
+    checking for any failures or incompatibilities. The set of tests to run against 
+    can be provided explicitly or generated automatically based on the setup.
+
+    The function skips certain tests that are known to cause issues or are not 
+    relevant for this specific type of testing.
+
+    It returns as soon as a problematic pair is found, or reports that no issues 
+    were encountered after checking all test combinations.
+
+    Parameters
+    ----------
+    paired_test : str
+        The test to be paired with other tests
+    options : dict
+        Configuration options for the test execution
+    test_labels : list
+        List of test labels to run against (optional)
+    start_at : str
+        Starting point for automatic test label collection (optional)
+    start_after : str
+        Point to start after during automatic test label collection (optional)
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 

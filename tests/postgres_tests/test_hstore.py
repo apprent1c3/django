@@ -136,6 +136,18 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_key_transform_annotation(self):
+        """
+
+        Tests the transformation of a key in a hstore field through annotation.
+
+        This test case verifies that the annotation of an hstore field correctly extracts
+        a specific key from the field and assigns it to a new alias. The test uses a 
+        queryset of HStoreModel objects and annotates each object with the value of 
+        key 'a' from the 'field' hstore. It then checks that the annotated values match
+        the expected output, ensuring that the annotation correctly handles both 
+        existing and missing key values.
+
+        """
         qs = HStoreModel.objects.annotate(a=F("field__a"))
         self.assertCountEqual(
             qs.values_list("a", flat=True),
@@ -290,6 +302,14 @@ class TestChecks(PostgreSQLSimpleTestCase):
         )
 
     def test_valid_default(self):
+        """
+
+        Test to ensure that HStoreField accepts valid defaults.
+
+        Verifies that an instance of PostgreSQLModel with an HStoreField having a default value
+        of an empty dictionary does not raise any validation errors when checked.
+
+        """
         class MyModel(PostgreSQLModel):
             field = HStoreField(default=dict)
 
@@ -334,6 +354,13 @@ class TestSerialization(PostgreSQLSimpleTestCase):
 
 class TestValidation(PostgreSQLSimpleTestCase):
     def test_not_a_string(self):
+        """
+        Tests that a ValidationError is raised when a non-string value is passed to HStoreField.
+
+        This test case verifies the validation behavior of HStoreField when it encounters a value that is not a string or null.
+        The expected error message is checked to ensure it matches the required format, providing information about the invalid field value.
+        The test includes checking the error code and message to confirm the correct validation error is being raised.
+        """
         field = HStoreField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean({"a": 1}, None)

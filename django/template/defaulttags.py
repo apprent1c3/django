@@ -166,6 +166,29 @@ class ForNode(Node):
     def __init__(
         self, loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty=None
     ):
+        """
+
+        Initialize a new loop context.
+
+        Parameters
+        ----------
+        loopvars : list
+            List of variable names to be assigned values during the loop.
+        sequence : iterable
+            The sequence of values to be iterated over.
+        is_reversed : bool
+            Flag indicating whether the sequence should be iterated over in reverse order.
+        nodelist_loop : NodeList
+            The list of nodes to be executed for each iteration of the loop.
+        nodelist_empty : NodeList, optional
+            The list of nodes to be executed when the sequence is empty. If not provided,
+            an empty NodeList will be used by default.
+
+        Returns
+        -------
+        None
+
+        """
         self.loopvars = loopvars
         self.sequence = sequence
         self.is_reversed = is_reversed
@@ -186,6 +209,15 @@ class ForNode(Node):
         )
 
     def render(self, context):
+        """
+        Render a sequence of items in a template, with support for nested loops and variable unpacking.
+
+        This function takes a template context and renders a sequence of items, with access to loop variables such as the current index, whether it's the first or last item, and more. It can also unpack multiple values from each item in the sequence into separate variables.
+
+        The rendered template fragments are then joined together and returned as a single string, marked as safe for inclusion in HTML output.
+
+        The function handles various edge cases, including empty sequences, sequences with a single item, and sequences with multiple items. It also supports reversing the order of the sequence and updating the context with the current loop variables.
+        """
         if "forloop" in context:
             parentloop = context["forloop"]
         else:
@@ -260,6 +292,23 @@ class IfChangedNode(Node):
 
     def render(self, context):
         # Init state storage
+        """
+
+        Render the conditional content based on the provided context.
+
+        This function evaluates the condition by comparing the provided variables or nodelist
+        output against the stored value in the context stack frame. If the comparison result
+        is different from the stored value, the stored value is updated and the true nodelist
+        output is rendered. If the comparison result is the same as the stored value, the false
+        nodelist output is rendered if available, otherwise an empty string is returned.
+
+        The context is updated with the current state of the condition, allowing for tracking
+        of changes in the conditional output between render calls.
+
+        :param context: The context in which the condition is being evaluated.
+        :rtype: str
+
+        """
         state_frame = self._get_context_stack_frame(context)
         state_frame.setdefault(self)
 
@@ -331,6 +380,18 @@ class IfNode(Node):
 
 class LoremNode(Node):
     def __init__(self, count, method, common):
+        """
+
+        Initializes an instance of the class.
+
+        :param count: The number of items to be processed.
+        :param method: The method to be used for processing.
+        :param common: Common attributes or settings shared across the instance.
+
+        Initializes the instance with the provided count, method, and common settings, 
+        which are stored as instance attributes for later use. 
+
+        """
         self.count = count
         self.method = method
         self.common = common

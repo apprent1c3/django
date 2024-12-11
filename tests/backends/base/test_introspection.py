@@ -27,6 +27,18 @@ class SimpleDatabaseIntrospectionTests(SimpleTestCase):
             self.introspection.get_sequences(None, None)
 
     def test_get_relations(self):
+        """
+
+        Tests that calling get_relations raises a NotImplementedError.
+
+        This test case ensures that the get_relations method is correctly identified as 
+        not implemented, and that it raises an exception with the expected error message 
+        when invoked with None arguments.
+
+        Raises:
+            NotImplementedError: When get_relations is called.
+
+        """
         msg = self.may_require_msg % "get_relations"
         with self.assertRaisesMessage(NotImplementedError, msg):
             self.introspection.get_relations(None, None)

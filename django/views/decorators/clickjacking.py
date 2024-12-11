@@ -47,6 +47,17 @@ def xframe_options_sameorigin(view_func):
     if iscoroutinefunction(view_func):
 
         async def _view_wrapper(*args, **kwargs):
+            """
+
+            Wraps an asynchronous view function to provide additional security features.
+
+            This function executes the wrapped view function with the provided arguments and keyword arguments,
+            then checks the response for the 'X-Frame-Options' header. If this header is missing, it sets the header
+            to 'SAMEORIGIN' to prevent the response from being framed by external sites, reducing the risk of clickjacking attacks.
+
+            Returns the modified response object.
+
+            """
             response = await view_func(*args, **kwargs)
             if response.get("X-Frame-Options") is None:
                 response["X-Frame-Options"] = "SAMEORIGIN"

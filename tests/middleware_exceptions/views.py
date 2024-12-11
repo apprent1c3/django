@@ -9,6 +9,12 @@ def normal_view(request):
 
 
 def template_response(request):
+    """
+    Returns a Django TemplateResponse object with a predefined template containing a looping structure for displaying messages.
+
+    The template includes a simple string response and a for loop that iterates over a list of messages, displaying each message. 
+    The function takes an HTTP request as input and returns a TemplateResponse object with the rendered template and an empty list of messages.
+    """
     template = engines["django"].from_string(
         "template_response OK{% for m in mw %}\n{{ m }}{% endfor %}"
     )

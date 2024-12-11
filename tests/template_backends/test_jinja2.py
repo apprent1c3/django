@@ -32,6 +32,14 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(template.origin.template_name, "template_backends/hello.html")
 
     def test_origin_from_string(self):
+        """
+        Tests that the origin of a template is correctly set when loading from a string.
+
+        This test case verifies that the template's origin name is '<template>' and the 
+        template name is None, as expected when a template is loaded from a string rather 
+        than a file. The purpose of this test is to ensure that the template engine 
+        correctly handles string-based templates and assigns the expected origin attributes.
+        """
         template = self.engine.from_string("Hello!\n")
         self.assertEqual(template.origin.name, "<template>")
         self.assertIsNone(template.origin.template_name)
@@ -87,6 +95,11 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(content, "Static URL: /s/")
 
     def test_dirs_pathlib(self):
+        """
+        Tests the functionality of rendering a template using Jinja2 templating engine with a custom directory path specified via pathlib.
+
+        The test case verifies that a template named 'hello.html' can be successfully retrieved and rendered with a provided context, resulting in the expected output string. This ensures the templating engine is properly configured to locate and render templates from the specified directory.
+        """
         engine = Jinja2(
             {
                 "DIRS": [Path(__file__).parent / "templates" / "template_backends"],

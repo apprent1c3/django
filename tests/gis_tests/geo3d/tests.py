@@ -123,6 +123,18 @@ class Geo3DLoadingHelper:
             )
 
     def _load_polygon_data(self):
+        """
+
+        Loads polygon data into the database.
+
+        This function takes bounding box data, extracts the 2D and 3D geometric components, 
+        and creates corresponding 2D and 3D polygon objects in the database. 
+        These polygon objects are assigned '2D BBox' and '3D BBox' names, respectively.
+
+        Once loaded, the polygon data can be used for subsequent spatial operations 
+        and queries, enabling efficient analysis and manipulation of geometric data.
+
+        """
         bbox_wkt, bbox_z = bbox_data
         bbox_2d = GEOSGeometry(bbox_wkt, srid=32140)
         bbox_3d = Polygon(
@@ -246,6 +258,18 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     @skipUnlessDBFeature("supports_3d_functions")
     def test_extent3d_filter(self):
+        """
+
+        Tests the Extent3D database function on a 3D geometry field with a filter.
+
+        The Extent3D function is used to calculate the 3D bounding box of a set of geometries.
+        In this test, the function is applied to a set of 3D city data, filtered by city name.
+        The resulting extent is then compared to a reference value to ensure accuracy.
+
+        The test loads a set of city data, applies the Extent3D function with a filter,
+        and verifies that the calculated extent matches the expected reference extent.
+
+        """
         self._load_city_data()
         extent3d = City3D.objects.aggregate(
             ll_cities=Extent3D("point", filter=Q(name__contains="ll"))

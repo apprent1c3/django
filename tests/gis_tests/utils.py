@@ -37,6 +37,13 @@ class FuncTestMixin:
     """Assert that Func expressions aren't mutated during their as_sql()."""
 
     def setUp(self):
+        """
+        Sets up the test environment by patching the `Func` class to ensure that its instances are not modified during the compilation of SQL queries.
+
+        The patching functionality wraps the `as_sql` (or vendor-specific `as_sql` method, e.g., `as_postgresql`) method of `Func` instances to verify that the instance's internal state remains unchanged after the method call. If the instance is mutated, an assertion error is raised.
+
+        This setup is performed to guarantee the correctness and stability of the testing process, ensuring that the `Func` instances behave as expected and do not introduce side effects into the tests. The original `Func` class behavior is restored after the test is completed, regardless of its outcome.
+        """
         def as_sql_wrapper(original_as_sql):
             def inner(*args, **kwargs):
                 func = original_as_sql.__self__

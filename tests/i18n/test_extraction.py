@@ -229,6 +229,15 @@ class BasicExtractorTests(ExtractorTests):
         self.assertIs(Path("locale/pl_pl/LC_MESSAGES/django.po").exists(), False)
 
     def test_invalid_locale_private_subtag(self):
+        """
+
+        Tests that the makemessages command correctly identifies and reports an invalid locale
+        when a private subtag is used with a hyphen instead of an underscore.
+
+        Checks that the command produces an error message suggesting the correct format for the locale,
+        and that no PO file is generated for the invalid locale.
+
+        """
         out = StringIO()
         management.call_command(
             "makemessages", locale=["nl-nl-x-informal"], stdout=out, verbosity=1
@@ -338,6 +347,16 @@ class BasicExtractorTests(ExtractorTests):
         )
 
     def test_extraction_error(self):
+        """
+
+        Tests that a SyntaxError is raised when attempting to extract translations from a template
+        that includes other block tags within a translation block. It also verifies that no 
+        compiled templates are generated in this scenario.
+
+        The test case checks for a specific error message indicating the problem and ensures 
+        that no temporary files are left behind in the templates directory.
+
+        """
         msg = (
             "Translation blocks must not include other block tags: blocktranslate "
             "(file %s, line 3)" % os.path.join("templates", "template_with_error.tpl")
@@ -595,6 +614,15 @@ class JavaScriptExtractorTests(ExtractorTests):
     PO_FILE = "locale/%s/LC_MESSAGES/djangojs.po" % LOCALE
 
     def test_javascript_literals(self):
+        """
+        Tests the extraction of JavaScript literals for translation.
+
+        Verifies that various JavaScript literals are correctly identified and included in the
+        .po file contents, including simple strings, escaped characters, and multiline strings.
+
+        Checks for the presence of expected message IDs in the generated.po file, ensuring that
+        all relevant JavaScript literals are properly extracted for translation.
+        """
         _, po_contents = self._run_makemessages(domain="djangojs")
         self.assertMsgId("This literal should be included.", po_contents)
         self.assertMsgId("gettext_noop should, too.", po_contents)
@@ -641,6 +669,16 @@ class JavaScriptExtractorTests(ExtractorTests):
     def test_i18n_catalog_ignored_when_invoked_for_django(self):
         # Create target file so it exists in the filesystem and can be ignored.
         # "invoked_for_django" is True when "conf/locale" folder exists.
+        """
+
+        Tests that the i18n catalog JavaScript file is ignored when running the 
+        makemessages command for the Django domain.
+
+        This test case verifies that the i18n catalog file is correctly excluded 
+        from the translation process, ensuring that unnecessary files are not 
+        processed, thereby preventing potential errors or performance issues.
+
+        """
         os.makedirs(os.path.join("conf", "locale"))
         i18n_catalog_js_dir = os.path.join(os.path.curdir, "views", "templates")
         os.makedirs(i18n_catalog_js_dir)
@@ -692,6 +730,17 @@ class IgnoredExtractorTests(ExtractorTests):
         self.assertNotMsgId("This should be ignored too.", po_contents)
 
     def test_media_static_dirs_ignored(self):
+        """
+
+        Tests that media and static directories are ignored during the translation message extraction process.
+
+        Verifies that the `makemessages` command correctly skips directories designated for static and media files,
+        preventing unnecessary scanning and potential errors.
+
+        The test checks the output of the `makemessages` command for indications that the static and media root directories
+        were ignored, ensuring that the translation message extraction process only considers relevant directories.
+
+        """
         with override_settings(
             STATIC_ROOT=os.path.join(self.test_dir, "static/"),
             MEDIA_ROOT=os.path.join(self.test_dir, "media_root/"),
@@ -703,6 +752,15 @@ class IgnoredExtractorTests(ExtractorTests):
 
 class SymlinkExtractorTests(ExtractorTests):
     def setUp(self):
+        """
+
+        Sets up the test environment by creating a symlinked directory for templates.
+
+        This method initializes the test setup by calling the parent class's setup method
+        and then creates a directory for symlinked templates within the test directory.
+        The path to this directory is stored in the `symlinked_dir` attribute for later use.
+
+        """
         super().setUp()
         self.symlinked_dir = os.path.join(self.test_dir, "templates_symlinked")
 
@@ -988,6 +1046,13 @@ class ExcludedLocaleExtractionTests(ExtractorTests):
         self.assertNotRecentlyModified(self.PO_FILE % "it")
 
     def test_one_locale_excluded_with_locale(self):
+        """
+        Tests that a specific locale can be excluded when running the 'makemessages' command.
+
+        This test case ensures that when multiple locales are specified, but one of them is excluded, 
+        the excluded locale's translation files are not updated, while the non-excluded locales' 
+        files are updated as expected.
+        """
         management.call_command(
             "makemessages", locale=["en", "fr"], exclude=["fr"], verbosity=0
         )

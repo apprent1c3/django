@@ -110,6 +110,16 @@ class SimpleTemplateResponseTest(SimpleTestCase):
 
     def test_set_content(self):
         # content can be overridden
+        """
+
+        Tests the content setting functionality of the response object.
+
+        Verifies that setting the content of the response object initially marks it as rendered,
+        and that subsequent content updates correctly modify the rendered content.
+
+        Ensures that content is properly encoded to bytes when set from a string.
+
+        """
         response = self._response()
         self.assertFalse(response.is_rendered)
         response.content = "spam"
@@ -309,6 +319,20 @@ class TemplateResponseTest(SimpleTestCase):
     def test_pickling(self):
         # Create a template response. The context is
         # known to be unpicklable (e.g., a function).
+        """
+
+        Tests the pickling functionality of a TemplateResponse object.
+
+        Verifies that attempting to pickle a TemplateResponse before rendering raises a
+        ContentNotRenderedError, and that rendering the response first allows for successful pickling.
+
+        Upon successful pickling and unpickling, checks that the content, headers, and status code
+        of the original and unpickled responses are equal.
+
+        Additionally, confirms that the unpickled response does not retain certain template-related
+        attributes, ensuring they are not accessible after pickling.
+
+        """
         response = TemplateResponse(
             self.factory.get("/"),
             "first/test.html",

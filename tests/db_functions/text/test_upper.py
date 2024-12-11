@@ -8,6 +8,19 @@ from ..models import Author
 
 class UpperTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests basic functionality of the Author model, specifically the creation, annotation, 
+        and updating of author instances. 
+
+        The test checks if the annotation process correctly converts author names to 
+        uppercase and if the update process successfully changes the stored names to 
+        uppercase. It also verifies that the query results are correctly ordered by name.
+
+        This test case ensures that database operations, including creation, annotation, 
+        and updates, are performed correctly on the Author model.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(upper_name=Upper("name"))

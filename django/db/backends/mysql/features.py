@@ -64,6 +64,11 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def minimum_database_version(self):
+        """
+        Returns the minimum required database version for the current connection.
+
+        The version is determined based on whether the connection is to a MariaDB or a standard MySQL database. For MariaDB connections, the minimum version is 10.5, while for MySQL connections, the minimum version is 8.0.11.
+        """
         if self.connection.mysql_is_mariadb:
             return (10, 5)
         else:
@@ -333,6 +338,15 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def allows_group_by_selected_pks(self):
+        """
+        Determines whether the database connection allows grouping by primary keys that are not fully included in the SELECT statement.
+
+        This property considers the specific database management system and its configuration.
+        For MySQL and MariaDB, it checks the sql_mode to ensure 'ONLY_FULL_GROUP_BY' is not enabled, which would otherwise restrict the grouping behavior.
+        For other database systems, it defaults to allowing such grouping operations.
+
+        :rtype: bool
+        """
         if self.connection.mysql_is_mariadb:
             return "ONLY_FULL_GROUP_BY" not in self.connection.sql_mode
         return True

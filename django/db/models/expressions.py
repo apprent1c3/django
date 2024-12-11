@@ -26,6 +26,22 @@ class SQLiteNumericMixin:
     """
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL string and parameters for a SQLite database.
+
+        This function builds upon the base SQL generation method by applying
+        necessary transformations for SQLite compatibility. Specifically, it
+        handles DecimalField types by casting them to numeric in the SQL query.
+
+         Args:
+            compiler (object): The query compiler being used.
+            connection (object): The database connection.
+            **extra_context (dict): Additional context to be used during SQL generation.
+
+         Returns:
+            tuple: A tuple containing the generated SQL string and parameters.
+
+        """
         sql, params = self.as_sql(compiler, connection, **extra_context)
         try:
             if self.output_field.get_internal_type() == "DecimalField":
@@ -931,6 +947,26 @@ class ResolvedOuterRef(F):
         )
 
     def resolve_expression(self, *args, **kwargs):
+        """
+
+        Resolve an expression within the current context.
+
+        This method extends the default resolution behavior to validate and prepare 
+        the expression for further processing. It checks if the expression contains 
+        an 'OVER' clause, and if so, raises an error as referencing outer query 
+        window expressions is not supported.
+
+        Additionally, it determines whether the resolved expression is potentially 
+        multivalued based on the presence of a specific separator in the expression 
+        name.
+
+        The method returns the resolved expression object, which can be used for 
+        further processing or evaluation.
+
+        Raises:
+            NotSupportedError: If the expression references an outer query window.
+
+        """
         col = super().resolve_expression(*args, **kwargs)
         if col.contains_over_clause:
             raise NotSupportedError(
@@ -972,6 +1008,15 @@ class Sliced(F):
     """
 
     def __init__(self, obj, subscript):
+        """
+        Initializes an object with the specified subscript, allowing for indexing and slicing operations.
+
+        :param obj: The object to be subscripted
+        :param subscript: The indexing or slicing parameter, either an integer or a slice instance
+        :raises ValueError: If negative indexing or invalid slice arguments are provided
+        :raises TypeError: If the subscript argument is not an integer or a slice instance
+        :note: The subscript is 1-based, meaning the first element is at index 1, and the slice step is not supported
+        """
         super().__init__(obj.name)
         self.obj = obj
         if isinstance(subscript, int):
@@ -1045,6 +1090,9 @@ class Func(SQLiteNumericMixin, Expression):
         self.extra = extra
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its source expressions and any extra options. The string is formatted as a class constructor call, with the class name, source expressions, and extra options (if any) as arguments.
+        """
         args = self.arg_joiner.join(str(arg) for arg in self.source_expressions)
         extra = {**self.extra, **self._get_repr_options()}
         if extra:
@@ -1272,6 +1320,21 @@ class Col(Expression):
         return "{}({})".format(self.__class__.__name__, ", ".join(identifiers))
 
     def as_sql(self, compiler, connection):
+        """
+        Returns the SQL representation of the target column.
+
+        This method generates the SQL string for the column specified by the target,
+        qualifying it with the alias if one is present.
+
+        The resulting SQL string is returned as a tuple, where the first element is the
+        SQL string and the second element is a list of parameters (which is empty in this
+        case).
+
+        The SQL string is constructed by joining the alias and column names with a dot
+        (`.`), with each name properly quoted unless it is an alias. This ensures that
+        the SQL string is correctly formatted for execution on the target database
+        connection.
+        """
         alias, column = self.alias, self.target.column
         identifiers = (alias, column) if alias else (column,)
         sql = ".".join(map(compiler.quote_name_unless_alias, identifiers))
@@ -1741,6 +1804,21 @@ class OrderBy(Expression):
     constraint_validation_compatible = False
 
     def __init__(self, expression, descending=False, nulls_first=None, nulls_last=None):
+        """
+
+        Initializes an ordering specification for a query.
+
+        :param expression: The expression to be ordered.
+        :param descending: Whether the ordering is in descending order (default is False).
+        :param nulls_first: Whether null values should be placed first in the ordering (default is None).
+        :param nulls_last: Whether null values should be placed last in the ordering (default is None).
+
+        Note: nulls_first and nulls_last are mutually exclusive and cannot be used together.
+        If specified, nulls_first and nulls_last must be set to True. 
+
+        This constructor ensures that the expression is a valid expression type and that the nulls ordering parameters are correctly configured.
+
+        """
         if nulls_first and nulls_last:
             raise ValueError("nulls_first and nulls_last are mutually exclusive")
         if nulls_first is False or nulls_last is False:
@@ -1937,6 +2015,14 @@ class Window(SQLiteNumericMixin, Expression):
         return "<%s: %s>" % (self.__class__.__name__, self)
 
     def get_group_by_cols(self):
+        """
+        Returns a list of columns used for grouping in queries.
+
+        This list is compiled from the columns specified in the partition_by and order_by configurations.
+        If partition_by is set, its group_by columns are included in the result.
+        Additionally, if an order_by configuration is present, its group_by columns are also added to the list.
+        The combined list of group_by columns is then returned, providing a comprehensive set of columns used for grouping purposes.
+        """
         group_by_cols = []
         if self.partition_by:
             group_by_cols.extend(self.partition_by.get_group_by_cols())

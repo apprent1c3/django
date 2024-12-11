@@ -180,6 +180,11 @@ class AutodiscoverModulesTestCase(SimpleTestCase):
         self.assertEqual(site._registry, {"lorem": "ipsum"})
 
     def test_validate_registry_keeps_intact(self):
+        """
+        Tests that the registry remains intact when an exception occurs during module autodiscovery.
+
+        This test case verifies that the registry is not modified if an error is encountered while attempting to autodiscover and register modules from a specific module. The test checks for a specific exception message and then asserts that the registry remains empty, ensuring that no unintended modifications were made.
+        """
         from .test_module import site
 
         with self.assertRaisesMessage(Exception, "Some random exception."):

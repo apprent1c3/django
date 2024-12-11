@@ -308,6 +308,15 @@ class BaseDatabaseWrapper:
                 return self.connection.rollback()
 
     def _close(self):
+        """
+        Closes the current database connection.
+
+        Closes the active database connection associated with this instance, if one exists.
+        Any database errors that occur during closure are caught and handled accordingly.
+
+        Note: This is an internal method and should not be called directly by external users.
+        It is intended for use by the class internally to manage its connection state.
+        """
         if self.connection is not None:
             with self.wrap_database_errors:
                 return self.connection.close()
@@ -371,6 +380,16 @@ class BaseDatabaseWrapper:
             cursor.execute(self.ops.savepoint_rollback_sql(sid))
 
     def _savepoint_commit(self, sid):
+        """
+
+        Commits a savepoint.
+
+        This method takes a savepoint identifier and commits the corresponding savepoint,
+        effectively persisting any changes made since its creation.
+
+        :param sid: The identifier of the savepoint to commit.
+
+        """
         with self.cursor() as cursor:
             cursor.execute(self.ops.savepoint_commit_sql(sid))
 
@@ -517,6 +536,17 @@ class BaseDatabaseWrapper:
             )
 
     def validate_no_broken_transaction(self):
+        """
+        Validates that the current transaction is not in a broken state.
+
+        Checks if the current transaction needs to be rolled back. If it does, an exception is raised to prevent
+        further queries from being executed until the end of the 'atomic' block, ensuring data integrity and
+        atomicity.
+
+        Raises:
+            TransactionManagementError: If the current transaction is in a broken state and needs to be rolled back.
+
+        """
         if self.needs_rollback:
             raise TransactionManagementError(
                 "An error occurred in the current transaction. You can't "

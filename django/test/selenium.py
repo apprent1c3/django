@@ -80,6 +80,20 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
         return getattr(DesiredCapabilities, browser.upper())
 
     def create_options(self):
+        """
+
+        Configure and return options for a browser instance.
+
+        This function imports the necessary options for the specified browser type and 
+        enables headless mode if required. The resulting options object can be used to 
+        customize the behavior of the browser instance.
+
+        The function automatically detects the browser type and applies the correct 
+        headless mode flags. Currently supported browsers include Chrome, Edge, and Firefox.
+
+        :return: A browser options object configured for the specified browser type and mode.
+
+        """
         options = self.import_options(self.browser)()
         if self.headless:
             match self.browser:
@@ -123,6 +137,22 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        """
+
+        Class method to initialize subclass, dynamically creating new test methods for screenshot cases.
+
+        This method is automatically called when a subclass is initialized. It checks if the subclass has a list of screenshots defined.
+        If so, it iterates over the methods in the subclass, looking for those that have been decorated with screenshot cases.
+
+        For each method with screenshot cases, it creates a new test method for each case, wrapping the original method in a context manager
+        that sets up the specified screenshot case. The new test methods are then added to the subclass, replacing the original method.
+        This allows for each screenshot case to be tested independently, while still reusing the original method's implementation.
+
+        The dynamically created test methods have names and qualified names that reflect the original method and screenshot case, making
+        it easy to identify and run the desired tests. The original method's name and screenshot case are also stored as attributes on
+        the new test methods, allowing for easy access to this information.
+
+        """
         super().__init_subclass__(**kwargs)
         if not cls.screenshots:
             return
@@ -137,6 +167,38 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
                 @wraps(func)
                 def test(self, *args, _func=func, _case=screenshot_case, **kwargs):
+                    """
+
+                    Tests a function by executing it within a specified test case.
+
+                    This method allows for testing a function under different conditions, 
+                    defined by the provided test case. It takes in any number of positional 
+                    and keyword arguments to pass to the function being tested.
+
+                    The function to be tested and the test case are set by default, but can 
+                    be overridden if needed. The test case is used to establish a context 
+                    in which the function is executed, such as setting up a specific 
+                    environment or state.
+
+                    Once the test case context is established, the function being tested is 
+                    called with the provided arguments, and its result is returned.
+
+                    Parameters
+                    ----------
+                    *args : 
+                        Positional arguments to pass to the function being tested.
+                    _func : 
+                        The function to be tested (set by default).
+                    _case : 
+                        The test case to use (set by default).
+                    **kwargs : 
+                        Keyword arguments to pass to the function being tested.
+
+                    Returns
+                    -------
+                    The result of the function being tested.
+
+                    """
                     with getattr(self, _case)():
                         return _func(self, *args, **kwargs)
 
@@ -168,6 +230,17 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @contextmanager
     def small_screen_size(self):
+        """
+        Context manager to temporarily set a small screen size for testing purposes.
+
+        This context manager adjusts the browser window size to 1024x768 pixels, 
+        allowing for testing of responsive layouts and small screen interactions.
+
+        Example usage:
+            with small_screen_size():
+                # perform actions with small screen size
+
+        """
         with ChangeWindowSize(1024, 768, self.selenium):
             yield
 
@@ -256,6 +329,22 @@ def screenshot_cases(method_names):
         method_names = method_names.split(",")
 
     def wrapper(func):
+        """
+
+        A decorator function used to wrap another function and add screenshot-related functionality.
+
+        This decorator modifies the wrapped function by adding a list of screenshot cases and 
+        appending a 'screenshot' tag to the function's existing tags. The wrapped function 
+        is then returned, allowing for method chaining and further decoration.
+
+        The purpose of this decorator is to provide a convenient way to mark functions as 
+        needing screenshot generation, making it easier to manage and automate screenshot 
+        testing in a larger testing framework.
+
+        :param func: The function to be decorated
+        :return: The decorated function with added screenshot functionality
+
+        """
         func._screenshot_cases = method_names
         setattr(func, "tags", {"screenshot"}.union(getattr(func, "tags", set())))
         return func

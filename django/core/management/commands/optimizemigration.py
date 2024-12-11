@@ -16,6 +16,14 @@ class Command(BaseCommand):
     help = "Optimizes the operations for the named migration."
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments to a parser for optimizing migrations.
+
+        The following arguments are added:
+            :param app_label: The label of the app for which the migration should be optimized.
+            :param migration_name: The name of the migration to optimize.
+            :param --check: Optional flag to check if the migration can be optimized and exit with a non-zero status if possible.
+        """
         parser.add_argument(
             "app_label",
             help="App label of the application to optimize the migration for.",

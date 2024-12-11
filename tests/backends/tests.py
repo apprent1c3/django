@@ -582,6 +582,16 @@ class BackendTestCase(TransactionTestCase):
         self.assertEqual(tuple(kwargs["extra"].values()), params[1:])
 
     def test_queries_bare_where(self):
+        """
+
+        Tests the execution of SQL queries with a bare WHERE clause.
+
+        Verifies that a query with a bare WHERE clause, i.e., a WHERE clause without 
+        a preceding table or subquery, can be executed successfully and returns the 
+        expected results. The test covers the database connection's ability to 
+        handle such queries and assert the correctness of the query output.
+
+        """
         sql = f"SELECT 1{connection.features.bare_select_suffix} WHERE 1=1"
         with connection.cursor() as cursor:
             cursor.execute(sql)
@@ -768,6 +778,20 @@ class ThreadTests(TransactionTestCase):
         def runner():
             # Passing django.db.connection between threads doesn't work while
             # connections[DEFAULT_DB_ALIAS] does.
+            """
+
+            Establishes a database connection for the current thread.
+
+            This function creates a database connection using the default database alias and 
+            enables thread sharing on the connection. It also ensures that a database cursor is 
+            available for use with the connection, although no queries are executed. The 
+            established connection is then stored for future reference, keyed by its unique 
+            identifier.
+
+            .. note::
+                This function is assumed to be used in a Django application context.
+
+            """
             from django.db import connections
 
             connection = connections[DEFAULT_DB_ALIAS]
@@ -882,6 +906,15 @@ class ThreadTests(TransactionTestCase):
 
         def runner1():
             def runner2(other_thread_connection):
+                """
+                Closes the connection of another thread, handling potential database errors.
+
+                This function takes a connection object from another thread and attempts to close it.
+                If a DatabaseError occurs during the closure process, the error is caught and added to the exceptions collection for further handling or logging.
+
+                :param other_thread_connection: The connection object to be closed.
+
+                """
                 try:
                     other_thread_connection.close()
                 except DatabaseError as e:
@@ -969,6 +1002,17 @@ class DBConstraintTestCase(TestCase):
             ref.obj
 
     def test_many_to_many(self):
+        """
+
+        Tests the many-to-many relationship between objects.
+
+        Verifies that creating a related object through the relationship increases the count of related objects,
+        and that creating an entry in the intermediary model does not affect the count of related objects
+        unless it references an existing object.
+
+        Ensures the integrity of the relationship by checking the counts of objects and intermediary model instances.
+
+        """
         obj = Object.objects.create()
         obj.related_objects.create()
         self.assertEqual(Object.objects.count(), 2)

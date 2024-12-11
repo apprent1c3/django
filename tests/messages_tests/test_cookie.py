@@ -67,6 +67,16 @@ class CookieTests(BaseTests, SimpleTestCase):
         return storage._decode(encoded)[0]
 
     def test_get(self):
+        """
+        Tests the retrieval of data from storage.
+
+        Verifies that the stored data matches the expected output, 
+        ensuring the correctness of the storage's get functionality.
+
+        Checks the storage's contents after setting cookie data with 
+        example messages, confirming that the stored data is accurately 
+        retrieved and matches the initially set messages.
+        """
         storage = self.storage_class(self.get_request())
         # Set initial data.
         example_messages = ["test", "me"]

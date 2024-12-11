@@ -26,6 +26,22 @@ class Person(models.Model):
         self.data.append("After save")
 
     def delete(self):
+        """
+        Deletes the object, supplementing the default deletion behavior.
+
+        Before performing the actual deletion, this function records an event indicating 
+        the impending deletion. After the deletion is complete, it records another event 
+        to signify the action's completion. These events are logged to the object's data 
+        for auditing or tracing purposes.
+
+        Returns:
+            None
+
+        Notes:
+            This method builds upon the standard deletion process provided by its parent 
+            class, adding custom logging functionality to track the deletion lifecycle.
+
+        """
         self.data.append("Before deletion")
         # Call the "real" delete() method
         super().delete()

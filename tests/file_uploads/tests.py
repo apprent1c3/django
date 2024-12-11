@@ -69,6 +69,12 @@ class FileUploadTests(TestCase):
         cls.addClassCleanup(shutil.rmtree, MEDIA_ROOT)
 
     def test_upload_name_is_validated(self):
+        """
+        Tests that the name of an uploaded file is validated to prevent suspicious file operations.
+
+        Validates that passing a potentially malicious file name to the UploadedFile constructor raises a SuspiciousFileOperation exception. 
+        The test checks various file name formats on both Unix-like and Windows platforms, including absolute paths and special directory names.
+        """
         candidates = [
             "/tmp/",
             "/tmp/..",
@@ -96,6 +102,19 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_large_upload(self):
+        """
+        Tests the ability to upload large files.
+
+        This test creates two temporary files of significant size, one approximately 2MB
+        and the other approximately 10MB, and then sends them to the server via a POST
+        request. The test also calculates the SHA1 hash of each file and includes it
+        in the request. The test asserts that the server successfully handles the
+        large file upload and returns a 200 status code.
+
+        :note: This test relies on the server's ability to handle multipart/form-data
+        requests and large file uploads.
+
+        """
         file = tempfile.NamedTemporaryFile
         with file(suffix=".file1") as file1, file(suffix=".file2") as file2:
             file1.write(b"a" * (2**21))
@@ -159,6 +178,14 @@ class FileUploadTests(TestCase):
         self._test_base64_upload("Big data" * 68000, encode=base64.encodebytes)
 
     def test_base64_invalid_upload(self):
+        """
+        Tests the handling of an invalid base64 encoded file upload.
+
+        The test simulates a POST request to the /echo_content/ endpoint with a multipart/form-data payload.
+        It verifies that the server correctly handles a base64 encoded file with invalid content and returns an empty file in the response.
+
+        The test case checks for proper error handling and ensures that the server does not crash or return an incorrect response when dealing with malformed base64 encoded data.
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -250,6 +277,16 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_unicode_file_name_rfc2231_with_double_quotes(self):
+        """
+
+        Tests the handling of Unicode file names in HTTP requests according to RFC 2231, 
+        specifically when the file name is enclosed in double quotes.
+
+        Verifies that the server correctly processes a multipart/form-data request 
+        containing a file with a Unicode name, and that the request is successfully 
+        handled without any errors, resulting in a 200 OK status code.
+
+        """
         payload = client.FakePayload()
         payload.write(
             "\r\n".join(
@@ -451,6 +488,24 @@ class FileUploadTests(TestCase):
             )
 
     def test_file_content(self):
+        """
+
+        Tests the handling of different file content types.
+
+        This test creates temporary files and in-memory streams with varying content types,
+        sends them to the server via a POST request, and verifies that the content is correctly
+        received and echoed back.
+
+        The test covers the following scenarios:
+        - A file with no specified content type
+        - A file with a simple text content type
+        - A string stream
+        - A binary stream
+
+        It checks that the server correctly handles each type of content and returns the expected
+        data in the response.
+
+        """
         file = tempfile.NamedTemporaryFile
         with (
             file(suffix=".ctype_extra") as no_content_type,
@@ -633,6 +688,13 @@ class FileUploadTests(TestCase):
         self.assertEqual(response.json(), {"my_file": "file contents"})
 
     def test_upload_header_fields_too_large(self):
+        """
+        Tests that uploading a file with HTTP header fields that exceed the maximum allowed size returns a 400 Bad Request response.
+
+        This test simulates a POST request to the /echo_content/ endpoint with a multipart/form-data payload containing a file and an artificially large header field. It verifies that the server correctly rejects the request due to the oversized header, returning a 400 status code indicating a bad request.
+
+        The test case covers a specific scenario where the total size of the HTTP header fields exceeds the acceptable limit, ensuring the server's handling of such cases aligns with HTTP standards and the application's expectations for handling malicious or malformed requests.
+        """
         payload = client.FakePayload(
             "\r\n".join(
                 [
@@ -917,6 +979,11 @@ class MultiParserTests(SimpleTestCase):
             )
 
     def test_negative_content_length(self):
+        """
+        Tests that a MultiPartParser raises a MultiPartParserError when given a negative content length value. 
+        This check ensures that the parser correctly handles invalid or malformed HTTP requests, 
+        preventing potential errors or security vulnerabilities by rejecting requests with invalid content length headers.
+        """
         with self.assertRaisesMessage(
             MultiPartParserError, "Invalid content length: -1"
         ):

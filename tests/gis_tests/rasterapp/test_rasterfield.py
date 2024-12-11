@@ -447,6 +447,15 @@ class RasterFieldTest(TransactionTestCase):
             ).count()
 
     def test_lhs_with_index_rhs_without_index(self):
+        """
+        Tests a spatial database query where the left-hand side is indexed and the right-hand side is not.
+
+        Verifies that a query using the `contains` lookup type with a JSON raster object returns a SQL query that uses the ST_Contains function 
+        with the correct parameters, indicating that the database is utilizing the spatial index on the left-hand side of the query.
+
+        The test query checks for the existence of RasterModel objects where the raster field contains a specific JSON raster object, 
+        and then asserts that the generated SQL query matches the expected pattern. 
+        """
         with CaptureQueriesContext(connection) as queries:
             RasterModel.objects.filter(
                 rast__0__contains=json.loads(JSON_RASTER)

@@ -183,6 +183,22 @@ class AsyncDummyCacheTests(SimpleTestCase):
         self.assertIsNone(await cache.aget_or_set("key", None))
 
     async def test_aget_or_set_callable(self):
+        """
+
+        Asynchronously retrieves the value associated with a given key from the cache, 
+        or sets the key to the value returned by a provided callable if it does not exist.
+
+        The provided callable is invoked if the key is not found in the cache. 
+        If the callable is invoked, its return value will be stored in the cache for future lookups.
+
+        Args:
+            key (str): The cache key to look up or set.
+            callable: A function that will be invoked if the key does not exist in the cache.
+
+        Returns:
+            The cached value, or the result of the callable if the key was not previously cached.
+
+        """
         def my_callable():
             return "default"
 

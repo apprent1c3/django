@@ -63,6 +63,21 @@ class CoalesceTests(TestCase):
         self.assertQuerySetEqual(authors, ["John Smith", "Rhonda"], lambda a: a.name)
 
     def test_empty_queryset(self):
+        """
+
+        Tests the behavior of the Coalesce function when used with an empty queryset.
+
+        This function creates an Author object, then generates a set of test cases 
+        involving different methods of creating an empty queryset (e.g., using 
+        QuerySet.none(), filtering by a non-existent id, and wrapping these in 
+        a Subquery). It then checks that when Coalesce is used with each of these 
+        empty querysets, it correctly returns the default value (in this case, 42) 
+        instead of None.
+
+        These tests aim to ensure that Coalesce behaves as expected when used in 
+        conjunction with different methods of generating empty querysets.
+
+        """
         Author.objects.create(name="John Smith")
         queryset = Author.objects.values("id")
         tests = [

@@ -33,6 +33,15 @@ fully_decorated.anything = "Expected __dict__"
 
 def compose(*functions):
     # compose(f, g)(*args, **kwargs) == f(g(*args, **kwargs))
+    """
+    .Compose multiple functions into a single function.
+
+    This function takes in a variable number of functions as arguments and returns a new function that represents the composition of the input functions.
+    The functions are composed in a right-to-left order, meaning the first function passed in will be executed first, and its output will be used as the input to the next function, and so on.
+    The resulting function can then be called with the desired arguments, passing the output through the composed function chain.
+
+    :returns: A new function that represents the composition of the input functions.
+    """
     functions = list(reversed(functions))
 
     def _inner(*args, **kwargs):
@@ -345,6 +354,16 @@ class MethodDecoratorTests(SimpleTestCase):
         """
 
         def add_question_mark(func):
+            """
+
+            Decorator function that appends a question mark to the result of the decorated function.
+
+            It takes another function as an argument, wraps it with a new function that calls the original function with its original arguments,
+            and then adds a question mark to the result.
+
+            Use this decorator to easily add a question mark to the output of any function that returns a string.
+
+            """
             def _wrapper(*args, **kwargs):
                 return func(*args, **kwargs) + "?"
 
@@ -418,6 +437,19 @@ class MethodDecoratorTests(SimpleTestCase):
 
         def decorator(func):
             @wraps(func)
+            """
+            A decorator that captures and preserves the original function's name and module.
+
+            This decorator is designed to be used with functions that require access to their original name and module information.
+            It captures the function's name and module using the ``__name__`` and ``__module__`` attributes, making them available for further use.
+            The decorator then returns the result of calling the original function with the provided arguments, effectively preserving its original behavior.
+
+            The captured function name and module are stored in the ``func_name`` and ``func_module`` variables, respectively.
+            These variables can be accessed within the decorated function or by external code that needs to access the original function's metadata.
+
+            Note that this decorator uses the ``@wraps`` decorator from the ``functools`` module to preserve the original function's docstring and other metadata.
+
+            """
             def inner(*args, **kwargs):
                 nonlocal func_name, func_module
                 func_name = getattr(func, "__name__", None)

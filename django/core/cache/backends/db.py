@@ -102,6 +102,20 @@ class DatabaseCache(BaseDatabaseCache):
         self._base_set("set", key, value, timeout)
 
     def add(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+
+        Add a key-value pair to the data store if the key does not already exist.
+
+        :param key: The key to be added.
+        :param value: The value associated with the key.
+        :param timeout: The time to live for the key-value pair. Defaults to DEFAULT_TIMEOUT.
+        :param version: The version of the key. If provided, it must match the version of the existing key.
+
+        :return: The result of the add operation.
+
+        :note: If the key already exists, this operation will fail.
+
+        """
         key = self.make_and_validate_key(key, version=version)
         return self._base_set("add", key, value, timeout)
 
@@ -211,6 +225,21 @@ class DatabaseCache(BaseDatabaseCache):
         self._base_delete_many(keys)
 
     def _base_delete_many(self, keys):
+        """
+        Delete multiple cache entries from the database.
+
+        Deletes cache entries for the specified keys.
+
+        Args:
+            keys (list): A list of cache keys to delete.
+
+        Returns:
+            bool: True if at least one row was deleted, False otherwise.
+
+        Note:
+            This method is used internally to delete multiple cache entries in a single database operation.
+
+        """
         if not keys:
             return False
 

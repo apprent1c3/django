@@ -216,6 +216,26 @@ class Apps:
         # Since this method is called when models are imported, it cannot
         # perform imports because of the risk of import loops. It mustn't
         # call get_app_config().
+        """
+
+        Registers a model within the application registry.
+
+        Parameters
+        ----------
+        app_label : str
+            The label of the application the model belongs to.
+        model : Model
+            The model instance to be registered.
+
+        Notes
+        -----
+        If a model with the same name already exists within the application,
+        a warning will be raised if the existing model is identical to the one being registered.
+        If the existing model is different, a RuntimeError will be raised due to the conflict.
+
+        Once registered, any pending operations for the model will be executed and the cache will be cleared.
+
+        """
         model_name = model._meta.model_name
         app_models = self.all_models[app_label]
         if model_name in app_models:

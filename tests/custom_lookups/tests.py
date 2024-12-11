@@ -91,6 +91,26 @@ class YearExact(models.lookups.Lookup):
     def as_sql(self, compiler, connection):
         # We will need to skip the extract part, and instead go
         # directly with the originating field, that is self.lhs.lhs
+        """
+        Generates a SQL string for a date range comparison.
+
+        This function takes a date or datetime field (`lhs`) and a year value (`rhs`), 
+        and returns a SQL string that checks if the date falls within the given year. 
+        The resulting SQL expression will match dates between January 1st and December 31st of the specified year.
+
+        The function uses the provided compiler and database connection to construct 
+        the SQL string and associated parameters.
+
+        Returns:
+            A tuple containing the generated SQL string and the parameters to be used 
+            with the query.
+
+        Note:
+            The year value (`rhs`) is appended with '-01-01' and '-12-31' to create 
+            the date range for the comparison. The resulting SQL expression uses 
+            date arithmetic to ensure a correct comparison.
+
+        """
         lhs_sql, lhs_params = self.process_lhs(compiler, connection, self.lhs.lhs)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         # Note that we must be careful so that we have params in the
@@ -171,6 +191,18 @@ class SQLFuncFactory:
 
 class CustomField(models.TextField):
     def get_lookup(self, lookup_name):
+        """
+        Returns a lookup object by name.
+
+        This method overrides the parent class behavior to provide a custom lookup
+        for names starting with 'lookupfunc_'. For these names, it creates a SQL
+        function factory object based on the provided lookup name. For all other
+        lookup names, it delegates to the parent class implementation.
+
+        :param lookup_name: The name of the lookup to retrieve
+        :return: A lookup object or a SQL function factory object
+
+        """
         if lookup_name.startswith("lookupfunc_"):
             key, name = lookup_name.split("_", 1)
             return SQLFuncFactory(key, name)
@@ -328,6 +360,15 @@ class LookupTests(TestCase):
             self.assertIsNone(field.get_lookup("exactly"))
 
     def test_lookups_caching(self):
+        """
+        Tests that custom lookups are properly registered and cached for model fields.
+
+        Verifies that a custom lookup is not available by default, but can be registered
+        temporarily using the :func:`register_lookup` context manager, and that it is
+        properly removed after the context is exited. This ensures that the lookups
+        caching mechanism is functioning correctly and that custom lookups do not
+        persist after their intended scope.
+        """
         field = Article._meta.get_field("author")
 
         # clear and re-cache
@@ -366,6 +407,18 @@ class BilateralTransformTests(TestCase):
                 )
 
     def test_bilateral_multi_value(self):
+        """
+
+        Tests the bilateral lookup with multiple values for the 'upper' transformation.
+
+        This function tests whether the 'upper' transformation can correctly filter a queryset
+        with multiple values. It creates a set of Author objects, applies the transformation to
+        the 'name' field, and checks if the filtered queryset returns the expected results.
+
+        The test case verifies that the 'upper' transformation is applied correctly to the
+        'name' field and that the filtered results are ordered as expected.
+
+        """
         with register_lookup(models.CharField, UpperBilateralTransform):
             Author.objects.bulk_create(
                 [
@@ -595,6 +648,13 @@ class TrackCallsYearTransform(YearTransform):
         return super().get_lookup(lookup_name)
 
     def get_transform(self, lookup_name):
+        """
+        Retrieves a transformation object based on the provided lookup name.
+
+        :param lookup_name: The name to look up the transformation by
+        :return: The transformation object associated with the given lookup name
+        :note: This method also tracks the call order by appending 'transform' to the call_order list.
+        """
         self.call_order.append("transform")
         return super().get_transform(lookup_name)
 
@@ -697,6 +757,13 @@ class RegisterLookupTests(SimpleTestCase):
         self.assertIsNone(author_alias.get_lookup("st_end"))
 
     def test_instance_lookup_override(self):
+        """
+        Tests the override behavior of instance lookups on model fields.
+
+         This function checks whether a custom lookup can be successfully registered and retrieved from a model field.
+         It also verifies that subsequent registrations with the same lookup name correctly override the previously registered lookup.
+         The test covers the case where the registered lookup is cleared after the registration context is exited, ensuring that the model field returns to its original state.
+        """
         author_name = Author._meta.get_field("name")
         with register_lookup(author_name, CustomStartsWith, lookup_name="st_end"):
             self.assertEqual(author_name.get_lookup("st_end"), CustomStartsWith)

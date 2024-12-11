@@ -20,6 +20,17 @@ def model_view(request):
 
 
 def create_model_instance(request):
+    """
+
+    Create a model instance for a person and save it to the database.
+
+    This function generates a new instance of the Person model with a predefined name, 
+    saves the instance to the database, and returns an HTTP response.
+
+    Returns:
+        HttpResponse: An HTTP response object
+
+    """
     person = Person(name="emily")
     person.save()
     return HttpResponse()

@@ -115,6 +115,19 @@ class RoundTests(TestCase):
         self.assertEqual(obj.normal_round, 370)
 
     def test_transform(self):
+        """
+
+        Tests the transformation of DecimalField values using the Round lookup.
+
+        This test case verifies that the Round lookup correctly rounds DecimalField values
+        when used in a query filter. It creates two DecimalModel instances with different
+        values, then uses the Round lookup to filter the results and retrieve an object
+        with a rounded value greater than 0.
+
+        The test asserts that the retrieved object has the expected value, demonstrating
+        that the Round lookup is applied correctly.
+
+        """
         with register_lookup(DecimalField, Round):
             DecimalModel.objects.create(n1=Decimal("2.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

@@ -30,6 +30,16 @@ PathInfo = namedtuple(
 
 
 def subclasses(cls):
+    """
+    Generate all subclasses of a given class.
+
+    This function recursively yields all subclasses of the input class, including the class itself.
+
+    It traverses the class hierarchy, providing a breadth-first view of the inheritance structure.
+
+    :returns: A generator producing all subclasses of the input class.
+    :rtype: Generator[type, None, None]
+    """
     yield cls
     for subclass in cls.__subclasses__():
         yield from subclasses(subclass)
@@ -262,6 +272,11 @@ class RegisterLookupMixin:
         return cls.merge_dicts(class_lookups)
 
     def get_instance_lookups(self):
+        """
+        Retrieves instance-specific lookups, inheriting from the class-level lookups if they exist.
+
+        This method combines the lookups defined at the class level with those defined at the instance level, if any. The instance-level lookups override any duplicates from the class level. If no instance-level lookups are found, the method returns the class-level lookups.
+        """
         class_lookups = self.get_class_lookups()
         if instance_lookups := getattr(self, "instance_lookups", None):
             return {**class_lookups, **instance_lookups}

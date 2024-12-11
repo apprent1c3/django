@@ -59,6 +59,9 @@ class TestISODurationString(unittest.TestCase):
         self.assertEqual(duration_iso_string(duration), "P0DT01H03M05.012345S")
 
     def test_negative(self):
+        """
+        Tests the duration_iso_string function with a negative duration, ensuring it correctly formats a time interval with a negative sign. The test case verifies that a duration of minus one day, one hour, three minutes, and five seconds is converted to the ISO 8601 duration string '-P1DT01H03M05S'.
+        """
         duration = -1 * datetime.timedelta(days=1, hours=1, minutes=3, seconds=5)
         self.assertEqual(duration_iso_string(duration), "-P1DT01H03M05S")
 

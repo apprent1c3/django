@@ -21,6 +21,11 @@ from .models import (
 
 class GetUniqueCheckTests(unittest.TestCase):
     def test_unique_fields_get_collected(self):
+        """
+        Checks if unique fields are properly identified and collected in a model.
+
+        This test verifies that the `_get_unique_checks` method correctly retrieves and returns all unique fields defined in the model, along with their corresponding model class. It ensures that both built-in unique fields (such as the primary key 'id') and explicitly defined unique fields (like 'unique_charfield' and 'unique_integerfield') are properly collected and returned.
+        """
         m = UniqueFieldsModel()
         self.assertEqual(
             (
@@ -128,6 +133,13 @@ class PerformUniqueChecksTest(TestCase):
         self,
     ):
         # Regression test for #12560
+        """
+
+        Tests that the primary key uniqueness check is not performed when adding a new instance of ModelToValidate and the primary key is not specified.
+
+        This test case verifies the expected behavior of the full_clean method when adding a new instance without a primary key. It ensures that no database queries are executed during the validation process.
+
+        """
         with self.assertNumQueries(0):
             mtv = ModelToValidate(number=10, name="Some Name")
             setattr(mtv, "_adding", True)

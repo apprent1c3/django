@@ -57,6 +57,20 @@ class FirstOfTagTests(SimpleTestCase):
 
     @setup({"firstof11": "{% firstof a b %}"})
     def test_firstof11(self):
+        """
+
+        Test the firstof template tag with two input strings.
+
+        This test case verifies that the firstof tag in a template renders the first
+        argument that is not empty or false. In this scenario, both input strings are
+        provided, with the first string being '<' and the second string being '>'. The
+        test checks if the output of the rendered template is the HTML-escaped version
+        of the first string.
+
+        The test ensures that the template engine correctly handles the firstof tag and
+        escapes any special characters in the output string.
+
+        """
         output = self.engine.render_to_string("firstof11", {"a": "<", "b": ">"})
         self.assertEqual(output, "&lt;")
 

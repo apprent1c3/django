@@ -670,6 +670,16 @@ class ForeignObject(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts for purposes such as serialization or migration.
+
+        This method breaks down the object into a tuple containing its name, path, arguments, and keyword arguments.
+        The returned keyword arguments include additional details about the object, such as its on-delete behavior, related fields, and parent link information if applicable.
+
+        The method also handles cases where the referenced model is a string, is swappable, or has specific settings that need to be considered during deconstruction, ensuring that the object can be accurately reconstructed later.
+
+        The returned values can be used to recreate the object or to store its configuration in a database or other storage system.
+        """
         name, path, args, kwargs = super().deconstruct()
         kwargs["on_delete"] = self.remote_field.on_delete
         kwargs["from_fields"] = self.from_fields
@@ -1049,6 +1059,11 @@ class ForeignKey(ForeignObject):
         )
 
     def deconstruct(self):
+        """
+        Deconstructs the relationship field into its constituent parts.
+
+        This method is used to serialize the relationship field into a format that can be reconstructed later. It takes into account various aspects of the field, including its name, path, and arguments. The deconstruction process involves removing certain keyword arguments that are not necessary for serialization, such as 'to_fields' and 'from_fields', and modifying others, such as 'db_index' and 'db_constraint', to ensure they have the correct values. Additionally, it determines whether to specify the 'to_field' argument based on the remote field's name and the primary key of the related model. The deconstructed parts are then returned as a tuple containing the field's name, path, arguments, and keyword arguments.
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["to_fields"]
         del kwargs["from_fields"]
@@ -1122,6 +1137,16 @@ class ForeignKey(ForeignObject):
         return "%s_id" % self.name
 
     def get_attname_column(self):
+        """
+        Returns the attribute name and corresponding database column name.
+
+        This method provides a way to retrieve both the attribute name and the
+        associated column name in the database. If a specific database column
+        name is not provided, it defaults to the attribute name.
+
+        :return: A tuple containing the attribute name and the database column name.
+        :rtype: tuple[str, str]
+        """
         attname = self.get_attname()
         column = self.db_column or attname
         return attname, column
@@ -1152,11 +1177,42 @@ class ForeignKey(ForeignObject):
         return self.target_field.get_prep_value(value)
 
     def contribute_to_related_class(self, cls, related):
+        """
+
+        Override the contribution behavior to establish a relationship between the current model and a related class.
+
+        This method extends the default behavior by ensuring that the remote field is properly configured. If the remote field's field name is not explicitly set, it is automatically set to the primary key of the related class.
+
+        Parameters:
+            cls (class): The related class.
+            related (object): The related object.
+
+        This method supports the creation of relationships between models, improving the overall structure and readability of the code. It is typically used internally by the framework and should not be called directly.
+
+        """
         super().contribute_to_related_class(cls, related)
         if self.remote_field.field_name is None:
             self.remote_field.field_name = cls._meta.pk.name
 
     def formfield(self, *, using=None, **kwargs):
+        """
+
+        Returns a form field for the current model field.
+
+        The returned form field is a `ModelChoiceField` that allows the user to select
+        an instance of the related model from a dropdown list. The list of choices is
+        populated from the default manager of the related model.
+
+        The form field can be customized by passing additional keyword arguments, which
+        are used to initialize the `ModelChoiceField` instance.
+
+        If the related model has not been loaded yet (i.e., it is a string reference
+        rather than a model class), a `ValueError` is raised.
+
+        :param using: The database alias to use for the related model's query.
+        :rtype: ModelChoiceField
+
+        """
         if isinstance(self.remote_field.model, str):
             raise ValueError(
                 "Cannot create form field for %r yet, because "
@@ -1688,6 +1744,15 @@ class ManyToManyField(RelatedField):
         return errors
 
     def _check_table_uniqueness(self, **kwargs):
+        """
+        Checks if the intermediary table of a Many-to-Many field clashes with the table name of another model.
+
+        This function ensures that the database table names generated for Many-to-Many relationships do not conflict with existing table names of other models in the project.
+
+        It verifies the uniqueness of the table name by comparing it with the table names of registered models and returns an error if a clash is detected. If the project uses database routers, a warning is raised instead, with a hint to verify the correct routing of the clashing table to a separate database.
+
+        The function returns a list of errors or warnings if any clashes are found, or an empty list if the table name is unique.
+        """
         if (
             isinstance(self.remote_field.through, str)
             or not self.remote_field.through._meta.managed

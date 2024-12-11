@@ -192,6 +192,11 @@ class override(ContextDecorator):
         self.deactivate = deactivate
 
     def __enter__(self):
+        """
+        Context manager entry point. 
+        Saves the current language setting and optionally activates a new language or deactivates all languages, 
+        depending on the value of the language attribute set for this instance.
+        """
         self.old_language = get_language()
         if self.language is not None:
             activate(self.language)

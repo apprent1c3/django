@@ -51,6 +51,19 @@ class OneToOneTests(TestCase):
     def test_setter(self):
         # Set the place using assignment notation. Because place is the primary
         # key on Restaurant, the save will create a new restaurant
+        """
+
+        Tests the functionality of setter methods for place and restaurant relationships.
+
+        Verifies that setting a restaurant for a place and saving the changes updates the
+        relationship correctly, and that the reverse relationship is also updated
+        accurately. Additionally, checks that setting a restaurant for another place
+        updates the relationship for both the place and the restaurant.
+
+        Ensures that the primary keys of related objects are correctly matched after
+        setting and saving the relationships.
+
+        """
         self.r1.place = self.p2
         self.r1.save()
         self.assertEqual(
@@ -232,6 +245,23 @@ class OneToOneTests(TestCase):
         p.undergroundbar = None
 
     def test_assign_o2o_id_value(self):
+        """
+
+        Tests assignment of an object-to-object ID value for an UndergroundBar instance.
+
+        This function verifies that setting the place_id attribute of an UndergroundBar object
+        successfully updates the related place instance, and that the relationship is cached
+        after first access. It also checks that reassigning the same place_id does not affect
+        the cached relationship.
+
+        The test case covers the following scenarios:
+
+        * Setting a new place_id and verifying the related place instance is updated
+        * Verifying the relationship is not cached before first access
+        * Verifying the relationship is cached after first access
+        * Reassigning the same place_id and verifying the cached relationship remains intact
+
+        """
         b = UndergroundBar.objects.create(place=self.p1)
         b.place_id = self.p2.pk
         b.save()
@@ -582,6 +612,13 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(q4, [r])
 
     def test_rel_pk_exact(self):
+        """
+        Tests that retrieving a restaurant by its primary key using the 'exact' lookup type returns the correct object.
+
+        Verifies that the fetched restaurant matches the original object, ensuring data consistency and correctness of the database query.
+
+        .. note:: This test case assumes the existence of at least one restaurant in the database.
+        """
         r = Restaurant.objects.first()
         r2 = Restaurant.objects.filter(pk__exact=r).first()
         self.assertEqual(r, r2)
@@ -616,6 +653,13 @@ class OneToOneTests(TestCase):
             Place.bar.get_prefetch_queryset(places)
 
     def test_get_prefetch_querysets_invalid_querysets_length(self):
+        """
+
+        Tests that calling get_prefetch_querysets with an invalid number of querysets raises a ValueError.
+        The function should only accept a querysets argument with a length of 1, and this test case checks that
+        the expected error message is raised when the querysets argument has a length greater than 1.
+
+        """
         places = Place.objects.all()
         msg = (
             "querysets argument of get_prefetch_querysets() should have a length of 1."

@@ -531,6 +531,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertTrue(formset.is_valid())
 
     def test_formset_validate_min_excludes_empty_forms(self):
+        """
+        Tests that the formset validates the minimum number of forms required when the validate_min parameter is set to True and all forms are empty. The test checks that an empty formset with the min_num parameter set returns an error message indicating that at least one form must be submitted. This ensures that the formset enforces the minimum number of forms and does not allow submission of an empty formset when validation is enabled.
+        """
         data = {
             "choices-TOTAL_FORMS": "2",
             "choices-INITIAL_FORMS": "0",

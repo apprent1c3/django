@@ -123,6 +123,18 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         wfile = UnclosableBytesIO()
 
         def makefile(mode, *a, **kw):
+            """
+
+            Creates a file object based on the specified mode.
+
+            The mode parameter determines the type of file object to be created.
+            Currently, it supports two modes: 'rb' (read binary) and 'wb' (write binary).
+            Additional arguments and keyword arguments are accepted but not used in this implementation.
+
+            Returns:
+                The created file object (rfile or wfile) based on the specified mode.
+
+            """
             if mode == "rb":
                 return rfile
             elif mode == "wb":

@@ -28,6 +28,13 @@ class ShufflerTests(SimpleTestCase):
         self.assertEqual(shuffler.seed_source, "generated")
 
     def test_init_no_seed_argument(self):
+        """
+        Tests the initialization of the Shuffler class when no seed argument is provided.
+
+        Verifies that the Shuffler instance generates a random seed value and sets its seed source to 'generated' accordingly.
+
+        The test case checks that the generated seed value is correctly assigned to the `seed` attribute and that the `seed_source` attribute is updated to reflect the origin of the seed value.
+        """
         with mock.patch("random.randint", return_value=300):
             shuffler = Shuffler()
         self.assertEqual(shuffler.seed, 300)

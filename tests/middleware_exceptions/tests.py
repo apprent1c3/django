@@ -87,6 +87,9 @@ class MiddlewareTests(SimpleTestCase):
 
     @override_settings(MIDDLEWARE=["middleware_exceptions.middleware.LogMiddleware"])
     def test_view_exception_converted_before_middleware(self):
+        """
+        Tests that a permission denied exception raised by a view is logged with the correct status code and response content before being passed to the middleware for further processing. Specifically, it checks that the log contains the expected HTTP status code and response content, and verifies that a 403 Forbidden status code is returned in the response.
+        """
         response = self.client.get("/middleware_exceptions/permission_denied/")
         self.assertEqual(mw.log, [(response.status_code, response.content)])
         self.assertEqual(response.status_code, 403)
@@ -205,6 +208,11 @@ class MiddlewareNotUsedTests(SimpleTestCase):
         MIDDLEWARE=["middleware_exceptions.tests.MyMiddleware"],
     )
     def test_do_not_log_when_debug_is_false(self):
+        """
+        Tests the functionality of not logging requests when the DEBUG setting is set to False, specifically in the context of the custom 'MyMiddleware' middleware.
+
+        This test case verifies that the logging of requests is properly suppressed when the application is run in a non-debug mode, ensuring that only relevant and necessary logging information is captured.
+        """
         with self.assertNoLogs("django.request", "DEBUG"):
             self.client.get("/middleware_exceptions/view/")
 
@@ -318,6 +326,15 @@ class MiddlewareSyncAsyncTests(SimpleTestCase):
         ],
     )
     def test_async_process_template_response_returns_none_with_sync_client(self):
+        """
+        Tests that the AsyncNoTemplateResponseMiddleware returns None when a synchronous client is used, 
+        resulting in a ValueError when it expects an HttpResponse object.
+
+        This test case verifies the middleware's behavior under specific conditions, ensuring it raises an 
+        error when a synchronous client is used with an asynchronous template response. The test validates 
+        the error message for correctness, providing assurance that the middleware functions as expected 
+        in this scenario.
+        """
         msg = (
             "AsyncNoTemplateResponseMiddleware.process_template_response "
             "didn't return an HttpResponse object."
@@ -381,6 +398,13 @@ class AsyncMiddlewareTests(SimpleTestCase):
         ]
     )
     async def test_exception_in_render_passed_to_process_exception(self):
+        """
+        Tests that an exception occurring during render is caught and processed by the exception middleware.
+
+        Verifies that when an exception is raised in a view's render method, it is properly passed to the exception processing middleware, 
+        allowing for custom error handling and response generation. The test checks that the resulting response contains the expected content, 
+        indicating that the exception was successfully caught and handled.
+        """
         response = await self.async_client.get(
             "/middleware_exceptions/exception_in_render/"
         )

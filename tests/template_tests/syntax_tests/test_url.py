@@ -13,6 +13,25 @@ class UrlTagTests(SimpleTestCase):
     # Successes
     @setup({"url01": '{% url "client" client.id %}'})
     def test_url01(self):
+        """
+
+        Tests the rendering of a URL template string using the engine.
+
+        The function verifies that the rendered output matches the expected URL
+        format for a client resource. It provides a client object with a given ID
+        to the template engine and checks that the resulting URL is correctly
+        formatted.
+
+        Args:
+            self: The test instance.
+
+        Returns:
+            None
+
+        Raises:
+            AssertionError: If the rendered output does not match the expected URL.
+
+        """
         output = self.engine.render_to_string("url01", {"client": {"id": 1}})
         self.assertEqual(output, "/client/1/")
 
@@ -43,6 +62,16 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url04": '{% url "named.client" client.id %}'})
     def test_url04(self):
+        """
+        Tests rendering of a URL using the named client URL pattern.
+
+        This test case verifies that the engine correctly renders a URL template,
+        replacing the client ID with the actual value. The expected output is a URL
+        string in the format '/named-client/<id>/', where <id> is the ID of the client.
+
+        The test passes if the rendered output matches the expected URL format.
+
+        """
         output = self.engine.render_to_string("url04", {"client": {"id": 1}})
         self.assertEqual(output, "/named-client/1/")
 
@@ -53,6 +82,15 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url06": '{% url "метка_оператора_2" tag=v %}'})
     def test_url06(self):
+        """
+
+        Tests the rendering of a URL template tag with a non-ASCII character.
+
+        The function verifies that the :func:`~engine.render_to_string` method correctly
+        renders a URL template tag with a Greek omega (Ω) character passed as a variable.
+        The expected output is a URL path containing the URL-encoded character.
+
+        """
         output = self.engine.render_to_string("url06", {"v": "Ω"})
         self.assertEqual(output, "/%D0%AE%D0%BD%D0%B8%D0%BA%D0%BE%D0%B4/%CE%A9/")
 
@@ -73,6 +111,14 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url11": '{% url "client_action" id=client.id action="==" %}'})
     def test_url11(self):
+        """
+        Test rendering of a URL with the client ID and '==' action.
+
+        This test case verifies that the URL template 'client_action' is correctly
+        rendered with the provided client ID and action. It checks that the resulting
+        URL matches the expected format of '/client/<id>/<action>/', where <id> is the
+        client ID and <action> is the specified action.
+        """
         output = self.engine.render_to_string("url11", {"client": {"id": 1}})
         self.assertEqual(output, "/client/1/==/")
 
@@ -145,6 +191,13 @@ class UrlTagTests(SimpleTestCase):
 
     @setup({"url-fail03": '{% url "client" %}'})
     def test_url_fail03(self):
+        """
+        Tests that the template engine raises a NoReverseMatch exception when attempting to reverse a URL with a missing or incorrect pattern name.
+
+        Checks that the engine correctly handles a faulty URL pattern by rendering a template that attempts to use a non-existent URL reverse, and verifies that the expected exception is raised.
+
+        This test case covers scenarios where a template tries to generate a URL using a name that does not correspond to any defined URL patterns, ensuring the template engine behaves as expected in such situations.
+        """
         with self.assertRaises(NoReverseMatch):
             self.engine.render_to_string("url-fail03")
 

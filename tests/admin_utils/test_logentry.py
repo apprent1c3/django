@@ -290,6 +290,21 @@ class LogEntryTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_action_fallback(self):
+        """
+
+        Test the fallback behavior of log_action() when log_actions() is not implemented.
+
+        This test case verifies that a deprecation warning is raised when using the deprecated
+        log_action() function. It checks that the log entry is created with the correct values,
+        including the user, content type, object ID, object representation, and action flag.
+
+        The test covers the following scenarios:
+
+        * The deprecation warning is raised with the correct message.
+        * The log entry is created with the expected values.
+        * The log entry is created with the correct action flag (DELETION).
+
+        """
         LogEntry.objects2 = InheritedLogEntryManager()
         queryset = Article.objects.all().order_by("-id")
         content_type = ContentType.objects.get_for_model(self.a1)

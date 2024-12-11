@@ -56,6 +56,26 @@ from .views import empty_response
 
 class SkippingTestCase(SimpleTestCase):
     def _assert_skipping(self, func, expected_exc, msg=None):
+        """
+
+        Asserts that calling the given function raises the expected exception.
+
+        This method verifies that executing the provided function results in the specified
+        exception being raised. It also checks that the test is not skipped, ensuring that
+        the exception is indeed raised and not bypassed.
+
+        If a message is provided, it checks that the raised exception contains the exact
+        message. Otherwise, it only checks that the exception type matches the expected
+        one.
+
+        If the function execution is skipped, this method fails, as it expects the function
+        to be fully executed and the exception to be raised.
+
+        :param func: The function to be executed and checked for exception raising.
+        :param expected_exc: The expected exception type to be raised.
+        :param msg: The expected message within the raised exception, if any.
+
+        """
         try:
             if msg is not None:
                 with self.assertRaisesMessage(expected_exc, msg):
@@ -246,6 +266,16 @@ class AssertNumQueriesUponConnectionTests(TransactionTestCase):
     available_apps = []
 
     def test_ignores_connection_configuration_queries(self):
+        """
+
+        Test that the connection configuration queries are ignored.
+
+        This test verifies that when the database connection is established, 
+        any additional configuration queries are not counted towards the total query count.
+        It checks that only one query is executed when retrieving all Car objects from the database,
+        even if the connection establishment itself triggers an additional query.
+
+        """
         real_ensure_connection = connection.ensure_connection
         connection.close()
 
@@ -316,6 +346,12 @@ class AssertQuerySetEqualTests(TestCase):
     def test_undefined_order(self):
         # Using an unordered queryset with more than one ordered value
         # is an error.
+        """
+        Tests that comparing non-ordered QuerySets against multiple ordered values raises an error.
+
+        Ensures that the expected `ValueError` is raised with a descriptive message when attempting to compare a non-ordered QuerySet against more than one ordered value.
+        Additionally, verifies that comparing an ordered QuerySet against a single value works as expected when the QuerySet is filtered to return a single, ordered result.
+        """
         msg = (
             "Trying to compare non-ordered queryset against more than one "
             "ordered value."
@@ -442,6 +478,15 @@ class CaptureQueriesContextManagerTests(TestCase):
 @override_settings(ROOT_URLCONF="test_utils.urls")
 class AssertNumQueriesContextManagerTests(TestCase):
     def test_simple(self):
+        """
+
+        Tests the optimization of database queries by checking the number of queries executed.
+
+        This test case checks that no queries are executed initially, then assesses the number of queries 
+        made when retrieving the count of Person objects. It verifies that the query count increases 
+        correctly when multiple count operations are performed.
+
+        """
         with self.assertNumQueries(0):
             pass
 
@@ -463,6 +508,23 @@ class AssertNumQueriesContextManagerTests(TestCase):
                 raise TypeError
 
     def test_with_client(self):
+        """
+
+        Tests the behavior of a client making GET requests to retrieve a person entity.
+
+        The test case verifies the number of database queries executed when fetching a person
+        by their primary key. It checks the query count for a single request, as well as for
+        multiple consecutive requests.
+
+        The test exercises the client's interaction with the '/test_utils/get_person/{pk}/' endpoint,
+        where '{pk}' is the primary key of the person entity.
+
+        The expected query counts are:
+        - 1 query for a single GET request
+        - 1 query for a subsequent GET request (assuming caching or query optimization)
+        - 2 queries for two consecutive GET requests (testing uncached or unoptimized queries)
+
+        """
         person = Person.objects.create(name="test")
 
         with self.assertNumQueries(1):
@@ -722,6 +784,15 @@ class HTMLEqualTests(SimpleTestCase):
         )
 
     def test_attributes(self):
+        """
+
+        Tests the rendering of HTML attributes in a consistent manner.
+
+        This function verifies that HTML elements are generated with attributes in a standardized order,
+        regardless of the order in which they are defined. It also checks that different attribute values
+        are correctly handled, and that distinct attribute values result in different HTML outputs.
+
+        """
         self.assertHTMLEqual(
             '<input type="text" id="id_name" />', '<input id="id_name" type="text" />'
         )
@@ -735,6 +806,16 @@ class HTMLEqualTests(SimpleTestCase):
         )
 
     def test_class_attribute(self):
+        """
+
+        Tests the normalization of HTML class attributes by comparing equivalent HTML strings.
+
+        The test checks that different class attribute formats, including variations with spaces, 
+        tabs, and newline characters, are normalized to the same output.
+
+        The comparison is case-sensitive and ignores the order of classes in the class attribute.
+
+        """
         pairs = [
             ('<p class="foo bar"></p>', '<p class="bar foo"></p>'),
             ('<p class=" foo bar "></p>', '<p class="bar foo"></p>'),
@@ -1152,6 +1233,15 @@ class XMLEqualTests(SimpleTestCase):
         self.assertXMLNotEqual(xml1, xml2)
 
     def test_simple_not_equal_raise(self):
+        """
+
+        Tests that assertXMLNotEqual raises an AssertionError when comparing two XML elements that are essentially equal, 
+        differing only in the order of their attributes.
+
+        This test case verifies that the function is sensitive to attribute order, ensuring that XML elements with the same 
+        attributes but in a different order are not considered equal. 
+
+        """
         xml1 = "<elem attr1='a' attr2='b' />"
         xml2 = "<elem attr2='b' attr1='a' />"
         with self.assertRaises(AssertionError):
@@ -1215,6 +1305,19 @@ class SkippingExtraTests(TestCase):
 
 class AssertRaisesMsgTest(SimpleTestCase):
     def test_assert_raises_message(self):
+        """
+
+        Tests whether the assertRaisesMessage context manager correctly raises an AssertionError 
+        when the expected message does not match the message of the raised exception.
+
+        This test case covers two scenarios: 
+        1. When an exception is raised directly within the assertRaisesMessage context manager.
+        2. When an exception is raised by a function passed to the assertRaisesMessage context manager.
+
+        The test verifies that the AssertionError is raised with the correct error message when the 
+        expected message does not match the message of the raised exception.
+
+        """
         msg = "'Expected message' not found in 'Unexpected message'"
         # context manager form of assertRaisesMessage()
         with self.assertRaisesMessage(AssertionError, msg):
@@ -1265,6 +1368,16 @@ class AssertWarnsMessageTests(SimpleTestCase):
 
 class AssertFieldOutputTests(SimpleTestCase):
     def test_assert_field_output(self):
+        """
+
+        Tests the output of a form field, specifically validating email addresses.
+
+        Verifies that the field produces the expected output for valid and invalid inputs,
+        including the display of error messages. The test covers scenarios where the field
+        produces correct output, as well as cases where it raises an AssertionError due to
+        mismatched output or incorrectly formatted error messages.
+
+        """
         error_invalid = ["Enter a valid email address."]
         self.assertFieldOutput(
             EmailField, {"a@a.com": "a@a.com"}, {"aaa": error_invalid}
@@ -1316,6 +1429,16 @@ class AssertURLEqualTests(SimpleTestCase):
                 self.assertURLEqual(url1, url2)
 
     def test_not_equal(self):
+        """
+
+        Tests that URLs which are not equal do not pass the assertURLEqual test.
+
+        This function checks several examples of URLs that are syntactically similar but
+        not identical, such as URLs with different schemes, query parameter orders, or
+        query parameter values. It verifies that an AssertionError is raised when
+        comparing these URLs using the assertURLEqual method.
+
+        """
         invalid_tests = (
             # Protocol must be the same.
             ("http://example.com/", "https://example.com/"),
@@ -1329,6 +1452,20 @@ class AssertURLEqualTests(SimpleTestCase):
                 self.assertURLEqual(url1, url2)
 
     def test_message(self):
+        """
+        Tests that the assertURLEqual method correctly raises an AssertionError when comparing two URLs with different schemes or query parameter orders.
+
+        The test verifies that the assertion error message includes the expected and actual URLs, as well as the reason for the failure, providing helpful information for debugging purposes.
+
+        Raised exception:
+            AssertionError: if the URLs do not match
+
+        Parameters:
+            None
+
+        Returns:
+            None
+        """
         msg = (
             "Expected 'http://example.com/?x=1&x=2' to equal "
             "'https://example.com/?x=2&x=1'"
@@ -1579,6 +1716,16 @@ class AssertFormSetErrorTests(SimpleTestCase):
             )
 
     def test_unbound_formset(self):
+        """
+        Tests that an unbound formset raises an AssertionError when formset errors are asserted.
+
+        This test checks that the expected error message is raised when trying to access errors on an unbound formset.
+        The error message indicates that the formset will never have errors because it is not bound.
+
+        Raises:
+            AssertionError: With the expected error message when trying to access errors on an unbound formset
+
+        """
         msg = (
             "The formset <TestFormset: bound=False valid=Unknown total_forms=1> is not "
             "bound, it will never have any errors."
@@ -1601,6 +1748,20 @@ class AssertFormSetErrorTests(SimpleTestCase):
         )
 
     def test_different_non_field_errors(self):
+        """
+        Tests the assertion of non-field errors in a formset.
+
+        This test checks that an AssertionError is raised when the non-field errors
+        of a formset do not match the expected errors. The test also verifies that
+        the error message includes the mismatched error values.
+
+        The function tests this assertion with and without a custom error message prefix.
+        It ensures that the error message is correctly prefixed when a custom prefix is provided.
+
+        Parameters are verified to include the formset instance, form index, and expected error,
+        and optionally, a custom error message prefix.
+
+        """
         msg = (
             "The non-field errors of form 0 of formset <TestFormset: bound=True "
             "valid=False total_forms=1> don't match."
@@ -1923,6 +2084,9 @@ class CaptureOnCommitCallbacksTests(TestCase):
         transaction.on_commit(hook, using=using)
 
     def test_no_arguments(self):
+        """
+        Tests that a callback is properly enqueued without arguments and that it can be executed later, verifying that it triggers the expected functionality. This test case checks that the callback is correctly added to the list of callbacks to be executed on commit, and that it remains untriggered until explicitly invoked.
+        """
         with self.captureOnCommitCallbacks() as callbacks:
             self.enqueue_callback()
 
@@ -2013,6 +2177,17 @@ class CaptureOnCommitCallbacksTests(TestCase):
             leaf_3_call_counter += 1
 
         def branch_1():
+            """
+            Triggers branch 2 and leaf 3 actions upon successful commit of the current transaction.
+
+            Increments an internal counter to track the number of times this function has been called.
+
+            This function is used to initiate a sequence of actions that should occur only after the current transaction has been committed successfully. It provides a way to register callbacks (in this case, branch 2 and leaf 3) that will be executed at the appropriate time.
+
+            Note: This function relies on the presence of a transaction and will raise an exception if no transaction is active when called.
+
+            Returns: None
+            """
             nonlocal branch_1_call_counter
             branch_1_call_counter += 1
             transaction.on_commit(branch_2)
@@ -2064,6 +2239,15 @@ class CaptureOnCommitCallbacksTests(TestCase):
 
 class DisallowedDatabaseQueriesTests(SimpleTestCase):
     def test_disallowed_database_connections(self):
+        """
+        Tests that database connections are disallowed in SimpleTestCase subclasses.
+
+         This test ensures that attempting to connect to the database raises a 
+         DatabaseOperationForbidden exception with a descriptive error message. The 
+         error message directs the user to either subclass TestCase or TransactionTestCase 
+         for proper test isolation, or to add the database to a whitelist to silence the 
+         failure. The test covers both regular and temporary database connections.
+        """
         expected_message = (
             "Database connections to 'default' are not allowed in SimpleTestCase "
             "subclasses. Either subclass TestCase or TransactionTestCase to "
@@ -2163,6 +2347,13 @@ class AllowedDatabaseQueriesTests(SimpleTestCase):
                     conn.dec_thread_sharing()
 
     def test_allowed_database_copy_queries(self):
+        """
+        Tests the functionality of copying a database connection and executing a query on the new connection.
+
+        The test creates a copy of an existing connection, executes a SELECT query on the copied connection, 
+        and checks the query result to verify its correctness. 
+        The test also ensures proper cleanup by validating thread sharing on the new connection and closing it afterwards.
+        """
         new_connection = connection.copy("dynamic_connection")
         try:
             with new_connection.cursor() as cursor:

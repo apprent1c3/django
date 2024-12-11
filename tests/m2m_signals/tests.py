@@ -103,6 +103,17 @@ class ManyToManySignalsTest(TestCase):
         models.signals.m2m_changed.disconnect(handler, Car.default_parts.through)
 
     def test_m2m_relations_add_remove_clear(self):
+        """
+
+        Tests the many-to-many (m2m) relationship functionality by adding and removing objects.
+
+        Verifies that the expected signals are emitted during the addition and removal of objects from the m2m relation.
+
+        It checks for both forward and reverse relationships, ensuring that the signals are triggered correctly in each case.
+
+        The test validates that the `pre_add` and `post_add` signals are sent for the added objects, and that the signals contain the correct instance, action, model, and objects.
+
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -501,6 +512,14 @@ class ManyToManySignalsTest(TestCase):
 
     def _initialize_signal_person(self):
         # Install a listener on the two m2m relations.
+        """
+        Initializes signal connections for person-related many-to-many relationships.
+
+        This method sets up listeners for changes to a person's fans and friends, 
+        ensuring that the application can react to modifications in these relationships.
+        It connects the m2m_changed_signal_receiver method to the m2m_changed signal 
+        for both the fans and friends many-to-many fields of the Person model.
+        """
         models.signals.m2m_changed.connect(
             self.m2m_changed_signal_receiver, Person.fans.through
         )

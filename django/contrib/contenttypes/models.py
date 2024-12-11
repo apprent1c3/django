@@ -147,6 +147,17 @@ class ContentType(models.Model):
 
     @property
     def name(self):
+        """
+        Gets the display name of the model associated with this object.
+
+        Returns the verbose name of the model if it can be instantiated, otherwise 
+        falls back to the model string representation. This provides a human-readable 
+        name for the model, which can be useful in various contexts such as user 
+        interfaces or logging messages.
+
+        :rtype: str
+
+        """
         model = self.model_class()
         if not model:
             return self.model

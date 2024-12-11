@@ -109,6 +109,19 @@ class CharFieldTests(TestCase):
         self.assertEqual(field.check(), [])
 
     def test_missing_max_length(self):
+        """
+
+        Test that a CharField without a specified max_length raises the correct error.
+
+        Checks if the database backend supports unlimited length CharFields, and if so,
+        verifies that no error is raised. Otherwise, it ensures that an error with
+        id 'fields.E120' is returned, indicating that a 'max_length' attribute must be
+        defined for the CharField.
+
+        This test case covers the validation of CharField models to guarantee they are
+        properly configured before usage.
+
+        """
         class Model(models.Model):
             field = models.CharField()
 
@@ -228,6 +241,19 @@ class CharFieldTests(TestCase):
         )
 
     def test_iterable_of_iterable_choices(self):
+        """
+        Tests the usage of an iterable of iterable choices for a model field.
+
+        This test case verifies that an iterable of objects, each yielding multiple values,
+        can be used as choices for a CharField in a Django model. The test checks that the
+        `check` method of the field does not raise any errors when using such an iterable.
+
+        The test uses a custom model `ThingWithIterableChoices` with a `CharField` that has
+        its choices set to an instance of `Things`, which is an iterable of `ThingItem`
+        objects. Each `ThingItem` object yields two values when iterated over, simulating
+        the expected behavior of an iterable choice.
+
+        """
         class ThingItem:
             def __init__(self, value, display):
                 self.value = value
@@ -453,6 +479,15 @@ class CharFieldTests(TestCase):
         )
 
     def test_db_collation(self):
+        """
+        Checks whether a CharField in a model supports database collation. 
+
+        This test verifies that a CharField with a specified database collation triggers the correct validation error when the underlying database does not support collation on CharFields. 
+
+        It tests the `check` method of a field to ensure it returns the expected validation errors, depending on the database's capabilities. 
+
+        The test case covers the scenario where the database supports collation on CharFields, as well as the scenario where it does not, ensuring the field's validation behaves as expected in both cases.
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100, db_collation="anything")
 
@@ -690,6 +725,9 @@ class DecimalFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class FileFieldTests(SimpleTestCase):
     def test_valid_default_case(self):
+        """
+        Tests that a model's file field with default settings passes validation checks, ensuring that no errors are reported when validating the field.
+        """
         class Model(models.Model):
             field = models.FileField()
 
@@ -703,6 +741,14 @@ class FileFieldTests(SimpleTestCase):
         self.assertEqual(field.check(), [])
 
     def test_primary_key(self):
+        """
+        Test that setting primary_key on a FileField raises an error.
+
+        This test case verifies that the Django model field validation correctly identifies
+        and reports the invalid usage of the 'primary_key' argument with a FileField.
+        It confirms that using 'primary_key' with a FileField results in a specific error message,
+        ensuring the model is properly validated and incorrect configurations are caught.
+        """
         class Model(models.Model):
             field = models.FileField(primary_key=False, upload_to="somewhere")
 
@@ -1002,6 +1048,11 @@ class TextFieldTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class UUIDFieldTests(TestCase):
     def test_choices_named_group(self):
+        """
+        Tests the validation of a Django model field with named choices groups.
+
+        The function creates a test Django model with a UUIDField that has choices including named groups and individual choices. It then checks the field's validation by calling its check method and asserting that no validation errors are returned.
+        """
         class Model(models.Model):
             field = models.UUIDField(
                 choices=[
@@ -1055,6 +1106,20 @@ class JSONFieldTests(TestCase):
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_valid_default_none(self):
+        """
+        Tests that a JSONField with a default value of None is valid.
+
+        This test case verifies that a Django model field of type JSONField does not raise any errors when its default value is set to None.
+
+        The test covers the basic functionality of JSONField to ensure it can be initialized and validated without any issues when the default value is None, which is a common use case for fields that may or may not contain data.
+
+        Returns:
+            None
+
+        Note:
+            The test is focused on the validation aspect of the field's configuration and does not cover the actual data storage or retrieval aspects of the JSONField.
+
+        """
         class Model(models.Model):
             field = models.JSONField(default=None)
 
@@ -1122,6 +1187,12 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, expected_errors)
 
     def test_db_default_literal(self):
+        """
+        Tests the default literal value of an IntegerField in a database model.
+
+        The function verifies that the default value of 1 is correctly assigned to the field when it is not explicitly provided.
+        It checks for any database-specific errors that may occur during this process, ensuring compatibility across different databases. If no errors are found, the test passes, confirming that the default literal value is properly applied.
+        """
         class Model(models.Model):
             field = models.IntegerField(db_default=1)
 
@@ -1211,6 +1282,16 @@ class InvalidDBDefaultTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class GeneratedFieldTests(TestCase):
     def test_not_supported(self):
+        """
+
+        Tests that a GeneratedField without database support raises the correct errors.
+
+        The test creates a model with a GeneratedField and checks its validation errors.
+        It covers the cases where the database does not support stored or virtual generated columns,
+        or when the db_persist parameter is set to False without virtual generated column support.
+        The expected errors are verified against the actual validation errors returned by the model field.
+
+        """
         db_persist = connection.features.supports_stored_generated_columns
 
         class Model(models.Model):
@@ -1281,6 +1362,17 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_not_supported_virtual(self):
+        """
+        Tests the behavior of a non-persisted GeneratedField in a model.
+
+        This test case checks if the database backend supports non-persisted generated columns.
+        If the backend does not support it, the test expects a specific error to be raised when checking the model's field.
+        The error indicates that the field should have db_persist set to True.
+
+        The test uses a sample model with an integer field and a generated field that depends on the integer field.
+        The generated field is not persisted in the database.
+        The test then verifies that the expected error is raised when checking the generated field, if the database backend does not support non-persisted generated columns.
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(

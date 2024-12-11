@@ -11,11 +11,30 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class CosTests(TestCase):
     def test_null(self):
+        """
+
+        Tests the behavior of the Cos function when applied to a null value.
+
+        Verifies that the Cos function correctly handles null inputs by checking if the
+        result is None. This test case ensures that the function behaves as expected when
+        encountering missing or null data.
+
+        """
         IntegerModel.objects.create()
         obj = IntegerModel.objects.annotate(null_cos=Cos("normal")).first()
         self.assertIsNone(obj.null_cos)
 
     def test_decimal(self):
+        """
+        Tests the calculation of cosine for Decimal fields.
+
+        Verifies that the cosine function is applied correctly to Decimal model fields, 
+        returning the result as a Decimal instance. Ensures the calculated values are 
+        accurate by comparing them to the expected cosine of the original values.
+
+        The test creates a DecimalModel instance, annotates it with cosine calculations 
+        for its Decimal fields, and checks the types and values of the annotated fields. 
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_cos=Cos("n1"), n2_cos=Cos("n2")).first()
         self.assertIsInstance(obj.n1_cos, Decimal)
@@ -24,6 +43,16 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.n2_cos, Decimal(math.cos(obj.n2)))
 
     def test_float(self):
+        """
+
+        Tests the calculation of cosine for floating point fields in a model.
+
+        This test case creates an instance of FloatModel with sample floating point values,
+        calculates the cosine of these values using the Cos database function, and verifies
+        that the results are of the correct type (float) and match the expected values
+        computed using the math.cos function.
+
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cos=Cos("f1"), f2_cos=Cos("f2")).first()
         self.assertIsInstance(obj.f1_cos, float)

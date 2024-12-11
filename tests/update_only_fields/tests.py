@@ -174,6 +174,19 @@ class UpdateOnlyFieldsTests(TestCase):
         self.assertEqual(e4.profile_id, profile_boss.pk)
 
     def test_update_fields_inheritance_with_proxy_model(self):
+        """
+
+        Tests the updating of fields with inheritance using a proxy model.
+
+        This function creates instances of Profile and ProxyEmployee, updates fields,
+        and verifies that the correct fields are updated while others remain unchanged.
+        It checks the behavior of the `update_fields` parameter when saving a model instance,
+        ensuring that only the specified fields are updated in the database.
+
+        The test covers scenarios where both a non-profile field and a profile field are updated,
+        and verifies the correctness of the data after each update.
+
+        """
         profile_boss = Profile.objects.create(name="Boss", salary=3000)
         profile_receptionist = Profile.objects.create(name="Receptionist", salary=1000)
         e1 = ProxyEmployee.objects.create(

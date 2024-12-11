@@ -74,6 +74,19 @@ class GenericRelationTests(TestCase):
         oddrel.delete()
 
     def test_charlink_filter(self):
+        """
+        Tests the filtering of CharLink instances based on their value.
+
+        Verifies that CharLink objects can be correctly filtered when querying 
+        their associated content objects, ensuring that the expected objects are 
+        returned in the correct order.
+
+        The test case validates the correct retrieval of a content object 
+        (OddRelation1 instance) that has a CharLink instance associated with it, 
+        where the CharLink instance has a specific value. It checks that the 
+        content object is retrieved as expected when filtering by the 
+        CharLink value.
+        """
         oddrel = OddRelation1.objects.create(name="clink")
         CharLink.objects.create(content_object=oddrel, value="value")
         self.assertSequenceEqual(
@@ -128,6 +141,14 @@ class GenericRelationTests(TestCase):
         self.assertIn(org_contact, qs)
 
     def test_join_reuse(self):
+        """
+        Tests that joining the same related model multiple times reuses the same join, 
+        resulting in the expected number of JOIN operations in the generated SQL query.
+
+        This function verifies that the ORM correctly handles cases where a single query 
+        needs to filter on multiple attributes of the same related model, ensuring efficient 
+        database queries are generated.
+        """
         qs = Person.objects.filter(addresses__street="foo").filter(
             addresses__street="bar"
         )
@@ -200,6 +221,21 @@ class GenericRelationTests(TestCase):
         )
 
     def test_ticket_20564(self):
+        """
+
+        Tests the filtering and exclusion of objects based on a related object's flag.
+
+        This test case verifies that the correct objects are returned when filtering
+        and excluding based on a related object's flag. It creates instances of models
+        B and C, and model A with a flag, then tests that the filter and exclude
+        methods return the expected results.
+
+        The test checks that the filter method returns instances of model C that have a
+        related instance of model B with a flag set to None, and that the exclude method
+        returns instances of model C that do not have a related instance of model B with
+        a flag set to None.
+
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -287,6 +323,15 @@ class GenericRelationTests(TestCase):
         self.assertEqual(links.save_form_data_calls, 1)
 
     def test_ticket_22998(self):
+        """
+
+        Tests that attempting to delete a related object that has associated content raises a ProtectedError.
+
+        This test case verifies the integrity constraint that prevents deletion of related objects
+        when they are referenced by existing content nodes, ensuring data consistency and preventing
+        orphaned records.
+
+        """
         related = Related.objects.create()
         content = Content.objects.create(related_obj=related)
         Node.objects.create(content=content)

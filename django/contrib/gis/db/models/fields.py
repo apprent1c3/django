@@ -189,6 +189,18 @@ class BaseSpatialField(Field):
                 )
 
     def get_prep_value(self, value):
+        """
+        Get the prepared geometric value for a given object, converting it to a standard format if necessary.
+
+        This method takes an input value and checks if it can be used for spatial lookups.
+        It supports various input types, including GEOSGeometry objects, strings, bytes, and objects that implement the __geo_interface__.
+        If the input is not already in the correct format, it attempts to convert it to a GEOSGeometry object.
+        The method also ensures that the resulting object has a valid spatial reference system (SRS) identifier.
+        If the conversion fails, a ValueError is raised with a descriptive error message.
+
+        The returned object is guaranteed to be a valid geometric object with a specified SRS identifier, or None if the input was None.
+        The method is intended for use in spatial database operations and provides a convenient way to prepare input data for geographic queries.
+        """
         obj = super().get_prep_value(value)
         if obj is None:
             return None
@@ -278,6 +290,13 @@ class GeometryField(BaseSpatialField):
         super().__init__(verbose_name=verbose_name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts to facilitate serialization or other forms of reconstruction.
+
+        The deconstruction process involves breaking down the object into its name, path, arguments, and keyword arguments. Specifically, it captures and includes any non-default values for the object's dimensionality, geographic settings, spatial extent, and tolerance.
+
+        Returns a tuple containing the object's name, path, positional arguments, and keyword arguments, which can be used to recreate the object or store its configuration.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
         if self.dim != 2:
@@ -291,6 +310,27 @@ class GeometryField(BaseSpatialField):
         return name, path, args, kwargs
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+        Contributes the spatial field to the model class, providing a proxy object for accessing and manipulating geometric data.
+
+        The proxy object, accessible via the attribute name specified by :attr:`attname`, allows for loading and manipulation of geometric data using the :class:`GEOSGeometry` class.
+
+        Bydefault, the :class:`GEOSGeometry` class is used for loading geometric data. However, a custom geometry class can be specified via the :attr:`geom_class` attribute.
+
+        Parameters
+        ----------
+        cls : class
+            The model class being contributed to.
+        name : str
+            The name of the field being contributed.
+        **kwargs
+            Additional keyword arguments passed to the superclass's contribute_to_class method.
+
+        Returns
+        -------
+        None
+            The proxy object is set as an attribute on the model class.
+        """
         super().contribute_to_class(cls, name, **kwargs)
 
         # Setup for lazy-instantiated Geometry object.
@@ -383,6 +423,22 @@ class ExtentField(Field):
         return "ExtentField"
 
     def select_format(self, compiler, sql, params):
+        """
+
+        Returns a formatted SQL query string with optional extent specification.
+
+        This function takes a database compiler, an SQL query, and query parameters as input.
+        It checks if the database connection supports extent specification, and if so,
+        it appends the extent to the SQL query. The formatted query string and the original
+        parameters are then returned as a tuple.
+
+        The extent specification is typically used to define the scope of the query,
+        such as the table or database to query. If the database connection does not
+        support extent specification, the original SQL query is returned unchanged.
+
+        :return: A tuple containing the formatted SQL query string and the query parameters.
+
+        """
         select = compiler.connection.ops.select_extent
         return select % sql if select else sql, params
 
@@ -414,6 +470,19 @@ class RasterField(BaseSpatialField):
         return connection.ops.parse_raster(value)
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+
+        Registers the spatial field with the given model class.
+
+        This method integrates the spatial field with the specified class, 
+        enabling spatial functionality. It sets up a proxy object to manage 
+        the spatial data, utilizing the GDALRaster type from the GDAL library.
+
+        :param cls: The model class to integrate the spatial field with.
+        :param name: The name of the spatial field.
+        :param kwargs: Additional keyword arguments.
+
+        """
         super().contribute_to_class(cls, name, **kwargs)
         # Setup for lazy-instantiated Raster object. For large querysets, the
         # instantiation of all GDALRasters can potentially be expensive. This
@@ -422,6 +491,24 @@ class RasterField(BaseSpatialField):
         setattr(cls, self.attname, SpatialProxy(gdal.GDALRaster, self))
 
     def get_transform(self, name):
+        """
+
+        Returns a transform object for a given raster band.
+
+        The transform object is created based on the provided name. If the name can be
+        converted to an integer, it is treated as a band index and a new transform object
+        with that band index is returned. Otherwise, the parent class's get_transform
+        method is called to handle the name.
+
+        This allows for easy transformation of raster bands by their index, and also
+        falls back to the default behavior for other types of transforms.
+
+        :param name: The name of the transform, which can be either an integer band index
+                     or another type of transform name.
+        :rtype: A transform object, specifically a RasterBandTransform subclass or the
+                result of the parent class's get_transform method.
+
+        """
         from django.contrib.gis.db.models.lookups import RasterBandTransform
 
         try:

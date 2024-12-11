@@ -96,6 +96,17 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_bytes("foo"), b"foo")
 
     def test_smart_str(self):
+        """
+        Tests the functionality of the smart_str function, which is designed to handle different types of input and return a string representation.
+
+        The function checks that the smart_str function correctly handles various types of input, including lazy translation functions, custom objects with a defined string representation, integers, and strings. It verifies that the output is as expected in each case, ensuring that the function behaves consistently and correctly across different input types.
+
+        The tests cover the following scenarios:
+        - Lazy translation functions are left unchanged.
+        - Custom objects with a defined string representation return the expected string.
+        - Integers and strings are converted to their string representations.
+        The purpose of this test is to ensure that the smart_str function works as intended, providing a reliable way to obtain a string representation from different types of input, which is essential for tasks such as internationalization and logging.
+        """
         class Test:
             def __str__(self):
                 return "ŠĐĆŽćžšđ"
@@ -124,6 +135,20 @@ class TestEncodingUtils(SimpleTestCase):
             self.fail("Unexpected RecursionError raised.")
 
     def test_repercent_broken_unicode_small_fragments(self):
+        """
+        Tests the repercent_broken_unicode function to ensure it correctly handles broken Unicode characters.
+
+        This test case verifies the function's ability to properly quote Unicode characters
+        in small fragments of data. The expected output is a bytes object where all broken
+        Unicode characters are correctly percent-encoded.
+
+        Additionally, the test checks the quotation paths of the function by mocking the quote
+        function and verifying the decoded paths that are being quoted. This ensures the
+        function is correctly handling the data as it is being processed.
+
+        :returns: None
+        :raises: AssertionError if the function does not produce the expected output or quotation paths
+        """
         data = b"test\xfctest\xfctest\xfc"
         decoded_paths = []
 
@@ -144,6 +169,22 @@ class TestEncodingUtils(SimpleTestCase):
 
 class TestRFC3987IEncodingUtils(unittest.TestCase):
     def test_filepath_to_uri(self):
+        """
+
+        Converts a filepath to a URI.
+
+        This function takes a filepath as input, which can be a string or a Path object, 
+        and returns a URI string. The filepath is url-encoded to ensure that special 
+        characters are properly escaped.
+
+        If the input is None, the function returns None. The function also handles 
+        both Unix and Windows-style path separators, and will always return a URI 
+        with Unix-style path separators.
+
+        The resulting URI is suitable for use in a URL or other context where a 
+        normalized filepath is required. 
+
+        """
         self.assertIsNone(filepath_to_uri(None))
         self.assertEqual(
             filepath_to_uri("upload\\чубака.mp4"),

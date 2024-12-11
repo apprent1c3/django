@@ -118,10 +118,50 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"({sql})::date", params
 
     def datetime_cast_time_sql(self, sql, params, tzname):
+        """
+        Casts a given SQL query to a time type with the specified timezone.
+
+        This function takes a SQL query, its parameters, and a timezone name, converts the query
+        to use the specified timezone, and then applies a time cast to the result. The converted
+        query and parameters are returned as a tuple.
+
+        The purpose of this function is to ensure that time-related operations in database queries
+        are correctly interpreted according to the desired timezone, helping to avoid potential
+        issues with time zone discrepancies.
+
+        :param sql: The SQL query to be cast to a time type.
+        :param params: The parameters associated with the SQL query.
+        :param tzname: The name of the timezone to use for the conversion.
+        :return: A tuple containing the converted SQL query with a time cast and its parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         return f"({sql})::time", params
 
     def datetime_extract_sql(self, lookup_type, sql, params, tzname):
+        """
+        Extracts the specified date or time part from a SQL query with time zone consideration.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The type of date or time part to extract (e.g., 'second', 'minute', 'hour', etc.)
+        sql : str
+            The SQL query from which to extract the date or time part
+        params : tuple
+            The parameters to be used in the SQL query
+        tzname : str
+            The time zone name to use for the extraction
+
+        Returns
+        -------
+        tuple
+            A tuple containing the modified SQL query with the extracted date or time part and the updated parameters
+
+        Note
+        ----
+        For 'second' lookup type, this function uses the DATE_TRUNC function to truncate the date to the specified precision before extracting the second part. For other lookup types, it delegates to the date_extract_sql method. The SQL query and parameters are converted to the specified time zone before extraction.
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         if lookup_type == "second":
             # Truncate fractional seconds.
@@ -311,6 +351,19 @@ class DatabaseOperations(BaseDatabaseOperations):
         def last_executed_query(self, cursor, sql, params):
             # https://www.psycopg.org/docs/cursor.html#cursor.query
             # The query attribute is a Psycopg extension to the DB API 2.0.
+            """
+
+            Retrieves the last executed SQL query.
+
+            This function checks the provided cursor object for the last executed query and returns it as a decoded string if available.
+
+            :param cursor: The cursor object to retrieve the last query from
+            :param sql: The SQL query string (not used in this implementation)
+            :param params: The query parameters (not used in this implementation)
+            :rtype: str or None
+            :returns: The last executed query as a decoded string, or None if no query was found
+
+            """
             if cursor.query is not None:
                 return cursor.query.decode()
             return None
@@ -348,6 +401,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def adapt_ipaddressfield_value(self, value):
+        """
+        Adapts an IP address field value for compatibility.
+
+        This method takes an IP address value and converts it into a format suitable for 
+        database storage. If a valid IP address is provided, it is wrapped in an Inet 
+        object; otherwise, None is returned.
+
+        :returns: An Inet object representing the IP address, or None if the input is empty
+        """
         if value:
             return Inet(value)
         return None

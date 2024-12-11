@@ -43,6 +43,11 @@ class TimeuntilTests(TimezoneTestCase):
 
     @setup({"timeuntil05": "{{ a|timeuntil:b }}"})
     def test_timeuntil05(self):
+        """
+        Tests the timeuntil filter to verify its output when calculating the time difference between two datetime objects that are one minute apart.
+
+        The test case provides input values for two datetime objects and checks the output of the timeuntil filter to ensure it correctly determines the time difference as 1 minute.
+        """
         output = self.engine.render_to_string(
             "timeuntil05",
             {
@@ -55,6 +60,10 @@ class TimeuntilTests(TimezoneTestCase):
     # Regression for #7443
     @setup({"timeuntil06": "{{ earlier|timeuntil }}"})
     def test_timeuntil06(self):
+        """
+        Test that the timeuntil template filter renders correctly when given a time in the past.
+        The filter should return '0 minutes' when the given time is earlier than the current time.
+        """
         output = self.engine.render_to_string(
             "timeuntil06", {"earlier": self.now - timedelta(days=7)}
         )
@@ -91,11 +100,34 @@ class TimeuntilTests(TimezoneTestCase):
     @requires_tz_support
     @setup({"timeuntil11": "{{ a|timeuntil }}"})
     def test_timeuntil11(self):
+        """
+
+        Tests if the timeuntil filter correctly handles cases when the target time is the current time.
+
+        The timeuntil filter is expected to return '0 minutes' when the input time is equal to the current time.
+        This test ensures that the filter behaves as expected and does not raise any errors when handling such input.
+
+        """
         output = self.engine.render_to_string("timeuntil11", {"a": self.now_tz_i})
         self.assertEqual(output, "0\xa0minutes")
 
     @setup({"timeuntil12": "{{ a|timeuntil:b }}"})
     def test_timeuntil12(self):
+        """
+
+        Tests the timeuntil filter with a 12-hour time format.
+
+        This test case verifies that the timeuntil filter correctly calculates the time difference
+        between two datetime objects and returns the result in a human-readable format.
+        The test input includes two datetime objects, 'a' and 'b', where 'a' is in a timezone-agnostic
+        format and 'b' is in a timezone-aware format. The expected output is '0 minutes', indicating
+        that the two datetime objects are equivalent.
+
+        The test covers the scenario where the time difference is zero minutes, ensuring that the filter
+        behaves correctly in this edge case. The rendered output is compared to the expected string
+        to verify the correctness of the timeuntil filter.
+
+        """
         output = self.engine.render_to_string(
             "timeuntil12", {"a": self.now_tz_i, "b": self.now_tz}
         )

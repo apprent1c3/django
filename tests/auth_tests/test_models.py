@@ -31,6 +31,14 @@ class NaturalKeysTestCase(TestCase):
         self.assertEqual(staff_user.natural_key(), ("staff",))
 
     def test_group_natural_key(self):
+        """
+
+        Tests the natural key functionality for the Group model.
+
+        Verifies that a Group instance can be retrieved using its natural key, 
+        which is the group's name, and checks that it matches the originally created instance.
+
+        """
         users_group = Group.objects.create(name="users")
         self.assertEqual(Group.objects.get_by_natural_key("users"), users_group)
 
@@ -39,6 +47,13 @@ class LoadDataWithoutNaturalKeysTestCase(TestCase):
     fixtures = ["regular.json"]
 
     def test_user_is_created_and_added_to_group(self):
+        """
+        Tests that a user is successfully created and assigned to a specific group.
+
+        This test case verifies that a user with the specified username exists, 
+        and that this user is correctly added to a group with the specified name, 
+        confirming the expected group membership.”
+        """
         user = User.objects.get(username="my_username")
         group = Group.objects.get(name="my_group")
         self.assertEqual(group, user.groups.get())
@@ -554,6 +569,13 @@ class AnonymousUserTests(SimpleTestCase):
         self.assertEqual(str(self.user), "AnonymousUser")
 
     def test_eq(self):
+        """
+        Tests the equality of the user object.
+
+        Checks that the user object is equivalent to an AnonymousUser instance and 
+        not equivalent to a regular User instance, verifying the correct 
+        implementation of the equality comparison logic for the user object.
+        """
         self.assertEqual(self.user, AnonymousUser())
         self.assertNotEqual(self.user, User("super", "super@example.com", "super"))
 
@@ -593,6 +615,15 @@ class GroupTests(SimpleTestCase):
 
 class PermissionTests(TestCase):
     def test_str(self):
+        """
+        Tests the string representation of a Permission object.
+
+        This test case verifies that the string representation of a permission is
+        correctly formatted, including the app label, permission name, and description.
+        It checks that the permission with codename 'view_customemailfield' returns
+        the expected string representation, providing assurance that permission objects
+        can be represented as human-readable strings.
+        """
         p = Permission.objects.get(codename="view_customemailfield")
         self.assertEqual(
             str(p), "Auth_Tests | custom email field | Can view custom email field"

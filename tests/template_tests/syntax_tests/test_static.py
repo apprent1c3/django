@@ -110,6 +110,9 @@ class StaticTagTests(SimpleTestCase):
 
 class StaticNodeTests(SimpleTestCase):
     def test_repr(self):
+        """
+        Tests the string representation of a StaticNode object, ensuring it correctly formats the varname and path attributes as a string. The test covers cases where both varname and path are provided, as well as when varname is not specified, resulting in a default value of None.
+        """
         static_node = StaticNode(varname="named-var", path="named-path")
         self.assertEqual(
             repr(static_node),

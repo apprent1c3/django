@@ -112,6 +112,17 @@ class Collate(Func):
     collation_re = _lazy_re_compile(r"^[\w-]+$")
 
     def __init__(self, expression, collation):
+        """
+        Initializes the object with an expression and a collation.
+
+        :param expression: The expression to be associated with the object.
+        :param collation: The name of the collation to use, which must match a predefined regular expression pattern.
+
+        :raises ValueError: If the provided collation name is invalid.
+
+        :note: The collation is validated upon object initialization to ensure it conforms to the expected format.
+
+        """
         if not (collation and self.collation_re.match(collation)):
             raise ValueError("Invalid collation name: %r." % collation)
         self.collation = collation
@@ -175,6 +186,20 @@ class JSONObject(Func):
         )
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+
+        Generate SQL for creating a JSON object, optimizing for PostgreSQL databases.
+
+        This function adapts the object's conversion to SQL based on the version of PostgreSQL being used.
+        For versions prior to 16, it uses the `JSONB_BUILD_OBJECT` function, casting every other source expression to a text field.
+        For PostgreSQL 16 and later, it relies on native JSON support, using the `JSONB` data type.
+
+        :param compiler: The SQL compiler being used.
+        :param connection: The database connection.
+        :param extra_context: Additional context parameters.
+        :rtype: str
+
+        """
         if not connection.features.is_postgresql_16:
             copy = self.copy()
             copy.set_source_expressions(

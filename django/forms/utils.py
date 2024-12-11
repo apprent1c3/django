@@ -49,6 +49,17 @@ class RenderableMixin:
         )
 
     def render(self, template_name=None, context=None, renderer=None):
+        """
+
+        Renders a template using the provided or default renderer and context.
+
+        :param template_name: The name of the template to render. If not provided, the default template name will be used.
+        :param context: The context to use when rendering the template. If not provided, the default context will be generated.
+        :param renderer: The renderer to use when rendering the template. If not provided, the default renderer will be used.
+
+        :return: The rendered template as a safe HTML string.
+
+        """
         renderer = renderer or self.renderer
         template = template_name or self.template_name
         context = context or self.get_context()
@@ -122,6 +133,15 @@ class ErrorDict(dict, RenderableErrorMixin):
     template_name_ul = "django/forms/errors/dict/ul.html"
 
     def __init__(self, *args, renderer=None, **kwargs):
+        """
+        Initializes the object with the given arguments and optionally a custom renderer.
+
+        :param renderer: A custom renderer to use, defaults to the default renderer if not provided
+        :param args: Variable number of positional arguments
+        :param kwargs: Variable number of keyword arguments
+
+        :note: If no custom renderer is provided, the default renderer is used.
+        """
         super().__init__(*args, **kwargs)
         self.renderer = renderer or get_default_renderer()
 
@@ -165,6 +185,21 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         return copy
 
     def get_json_data(self, escape_html=False):
+        """
+
+        Retrieves error data in JSON format.
+
+        This function fetches error information, including messages and codes, and returns them as a list of dictionaries.
+        Each dictionary contains a 'message' key with the error description, which can be optionally escaped to prevent HTML injection,
+        and a 'code' key with the corresponding error code, if available.
+
+        Args:
+            escape_html (bool): If True, error messages will be escaped to prevent HTML injection. Defaults to False.
+
+        Returns:
+            list: A list of dictionaries containing error messages and codes.
+
+        """
         errors = []
         for error in self.as_data():
             message = next(iter(error))

@@ -31,6 +31,21 @@ def setup(templates, *args, **kwargs):
     def decorator(func):
         @wraps(func)
         def inner(self, *args):
+            """
+            Inner function decorator that invokes the original function with optional setup 
+            functionality based on the presence of a 'tag_name' parameter. 
+
+            It inspects the original function's signature to determine if 'tag_name' is a parameter,
+            and if so, it uses a partial application of the function with the 'tag_name' set, 
+            otherwise it invokes the original function directly. 
+
+            The setup functionality is provided by the functions registered in the 'tags' mapping,
+            which are called with the original function as an argument to allow flexible setup and 
+            customization prior to the actual function invocation.
+
+            :param args: Variable arguments to be passed to the original function
+
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:
@@ -97,6 +112,11 @@ class I18nTransTagTests(SimpleTestCase):
 
     @setup({"i18n24": "{% load i18n %}{% translate 'Page not found'|upper %}"})
     def test_i18n24(self):
+        """
+        Tests that the i18n translation functionality works correctly by rendering a template with a translated string in another language. 
+        The test case ensures that the translation to German ('de') is applied as expected, 
+        resulting in the output string 'SEITE NICHT GEFUNDEN' when the template 'i18n24' is rendered.
+        """
         with translation.override("de"):
             output = self.engine.render_to_string("i18n24")
         self.assertEqual(output, "SEITE NICHT GEFUNDEN")
@@ -156,6 +176,20 @@ class I18nTransTagTests(SimpleTestCase):
 
     @setup({"template": '{% load i18n %}{% translate "Yes" as var context %}'})
     def test_syntax_error_missing_context(self, tag_name):
+        """
+        Test the syntax error when a template tag is missing the required context argument.
+
+        Args:
+            tag_name (str): The name of the template tag being tested.
+
+        Raises:
+            TemplateSyntaxError: If the template tag does not provide a context argument.
+
+        Description:
+            This test case verifies that a TemplateSyntaxError is raised when a template tag 
+            does not receive the required context argument. The test uses a custom template 
+            with a translate tag and checks for the expected error message.
+        """
         msg = "No argument provided to the '{}' tag for the context option.".format(
             tag_name
         )

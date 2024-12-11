@@ -102,9 +102,45 @@ ROLES = {
 
 def create_reference_role(rolename, urlbase):
     # Views and template names are case-sensitive.
+    """
+    Create a custom Sphinx reference role that generates links to a specified base URL.
+
+    The role name is given by `rolename`, and the base URL to link to is given by `urlbase`.
+    `urlbase` should be a string that can be formatted with one argument (the target of the link).
+    The `rolename` determines whether the link target is case sensitive or not.
+
+    Once created, the custom role can be used in ReStructuredText documents to generate links to the specified base URL.
+
+    For example, if you create a role named \"example\" with a base URL of \"https://example.com/%s\",
+    you can use the role in your documents like this: :example:`target`, which will generate a link to \"https://example.com/target\".
+
+    Note that the `rolename` 'template' and 'view' are case sensitive, while all other role names are case insensitive. 
+    """
     is_case_sensitive = rolename in ["template", "view"]
 
     def _role(name, rawtext, text, lineno, inliner, options=None, content=None):
+        """
+
+        Role for creating a reference to a URL.
+
+        This role generates a `reference` node that links to a URL constructed by 
+        formatting a base URL with the provided text. The URL is formatted as 
+        `:link_base` followed by the `text`, which is optionally case-normalized 
+        depending on the `is_case_sensitive` setting.
+
+        The returned node can be used to represent the reference in the document.
+
+        :param name: The name of the role.
+        :param rawtext: The raw text of the role.
+        :param text: The text of the role.
+        :param lineno: The line number where the role was encountered.
+        :param inliner: The inliner object processing the role.
+        :param options: Optional keyword arguments to customize the node.
+        :param content: Optional content for the node.
+
+        :return: A tuple containing the generated node and an empty list of system messages.
+
+        """
         if options is None:
             options = {}
         node = docutils.nodes.reference(

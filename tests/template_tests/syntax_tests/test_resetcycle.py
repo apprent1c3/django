@@ -26,6 +26,9 @@ class ResetCycleTagTests(SimpleTestCase):
 
     @setup({"resetcycle04": "{% cycle 'a' 'b' as ab %}{% resetcycle undefinedcycle %}"})
     def test_resetcycle04(self):
+        """
+        Tests the behavior of the resetcycle tag when attempting to reset a non-existent cycle, verifying that a TemplateSyntaxError is raised with the expected error message.
+        """
         with self.assertRaisesMessage(
             TemplateSyntaxError, "Named cycle 'undefinedcycle' does not exist."
         ):

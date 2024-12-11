@@ -168,6 +168,17 @@ class AggregationTests(TestCase):
         s3.books.add(cls.b3, cls.b4, cls.b6)
 
     def assertObjectAttrs(self, obj, **kwargs):
+        """
+
+        Asserts that an object has the specified attributes with the given values.
+
+        This function checks that the object has all the attributes specified in the keyword arguments and that their values match the expected ones.
+        It raises an assertion error if any attribute is missing or has a different value.
+
+        :parameter obj: The object to check
+        :parameter kwargs: The attributes and their expected values
+
+        """
         for attr, value in kwargs.items():
             self.assertEqual(getattr(obj, attr), value)
 
@@ -761,6 +772,15 @@ class AggregationTests(TestCase):
 
     def test_db_col_table(self):
         # Tests on fields with non-default table and column names.
+        """
+        Tests the database columns and tables by performing queries on Clues and Entries objects.
+
+         The test first checks if the Clues objects have any entries by grouping by Entry ID and counting the number of appearances and distinct clues. It then asserts that the result is an empty list, indicating that there are no entries.
+
+         Next, it checks the Entries objects by annotating each entry with the number of clues it has. The test then asserts that this query also returns an empty list, confirming that there are no entries with any clues. 
+
+         This test ensures that the database is in the expected state, with no unexpected data in the Clues and Entries tables.
+        """
         qs = Clues.objects.values("EntryID__Entry").annotate(
             Appearances=Count("EntryID"), Distinct_Clues=Count("Clue", distinct=True)
         )
@@ -782,6 +802,19 @@ class AggregationTests(TestCase):
     def test_empty(self):
         # Regression for #10089: Check handling of empty result sets with
         # aggregates
+        """
+
+        Tests the functionality of empty query sets.
+
+        Verifies that when filtering by an empty list of IDs, the resulting query set is empty.
+        Checks that aggregate calculations on an empty query set return the expected results, 
+        with count being 0 and other values being None.
+
+        Additionally, tests the annotation of a Publisher query set with aggregate calculations 
+        from related Book instances, ensuring that when the related set is empty, the annotations 
+        return the expected values.
+
+        """
         self.assertEqual(Book.objects.filter(id__in=[]).count(), 0)
 
         vals = Book.objects.filter(id__in=[]).aggregate(
@@ -1012,6 +1045,15 @@ class AggregationTests(TestCase):
     def test_pickle(self):
         # Regression for #10197 -- Queries with aggregates can be pickled.
         # First check that pickling is possible at all. No crash = success
+        """
+        Tests the pickling of a Django QuerySet with annotations.
+
+        Verifies that a QuerySet with an annotation is successfully pickled and unpickled,
+        and that the resulting QuerySet has a query that produces the same SQL as the original.
+
+        Ensures that the pickle/unpickle process does not alter the QuerySet's query, 
+        providing assurance that the query's behavior is preserved after serialization and deserialization.
+        """
         qs = Book.objects.annotate(num_authors=Count("authors"))
         pickle.dumps(qs)
 
@@ -1387,6 +1429,13 @@ class AggregationTests(TestCase):
 
         # The name of the explicitly provided annotation name in this case
         # poses no problem
+        """
+        Test annotating and filtering authors based on the number of books they have written.
+
+        This test case checks if an author can be filtered based on the count of books they have annotated with, 
+        using different alias names for the annotation. It verifies that the results are ordered correctly by the author's name. 
+        Additionally, it checks the aggregate functionality of the annotation by finding the maximum book count.
+        """
         qs = (
             Author.objects.annotate(book_cnt=Count("book"))
             .filter(book_cnt=2)
@@ -1456,6 +1505,20 @@ class AggregationTests(TestCase):
     @skipUnlessDBFeature("allows_group_by_selected_pks")
     def test_aggregate_duplicate_columns_only(self):
         # Works with only() too.
+        """
+
+        Tests database functionality for handling aggregate duplicate columns in GROUP BY queries.
+
+        This test case verifies that when using the `annotate` method to add an aggregated column,
+        the resulting SQL query only groups by the primary key columns of the model, 
+        even when `only` is used to select specific columns.
+
+        It checks the generated SQL query's GROUP BY clause to ensure it only includes 
+        the primary key (`id`) and not other selected columns (`name`) or unselected columns (`age`).
+        Additionally, it verifies the correctness of the aggregated results by comparing 
+        the returned values with the expected output.
+
+        """
         results = Author.objects.only("id", "name").annotate(
             num_contacts=Count("book_contact_set")
         )
@@ -1652,6 +1715,14 @@ class AggregationTests(TestCase):
         )
 
     def test_negated_aggregation(self):
+        """
+        Tests the negation of aggregation queries in Django's ORM.
+
+        Verifies that the exclude method correctly filters out authors who have exactly 2 books associated with them.
+        The test checks both the usage of multiple excludes with the same condition and the usage of a single exclude with an 'or' condition.
+
+        The expected results are compared to the actual results of the query, ensuring that the correct set of authors is returned, ordered alphabetically by name.
+        """
         expected_results = Author.objects.exclude(
             pk__in=Author.objects.annotate(book_cnt=Count("book")).filter(book_cnt=2)
         ).order_by("name")
@@ -1697,6 +1768,14 @@ class AggregationTests(TestCase):
         )
 
     def test_filter_aggregates_or_connector(self):
+        """
+        Tests the filtering of aggregates using the 'or' connector.
+
+        Verifies that the correct books are returned when applying two filters:
+        one for books with a price greater than 50, and another for books with more than one author.
+        The filters are combined using the 'or' operator, ensuring that books that match either condition are included in the results.
+        The function also checks that the results are ordered by primary key and match the expected set of book IDs.
+        """
         q1 = Q(price__gt=50)
         q2 = Q(authors__count__gt=1)
         query = Book.objects.annotate(Count("authors")).filter(q1 | q2).order_by("pk")
@@ -1787,6 +1866,17 @@ class AggregationTests(TestCase):
     def test_aggregate_on_relation(self):
         # A query with an existing annotation aggregation on a relation should
         # succeed.
+        """
+
+        Tests the aggregation of related models.
+
+        This test case verifies that the aggregate function correctly calculates the sum of related fields.
+        In this scenario, it checks that the total number of awards for all publishers of books is calculated correctly.
+        The test uses the average price of books as an annotation, but the focus is on the aggregation of publisher awards.
+
+        The expected result is compared to a predefined value to ensure the correctness of the aggregate function.
+
+        """
         qs = Book.objects.annotate(avg_price=Avg("price")).aggregate(
             publisher_awards=Sum("publisher__num_awards")
         )

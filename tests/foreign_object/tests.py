@@ -287,6 +287,13 @@ class MultiColumnFKTests(TestCase):
 
     def test_m2m_through_forward_returns_valid_members(self):
         # We start out by making sure that the Group 'CIA' has no members.
+        """
+        ..: 
+            Tests that a many-to-many relationship through a forward intermediary model returns the correct members.
+
+            Verifies that the initial member list is empty, then creates membership associations between two people and a group.
+            Finally, it checks that the group's members are returned as expected, ensuring the many-to-many relationship is correctly established and queried.
+        """
         self.assertQuerySetEqual(self.cia.members.all(), [])
 
         Membership.objects.create(
@@ -390,6 +397,14 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(members_lists, normal_members_lists)
 
     def test_prefetch_related_m2m_reverse_works(self):
+        """
+
+        Tests that prefetching related objects works correctly for many-to-many relationships 
+        in the reverse direction. Specifically, it verifies that using prefetch_related 
+        on a Person queryset to fetch their associated Groups results in the same data 
+        as retrieving the groups without prefetching, while also checking the query count.
+
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -515,6 +530,14 @@ class MultiColumnFKTests(TestCase):
         Person.objects.bulk_create(objs, 10)
 
     def test_isnull_lookup(self):
+        """
+
+        Tests the lookup functionality for null values in the 'group' field of Membership objects.
+
+        This test case verifies that the correct Membership objects are returned when using the 'isnull' lookup type.
+        It checks both for cases where the 'group' field is null and where it is not null, ensuring the expected results are obtained.
+
+        """
         m1 = Membership.objects.create(
             membership_country=self.usa, person=self.bob, group_id=None
         )
@@ -707,6 +730,10 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.get_joining_columns()
 
     def test_foreign_object_get_reverse_joining_columns_warning(self):
+        """
+        Tests that a deprecation warning is raised when attempting to retrieve the reverse joining columns of a foreign object, 
+        indicating that the get_reverse_joining_columns method is deprecated in favor of get_reverse_joining_fields.
+        """
         msg = (
             "ForeignObject.get_reverse_joining_columns() is deprecated. Use "
             "get_reverse_joining_fields() instead."

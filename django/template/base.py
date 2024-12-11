@@ -109,6 +109,18 @@ class VariableDoesNotExist(Exception):
 
 class Origin:
     def __init__(self, name, template_name=None, loader=None):
+        """
+        Initializes a new instance of the class.
+
+        :param name: The name of the instance.
+        :param template_name: The name of the template to use, defaults to None.
+        :param loader: The loader to use, defaults to None.
+
+        Initializes the instance with the provided name and optional template name and loader.
+        These parameters are stored as instance attributes and can be accessed later.
+        This method is used to set up the instance with the required configuration.
+
+        """
         self.name = name
         self.template_name = template_name
         self.loader = loader
@@ -322,6 +334,13 @@ class Token:
         )
 
     def split_contents(self):
+        """
+        Splits the contents into individual bits, handling translations by combining bits that start with a translation marker into a single bit. 
+
+        The function uses a smart splitting algorithm to divide the contents into segments, and then checks each segment to see if it starts with a translation marker. If a segment does start with a translation marker, the function combines it with subsequent segments until it finds the end of the translation, and then adds the combined translation bit to the list of split contents. 
+
+        Returns a list of the split contents, with translations intact.
+        """
         split = []
         bits = smart_split(self.contents)
         for bit in bits:

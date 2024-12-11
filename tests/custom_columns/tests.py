@@ -79,6 +79,13 @@ class CustomColumnsTests(TestCase):
         self.assertEqual(self.a1, Author.objects.get(first_name__exact="John"))
 
     def test_filter_on_nonexistent_field(self):
+        """
+        Tests that a FieldError is raised when attempting to filter on a non-existent field.
+
+        The function verifies that Django's ORM correctly handles an invalid field name in a filter query.
+        It checks that the error message includes the valid field choices, helping with error diagnosis and debugging.
+        This test ensures that the application behaves as expected when encountering invalid field names in filter operations.
+        """
         msg = (
             "Cannot resolve keyword 'firstname' into field. Choices are: "
             "Author_ID, article, first_name, last_name, primary_set"
@@ -87,6 +94,12 @@ class CustomColumnsTests(TestCase):
             Author.objects.filter(firstname__exact="John")
 
     def test_author_get_attributes(self):
+        """
+        .tests for getting attributes from an Author object.
+
+        Checks if the 'first_name' and 'last_name' attributes of an Author instance are correctly retrieved.
+        Also verifies that attempting to access non-existent attributes ('firstname', 'last') raises an AttributeError with the expected error message, ensuring case sensitivity and exact attribute naming.
+        """
         a = Author.objects.get(last_name__exact="Smith")
         self.assertEqual("John", a.first_name)
         self.assertEqual("Smith", a.last_name)
@@ -101,6 +114,9 @@ class CustomColumnsTests(TestCase):
             getattr(a, "last")
 
     def test_m2m_table(self):
+        """
+        Tests the many-to-many relationship between articles and authors, verifying that authors are ordered correctly and that the relationship is properly established in both directions. Specifically, it checks that authors are ordered by last name and that filtering by last name returns the correct author.
+        """
         self.assertSequenceEqual(
             self.article.authors.order_by("last_name"),
             [self.a2, self.a1],
