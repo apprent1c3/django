@@ -7,6 +7,13 @@ from django.test import SimpleTestCase
 
 class RegexFieldTest(SimpleTestCase):
     def test_regexfield_1(self):
+        """
+        Tests the validation functionality of the RegexField class.
+
+        Ensures that valid input is accepted, and invalid input raises a ValidationError with the correct error message.
+
+        Validates input against the regular expression '^[0-9][A-F][0-9]$' and checks for required field validation.
+        """
         f = RegexField("^[0-9][A-F][0-9]$")
         self.assertEqual("2A2", f.clean("2A2"))
         self.assertEqual("3F3", f.clean("3F3"))
@@ -20,6 +27,13 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("")
 
     def test_regexfield_2(self):
+        """
+        Tests the functionality of RegexField with a custom regular expression.
+
+        This test case ensures that the RegexField correctly validates input strings
+        against a predefined pattern, allowing valid strings to pass through while
+        raising a ValidationError for invalid ones, and handles empty input when not required.
+        """
         f = RegexField("^[0-9][A-F][0-9]$", required=False)
         self.assertEqual("2A2", f.clean("2A2"))
         self.assertEqual("3F3", f.clean("3F3"))
@@ -28,6 +42,9 @@ class RegexFieldTest(SimpleTestCase):
         self.assertEqual("", f.clean(""))
 
     def test_regexfield_3(self):
+        """
+        Checks that the RegexField class properly validates input strings against a predefined regular expression, ensuring that valid inputs are cleaned and returned, while invalid inputs raise a ValidationError.
+        """
         f = RegexField(re.compile("^[0-9][A-F][0-9]$"))
         self.assertEqual("2A2", f.clean("2A2"))
         self.assertEqual("3F3", f.clean("3F3"))
@@ -39,6 +56,14 @@ class RegexFieldTest(SimpleTestCase):
             f.clean("2A2 ")
 
     def test_regexfield_4(self):
+        """
+
+        Tests the validation of the RegexField for various input values.
+
+        Verifies that the field correctly enforces its minimum and maximum length constraints,
+        and that it validates input against a regular expression.
+
+        """
         f = RegexField("^[0-9]+$", min_length=5, max_length=10)
         with self.assertRaisesMessage(
             ValidationError, "'Ensure this value has at least 5 characters (it has 3).'"
@@ -65,6 +90,12 @@ class RegexFieldTest(SimpleTestCase):
         self.assertEqual("éèøçÎÎ你好", f.clean("éèøçÎÎ你好"))
 
     def test_change_regex_after_init(self):
+        """
+
+        Verifies that changing the regex pattern of a RegexField instance after initialization 
+        correctly validates input values according to the new pattern.
+
+        """
         f = RegexField("^[a-z]+$")
         f.regex = "^[0-9]+$"
         self.assertEqual("1234", f.clean("1234"))
@@ -81,6 +112,9 @@ class RegexFieldTest(SimpleTestCase):
         self.assertEqual(f.clean("a "), "a")
 
     def test_empty_value(self):
+        """
+        Tests the behavior of RegexField when encountering empty values, verifying that it correctly handles required and empty_value parameters.
+        """
         f = RegexField("", required=False)
         self.assertEqual(f.clean(""), "")
         self.assertEqual(f.clean(None), "")

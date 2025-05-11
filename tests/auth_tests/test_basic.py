@@ -45,6 +45,9 @@ class BasicTestCase(TestCase):
         self.assertFalse(u2.has_usable_password())
 
     def test_unicode_username(self):
+        """
+        Tests the creation of usernames with Unicode characters, ensuring that equivalent characters are prevented to avoid duplicate usernames.
+        """
         User.objects.create_user("jörg")
         User.objects.create_user("Григорий")
         # Two equivalent Unicode normalized usernames are duplicates.
@@ -74,6 +77,9 @@ class BasicTestCase(TestCase):
         self.assertTrue(super.is_staff)
 
     def test_superuser_no_email_or_password(self):
+        """
+        Tests that creating a superuser without providing an email or password results in a user with an empty email and no usable password.
+        """
         cases = [
             {},
             {"email": ""},
@@ -138,6 +144,9 @@ class TestGetUser(TestCase):
         self.assertIsInstance(user, AnonymousUser)
 
     def test_get_user(self):
+        """
+        Tests the retrieval of the current user from a request, verifying that the user is authenticated and correctly identified.
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )
@@ -149,6 +158,9 @@ class TestGetUser(TestCase):
         self.assertEqual(user.username, created_user.username)
 
     def test_get_user_fallback_secret(self):
+        """
+        Tests the fallback functionality of the get_user function when the SECRET_KEY is changed, ensuring that a user's session remains active when the SECRET_KEY is updated.
+        """
         created_user = User.objects.create_user(
             "testuser", "test@example.com", "testpw"
         )
@@ -172,6 +184,10 @@ class TestGetUser(TestCase):
             self.assertEqual(user.username, created_user.username)
 
     async def test_aget_user(self):
+        """
+        Tests the aget_user function by creating a new user, logging in, and verifying 
+        that the function correctly retrieves the logged-in user from the request.
+        """
         created_user = await sync_to_async(User.objects.create_user)(
             "testuser", "test@example.com", "testpw"
         )

@@ -35,6 +35,9 @@ class JSONField(CheckFieldDefaultMixin, Field):
         decoder=None,
         **kwargs,
     ):
+        """
+        Initializes an instance with optional encoder and decoder functions, as well as a verbose name and internal name, providing a foundation for further processing or transformation.
+        """
         if encoder and not callable(encoder):
             raise ValueError("The encoder parameter must be a callable object.")
         if decoder and not callable(decoder):
@@ -50,6 +53,12 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return errors
 
     def _check_supported(self, databases):
+        """
+        Checks a list of databases for compatibility with the model's required features.
+
+        Verifies that each database supports the model's fields, specifically JSONFields, and
+        returns a list of errors if any database does not meet the requirements.
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -74,6 +83,9 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return errors
 
     def deconstruct(self):
+        """
+        Augments the deconstruction process of the parent class by including the optional encoder and decoder if they have been configured. Returns the deconstructed representation of the object, including any custom encoders and decoders.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.encoder is not None:
             kwargs["encoder"] = self.encoder
@@ -82,6 +94,14 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return name, path, args, kwargs
 
     def from_db_value(self, value, expression, connection):
+        """
+        Deserializes a JSON value from the database into a Python object.
+
+        :param value: The value from the database
+        :param expression: The database expression that yielded the value
+        :param connection: The database connection
+        :return: The deserialized Python object, or the original value if deserialization fails or is not applicable.
+        """
         if value is None:
             return value
         # Some backends (SQLite at least) extract non-string values in their
@@ -97,6 +117,13 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return "JSONField"
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        Returns the database preparation value for a given value.
+
+        This method prepares a value to be used in a database operation, handling
+        JSON values and other special cases, and adapts it according to the database
+        connection being used.
+        """
         if not prepared:
             value = self.get_prep_value(value)
         if isinstance(value, expressions.Value) and isinstance(
@@ -119,6 +146,9 @@ class JSONField(CheckFieldDefaultMixin, Field):
         return KeyTransformFactory(name)
 
     def validate(self, value, model_instance):
+        """
+        Validate a value to ensure it can be serialized to JSON. If the value cannot be serialized, a ValidationError is raised with a message indicating that the value is invalid.
+        """
         super().validate(value, model_instance)
         try:
             json.dumps(value, cls=self.encoder)
@@ -144,6 +174,12 @@ class JSONField(CheckFieldDefaultMixin, Field):
 
 
 def compile_json_path(key_transforms, include_root=True):
+    """
+    :param list key_transforms: A list of key transformations to apply to the JSON path
+    :param bool include_root: Whether to include the root ($) in the generated JSON path
+    :return: A compiled JSON path as a string,
+             combining key transformations with dot notation and array indexing.
+    """
     path = ["$"] if include_root else []
     for key_transform in key_transforms:
         try:
@@ -161,6 +197,9 @@ class DataContains(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
     postgres_operator = "@>"
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL representation of a JSON field contains lookup, raising an error if the database backend does not support this operation.
+        """
         if not connection.features.supports_json_field_contains:
             raise NotSupportedError(
                 "contains lookup is not supported on this database backend."
@@ -176,6 +215,12 @@ class ContainedBy(FieldGetDbPrepValueMixin, PostgresOperatorLookup):
     postgres_operator = "<@"
 
     def as_sql(self, compiler, connection):
+        """
+        Generates the SQL for the JSON_CONTAINS lookup. 
+        Checks if the database backend supports the `contained_by` lookup, 
+        raising an error if not supported. Returns a SQL string and parameters 
+        to be used in the query.
+        """
         if not connection.features.supports_json_field_contains:
             raise NotSupportedError(
                 "contained_by lookup is not supported on this database backend."
@@ -195,6 +240,12 @@ class HasKeyLookup(PostgresOperatorLookup):
 
     def as_sql(self, compiler, connection, template=None):
         # Process JSON path from the left-hand side.
+        """
+        Generates SQL for a database operation involving JSON data.
+        This function takes a template and, based on the left-hand side (LHS) and right-hand side (RHS) of the operation,
+        constructs the necessary SQL string and parameters to query JSON data.
+        It handles both simple and complex JSON paths, including those that involve nested keys.
+        """
         if isinstance(self.lhs, KeyTransform):
             lhs, lhs_params, lhs_key_transforms = self.lhs.preprocess_lhs(
                 compiler, connection
@@ -237,6 +288,9 @@ class HasKeyLookup(PostgresOperatorLookup):
         return sql % tuple(params), []
 
     def as_postgresql(self, compiler, connection):
+        """
+        Adapts the given expression for use with PostgreSQL, handling KeyTransform instances on the right-hand side by applying any necessary key transformations to the left-hand side.
+        """
         if isinstance(self.rhs, KeyTransform):
             *_, rhs_key_transforms = self.rhs.preprocess_lhs(compiler, connection)
             for key in rhs_key_transforms[:-1]:
@@ -301,6 +355,10 @@ class JSONExact(lookups.Exact):
     can_use_none_as_rhs = True
 
     def process_rhs(self, compiler, connection):
+        """
+        Processes the right-hand side of a database query, adapting it to the specific database connection being used. 
+        Specifically, handles conversion of null values and applies MySQL-specific JSON extraction transformations.
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         # Treat None lookup values as null.
         if rhs == "%s" and rhs_params == [None]:
@@ -311,6 +369,13 @@ class JSONExact(lookups.Exact):
         return rhs, rhs_params
 
     def as_oracle(self, compiler, connection):
+        """
+        Renders an Oracle-compatible JSON equality check operation.
+
+        This function processes the left-hand side (LHS) and right-hand side (RHS) of a comparison,
+        wraps them in Oracle's JSON equality check function if the database supports primitives in JSON fields,
+        and returns the resulting expression along with its parameters.
+        """
         lhs, lhs_params = self.process_lhs(compiler, connection)
         rhs, rhs_params = self.process_rhs(compiler, connection)
         if connection.features.supports_primitives_in_json_field:
@@ -341,6 +406,14 @@ class KeyTransform(Transform):
         self.key_name = str(key_name)
 
     def preprocess_lhs(self, compiler, connection):
+        """
+        Preprocesses the left-hand side of a query by compiling it and extracting key transformations.
+
+        :arg compiler: The compiler object used for compilation.
+        :arg connection: The database connection object.
+        :return: A tuple containing the compiled left-hand side, parameters, and key transformations.
+        :note: The key transformations are escaped for Oracle databases by replacing '%' with '%%'.
+        """
         key_transforms = [self.key_name]
         previous = self.lhs
         while isinstance(previous, KeyTransform):
@@ -358,6 +431,9 @@ class KeyTransform(Transform):
         return "JSON_EXTRACT(%s, %%s)" % lhs, tuple(params) + (json_path,)
 
     def as_oracle(self, compiler, connection):
+        """
+        Generates an Oracle-compatible SQL expression to extract a JSON value from a field, handling both primitive and non-primitive JSON values.
+        """
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         json_path = compile_json_path(key_transforms)
         if connection.features.supports_primitives_in_json_field:
@@ -369,6 +445,19 @@ class KeyTransform(Transform):
         return sql % ((lhs, json_path) * 2), tuple(params) * 2
 
     def as_postgresql(self, compiler, connection):
+        """
+        Translates the query lookup to PostgreSQL syntax.
+
+        Generates SQL and parameters for the given lookup type, handling both
+        nested and simple lookups, and returning them as a tuple. The resulting
+        SQL string is formatted with a placeholder for the lookup value, which
+        is included in the parameters tuple.
+
+        :param compiler: The compiler instance to use for preprocessing.
+        :param connection: The database connection to use for the query.
+        :returns: A tuple containing the formatted SQL string and the parameters.
+
+        """
         lhs, params, key_transforms = self.preprocess_lhs(compiler, connection)
         if len(key_transforms) > 1:
             sql = "(%s %s %%s)" % (lhs, self.postgres_nested_operator)
@@ -397,6 +486,15 @@ class KeyTextTransform(KeyTransform):
     output_field = TextField()
 
     def as_mysql(self, compiler, connection):
+        """
+        Generates a MySQL SQL expression for a JSON path operation, handling both MySQL and MariaDB variants.
+
+        Returns a tuple containing the SQL expression and the required parameters. For MariaDB, the SQL expression is wrapped in a JSON_UNQUOTE call. For MySQL, the SQL expression is constructed using the ->> operator. The resulting SQL expression can be used to extract a JSON value from a column.
+
+        :param compiler: The SQL compiler used to generate the expression.
+        :param connection: The database connection, which provides information about the MySQL variant being used.
+        :rtype: tuple[str, tuple]
+        """
         if connection.mysql_is_mariadb:
             # MariaDB doesn't support -> and ->> operators (see MDEV-13594).
             sql, params = super().as_mysql(compiler, connection)
@@ -408,6 +506,14 @@ class KeyTextTransform(KeyTransform):
 
     @classmethod
     def from_lookup(cls, lookup):
+        """
+        ).. 
+            Builds a chain of transformations from a string-based lookup specification.
+
+            :param lookup: A string containing the lookup specification, with transformations and keys/indexes separated by ``LOOKUP_SEP``.
+            :return: The constructed transformation chain.
+            :raises ValueError: If the lookup string does not contain any keys or indexes.
+        """
         transform, *keys = lookup.split(LOOKUP_SEP)
         if not keys:
             raise ValueError("Lookup must contain key or index transforms.")
@@ -444,6 +550,15 @@ class KeyTransformTextLookupMixin:
 class KeyTransformIsNull(lookups.IsNull):
     # key__isnull=False is the same as has_key='key'
     def as_oracle(self, compiler, connection):
+        """
+        Generates Oracle SQL representation for a NOT IN or NOT EXISTS condition.
+
+        Handles cases where the right-hand side (RHS) is empty or non-empty, 
+        and combines the left-hand side (LHS) preprocessing with the Oracle SQL 
+        generated from the condition's key or array index.
+
+        Returns the constructed Oracle SQL query and its parameters.
+        """
         sql, params = HasKeyOrArrayIndex(
             self.lhs.lhs,
             self.lhs.key_name,
@@ -467,6 +582,14 @@ class KeyTransformIsNull(lookups.IsNull):
 
 class KeyTransformIn(lookups.In):
     def resolve_expression_parameter(self, compiler, connection, sql, param):
+        """
+
+        Resolves an expression parameter for use in SQL queries, handling JSON field support for various database vendors.
+
+        This method extends the base implementation to provide vendor-specific handling for Oracle, MySQL, and SQLite databases.
+        It converts JSON parameters to the correct SQL syntax for each vendor, ensuring compatibility and correct data representation.
+
+        """
         sql, params = super().resolve_expression_parameter(
             compiler,
             connection,
@@ -496,6 +619,10 @@ class KeyTransformIn(lookups.In):
 
 class KeyTransformExact(JSONExact):
     def process_rhs(self, compiler, connection):
+        """
+        Handle the right-hand side of a database query, adapting the SQL syntax 
+        for JSON operations dependent on the vendor (Oracle or SQLite).
+        """
         if isinstance(self.rhs, KeyTransform):
             return super(lookups.Exact, self).process_rhs(compiler, connection)
         rhs, rhs_params = super().process_rhs(compiler, connection)
@@ -520,6 +647,13 @@ class KeyTransformExact(JSONExact):
         return rhs, rhs_params
 
     def as_oracle(self, compiler, connection):
+        """
+
+        Generates Oracle-specific SQL for the current database operation, handling 
+        special cases when the right-hand side is null. This ensures proper translation 
+        of Python expressions into Oracle-compatible queries.
+
+        """
         rhs, rhs_params = super().process_rhs(compiler, connection)
         if rhs_params == ["null"]:
             # Field has key and it's NULL.

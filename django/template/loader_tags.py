@@ -49,6 +49,9 @@ class BlockNode(Node):
         return "<Block Node: %s. Contents: %r>" % (self.name, self.nodelist)
 
     def render(self, context):
+        """
+        Renders a template block within a given context, handling nested block scenarios by creating a new block instance or reusing an existing one from the render context.
+        """
         block_context = context.render_context.get(BLOCK_CONTEXT_KEY)
         with context.push():
             if block_context is None:
@@ -68,6 +71,14 @@ class BlockNode(Node):
         return result
 
     def super(self):
+        """
+        ```\"\"\"
+        Renders a block from a parent template.
+
+        роверifies that the current object has a context and checks if a block with the same name exists in the render context.
+        If the block exists, it renders the block and marks the output as safe. Otherwise, it returns an empty string.
+        \"\"\"```
+        """
         if not hasattr(self, "context"):
             raise TemplateSyntaxError(
                 "'%s' object has no attribute 'context'. Did you use "
@@ -114,6 +125,13 @@ class ExtendsNode(Node):
         return template
 
     def get_parent(self, context):
+        """
+        Resolves the parent template for the current template, based on the given context.
+
+        Raises a :class:`TemplateSyntaxError` if the parent template cannot be found.
+
+        Returns the parent template instance if found, or the resolved template instance if the parent is a container object that holds a template.
+        """
         parent = self.parent_name.resolve(context)
         if not parent:
             error_msg = "Invalid template name in 'extends' tag: %r." % parent
@@ -131,6 +149,13 @@ class ExtendsNode(Node):
         return self.find_template(parent, context)
 
     def render(self, context):
+        """
+        Renders the compiled parent template, incorporating the current block context and handling block inheritance.
+
+        The function initializes the block context if it does not exist, adds the current blocks to it, and then updates it with blocks from the compiled parent.
+
+        It then renders the compiled parent, using the updated block context, and returns the result.
+        """
         compiled_parent = self.get_parent(context)
 
         if BLOCK_CONTEXT_KEY not in context.render_context:

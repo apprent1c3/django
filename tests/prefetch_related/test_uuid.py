@@ -5,6 +5,10 @@ from .models import Flea, House, Person, Pet, Room
 
 class UUIDPrefetchRelated(TestCase):
     def test_prefetch_related_from_uuid_model(self):
+        """
+        Tests that prefetch_related works correctly for relationships from a model identified by a UUID, 
+        ensuring the related objects are loaded in a single database query.
+        """
         Pet.objects.create(name="Fifi").people.add(
             Person.objects.create(name="Ellen"),
             Person.objects.create(name="George"),
@@ -16,6 +20,13 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(pet.people.all()))
 
     def test_prefetch_related_to_uuid_model(self):
+        """
+
+        Tests that prefetch_related correctly fetches related objects for a model with a UUID primary key.
+
+        Verifies that the number of database queries is reduced when using prefetch_related to retrieve related objects.
+
+        """
         Person.objects.create(name="Bella").pets.add(
             Pet.objects.create(name="Socks"),
             Pet.objects.create(name="Coffee"),
@@ -27,6 +38,13 @@ class UUIDPrefetchRelated(TestCase):
             self.assertEqual(2, len(person.pets.all()))
 
     def test_prefetch_related_from_uuid_model_to_uuid_model(self):
+        """
+
+        Tests the prefetch_related functionality for Many-To-Many relationships between UUID models.
+
+        Verifies that related objects are fetched in a single query, reducing subsequent query counts to zero.
+
+        """
         fleas = [Flea.objects.create() for i in range(3)]
         Pet.objects.create(name="Fifi").fleas_hosted.add(*fleas)
         Pet.objects.create(name="Bobo").fleas_hosted.add(*fleas)
@@ -56,6 +74,9 @@ class UUIDPrefetchRelated(TestCase):
 class UUIDPrefetchRelatedLookups(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating a predefined set of entities including a house, room, fleas, pet, and person, with their respective relationships established.
+        """
         house = House.objects.create(name="Redwood", address="Arcata")
         room = Room.objects.create(name="Racoon", house=house)
         fleas = [Flea.objects.create(current_room=room) for i in range(3)]

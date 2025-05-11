@@ -31,10 +31,24 @@ def require_http_methods(request_method_list):
     """
 
     def decorator(func):
+        """
+
+        Restricts HTTP requests to a set of allowed methods.
+
+        This decorator ensures that a view function or coroutine only handles requests with methods specified in the request_method_list.
+        If an unsupported method is used, it returns a 405 Method Not Allowed response.
+
+        :param func: The view function or coroutine to be decorated.
+        :returns: A decorated function that enforces the allowed request methods.
+
+        """
         if iscoroutinefunction(func):
 
             @wraps(func)
             async def inner(request, *args, **kwargs):
+                """
+                Checks if the HTTP request method is allowed for a given view function and handles the request accordingly. If the method is not allowed, it returns a \"Method Not Allowed\" response; otherwise, it calls the original view function with the provided request and arguments.
+                """
                 if request.method not in request_method_list:
                     response = HttpResponseNotAllowed(request_method_list)
                     log_response(
@@ -51,6 +65,20 @@ def require_http_methods(request_method_list):
 
             @wraps(func)
             def inner(request, *args, **kwargs):
+                """
+
+                Restricts the allowed HTTP methods for a view function.
+
+                This decorator checks if the incoming request method is in the list of allowed methods.
+                If the method is not allowed, it returns a 405 Method Not Allowed response.
+                Otherwise, it calls the original view function.
+
+                :param request: The incoming HTTP request.
+                :param args: Variable number of positional arguments.
+                :param kwargs: Variable number of keyword arguments.
+                :returns: The response from the decorated view function or a 405 error response.
+
+                """
                 if request.method not in request_method_list:
                     response = HttpResponseNotAllowed(request_method_list)
                     log_response(
@@ -104,8 +132,38 @@ def condition(etag_func=None, last_modified_func=None):
     """
 
     def decorator(func):
+        """
+        A decorator to conditionally process HTTP requests and responses, handling ETag and Last-Modified headers.
+
+        It supports both synchronous and asynchronous functions, and allows for the customization of ETag and Last-Modified
+        generation through the etag_func and last_modified_func arguments.
+
+        This decorator can be used to optimize HTTP responses by taking advantage of caching and conditional request logic,
+        improving performance and reducing unnecessary data transfers.
+
+        It sets the ETag and Last-Modified headers in the response if they are not already present, and returns a response
+        immediately if the request conditions are met. If not, it proceeds with the original function execution and then
+        sets the headers accordingly.
+
+        It uses the etag_func and last_modified_func callbacks to generate the ETag and Last-Modified values, respectively.
+        These callbacks must be provided as external functions to customize the decorator's behavior.
+
+        The decorator ensures that all timestamps are converted to UTC timezone, ensuring consistency in date and time
+        calculations across different regions and environments.
+
+        This decorator can be particularly useful in RESTful API designs where data caching and conditional requests are
+        critical to achieving high performance and scalability.
+        """
         def _pre_process_request(request, *args, **kwargs):
             # Compute values (if any) for the requested resource.
+            """
+
+            Pre-processes a request by generating etag and last modified values, 
+            then checks for a conditional response based on these values.
+
+            Returns a tuple containing the conditional response and the etag and last modified values used to generate it.
+
+            """
             res_last_modified = None
             if last_modified_func:
                 if dt := last_modified_func(request, *args, **kwargs):
@@ -125,6 +183,9 @@ def condition(etag_func=None, last_modified_func=None):
         def _post_process_request(request, response, res_etag, res_last_modified):
             # Set relevant headers on the response if they don't already exist
             # and if the request method is safe.
+            """
+            Adds last modified and ETag headers to the response if they are missing for GET and HEAD requests, improving caching and consistency.
+            """
             if request.method in ("GET", "HEAD"):
                 if res_last_modified and not response.has_header("Last-Modified"):
                     response.headers["Last-Modified"] = http_date(res_last_modified)
@@ -135,6 +196,14 @@ def condition(etag_func=None, last_modified_func=None):
 
             @wraps(func)
             async def inner(request, *args, **kwargs):
+                """
+
+                Wraps an asynchronous function to handle request preprocessing and postprocessing.
+
+                This function first checks if a valid response can be generated from the request, 
+                falls back to the wrapped function if not, and then finalizes the response.
+
+                """
                 response, res_etag, res_last_modified = _pre_process_request(
                     request, *args, **kwargs
                 )
@@ -147,6 +216,14 @@ def condition(etag_func=None, last_modified_func=None):
 
             @wraps(func)
             def inner(request, *args, **kwargs):
+                """
+                Wraps a function to handle request preprocessing and postprocessing.
+
+                Provides a decorator that adds etag and last modified caching support,
+                as well as other preprocessing and postprocessing logic to the wrapped function.
+
+                The wrapped function will be called only if preprocessing does not return a response.
+                """
                 response, res_etag, res_last_modified = _pre_process_request(
                     request, *args, **kwargs
                 )

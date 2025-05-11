@@ -13,8 +13,21 @@ def async_unsafe(message):
 
     def decorator(func):
         @wraps(func)
+        """
+
+        Prevents a function from being executed asynchronously when DJANGO_ALLOW_ASYNC_UNSAFE is not set.
+
+        Decorates a function to ensure it can only be run in a synchronous context, unless
+        the DJANGO_ALLOW_ASYNC_UNSAFE environment variable is explicitly set.
+
+        """
         def inner(*args, **kwargs):
             # Detect a running event loop in this thread.
+            """
+            Enforces synchronous execution of a function, checking if it's being called from an asynchronous context.
+            If running in an event loop and the DJANGO_ALLOW_ASYNC_UNSAFE environment variable is not set, raises a SynchronousOnlyOperation error.
+            Otherwise, proceeds with the original function call, passing all arguments and keyword arguments through.
+            """
             try:
                 get_running_loop()
             except RuntimeError:

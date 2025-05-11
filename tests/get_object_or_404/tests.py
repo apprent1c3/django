@@ -8,6 +8,9 @@ from .models import Article, Author
 
 class GetObjectOr404Tests(TestCase):
     def test_get_object_or_404(self):
+        """
+        Tests the functionality of the get_object_or_404 helper function, ensuring it correctly retrieves objects from the database or raises a 404 error when the object does not exist.
+        """
         a1 = Author.objects.create(name="Brave Sir Robin")
         a2 = Author.objects.create(name="Patsy")
 
@@ -88,6 +91,9 @@ class GetObjectOr404Tests(TestCase):
     def test_bad_class(self):
         # Given an argument klass that is not a Model, Manager, or Queryset
         # raises a helpful ValueError message
+        """
+        Tests the get_object_or_404 and get_list_or_404 functions to ensure they raise a ValueError when passed an invalid first argument, such as a string, custom class, or list, instead of a Model, Manager, or QuerySet.
+        """
         msg = (
             "First argument to get_object_or_404() must be a Model, Manager, or "
             "QuerySet, not 'str'."

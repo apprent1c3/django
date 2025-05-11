@@ -17,6 +17,10 @@ class LocaleMiddleware(MiddlewareMixin):
     response_redirect_class = HttpResponseRedirect
 
     def process_request(self, request):
+        """
+        Determines the language for a given HTTP request based on URL configuration and Django settings, 
+        activates the translation and stores the language code in the request object.
+        """
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)
         (
             i18n_patterns_used,
@@ -36,6 +40,22 @@ class LocaleMiddleware(MiddlewareMixin):
         request.LANGUAGE_CODE = translation.get_language()
 
     def process_response(self, request, response):
+        """
+        Handle internationalization for the given HTTP response.
+
+        Redirects to the URL with language prefix if necessary, adds language headers
+        and patches vary headers for proper internationalization support. If the URL
+        does not match any pattern and internationalization patterns are used,
+        it attempts to redirect to the prefixed URL.
+
+        Args:
+            request: The current HTTP request.
+            response: The HTTP response to be processed.
+
+        Returns:
+            The processed HTTP response, potentially with added headers and a redirect.
+
+        """
         language = translation.get_language()
         language_from_path = translation.get_language_from_path(request.path_info)
         urlconf = getattr(request, "urlconf", settings.ROOT_URLCONF)

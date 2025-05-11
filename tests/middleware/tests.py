@@ -297,6 +297,9 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     @override_settings(APPEND_SLASH=False, PREPEND_WWW=True)
     def test_prepend_www_custom_urlconf(self):
+        """
+        Tests that CommonMiddleware correctly prepends 'www' to a custom URLconf when the PREPEND_WWW setting is enabled.
+        """
         request = self.rf.get("/customurlconf/path/")
         request.urlconf = "middleware.extra_urls"
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -305,6 +308,9 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     @override_settings(APPEND_SLASH=True, PREPEND_WWW=True)
     def test_prepend_www_append_slash_have_slash_custom_urlconf(self):
+        """
+        Tests the CommonMiddleware's handling of request when both APPEND_SLASH and PREPEND_WWW settings are enabled, with a custom URL configuration that already contains a slash. Verifies that the middleware correctly redirects the request to the expected URL with the 'www' subdomain added.
+        """
         request = self.rf.get("/customurlconf/slash/")
         request.urlconf = "middleware.extra_urls"
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -313,6 +319,9 @@ class CommonMiddlewareTest(SimpleTestCase):
 
     @override_settings(APPEND_SLASH=True, PREPEND_WWW=True)
     def test_prepend_www_append_slash_slashless_custom_urlconf(self):
+        """
+        Tests that the CommonMiddleware correctly prepends 'www' and appends a slash to a custom URL configuration when the APPEND_SLASH and PREPEND_WWW settings are enabled.
+        """
         request = self.rf.get("/customurlconf/slash")
         request.urlconf = "middleware.extra_urls"
         r = CommonMiddleware(get_response_empty).process_request(request)
@@ -322,6 +331,9 @@ class CommonMiddlewareTest(SimpleTestCase):
     # Tests for the Content-Length header
 
     def test_content_length_header_added(self):
+        """
+        Tests that the Content-Length header is added to a response by the CommonMiddleware when the response does not initially include it. Verifies that the header value matches the length of the response content.
+        """
         def get_response(req):
             response = HttpResponse("content")
             self.assertNotIn("Content-Length", response)
@@ -331,6 +343,9 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertEqual(int(response.headers["Content-Length"]), len(response.content))
 
     def test_content_length_header_not_added_for_streaming_response(self):
+        """
+        Tests that the 'Content-Length' header is not added to responses when using a streaming HTTP response, ensuring middleware does not interfere with this behavior.
+        """
         def get_response(req):
             response = StreamingHttpResponse("content")
             self.assertNotIn("Content-Length", response)
@@ -340,6 +355,9 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertNotIn("Content-Length", response)
 
     def test_content_length_header_not_changed(self):
+        """
+        Tests that the Content-Length header is preserved when passed through CommonMiddleware.
+        """
         bad_content_length = 500
 
         def get_response(req):
@@ -370,6 +388,12 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertEqual(r.status_code, 301)
 
     def test_response_redirect_class(self):
+        """
+        Tests that the CommonMiddleware correctly applies trailing slash redirects.
+
+        Verifies that a GET request to a URL without a trailing slash results in a
+        301 permanent redirect to the same URL with a trailing slash.
+        """
         request = self.rf.get("/slash")
         r = CommonMiddleware(get_response_404)(request)
         self.assertEqual(r.status_code, 301)
@@ -377,6 +401,9 @@ class CommonMiddlewareTest(SimpleTestCase):
         self.assertIsInstance(r, HttpResponsePermanentRedirect)
 
     def test_response_redirect_class_subclass(self):
+        """
+        Tests that the response_redirect_class is used correctly when handling redirects in subclasses of CommonMiddleware.
+        """
         class MyCommonMiddleware(CommonMiddleware):
             response_redirect_class = HttpResponseRedirect
 
@@ -416,6 +443,11 @@ class BrokenLinkEmailsMiddlewareTest(SimpleTestCase):
         self.assertEqual(len(mail.outbox), 0)
 
     def test_custom_request_checker(self):
+        """
+        Tests the custom request checker functionality of BrokenLinkEmailsMiddleware.
+
+        Verifies that the middleware ignores requests based on user agent patterns and only sends an email when the request is not ignored.
+        """
         class SubclassedMiddleware(BrokenLinkEmailsMiddleware):
             ignored_user_agent_patterns = (
                 re.compile(r"Spider.*"),
@@ -564,7 +596,13 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_if_none_match_and_redirect(self):
+        """
+        Tests that ConditionalGetMiddleware does not interfere with redirects when the If-None-Match header matches the ETag of the response.
+        """
         def get_response(req):
+            """
+            Redirects an HTTP request, setting the response status code to 301 (Moved Permanently), updating the ETag and Location headers, and returning the modified response.
+            """
             resp = self.client.get(req.path_info)
             resp["ETag"] = "spam"
             resp["Location"] = "/"
@@ -576,6 +614,9 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 301)
 
     def test_if_none_match_and_client_error(self):
+        """
+        Tests the ConditionalGetMiddleware when the client provides an If-None-Match header that matches the ETag of the response, but the server returns a client error (400 status code), verifying that the middleware allows the error response to pass through instead of returning a 304 Not Modified status.
+        """
         def get_response(req):
             resp = self.client.get(req.path_info)
             resp["ETag"] = "spam"
@@ -617,7 +658,17 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(self.resp.status_code, 200)
 
     def test_if_modified_since_and_redirect(self):
+        """
+        Tests ConditionalGetMiddleware behavior with Last-Modified header and redirect.
+
+        Verifies that when the client sends an If-Modified-Since header with a newer date than the Last-Modified header,
+        the middleware still returns a 301 redirect response if the original response is a redirect.
+        """
         def get_response(req):
+            """
+            Returns a HTTP response with a 301 redirect status code, redirecting the client to the root URL ('/'). 
+            The response also includes a 'Last-Modified' header with a fixed datetime and a 'Location' header specifying the redirect target.
+            """
             resp = self.client.get(req.path_info)
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"
             resp["Location"] = "/"
@@ -629,6 +680,9 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         self.assertEqual(resp.status_code, 301)
 
     def test_if_modified_since_and_client_error(self):
+        """
+        Tests the ConditionalGetMiddleware when the 'If-Modified-Since' header is provided and the server returns a client error, verifying that the client error status code is preserved.
+        """
         def get_response(req):
             resp = self.client.get(req.path_info)
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"
@@ -646,6 +700,9 @@ class ConditionalGetMiddlewareTest(SimpleTestCase):
         """
 
         def get_response(req):
+            """
+            Retrieve a server response for a given request, decorating it with various HTTP headers and a cookie.
+            """
             resp = self.client.get(req.path_info)
             resp["Date"] = "Sat, 12 Feb 2011 17:35:44 GMT"
             resp["Last-Modified"] = "Sat, 12 Feb 2011 17:35:44 GMT"
@@ -812,6 +869,11 @@ class XFrameOptionsMiddlewareTest(SimpleTestCase):
         class OtherXFrameOptionsMiddleware(XFrameOptionsMiddleware):
             # This is just an example for testing purposes...
             def get_xframe_options_value(self, request, response):
+                """
+                Determines the X-Frame-Options value based on the request and response objects.
+                Returns 'SAMEORIGIN' if either the request or response indicates same-origin content,
+                otherwise returns 'DENY' to prevent framing.
+                """
                 if getattr(request, "sameorigin", False):
                     return "SAMEORIGIN"
                 if getattr(response, "sameorigin", False):
@@ -852,6 +914,9 @@ class GZipMiddlewareTest(SimpleTestCase):
     request_factory = RequestFactory()
 
     def setUp(self):
+        """
+        Sets up a test request and response with default headers and a compressible response body.
+        """
         self.req = self.request_factory.get("/")
         self.req.META["HTTP_ACCEPT_ENCODING"] = "gzip, deflate"
         self.req.META["HTTP_USER_AGENT"] = (
@@ -906,6 +971,13 @@ class GZipMiddlewareTest(SimpleTestCase):
         """
 
         async def get_stream_response(request):
+            """
+            Return an asynchronous HTTP response streaming HTML content.
+
+            This function generates a StreamingHttpResponse that yields chunks of HTML from a predefined sequence,
+            enabling efficient streaming of large HTML content.
+
+            """
             async def iterator():
                 for chunk in self.sequence:
                     yield chunk

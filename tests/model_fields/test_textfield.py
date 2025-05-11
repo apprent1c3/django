@@ -37,6 +37,9 @@ class TextFieldTests(TestCase):
 
 class TestMethods(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of a TextField model field into its constituent parts, verifying that the kwargs are correctly serialized and deserialized.
+        """
         field = models.TextField()
         *_, kwargs = field.deconstruct()
         self.assertEqual(kwargs, {})

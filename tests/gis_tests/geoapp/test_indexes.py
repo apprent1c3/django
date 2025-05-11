@@ -21,6 +21,12 @@ class SchemaIndexesTests(TransactionTestCase):
             }
 
     def has_spatial_indexes(self, table):
+        """
+        Check if a table has spatial indexes.
+
+        Determines whether the given database table supports spatial indexes.
+        The result depends on the database backend being used.
+        """
         if connection.ops.mysql:
             with connection.cursor() as cursor:
                 return connection.introspection.supports_spatial_index(cursor, table)
@@ -31,6 +37,11 @@ class SchemaIndexesTests(TransactionTestCase):
         return True
 
     def test_using_sql(self):
+        """
+
+        Tests if the create SQL for an index uses the correct SQL syntax when using PostGIS.
+
+        """
         if not connection.ops.postgis:
             self.skipTest("This is a PostGIS-specific test.")
         index = Index(fields=["point"])
@@ -42,6 +53,9 @@ class SchemaIndexesTests(TransactionTestCase):
 
     @isolate_apps("gis_tests.geoapp")
     def test_namespaced_db_table(self):
+        """
+        Verifies that namespaced database tables are properly referenced in SQL queries for index creation in a PostGIS-enabled database.
+        """
         if not connection.ops.postgis:
             self.skipTest("PostGIS-specific test.")
 
@@ -65,6 +79,15 @@ class SchemaIndexesTests(TransactionTestCase):
         )
 
     def test_index_name(self):
+        """
+
+        Tests the addition and removal of a custom spatial index.
+
+        Verifies that a spatial index can be successfully added to a City model
+        instance and then removed, ensuring the index name and fields are correctly
+        updated in the database schema.
+
+        """
         if not self.has_spatial_indexes(City._meta.db_table):
             self.skipTest("Spatial indexes in Meta.indexes are not supported.")
         index_name = "custom_point_index_name"

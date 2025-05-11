@@ -261,6 +261,19 @@ class WriterTests(SimpleTestCase):
             return cls.X
 
     def safe_exec(self, string, value=None):
+        """
+        Executes a given string as Python code in a controlled environment, capturing any variables or functions defined within.
+
+         Args:
+             string: The string of Python code to execute.
+             value (optional): An additional value to provide context for executed string.
+
+         Returns:
+             A dictionary containing the variables and functions defined by the executed code.
+
+         Raises:
+             self.fail() if the execution of the string fails, providing an error message.
+        """
         d = {}
         try:
             exec(string, globals(), d)
@@ -286,6 +299,13 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(MigrationWriter.serialize(value), target)
 
     def assertSerializedFieldEqual(self, value):
+        """
+
+        Asserts that a field remains equal after a round trip serialization.
+
+        Verifies that the class, max length, nullability, and uniqueness of the field are preserved.
+
+        """
         new_value = self.serialize_round_trip(value)
         self.assertEqual(value.__class__, new_value.__class__)
         self.assertEqual(value.max_length, new_value.max_length)
@@ -293,6 +313,13 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(value.unique, new_value.unique)
 
     def test_serialize_numbers(self):
+        """
+
+        Tests the serialization of various numeric types, including integers, floats, 
+        infinity, NaN, decimal numbers and custom money objects, to ensure they are 
+        correctly preserved through the serialization process.
+
+        """
         self.assertSerializedEqual(1)
         self.assertSerializedEqual(1.2)
         self.assertTrue(math.isinf(self.serialize_round_trip(float("inf"))))
@@ -316,6 +343,14 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(False)
 
     def test_serialize_strings(self):
+        """
+
+        Tests the serialization of string values to ensure correct output.
+
+        Verifies that both binary and Unicode strings are properly serialized 
+        and represented as bytes and string literals respectively.
+
+        """
         self.assertSerializedEqual(b"foobar")
         string, imports = MigrationWriter.serialize(b"foobar")
         self.assertEqual(string, "b'foobar'")
@@ -324,6 +359,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "'foobar'")
 
     def test_serialize_multiline_strings(self):
+        """
+        Tests the serialization of multiline strings, ensuring they are correctly escaped and represented as Python literals.
+        """
         self.assertSerializedEqual(b"foo\nbar")
         string, imports = MigrationWriter.serialize(b"foo\nbar")
         self.assertEqual(string, "b'foo\\nbar'")
@@ -332,6 +370,11 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "'foo\\nbar'")
 
     def test_serialize_collections(self):
+        """
+
+        Tests the serialization of various collection types, including dictionaries, lists, sets, and nested collections, to ensure they are properly converted to their serialized form.
+
+        """
         self.assertSerializedEqual({1: 2})
         self.assertSerializedEqual(["a", 2, True, None])
         self.assertSerializedEqual({2, 3, "eighty"})
@@ -351,6 +394,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(self.serialize_round_trip(lazy_pattern), pattern)
 
     def test_serialize_enums(self):
+        """
+        Tests the serialization of various enum types, including text, binary, integer, and nested enums, ensuring they are correctly represented in migration code.
+        """
         self.assertSerializedResultEqual(
             TextEnum.A,
             ("migrations.test_writer.TextEnum['A']", {"import migrations.test_writer"}),
@@ -429,6 +475,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_enum_flags(self):
+        """
+        Tests the serialization of integer flag enumerations in migrations.
+        """
         self.assertSerializedResultEqual(
             IntFlagEnum.A,
             (
@@ -464,6 +513,15 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_choices(self):
+        """
+
+        Tests the serialization of model choices.
+
+        Verifies that model choices are correctly serialized for different field types,
+        including TextChoices, IntegerChoices, and DateChoices, and that the serialized
+        output matches the expected format.
+
+        """
         class TextChoices(models.TextChoices):
             A = "A", "A value"
             B = "B", "B value"
@@ -506,6 +564,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_dictionary_choices(self):
+        """
+        Tests the serialization of dictionary choices for IntegerField instances to ensure they are correctly converted into a standardized tuple format.
+        """
         for choices in ({"Group": [(2, "2"), (1, "1")]}, {"Group": {2: "2", 1: "1"}}):
             with self.subTest(choices):
                 field = models.IntegerField(choices=choices)
@@ -545,6 +606,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_uuid(self):
+        """
+        Tests serialization of UUID objects and UUIDField model fields to ensure they are correctly represented as strings in migration files.
+        """
         self.assertSerializedEqual(uuid.uuid1())
         self.assertSerializedEqual(uuid.uuid4())
 
@@ -573,6 +637,14 @@ class WriterTests(SimpleTestCase):
 
     def test_serialize_pathlib(self):
         # Pure path objects work in all platforms.
+        """
+        Tests the serialization of pathlib objects.
+
+        Verifies that PurePosixPath and PureWindowsPath objects are correctly serialized, 
+        including their conversion to serialized representations and import statements.
+        Additionally, tests the serialization of FilePathField with a pathlib object as its path.
+
+        """
         self.assertSerializedEqual(pathlib.PurePosixPath())
         self.assertSerializedEqual(pathlib.PureWindowsPath())
         path = pathlib.PurePosixPath("/path/file.txt")
@@ -602,6 +674,9 @@ class WriterTests(SimpleTestCase):
         self.assertIn("import pathlib", imports)
 
     def test_serialize_path_like(self):
+        """
+        Test that path-like objects are correctly serialized, ensuring they can be accurately represented in migration files.
+        """
         with os.scandir(os.path.dirname(__file__)) as entries:
             path_like = list(entries)[0]
         expected = (repr(path_like.path), {})
@@ -612,6 +687,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(string, "models.FilePathField(path=%r)" % path_like.path)
 
     def test_serialize_functions(self):
+        """
+        Tests the serialization of functions, specifically ensuring that unsupported functions (like lambdas) raise an error, and that supported functions (like models.SET) are correctly serialized and round-tripped.
+        """
         with self.assertRaisesMessage(ValueError, "Cannot serialize function: lambda"):
             self.assertSerializedEqual(lambda x: 42)
         self.assertSerializedEqual(models.SET_NULL)
@@ -625,6 +703,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(function_with_lru_cache)
 
     def test_serialize_datetime(self):
+        """
+        Tests the serialization of various datetime objects, including instances with and without timezone information, to ensure they are correctly represented and can be properly deserialized.
+        """
         self.assertSerializedEqual(datetime.datetime.now())
         self.assertSerializedEqual(datetime.datetime.now)
         self.assertSerializedEqual(datetime.datetime.today())
@@ -854,6 +935,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_serialize_set(self):
+        """
+        Tests the serialization of sets, ensuring that empty and non-empty sets are correctly serialized and that the expected serialized result is returned.
+        """
         self.assertSerializedEqual(set())
         self.assertSerializedResultEqual(set(), ("set()", set()))
         self.assertSerializedEqual({"a"})
@@ -866,6 +950,9 @@ class WriterTests(SimpleTestCase):
         self.assertSerializedEqual(datetime.timedelta(minutes=42))
 
     def test_serialize_functools_partial(self):
+        """
+        Verifies that functools.partial objects, specifically those wrapping datetime.timedelta, can be successfully serialized and deserialized without losing their function, arguments, or keyword arguments.
+        """
         value = functools.partial(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertEqual(result.func, value.func)
@@ -873,6 +960,9 @@ class WriterTests(SimpleTestCase):
         self.assertEqual(result.keywords, value.keywords)
 
     def test_serialize_functools_partialmethod(self):
+        """
+        Tests that functools.partialmethod objects are correctly serialized and deserialized, preserving their original function, arguments, and keyword arguments.
+        """
         value = functools.partialmethod(datetime.timedelta, 1, seconds=2)
         result = self.serialize_round_trip(value)
         self.assertIsInstance(result, functools.partialmethod)
@@ -937,6 +1027,9 @@ class WriterTests(SimpleTestCase):
         self.assertIn("Migration", result)
 
     def test_migration_path(self):
+        """
+        Tests the migration path for various test applications to ensure correct file location.
+        """
         test_apps = [
             "migrations.migrations_test_apps.normal",
             "migrations.migrations_test_apps.with_package_model",
@@ -955,6 +1048,13 @@ class WriterTests(SimpleTestCase):
                 self.assertEqual(writer.path, expected_path)
 
     def test_custom_operation(self):
+        """
+
+        Tests that a custom migration operation is generated and executed correctly.
+        Verifies that the custom operation's output is correctly included in the migration and
+        that the generated operation classes are distinct from one another.
+
+        """
         migration = type(
             "Migration",
             (migrations.Migration,),
@@ -1099,6 +1199,9 @@ class WriterTests(SimpleTestCase):
         )
 
     def test_register_serializer(self):
+        """
+        Tests the registration and usage of a custom serializer for complex numbers with the MigrationWriter.
+        """
         class ComplexSerializer(BaseSerializer):
             def serialize(self):
                 return "complex(%r)" % self.value, {}

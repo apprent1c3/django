@@ -48,6 +48,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(content, "hello world!")
 
     def test_exception_debug_info_min_context(self):
+        """
+        Checks the debug information provided by the templating engine when encountering a syntax error, verifying that the information about the error's location and context is correctly generated and reported.
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error.html")
         debug = e.exception.template_debug
@@ -63,6 +66,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_exception_debug_info_max_context(self):
+        """
+        Tests that the template engine provides correct debug information when encountering a syntax error in a template, specifically verifying that the maximum context lines are returned in the debug information.
+        """
         with self.assertRaises(TemplateSyntaxError) as e:
             self.engine.get_template("template_backends/syntax_error2.html")
         debug = e.exception.template_debug
@@ -78,6 +84,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_context_processors(self):
+        """
+        Tests the functionality of context processors in relation to the STATIC_URL setting, ensuring that the correct static URL is rendered in templates.
+        """
         request = RequestFactory().get("/")
         template = self.engine.from_string("Static URL: {{ STATIC_URL }}")
         content = template.render(request=request)
@@ -99,6 +108,9 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertEqual(template.render({"name": "Joe"}), "Hello Joe!")
 
     def test_template_render_nested_error(self):
+        """
+        Tests that a TemplateSyntaxError is correctly raised and provides useful debug information when a nested template has a syntax error.
+        """
         template = self.engine.get_template(
             "template_backends/syntax_error_include.html"
         )
@@ -117,6 +129,12 @@ class Jinja2Tests(TemplateStringsTests):
         self.assertIn("message", debug)
 
     def test_template_render_error_nonexistent_source(self):
+        """
+
+        Tests that a TemplateSyntaxError is raised when the template's render method is called
+        and the error occurs in a nonexistent source file. Verifies the accuracy of the error's debug information.
+
+        """
         template = self.engine.get_template("template_backends/hello.html")
         with mock.patch(
             "jinja2.environment.Template.render",

@@ -99,6 +99,9 @@ class LocalTimeNode(Node):
         self.use_tz = use_tz
 
     def render(self, context):
+        """
+        Render the nodelist within the given context, temporarily overriding the timezone setting with the instance's own setting.
+        """
         old_setting = context.use_tz
         context.use_tz = self.use_tz
         output = self.nodelist.render(context)

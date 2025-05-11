@@ -43,6 +43,9 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handles database inspection by writing output to the console, raising an error if inspection is not supported for the selected database backend.
+        """
         try:
             for line in self.handle_inspection(options):
                 self.stdout.write(line)
@@ -53,6 +56,25 @@ class Command(BaseCommand):
             )
 
     def handle_inspection(self, options):
+        """
+
+        Generates Django model code based on the database schema inspection.
+
+        Inspect the database schema for the specified tables and yields a string
+        representation of the corresponding Django models.
+
+        The function takes into account various database features, such as primary keys,
+        foreign keys, and unique constraints, and generates the necessary model fields
+        and options accordingly.
+
+        It also provides comments and notes to help with manual cleanup and maintenance
+        of the generated models, including hints about rearranging models, setting primary
+        keys, and specifying on_delete behaviors for foreign keys.
+
+        The `options` dictionary allows customization of the inspection process, such as
+        filtering tables by name, including or excluding partitions and views, and more.
+
+        """
         connection = connections[options["database"]]
         # 'table_name_filter' is a stealth option
         table_name_filter = options.get("table_name_filter")

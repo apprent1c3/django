@@ -8,6 +8,13 @@ class DatabaseClient(BaseDatabaseClient):
 
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
+        """
+        Converts database connection settings to command line arguments and environment variables suitable for use with a MySQL client. 
+
+        :param settings_dict: Dictionary containing database connection settings
+        :param parameters: List of additional arguments to be passed to the MySQL command
+        :return: Tuple containing a list of command line arguments and a dictionary of environment variables
+        """
         args = [cls.executable_name]
         env = None
         database = settings_dict["OPTIONS"].get(
@@ -62,6 +69,12 @@ class DatabaseClient(BaseDatabaseClient):
         return args, env
 
     def runshell(self, parameters):
+        """
+        Runs a shell command while temporarily ignoring SIGINT signals, allowing the command to complete uninterrupted.
+
+        :param parameters: parameters to be passed to the shell command
+
+        """
         sigint_handler = signal.getsignal(signal.SIGINT)
         try:
             # Allow SIGINT to pass to mysql to abort queries.

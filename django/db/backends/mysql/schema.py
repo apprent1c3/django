@@ -53,6 +53,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return super().sql_rename_column
 
     def quote_value(self, value):
+        """
+
+        Escapes a value to ensure it's safe for use in a database query.
+
+        Returns the escaped value, which can then be safely used in SQL commands.
+
+        """
         self.connection.ensure_connection()
         # MySQLdb escapes to string, PyMySQL to bytes.
         quoted = self.connection.connection.escape(
@@ -74,6 +81,13 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return db_type and db_type.lower().endswith(("blob", "text"))
 
     def skip_default(self, field):
+        """
+
+        Determines whether to skip a specific field based on its default value and data type.
+        Skips fields with empty string or blob defaults that are text or blob types, 
+        or limited data types if the database does not support default values for such fields.
+
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -82,6 +96,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return False
 
     def skip_default_on_alter(self, field):
+        """
+        Determines whether a field's default value can be skipped when altering a database table.
+
+        This decision is based on the field's data type and its default value. For fields with empty default values and text or blob data types, the default can be skipped. Additionally, for fields with certain limited data types in non-MariaDB MySQL databases, the default can also be skipped.
+        """
         default_is_empty = self.effective_default(field) in ("", b"")
         if default_is_empty and self._is_text_or_blob(field):
             return True
@@ -146,6 +165,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         super().remove_index(model, index)
 
     def _field_should_be_indexed(self, model, field):
+        """
+        Determines whether a given model field should be indexed, considering the storage engine and field type. Returns False if the field is a foreign key with a database constraint and the storage engine is InnoDB, or if the field has a limited data type, otherwise returns True if the field passes the superclass's indexing criteria.
+        """
         if not super()._field_should_be_indexed(model, field):
             return False
 
@@ -266,6 +288,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return f" COMMENT {comment_sql}"
 
     def _alter_column_null_sql(self, model, old_field, new_field):
+        """
+        Generates SQL for altering a column to allow or disallow NULL values, specifically handling the case when a new database default is provided. Returns the SQL string and parameters required for the alteration.
+        """
         if new_field.db_default is NOT_PROVIDED:
             return super()._alter_column_null_sql(model, old_field, new_field)
 

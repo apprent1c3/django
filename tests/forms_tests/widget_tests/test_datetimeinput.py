@@ -64,6 +64,9 @@ class DateTimeInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests rendering of a form field without a fieldset.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

@@ -54,6 +54,12 @@ try:
     @lru_cache
     def get_adapters_template(use_tz, timezone):
         # Create at adapters map extending the base one.
+        """
+
+        Returns a configured AdaptersMap instance for handling type conversions, 
+        with timezone awareness enabled if use_tz is True and the specified timezone.
+
+        """
         ctx = adapt.AdaptersMap(adapters)
         # Register a no-op dumper to avoid a round trip from psycopg version 3
         # decode to json.dumps() to json.loads(), when using a custom decoder

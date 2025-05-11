@@ -50,6 +50,13 @@ class MySuite:
 
 class TestSuiteTests(SimpleTestCase):
     def build_test_suite(self, test_classes, suite=None, suite_class=None):
+        """
+        Builds a test suite from the given test classes.
+
+        Creates a test suite by loading tests from the provided test classes and
+        organizing them into a hierarchical structure. Returns the constructed test suite.
+
+        """
         if suite_class is None:
             suite_class = unittest.TestSuite
         if suite is None:
@@ -67,6 +74,13 @@ class TestSuiteTests(SimpleTestCase):
         return suite
 
     def make_test_suite(self, suite=None, suite_class=None):
+        """
+        Create and return a test suite containing predefined test cases.
+
+            :param suite: Optional suite to add tests to
+            :param suite_class: Optional suite class to use
+            :return: A test suite with populated test cases
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
                 pass
@@ -116,6 +130,15 @@ class TestSuiteTests(SimpleTestCase):
             list(iter_test_cases("abc"))
 
     def test_iter_test_cases_iterable_of_tests(self):
+        """
+        Return an iterable of test cases from the given test suite.
+
+        This function allows iterating over individual test cases within a test suite,
+        enabling easier processing and inspection of tests.
+
+        :returns: An iterable of test case names
+        :rtype: iterable
+        """
         class Tests(unittest.TestCase):
             def test1(self):
                 pass
@@ -147,6 +170,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_iter_test_cases_mixed_test_suite_classes(self):
+        """
+        Tests the iteration of test cases over a test suite containing both test cases and test suites, ensuring that the resulting test cases are properly flattened and not wrapped in additional suites.
+        """
         suite = self.make_test_suite(suite=MySuite())
         child_suite = list(suite)[0]
         self.assertNotIsInstance(child_suite, MySuite)
@@ -160,6 +186,13 @@ class TestSuiteTests(SimpleTestCase):
         return list(iter_test_cases(suite))
 
     def test_shuffle_tests(self):
+        """
+
+        Tests that the shuffled test function produces the expected order of tests.
+
+        This ensures the tests are shuffled correctly and the shuffler is producing a consistent result.
+
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -204,6 +237,9 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_random(self):
+        """
+        Test that the reorder_test_bin function correctly reorders a test bin using a shuffler.
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -220,6 +256,13 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_test_bin_random_and_reverse(self):
+        """
+
+        Tests that the reorder_test_bin function correctly reorders tests in reverse order.
+
+        The function checks if the reordering is done correctly and if the result is an iterator.
+
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -261,6 +304,11 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_random(self):
+        """
+        .. method:: test_reorder_tests_random
+
+            Verifies that the :func:`reorder_tests` function correctly reorders a set of tests in a random order, with a fixed seed for reproducibility.
+        """
         tests = self.make_tests()
         # Choose a seed that shuffles both the classes and methods.
         shuffler = Shuffler(seed=9)
@@ -277,6 +325,10 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_random_mixed_classes(self):
+        """
+        Tests the functionality of reordering tests, specifically when a mix of test classes are present and no specific classes are provided for reordering. 
+        Verifies that tests are shuffled and grouped by their respective classes when reordered.
+        """
         tests = self.make_tests()
         # Move the last item to the front.
         tests.insert(0, tests.pop())
@@ -302,6 +354,13 @@ class TestSuiteTests(SimpleTestCase):
         )
 
     def test_reorder_tests_reverse_with_duplicates(self):
+        """
+
+        Tests the reorder_tests function with a suite containing duplicate and reverse ordered test cases.
+
+        Ensures that the reorder_tests function correctly removes duplicate tests and orders them in the specified manner.
+
+        """
         class Tests1(unittest.TestCase):
             def test1(self):
                 pass
@@ -348,6 +407,9 @@ class TestSuiteTests(SimpleTestCase):
 
 class DependencyOrderingTests(unittest.TestCase):
     def test_simple_dependencies(self):
+        """
+        Tests that a list of dependencies is ordered correctly, ensuring that dependent items appear before their dependencies in the ordered list.
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -368,6 +430,11 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s2"))
 
     def test_chained_dependencies(self):
+        """
+        Tests that dependencies are correctly ordered in a chained dependency scenario, 
+        where the resolution of one dependency depends on the resolution of others, 
+        ensuring the correct sequencing of the dependent items.
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -393,6 +460,12 @@ class DependencyOrderingTests(unittest.TestCase):
         self.assertLess(ordered_sigs.index("s3"), ordered_sigs.index("s1"))
 
     def test_multiple_dependencies(self):
+        """
+
+        Tests the correct ordering of multiple dependencies using the dependency_ordered function.
+        Ensures that all signals are present in the ordered list and that the dependencies are resolved correctly.
+
+        """
         raw = [
             ("s1", ("s1_db", ["alpha"])),
             ("s2", ("s2_db", ["bravo"])),
@@ -436,6 +509,9 @@ class DependencyOrderingTests(unittest.TestCase):
             dependency_ordered(raw, dependencies=dependencies)
 
     def test_own_alias_dependency(self):
+        """
+        Tests that the dependency_ordered function correctly raises an ImproperlyConfigured exception when an alias has a self-referential dependency, either directly or transitively.
+        """
         raw = [("s1", ("s1_db", ["alpha", "bravo"]))]
         dependencies = {"alpha": ["bravo"]}
 
@@ -566,6 +642,9 @@ class ManageCommandParallelTests(SimpleTestCase):
 
     @mock.patch.dict(os.environ, {"DJANGO_TEST_PROCESSES": "7"})
     def test_django_test_processes_parallel_default(self, *mocked_objects):
+        """
+        Tests that the Django test command uses the correct number of parallel test processes when the DJANGO_TEST_PROCESSES environment variable is set and the --parallel option is used with or without a value.
+        """
         for parallel in ["--parallel", "--parallel=auto"]:
             with self.subTest(parallel=parallel):
                 with captured_stderr() as stderr:
@@ -657,6 +736,9 @@ class CustomTestRunnerOptionsCmdlineTests(AdminScriptTestCase):
         self.assertOutput(out, "bar:foo:31337")
 
     def test_no_testrunner(self):
+        """
+        Tests that running the Django admin test command with the --testrunner option but without specifying a test runner displays the expected usage message and does not produce an error traceback or output.
+        """
         args = ["test", "--testrunner"]
         out, err = self.run_django_admin(args, "test_project.settings")
         self.assertIn("usage", err)
@@ -715,6 +797,12 @@ class TestRunnerInitializerTests(SimpleTestCase):
         multiprocessing, "Pool", side_effect=Exception("multiprocessing.Pool()")
     )
     def test_no_initialize_suite_test_runner(self, mocked_pool):
+        """
+        Tests that the test runner does not initialize when multiprocessing.Pool() creation fails.
+
+            Verifies that a suitable Exception is raised and that the multiprocessing.Pool initializer
+            is correctly configured, including the initializer function and initialization arguments.
+        """
         class StubTestRunner(DiscoverRunner):
             def setup_test_environment(self, **kwargs):
                 return
@@ -778,6 +866,9 @@ class SQLiteInMemoryTestDbs(TransactionTestCase):
         # Assert connections mocking is appropriately applied by preventing
         # any attempts at calling create_test_db on the global connection
         # objects.
+        """
+        Tests whether SQLite-specific database connections support transactions when certain configuration options are set.
+        """
         for connection in db.connections.all():
             create_test_db = mock.patch.object(
                 connection.creation,
@@ -854,6 +945,14 @@ class SetupDatabasesTests(unittest.TestCase):
         self.runner_instance = DiscoverRunner(verbosity=0)
 
     def test_setup_aliased_databases(self):
+        """
+
+        Tests the setup and teardown of aliased databases in a test environment.
+
+        Verifies that the database setup and teardown process correctly handles aliased databases,
+        ensuring that the test database is properly created and destroyed.
+
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {
@@ -907,6 +1006,13 @@ class SetupDatabasesTests(unittest.TestCase):
             )
 
     def test_destroy_test_db_restores_db_name(self):
+        """
+
+        Verifies that destroying a test database correctly restores the original database name.
+
+        Tests that after destroying a test database, the database name is reset to its original value.
+
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {
@@ -926,6 +1032,9 @@ class SetupDatabasesTests(unittest.TestCase):
             )
 
     def test_serialization(self):
+        """
+        Tests the serialization behavior of the database creation process when setting up test databases.
+        """
         tested_connections = db.ConnectionHandler(
             {
                 "default": {
@@ -956,6 +1065,17 @@ class AutoIncrementResetTest(TransactionTestCase):
 
     def _test(self):
         # Regular model
+        """
+        Tests the creation and relationships of Person and B objects through a many-to-many relationship.\"\"\"
+
+         \"\"\" 
+        Verifies the following:
+
+        * Creation of a Person object and its unique primary key
+        * Addition of a friend to a Person object and the resulting relationship
+        * Creation of a B object and establishment of a relationship with a Person object through a Through object
+
+        """
         p = Person.objects.create(first_name="Jack", last_name="Smith")
         self.assertEqual(p.pk, 1)
         # Auto-created many-to-many through model

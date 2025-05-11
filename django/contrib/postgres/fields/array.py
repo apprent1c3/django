@@ -24,6 +24,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
     _default_hint = ("list", "[]")
 
     def __init__(self, base_field, size=None, **kwargs):
+        """
+        Initializes a new instance of the Field class, setting its base field, database collation, and optional size constraint. If a size is specified, it adds a validator to enforce a maximum length for array values.
+        """
         self.base_field = base_field
         self.db_collation = getattr(self.base_field, "db_collation", None)
         self.size = size
@@ -57,6 +60,11 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return isinstance(value, (list, tuple)) or super()._choices_is_value(value)
 
     def check(self, **kwargs):
+        """
+        Checks the field for potential errors, specifically verifying that the base field 
+        of an array is not a related field and that it does not contain any validation errors 
+        or warnings. Returns a list of errors found during the check process.
+        """
         errors = super().check(**kwargs)
         if self.base_field.remote_field:
             errors.append(
@@ -132,6 +140,9 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return value
 
     def deconstruct(self):
+        """
+        Deconstruct the model field into its constituent parts, returning a tuple that can be used to recreate the field. This is used for serialization and migration purposes, and allows for the recreation of the field with its base field and size attributes correctly configured.
+        """
         name, path, args, kwargs = super().deconstruct()
         if path == "django.contrib.postgres.fields.array.ArrayField":
             path = "django.contrib.postgres.fields.ArrayField"
@@ -159,6 +170,12 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         ]
 
     def value_to_string(self, obj):
+        """
+        Converts an object's values to a JSON-formatted string.
+
+        Takes an object, extracts its values using the base field, and serializes them into a string, handling null values.
+
+        """
         values = []
         vals = self.value_from_object(obj)
         base_field = self.base_field
@@ -172,6 +189,15 @@ class ArrayField(CheckFieldDefaultMixin, Field):
         return json.dumps(values)
 
     def get_transform(self, name):
+        """
+
+        Retrieve a transform object based on the given name, attempting to resolve it 
+        as either an index or a range of indices.
+
+        The name can be an integer (interpreted as 1-based index), an integer 
+        range in the format 'start_end', or an existing transform name.
+
+        """
         transform = super().get_transform(name)
         if transform:
             return transform
@@ -193,6 +219,13 @@ class ArrayField(CheckFieldDefaultMixin, Field):
             return SliceTransformFactory(start, end)
 
     def validate(self, value, model_instance):
+        """
+
+        Validate a collection of values against a base field, ensuring each item meets the required criteria.
+
+        Additionally, if the base field is an ArrayField, this validation checks for consistency in the nested array lengths, raising an error if they are mismatched.
+
+        """
         super().validate(value, model_instance)
         for index, part in enumerate(value):
             try:
@@ -212,6 +245,12 @@ class ArrayField(CheckFieldDefaultMixin, Field):
                 )
 
     def run_validators(self, value):
+        """
+        Runs validation checks on a given value, ensuring each part of the value 
+        fulfills the requirements defined by the base field. If any validation fails, 
+        raises a validation error with a message specifying which part of the value 
+        is invalid.
+        """
         super().run_validators(value)
         for index, part in enumerate(value):
             try:
@@ -245,6 +284,14 @@ class ArrayRHSMixin:
     def __init__(self, lhs, rhs):
         # Don't wrap arrays that contains only None values, psycopg doesn't
         # allow this.
+        """
+
+        Initializes an instance of the class, handling array values on the right-hand side.
+
+        If the right-hand side is a list or tuple containing non-null values, it converts each value
+        into an expression and wraps them in an ARRAY function.
+
+        """
         if isinstance(rhs, (tuple, list)) and any(self._rhs_not_none_values(rhs)):
             expressions = []
             for value in rhs:
@@ -265,6 +312,10 @@ class ArrayRHSMixin:
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def _rhs_not_none_values(self, rhs):
+        """
+        Yields True for each non-None value in the right-hand side (rhs) data structure, 
+        including nested lists and tuples.
+        """
         for x in rhs:
             if isinstance(x, (list, tuple)):
                 yield from self._rhs_not_none_values(x)
@@ -309,6 +360,9 @@ class ArrayLenTransform(Transform):
 @ArrayField.register_lookup
 class ArrayInLookup(In):
     def get_prep_lookup(self):
+        """
+        Returns a list of values prepared for lookup, ensuring that each value is a resolvable expression or a tuple, to facilitate further processing in a database query context.
+        """
         values = super().get_prep_lookup()
         if hasattr(values, "resolve_expression"):
             return values
@@ -356,6 +410,9 @@ class SliceTransform(Transform):
         self.end = end
 
     def as_sql(self, compiler, connection):
+        """
+        Compiles a slice expression into a SQL query string, supporting both bounded and unbounded slices. Returns a tuple containing the SQL string and parameters to be used in the query.
+        """
         lhs, params = compiler.compile(self.lhs)
         # self.start is set to 1 if slice start is not provided.
         if self.end is None:

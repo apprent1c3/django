@@ -46,6 +46,10 @@ class DebugInvocationTests(SimpleTestCase):
         _post_teardown.assert_called_once_with()
 
     def test_run_pre_setup_error(self, _pre_setup, _post_teardown):
+        """
+        Tests that when an exception occurs during pre-setup, 
+        the test suite records the error and does not call post-teardown.
+        """
         _pre_setup.side_effect = Exception("Exception in _pre_setup.")
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))
@@ -60,6 +64,9 @@ class DebugInvocationTests(SimpleTestCase):
         self.assertFalse(_post_teardown.called)
 
     def test_run_post_teardown_error(self, _pre_setup, _post_teardown):
+        """
+        Tests error handling during post-teardown, verifying that exceptions are captured and reported correctly.
+        """
         _post_teardown.side_effect = Exception("Exception in _post_teardown.")
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("simple_test"))
@@ -74,6 +81,9 @@ class DebugInvocationTests(SimpleTestCase):
         _post_teardown.assert_called_once_with()
 
     def test_run_skipped_test_no_cleanup(self, _pre_setup, _post_teardown):
+        """
+        Verifies that a skipped test does not trigger setup or teardown procedures when run without cleanup.
+        """
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("skipped_test"))
         try:
@@ -136,6 +146,13 @@ class DebugInvocationTests(SimpleTestCase):
         self.isolate_debug_test(test_suite, result)
 
     def test_debug_skipped_test_no_cleanup(self, _pre_setup, _post_teardown):
+        """
+
+        Verifies that a test suite with a single skipped test behaves correctly when run in debug mode.
+        The test checks that the post-teardown and pre-setup methods are not called after a test is skipped,
+        and that the test result is properly isolated for debugging purposes.
+
+        """
         test_suite = unittest.TestSuite()
         test_suite.addTest(ErrorTestCase("skipped_test"))
         with self.assertRaisesMessage(unittest.SkipTest, "Skip condition."):

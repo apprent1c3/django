@@ -10,6 +10,17 @@ class InclusionAdminNode(InclusionNode):
     """
 
     def __init__(self, parser, token, func, template_name, takes_context=True):
+        """
+        Initializes a template tag with the given parser, token, function, and template name.
+
+        :arg parser: The parser object used to parse the template tag.
+        :arg token: The token object containing the tag's contents.
+        :arg func: The function that will be executed by the tag.
+        :arg template_name: The name of the template this tag is part of.
+        :arg takes_context: Whether the tag takes the context as an argument. Defaults to True.
+
+        This initializer parses the tag's arguments and keyword arguments, and then calls the superclass's initializer with the parsed arguments and the function to be executed.
+        """
         self.template_name = template_name
         params, varargs, varkw, defaults, kwonly, kwonly_defaults, _ = getfullargspec(
             func
@@ -30,6 +41,9 @@ class InclusionAdminNode(InclusionNode):
         super().__init__(func, takes_context, args, kwargs, filename=None)
 
     def render(self, context):
+        """
+        Render the template for this object, attempting to select a template specific to the app label, model name, and template name, and finally defaulting to a template specific to the template name alone if necessary.
+        """
         opts = context["opts"]
         app_label = opts.app_label.lower()
         object_name = opts.model_name

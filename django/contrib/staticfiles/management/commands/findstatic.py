@@ -18,6 +18,14 @@ class Command(LabelCommand):
         )
 
     def handle_label(self, path, **options):
+        """
+        Locate a file at the specified path and report its location based on the provided options.
+
+        The function searches for the file and returns its real path if found.
+        If the file is not found, it outputs a message indicating that the file was not located.
+        The level of detail in the output depends on the verbosity setting, which controls whether
+        additional information such as searched locations is included in the response.
+        """
         verbosity = options["verbosity"]
         result = finders.find(path, find_all=options["all"])
         if verbosity >= 2:

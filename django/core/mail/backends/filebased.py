@@ -10,6 +10,11 @@ from django.core.mail.backends.console import EmailBackend as ConsoleEmailBacken
 
 class EmailBackend(ConsoleEmailBackend):
     def __init__(self, *args, file_path=None, **kwargs):
+        """
+        Initializes the instance with the given arguments, setting up the file path for saving email messages. 
+        The file path can be specified explicitly or defaults to the value of `EMAIL_FILE_PATH` in the settings.
+        It ensures the directory exists, is writable, and configured properly to store email messages.
+        """
         self._fname = None
         if file_path is not None:
             self.file_path = file_path
@@ -59,6 +64,9 @@ class EmailBackend(ConsoleEmailBackend):
         return False
 
     def close(self):
+        """
+        Closes the associated stream and releases any system resources it holds.
+        """
         try:
             if self.stream is not None:
                 self.stream.close()

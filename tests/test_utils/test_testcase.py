@@ -33,6 +33,9 @@ class TestTestCase(TestCase):
     @skipUnlessDBFeature("can_defer_constraint_checks")
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_fixture_teardown_checks_constraints(self):
+        """
+        Tests whether the fixture teardown process correctly checks for constraints when a database supports foreign keys and deferred constraint checks.
+        """
         rollback_atomics = self._rollback_atomics
         self._rollback_atomics = lambda connection: None  # noop
         try:
@@ -44,6 +47,9 @@ class TestTestCase(TestCase):
             self._rollback_atomics = rollback_atomics
 
     def test_disallowed_database_connection(self):
+        """
+        Tests that connecting to a disallowed database raises a DatabaseOperationForbidden exception, ensuring test isolation by checking for the \"other\" database connection.
+        """
         message = (
             "Database connections to 'other' are not allowed in this test. "
             "Add 'other' to test_utils.test_testcase.TestTestCase.databases to "
@@ -65,6 +71,9 @@ class TestTestCase(TestCase):
 
     @skipUnlessDBFeature("supports_transactions")
     def test_reset_sequences(self):
+        """
+        Tests that the reset_sequences option cannot be used on TestCase instances when the database supports transactions.
+        """
         old_reset_sequences = self.reset_sequences
         self.reset_sequences = True
         msg = "reset_sequences cannot be used on TestCase instances"
@@ -77,6 +86,9 @@ class TestTestCase(TestCase):
 
 def assert_no_queries(test):
     @wraps(test)
+    """
+    Decorator to assert that the wrapped test function executes no database queries.
+    """
     def inner(self):
         with self.assertNumQueries(0):
             test(self)
@@ -94,6 +106,10 @@ class TestDataTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating a set of predefined Person and Car instances 
+        for use in subsequent tests, including a person with possessed car and binary data.
+        """
         cls.jim_douglas = Person.objects.create(name="Jim Douglas")
         cls.car = Car.objects.create(name="1963 Volkswagen Beetle")
         cls.herbie = cls.jim_douglas.possessed_cars.create(

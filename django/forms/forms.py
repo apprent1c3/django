@@ -23,6 +23,9 @@ class DeclarativeFieldsMetaclass(MediaDefiningClass):
 
     def __new__(mcs, name, bases, attrs):
         # Collect fields from current class and remove them from attrs.
+        """
+        Creates a new class, initializing and aggregating declared fields from the class and its base classes, providing a unified view of all fields declared in the class hierarchy.
+        """
         attrs["declared_fields"] = {
             key: attrs.pop(key)
             for key, value in list(attrs.items())
@@ -82,6 +85,13 @@ class BaseForm(RenderableFormMixin):
         use_required_attribute=None,
         renderer=None,
     ):
+        """
+        Initializes a form instance with the provided data, files, and optional configuration parameters.
+
+        This method sets up the form's state, including its bound status, data, files, and error handling.
+        It also configures the form's rendering, including the use of a prefix, label suffix, and error class.
+        Additionally, it sets up the form's fields, including their ordering and required attribute handling.
+        """
         self.is_bound = data is not None or files is not None
         self.data = MultiValueDict() if data is None else data
         self.files = MultiValueDict() if files is None else files
@@ -147,6 +157,9 @@ class BaseForm(RenderableFormMixin):
         self.fields = fields
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, indicating whether it is bound, valid, and listing its fields.
+        """
         if self._errors is None:
             is_valid = "Unknown"
         else:
@@ -220,6 +233,11 @@ class BaseForm(RenderableFormMixin):
         return self.renderer.form_template_name
 
     def get_context(self):
+        """
+        Retrieves the context for rendering a form, including all fields (both visible and hidden), any form-level errors, and field-specific errors. 
+
+        The returned dictionary contains the form instance, its visible fields with any associated errors, hidden fields, and a list of all errors.
+        """
         fields = []
         hidden_fields = []
         top_errors = self.non_field_errors().copy()
@@ -327,6 +345,18 @@ class BaseForm(RenderableFormMixin):
         self._post_clean()
 
     def _clean_fields(self):
+        """
+
+        Cleans and validates the form fields.
+
+        Iterates through each field in the form, performing built-in validation and any
+        custom cleaning methods defined for the field. Errors encountered during
+        validation are stored for later reporting.
+
+        This method is used internally to ensure that all form data is properly cleaned
+        and validated before it can be used.
+
+        """
         for name, bf in self._bound_items():
             field = bf.field
             try:
@@ -338,6 +368,9 @@ class BaseForm(RenderableFormMixin):
                 self.add_error(name, e)
 
     def _clean_form(self):
+        """
+        Cleans the form data, handling validation errors and storing the cleaned data when valid.
+        """
         try:
             cleaned_data = self.clean()
         except ValidationError as e:

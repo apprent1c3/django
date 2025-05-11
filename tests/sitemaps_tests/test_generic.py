@@ -10,6 +10,17 @@ from .models import TestModel
 @override_settings(ABSOLUTE_URL_OVERRIDES={})
 class GenericViewsSitemapTests(SitemapTestsBase):
     def test_generic_sitemap_attributes(self):
+        """
+        Tests that GenericSitemap attributes are correctly set and retrieved.\"\"\"
+
+         Args:
+            None
+
+         Returns:
+            None
+
+         Tests the initialization and access of GenericSitemap instance attributes, including queryset, date_field, priority, changefreq, and protocol.
+        """
         datetime_value = datetime.now()
         queryset = TestModel.objects.all()
         generic_sitemap = GenericSitemap(
@@ -48,6 +59,9 @@ class GenericViewsSitemapTests(SitemapTestsBase):
         self.assertXMLEqual(response.content.decode(), expected_content)
 
     def test_generic_sitemap_lastmod(self):
+        """
+        Tests the generic sitemap's last modified date functionality, verifying the XML output and Last-Modified header for a given model instance.
+        """
         test_model = TestModel.objects.first()
         TestModel.objects.update(lastmod=datetime(2013, 3, 13, 10, 0, 0))
         response = self.client.get("/generic-lastmod/sitemap.xml")

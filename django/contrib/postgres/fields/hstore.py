@@ -54,6 +54,11 @@ class HStoreField(CheckFieldDefaultMixin, Field):
         )
 
     def get_prep_value(self, value):
+        """
+        Converts the given value to a string representation, preparing it for storage or further processing.
+        This involves recursively converting dictionaries and lists to string values, while preserving their original structure.
+        The function ensures that all values are properly converted to strings, handling cases where keys or values may be None.
+        """
         value = super().get_prep_value(value)
 
         if isinstance(value, dict):

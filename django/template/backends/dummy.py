@@ -12,6 +12,10 @@ class TemplateStrings(BaseEngine):
     app_dirname = "template_strings"
 
     def __init__(self, params):
+        """
+        Initializes the object, validating and removing unknown options from the provided parameters.\"\"\"
+        ```
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         if options:
@@ -22,6 +26,13 @@ class TemplateStrings(BaseEngine):
         return Template(template_code)
 
     def get_template(self, template_name):
+        """
+
+        Attempts to retrieve a template by a given name, searching through various template files.
+        If found, returns a Template object containing the template code.
+        If not found, raises a TemplateDoesNotExist exception containing information about all attempted sources.
+
+        """
         tried = []
         for template_file in self.iter_template_filenames(template_name):
             try:
@@ -41,6 +52,9 @@ class TemplateStrings(BaseEngine):
 
 class Template(string.Template):
     def render(self, context=None, request=None):
+        """
+        Renders a template with the provided context and request, escaping context values and adding CSRF inputs and tokens if a request is given.
+        """
         if context is None:
             context = {}
         else:

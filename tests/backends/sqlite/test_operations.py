@@ -55,6 +55,12 @@ class SQLiteOperationsTests(TestCase):
         )
 
     def test_sql_flush_sequences_allow_cascade(self):
+        """
+        Tests that database sequences are reset when flushing SQL with cascade enabled.
+
+        Verifies that the resulting SQL statements correctly reset sequences for all tables involved,
+        including many-to-many relationships with long names, and that the statements are generated in the expected order.
+        """
         statements = connection.ops.sql_flush(
             no_style(),
             [Person._meta.db_table, Tag._meta.db_table],

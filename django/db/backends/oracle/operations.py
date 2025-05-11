@@ -81,6 +81,23 @@ END;
     _extract_format_re = _lazy_re_compile(r"[A-Z_]+")
 
     def date_extract_sql(self, lookup_type, sql, params):
+        """
+        Generates SQL string to extract date parts based on the provided lookup type.
+
+        Parameters
+        ----------
+        lookup_type : str
+            Type of date part to extract (e.g., 'week_day', 'iso_week_day', 'week', 'quarter', 'iso_year', or any PostgreSQL date part alias)
+        sql : str
+            SQL date value to extract from
+        params : tuple
+            SQL query parameters
+
+        Returns
+        -------
+        tuple
+            SQL string to extract date part and updated query parameters
+        """
         extract_sql = f"TO_CHAR({sql}, %s)"
         extract_param = None
         if lookup_type == "week_day":
@@ -105,6 +122,20 @@ END;
         return extract_sql, (*params, extract_param)
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        Truncates a SQL date expression to a specified level of precision.
+
+        Truncates the given SQL expression to the specified lookup type (e.g. year, month, quarter, week).
+        If the lookup type does not specify a truncation parameter (e.g. day), it simply truncates the date.
+
+        :param lookup_type: The level of precision to truncate to (e.g. year, month, quarter, week)
+        :param sql: The SQL expression to truncate
+        :param params: The parameters for the SQL expression
+        :param tzname: The timezone name to use for date conversion (optional)
+        :return: A tuple containing the truncated SQL expression and the updated parameters
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ROUND-and-TRUNC-Date-Functions.html
         trunc_param = None
@@ -129,6 +160,13 @@ END;
         return f"{sign}{offset}" if offset else tzname
 
     def _convert_sql_to_tz(self, sql, params, tzname):
+        """
+        Converts a SQL string to a specific time zone.
+
+        This function takes in a SQL string, associated parameters, and a target time zone, and returns a modified SQL string and parameters that account for the time zone if necessary.
+
+        It only modifies the SQL if the project is set to use time zones and a time zone name is provided, and will raise an error if the provided time zone name is invalid.
+        """
         if not (settings.USE_TZ and tzname):
             return sql, params
         if not self._tzname_re.match(tzname):
@@ -171,6 +209,16 @@ END;
         return self.date_extract_sql(lookup_type, sql, params)
 
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
+        """
+
+        Truncates a datetime SQL query to a specified level of precision.
+
+        The function takes a lookup type, SQL query, parameters, and time zone name, 
+        and converts the query to truncate the datetime to the specified level, 
+        such as year, month, quarter, week, hour, minute, or day. 
+        It returns the modified SQL query and updated parameters.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         # https://docs.oracle.com/en/database/oracle/oracle-database/21/sqlrf/ROUND-and-TRUNC-Date-Functions.html
         trunc_param = None
@@ -201,6 +249,30 @@ END;
         # The implementation is similar to `datetime_trunc_sql` as both
         # `DateTimeField` and `TimeField` are stored as TIMESTAMP where
         # the date part of the later is ignored.
+        """
+        Truncates a SQL time column to the specified level of precision.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The level of precision to truncate to ('hour', 'minute', or 'second').
+        sql : str
+            The SQL column to truncate.
+        params : tuple
+            Parameters associated with the SQL column.
+        tzname : str, optional
+            The timezone name to use for conversion.
+
+        Returns
+        -------
+        tuple
+            A tuple containing the truncated SQL and updated parameters.
+
+        Note
+        ----
+        For 'second' lookup type, the function returns a date-cast SQL instead of truncating.
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         trunc_param = None
         if lookup_type == "hour":
@@ -213,6 +285,9 @@ END;
         return f"TRUNC({sql}, %s)", (*params, trunc_param)
 
     def get_db_converters(self, expression):
+        """
+        Gets database converters for the given expression, appending type-specific converters as necessary based on the field type and settings. The converters are used to handle the conversion of database values to Python values for various field types, including JSON, text, binary, boolean, date/time, and UUID fields.
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type in ["JSONField", "TextField"]:
@@ -292,6 +367,13 @@ END;
         return " DEFERRABLE INITIALLY DEFERRED"
 
     def fetch_returned_insert_columns(self, cursor, returning_params):
+        """
+        Retrieves the column values from a database insert operation that returns values.
+
+        Given a database cursor and a list of returning parameters, this function processes the returned values, 
+        checks for a successful database operation, and returns a tuple of the retrieved column values. 
+        If no values are returned, it raises an exception indicating that the database operation likely failed.
+        """
         columns = []
         for param in returning_params:
             value = param.get_value()
@@ -324,6 +406,18 @@ END;
     def last_executed_query(self, cursor, sql, params):
         # https://python-oracledb.readthedocs.io/en/latest/api_manual/cursor.html#Cursor.statement
         # The DB API definition does not define this attribute.
+        """
+        Replaces placeholders in the last executed SQL query with the actual parameter values.
+
+            This function takes the cursor object, SQL query and parameters used in the query, 
+            and returns the query with placeholders replaced by their corresponding values. 
+            It supports both dictionary and list/tuple parameter formats.
+
+            :param cursor: The cursor object of the last executed query.
+            :param sql: The SQL query that was executed.
+            :param params: The parameters used in the query.
+            :return: The SQL query with placeholders replaced by their actual values.
+        """
         statement = cursor.statement
         # Unlike Psycopg's `query` and MySQLdb`'s `_executed`, oracledb's
         # `statement` doesn't contain the query parameters. Substitute
@@ -347,6 +441,14 @@ END;
         return cursor.fetchone()[0]
 
     def lookup_cast(self, lookup_type, internal_type=None):
+        """
+        Returns the SQL expression for a given lookup type, considering the internal type of the field.
+
+            :param lookup_type: The type of lookup to perform, such as 'iexact', 'icontains', etc.
+            :param internal_type: The internal type of the field, defaults to None.
+            :return: A SQL expression string to be used in a query.
+
+        """
         if lookup_type in ("iexact", "icontains", "istartswith", "iendswith"):
             return "UPPER(%s)"
         if lookup_type != "isnull" and internal_type in (
@@ -387,6 +489,14 @@ END;
         return name.upper()
 
     def regex_lookup(self, lookup_type):
+        """
+
+        Returns a SQL string for a regular expression lookup, specifying the match option based on the lookup type.
+
+        :param lookup_type: The type of lookup to perform, either 'regex' for case-sensitive or any other value for case-insensitive.
+        :rtype: str
+
+        """
         if lookup_type == "regex":
             match_option = "'c'"
         else:
@@ -394,6 +504,14 @@ END;
         return "REGEXP_LIKE(%%s, %%s, %s)" % match_option
 
     def return_insert_columns(self, fields):
+        """
+        Returns a PostgreSQL RETURNING clause and parameter tuple for the given fields, 
+        allowing data to be retrieved after insertion. 
+
+        :param fields: List of fields to include in the RETURNING clause.
+        :return: A tuple containing the RETURNING clause as a string and the parameter tuple.
+
+        """
         if not fields:
             return "", ()
         field_names = []
@@ -413,6 +531,13 @@ END;
         ), tuple(params)
 
     def __foreign_key_constraints(self, table_name, recursive):
+        """
+        Retrieves foreign key constraints for a given table, optionally traversing recursively.
+
+        :param table_name: Name of the table to retrieve constraints for.
+        :param recursive: If True, retrieve constraints for all related tables, otherwise only retrieve direct foreign key constraints.
+        :returns: List of tuples containing the table name and constraint name for each foreign key constraint.
+        """
         with self.connection.cursor() as cursor:
             if recursive:
                 cursor.execute(
@@ -461,6 +586,21 @@ END;
         return lru_cache(maxsize=512)(self.__foreign_key_constraints)
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        Generates SQL statements to flush a list of tables.
+
+        This method produces a sequence of SQL commands to disable constraints, truncate
+        specified tables and their dependent tables (if cascade is allowed), and then
+        re-enable the constraints. Additionally, it can reset sequences for the
+        truncated tables.
+
+        :param style: The SQL style object.
+        :param tables: A list of tables to flush.
+        :param reset_sequences: If True, reset sequences for the truncated tables.
+        :param allow_cascade: If True, include dependent tables in the flush operation.
+
+        :return: A list of SQL statements to execute the flush operation.
+        """
         if not tables:
             return []
 
@@ -526,6 +666,11 @@ END;
         return sql
 
     def sequence_reset_by_name_sql(self, style, sequences):
+        """
+        Generates a list of SQL queries to reset sequences for the given style and sequences.
+        The queries are constructed based on the provided sequence information, including table and column names.
+        Returns a list of SQL strings, one for each sequence to be reset.
+        """
         sql = []
         for sequence_info in sequences:
             no_autofield_sequence_name = self._get_no_autofield_sequence_name(
@@ -545,6 +690,13 @@ END;
         return sql
 
     def sequence_reset_sql(self, style, model_list):
+        """
+        Generates a list of SQL queries to reset sequences for the given models.
+
+        :param style: The style of the SQL queries.
+        :param model_list: A list of models for which to generate sequence reset queries.
+        :return: A list of SQL queries to reset sequences.
+        """
         output = []
         query = self._sequence_reset_sql
         for model in model_list:
@@ -615,6 +767,15 @@ END;
         return Oracle_datetime.from_datetime(value)
 
     def adapt_timefield_value(self, value):
+        """
+        Adapts a time field value to a format compatible with the Oracle backend.
+
+        Takes a string or datetime object as input and returns an Oracle_datetime object.
+        Raises a ValueError if the input is timezone-aware, as this is not supported by the Oracle backend.
+        Returns None if the input value is None.
+
+        :raises ValueError: If the input is timezone-aware
+        """
         if value is None:
             return None
 
@@ -633,6 +794,9 @@ END;
         return value
 
     def combine_expression(self, connector, sub_expressions):
+        """
+        Combine two expressions with a given logical or bitwise operator, translating the result into a compatible Oracle database query syntax. Supports modulo, bitwise AND, OR, left and right shift, and exponentiation operators. Raises an error for bitwise XOR operations.
+        """
         lhs, rhs = sub_expressions
         if connector == "%%":
             return "MOD(%s)" % ",".join(sub_expressions)
@@ -671,6 +835,16 @@ END;
         return self._get_no_autofield_sequence_name(table) if row is None else row[0]
 
     def bulk_insert_sql(self, fields, placeholder_rows):
+        """
+        Generates SQL for bulk insert operations, utilizing the database's bulk insert capabilities if supported, otherwise falling back to a series of UNION ALL selects. 
+
+        Args:
+            fields (list): A list of fields to be inserted.
+            placeholder_rows (list): A list of rows containing placeholder values for the fields.
+
+        Returns:
+            str: The generated SQL for the bulk insert operation.
+        """
         field_placeholders = [
             BulkInsertMapper.types.get(
                 getattr(field, "target_field", field).get_internal_type(), "%s"
@@ -717,6 +891,10 @@ END;
         return "SELECT * FROM (%s)" % " UNION ALL ".join(query)
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Override of subtract_temporals to handle DateField subtraction, 
+            returning the difference in days as a Date interval.
+        """
         if internal_type == "DateField":
             lhs_sql, lhs_params = lhs
             rhs_sql, rhs_params = rhs

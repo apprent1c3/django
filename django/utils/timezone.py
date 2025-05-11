@@ -127,6 +127,13 @@ class override(ContextDecorator):
         self.timezone = timezone
 
     def __enter__(self):
+        """
+        Context manager entry point to set or reset the timezone.
+
+        Enters a runtime context where the timezone is either set to a specified value or reset to the default if no timezone is provided.
+
+        :returns: None
+        """
         self.old_timezone = getattr(_active, "value", None)
         if self.timezone is None:
             deactivate()

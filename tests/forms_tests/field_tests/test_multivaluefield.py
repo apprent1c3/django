@@ -83,6 +83,9 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_clean_disabled_multivalue(self):
+        """
+        Tests that a ComplexField with a disabled multivalue widget correctly cleans and validates its data, ensuring no errors are raised and the cleaned data matches the expected output.
+        """
         class ComplexFieldForm(Form):
             f = ComplexField(disabled=True, widget=ComplexMultiWidget)
 
@@ -213,6 +216,9 @@ class MultiValueFieldTest(SimpleTestCase):
         )
 
     def test_render_required_attributes(self):
+        """
+        Tests rendering of form fields with required attributes, verifying that the 'required' attribute is correctly included in the HTML output for fields with a value, and that form validation fails when all required fields are empty.
+        """
         form = PartiallyRequiredForm({"f_0": "Hello", "f_1": ""})
         self.assertTrue(form.is_valid())
         self.assertInHTML(

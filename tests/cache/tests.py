@@ -289,6 +289,20 @@ def caches_setting_for_tests(base=None, exclude=None, **params):
     # base config for the tests.
     # This results in the following search order:
     # params -> _caches_setting_base -> base
+    """
+
+    Generates a dictionary of cache settings for testing purposes.
+
+    Creates a setup by optionally overlaying a base configuration, excluding 
+    certain settings, and applying additional parameters. The resulting settings 
+    can be used to configure caching for tests.
+
+    :param base: Base cache settings to start with (defaults to empty dictionary)
+    :param exclude: Cache settings to exclude (defaults to empty set)
+    :param params: Additional cache parameters to apply (keyword arguments)
+    :return: A dictionary of configured cache settings
+
+    """
     base = base or {}
     exclude = exclude or set()
     setting = {k: base.copy() for k in _caches_setting_base if k not in exclude}
@@ -327,6 +341,9 @@ class BaseCacheTests:
 
     def test_prefix(self):
         # Test for same cache key conflicts between shared backend
+        """
+        Verifies cache prefix functionality by testing key isolation between the main cache and a prefixed cache.
+        """
         cache.set("somekey", "value")
 
         # should not be set in the prefixed cache
@@ -344,6 +361,14 @@ class BaseCacheTests:
 
     def test_get_many(self):
         # Multiple cache keys can be returned using get_many
+        """
+
+        Tests the functionality of retrieving multiple values from the cache.
+
+        This test ensures that the cache can successfully retrieve multiple values 
+        at once, including handling cases where some keys are not present in the cache.
+
+        """
         cache.set_many({"a": "a", "b": "b", "c": "c", "d": "d"})
         self.assertEqual(
             cache.get_many(["a", "c", "d"]), {"a": "a", "c": "c", "d": "d"}
@@ -355,6 +380,9 @@ class BaseCacheTests:
 
     def test_delete(self):
         # Cache keys can be deleted
+        """
+        Tests the deletion of a key-value pair from the cache, verifying that the key is removed and the corresponding value is no longer retrievable.
+        """
         cache.set_many({"key1": "spam", "key2": "eggs"})
         self.assertEqual(cache.get("key1"), "spam")
         self.assertIs(cache.delete("key1"), True)
@@ -366,6 +394,9 @@ class BaseCacheTests:
 
     def test_has_key(self):
         # The cache can be inspected for cache keys
+        """
+        Checks that the cache correctly reports the existence of keys, including when values are set to None or have no expiry.
+        """
         cache.set("hello1", "goodbye1")
         self.assertIs(cache.has_key("hello1"), True)
         self.assertIs(cache.has_key("goodbye1"), False)
@@ -376,6 +407,13 @@ class BaseCacheTests:
 
     def test_in(self):
         # The in operator can be used to inspect cache contents
+        """
+        Tests the proper functioning of cache key presence checks.
+
+        Verifies that cache.set correctly adds keys to the cache, and 
+        that the 'in' operator correctly identifies key presence or absence, 
+        including for keys with None values.
+        """
         cache.set("hello2", "goodbye2")
         self.assertIn("hello2", cache)
         self.assertNotIn("goodbye2", cache)
@@ -384,6 +422,9 @@ class BaseCacheTests:
 
     def test_incr(self):
         # Cache values can be incremented
+        """
+        Tests the increment functionality of the cache, ensuring it correctly increments existing values, raises errors for non-existent keys, and handles incremental values and type errors.
+        """
         cache.set("answer", 41)
         self.assertEqual(cache.incr("answer"), 42)
         self.assertEqual(cache.get("answer"), 42)
@@ -400,6 +441,13 @@ class BaseCacheTests:
 
     def test_decr(self):
         # Cache values can be decremented
+        """
+        Tests the decrement functionality of the cache.
+
+        Verifies that decrementing a cached value decreases its value, handles
+        optional decrement amounts, and raises errors for non-existent or
+        invalid cache entries.
+        """
         cache.set("answer", 43)
         self.assertEqual(cache.decr("answer"), 42)
         self.assertEqual(cache.get("answer"), 42)
@@ -420,6 +468,9 @@ class BaseCacheTests:
 
     def test_data_types(self):
         # Many different data types can be cached
+        """
+        Tests that the cache correctly stores and retrieves various data types, including strings, integers, booleans, lists, tuples, dictionaries, functions, and classes.
+        """
         tests = {
             "string": "this is a string",
             "int": 42,
@@ -437,6 +488,11 @@ class BaseCacheTests:
 
     def test_cache_read_for_model_instance(self):
         # Don't want fields with callable as default to be called on cache read
+        """
+        Tests that reading a model instance from the cache works correctly, 
+        verifying that cached values are accessible and that expensive calculations 
+        are only executed once.
+        """
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         my_poll = Poll.objects.create(question="Well?")
@@ -450,6 +506,9 @@ class BaseCacheTests:
 
     def test_cache_write_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache write
+        """
+        Tests that deferred querysets are properly cached when written to the cache for model instances.
+        """
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
@@ -463,6 +522,9 @@ class BaseCacheTests:
 
     def test_cache_read_for_model_instance_with_deferred(self):
         # Don't want fields with callable as default to be called on cache read
+        """
+        Tests if a deferred queryset is properly cached and doesn't trigger an expensive calculation when read from cache.
+        """
         expensive_calculation.num_runs = 0
         Poll.objects.all().delete()
         Poll.objects.create(question="What?")
@@ -478,6 +540,11 @@ class BaseCacheTests:
 
     def test_expiration(self):
         # Cache values can be set to expire
+        """
+        Tests cache expiration functionality by setting multiple cache keys with a short expiration time, 
+        waiting for the expiration time to pass, and verifying that the keys have expired and can be added or 
+        checked for existence without conflicts.
+        """
         cache.set("expire1", "very quickly", 1)
         cache.set("expire2", "very quickly", 1)
         cache.set("expire3", "very quickly", 1)
@@ -491,6 +558,9 @@ class BaseCacheTests:
 
     def test_touch(self):
         # cache.touch() updates the timeout.
+        """
+        Tests the cache touch functionality, which resets the expiration time of a cache key. Verifies that touch extends the lifetime of existing keys and returns False for non-existent keys.
+        """
         cache.set("expire1", "very quickly", timeout=1)
         self.assertIs(cache.touch("expire1", timeout=4), True)
         time.sleep(2)
@@ -507,6 +577,13 @@ class BaseCacheTests:
 
     def test_unicode(self):
         # Unicode values can be cached
+        """
+        Tests the cache with various keys and values containing ASCII and Unicode characters.
+
+        Verifies that cache operations such as set, get, delete, and add work correctly
+        with different types of keys and values, including nested dictionaries.
+        Additionally, tests the set_many method for bulk cache insertion.
+        """
         stuff = {
             "ascii": "ascii_value",
             "unicode_ascii": "Iñtërnâtiônàlizætiøn1",
@@ -536,6 +613,10 @@ class BaseCacheTests:
 
     def test_binary_string(self):
         # Binary strings should be cacheable
+        """
+        Tests caching and retrieval of binary strings, ensuring compressed and 
+        decompressed values remain consistent through cache set, add, and get operations.
+        """
         from zlib import compress, decompress
 
         value = "value_to_be_compressed"
@@ -582,6 +663,13 @@ class BaseCacheTests:
 
     def test_delete_many(self):
         # Multiple keys can be deleted using delete_many
+        """
+        Tests the deletion of multiple cache entries.
+
+        Verifies that calling delete_many removes the specified keys from the cache
+        while leaving other keys intact, ensuring cache functionality is correct
+        when handling multiple key removals.
+        """
         cache.set_many({"key1": "spam", "key2": "eggs", "key3": "ham"})
         cache.delete_many(["key1", "key2"])
         self.assertIsNone(cache.get("key1"))
@@ -661,6 +749,13 @@ class BaseCacheTests:
         self.assertEqual(cache.get("key1"), "spam")
 
     def _perform_cull_test(self, cull_cache_name, initial_count, final_count):
+        """
+        Performs a cull test on a cache, verifying that the expected number of items remain after culling.
+
+        :param cull_cache_name: Name of the cache to test
+        :param initial_count: Initial number of items to add to the cache
+        :param final_count: Expected number of items remaining in the cache after culling
+        """
         try:
             cull_cache = caches[cull_cache_name]
         except InvalidCacheBackendError:
@@ -684,6 +779,9 @@ class BaseCacheTests:
         self._perform_cull_test("zero_cull", 50, 19)
 
     def test_cull_delete_when_store_empty(self):
+        """
+        Tests cull cache behavior when its store is empty, verifying that it correctly handles deletion when its maximum entries are set to unlimited.
+        """
         try:
             cull_cache = caches["cull"]
         except InvalidCacheBackendError:
@@ -751,6 +849,9 @@ class BaseCacheTests:
     def test_invalid_with_version_key_length(self):
         # Custom make_key() that adds a version to the key and exceeds the
         # limit.
+        """
+        Tests a cache key with a version component that exceeds the maximum allowed length for memcached, verifying a warning is raised to prevent potential errors.
+        """
         def key_func(key, *args):
             return key + ":1"
 
@@ -763,6 +864,9 @@ class BaseCacheTests:
 
     def test_cache_versioning_get_set(self):
         # set, using default version = 1
+        """
+        Tests the cache versioning functionality, ensuring that cache items are properly set and retrieved based on their version.
+        """
         cache.set("answer1", 42)
         self.assertEqual(cache.get("answer1"), 42)
         self.assertEqual(cache.get("answer1", version=1), 42)
@@ -804,6 +908,9 @@ class BaseCacheTests:
 
     def test_cache_versioning_add(self):
         # add, default version = 1, but manually override version = 2
+        """
+        Tests the functionality of cache versioning, ensuring that data added to the cache with a specific version is correctly stored and retrieved, and that cache entries are version-specific, allowing multiple versions of the same key to coexist.
+        """
         self.assertIs(cache.add("answer1", 42, version=2), True)
         self.assertIsNone(cache.get("answer1", version=1))
         self.assertEqual(cache.get("answer1", version=2), 42)
@@ -843,6 +950,9 @@ class BaseCacheTests:
         self.assertEqual(cache.get("answer3", version=2), 37)
 
     def test_cache_versioning_has_key(self):
+        """
+        Tests the cache versioning functionality by verifying that the has_key method correctly identifies the presence of a key across different cache versions.
+        """
         cache.set("answer1", 42)
 
         # has_key
@@ -855,6 +965,9 @@ class BaseCacheTests:
         self.assertIs(caches["v2"].has_key("answer1", version=2), False)
 
     def test_cache_versioning_delete(self):
+        """
+        Tests the cache's versioning delete functionality to ensure it correctly removes items from the cache while preserving other versioned values.
+        """
         cache.set("answer1", 37, version=1)
         cache.set("answer1", 42, version=2)
         self.assertIs(cache.delete("answer1"), True)
@@ -880,6 +993,9 @@ class BaseCacheTests:
         self.assertEqual(cache.get("answer4", version=2), 42)
 
     def test_cache_versioning_incr_decr(self):
+        """
+        Tests the functionality of incrementing and decrementing cached values with versioning, ensuring that different versions of a cached key are updated independently.
+        """
         cache.set("answer1", 37, version=1)
         cache.set("answer1", 42, version=2)
         self.assertEqual(cache.incr("answer1"), 38)
@@ -918,6 +1034,9 @@ class BaseCacheTests:
 
     def test_cache_versioning_get_set_many(self):
         # set, using default version = 1
+        """
+        Tests cache versioning by setting and getting multiple cache entries with different versions, verifying that version-specific cache interactions behave correctly.
+        """
         cache.set_many({"ford1": 37, "arthur1": 42})
         self.assertEqual(
             cache.get_many(["ford1", "arthur1"]), {"ford1": 37, "arthur1": 42}
@@ -990,6 +1109,11 @@ class BaseCacheTests:
         self.assertEqual(caches["v2"].get_many(["ford4", "arthur4"], version=2), {})
 
     def test_incr_version(self):
+        """
+        Increments the version of a cached item, effectively moving it to the next version in the cache.
+
+        Tests caching behavior with different versions, including retrieving and incrementing versions, handling non-existent items, and edge cases such as null values. Verifies that an item's version can be incremented and its value remains available only for the new version. Also checks that attempting to increment a non-existent item raises an exception.
+        """
         cache.set("answer", 42, version=2)
         self.assertIsNone(cache.get("answer"))
         self.assertIsNone(cache.get("answer", version=1))
@@ -1021,6 +1145,12 @@ class BaseCacheTests:
         self.assertEqual(cache.incr_version("null"), 2)
 
     def test_decr_version(self):
+        """
+        Tests whether the cache version decrement functionality works as expected.
+
+        Decrements the version of a cached value, making the versioned item and any higher versioned items invisible.
+        Ensures consistency between different cache instances and handles non-existent keys, attempting to decrement a non-existent key raises a ValueError.
+        """
         cache.set("answer", 42, version=2)
         self.assertIsNone(cache.get("answer"))
         self.assertIsNone(cache.get("answer", version=1))
@@ -1049,6 +1179,13 @@ class BaseCacheTests:
 
     def test_custom_key_func(self):
         # Two caches with different key functions aren't visible to each other
+        """
+        Tests the functionality of custom key functions in the cache system.
+
+        Verifies that cache keys generated by different functions do not overlap and 
+        that data stored with a custom key function is not accessible via the default 
+        cache function or other custom functions, unless they are identical.
+        """
         cache.set("answer1", 42)
         self.assertEqual(cache.get("answer1"), 42)
         self.assertIsNone(caches["custom_key"].get("answer1"))
@@ -1061,6 +1198,11 @@ class BaseCacheTests:
 
     @override_settings(CACHE_MIDDLEWARE_ALIAS=DEFAULT_CACHE_ALIAS)
     def test_cache_write_unpicklable_object(self):
+        """
+        Tests the ability of the cache middleware to write and retrieve an HTTP response 
+        containing an unpicklable object, specifically a cookie. Verifies that the response 
+        is successfully cached and retrieved with its associated cookies intact.
+        """
         fetch_middleware = FetchFromCacheMiddleware(empty_response)
 
         request = self.factory.get("/cache/test")
@@ -1101,6 +1243,12 @@ class BaseCacheTests:
             cache.set("unpicklable", Unpicklable())
 
     def test_get_or_set(self):
+        """
+        Tests the functionality of retrieving and setting values in the cache.
+
+        Ensures that get_or_set correctly sets a value if it doesn't exist and retrieves existing values, 
+        including handling cases where the value is set to None or a default value is provided.
+        """
         self.assertIsNone(cache.get("projector"))
         self.assertEqual(cache.get_or_set("projector", 42), 42)
         self.assertEqual(cache.get("projector"), 42)
@@ -1109,6 +1257,9 @@ class BaseCacheTests:
         self.assertIsNone(cache.get("null", "default"))
 
     def test_get_or_set_callable(self):
+        """
+        Tests the get_or_set function with callable values, verifying that it correctly stores and retrieves cached values, handles callable defaults, and returns None for stored null values.
+        """
         def my_callable():
             return "value"
 
@@ -1120,6 +1271,15 @@ class BaseCacheTests:
         self.assertIsNone(cache.get("null", "default"))
 
     def test_get_or_set_version(self):
+        """
+
+        Verifies the correct behavior of the get_or_set function within the cache.
+
+        Tests that it can successfully set and retrieve values, 
+        raises a TypeError when required positional arguments are missing, 
+        and handles different version numbers.
+
+        """
         msg = "get_or_set() missing 1 required positional argument: 'default'"
         self.assertEqual(cache.get_or_set("brian", 1979, version=2), 1979)
         with self.assertRaisesMessage(TypeError, msg):
@@ -1166,6 +1326,9 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
             cursor.execute("DROP TABLE %s" % table_name)
 
     def test_get_many_num_queries(self):
+        """
+        Tests the cache's get_many function to ensure it correctly retrieves multiple values and handles expired cache entries, minimizing the number of database queries.
+        """
         cache.set_many({"a": 1, "b": 2})
         cache.set("expired", "expired", 0.01)
         with self.assertNumQueries(1):
@@ -1180,6 +1343,9 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
             cache.delete_many(["a", "b", "c"])
 
     def test_cull_queries(self):
+        """
+        Tests that cache culling only executes a single COUNT query and correctly handles table names in SQL queries.
+        """
         old_max_entries = cache._max_entries
         # Force _cull to delete on first cached record.
         cache._max_entries = -1
@@ -1260,6 +1426,9 @@ class DBCacheTests(BaseCacheTests, TransactionTestCase):
         self.assertEqual(out.getvalue(), "Cache table 'test cache table' created.\n")
 
     def test_has_key_query_columns_quoted(self):
+        """
+        Tests that the has_key query correctly quotes column names in the SQL query.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             cache.has_key("key")
         self.assertEqual(len(captured_queries), 1)
@@ -1307,6 +1476,12 @@ class CreateCacheTableForDBCacheTests(TestCase):
     @override_settings(DATABASE_ROUTERS=[DBCacheRouter()])
     def test_createcachetable_observes_database_router(self):
         # cache table should not be created on 'default'
+        """
+        Tests the createcachetable command honors the database router configuration.
+
+        Verifies that the command observes the database router when creating cache tables in
+        different databases, ensuring the correct number of queries are executed for each case.
+        """
         with self.assertNumQueries(0, using="default"):
             management.call_command("createcachetable", database="default", verbosity=0)
         # cache table should be created on 'other'
@@ -1346,6 +1521,9 @@ limit_locmem_entries = override_settings(
 )
 class LocMemCacheTests(BaseCacheTests, TestCase):
     def setUp(self):
+        """
+        Initializes the testing environment by synchronizing the cache and expiration information of multiple caches with a master cache.
+        """
         super().setUp()
 
         # LocMem requires a hack to make the other caches
@@ -1468,6 +1646,9 @@ class BaseMemcachedTests(BaseCacheTests):
     should_disconnect_on_close = True
 
     def test_location_multiple_servers(self):
+        """
+        Tests that the LOCATION parameter is properly parsed when multiple server locations are provided in different formats (list, semicolon-separated, comma-separated).
+        """
         locations = [
             ["server1.tld", "server2:11211"],
             "server1.tld;server2:11211",
@@ -1539,6 +1720,9 @@ class BaseMemcachedTests(BaseCacheTests):
         # By default memcached allows objects up to 1MB. For the cache_db session
         # backend to always use the current session, memcached needs to delete
         # the old key if it fails to set.
+        """
+        Tests that memcached deletes a key upon failed set operation due to value size exceeding the maximum allowed length.
+        """
         max_value_length = 2**20
 
         cache.set("small_value", "a")
@@ -1560,6 +1744,9 @@ class BaseMemcachedTests(BaseCacheTests):
     def test_close(self):
         # For clients that don't manage their connections properly, the
         # connection is closed when the request is complete.
+        """
+        Tests that the request_finished signal correctly triggers the disconnection of cache connections based on the should_disconnect_on_close setting.
+        """
         signals.request_finished.disconnect(close_old_connections)
         try:
             with mock.patch.object(
@@ -1571,6 +1758,9 @@ class BaseMemcachedTests(BaseCacheTests):
             signals.request_finished.connect(close_old_connections)
 
     def test_set_many_returns_failing_keys(self):
+        """
+        Tests that the cache's set_many method correctly identifies and returns keys when the underlying set_multi operation fails.
+        """
         def fail_set_multi(mapping, *args, **kwargs):
             return mapping.keys()
 
@@ -1610,6 +1800,11 @@ class PyLibMCCacheTests(BaseMemcachedTests, TestCase):
         self.assertEqual(cache._cache.behaviors["tcp_nodelay"], int(True))
 
     def test_pylibmc_client_servers(self):
+        """
+        Tests the pylibmc client's server settings by verifying the client's server list
+        matches the provided location across various input formats, including Unix sockets
+        and IPv4/IPv6 addresses with optional port numbers.
+        """
         backend = self.base_params["BACKEND"]
         tests = [
             ("unix:/run/memcached/socket", "/run/memcached/socket"),
@@ -1642,6 +1837,9 @@ class PyMemcacheCacheTests(BaseMemcachedTests, TestCase):
         return cache._lib.exceptions.MemcacheClientError
 
     def test_pymemcache_highest_pickle_version(self):
+        """
+        Checks the default pickling version used for serialization in the cache and its clients, ensuring it matches the highest available protocol.
+        """
         self.assertEqual(
             cache._cache.default_kwargs["serde"]._serialize_func.keywords[
                 "pickle_version"
@@ -1678,6 +1876,9 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by creating a temporary directory for caches and updates the cache locations in settings.
+        """
         super().setUp()
         self.dirname = self.mkdtemp()
         # Caches location cannot be modified through override_settings /
@@ -1696,6 +1897,9 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
         return tempfile.mkdtemp()
 
     def test_ignores_non_cache_files(self):
+        """
+        Verifies that the cache clearing functionality ignores files that are not part of the cache.
+        """
         fname = os.path.join(self.dirname, "not-a-cache-file")
         with open(fname, "w"):
             os.utime(fname, None)
@@ -1727,6 +1931,9 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
         "Windows only partially supports umasks and chmod.",
     )
     def test_cache_dir_permissions(self):
+        """
+        Tests the permissions of the cache directory by creating a nested directory structure, setting cache parameters, and verifying that the created directories have the expected permissions.
+        """
         os.rmdir(self.dirname)
         dir_path = Path(self.dirname) / "nested" / "filebasedcache"
         for cache_params in settings.CACHES.values():
@@ -1750,6 +1957,9 @@ class FileBasedCacheTests(BaseCacheTests, TestCase):
                 cache.get("foo")
 
     def test_empty_cache_file_considered_expired(self):
+        """
+        Verifies that an empty cache file is considered expired.
+        """
         cache_file = cache._key_to_file("foo")
         with open(cache_file, "wb") as fh:
             fh.write(b"")
@@ -1816,6 +2026,9 @@ class RedisCacheTests(BaseCacheTests, TestCase):
         self.assertIsInstance(cache._cache, RedisCacheClient)
 
     def test_get_backend_timeout_method(self):
+        """
+        Test the get_backend_timeout method, validating its behavior for positive, negative, and None input values to ensure it correctly returns the expected timeouts.
+        """
         positive_timeout = 10
         positive_backend_timeout = cache.get_backend_timeout(positive_timeout)
         self.assertEqual(positive_backend_timeout, positive_timeout)
@@ -1829,6 +2042,13 @@ class RedisCacheTests(BaseCacheTests, TestCase):
         self.assertIsNone(none_backend_timeout)
 
     def test_get_connection_pool_index(self):
+        """
+        Tests the retrieval of a connection pool index based on the write flag.
+
+        Verifies that the index is correctly determined depending on whether a write operation is required.\"\"\"
+        or, more concisely:
+        \"\"\"Tests retrieval of a connection pool index based on write flag.
+        """
         pool_index = cache._cache._get_connection_pool_index(write=True)
         self.assertEqual(pool_index, 0)
         pool_index = cache._cache._get_connection_pool_index(write=False)
@@ -2033,6 +2253,9 @@ class CacheUtils(SimpleTestCase):
         return request
 
     def test_patch_vary_headers(self):
+        """
+        Tests the `patch_vary_headers` function by verifying it correctly updates the `Vary` header in HTTP responses based on initial values and newly applied headers. Covers various cases, including handling of duplicate, case-insensitive, and whitespace-padded header names.
+        """
         headers = (
             # Initial vary, new headers, resulting vary.
             (None, ("Accept-Encoding",), "Accept-Encoding"),
@@ -2072,6 +2295,11 @@ class CacheUtils(SimpleTestCase):
                 self.assertEqual(response.headers["Vary"], resulting_vary)
 
     def test_get_cache_key(self):
+        """
+        Tests the functionality of generating and learning cache keys for HTTP requests.
+
+        The test verifies that the cache key is initially None, and then updated correctly after learning the cache key with and without a custom key prefix.
+        """
         request = self.factory.get(self.path)
         response = HttpResponse()
         # Expect None if no headers have been set yet.
@@ -2094,6 +2322,11 @@ class CacheUtils(SimpleTestCase):
         )
 
     def test_get_cache_key_with_query(self):
+        """
+        Tests the functionality of generating a cache key for a given request, specifically when a query is present in the request URL. 
+
+         It verifies that an initial cache key is not generated until the cache key is learned from a response, and then checks that the learned cache key matches an expected value.
+        """
         request = self.factory.get(self.path, {"test": 1})
         response = HttpResponse()
         # Expect None if no headers have been set yet.
@@ -2118,6 +2351,13 @@ class CacheUtils(SimpleTestCase):
         self.assertNotEqual(get_cache_key(request1), get_cache_key(request2))
 
     def test_learn_cache_key(self):
+        """
+
+        Tests the learning of a cache key based on a request and response with a Vary header.
+
+        Verifies that the cache key is correctly generated and stored after calling the learn_cache_key function.
+
+        """
         request = self.factory.head(self.path)
         response = HttpResponse()
         response.headers["Vary"] = "Pony"
@@ -2131,6 +2371,9 @@ class CacheUtils(SimpleTestCase):
         )
 
     def test_patch_cache_control(self):
+        """
+        Tests the functionality of the patch_cache_control function by verifying that it correctly updates the Cache-Control header of an HttpResponse object according to the provided new headers.
+        """
         tests = (
             # Initial Cache-Control, kwargs to patch_cache_control, expected
             # Cache-Control parts.
@@ -2217,6 +2460,15 @@ class CacheHEADTest(SimpleTestCase):
         return UpdateCacheMiddleware(lambda req: HttpResponse(msg))(request)
 
     def test_head_caches_correctly(self):
+        """
+
+        Checks that the cache is correctly updated and retrieved for HEAD requests.
+
+        Verifies that the cache is populated with the expected content when a HEAD request 
+        is made and the cache update flag is set. Subsequent HEAD requests with the cache 
+        update flag then retrieve the cached content successfully.
+
+        """
         test_content = "test content"
 
         request = self.factory.head(self.path)
@@ -2232,6 +2484,10 @@ class CacheHEADTest(SimpleTestCase):
         self.assertEqual(test_content.encode(), get_cache_data.content)
 
     def test_head_with_cached_get(self):
+        """
+        Tests the cache functionality for HEAD requests, verifying that 
+        cached data from a previous GET request can be successfully retrieved.
+        """
         test_content = "test content"
 
         request = self.factory.get(self.path)
@@ -2267,6 +2523,9 @@ class CacheI18nTest(SimpleTestCase):
 
     @override_settings(USE_I18N=True, USE_TZ=False)
     def test_cache_key_i18n_translation(self):
+        """
+        Tests that cache keys include the language name when internationalization is enabled, ensuring cache keys are unique for different languages.
+        """
         request = self.factory.get(self.path)
         lang = translation.get_language()
         response = HttpResponse()
@@ -2280,6 +2539,9 @@ class CacheI18nTest(SimpleTestCase):
         self.assertEqual(key, key2)
 
     def check_accept_language_vary(self, accept_language, vary, reference_key):
+        """
+        Checks if the cache key generation is correct when 'Accept-Language' header is varied, ensuring proper caching behavior for multilingual content.
+        """
         request = self.factory.get(self.path)
         request.META["HTTP_ACCEPT_LANGUAGE"] = accept_language
         request.META["HTTP_ACCEPT_ENCODING"] = "gzip;q=1.0, identity; q=0.5, *;q=0"
@@ -2292,6 +2554,9 @@ class CacheI18nTest(SimpleTestCase):
 
     @override_settings(USE_I18N=True, USE_TZ=False)
     def test_cache_key_i18n_translation_accept_language(self):
+        """
+        Tests the generation of cache keys when internationalization (i18n) is enabled, verifying that the cache key includes the language name and correctly handles the 'Accept-Language' and 'Accept-Encoding' headers in the request.
+        """
         lang = translation.get_language()
         self.assertEqual(lang, "en")
         request = self.factory.get(self.path)
@@ -2338,6 +2603,9 @@ class CacheI18nTest(SimpleTestCase):
 
     @override_settings(USE_I18N=False, USE_TZ=True)
     def test_cache_key_i18n_timezone(self):
+        """
+        Tests that the cache key generated by the learn_cache_key and get_cache_key functions includes the current time zone name when time zones are active.
+        """
         request = self.factory.get(self.path)
         tz = timezone.get_current_timezone_name()
         response = HttpResponse()
@@ -2352,6 +2620,9 @@ class CacheI18nTest(SimpleTestCase):
 
     @override_settings(USE_I18N=False)
     def test_cache_key_no_i18n(self):
+        """
+        Tests that the cache key does not include language or timezone information when internationalization is disabled.
+        """
         request = self.factory.get(self.path)
         lang = translation.get_language()
         tz = timezone.get_current_timezone_name()
@@ -2374,6 +2645,9 @@ class CacheI18nTest(SimpleTestCase):
         USE_I18N=True,
     )
     def test_middleware(self):
+        """
+        Tests caching middleware functionality with various request scenarios, including cache updating and fetching in different languages, to ensure correct behavior and response content.
+        """
         def set_cache(request, lang, msg):
             def get_response(req):
                 return HttpResponse(msg)
@@ -2448,6 +2722,9 @@ class CacheI18nTest(SimpleTestCase):
         CACHE_MIDDLEWARE_SECONDS=60,
     )
     def test_middleware_doesnt_cache_streaming_response(self):
+        """
+        Tests that the caching middleware does not cache responses that use streaming HTTP responses.
+        """
         request = self.factory.get(self.path)
         get_cache_data = FetchFromCacheMiddleware(empty_response).process_request(
             request
@@ -2550,6 +2827,9 @@ class CacheMiddlewareTest(SimpleTestCase):
         self.assertEqual(as_view_decorator_with_custom.cache, self.other_cache)
 
     def test_update_cache_middleware_constructor(self):
+        """
+        Tests the initialization of the UpdateCacheMiddleware class, verifying its default attribute values, including cache timeout, page timeout, key prefix, cache alias, and cache instance.
+        """
         middleware = UpdateCacheMiddleware(empty_response)
         self.assertEqual(middleware.cache_timeout, 30)
         self.assertIsNone(middleware.page_timeout)
@@ -2564,6 +2844,12 @@ class CacheMiddlewareTest(SimpleTestCase):
         self.assertEqual(middleware.cache, self.other_cache)
 
     def test_middleware(self):
+        """
+
+        Tests the CacheMiddleware functionality, including
+        processing requests and responses with and without a cache timeout and key prefix.
+
+        """
         middleware = CacheMiddleware(hello_world_view)
         prefix_middleware = CacheMiddleware(hello_world_view, key_prefix="prefix1")
         timeout_middleware = CacheMiddleware(hello_world_view, cache_timeout=1)
@@ -2595,6 +2881,9 @@ class CacheMiddlewareTest(SimpleTestCase):
 
     def test_view_decorator(self):
         # decorate the same view with different cache decorators
+        """
+        Checks the behavior of the cache_page decorator with various cache settings and key prefixes by simulating GET requests and comparing the returned responses with expected values, ensuring correct caching and cache invalidation.
+        """
         default_view = cache_page(3)(hello_world_view)
         default_with_prefix_view = cache_page(3, key_prefix="prefix1")(hello_world_view)
 
@@ -2677,6 +2966,11 @@ class CacheMiddlewareTest(SimpleTestCase):
     def test_cache_page_timeout(self):
         # Page timeout takes precedence over the "max-age" section of the
         # "Cache-Control".
+        """
+        Tests that cache_page decorator behaves correctly when page timeout is configured, 
+        verifying that cached content is updated or invalidated based on the specified timeout 
+        and cache control max age settings.
+        """
         tests = [
             (1, 3),  # max_age < page_timeout.
             (3, 1),  # max_age > page_timeout.
@@ -2725,6 +3019,13 @@ class CacheMiddlewareTest(SimpleTestCase):
         self.assertIsNone(cache_middleware.process_request(request))
 
     def test_304_response_has_http_caching_headers_but_not_cached(self):
+        """
+        Tests that a 304 response from a cached view includes HTTP caching headers but isn't cached.\"\"\"
+        \"\"\" 
+        Checks that cache_page decorator correctly handles 304 responses, 
+        including the presence of Cache-Control and Expires headers.
+
+        """
         original_view = mock.Mock(return_value=HttpResponseNotModified())
         view = cache_page(2)(original_view)
         request = self.factory.get("/view/")
@@ -2753,6 +3054,13 @@ class CacheMiddlewareTest(SimpleTestCase):
         self.assertIsNot(thread_caches[0], thread_caches[1])
 
     def test_cache_control_max_age(self):
+        """
+        Tests the cache control max age functionality.
+
+        Verifies that the 'Expires' and 'Cache-Control' headers are correctly set
+        with a specified max age, and that the 'Age' header is included when the
+        response is retrieved from the cache after the initial request.
+        """
         view = cache_page(2)(hello_world_view)
         request = self.factory.get("/view/")
 
@@ -2811,6 +3119,9 @@ class TestWithTemplateResponse(SimpleTestCase):
         cache.clear()
 
     def test_patch_vary_headers(self):
+        """
+        Test the patch_vary_headers function to ensure it correctly updates the 'Vary' header in a response object, handling various initial header values and new header inputs.
+        """
         headers = (
             # Initial vary, new headers, resulting vary.
             (None, ("Accept-Encoding",), "Accept-Encoding"),
@@ -2849,6 +3160,9 @@ class TestWithTemplateResponse(SimpleTestCase):
                 self.assertEqual(response.headers["Vary"], resulting_vary)
 
     def test_get_cache_key(self):
+        """
+        Tests the functionality of generating and learning cache keys for HTTP requests, ensuring the cache key is correctly generated and updated with a custom key prefix.
+        """
         request = self.factory.get(self.path)
         template = engines["django"].from_string("This is a test")
         response = TemplateResponse(HttpRequest(), template)
@@ -2872,6 +3186,9 @@ class TestWithTemplateResponse(SimpleTestCase):
         )
 
     def test_get_cache_key_with_query(self):
+        """
+        Tests the functionality of retrieving and learning cache keys for a given HTTP request with a query string, ensuring the cache key is generated correctly after the response has been learned.
+        """
         request = self.factory.get(self.path, {"test": 1})
         template = engines["django"].from_string("This is a test")
         response = TemplateResponse(HttpRequest(), template)
@@ -2967,6 +3284,9 @@ class CacheHandlerTest(SimpleTestCase):
             test_caches["invalid_backend"]
 
     def test_all(self):
+        """
+        Tests the functionality of retrieving all caches, including both initialized and uninitialized ones, and verifies the correctness of the initialized_only parameter.
+        """
         test_caches = CacheHandler(
             {
                 "cache_1": {

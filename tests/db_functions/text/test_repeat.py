@@ -8,6 +8,9 @@ from ..models import Author
 
 class RepeatTests(TestCase):
     def test_basic(self):
+        """
+        Tests the Repeat function to ensure it correctly repeats a given string a specified number of times in database queries.
+        """
         Author.objects.create(name="John", alias="xyz")
         none_value = (
             "" if connection.features.interprets_empty_strings_as_nulls else None

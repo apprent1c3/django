@@ -23,6 +23,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.client.force_login(self.superuser)
 
     def test_index(self):
+        """
+        Tests the admindocs index page, verifying its content and behavior when accessed by both logged-in and logged-out users.
+        """
         response = self.client.get(reverse("django-admindocs-docroot"))
         self.assertContains(response, "<h1>Documentation</h1>", html=True)
         self.assertContains(
@@ -51,6 +54,9 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, '<h3 id="built_in-first">first</h3>', html=True)
 
     def test_view_index(self):
+        """
+        Tests the view index page to ensure it contains the expected links and information about views, including views by namespace and the names of individual views.
+        """
         response = self.client.get(reverse("django-admindocs-views-index"))
         self.assertContains(
             response,
@@ -145,6 +151,10 @@ class AdminDocViewTests(TestDataMixin, AdminDocsTestCase):
         self.assertContains(response, "view_for_loader_test.html</code></li>")
 
     def test_missing_docutils(self):
+        """
+        Tests the behavior of the admin documentation system when the docutils library is missing, 
+        ensuring a user-friendly error message is displayed with installation instructions.
+        """
         utils.docutils_is_available = False
         try:
             response = self.client.get(reverse("django-admindocs-docroot"))
@@ -199,6 +209,9 @@ class AdminDocViewDefaultEngineOnly(TestDataMixin, AdminDocsTestCase):
         self.client.force_login(self.superuser)
 
     def test_template_detail_path_traversal(self):
+        """
+        Tests that the template detail view correctly handles path traversal attempts, returning a 400 status code when an attacker tries to access sensitive system files by manipulating the URL path.
+        """
         cases = ["/etc/passwd", "../passwd"]
         for fpath in cases:
             with self.subTest(path=fpath):
@@ -407,6 +420,10 @@ class TestModelDetailView(TestDataMixin, AdminDocsTestCase):
         self.assertEqual(len(fields), 2)
 
     def test_model_docstring_renders_correctly(self):
+        """
+        Tests whether the documentation string for a model is rendered correctly, 
+        including summary, subheadings, body text, and model fields.
+        """
         summary = (
             '<h2 class="subhead"><p>Stores information about a person, related to '
             '<a class="reference external" href="/admindocs/models/myapp.company/">'

@@ -21,6 +21,10 @@ class Cast(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generates SQL for the given field, handling datetime, time, and date fields by 
+        applying the necessary formatting using SQLite's strftime and date functions.
+        """
         db_type = self.output_field.db_type(connection)
         if db_type in {"datetime", "time"}:
             # Use strftime as datetime/time don't keep fractional seconds.
@@ -39,6 +43,9 @@ class Cast(Func):
         return self.as_sql(compiler, connection, **extra_context)
 
     def as_mysql(self, compiler, connection, **extra_context):
+        """
+        Generates a MySQL-specific SQL expression for this field, adapting the output to the field's internal type, and returns it as a SQL string.
+        """
         template = None
         output_type = self.output_field.get_internal_type()
         # MySQL doesn't support explicit cast to float.
@@ -82,6 +89,11 @@ class Coalesce(Func):
 
     @property
     def empty_result_set_value(self):
+        """
+        Gets the value to return when an empty result set is encountered, 
+        determined by the source expressions. Returns the first non-None or NotImplemented 
+        value found among the source expressions, or None if none is found.
+        """
         for expression in self.get_source_expressions():
             result = expression.empty_result_set_value
             if result is NotImplemented or result is not None:
@@ -91,6 +103,13 @@ class Coalesce(Func):
     def as_oracle(self, compiler, connection, **extra_context):
         # Oracle prohibits mixing TextField (NCLOB) and CharField (NVARCHAR2),
         # so convert all fields to NCLOB when that type is expected.
+        """
+        Return the SQL representation of this expression as Oracle-compatible SQL.
+
+        If the output field is a TextField, the expression is converted to NCLOB
+        to ensure compatibility with Oracle databases. Otherwise, the standard
+        SQL representation is used.
+        """
         if self.output_field.get_internal_type() == "TextField":
             clone = self.copy()
             clone.set_source_expressions(
@@ -161,6 +180,16 @@ class JSONObject(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_native(self, compiler, connection, *, returning, **extra_context):
+        """
+        Generates a SQL expression that wraps the current expression as a native function call, appending a RETURNING clause to the generated SQL.
+
+        :param compiler: The compiler object to use for generating SQL.
+        :param connection: The database connection to use.
+        :param returning: The columns or expressions to include in the RETURNING clause.
+        :param extra_context: Additional context to pass to the SQL generation process.
+
+        :return: The generated SQL expression as a string.
+        """
         class ArgJoiner:
             def join(self, args):
                 pairs = zip(args[::2], args[1::2], strict=True)
@@ -175,6 +204,14 @@ class JSONObject(Func):
         )
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        Generates PostgreSQL-specific SQL for creating a JSON object.
+
+            For PostgreSQL versions prior to 16, uses the JSONB_BUILD_OBJECT function
+            after casting every other expression to TextField. For PostgreSQL 16 and later,
+            uses the native JSONB functionality.
+
+        """
         if not connection.features.is_postgresql_16:
             copy = self.copy()
             copy.set_source_expressions(

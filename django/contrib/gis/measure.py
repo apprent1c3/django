@@ -116,6 +116,14 @@ class MeasureBase:
             )
 
     def __iadd__(self, other):
+        """
+        Augments this object by adding another instance of the same class.
+
+        Increases the standard attribute by the corresponding value from the other object.
+
+        Raises:
+            TypeError: If the object being added is not of the same class type.
+        """
         if isinstance(other, self.__class__):
             self.standard += other.standard
             return self
@@ -137,6 +145,13 @@ class MeasureBase:
             )
 
     def __isub__(self, other):
+        """
+        Subtracts another instance of the same class from this instance, modifying it in-place.
+
+        The subtraction operation is only supported between instances of the same class, otherwise a TypeError is raised.
+
+        :return: This instance, allowing for method chaining
+        """
         if isinstance(other, self.__class__):
             self.standard -= other.standard
             return self
@@ -159,6 +174,18 @@ class MeasureBase:
             )
 
     def __imul__(self, other):
+        """
+        Scale the object's standard value by a numeric factor.
+
+        Args:
+            other: A numeric value to multiply the standard by.
+
+        Returns:
+            The object itself after scaling.
+
+        Raises:
+            TypeError: If the multiplication factor is not a number.
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard *= float(other)
             return self
@@ -172,6 +199,12 @@ class MeasureBase:
         return self * other
 
     def __truediv__(self, other):
+        """
+        Divide the current quantity by either a number or another instance of the same class.
+
+        The result is either a numerical value (when dividing by another instance of the same class)
+        or a new instance of the class with the result of the division (when dividing by a number).
+        """
         if isinstance(other, self.__class__):
             return self.standard / other.standard
         if isinstance(other, NUMERIC_TYPES):
@@ -186,6 +219,12 @@ class MeasureBase:
             )
 
     def __itruediv__(self, other):
+        """
+        Divides the object's standard value by a given numeric value.
+
+        This method modifies the object in-place and returns the modified instance.
+        It raises a TypeError if the divisor is not a number.
+        """
         if isinstance(other, NUMERIC_TYPES):
             self.standard /= float(other)
             return self
@@ -325,6 +364,13 @@ class Distance(MeasureBase):
     LALIAS = {k.lower(): v for k, v in ALIAS.items()}
 
     def __mul__(self, other):
+        """
+        Performs multiplication on the area object.
+
+        Multiplication can be performed with either another area object or a numerical value.
+        The result is a new area object with the appropriate unit and value.
+        Raises TypeError if the operand is neither an area object nor a numerical value.
+        """
         if isinstance(other, self.__class__):
             return Area(
                 default_unit=AREA_PREFIX + self._default_unit,

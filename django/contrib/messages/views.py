@@ -9,6 +9,12 @@ class SuccessMessageMixin:
     success_message = ""
 
     def form_valid(self, form):
+        """
+        ..: 
+            Overrides the default form validation success behavior to display a success message.
+
+            :return: The response from the parent class after successful form validation.
+        """
         response = super().form_valid(form)
         success_message = self.get_success_message(form.cleaned_data)
         if success_message:

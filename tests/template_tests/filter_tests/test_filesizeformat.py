@@ -28,6 +28,9 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(filesizeformat(value), expected)
 
     def test_localized_formats(self):
+        """
+        Tests the filesizeformat function with various input values to ensure it produces correctly localized output, including different byte sizes and edge cases, under the German locale.
+        """
         tests = [
             (0, "0\xa0Bytes"),
             (1, "1\xa0Byte"),

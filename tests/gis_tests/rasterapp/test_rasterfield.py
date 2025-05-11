@@ -54,6 +54,12 @@ class RasterFieldTest(TransactionTestCase):
         qs[0].rast.bands[0].data()
 
     def test_deserialize_with_pixeltype_flags(self):
+        """
+
+        Tests the deserialization of raster data with pixel type flags, specifically 
+        verifying that the no data value is correctly set and retrieved.
+
+        """
         no_data = 3
         rast = GDALRaster(
             {
@@ -350,6 +356,10 @@ class RasterFieldTest(TransactionTestCase):
             RasterModel.objects.filter(rast__bbcontains=(rast, 1, 2))
 
     def test_lookup_input_band_not_allowed(self):
+        """
+        Tests that a ValueError is raised when attempting to use a band index with an operator that only supports bounding box queries.\"\"\"
+        ```
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         qs = RasterModel.objects.filter(rast__bbcontains=(rast, 1))
         msg = "Band indices are not allowed for this operator, it works on bbox only."
@@ -366,6 +376,12 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_result_of_gis_lookup_with_rasters(self):
         # Point is in the interior
+        """
+
+        Unit test for verifying the correctness of GIS spatial lookups, specifically
+        for raster data, including 'contains', 'contains_properly', and 'left' spatial operators.
+
+        """
         qs = RasterModel.objects.filter(
             rast__contains=GEOSGeometry("POINT (-0.5 0.5)", 4326)
         )
@@ -385,6 +401,13 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_raster_bbox(self):
+        """
+        Tests the lookup of raster models using a raster's bounding box.
+
+        Verifies that the `strictly_below` filter correctly returns raster models
+        that are strictly below the given raster's bounding box, with different
+        origin y-coordinates.
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Shift raster upward
         rast.origin.y = 2
@@ -398,6 +421,12 @@ class RasterFieldTest(TransactionTestCase):
         self.assertEqual(qs.count(), 1)
 
     def test_lookup_with_polygonized_raster(self):
+        """
+
+        Tests lookup of raster models using a polygonized raster, verifying that 
+        geospatial intersections are correctly identified and filtered.
+
+        """
         rast = GDALRaster(json.loads(JSON_RASTER))
         # Move raster to overlap with the model point on the left side
         rast.origin.x = -95.37040 + 1
@@ -415,6 +444,9 @@ class RasterFieldTest(TransactionTestCase):
 
     def test_lookup_value_error(self):
         # Test with invalid dict lookup parameter
+        """
+        Tests that RasterModel objects filtering by spatial intersection raises a ValueError when given an invalid lookup value, such as an empty dictionary or a string that cannot be converted to a spatial object.
+        """
         obj = {}
         msg = "Couldn't create spatial object from lookup value '%s'." % obj
         with self.assertRaisesMessage(ValueError, msg):

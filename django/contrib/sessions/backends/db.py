@@ -30,6 +30,10 @@ class SessionStore(SessionBase):
         return self.get_model_class()
 
     def _get_session_from_db(self):
+        """
+        Retrieves a session object from the database based on the current session key, 
+        checking for expiration and handling potential security exceptions.
+        """
         try:
             return self.model.objects.get(
                 session_key=self.session_key, expire_date__gt=timezone.now()
@@ -41,6 +45,13 @@ class SessionStore(SessionBase):
             self._session_key = None
 
     async def _aget_session_from_db(self):
+        """
+
+        Retrieves a session from the database based on the current session key, 
+        filtering out expired sessions. If the session does not exist or a 
+        suspicious operation occurs, the session key is reset.
+
+        """
         try:
             return await self.model.objects.aget(
                 session_key=self.session_key, expire_date__gt=timezone.now()
@@ -66,6 +77,10 @@ class SessionStore(SessionBase):
         return await self.model.objects.filter(session_key=session_key).aexists()
 
     def create(self):
+        """
+        Creates a new session key for the current object and saves it to the database, 
+        retrying if the creation fails due to a key collision.
+        """
         while True:
             self._session_key = self._get_new_session_key()
             try:
@@ -79,6 +94,9 @@ class SessionStore(SessionBase):
             return
 
     async def acreate(self):
+        """
+        Asynchronously creates a new session, handling any create errors that may occur by retrying with a new session key until successful.
+        """
         while True:
             self._session_key = await self._aget_new_session_key()
             try:
@@ -167,6 +185,9 @@ class SessionStore(SessionBase):
             raise
 
     def delete(self, session_key=None):
+        """
+        Deletes a session object from the database based on the provided session key or the instance's default session key if none is provided.
+        """
         if session_key is None:
             if self.session_key is None:
                 return
@@ -177,6 +198,12 @@ class SessionStore(SessionBase):
             pass
 
     async def adelete(self, session_key=None):
+        """
+        Asynchronously deletes an object from the database based on the provided session key.
+
+        If no session key is provided, it falls back to the instance's session key. 
+        The operation is silently ignored if the object does not exist.
+        """
         if session_key is None:
             if self.session_key is None:
                 return

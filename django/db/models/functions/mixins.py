@@ -33,6 +33,10 @@ class FixDurationInputMixin:
         return sql, params
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        -adapt the field to be compatible with Oracle database
+          by converting duration fields to a supported type when necessary.
+        """
         if (
             self.output_field.get_internal_type() == "DurationField"
             and not connection.features.supports_aggregation_over_interval_types
@@ -54,6 +58,9 @@ class FixDurationInputMixin:
 
 class NumericOutputFieldMixin:
     def _resolve_output_field(self):
+        """
+        Determines the output field type based on the types of source fields, prioritizing DecimalField and then IntegerField, otherwise defaulting to FloatField or delegating to the superclass if necessary.
+        """
         source_fields = self.get_source_fields()
         if any(isinstance(s, DecimalField) for s in source_fields):
             return DecimalField()

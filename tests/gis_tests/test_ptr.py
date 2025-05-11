@@ -7,6 +7,11 @@ from django.test import SimpleTestCase
 
 class CPointerBaseTests(SimpleTestCase):
     def test(self):
+        """
+        Tests the behavior of CPointerBase derived classes when dealing with pointer assignments and deletions, 
+        ensuring proper exception handling for null pointers and incompatible pointer types, 
+        as well as correct destructor invocation for valid pointers.
+        """
         destructor_mock = mock.Mock()
 
         class NullPointerException(Exception):
@@ -65,6 +70,9 @@ class CPointerBaseTests(SimpleTestCase):
         destructor_mock.assert_called_with(ptr)
 
     def test_destructor_catches_importerror(self):
+        """
+        Tests that the class destructor correctly handles an ImportError when called.
+        """
         class FakeGeom(CPointerBase):
             destructor = mock.Mock(side_effect=ImportError)
 

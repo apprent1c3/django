@@ -22,6 +22,9 @@ class GenericInlineModelAdminChecks(InlineModelAdminChecks):
         # There's no FK, but we do need to confirm that the ct_field and
         # ct_fk_field are valid, and that they are part of a GenericForeignKey.
 
+        """
+        Checks if a model instance has a valid GenericForeignKey relation with the specified content type and object ID fields. Returns a list of errors if the model is missing the required fields or no matching GenericForeignKey is found.
+        """
         gfks = [
             f
             for f in obj.model._meta.private_fields
@@ -96,6 +99,12 @@ class GenericInlineModelAdmin(InlineModelAdmin):
     checks_class = GenericInlineModelAdminChecks
 
     def get_formset(self, request, obj=None, **kwargs):
+        """
+        Returns a formset factory for the inline formsets used in the admin interface.
+
+        The returned formset is configured with the specified fields, excludes, and other options,
+        such as the ability to delete objects and the number of extra forms to display.
+        """
         if "fields" in kwargs:
             fields = kwargs.pop("fields")
         else:

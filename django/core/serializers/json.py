@@ -21,6 +21,9 @@ class Serializer(PythonSerializer):
     internal_use_only = False
 
     def _init_options(self):
+        """
+        Initializes JSON serialization options for the object, customizing indentation and encoding settings.
+        """
         self._current = None
         self.json_kwargs = self.options.copy()
         self.json_kwargs.pop("stream", None)
@@ -36,6 +39,11 @@ class Serializer(PythonSerializer):
         self.stream.write("[")
 
     def end_serialization(self):
+        """
+        \"\": 
+            Completes the serialization process by writing the closing bracket of a JSON array and 
+            optional newline characters if indentation is enabled.
+        """
         if self.options.get("indent"):
             self.stream.write("\n")
         self.stream.write("]")
@@ -44,6 +52,17 @@ class Serializer(PythonSerializer):
 
     def end_object(self, obj):
         # self._current has the field data
+        """
+
+        Finalizes the serialization of an object in JSON format.
+
+        Writes the object to the output stream, handling indentation and comma separation
+        if necessary. The object is serialized using the json.dump function with specified
+        keyword arguments, ensuring proper formatting.
+
+        :param obj: The object to be serialized
+
+        """
         indent = self.options.get("indent")
         if not self.first:
             self.stream.write(",")
@@ -82,6 +101,15 @@ class DjangoJSONEncoder(json.JSONEncoder):
 
     def default(self, o):
         # See "Date Time String Format" in the ECMA-262 specification.
+        """
+
+        Serialize dates, times, and other objects to JSON-compatible strings.
+
+        Provides custom serialization for specific types, including datetime objects, 
+        dates, times, time deltas, decimal numbers, UUIDs, and promises. 
+        The serialized output can be directly used in a JSON context.
+
+        """
         if isinstance(o, datetime.datetime):
             r = o.isoformat()
             if o.microsecond:

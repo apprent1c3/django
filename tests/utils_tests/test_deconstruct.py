@@ -36,6 +36,9 @@ class DeconstructibleInvalidPathChildClass(DeconstructibleInvalidPathClass):
 
 class DeconstructibleTests(SimpleTestCase):
     def test_deconstruct(self):
+        """
+        Verify that the deconstruct method of DeconstructibleClass returns the correct path, arguments, and keyword arguments for object reconstruction.
+        """
         obj = DeconstructibleClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(path, "utils_tests.test_deconstruct.DeconstructibleClass")
@@ -43,6 +46,9 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_deconstruct_with_path(self):
+        """
+        Tests the deconstruction of an object with a specified path, ensuring it correctly decomposes into its constituent path, arguments, and keyword arguments.
+        """
         obj = DeconstructibleWithPathClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(
@@ -53,6 +59,9 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_deconstruct_child(self):
+        """
+        Tests the deconstruction of a DeconstructibleChildClass instance into path, args, and kwargs, verifying correct decomposition of object attributes.
+        """
         obj = DeconstructibleChildClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(path, "utils_tests.test_deconstruct.DeconstructibleChildClass")
@@ -60,6 +69,9 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_deconstruct_child_with_path(self):
+        """
+        Tests the deconstruction of a child class that has a defined path, verifying that the path, arguments, and keyword arguments are correctly extracted.
+        """
         obj = DeconstructibleWithPathChildClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(
@@ -70,6 +82,13 @@ class DeconstructibleTests(SimpleTestCase):
         self.assertEqual(kwargs, {"key": "value"})
 
     def test_invalid_path(self):
+        """
+        Tests that deconstructing an object with an invalid path raises a ValueError.
+
+        This checks that an informative error message is raised when attempting to serialize
+        an object that cannot be resolved due to being defined inside another class or module.
+
+        """
         obj = DeconstructibleInvalidPathClass()
         docs_version = get_docs_version()
         msg = (
@@ -86,6 +105,12 @@ class DeconstructibleTests(SimpleTestCase):
             obj.deconstruct()
 
     def test_parent_invalid_path(self):
+        """
+
+        Tests the deconstruct method of DeconstructibleInvalidPathChildClass with an invalid path, 
+        verifying it correctly returns the class path and original constructor arguments.
+
+        """
         obj = DeconstructibleInvalidPathChildClass("arg", key="value")
         path, args, kwargs = obj.deconstruct()
         self.assertEqual(

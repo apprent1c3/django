@@ -22,6 +22,11 @@ class ProxyModelInheritanceTests(TransactionTestCase):
     available_apps = []
 
     def test_table_exists(self):
+        """
+
+        Checks if the database tables for models in 'app1' and 'app2' are created successfully by running migrations and verifying the initial object count is 0.
+
+        """
         with extend_sys_path(os.path.dirname(os.path.abspath(__file__))):
             with self.modify_settings(INSTALLED_APPS={"append": ["app1", "app2"]}):
                 call_command("migrate", verbosity=0, run_syncdb=True)
@@ -46,6 +51,9 @@ class MultiTableInheritanceProxyTest(TestCase):
         self.assertEqual(0, ConcreteModel.objects.count())
 
     def test_deletion_through_intermediate_proxy(self):
+        """
+        Tests whether deleting an instance through an intermediate proxy model successfully removes the associated objects from both the parent and child model tables.
+        """
         child = ConcreteModelSubclass.objects.create()
         proxy = ProxyModel.objects.get(pk=child.pk)
         proxy.delete()

@@ -38,6 +38,9 @@ from .models import (
 class FilteredRelationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Creates test data for a set of authors, editors, and books, establishing relationships between them for testing purposes.
+        """
         cls.author1 = Author.objects.create(name="Alice")
         cls.author2 = Author.objects.create(name="Jane")
         cls.editor_a = Editor.objects.create(name="a")
@@ -682,6 +685,12 @@ class FilteredRelationTests(TestCase):
             FilteredRelation("book", condition=expression)
 
     def test_with_prefetch_related(self):
+        """
+        Tests that prefetch_related raises an error when used with FilteredRelation.
+
+        Verifies that attempting to prefetch a FilteredRelation raises a ValueError,
+        ensuring compatibility issues are explicitly highlighted to the developer.
+        """
         msg = "prefetch_related() is not supported with FilteredRelation."
         qs = Author.objects.annotate(
             book_title_contains_b=FilteredRelation(
@@ -741,6 +750,9 @@ class FilteredRelationTests(TestCase):
         self.assertCountEqual(qs, [self.book1, self.book4])
 
     def test_conditional_expression_outside_relation_name(self):
+        """
+        Tests the usage of conditional expressions outside of relation names in Django ORM queries, ensuring correct filtering of authors based on related book editors.
+        """
         tests = [
             Q(Case(When(book__author__name="Alice", then=True), default=False)),
             Q(
@@ -758,6 +770,9 @@ class FilteredRelationTests(TestCase):
                 self.assertSequenceEqual(qs, [self.author2, self.author2])
 
     def test_conditional_expression_with_lookup(self):
+        """
+        Checks that conditional expressions with lookup can be used to filter authors based on annotations, ensuring only authors with books matching a specific title are returned.
+        """
         lookups = [
             Q(book__title__istartswith="poem"),
             Q(IStartsWith(F("book__title"), "poem")),
@@ -842,6 +857,12 @@ class FilteredRelationTests(TestCase):
 class FilteredRelationAggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class, creating instances of Authors, Editors, Books, Borrowers, Reservations, and RentalSessions
+        with predefined relationships and states, providing a baseline for testing scenarios.
+
+        """
         cls.author1 = Author.objects.create(name="Alice")
         cls.editor_a = Editor.objects.create(name="a")
         cls.book1 = Book.objects.create(
@@ -991,6 +1012,9 @@ class FilteredRelationAggregationTests(TestCase):
 class FilteredRelationAnalyticalAggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for use in Django unit tests, creating instances of Author, Editor, Book, Seller, Currency, ExchangeRate, and BookDailySales models with predefined attributes.
+        """
         author = Author.objects.create(name="Author")
         editor = Editor.objects.create(name="Editor")
         cls.book1 = Book.objects.create(
@@ -1082,6 +1106,14 @@ class FilteredRelationAnalyticalAggregationTests(TestCase):
         )
 
     def test_aggregate(self):
+        """
+
+        Tests the aggregation of book sales data using various conditions.
+
+        Verifies that the correct sales sums are calculated for each book based on filtered
+        relations and currency conversion rates.
+
+        """
         tests = [
             Q(daily_sales__sale_date__gte=self.sales_date2),
             ~Q(daily_sales__seller=self.seller1),

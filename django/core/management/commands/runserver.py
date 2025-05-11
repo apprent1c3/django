@@ -38,6 +38,14 @@ class Command(BaseCommand):
     server_cls = WSGIServer
 
     def add_arguments(self, parser):
+        """
+
+        Extend the argument parser to include options for customizing Django's runtime behavior and network settings.
+
+        The supported options include specifying an address and port number, enabling IPv6 support, 
+        and toggling the use of threading and auto-reloader features, as well as skipping system checks.
+
+        """
         parser.add_argument(
             "addrport", nargs="?", help="Optional port number, or ipaddr:port"
         )
@@ -79,6 +87,13 @@ class Command(BaseCommand):
         return get_internal_wsgi_application()
 
     def handle(self, *args, **options):
+        """
+        Handle command execution with IPv6 support and address/port validation.
+
+        Validates the allowed hosts and IPv6 settings before determining the address and port to use for the command.
+        Raises an error if invalid settings or address/port combinations are provided.
+        Finally, runs the command with the determined address and port.
+        """
         if not settings.DEBUG and not settings.ALLOWED_HOSTS:
             raise CommandError("You must set settings.ALLOWED_HOSTS if DEBUG is False.")
 
@@ -123,6 +138,9 @@ class Command(BaseCommand):
     def inner_run(self, *args, **options):
         # If an exception was silenced in ManagementUtility.execute in order
         # to be raised in the child process, raise it now.
+        """
+        Runs the server with the specified configuration, performing system checks, handling migrations, and binding to the address and port. It also handles errors such as permission issues, address in use, or unavailable, and allows for optional shutdown messages and threading.
+        """
         autoreload.raise_last_exception()
 
         threading = options["use_threading"]
@@ -170,6 +188,9 @@ class Command(BaseCommand):
             sys.exit(0)
 
     def on_bind(self, server_port):
+        """
+        Prints a startup message for the development server, including the current time, Django version, and server details, along with instructions on how to quit the server.
+        """
         quit_command = "CTRL-BREAK" if sys.platform == "win32" else "CONTROL-C"
 
         if self._raw_ipv6:

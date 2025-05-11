@@ -62,6 +62,14 @@ class Archive:
 
     @staticmethod
     def _archive_cls(file):
+        """
+        #: 
+        #: Determine the archive class for a given file or file-like object.
+        #: 
+        #: :param file: A file path or file-like object.
+        #: :return: The corresponding archive class.
+        #: :raises UnrecognizedArchiveFormat: If the file or file-like object is not a recognized archive format.
+        """
         cls = None
         if isinstance(file, str):
             filename = file
@@ -115,6 +123,13 @@ class BaseArchive:
             os.chmod(filename, mode)
 
     def split_leading_dir(self, path):
+        """
+        Splits a given path into a leading directory and the rest of the path.
+
+            Returns a tuple containing the leading directory and the remaining path.
+            If no directory separator is found, the entire path is returned as the first element of the tuple,
+            with an empty string as the second element.
+        """
         path = str(path)
         path = path.lstrip("/").lstrip("\\")
         if "/" in path and (
@@ -143,6 +158,17 @@ class BaseArchive:
         return True
 
     def target_filename(self, to_path, name):
+        """
+        Constructs the absolute path of a filename within a target directory.
+
+            Checks that the resulting path is a subpath of the target directory to prevent
+            archive extraction vulnerabilities.
+
+            :param to_path: The target directory path
+            :param name: The filename to be joined with the target directory
+            :return: The absolute path of the filename
+            :raises SuspiciousOperation: If the filename attempts to break out of the target directory
+        """
         target_path = os.path.abspath(to_path)
         filename = os.path.abspath(os.path.join(target_path, name))
         if not filename.startswith(target_path):
@@ -168,6 +194,16 @@ class TarArchive(BaseArchive):
         self._archive.list(*args, **kwargs)
 
     def extract(self, to_path):
+        """
+        Extracts the contents of the archive to the specified path.
+
+        The extraction process preserves the directory structure of the archive, and
+        recreates any necessary directories. If an archive member is invalid, an error
+        message is printed and the extraction of that member is skipped. The permissions
+        of the extracted files are set to match those specified in the archive.
+
+        :param to_path: The path where the archive contents will be extracted.
+        """
         members = self._archive.getmembers()
         leading = self.has_leading_dir(x.name for x in members)
         for member in members:
@@ -211,6 +247,13 @@ class ZipArchive(BaseArchive):
         self._archive.printdir(*args, **kwargs)
 
     def extract(self, to_path):
+        """
+        Extracts the contents of an archive to a specified directory.
+
+        :param to_path: The path where the archive contents will be extracted.
+        :returns: None 
+        :note: Directory structure and permissions are preserved during extraction.
+        """
         namelist = self._archive.namelist()
         leading = self.has_leading_dir(namelist)
         for name in namelist:

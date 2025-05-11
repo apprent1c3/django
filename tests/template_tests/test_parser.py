@@ -30,6 +30,12 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_repr(self):
+        """
+
+        Tests the string representation of various objects, including Token, Parser, FilterExpression, and Lexer.
+        Verifies that each object's repr method returns a string that accurately reflects its contents and state.
+
+        """
         token = Token(TokenType.BLOCK, "some text")
         self.assertEqual(repr(token), '<Block token: "some text...">')
         parser = Parser([token], builtins=[filter_library])
@@ -46,6 +52,17 @@ class ParserTests(SimpleTestCase):
         )
 
     def test_filter_parsing(self):
+        """
+
+        Tests the parsing functionality of filter expressions.
+
+        Verifies that filter expressions are correctly evaluated and filters are applied,
+        and that variables and attributes are properly handled, including quoted strings
+        and escaped characters. Also checks for invalid syntax, such as variables and
+        attributes beginning with underscores, and ensures that the correct error messages
+        are raised.
+
+        """
         c = {"article": {"section": "News"}}
         p = Parser("", builtins=[filter_library])
 
@@ -73,6 +90,14 @@ class ParserTests(SimpleTestCase):
             FilterExpression("article._hidden|upper", p)
 
     def test_variable_parsing(self):
+        """
+
+        Tests the parsing and resolution of variables.
+
+        Ensures correct handling of string literals, dotted notation, and translation markers.
+        Also verifies that invalid variable names and non-string inputs raise appropriate errors.
+
+        """
         c = {"article": {"section": "News"}}
         self.assertEqual(Variable("article.section").resolve(c), "News")
         self.assertEqual(Variable('"News"').resolve(c), "News")
@@ -105,6 +130,9 @@ class ParserTests(SimpleTestCase):
             Variable({})
 
     def test_filter_args_count(self):
+        """
+        Tests that FilterExpression raises a TemplateSyntaxError when given a filter with the wrong number of arguments.
+        """
         parser = Parser("")
         register = Library()
 

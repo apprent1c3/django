@@ -13,6 +13,9 @@ class AdminLogNode(template.Node):
         return "<GetAdminLog Node>"
 
     def render(self, context):
+        """
+        Render log entries for the given context, optionally filtering by user ID if specified. Returns an empty string, modifying the context with the rendered log entries under the specified variable name.
+        """
         entries = context["log_entries"]
         if self.user is not None:
             user_id = self.user

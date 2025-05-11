@@ -89,6 +89,9 @@ class BaseFormSet(RenderableFormMixin):
         form_kwargs=None,
         error_messages=None,
     ):
+        """
+        Initializes a form instance, setting default values for its attributes, such as form data, files, prefix, and error handling configuration.
+        """
         self.is_bound = data is not None or files is not None
         self.prefix = prefix or self.get_default_prefix()
         self.auto_id = auto_id
@@ -128,6 +131,9 @@ class BaseFormSet(RenderableFormMixin):
         return True
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including whether it is bound, its validity, and the total number of forms.
+        """
         if self._errors is None:
             is_valid = "Unknown"
         else:

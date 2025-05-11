@@ -77,6 +77,9 @@ class DeprecationTests(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_deprecation_renderers_can_be_instantiated(self):
+        """
+        Tests that deprecated form renderers can be instantiated successfully.
+        """
         tests = [DjangoDivFormRenderer, Jinja2DivFormRenderer]
         for cls in tests:
             with self.subTest(renderer_class=cls):

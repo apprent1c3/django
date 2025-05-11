@@ -36,6 +36,13 @@ class UploadedFile(File):
         charset=None,
         content_type_extra=None,
     ):
+        """
+
+        Initialize a file object with optional metadata.
+
+        Allows for the specification of file content type, size, charset, and extra content type information.
+
+        """
         super().__init__(file, name)
         self.size = size
         self.content_type = content_type
@@ -50,6 +57,9 @@ class UploadedFile(File):
 
     def _set_name(self, name):
         # Sanitize the file name so that it can't be dangerous.
+        """
+        #: Sets the name of the object, truncating it if necessary to adhere to a 255 character limit and validating against valid file name rules.
+        """
         if name is not None:
             # Just use the basename of the file -- anything else is dangerous.
             name = os.path.basename(name)

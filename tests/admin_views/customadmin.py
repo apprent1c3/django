@@ -37,6 +37,13 @@ class Admin2(admin.AdminSite):
         return super().password_change(request, {"spam": "eggs"})
 
     def get_app_list(self, request, app_label=None):
+        """
+        Gets the list of applications, reversing the overall order and sorting models within each application in descending order by name. 
+
+        :param request: The current request object
+        :param app_label: Optional label of the application to filter by
+        :returns: The list of applications with sorted models
+        """
         app_list = super().get_app_list(request, app_label=app_label)
         # Reverse order of apps and models.
         app_list = list(reversed(app_list))

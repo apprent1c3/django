@@ -285,6 +285,9 @@ class NaturalTimeFormatter:
 
     @classmethod
     def string_for(cls, value):
+        """
+        Returns a human-readable string representing the time difference between the given date value and the current time. If the value is not a date, it is returned unchanged. The returned string can indicate times in the past (e.g., \"1 day ago\") or future (e.g., \"in 1 day\"), or the current moment (\"now\").
+        """
         if not isinstance(value, date):  # datetime is a subclass of date
             return value
 

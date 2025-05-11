@@ -171,6 +171,12 @@ class SelectRelatedTests(TestCase):
         self.assertIs(queryset.query.select_related, False)
 
     def test_chaining(self):
+        """
+
+        Tests the efficient retrieval of parent species when querying hybrid species,
+        ensuring that the database query count remains low when chaining related objects.
+
+        """
         parent_1, parent_2 = Species.objects.all()[:2]
         HybridSpecies.objects.create(
             name="hybrid", parent_1=parent_1, parent_2=parent_2
@@ -184,6 +190,11 @@ class SelectRelatedTests(TestCase):
             self.assertEqual(obj.parent_2, parent_2)
 
     def test_reverse_relation_caching(self):
+        """
+        Tests that reverse relation caching is correctly implemented when using select_related, 
+        verifying that the related object's fields cache is properly cleared and 
+        a query is executed when accessing the reverse relation.
+        """
         species = (
             Species.objects.select_related("genus").filter(name="melanogaster").first()
         )
@@ -225,6 +236,9 @@ class SelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_non_relational_field(self):
+        """
+        Tests that attempting to use select_related on a non-relational field raises a FieldError.
+        """
         with self.assertRaisesMessage(
             FieldError, self.non_relational_error % ("name", "genus")
         ):
@@ -259,6 +273,9 @@ class SelectRelatedValidationTests(SimpleTestCase):
             list(Species.objects.select_related("child_1"))
 
     def test_invalid_field(self):
+        """
+        Tests the behavior of select_related when an invalid field is specified, ensuring that a FieldError is raised with the expected error message for different model fields.
+        """
         with self.assertRaisesMessage(
             FieldError, self.invalid_error % ("invalid_field", "genus")
         ):

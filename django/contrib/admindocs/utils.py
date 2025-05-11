@@ -20,6 +20,11 @@ else:
 
 
 def get_view_name(view_func):
+    """
+    Returns a unique, fully-qualified name for the given view function.
+
+    This function uses the module name and qualified name of the view function or its view class to generate a uniform identifier. The name is in the format 'module_name.view_name' or 'module_name.view_class_name' when a view class is present.
+    """
     if hasattr(view_func, "view_class"):
         klass = view_func.view_class
         return f"{klass.__module__}.{klass.__qualname__}"
@@ -102,6 +107,16 @@ ROLES = {
 
 def create_reference_role(rolename, urlbase):
     # Views and template names are case-sensitive.
+    """
+
+    Register a custom Sphinx role for linking to external resources.
+
+    The role is created with a given name and base URL. It can be used to generate
+    links to specific resources, with the link text being case-sensitive or
+    insensitive depending on the role name. The role is then made available for use
+    in ReStructuredText documents.
+
+    """
     is_case_sensitive = rolename in ["template", "view"]
 
     def _role(name, rawtext, text, lineno, inliner, options=None, content=None):
@@ -127,6 +142,9 @@ def create_reference_role(rolename, urlbase):
 def default_reference_role(
     name, rawtext, text, lineno, inliner, options=None, content=None
 ):
+    """
+    Returns a reference node for a given text, formatted according to the default reference role in the current document context.
+    """
     if options is None:
         options = {}
     context = inliner.document.settings.default_reference_context
@@ -170,6 +188,11 @@ def replace_metacharacters(pattern):
 
 def _get_group_start_end(start, end, pattern):
     # Handle nested parentheses, e.g. '^(?P<a>(x|y))/b' or '^b/((x|y)\w+)$'.
+    """
+    Finds the start and end indices of a well-formed group within a pattern string, 
+    starting at a given end position and extending backwards until matching brackets are found.
+    Returns the updated start and end indices of the group as a tuple.
+    """
     unmatched_open_brackets, prev_char = 1, None
     for idx, val in enumerate(pattern[end:]):
         # Check for unescaped `(` and `)`. They mark the start and end of a
@@ -186,6 +209,12 @@ def _get_group_start_end(start, end, pattern):
 
 
 def _find_groups(pattern, group_matcher):
+    """
+    Find all non-overlapping matches of a pattern using a group matcher.
+
+    Yields tuples containing the start index, end index, and match object for each non-overlapping match found in the input pattern.
+
+    """
     prev_end = None
     for match in group_matcher.finditer(pattern):
         if indices := _get_group_start_end(match.start(0), match.end(0), pattern):

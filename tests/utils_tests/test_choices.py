@@ -19,6 +19,9 @@ class SimpleChoiceIterator(BaseChoiceIterator):
 
 class ChoiceIteratorTests(SimpleTestCase):
     def test_not_implemented_error_on_missing_iter(self):
+        """
+        Tests that a NotImplementedError is raised when a subclass of BaseChoiceIterator does not implement the __iter__() method, ensuring adherence to the iterator protocol.
+        """
         class InvalidChoiceIterator(BaseChoiceIterator):
             pass  # Not overriding __iter__().
 
@@ -50,6 +53,9 @@ class ChoiceIteratorTests(SimpleTestCase):
                 self.assertEqual(choices[i], expected)
 
     def test_getitem_indexerror(self):
+        """
+        Tests that attempting to access an index out of range in the SimpleChoiceIterator using getitem raises an IndexError with the expected message.
+        """
         choices = SimpleChoiceIterator()
         for i in (4, -4):
             with self.subTest(index=i):
@@ -60,6 +66,9 @@ class ChoiceIteratorTests(SimpleTestCase):
 
 class FlattenChoicesTests(SimpleTestCase):
     def test_empty(self):
+        """
+        Tests that the flatten_choices function correctly handles empty choices, returning an empty generator for various empty input types.
+        """
         def generator():
             yield from ()
 
@@ -81,6 +90,9 @@ class FlattenChoicesTests(SimpleTestCase):
         self.assertEqual(list(result), choices)
 
     def test_nested_choices(self):
+        """
+        Flattens a nested list of choices into a single list of choices, useful for handling hierarchical option structures in user interfaces.
+        """
         choices = [
             ("Audio", [("vinyl", _("Vinyl")), ("cd", _("CD"))]),
             ("Video", [("vhs", _("VHS Tape")), ("dvd", _("DVD"))]),
@@ -142,6 +154,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
     ]
 
     def test_empty(self):
+        """
+        Tests that the normalize_choices function returns an empty list for various empty input types, including dictionaries, lists, tuples, sets, and generators.
+        """
         def generator():
             yield from ()
 
@@ -150,6 +165,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
                 self.assertEqual(normalize_choices(choices), [])
 
     def test_choices(self):
+        """
+        Tests the normalization of model choices, specifically TextChoices, to ensure correct conversion to a list of tuples.
+        """
         class Medal(TextChoices):
             GOLD = "GOLD", _("Gold")
             SILVER = "SILVER", _("Silver")
@@ -163,6 +181,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(Medal), expected)
 
     def test_callable(self):
+        """
+
+        Tests that the normalize_choices function returns a CallableChoiceIterator and 
+        that it calls the provided callable to retrieve choices, while verifying the 
+        expected output.
+
+        """
         def get_choices():
             return {
                 "C": _("Club"),
@@ -198,6 +223,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected)
 
     def test_iterator(self):
+        """
+        Tests the normalize_choices function using an iterator of card suit choices.
+        """
         def generator():
             yield "C", _("Club")
             yield "D", _("Diamond")
@@ -208,6 +236,13 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected)
 
     def test_nested_callable(self):
+        """
+
+        Tests that :func:`normalize_choices` correctly handles nested callable choices.
+
+        Verifies that the original callable is not immediately invoked, but rather returns a :class:`CallableChoiceIterator` that can be used to iterate over the choices.
+
+        """
         def get_audio_choices():
             return [("vinyl", _("Vinyl")), ("cd", _("CD"))]
 
@@ -246,6 +281,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
         self.assertEqual(normalize_choices(choices), self.expected_nested)
 
     def test_nested_iterator(self):
+        """
+        Tests the normalization of nested iterator choices, verifying that the function can handle nested generators and produces the expected output.
+        """
         def generate_audio_choices():
             yield "vinyl", _("Vinyl")
             yield "cd", _("CD")
@@ -264,6 +302,12 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_callable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        Tests that the normalize_choices function works correctly with a non-canonical callable.
+
+         Verifies that the provided callable is not called initially, but is called when the returned
+         CallableChoiceIterator is evaluated, and that the output matches the expected result.
+        """
         def get_choices():
             return [
                 ["C", _("Club")],
@@ -292,6 +336,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_iterator_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        Tests the normalization of non-canonical choices generated by an iterator, verifying that the output matches the expected result.
+        """
         def generator():
             yield ["C", _("Club")]
             yield ["D", _("Diamond")]
@@ -304,6 +351,10 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
     def test_nested_callable_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
 
+        """
+        Tests that nested callable choices are handled correctly by the normalize_choices function, 
+        producing a CallableChoiceIterator without immediately calling the nested choice functions.
+        """
         def get_audio_choices():
             return [["vinyl", _("Vinyl")], ["cd", _("CD")]]
 
@@ -336,6 +387,9 @@ class NormalizeFieldChoicesTests(SimpleTestCase):
 
     def test_nested_iterator_non_canonical(self):
         # Canonical form is list of 2-tuple, but nested lists should work.
+        """
+        Tests the normalization of nested iterator choices with non-canonical input
+        """
         def generator():
             yield ["Audio", [["vinyl", _("Vinyl")], ["cd", _("CD")]]]
             yield ["Video", [["vhs", _("VHS Tape")], ["dvd", _("DVD")]]]

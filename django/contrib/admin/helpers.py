@@ -46,6 +46,17 @@ class AdminForm:
         readonly_fields=None,
         model_admin=None,
     ):
+        """
+
+        Initializes the instance with form and field configuration.
+
+        : param form: The form instance to be used.
+        : param fieldsets: Fieldsets for the form.
+        : param prepopulated_fields: Dictionary of fields to be prepopulated with dependencies.
+        : param readonly_fields: Optional list of fields to be marked as read-only, defaults to None.
+        : param model_admin: Optional model admin instance.
+
+        """
         self.form, self.fieldsets = form, fieldsets
         self.prepopulated_fields = [
             {"field": form[field_name], "dependencies": [form[f] for f in dependencies]}
@@ -108,6 +119,19 @@ class Fieldset:
         description=None,
         model_admin=None,
     ):
+        """
+
+        Initializes a form layout component.
+
+        :param form: The form associated with this layout.
+        :param name: The name of the layout.
+        :param readonly_fields: Fields that should be displayed as read-only.
+        :param fields: The fields to be included in the layout.
+        :param classes: CSS classes to apply to the layout.
+        :param description: A brief description of the layout.
+        :param model_admin: The model admin instance associated with this layout.
+
+        """
         self.form = form
         self.name, self.fields = name, fields
         self.classes = " ".join(classes)
@@ -134,6 +158,13 @@ class Fieldset:
 
 class Fieldline:
     def __init__(self, form, field, readonly_fields=None, model_admin=None):
+        """
+        Initializes an instance, specifying a form, field(s), and optionally readonly fields and a model admin.
+
+            This constructor sets up the basic properties of the instance, including the associated form, fields to be managed,
+            and fields that should be displayed as read-only. It determines whether any of the fields are visible, meaning not hidden.
+
+        """
         self.form = form  # A django.forms.Form instance
         if not hasattr(field, "__iter__") or isinstance(field, str):
             self.fields = [field]
@@ -149,6 +180,9 @@ class Fieldline:
         self.readonly_fields = readonly_fields
 
     def __iter__(self):
+        """
+        Returns an iterator over the form fields, yielding :class:`AdminField` or :class:`AdminReadonlyField` instances depending on whether each field is read-only or not.
+        """
         for i, field in enumerate(self.fields):
             if field in self.readonly_fields:
                 yield AdminReadonlyField(
@@ -175,6 +209,9 @@ class AdminField:
         self.is_readonly = False
 
     def label_tag(self):
+        """
+        Generates an HTML label tag for the field, customizing the tag based on the field's requirements and the current rendering context, such as whether it's a checkbox or if it's the first field.
+        """
         classes = []
         contents = conditional_escape(self.field.label)
         if self.is_checkbox:
@@ -202,6 +239,14 @@ class AdminReadonlyField:
         # Make self.field look a little bit like a field. This means that
         # {{ field.name }} must be a useful class name to identify the field.
         # For convenience, store other field-related data here too.
+        """
+        Initializes a field representation for a form.
+
+        Stores information about a form field, including its name, label, help text,
+        visibility, and other attributes, to facilitate rendering and interaction.
+        Optional model administration object provides additional context for label
+        and help text resolution.
+        """
         if callable(field):
             class_name = field.__name__ if field.__name__ != "<lambda>" else ""
         else:
@@ -237,6 +282,9 @@ class AdminReadonlyField:
         self.empty_value_display = model_admin.get_empty_value_display()
 
     def label_tag(self):
+        """
+        Generates an HTML label tag for a form field, optionally applying an \"inline\" class if it's not the first field and including the field's label and suffix.
+        """
         attrs = {}
         if not self.is_first:
             attrs["class"] = "inline"
@@ -249,6 +297,9 @@ class AdminReadonlyField:
         )
 
     def get_admin_url(self, remote_field, remote_obj):
+        """
+        Returns a formatted HTML link to the admin change page for the given remote object, or a string representation of the object if the link cannot be generated.
+        """
         url_name = "admin:%s_%s_change" % (
             remote_field.model._meta.app_label,
             remote_field.model._meta.model_name,
@@ -264,6 +315,14 @@ class AdminReadonlyField:
             return str(remote_obj)
 
     def contents(self):
+        """
+
+        Returns a rendered representation of a field's value for display in the admin interface.
+
+        This method handles different field types, including boolean, HTML, and foreign key fields,
+        and applies the necessary formatting and escaping to ensure safe display.
+
+        """
         from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
         field, obj, model_admin = (
@@ -322,6 +381,9 @@ class InlineAdminFormSet:
         has_delete_permission=True,
         has_view_permission=True,
     ):
+        """
+        Initializes an inline form instance, setting up the form structure and permissions for editing a related model on an admin page. It combines form configuration, fieldsets arrangement, and permission settings, making it easy to manage inline forms within a Django admin interface.
+        """
         self.opts = inline
         self.formset = formset
         self.fieldsets = fieldsets
@@ -339,6 +401,15 @@ class InlineAdminFormSet:
         self.has_view_permission = has_view_permission
 
     def __iter__(self):
+        """
+
+        Generates an iterator over inline administration forms.
+
+        Yields InlineAdminForm objects, which provide a way to view and edit related model instances.
+        The forms are generated based on the model admin's fieldsets, prepopulated fields, and readonly fields.
+        The iterator includes initial forms, extra forms, and an empty form if the user has add permission.
+
+        """
         if self.has_change_permission:
             readonly_fields_for_editing = self.readonly_fields
         else:
@@ -382,6 +453,9 @@ class InlineAdminFormSet:
             )
 
     def fields(self):
+        """
+        Returns a generator of dictionaries containing field metadata, such as name, label, widget, required status, and help text, for each field in the formset, taking into account fieldsets, readonly fields, and permission settings.
+        """
         fk = getattr(self.formset, "fk", None)
         empty_form = self.formset.empty_form
         meta_labels = empty_form._meta.labels or {}
@@ -484,6 +558,9 @@ class InlineAdminForm(AdminForm):
         model_admin=None,
         view_on_site_url=None,
     ):
+        """
+        Initializes the admin view for a model instance, setting up the form, fieldsets, and metadata for display and editing.
+        """
         self.formset = formset
         self.model_admin = model_admin
         self.original = original
@@ -528,6 +605,12 @@ class InlineAdminForm(AdminForm):
         return AdminField(self.form, self.formset._pk_field.name, False)
 
     def fk_field(self):
+        """
+        Returns a foreign key field for the form, if applicable.
+
+            :return: An AdminField instance representing the foreign key field, or an empty string if no foreign key is defined.
+            :rtype: AdminField or str
+        """
         fk = getattr(self.formset, "fk", None)
         if fk:
             return AdminField(self.form, fk.name, False)
@@ -558,6 +641,9 @@ class AdminErrorList(forms.utils.ErrorList):
     """Store errors for the form/formsets in an add/change view."""
 
     def __init__(self, form, inline_formsets):
+        """
+        Initializes the object, initializing the parent class and collecting form validation errors from the provided form and inline formsets.
+        """
         super().__init__()
 
         if form.is_bound:

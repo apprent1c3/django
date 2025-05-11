@@ -50,6 +50,9 @@ def RESTRICT(collector, field, sub_objs, using):
 
 
 def SET(value):
+    """
+    Sets a field to a specified value when the related object is deleted, allowing for either a constant value or a callable that returns a value at deletion time.
+    """
     if callable(value):
 
         def set_on_delete(collector, field, sub_objs, using):
@@ -93,6 +96,12 @@ def get_candidate_relations_to_delete(opts):
 
 class Collector:
     def __init__(self, using, origin=None):
+        """
+        Initializes an instance, setting up the necessary data structures for tracking and manipulating data.
+
+        :param using: The primary source or context for the instance.
+        :param origin: The origin or parent of the instance, optional.
+        """
         self.using = using
         # A Model or QuerySet object.
         self.origin = origin
@@ -412,6 +421,14 @@ class Collector:
                 yield model, obj
 
     def sort(self):
+        """
+        Sorts the model instances in topological order based on their dependencies.
+
+        The function rearranges the data to ensure that models with no dependencies are
+        processed first, followed by models that depend on them, and so on. This is
+        done to prevent circular dependencies from causing issues. If a circular
+        dependency is detected, the function will not update the data structure. 
+        """
         sorted_models = []
         concrete_models = set()
         models = list(self.data)
@@ -431,6 +448,16 @@ class Collector:
 
     def delete(self):
         # sort instance collections
+        """
+        Delete a collection of model instances from the database.
+
+        This method sorts and organizes the instances, sends pre- and post-deletion signals,
+        and performs the deletion in an atomic transaction. It also updates relevant fields
+        and keeps track of the number of deleted instances for each model.
+
+        Returns a tuple containing the total number of deleted instances and a dictionary
+        with the number of deleted instances for each model.
+        """
         for model, instances in self.data.items():
             self.data[model] = sorted(instances, key=attrgetter("pk"))
 

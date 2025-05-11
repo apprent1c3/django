@@ -40,6 +40,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         ) + self.stored_session_messages_count(storage, response)
 
     def test_get(self):
+        """
+        Tests the retrieval of data from storage when session data is unavailable, verifying that the stored cookie data is returned instead.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -60,6 +63,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), [])
 
     def test_get_fallback(self):
+        """
+        Tests the fallback behavior of the storage class by setting different data in cookie and session storage, and verifying that the storage class correctly combines the data from both sources.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -74,6 +80,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_get_fallback_only(self):
+        """
+        Test that the storage returns session data when no cookie data is set.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)
@@ -85,6 +94,9 @@ class FallbackTests(BaseTests, SimpleTestCase):
         self.assertEqual(list(storage), example_messages)
 
     def test_flush_used_backends(self):
+        """
+        Tests that the storage backends are properly flushed after a response is processed, ensuring no stale data is left behind.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         cookie_storage = self.get_cookie_storage(storage)

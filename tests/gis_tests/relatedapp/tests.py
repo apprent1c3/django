@@ -307,6 +307,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_collect_aggr")
     def test_collect_filter(self):
+        """
+        Tests the functionality of the Collect aggregation function with filtering, ensuring it correctly aggregates parcel centers for a given city while excluding specific parcels based on their names.
+        """
         qs = City.objects.annotate(
             parcel_center=Collect(
                 "parcel__center1",
@@ -337,6 +340,9 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("has_Centroid_function", "supports_collect_aggr")
     def test_centroid_collect_filter(self):
+        """
+        Tests the calculation of a city's parcel centroid using the Collect and Centroid functions, with filtering to exclude certain parcels.
+        """
         qs = City.objects.annotate(
             parcel_centroid=Centroid(
                 Collect(
@@ -375,6 +381,14 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_extent_aggr")
     def test_extent_filter(self):
+        """
+
+        Tests the extent filter functionality on a City queryset.
+
+        Verifies that the Extent aggregation function applies the specified filters correctly,
+        returning the expected bounding box coordinates or None when no matching records exist.
+
+        """
         qs = City.objects.annotate(
             parcel_border=Extent(
                 "parcel__border1",
@@ -393,6 +407,15 @@ class RelatedGeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_union_filter(self):
+        """
+
+        Tests the Union aggregation function with filtering conditions.
+
+        Verifies that the Union function correctly aggregates geographic points
+        from related objects based on specified filters, including exclusion and
+        inclusion conditions.
+
+        """
         qs = City.objects.annotate(
             parcel_point_union=Union(
                 "parcel__center2",

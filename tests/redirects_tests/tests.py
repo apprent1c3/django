@@ -75,6 +75,9 @@ class RedirectTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": "django.contrib.sites"})
     def test_sites_not_installed(self):
+        """
+        Tests that RedirectFallbackMiddleware raises an ImproperlyConfigured error when django.contrib.sites is not installed.
+        """
         def get_response(request):
             return HttpResponse()
 

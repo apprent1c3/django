@@ -56,6 +56,9 @@ class NonAutoPKBook(models.Model):
     title = models.CharField(max_length=50)
 
     def save(self, *args, **kwargs):
+        """
+        Saves the object to the database, first assigning a unique random primary key if one is not already set.
+        """
         while not self.rand_pk:
             test_pk = random.randint(1, 99999)
             if not NonAutoPKBook.objects.filter(rand_pk=test_pk).exists():

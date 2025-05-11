@@ -39,6 +39,16 @@ class ServerSideCursorsPostgres(TestCase):
 
     @contextmanager
     def override_db_setting(self, **kwargs):
+        """
+
+        Temporarily overrides database settings.
+
+        This context manager allows you to change database settings for a specific block of code.
+        It restores the original settings when exiting the block, ensuring that any changes are reverted.
+
+        :param kwargs: Keyword arguments where keys are setting names and values are the desired settings.
+
+        """
         for setting in kwargs:
             original_value = connection.settings_dict.get(setting)
             if setting in connection.settings_dict:
@@ -52,6 +62,10 @@ class ServerSideCursorsPostgres(TestCase):
             yield
 
     def assertUsesCursor(self, queryset, num_expected=1):
+        """
+        Asserts that a queryset uses the expected number of database cursors. 
+        Verifies cursor properties such as name, scrollability, holdability, and binary type.
+        """
         next(queryset)  # Open a server-side cursor
         cursors = self.inspect_cursors()
         self.assertEqual(len(cursors), num_expected)
@@ -93,6 +107,9 @@ class ServerSideCursorsPostgres(TestCase):
         self.assertUsesCursor(persons2, num_expected=2)
 
     def test_closed_server_side_cursor(self):
+        """
+        Checks that server-side database cursors are properly closed after use, ensuring no cursors remain open after a query iterator is deleted and garbage collected.
+        """
         persons = Person.objects.iterator()
         next(persons)  # Open a server-side cursor
         del persons
@@ -105,6 +122,11 @@ class ServerSideCursorsPostgres(TestCase):
         reason="Cursor not closed properly due to differences in garbage collection.",
     )
     def test_server_side_cursors_setting(self):
+        """
+        Tests the functionality of server-side cursors in the database setting.
+
+        Verifies that server-side cursors are used when the DISABLE_SERVER_SIDE_CURSORS setting is False and not used when it is True.
+        """
         with self.override_db_setting(DISABLE_SERVER_SIDE_CURSORS=False):
             persons = Person.objects.iterator()
             self.assertUsesCursor(persons)

@@ -23,6 +23,9 @@ def get_img_path(path):
 @unittest.skipUnless(Image, "Pillow is required to test ImageField")
 class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_imagefield_annotate_with_image_after_clean(self):
+        """
+        Test that an ImageField correctly annotates an uploaded image after cleaning, despite having an incorrect content type.
+        """
         f = ImageField()
 
         img_path = get_img_path("filepath_test_files/1x1.png")
@@ -62,6 +65,9 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             Image.register_mime(BmpImageFile.format, "image/bmp")
 
     def test_file_extension_validation(self):
+        """
+        Checks that an ImageField correctly validates the file extension of an uploaded image, raising a ValidationError if an unsupported extension is used.
+        """
         f = ImageField()
         img_path = get_img_path("filepath_test_files/1x1.png")
         with open(img_path, "rb") as img_file:
@@ -73,6 +79,9 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
             f.clean(img_file)
 
     def test_corrupted_image(self):
+        """
+        Checks if the ImageField correctly raises a ValidationError when a corrupted or invalid image is uploaded.
+        """
         f = ImageField()
         img_file = SimpleUploadedFile("not_an_image.jpg", b"not an image")
         msg = (
@@ -88,6 +97,9 @@ class ImageFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
                 f.clean(tmp_file)
 
     def test_widget_attrs_default_accept(self):
+        """
+        Tests that the ImageField widget attributes are correctly set to default values for different widget types.
+        """
         f = ImageField()
         # Nothing added for non-FileInput widgets.
         self.assertEqual(f.widget_attrs(Widget()), {})

@@ -12,6 +12,9 @@ class CustomLookup(Lookup):
 
 class LookupTests(SimpleTestCase):
     def test_equality(self):
+        """
+        Tests the equality of a Lookup object, ensuring it returns True for identical objects and objects with the same attributes, and False for objects with different attributes or of different types.
+        """
         lookup = Lookup(Value(1), Value(2))
         self.assertEqual(lookup, lookup)
         self.assertEqual(lookup, Lookup(lookup.lhs, lookup.rhs))
@@ -38,6 +41,9 @@ class LookupTests(SimpleTestCase):
                 self.assertEqual(repr(lookup), expected)
 
     def test_hash(self):
+        """
+        VERIFY the hash consistency of Lookup objects based on their attributes.
+        """
         lookup = Lookup(Value(1), Value(2))
         self.assertEqual(hash(lookup), hash(lookup))
         self.assertEqual(hash(lookup), hash(Lookup(lookup.lhs, lookup.rhs)))

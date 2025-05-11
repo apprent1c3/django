@@ -6,6 +6,10 @@ from .models import Comment, Forum, Item, Post, PropertyValue, SystemDetails, Sy
 
 class NullFkTests(TestCase):
     def test_null_fk(self):
+        """
+        Tests the handling of null foreign keys in the Comment model, 
+        specifically when retrieving comments with and without associated posts
+        """
         d = SystemDetails.objects.create(details="First details")
         s = SystemInfo.objects.create(system_name="First forum", system_details=d)
         f = Forum.objects.create(system_info=s, forum_name="First forum")
@@ -45,6 +49,9 @@ class NullFkTests(TestCase):
         )
 
     def test_combine_isnull(self):
+        """
+        Tests the combination of filters using logical operators to query items based on their properties, including checking for null values.
+        """
         item = Item.objects.create(title="Some Item")
         pv = PropertyValue.objects.create(label="Some Value")
         item.props.create(key="a", value=pv)

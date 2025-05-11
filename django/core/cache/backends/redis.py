@@ -36,6 +36,11 @@ class RedisCacheClient:
         parser_class=None,
         **options,
     ):
+        """
+        Initializes a Redis client instance with the specified servers, optional serializer, pool class, and parser class. 
+        The serializer is used to handle data encoding/decoding, the pool class is used for connection pooling, and the parser class is used to parse Redis responses. 
+        This constructor sets up the client's internal state, including the connection pool and Redis library instance.
+        """
         import redis
 
         self._lib = redis
@@ -84,6 +89,9 @@ class RedisCacheClient:
         return self._client(connection_pool=pool)
 
     def add(self, key, value, timeout):
+        """
+        Adds a key-value pair to the cache with an optional expiration timeout, but only if the key does not already exist.
+        """
         client = self.get_client(key, write=True)
         value = self._serializer.dumps(value)
 
@@ -100,6 +108,9 @@ class RedisCacheClient:
         return default if value is None else self._serializer.loads(value)
 
     def set(self, key, value, timeout):
+        """
+        Sets a value for a given key in the cache, with an optional expiration timeout. If the timeout is 0, the key is deleted instead. The value is automatically serialized before storage.
+        """
         client = self.get_client(key, write=True)
         value = self._serializer.dumps(value)
         if timeout == 0:
@@ -108,6 +119,13 @@ class RedisCacheClient:
             client.set(key, value, ex=timeout)
 
     def touch(self, key, timeout):
+        """
+        Update the expiration time of a key in the database.
+
+        :param key: The key to update.
+        :param timeout: The new expiration time in seconds, or None to persist the key indefinitely.
+        :returns: True if the operation was successful, False otherwise.
+        """
         client = self.get_client(key, write=True)
         if timeout is None:
             return bool(client.persist(key))
@@ -136,6 +154,14 @@ class RedisCacheClient:
         return client.incr(key, delta)
 
     def set_many(self, data, timeout):
+        """
+
+        Sets multiple keys with their corresponding values and optionally sets a timeout for each key.
+
+        :param data: A dictionary of key-value pairs to set.
+        :param timeout: Optional timeout in seconds for each key; if None, no expiration is set.
+
+        """
         client = self.get_client(None, write=True)
         pipeline = client.pipeline()
         pipeline.mset({k: self._serializer.dumps(v) for k, v in data.items()})
@@ -158,6 +184,13 @@ class RedisCacheClient:
 
 class RedisCache(BaseCache):
     def __init__(self, server, params):
+        """
+        Initializes a Redis cache client with the specified server and parameters.
+
+        The server can be provided as a string, which is then split into multiple servers,
+        or as a list of servers directly. The function also sets the cache client class and
+        any additional options provided in the parameters.
+        """
         super().__init__(params)
         if isinstance(server, str):
             self._servers = re.split("[;,]", server)
@@ -214,6 +247,14 @@ class RedisCache(BaseCache):
         return self._cache.incr(key, delta)
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets multiple key-value pairs in the cache.
+
+        :param data: Dictionary of key-value pairs to set
+        :param timeout: Optional expiration time for the set values (defaults to DEFAULT_TIMEOUT)
+        :param version: Optional version for the set values
+        :return: An empty list (no error handling)
+        """
         if not data:
             return []
         safe_data = {}

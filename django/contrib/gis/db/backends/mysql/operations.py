@@ -61,6 +61,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def disallowed_aggregates(self):
+        """
+        Returns a tuple of disallowed aggregate models for the current database connection, taking into account the MySQL version and whether it's a MariaDB instance.
+        """
         disallowed_aggregates = [
             models.Extent,
             models.Extent3D,
@@ -79,6 +82,9 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        Returns a set of unsupported geometric functions for the current database connection, varying depending on whether the connection is to MariaDB or another MySQL variant.
+        """
         unsupported = {
             "AsGML",
             "AsKML",
@@ -109,6 +115,14 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return f.geom_type
 
     def get_distance(self, f, value, lookup_type):
+        """
+        Obtain a distance parameter for a query, handling both numeric values and Distance objects.
+
+            :param f: The field associated with the distance query.
+            :param value: The value to use for distance calculation (must be a numeric or Distance object).
+            :param lookup_type: The type of lookup being performed.
+            :return: A list containing the distance parameter to use in the query.
+        """
         value = value[0]
         if isinstance(value, Distance):
             if f.geodetic(self.connection):
@@ -124,6 +138,17 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         return [dist_param]
 
     def get_geometry_converter(self, expression):
+        """
+        Returns a geometry converter function for the given expression.
+
+        The converter function takes a binary geometric value, constructs a GEOSGeometry 
+        object of the correct type, and sets its spatial reference system identifier (SRID) 
+        if available.
+
+        :parameter expression: The geometric expression to create a converter for
+        :return: A converter function that takes a binary geometric value and returns a 
+            GEOSGeometry object
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:
@@ -131,6 +156,27 @@ class MySQLOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            Convert a geometric value to a GEOSGeometry object.
+
+            Parameters
+            ----------
+            value : bytes
+                Geometric value to convert.
+            expression : object
+                Expression object (currently unused).
+            connection : object
+                Database connection object (currently unused).
+
+            Returns
+            -------
+            GEOSGeometryBase
+                Converted geometric object.
+
+            Notes
+            -----
+            The conversion result is assigned the specified SRID if available.
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value)), geom_class)
                 if srid:

@@ -31,6 +31,9 @@ class MultiColumnFKTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Creating countries
+        """
+        Sets up test data for the application, creating countries, people, and groups for use in testing scenarios.
+        """
         cls.usa = Country.objects.create(name="United States of America")
         cls.soviet_union = Country.objects.create(name="Soviet Union")
         # Creating People
@@ -74,6 +77,9 @@ class MultiColumnFKTests(TestCase):
 
     def test_reverse_query_returns_correct_result(self):
         # Creating a valid membership because it has the same country has the person
+        """
+        Tests that reversing a query on a membership object returns the correct result, verifying the association between a person and their group.
+        """
         Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -120,6 +126,10 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_reverse_query_filters_correctly(self):
+        """
+        ..: Tests if the reverse query filter for person memberships is correctly applied, 
+           specifically ensuring that only members who joined on or after a given date are returned.
+        """
         timemark = datetime.datetime.now(tz=datetime.timezone.utc).replace(tzinfo=None)
         timedelta = datetime.timedelta(days=1)
 
@@ -152,6 +162,9 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_forward_in_lookup_filters_correctly(self):
+        """
+        Tests that forward lookup filters are applied correctly when using 'in' lookup with a list of objects or a QuerySet, ensuring that only matching objects are returned based on the specified criteria.
+        """
         Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -186,6 +199,9 @@ class MultiColumnFKTests(TestCase):
         )
 
     def test_double_nested_query(self):
+        """
+        Tests a double-nested query on memberships, verifying the correct retrieval of members based on their friendships.
+        """
         m1 = Membership.objects.create(
             membership_country_id=self.usa.id,
             person_id=self.bob.id,
@@ -231,6 +247,9 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(str(queryset.query), str(queryset.query))
 
     def test_select_related_foreignkey_forward_works(self):
+        """
+        Tests that select_related works correctly for foreign keys, ensuring a single query is executed when fetching related objects
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -248,6 +267,9 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(people, normal_people)
 
     def test_prefetch_foreignkey_forward_works(self):
+        """
+        Tests that prefetching a foreign key in the forward direction using ``prefetch_related`` works correctly by comparing the results with a standard query, verifying that the number of database queries is optimized.
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -265,6 +287,15 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(people, normal_people)
 
     def test_prefetch_foreignkey_reverse_works(self):
+        """
+
+        Tests that prefetching a reverse foreign key relationship using prefetch_related works correctly.
+
+        Verifies that the number of database queries is reduced when using prefetch_related, 
+        compared to accessing the relationship without prefetching, by comparing the results 
+        of both methods to ensure data correctness.
+
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -374,6 +405,14 @@ class MultiColumnFKTests(TestCase):
         self.assertQuerySetEqual(self.jane.friends.all(), [])
 
     def test_prefetch_related_m2m_forward_works(self):
+        """
+
+        Tests whether the prefetch_related method works correctly for many-to-many relationships.
+
+        Verifies that using prefetch_related to fetch group members results in the same data as
+        fetching members individually, while also ensuring the expected number of database queries.
+
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -390,6 +429,12 @@ class MultiColumnFKTests(TestCase):
         self.assertEqual(members_lists, normal_members_lists)
 
     def test_prefetch_related_m2m_reverse_works(self):
+        """
+        Tests that prefetch_related works correctly for many-to-many reverse relationships.
+
+        Verifies that using prefetch_related to fetch a person's groups results in the same data
+        as fetching the groups without prefetching, while also ensuring the query count is optimal.
+        """
         Membership.objects.create(
             membership_country=self.usa, person=self.bob, group=self.cia
         )
@@ -407,6 +452,9 @@ class MultiColumnFKTests(TestCase):
 
     @translation.override("fi")
     def test_translations(self):
+        """
+        Tests the functionality of article translations, including creating and retrieving articles with translations in different languages, and filtering articles based on translation attributes.
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         at1_fi = ArticleTranslation(
             article=a1, lang="fi", title="Otsikko", body="Diipadaapa"
@@ -464,6 +512,14 @@ class MultiColumnFKTests(TestCase):
             referrer.article
 
     def test_foreign_key_related_query_name(self):
+        """
+
+        Tests the usage of related query names for foreign keys, specifically 
+        verifying that the correct query name is used to retrieve articles 
+        based on their associated tags, and that an incorrect query name 
+        raises a FieldError with the expected message.
+
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         ArticleTag.objects.create(article=a1, name="foo")
         self.assertEqual(Article.objects.filter(tag__name="foo").count(), 1)
@@ -477,6 +533,11 @@ class MultiColumnFKTests(TestCase):
             Article.objects.filter(tags__name="foo")
 
     def test_many_to_many_related_query_name(self):
+        """
+        Tests the functionality of querying many-to-many related objects using the related query name.
+
+        Verifies that the correct related query name is used to filter objects, and that an error is raised when an incorrect query name is used.
+        """
         a1 = Article.objects.create(pub_date=datetime.date.today())
         i1 = ArticleIdea.objects.create(name="idea1")
         a1.ideas.add(i1)
@@ -492,6 +553,9 @@ class MultiColumnFKTests(TestCase):
 
     @translation.override("fi")
     def test_inheritance(self):
+        """
+        Tests the inheritance behavior of NewsArticle objects when using translations, ensuring that the active translation is correctly retrieved and related to the article instance.
+        """
         na = NewsArticle.objects.create(pub_date=datetime.date.today())
         ArticleTranslation.objects.create(
             article=na, lang="fi", title="foo", body="bar"
@@ -534,6 +598,9 @@ class MultiColumnFKTests(TestCase):
 class TestModelCheckTests(SimpleTestCase):
     @isolate_apps("foreign_object")
     def test_check_composite_foreign_object(self):
+        """
+        Checks if a composite foreign key using a ForeignObject field is correctly validated.
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -557,6 +624,9 @@ class TestModelCheckTests(SimpleTestCase):
 
     @isolate_apps("foreign_object")
     def test_check_subset_composite_foreign_object(self):
+        """
+        Checks the validity of a composite ForeignObject field in a model, ensuring that it correctly references a subset of fields from the parent model.
+        """
         class Parent(models.Model):
             a = models.PositiveIntegerField()
             b = models.PositiveIntegerField()
@@ -584,6 +654,9 @@ class TestModelCheckTests(SimpleTestCase):
 class TestExtraJoinFilterQ(TestCase):
     @translation.override("fi")
     def test_extra_join_filter_q(self):
+        """
+        Tests the optimization of joining active translations with the `select_related` query modifier, ensuring that it reduces database queries.
+        """
         a = Article.objects.create(pub_date=datetime.datetime.today())
         ArticleTranslation.objects.create(
             article=a, lang="fi", title="title", body="body"
@@ -723,6 +796,9 @@ class GetJoiningDeprecationTests(TestCase):
             Membership.person.field.remote_field.get_joining_columns()
 
     def test_join_get_joining_columns_warning(self):
+        """
+        Tests that a warning is raised when using get_joining_columns() in Join, as it is deprecated in favor of get_joining_fields().
+        """
         class CustomForeignKey(models.ForeignKey):
             def __getattribute__(self, attr):
                 if attr == "get_joining_fields":

@@ -139,6 +139,14 @@ def get_deleted_objects(objs, request, admin_site):
     perms_needed = set()
 
     def format_callback(obj):
+        """
+
+        Generate a formatted string representing an object, potentially including an edit link to its admin page.
+
+        The string includes the object's verbose name and its string representation. 
+        An edit link is added if the object's model is registered in the admin site and the user has permission to edit the object.
+
+        """
         model = obj.__class__
         opts = obj._meta
 
@@ -191,6 +199,21 @@ class NestedObjects(Collector):
         self.edges.setdefault(source, []).append(target)
 
     def collect(self, objs, source=None, source_attr=None, **kwargs):
+        """
+        Collects objects and establishes relationships between them, storing them in the model_objects dictionary.
+
+         Parameters
+         ----------
+         objs : iterable
+             The objects to be collected.
+         source : object, optional
+             The source object for the collection.
+         source_attr : str, optional
+             The attribute name used to determine the related object.
+
+         Collects related objects, adds edges to the graph, and stores the collected objects in the model objects dictionary. 
+         It also catches and handles ProtectedError and RestrictedError exceptions, updating the protected objects set accordingly.
+        """
         for obj in objs:
             if source_attr and not source_attr.endswith("+"):
                 related_name = source_attr % {
@@ -215,6 +238,16 @@ class NestedObjects(Collector):
         )
 
     def _nested(self, obj, seen, format_callback):
+        """
+        Recursively traverses a nested object, collecting its children and applying an optional format callback.
+
+            Used to traverse a graph or tree structure, avoiding infinite loops by tracking visited objects.
+
+            :param obj: The current object being traversed
+            :param seen: A set of objects that have already been visited
+            :param format_callback: An optional function to format the object before returning it
+            :return: A list containing the formatted object and its children, or just the object if no children exist
+        """
         if obj in seen:
             return []
         seen.add(obj)
@@ -285,6 +318,9 @@ def model_ngettext(obj, n=None):
 
 
 def lookup_field(name, obj, model_admin=None):
+    """
+    Resolves a field or attribute on a model instance, determining whether the provided name corresponds to a field on the model, an attribute on the model instance, or a method on the model or model admin. Returns a tuple containing the resolved field, attribute, and value.
+    """
     opts = obj._meta
     try:
         f = _get_non_gfk_field(opts, name)
@@ -415,6 +451,14 @@ def label_for_field(name, model, model_admin=None, return_attr=False, form=None)
 
 
 def help_text_for_field(name, model):
+    """
+    Retrieves the help text associated with a given field in a model.
+
+    :param name: The name of the field.
+    :param model: The model containing the field.
+    :returns: The help text for the field, or an empty string if no help text exists or the field does not exist.
+
+    """
     help_text = ""
     try:
         field = _get_non_gfk_field(model._meta, name)
@@ -427,6 +471,9 @@ def help_text_for_field(name, model):
 
 
 def display_for_field(value, field, empty_value_display):
+    """
+    Display a value based on the type of field it belongs to, handling various field types such as choices, boolean, date, time, decimal, integer, float, file, and JSON fields, and providing a fallback for other field types.
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if getattr(field, "flatchoices", None):
@@ -464,6 +511,16 @@ def display_for_field(value, field, empty_value_display):
 
 
 def display_for_value(value, empty_value_display, boolean=False):
+    """
+    Formats a given value for display in the admin interface.
+
+    Handles various types, including booleans, dates, times, numbers, and lists,
+    returning a human-readable representation of the value.
+
+    Takes an optional parameter to specify the display for empty values,
+    and a boolean flag to use Django's admin boolean icon template tag.
+
+    """
     from django.contrib.admin.templatetags.admin_list import _boolean_icon
 
     if boolean:
@@ -604,6 +661,18 @@ def construct_change_message(form, formsets, add):
 
 
 def _get_changed_field_labels_from_form(form, changed_data):
+    """
+
+    Returns a list of human-readable labels for form fields that have changed.
+
+    Given a form and a dictionary of changed data, this function maps field names to their corresponding verbose labels,
+    falling back to the field name itself if the label is not defined.
+
+    :param form: The form object containing field metadata
+    :param changed_data: A dictionary of field names that have changed
+    :return: A list of verbose labels for the changed fields
+
+    """
     changed_field_labels = []
     for field_name in changed_data:
         try:

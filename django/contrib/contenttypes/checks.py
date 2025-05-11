@@ -5,6 +5,18 @@ from django.core.checks import Error
 
 
 def check_generic_foreign_keys(app_configs=None, **kwargs):
+    """
+
+    Checks GenericForeignKeys across all models or a specified subset for potential issues.
+
+    This function iterates over models and their GenericForeignKey fields, 
+    running diagnostic checks on each field and returning a list of any errors encountered.
+
+    :param app_configs: Optional list of application configurations to limit the model search space.
+    :rtype: list
+    :return: A list of error messages for any problematic GenericForeignKey fields.
+
+    """
     from .fields import GenericForeignKey
 
     if app_configs is None:
@@ -26,6 +38,9 @@ def check_generic_foreign_keys(app_configs=None, **kwargs):
 
 
 def check_model_name_lengths(app_configs=None, **kwargs):
+    """
+    Checks Django model names for excessive length and returns any resulting validation errors.
+    """
     if app_configs is None:
         models = apps.get_models()
     else:

@@ -95,6 +95,16 @@ class ForeignKeyDeferredAttribute(DeferredAttribute):
 
 
 def _filter_prefetch_queryset(queryset, field_name, instances):
+    """
+    Filters a prefetch queryset based on a given field name and instances, handling slicing and database window functions support.
+
+        :param queryset: The queryset to filter
+        :param field_name: The name of the field to filter on
+        :param instances: The instances to filter by
+        :return: The filtered queryset
+
+        :raises NotSupportedError: If prefetching from a limited queryset is not supported by the database backend
+    """
     predicate = Q(**{f"{field_name}__in": instances})
     db = queryset._db or DEFAULT_DB_ALIAS
     if queryset.query.is_sliced:
@@ -167,6 +177,16 @@ class ForwardManyToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+
+        Retrieves a queryset of objects related to the given instances, optimized for prefetching.
+
+        This method prepares a queryset to fetch related objects for the provided instances,
+        applying filtering and ordering as necessary to efficiently retrieve the required data.
+        It returns a tuple containing the prepared queryset and additional metadata used for
+        caching and further processing of the retrieved objects.
+
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -368,6 +388,13 @@ class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
     """
 
     def get_object(self, instance):
+        """
+
+        Retrieve a related object instance when the relationship is a parent link,
+        using the fields from the related model to create a new instance.
+        Otherwise, fall back to the default implementation.
+
+        """
         if self.field.remote_field.parent_link:
             deferred = instance.get_deferred_fields()
             # Because it's a parent link, all the data is available in the
@@ -387,6 +414,12 @@ class ForwardOneToOneDescriptor(ForwardManyToOneDescriptor):
         return super().get_object(instance)
 
     def __set__(self, instance, value):
+        """
+
+        Sets the value of the attribute on the given instance, handling primary key inheritance 
+        for models with a parent link.
+
+        """
         super().__set__(instance, value)
         # If the primary key is a link to a parent model and a parent instance
         # is being set, update the value of the inherited pk(s).
@@ -459,6 +492,13 @@ class ReverseOneToOneDescriptor:
         return self.get_prefetch_querysets(instances, [queryset])
 
     def get_prefetch_querysets(self, instances, querysets=None):
+        """
+        Retrieves and prefetches related querysets for a set of instances.
+
+        Returns a tuple containing the prefetched queryset, attribute mappings, and cache information.
+        This function is used to efficiently fetch related objects for a given set of instances, 
+        reducing the number of database queries and improving performance.
+        """
         if querysets and len(querysets) != 1:
             raise ValueError(
                 "querysets argument of get_prefetch_querysets() should have a length "
@@ -678,6 +718,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
 
     class RelatedManager(superclass, AltersData):
         def __init__(self, instance):
+            """
+            Initializes a new instance, setting up the related model and field for filtering based on the provided instance.
+            """
             super().__init__()
 
             self.instance = instance
@@ -753,6 +796,13 @@ def create_reverse_many_to_one_manager(superclass, rel):
             # Even if this relation is not to pk, we require still pk value.
             # The wish is that the instance has been already saved to DB,
             # although having a pk value isn't a guarantee of that.
+            """
+            Returns a queryset of related objects for the given instance, applying any specified relationship filters.
+
+            Raises a ValueError if the instance does not have a primary key value.
+
+            If the related objects have been prefetched, uses the cached result; otherwise, fetches the queryset and applies filters.
+            """
             if self.instance.pk is None:
                 raise ValueError(
                     f"{self.instance.__class__.__name__!r} instance needs to have a "
@@ -778,6 +828,14 @@ def create_reverse_many_to_one_manager(superclass, rel):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+
+            Retrieves querysets to be prefetched for a given set of instances.
+
+            This method generates a queryset that can be used to prefetch related objects for a
+            list of given instances, ensuring efficient database queries.
+
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -802,6 +860,17 @@ def create_reverse_many_to_one_manager(superclass, rel):
             return queryset, rel_obj_attr, instance_attr, False, cache_name, False
 
         def add(self, *objs, bulk=True):
+            """
+            Associate one or more objects with the current instance.
+
+            This function links the provided objects to the instance via the foreign key
+            field. It checks that all objects are instances of the correct model and that
+            they are saved in the database if bulk mode is used.
+
+            :param \*objs: The objects to associate with the instance.
+            :param bulk: Whether to use bulk update or individual saves, defaults to True.
+
+            """
             self._check_fk_val()
             self._remove_prefetched_objects()
             db = router.db_for_write(self.model, instance=self.instance)
@@ -846,6 +915,9 @@ def create_reverse_many_to_one_manager(superclass, rel):
         aadd.alters_data = True
 
         def create(self, **kwargs):
+            """
+            Creates a new instance of the related model, associating it with the current instance, and saves it to the database.
+            """
             self._check_fk_val()
             self._remove_prefetched_objects()
             kwargs[self.field.name] = self.instance
@@ -890,6 +962,21 @@ def create_reverse_many_to_one_manager(superclass, rel):
         if rel.field.null:
 
             def remove(self, *objs, bulk=True):
+                """
+                Removes a variable number of objects from the related object set.
+
+                Args:
+                    *objs: The objects to be removed.
+                    bulk (bool): Whether to perform removal in bulk. Defaults to True.
+
+                Raises:
+                    TypeError: If the objects to be removed are not instances of the related model.
+                    DoesNotExist: If any of the objects to be removed are not related to the instance.
+
+                Note:
+                    The relationship between the instance and the removed objects is validated before removal.
+
+                """
                 if not objs:
                     return
                 self._check_fk_val()
@@ -932,6 +1019,17 @@ def create_reverse_many_to_one_manager(superclass, rel):
             aclear.alters_data = True
 
             def _clear(self, queryset, bulk):
+                """
+                Clears the field value from a given queryset.
+
+                This method updates the specified field of all objects in the queryset to None.
+                It can operate in two modes: bulk update or individual updates. Bulk updates are
+                used when possible for efficiency, otherwise individual updates are performed
+                within a database transaction to ensure data integrity.
+
+                :param queryset: The queryset of objects to be updated
+                :param bulk: Whether to perform a bulk update
+                """
                 self._remove_prefetched_objects()
                 db = router.db_for_write(self.model, instance=self.instance)
                 queryset = queryset.using(db)
@@ -947,6 +1045,12 @@ def create_reverse_many_to_one_manager(superclass, rel):
             _clear.alters_data = True
 
         def set(self, objs, *, bulk=True, clear=False):
+            """
+
+            Sets the related objects for this field, optionally clearing existing relationships and 
+            supporting bulk operations. The operation is atomic and will roll back if any part fails.
+
+            """
             self._check_fk_val()
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
@@ -1039,6 +1143,14 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
 
     class ManyRelatedManager(superclass, AltersData):
         def __init__(self, instance=None):
+            """
+            Initializes a many-to-many relationship object.
+
+            :param instance: The instance for which the many-to-many relationship is being created.
+
+            Sets up relationship properties and performs validation on the instance to ensure it can be used with the many-to-many relationship.
+
+            """
             super().__init__()
 
             self.instance = instance
@@ -1098,6 +1210,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         do_not_call_in_templates = True
 
         def _build_remove_filters(self, removed_vals):
+            """
+            Constructs and returns a query filter to identify objects that need to be removed based on the provided removed values, taking into account the relationship's symmetrical nature.
+            """
             filters = Q.create([(self.source_field_name, self.related_val)])
             # No need to add a subquery condition if removed_vals is a QuerySet without
             # filters.
@@ -1140,6 +1255,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
                 pass  # nothing to clear from cache
 
         def get_queryset(self):
+            """
+            Retrieves a queryset, either from the prefetch cache if available, or by applying relation filters to the parent class' queryset.
+            """
             if (cache := self.get_prefetch_cache()) is not None:
                 return cache
             else:
@@ -1158,6 +1276,18 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             return self.get_prefetch_querysets(instances, [queryset])
 
         def get_prefetch_querysets(self, instances, querysets=None):
+            """
+
+            Return a queryset and associated functions for prefetching related instances.
+
+            This function generates a queryset that can be used to efficiently fetch related
+            objects for a given set of instances. It also returns functions to process the
+            results and prepare instances for caching.
+
+            :returns: A tuple containing the prefetch queryset, a function to process results,
+                      a function to prepare instances, and additional flags for caching.
+
+            """
             if querysets and len(querysets) != 1:
                 raise ValueError(
                     "querysets argument of get_prefetch_querysets() should have a "
@@ -1212,6 +1342,17 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # If the through relation's target field's foreign integrity is
             # enforced, the query can be performed solely against the through
             # table as the INNER JOIN'ing against target table is unnecessary.
+            """
+            Returns the constrained target of the relationship.
+
+            This property checks if the target field has a database constraint and returns
+            the related objects if the constraint exists and the database supports foreign keys.
+
+            Returns None if no constraint exists or the database does not support foreign keys.
+
+            Note: This property is only applicable when the target field has a database constraint
+                  and the database supports foreign keys.
+            """
             if not self.target_field.db_constraint:
                 return None
             db = router.db_for_read(self.through, instance=self.instance)
@@ -1247,6 +1388,19 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
                 return super().count()
 
         def add(self, *objs, through_defaults=None):
+            """
+
+            Add one or more objects to the relationship.
+
+            This method creates new relations between the instance this relationship is for
+            and the provided objects. It also optionally creates relations in the reverse
+            direction if the relationship is symmetrical.
+
+            :param objs: Variable number of objects to add to the relationship.
+            :param through_defaults: Dictionary of defaults to use when creating intermediate
+                model instances, for relationships that have an intermediary model.
+
+            """
             self._remove_prefetched_objects()
             db = router.db_for_write(self.through, instance=self.instance)
             with transaction.atomic(using=db, savepoint=False):
@@ -1287,6 +1441,14 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         aremove.alters_data = True
 
         def clear(self):
+            """
+
+            Clears all many-to-many relationships for the given instance.
+
+            This method removes all associated objects from the instance, effectively clearing the relationship.
+            It also sends pre and post-clear signals to notify other parts of the application about the change.
+
+            """
             db = router.db_for_write(self.through, instance=self.instance)
             with transaction.atomic(using=db, savepoint=False):
                 signals.m2m_changed.send(
@@ -1322,6 +1484,21 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         def set(self, objs, *, clear=False, through_defaults=None):
             # Force evaluation of `objs` in case it's a queryset whose value
             # could be affected by `manager.clear()`. Refs #19816.
+            """
+            Sets the related objects for the current instance, optionally clearing existing relationships.
+
+            Args:
+                objs: The objects to set as related.
+                clear (bool): If True, clear all existing relationships before setting the new ones. Defaults to False.
+                through_defaults (dict): Default values to use for the through model when adding new relationships.
+
+            This function ensures that the relationship between the current instance and the provided objects is established,
+            either by adding new relationships, removing old ones, or clearing all existing relationships and then adding the new ones.
+
+            Note:
+                The function uses a transaction to ensure atomicity and consistency of the database operations.
+
+            """
             objs = tuple(objs)
 
             db = router.db_for_write(self.through, instance=self.instance)
@@ -1376,6 +1553,14 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         acreate.alters_data = True
 
         def get_or_create(self, *, through_defaults=None, **kwargs):
+            """
+            Retrieves or creates a related object, optionally setting defaults for the through relationship.
+
+                :param through_defaults: Default values to use for the through relationship when creating a new object.
+                :param kwargs: Field names and values to use for the lookup and creation.
+                :return: A tuple containing the retrieved or created object and a boolean indicating whether the object was newly created.
+
+            """
             db = router.db_for_write(self.instance.__class__, instance=self.instance)
             obj, created = super(ManyRelatedManager, self.db_manager(db)).get_or_create(
                 **kwargs
@@ -1396,6 +1581,9 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
         aget_or_create.alters_data = True
 
         def update_or_create(self, *, through_defaults=None, **kwargs):
+            """
+            Updates or creates an object in the related object set, with the given field values, and adds the new object to the relationship if it was created. Returns the object and a boolean indicating whether it was created.
+            """
             db = router.db_for_write(self.instance.__class__, instance=self.instance)
             obj, created = super(
                 ManyRelatedManager, self.db_manager(db)
@@ -1506,6 +1694,17 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK fieldname in join table for the target object
             # *objs - objects to add. Either object instances, or primary keys
             # of object instances.
+            """
+            Adds items to a many-to-many relationship by creating new instances of the through model. 
+
+            :param source_field_name: The name of the field on the source model 
+                                      that references the through model.
+            :param target_field_name: The name of the field on the through model 
+                                      that references the target model.
+            :param objs: The objects to add to the relationship.
+            :param through_defaults: Default values for the through model instance. 
+                                     Can be a dictionary or a callable that returns a dictionary.
+            """
             if not objs:
                 return
 
@@ -1575,6 +1774,19 @@ def create_forward_many_to_many_manager(superclass, rel, reverse):
             # target_field_name: the PK colname in join table for the target object
             # *objs - objects to remove. Either object instances, or primary
             # keys of object instances.
+            """
+
+            Removes specified items from a many-to-many relationship.
+
+            Removes the specified objects or their IDs from the many-to-many relationship 
+            defined by the source and target fields. If no objects are provided, this method 
+            does nothing.
+
+            :param source_field_name: Name of the source field in the relationship
+            :param target_field_name: Name of the target field in the relationship
+            :param objs: Variable number of objects or IDs to be removed from the relationship
+
+            """
             if not objs:
                 return
 

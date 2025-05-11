@@ -147,6 +147,17 @@ class PerformUniqueChecksTest(TestCase):
             mtv.full_clean()
 
     def test_unique_for_date(self):
+        """
+
+        Tests that the Post model enforces unique constraints on its fields based on the posted date.
+
+        Specifically, it checks that:
+        - The title must be unique for each posted date.
+        - The slug must be unique for each year.
+        - The subtitle must be unique for each month.
+        - The posted date is required.
+
+        """
         Post.objects.create(
             title="Django 1.0 is released",
             slug="Django 1.0",
@@ -213,6 +224,11 @@ class PerformUniqueChecksTest(TestCase):
         p.full_clean()
 
     def test_unique_errors(self):
+        """
+        Tests that the UniqueErrorsModel correctly raises validation errors when 
+        attempting to create instances with duplicate unique fields, ensuring that the 
+        custom error messages are used for 'name' and 'no' fields
+        """
         UniqueErrorsModel.objects.create(name="Some Name", no=10)
         m = UniqueErrorsModel(name="Some Name", no=11)
         with self.assertRaises(ValidationError) as cm:

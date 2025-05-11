@@ -32,6 +32,9 @@ class Serializer(base.Serializer):
         self._current = None
 
     def get_dump_object(self, obj):
+        """
+        Retrieves a dictionary representation of a model object, including its metadata and field data, for serialization purposes. The returned dictionary contains the model's metadata, primary key (if natural primary keys are not used or not available), and the object's field values.
+        """
         data = {"model": str(obj._meta)}
         if not self.use_natural_primary_keys or not hasattr(obj, "natural_key"):
             data["pk"] = self._value_from_field(obj, obj._meta.pk)
@@ -49,6 +52,9 @@ class Serializer(base.Serializer):
         self._current[field.name] = self._value_from_field(obj, field)
 
     def handle_fk_field(self, obj, field):
+        """
+        Handle a foreign key field on an object, using its natural key if specified and available, otherwise falling back to the standard field value retrieval method.
+        """
         if self.use_natural_foreign_keys and hasattr(
             field.remote_field.model, "natural_key"
         ):
@@ -62,6 +68,9 @@ class Serializer(base.Serializer):
         self._current[field.name] = value
 
     def handle_m2m_field(self, obj, field):
+        """
+        Handles a many-to-many field for an object, converting related objects to a suitable representation for serialization, either using natural keys or primary keys.
+        """
         if field.remote_field.through._meta.auto_created:
             if self.use_natural_foreign_keys and hasattr(
                 field.remote_field.model, "natural_key"

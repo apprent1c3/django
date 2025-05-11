@@ -55,6 +55,9 @@ class StaticTests(SimpleTestCase):
         response.close()
 
     def test_copes_with_empty_path_component(self):
+        """
+        Tests that the application correctly handles HTTP requests with empty path components by comparing the response content with the expected file content.
+        """
         file_name = "file.txt"
         response = self.client.get("/%s//%s" % (self.prefix, file_name))
         response_content = b"".join(response)
@@ -62,6 +65,12 @@ class StaticTests(SimpleTestCase):
             self.assertEqual(fp.read(), response_content)
 
     def test_is_modified_since(self):
+        """
+
+        Checks if the file is returned correctly when the If-Modified-Since header is provided,
+        ensuring that the contents match the expected file contents.
+
+        """
         file_name = "file.txt"
         response = self.client.get(
             "/%s/%s" % (self.prefix, file_name),

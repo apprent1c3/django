@@ -146,6 +146,9 @@ class BaseDatabaseSchemaEditor:
     sql_alter_column_comment = "COMMENT ON COLUMN %(table)s.%(column)s IS %(comment)s"
 
     def __init__(self, connection, collect_sql=False, atomic=True):
+        """
+        Initializes a database migration context with the given connection and optional settings for collecting executed SQL statements and atomicity of the migration process.
+        """
         self.connection = connection
         self.collect_sql = collect_sql
         if self.collect_sql:
@@ -155,6 +158,9 @@ class BaseDatabaseSchemaEditor:
     # State-managing methods
 
     def __enter__(self):
+        """
+        Enters a context for executing database operations, initializing an empty list to store deferred SQL statements. If atomic migration is enabled, it also sets up and begins an atomic database operation context.
+        """
         self.deferred_sql = []
         if self.atomic_migration:
             self.atomic = atomic(self.connection.alias)
@@ -162,6 +168,13 @@ class BaseDatabaseSchemaEditor:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Exit the runtime context, optionally executing deferred SQL statements and cleaning up atomic migrations.
+
+        Raises any exceptions trapped during the exit process, ensuring that database state is correctly rolled back if necessary.
+
+        """
         if exc_type is None:
             for sql in self.deferred_sql:
                 self.execute(sql, None)
@@ -303,6 +316,21 @@ class BaseDatabaseSchemaEditor:
     def _iter_column_sql(
         self, column_db_type, params, model, field, field_db_params, include_default
     ):
+        """
+
+        Generates the SQL for a column definition, including data type, constraints, and default values.
+
+        Yields a series of SQL fragments to construct a complete column definition, taking into
+        account factors such as collation, comments, nullability, default values, and primary/unique
+        key constraints.
+
+        Returns an iterable of SQL fragments and modifies the `params` list to include any
+        necessary default value parameters.
+
+        Note that this method is an implementation detail of the database backend and should not
+        be called directly.
+
+        """
         yield column_db_type
         if collation := field_db_params.get("collation"):
             yield self._collate_sql(collation)
@@ -455,6 +483,14 @@ class BaseDatabaseSchemaEditor:
     @staticmethod
     def _effective_default(field):
         # This method allows testing its logic without a connection.
+        """
+
+        Determine the effective default value for a given field.
+
+        The effective default value takes into account whether the field has an explicit default,
+        is generated, or has specific attributes that influence the default, such as auto_now or auto_now_add.
+
+        """
         if field.has_default():
             default = field.get_default()
         elif field.generated:
@@ -571,6 +607,15 @@ class BaseDatabaseSchemaEditor:
         self.execute(index.remove_sql(model, self))
 
     def rename_index(self, model, old_index, new_index):
+        """
+
+        Renames an existing index on a model to a new name.
+
+        This method takes into account the capabilities of the database backend, either
+        renaming the index directly if supported or removing the old index and adding a
+        new one if not.
+
+        """
         if self.connection.features.can_rename_index:
             self.execute(
                 self._rename_index_sql(model, old_index.name, new_index.name),
@@ -637,6 +682,18 @@ class BaseDatabaseSchemaEditor:
             self.execute(self._create_index_sql(model, fields=fields, suffix="_idx"))
 
     def _delete_composed_index(self, model, fields, constraint_kwargs, sql):
+        """
+        Deletes a composed index from the database for the specified model and fields. 
+
+        Args:
+            model (Model): The model for which the index is being deleted.
+            fields (list): A list of field names that make up the index.
+            constraint_kwargs (dict): Keyword arguments used to identify the constraint.
+            sql (str): The SQL command for deleting the index.
+
+        Raises:
+            ValueError: If zero or multiple matching constraints are found for the index.
+        """
         meta_constraint_names = {
             constraint.name for constraint in model._meta.constraints
         }
@@ -916,6 +973,13 @@ class BaseDatabaseSchemaEditor:
     def _field_db_check(self, field, field_db_params):
         # Always check constraints with the same mocked column name to avoid
         # recreating constrains when the column is renamed.
+        """
+        Checks a field's database type parameters against the database connection's constraints.
+
+        :param field: The field to check
+        :param field_db_params: Field database parameters
+        :returns: A string representing the checked constraints, or None if no constraints are found for the field type
+        """
         check_constraints = self.connection.data_type_check_constraints
         data = field.db_type_parameters(self.connection)
         data["column"] = "__column_name__"
@@ -1516,6 +1580,14 @@ class BaseDatabaseSchemaEditor:
         return index_name
 
     def _get_index_tablespace_sql(self, model, fields, db_tablespace=None):
+        """
+        Returns the SQL to specify the tablespace for an index.
+
+        The tablespace is determined based on the provided database tablespace, 
+        the tablespace of the first field if only one is provided, 
+        the default index tablespace from settings, or the model's tablespace, 
+        in that order. If no tablespace is found, an empty string is returned.
+        """
         if db_tablespace is None:
             if len(fields) == 1 and fields[0].db_tablespace:
                 db_tablespace = fields[0].db_tablespace
@@ -1595,6 +1667,14 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _delete_index_sql(self, model, name, sql=None):
+        """
+        Deletes a specified SQL index, optionally providing the SQL statement to use.
+
+        :param model: The model associated with the index to delete
+        :param name: The name of the index to delete
+        :param sql: Optional SQL statement to use for deletion, defaults to a predefined SQL template
+        :return: A SQL statement to delete the specified index
+        """
         statement = Statement(
             sql or self.sql_delete_index,
             table=Table(model._meta.db_table, self.quote_name),
@@ -1652,6 +1732,17 @@ class BaseDatabaseSchemaEditor:
         return output
 
     def _field_should_be_altered(self, old_field, new_field, ignore=None):
+        """
+        Determine if a field should be altered based on differences between its old and new definitions.
+
+        Compares the old and new field attributes, ignoring non-database attributes and specified attributes, to decide if an alteration is necessary.
+
+        :param old_field: The original field definition
+        :param new_field: The updated field definition
+        :param ignore: A set of attributes to ignore when comparing fields (default: None)
+
+        :return: True if the field should be altered, False otherwise
+        """
         if not old_field.concrete and not new_field.concrete:
             return False
         ignore = ignore or set()
@@ -1710,6 +1801,17 @@ class BaseDatabaseSchemaEditor:
         }
 
     def _create_fk_sql(self, model, field, suffix):
+        """
+        Creates a SQL statement for adding a foreign key constraint to a database table. 
+
+        Args:
+            model (Model): The model that the foreign key belongs to.
+            field (Field): The field that represents the foreign key.
+            suffix (str): A suffix to append to the foreign key constraint name.
+
+        Returns:
+            Statement: A SQL statement that can be executed to create the foreign key constraint.
+        """
         table = Table(model._meta.db_table, self.quote_name)
         name = self._fk_constraint_name(model, field, suffix)
         column = Columns(model._meta.db_table, [field.column], self.quote_name)
@@ -1747,6 +1849,12 @@ class BaseDatabaseSchemaEditor:
         return self._delete_constraint_sql(self.sql_delete_fk, model, name)
 
     def _deferrable_constraint_sql(self, deferrable):
+        """
+        Generate SQL for a deferrable constraint based on the provided deferrability option.
+
+        :arg deferrable: The deferrability option (DEFERRED, IMMEDIATE, or None)
+        :returns: The corresponding SQL string or an empty string if deferrable is None
+        """
         if deferrable is None:
             return ""
         if deferrable == Deferrable.DEFERRED:
@@ -1755,6 +1863,15 @@ class BaseDatabaseSchemaEditor:
             return " DEFERRABLE INITIALLY IMMEDIATE"
 
     def _unique_index_nulls_distinct_sql(self, nulls_distinct):
+        """
+        .. method:: _unique_index_nulls_distinct_sql(nulls_distinct)
+           :noindex:
+
+           Returns a SQL clause string based on the nulls distinct parameter.
+           If nulls_distinct is True, returns ' NULLS DISTINCT'.
+           If nulls_distinct is False, returns ' NULLS NOT DISTINCT'.
+           Otherwise, returns an empty string.
+        """
         if nulls_distinct is False:
             return " NULLS NOT DISTINCT"
         elif nulls_distinct is True:
@@ -1797,6 +1914,15 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+        Creates a SQL string for a unique constraint on the given model.
+
+        The constraint is configured based on the provided fields, name, and optional parameters.
+        If the database does not support certain constraint features, None is returned.
+        If the constraint has a condition, includes, opclasses, expressions, or nulls distinct, 
+        it is added to the deferred SQL list and None is returned.
+        Otherwise, the SQL string for the unique constraint is returned.
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,
@@ -1849,6 +1975,25 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+
+        Create a SQL unique constraint or unique index for the given model and fields.
+
+        This method generates a SQL statement to create a unique constraint or unique index based on the provided model, fields, and optional parameters such as name, condition, deferrable, include, opclasses, expressions, and nulls_distinct.
+
+        It returns a SQL statement if the unique constraint is supported, otherwise it returns None.
+
+        :param model: The model to create the unique constraint or index for.
+        :param fields: The fields to include in the unique constraint or index.
+        :param name: The name of the unique constraint or index, or None to auto-generate a name.
+        :param condition: An optional condition to apply to the unique constraint or index.
+        :param deferrable: Whether the constraint is deferrable.
+        :param include: Columns to include in the index.
+        :param opclasses: Operator classes to use for the index columns.
+        :param expressions: Expressions to use instead of fields.
+        :param nulls_distinct: Whether null values should be treated as distinct.
+
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,
@@ -1889,6 +2034,9 @@ class BaseDatabaseSchemaEditor:
         )
 
     def _unique_constraint_name(self, table, columns, quote=True):
+        """
+        Generates a unique name for a constraint on a given table with specified columns. The name is created with or without quoting, depending on the quote flag, and is prefixed with '_uniq' to indicate it is a unique constraint.
+        """
         if quote:
 
             def create_unique_name(*args, **kwargs):
@@ -1910,6 +2058,19 @@ class BaseDatabaseSchemaEditor:
         expressions=None,
         nulls_distinct=None,
     ):
+        """
+        Deletes a unique constraint from a database table.
+
+        :param model: The database model.
+        :param name: The name of the unique constraint.
+        :param condition: A condition to apply to the constraint.
+        :param deferrable: Whether the constraint can be deferred.
+        :param include: Columns to include in the constraint.
+        :param opclasses: Operator classes for the constraint.
+        :param expressions: Expressions for the constraint.
+        :param nulls_distinct: Whether null values are distinct.
+        :returns: The SQL to delete the unique constraint, or None if the requested constraint is not supported.
+        """
         if not self._unique_supported(
             condition=condition,
             deferrable=deferrable,
@@ -2000,6 +2161,13 @@ class BaseDatabaseSchemaEditor:
         return result
 
     def _delete_primary_key(self, model, strict=False):
+        """
+        Deletes the primary key constraint from the given model.
+
+        :param model: The model from which to delete the primary key.
+        :param strict: Whether to raise an error if the model has an unexpected number of primary key constraints.
+        :raises ValueError: If strict is True and the model has more or less than one primary key constraint.
+        """
         constraint_names = self._constraint_names(model, primary_key=True)
         if strict and len(constraint_names) != 1:
             raise ValueError(

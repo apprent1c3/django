@@ -348,6 +348,9 @@ class DataSourceTest(SimpleTestCase):
         self.assertEqual(676586997978, feat.get("ALAND10"))
 
     def test_nonexistent_field(self):
+        """
+        Tests that retrieving a nonexistent field from a data source raises an exception with the correct error message.
+        """
         source = ds_list[0]
         ds = DataSource(source.ds)
         msg = "invalid field name: nonexistent"

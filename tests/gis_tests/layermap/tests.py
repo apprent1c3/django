@@ -316,6 +316,9 @@ class LayerMapTest(TestCase):
         lm.save(silent=True)
 
     def test_charfield_too_short(self):
+        """
+        Tests that a CharField with a string value that is too long raises an InvalidString exception when saving a LayerMapping with strict validation.
+        """
         mapping = copy(city_mapping)
         mapping["name_short"] = "Name"
         lm = LayerMapping(City, city_shp, mapping)

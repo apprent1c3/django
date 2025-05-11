@@ -35,6 +35,21 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handle stale content types in the database.
+
+        Removes content types that are no longer associated with any models. The 
+        deletion process can be controlled through the `include_stale_apps` and 
+        `interactive` options. If `interactive` is True, the user is prompted to 
+        confirm the deletion of each stale content type. 
+
+        The function takes the following options:
+
+        - `database`: the database to operate on
+        - `include_stale_apps`: whether to include stale apps in the deletion process
+        - `interactive`: whether to prompt the user for confirmation before deletion
+        - `verbosity`: the level of output verbosity
+        """
         db = options["database"]
         include_stale_apps = options["include_stale_apps"]
         interactive = options["interactive"]

@@ -7,6 +7,12 @@ class CountRenderNode(Node):
     count = 0
 
     def render(self, context):
+        """
+        .. method:: render(context)
+
+            Increments an internal count and attempts to convert all values in the given context to strings. 
+            Returns the current count as a string.
+        """
         self.count += 1
         for v in context.flatten().values():
             try:

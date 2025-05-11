@@ -177,6 +177,9 @@ class PostgreSqlDbshellCommandTestCase(SimpleTestCase):
     def test_crash_password_does_not_leak(self):
         # The password doesn't leak in an exception that results from a client
         # crash.
+        """
+        Tests that a password is not leaked in error messages when the client crashes, ensuring that sensitive information remains secure.
+        """
         args, env = self.settings_to_cmd_args_env({"PASSWORD": "somepassword"}, [])
         if env:
             env = {**os.environ, **env}

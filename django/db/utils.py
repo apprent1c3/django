@@ -68,6 +68,13 @@ class DatabaseErrorWrapper:
         pass
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Handle exceptions that occur within a runtime context, converting low-level database errors into Django's exception hierarchy.
+
+        If an exception occurs, this method checks if it is a subclass of a Django database exception type and raises a corresponding Django exception if so, preserving the original traceback.
+
+        """
         if exc_type is None:
             return
         for dj_exc_type in (
@@ -145,6 +152,12 @@ class ConnectionHandler(BaseConnectionHandler):
     thread_critical = True
 
     def configure_settings(self, databases):
+        """
+        Configures database settings by setting default values and performing validation. 
+        Ensures a default database is defined and sets various database connection settings 
+        to their default values if not explicitly provided. Raises an exception if the default 
+        database alias is not defined in the databases dictionary.
+        """
         databases = super().configure_settings(databases)
         if databases == {}:
             databases[DEFAULT_DB_ALIAS] = {"ENGINE": "django.db.backends.dummy"}
@@ -203,6 +216,10 @@ class ConnectionRouter:
 
     @cached_property
     def routers(self):
+        """
+        Returns a list of database routers configured for the instance, 
+        instantiating any router specified as a string using import_string.
+        """
         if self._routers is None:
             self._routers = settings.DATABASE_ROUTERS
         routers = []
@@ -215,7 +232,25 @@ class ConnectionRouter:
         return routers
 
     def _router_func(action):
+        """
+
+        Determines the database to be used for a given model based on routing rules.
+
+        This function returns a closure that iterates over registered routers to find a suitable database
+        for the specified model. If no router decides on a database, it falls back to the default database
+        alias or the instance's state database if available.
+
+        :param action: The action to be performed on the router (e.g., 'db_for_read', 'db_for_write')
+        :returns: A function that takes a model, hints, and returns the chosen database.
+
+        """
         def _route_db(self, model, **hints):
+            """
+            Determines the database to use for a given model, following a specific routing order.
+
+            The function iterates through the list of available routers, utilizing the first router that returns a non-empty database choice.
+            If no routers return a choice, it falls back to the instance's database if available, and finally defaults to the default database alias.
+            """
             chosen_db = None
             for router in self.routers:
                 try:
@@ -238,6 +273,13 @@ class ConnectionRouter:
     db_for_write = _router_func("db_for_write")
 
     def allow_relation(self, obj1, obj2, **hints):
+        """
+
+        Determines whether a relation between two objects is allowed.
+        Checks all routers for a custom allowance decision, falling back to
+        a simple database-level check if no custom decision is made.
+
+        """
         for router in self.routers:
             try:
                 method = router.allow_relation
@@ -251,6 +293,14 @@ class ConnectionRouter:
         return obj1._state.db == obj2._state.db
 
     def allow_migrate(self, db, app_label, **hints):
+        """
+        Determines whether a migration operation is allowed on a given database and app.
+
+        This method iterates over a list of database routers and checks if they allow migration.
+        The first router to provide a explicit decision (True or False) dictates the outcome,
+        otherwise it defaults to allowing the migration. The decision is based on the database,
+        app label, and any additional hints provided.
+        """
         for router in self.routers:
             try:
                 method = router.allow_migrate

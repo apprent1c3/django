@@ -26,6 +26,16 @@ class TemplateDoesNotExist(Exception):
     """
 
     def __init__(self, msg, tried=None, backend=None, chain=None):
+        """
+
+        Initializes the object with an error message, tracking attempts and a chain of failures.
+
+        :param msg: the error message to be displayed
+        :param tried: list of attempts that have been made (optional)
+        :param backend: the backend that triggered the error (optional)
+        :param chain: a chain of failures that led to the error (optional)
+
+        """
         self.backend = backend
         if tried is None:
             tried = []

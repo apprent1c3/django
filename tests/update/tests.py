@@ -23,6 +23,9 @@ from .models import (
 class SimpleTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating two instances of model A and associating them with multiple instances of models B and D.
+        """
         cls.a1 = A.objects.create()
         cls.a2 = A.objects.create()
         for x in range(20):
@@ -166,6 +169,9 @@ class AdvancedTests(TestCase):
             Bar.objects.update(m2m_foo="whatever")
 
     def test_update_transformed_field(self):
+        """
+        Tests that the update of a transformed field works as expected, specifically when using a registered lookup function to apply an absolute value transformation to a field and then updating the field with the transformed value.
+        """
         A.objects.create(x=5)
         A.objects.create(x=-6)
         with register_lookup(IntegerField, Abs):
@@ -211,6 +217,9 @@ class AdvancedTests(TestCase):
             qs.update(name=F("max"))
 
     def test_update_with_joined_field_annotation(self):
+        """
+        Tests that Django ORM raises a FieldError when attempting to update a model instance with an annotation that references a joined field, as this operation is not supported.
+        """
         msg = "Joined field references are not permitted in this query"
         with register_lookup(CharField, Lower):
             for annotation in (
@@ -296,6 +305,9 @@ class MySQLUpdateOrderByTest(TestCase):
         UniqueNumber.objects.create(number=2)
 
     def test_order_by_update_on_unique_constraint(self):
+        """
+        Tests updating of UniqueNumber objects ordered by different criteria, ensuring all instances are updated as expected when a unique constraint is applied.
+        """
         tests = [
             ("-number", "id"),
             (F("number").desc(), "id"),
@@ -337,6 +349,14 @@ class MySQLUpdateOrderByTest(TestCase):
     def test_order_by_update_on_related_field(self):
         # Ordering by related fields is omitted because joined fields cannot be
         # used in the ORDER BY clause.
+        """
+
+        Tests that an update query with order_by on a related field does not include the ordering in the SQL query.
+
+        Ensures that the update is executed efficiently and only affects the expected number of rows, 
+        and that the updated data is correctly persisted to the database.
+
+        """
         data = DataPoint.objects.create(name="d0", value="apple")
         related = RelatedPoint.objects.create(name="r0", data=data)
         with self.assertNumQueries(1) as ctx:

@@ -14,6 +14,9 @@ class BoundField(RenderableFieldMixin):
     "A Field plus data"
 
     def __init__(self, form, field, name):
+        """
+        Initializes a form field instance with the given form, field, and name, setting up the necessary attributes for rendering and processing the field, including HTML names, labels, and help text.
+        """
         self.form = form
         self.field = field
         self.name = name
@@ -146,6 +149,9 @@ class BoundField(RenderableFieldMixin):
         return self.field.prepare_value(data)
 
     def _has_changed(self):
+        """
+        Checks whether the field's data has changed from its initial value, considering the field's configuration for showing hidden initial values.
+        """
         field = self.field
         if field.show_hidden_initial:
             hidden_widget = field.hidden_widget()
@@ -264,6 +270,9 @@ class BoundField(RenderableFieldMixin):
         return self.form.get_initial_for_field(self.field, self.name)
 
     def build_widget_attrs(self, attrs, widget=None):
+        """
+        Builds and customizes HTML attributes for a form widget based on the field's properties and form state, such as required attribute, disabled state, and ARIA accessibility attributes.
+        """
         widget = widget or self.field.widget
         attrs = dict(attrs)  # Copy attrs to avoid modifying the argument.
         if (

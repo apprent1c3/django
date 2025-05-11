@@ -24,6 +24,10 @@ from .models import (
 class ReverseSelectRelatedTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, including users, user profiles, statistics, and related objects, 
+        to provide a populated dataset for testing purposes.
+        """
         user = User.objects.create(username="test")
         UserProfile.objects.create(user=user, state="KS", city="Lawrence")
         results = UserStatResult.objects.create(results="first results")
@@ -99,6 +103,12 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.user.username, "bob")
 
     def test_follow_inheritance(self):
+        """
+
+        Tests that select_related properly follows inheritance and lazy loads related objects,
+        ensuring that database queries are minimized and relationships between objects are correctly retrieved.
+
+        """
         with self.assertNumQueries(1):
             stat = UserStat.objects.select_related("user", "advanceduserstat").get(
                 posts=200
@@ -109,6 +119,14 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(stat.advanceduserstat.user.username, "bob")
 
     def test_nullable_relation(self):
+        """
+
+        Tests the correct behavior of nullable relations in the Product model.
+
+        Verifies that selecting related objects with a nullable foreign key 
+        works as expected, returning both objects with and without the related object.
+
+        """
         im = Image.objects.create(name="imag1")
         p1 = Product.objects.create(name="Django Plushie", image=im)
         p2 = Product.objects.create(name="Talking Django Plushie")
@@ -148,6 +166,13 @@ class ReverseSelectRelatedTestCase(TestCase):
                 image.product
 
     def test_parent_only(self):
+        """
+
+        Tests that a parent object is fetched correctly and that an exception is raised when trying to access a related child object that does not exist.
+
+        The test verifies that only one database query is executed to fetch the parent object, and no additional queries are made when accessing the non-existent child relationship.
+
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1").get(name1="Only Parent1")
         with self.assertNumQueries(0):
@@ -165,6 +190,12 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, "Child2 Parent1")
 
     def test_onetoone_with_two_subclasses(self):
+        """
+        Tests the one-to-one relationship between Parent2, Child2, and Child3 models.
+
+         Verifies that select_related works correctly for both existing and non-existing one-to-one relations,
+         ensuring that related objects are fetched efficiently in a single database query.
+        """
         with self.assertNumQueries(1):
             p = Parent2.objects.select_related("child2", "child2__child3").get(
                 name2="Child2 Parent2"
@@ -186,6 +217,12 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child2.name1, p.child2.child3.name1)
 
     def test_multiinheritance_two_subclasses(self):
+        """
+
+        Tests the functionality of multi-inheritance with two subclasses, verifying the correctness of 
+        related object retrievals and the existence of related objects after saving a new instance.
+
+        """
         with self.assertNumQueries(1):
             p = Parent1.objects.select_related("child1", "child1__child4").get(
                 name1="Child1 Parent1"
@@ -209,6 +246,12 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.value4, 4)
 
     def test_inheritance_deferred(self):
+        """
+        Tests deferred inheritance in the ORM, ensuring that related objects are 
+        successfully retrieved with a single database query when using select_related 
+        and only, while still allowing for subsequent attribute access without 
+        additional queries.
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         with self.assertNumQueries(1):
             p = (
@@ -234,6 +277,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.name2, "n2")
 
     def test_inheritance_deferred2(self):
+        """
+        Tests deferred inheritance with select_related and only, ensuring that the correct database queries are executed and the expected data is retrieved from the Parent2 and Child1 models, including nested relationships with Child4.
+        """
         c = Child4.objects.create(name1="n1", name2="n2", value=1, value4=4)
         qs = Parent2.objects.select_related("child1", "child1__child4").only(
             "id2", "child1__value", "child1__child4__value4"
@@ -256,6 +302,9 @@ class ReverseSelectRelatedTestCase(TestCase):
             self.assertEqual(p.child1.child4.name1, "n1")
 
     def test_self_relation(self):
+        """
+        Tests the retrieval of a self-referential relationship in a linked list using Django's ORM, ensuring that the next item in the list is correctly fetched in a single database query.
+        """
         item1 = LinkedList.objects.create(name="item1")
         LinkedList.objects.create(name="item2", previous_item=item1)
         with self.assertNumQueries(1):
@@ -277,6 +326,9 @@ class ReverseSelectRelatedValidationTests(SimpleTestCase):
     )
 
     def test_reverse_related_validation(self):
+        """
+        Tests validation of select_related method to ensure it raises FieldError for non-existent and non-relational fields.
+        """
         fields = "userprofile, userstat"
 
         with self.assertRaisesMessage(

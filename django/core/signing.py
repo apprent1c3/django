@@ -62,6 +62,13 @@ class SignatureExpired(BadSignature):
 
 
 def b62_encode(s):
+    """
+    Encodes an integer into a Base62 string.
+
+    Returns a string representation of the input integer using a 62-character alphabet, 
+    including digits 0-9 and letters A-Z, a-z. The output will be prefixed with a minus sign 
+    if the input is negative. If the input is 0, the output will be '0'.
+    """
     if s == 0:
         return "0"
     sign = "-" if s < 0 else ""
@@ -74,6 +81,11 @@ def b62_encode(s):
 
 
 def b62_decode(s):
+    """
+    Decodes a base62 encoded string into a signed integer. 
+    The encoded string can contain a leading minus sign to indicate a negative value. 
+    If the encoded string is '0', the function returns 0.
+    """
     if s == "0":
         return 0
     sign = 1
@@ -178,6 +190,11 @@ class Signer:
     def __init__(
         self, *, key=None, sep=":", salt=None, algorithm=None, fallback_keys=None
     ):
+        """
+        Initializes a signer object with key, separator, salt, and algorithm settings. 
+        Used for creating a digital signature, the object relies on secret keys and fallbacks to ensure secure data processing. 
+        The signer can be customized with a custom algorithm, separator, and key, or it will use default settings if not provided.
+        """
         self.key = key or settings.SECRET_KEY
         self.fallback_keys = (
             fallback_keys
@@ -204,6 +221,13 @@ class Signer:
         return "%s%s%s" % (value, self.sep, self.signature(value))
 
     def unsign(self, signed_value):
+        """
+        Verifies and extracts the unsigned value from a signed string.
+
+        The function checks if the input string is properly signed by comparing its signature
+        against a generated signature using a primary key or a list of fallback keys.
+        If a match is found, the unsigned value is returned; otherwise, a BadSignature exception is raised.
+        """
         if self.sep not in signed_value:
             raise BadSignature('No "%s" found in value' % self.sep)
         value, sig = signed_value.rsplit(self.sep, 1)
@@ -240,6 +264,19 @@ class Signer:
     def unsign_object(self, signed_obj, serializer=JSONSerializer, **kwargs):
         # Signer.unsign() returns str but base64 and zlib compression operate
         # on bytes.
+        """
+
+        Removes the digital signature from a signed object and returns the original data as a deserialized object.
+
+        The function uses the provided serializer to deserialize the data after verifying and removing the signature.
+        Additional keyword arguments are passed to the underlying unsign function.
+
+        :param signed_obj: The signed object to be unsigned
+        :param serializer: The serializer to use for deserialization (default: JSONSerializer)
+        :param kwargs: Additional keyword arguments for the unsign function
+        :return: The unsigned and deserialized object
+
+        """
         base64d = self.unsign(signed_obj, **kwargs).encode()
         decompress = base64d[:1] == b"."
         if decompress:

@@ -6,6 +6,11 @@ from . import FormFieldAssertionsMixin
 
 class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_nullbooleanfield_clean(self):
+        """
+        Tests the clean method of a NullBooleanField.
+
+        Verifies that the method correctly handles various input values, including empty strings, boolean values, integers, and string representations of boolean values, and returns the expected output values of None, True, or False.
+        """
         f = NullBooleanField()
         self.assertIsNone(f.clean(""))
         self.assertTrue(f.clean(True))
@@ -21,6 +26,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
 
     def test_nullbooleanfield_2(self):
         # The internal value is preserved if using HiddenInput (#7753).
+        """
+        Tests that NullBooleanField with HiddenInput widget correctly renders initial values as hidden input fields in HTML.
+        """
         class HiddenNullBooleanForm(Form):
             hidden_nullbool1 = NullBooleanField(widget=HiddenInput, initial=True)
             hidden_nullbool2 = NullBooleanField(widget=HiddenInput, initial=False)
@@ -35,6 +43,10 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_nullbooleanfield_3(self):
+        """
+        Tests the behavior of a form containing hidden NullBooleanFields, 
+        ensuring they are correctly processed and their values properly stored in the cleaned data.
+        """
         class HiddenNullBooleanForm(Form):
             hidden_nullbool1 = NullBooleanField(widget=HiddenInput, initial=True)
             hidden_nullbool2 = NullBooleanField(widget=HiddenInput, initial=False)
@@ -49,6 +61,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_nullbooleanfield_4(self):
         # Make sure we're compatible with MySQL, which uses 0 and 1 for its
         # boolean values (#9609).
+        """
+        Tests the behavior of NullBooleanField in a form, verifying that it correctly handles boolean values and an 'Unknown' choice, represented by an empty string, including validation and data cleaning.
+        """
         NULLBOOL_CHOICES = (("1", "Yes"), ("0", "No"), ("", "Unknown"))
 
         class MySQLNullBooleanForm(Form):
@@ -63,6 +78,9 @@ class NullBooleanFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.cleaned_data["nullbool2"])
 
     def test_nullbooleanfield_changed(self):
+        """
+        Tests the has_changed method of a NullBooleanField, ensuring it correctly identifies changes between different boolean and null values.
+        """
         f = NullBooleanField()
         self.assertTrue(f.has_changed(False, None))
         self.assertTrue(f.has_changed(None, False))

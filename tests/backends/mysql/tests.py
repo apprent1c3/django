@@ -46,6 +46,9 @@ class IsolationLevelTests(TestCase):
             return cursor.fetchone()[1].replace("-", " ")
 
     def test_auto_is_null_auto_config(self):
+        """
+        Tests whether the 'sql_auto_is_null' configuration is properly handled in database queries. Verifies that the 'set sql_auto_is_null = 0' statement is included or excluded from the query based on the supported database features.
+        """
         query = "set sql_auto_is_null = 0"
         connection.init_connection_state()
         last_query = connection.queries[-1]["sql"].lower()
@@ -90,6 +93,9 @@ class IsolationLevelTests(TestCase):
             )
 
     def test_isolation_level_validation(self):
+        """
+        Tests validation of transaction isolation levels by attempting to set an invalid level.
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"]["isolation_level"] = "xxx"
         msg = (
@@ -105,6 +111,9 @@ class IsolationLevelTests(TestCase):
 class Tests(TestCase):
     @mock.patch.object(connection, "get_database_version")
     def test_check_database_version_supported(self, mocked_get_database_version):
+        """
+        Checks whether the current database version is supported, raising a NotSupportedError if the version does not meet the minimum requirements.
+        """
         if connection.mysql_is_mariadb:
             mocked_get_database_version.return_value = (10, 4)
             msg = "MariaDB 10.5 or later is required (found 10.4)."

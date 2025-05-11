@@ -23,6 +23,12 @@ def get_default_password_validators():
 
 
 def get_password_validators(validator_config):
+    """
+    Returns a list of initialized password validator objects based on the provided configuration.
+
+    The function takes a list of validator configurations, attempts to import the specified validator classes, 
+    and instantiates them with optional configuration options. It raises an exception if a validator module cannot be imported.
+    """
     validators = []
     for validator in validator_config:
         try:
@@ -177,6 +183,9 @@ class UserAttributeSimilarityValidator:
         self.max_similarity = max_similarity
 
     def validate(self, password, user=None):
+        """
+        Validate a given password against attributes of a user object, checking for similarity to prevent compromised security due to common words or phrases being used in both passwords and user attributes. If the password is too similar to any of the user's attributes, a validation error is raised.
+        """
         if not user:
             return
 
@@ -230,6 +239,12 @@ class CommonPasswordValidator:
         return Path(__file__).resolve().parent / "common-passwords.txt.gz"
 
     def __init__(self, password_list_path=DEFAULT_PASSWORD_LIST_PATH):
+        """
+        Initializes a password validator with a list of known passwords from a file.
+
+        The file path is expected to contain a list of passwords, one per line, and can be compressed with gzip.
+        If no path is provided, it defaults to a predefined location. The passwords are loaded into memory for validation use.
+        """
         if password_list_path is CommonPasswordValidator.DEFAULT_PASSWORD_LIST_PATH:
             password_list_path = self.DEFAULT_PASSWORD_LIST_PATH
         try:

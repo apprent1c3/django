@@ -115,6 +115,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_text_inputs(self):
+        """
+        Tests the rendering of multiple text input widgets with various input data types and attributes.
+        """
         widget = MyMultiWidget(
             widgets=(
                 TextInput(attrs={"class": "big"}),
@@ -180,6 +183,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_constructor_attrs_with_type(self):
+        """
+        Tests the construction of MyMultiWidget with specific attributes and verifies the generated HTML output matches the expected result, ensuring proper propagation of attributes such as 'type' to widget instances.
+        """
         attrs = {"type": "number"}
         widget = MyMultiWidget(widgets=(TextInput, TextInput()), attrs=attrs)
         self.check_html(
@@ -205,6 +211,9 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_value_omitted_from_data(self):
+        """
+        Checks if a value is omitted from the provided data for a specific field in a multi-widget context.
+        """
         widget = MyMultiWidget(widgets=(TextInput(), TextInput()))
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
@@ -221,6 +230,14 @@ class MultiWidgetTest(WidgetTest):
         )
 
     def test_value_from_datadict_subwidgets_name(self):
+        """
+
+        Verifies the correct extraction of values from a MultiWidget's subwidgets by name.
+
+        This test ensures that the `value_from_datadict` method handles various input data scenarios,
+        including partial and fully populated data dictionaries, and returns the expected values.
+
+        """
         widget = MultiWidget(widgets={"x": TextInput(), "": TextInput()})
         tests = [
             ({}, [None, None]),
@@ -236,6 +253,9 @@ class MultiWidgetTest(WidgetTest):
                 )
 
     def test_value_omitted_from_data_subwidgets_name(self):
+        """
+        Tests whether a value is omitted from widget data when the subwidget has no name.
+        """
         widget = MultiWidget(widgets={"x": TextInput(), "": TextInput()})
         tests = [
             ({}, True),
@@ -310,6 +330,9 @@ class MultiWidgetTest(WidgetTest):
         self.assertEqual(w1.choices, [1, 2, 3])
 
     def test_fieldset(self):
+        """
+        Tests that the ComplexMultiWidget renders its fields within a fieldset when used in a form.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ComplexField(widget=ComplexMultiWidget)

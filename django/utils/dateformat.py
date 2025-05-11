@@ -38,6 +38,13 @@ re_escaped = _lazy_re_compile(r"\\(.)")
 
 class Formatter:
     def format(self, formatstr):
+        """
+
+        Format the object according to the specified format string.
+
+        The format string is split into pieces and each piece is replaced with the corresponding value if it matches a valid format specifier for the object's type, or left unchanged if it's a literal string.
+
+        """
         pieces = []
         for i, piece in enumerate(re_formatchars.split(str(formatstr))):
             if i % 2:
@@ -54,6 +61,9 @@ class Formatter:
 
 class TimeFormat(Formatter):
     def __init__(self, obj):
+        """
+        Initializes the object with a given datetime or other object, automatically detecting the timezone if the object is a naive datetime.
+        """
         self.data = obj
         self.timezone = None
 

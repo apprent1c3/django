@@ -61,6 +61,9 @@ class HttpRequest:
         # Any variable assignment made here should also happen in
         # `WSGIRequest.__init__()`.
 
+        """
+        Initializes a request object, setting default values for its attributes, including query dictionaries, cookies, meta information, files, path, method, and content type, to represent an HTTP request.
+        """
         self.GET = QueryDict(mutable=True)
         self.POST = QueryDict(mutable=True)
         self.COOKIES = {}
@@ -253,6 +256,11 @@ class HttpRequest:
 
     @property
     def scheme(self):
+        """
+        .. property:: scheme
+            Returns the scheme (HTTP or HTTPS) of the current request, taking into account
+            the SECURE_PROXY_SSL_HEADER setting for proxied requests.
+        """
         if settings.SECURE_PROXY_SSL_HEADER:
             try:
                 header, secure_value = settings.SECURE_PROXY_SSL_HEADER
@@ -323,6 +331,15 @@ class HttpRequest:
 
     @property
     def body(self):
+        """
+
+            The body of the request.
+
+            This property lazily loads the request body, ensuring it is only read once.
+            It enforces Django's DATA_UPLOAD_MAX_MEMORY_SIZE setting, raising an exception if the body exceeds this limit.
+            Accessing the body after starting to read from the request's data stream also raises an exception.
+
+        """
         if not hasattr(self, "_body"):
             if self._read_started:
                 raise RawPostDataException(
@@ -410,6 +427,9 @@ class HttpRequest:
     # containing that data.
 
     def read(self, *args, **kwargs):
+        """
+        Reads data from the underlying stream, handling potential OS-related errors and raising an UnreadablePostError if an issue arises.
+        """
         self._read_started = True
         try:
             return self._stream.read(*args, **kwargs)
@@ -417,6 +437,9 @@ class HttpRequest:
             raise UnreadablePostError(*e.args) from e
 
     def readline(self, *args, **kwargs):
+        """
+        Read a line from the stream, wrapping any low-level I/O errors in an application-specific exception for handling unreadable posts.
+        """
         self._read_started = True
         try:
             return self._stream.readline(*args, **kwargs)
@@ -436,6 +459,13 @@ class HttpHeaders(CaseInsensitiveMapping):
     UNPREFIXED_HEADERS = {"CONTENT_TYPE", "CONTENT_LENGTH"}
 
     def __init__(self, environ):
+        """
+
+        Initializes the object, parsing and filtering HTTP headers from the provided environment dictionary.
+
+        :param environ: Environment dictionary containing raw HTTP headers
+
+        """
         headers = {}
         for header, value in environ.items():
             name = self.parse_header_name(header)
@@ -449,6 +479,13 @@ class HttpHeaders(CaseInsensitiveMapping):
 
     @classmethod
     def parse_header_name(cls, header):
+        """
+        Parses a given header name into a standard format, removing any HTTP prefixes and converting to title case with hyphens.
+
+            :param header: The header name to be parsed.
+            :return: The parsed header name, or None if it does not match any known unprefixed headers.
+            :rtype: str
+        """
         if header.startswith(cls.HTTP_PREFIX):
             header = header.removeprefix(cls.HTTP_PREFIX)
         elif header not in cls.UNPREFIXED_HEADERS:
@@ -502,6 +539,13 @@ class QueryDict(MultiValueDict):
     _encoding = None
 
     def __init__(self, query_string=None, mutable=False, encoding=None):
+        """
+        Initializes a query string parser.
+
+        This constructor takes a query string, parses it into key-value pairs, and stores them for later use.
+        It also optionally sets the encoding of the query string and allows for mutable or immutable parsing.
+        The parser enforces a limit on the number of fields that can be parsed, as defined in the settings.
+        """
         super().__init__()
         self.encoding = encoding or settings.DEFAULT_CHARSET
         query_string = query_string or ""
@@ -575,6 +619,13 @@ class QueryDict(MultiValueDict):
         return result
 
     def __deepcopy__(self, memo):
+        """
+        Creates a deep copy of the object.
+
+        This method ensures that all internal lists and keys are recursively copied, 
+        preserving the original structure and data while allowing for independent modification.
+
+        """
         result = self.__class__("", mutable=True, encoding=self.encoding)
         memo[id(self)] = result
         for key, value in self.lists():
@@ -675,6 +726,11 @@ class MediaType:
         return self.main_type == "*" and self.sub_type == "*"
 
     def match(self, other):
+        """
+        Checks if the current MediaType matches the given MediaType or string.
+
+         The match is considered successful if both main types match and either the sub-type matches exactly or the current MediaType's sub-type is a wildcard (*)
+        """
         if self.is_all_types:
             return True
         other = MediaType(other)

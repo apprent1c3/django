@@ -21,6 +21,9 @@ except ImportError:
 
 class SimpleTests(PostgreSQLTestCase):
     def test_save_load_success(self):
+        """
+        Tests the successful saving and loading of an HStoreModel instance with a given value.
+        """
         value = {"a": "b"}
         instance = HStoreModel(field=value)
         instance.save()
@@ -34,6 +37,9 @@ class SimpleTests(PostgreSQLTestCase):
         self.assertIsNone(reloaded.field)
 
     def test_value_null(self):
+        """
+        ..: Tests that a null value in an HStore field is correctly saved and retrieved from the database.
+        """
         value = {"a": None}
         instance = HStoreModel(field=value)
         instance.save()
@@ -41,6 +47,11 @@ class SimpleTests(PostgreSQLTestCase):
         self.assertEqual(reloaded.field, value)
 
     def test_key_val_cast_to_string(self):
+        """
+        Tests the type casting of key-value pairs in HStoreModel fields to strings, 
+        ensuring values are correctly converted when stored and retrieved, 
+        and that lookups by key and value work as expected.
+        """
         value = {"a": 1, "b": "B", 2: "c", "ï": "ê"}
         expected_value = {"a": "1", "b": "B", "2": "c", "ï": "ê"}
 
@@ -55,6 +66,9 @@ class SimpleTests(PostgreSQLTestCase):
         self.assertEqual(instance.field, expected_value)
 
     def test_array_field(self):
+        """
+        Tests the array field of an HStoreModel instance, verifying that integer keys are converted to strings when stored in the database.
+        """
         value = [
             {"a": 1, "b": "B", 2: "c", "ï": "ê"},
             {"a": 1, "b": "B", 2: "c", "ï": "ê"},
@@ -334,6 +348,9 @@ class TestSerialization(PostgreSQLSimpleTestCase):
 
 class TestValidation(PostgreSQLSimpleTestCase):
     def test_not_a_string(self):
+        """
+        Tests that a ValidationError is raised when a non-string value is passed to the HStoreField, with a specific error code and message indicating that the value is not a string or null.
+        """
         field = HStoreField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean({"a": 1}, None)
@@ -355,6 +372,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(value, {"a": "b"})
 
     def test_invalid_json(self):
+        """
+        Tests that the HStoreField raises a ValidationError when given invalid JSON data.
+        """
         field = forms.HStoreField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean('{"a": "b"')
@@ -362,6 +382,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "invalid_json")
 
     def test_non_dict_json(self):
+        """
+        Tests that a field validation fails with a meaningful error message when the input is a JSON array, rather than a dictionary.
+        """
         field = forms.HStoreField()
         msg = "Input must be a JSON dictionary."
         with self.assertRaisesMessage(exceptions.ValidationError, msg) as cm:
@@ -389,6 +412,9 @@ class TestFormField(PostgreSQLSimpleTestCase):
         self.assertIsInstance(form_field, forms.HStoreField)
 
     def test_field_has_changed(self):
+        """
+        Verifies the functionality of the has_changed method for forms containing HStoreField instances, ensuring it correctly detects changes in the field's value compared to its initial state.
+        """
         class HStoreFormTest(Form):
             f1 = forms.HStoreField()
 
@@ -424,6 +450,9 @@ class TestValidator(PostgreSQLSimpleTestCase):
         validator({"a": "foo", "b": "bar", "c": "baz"})
 
     def test_missing_keys(self):
+        """
+        Tests that a KeysValidator instance correctly raises an exception when a dictionary is missing required keys.
+        """
         validator = KeysValidator(keys=["a", "b"])
         with self.assertRaises(exceptions.ValidationError) as cm:
             validator({"a": "foo", "c": "baz"})
@@ -435,6 +464,10 @@ class TestValidator(PostgreSQLSimpleTestCase):
         validator({"a": "foo", "b": "bar"})
 
     def test_extra_keys(self):
+        """
+        Tests that a ValidationError is raised when using a strict KeysValidator 
+        with a dictionary containing extra, unrecognized keys.
+        """
         validator = KeysValidator(keys=["a", "b"], strict=True)
         with self.assertRaises(exceptions.ValidationError) as cm:
             validator({"a": "foo", "b": "bar", "c": "baz"})
@@ -442,6 +475,10 @@ class TestValidator(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "extra_keys")
 
     def test_custom_messages(self):
+        """
+        Test that the KeysValidator correctly raises ValidationErrors 
+        with custom error messages when it encounters missing or extra keys.
+        """
         messages = {
             "missing_keys": "Foobar",
         }
@@ -456,6 +493,11 @@ class TestValidator(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.code, "extra_keys")
 
     def test_deconstruct(self):
+        """
+        Deconstructs a KeysValidator instance into its constituent parts, 
+        including the path, arguments, and keyword arguments, 
+        for use in serialization or other forms of reconstruction.
+        """
         messages = {
             "missing_keys": "Foobar",
         }

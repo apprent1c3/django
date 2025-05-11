@@ -74,6 +74,10 @@ class TestSigner(SimpleTestCase):
             self.assertEqual(example, signer.unsign(signed))
 
     def test_sign_unsign_non_string(self):
+        """
+        Tests the signing and signature verification of non-string values using a signer, 
+        ensuring that signed values are strings and that the signature can be successfully verified and the original value recovered.
+        """
         signer = signing.Signer(key="predictable-secret")
         values = [
             123,
@@ -105,6 +109,13 @@ class TestSigner(SimpleTestCase):
                 signer.unsign(transform(signed_value))
 
     def test_sign_unsign_object(self):
+        """
+
+        Tests the signing and unsigning of objects by a Signer instance.
+
+        Verifies that signing an object produces a different output, and that the original object can be successfully recovered through unsigning.
+
+        """
         signer = signing.Signer(key="predictable-secret")
         tests = [
             ["a", "list"],
@@ -198,6 +209,10 @@ class TestSigner(SimpleTestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_sign_unsign_ignore_secret_key_fallbacks(self):
+        """
+        Tests that signing ignores secret key fallbacks by attempting to unsign a value
+        signed with a fallback key, and verifying that it raises a BadSignature exception.
+        """
         old_signer = signing.Signer(key="oldsecret")
         signed = old_signer.sign("abc")
         signer = signing.Signer(fallback_keys=[])
@@ -217,6 +232,16 @@ class TestSigner(SimpleTestCase):
 
 class TestTimestampSigner(SimpleTestCase):
     def test_timestamp_signer(self):
+        """
+
+        Tests the functionality of the TimestampSigner class, verifying that it correctly 
+        signs and unsigns a value with a timestamp-based signature. The test also checks 
+        that the signature expires after a specified time and that the signer correctly 
+        rejects expired signatures. 
+
+        :raises signing.SignatureExpired: if the signature has expired
+
+        """
         value = "hello"
         with freeze_time(123456789):
             signer = signing.TimestampSigner(key="predictable-key")

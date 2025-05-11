@@ -119,6 +119,9 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Verifies if a given string is a valid YAML serialized output.
+        """
         try:
             yaml.safe_load(StringIO(serial_str))
         except Exception:
@@ -128,6 +131,12 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Parses a YAML-formatted string and extracts primary key values from each object.
+
+        :returns: A list of primary key values
+        :rtype: list
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):
@@ -136,6 +145,13 @@ class YamlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+        Parses a YAML-formatted serialization string to extract values for a specified field name.
+
+        :arg serial_str: YAML-formatted string containing object definitions
+        :arg field_name: Name of the field to extract values for
+        :returns: List of extracted field values as strings
+        """
         ret_list = []
         stream = StringIO(serial_str)
         for obj_dict in yaml.safe_load(stream):

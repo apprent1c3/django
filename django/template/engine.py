@@ -30,6 +30,14 @@ class Engine:
         builtins=None,
         autoescape=True,
     ):
+        """
+        Initializes a template engine with various configuration options.
+
+        The engine can be customized with directories to search for templates, 
+        template loaders, context processors, libraries, and builtins. 
+        Additionally, settings such as auto-escaping, debugging, and character encoding can be configured.
+        This method sets up the engine's environment and validations for subsequent template rendering operations.
+        """
         if dirs is None:
             dirs = []
         if context_processors is None:
@@ -131,6 +139,14 @@ class Engine:
         return self.get_template_loaders(self.loaders)
 
     def get_template_loaders(self, template_loaders):
+        """
+
+        Returns a list of template loaders that are found and available from the given list of template loaders.
+
+        :param template_loaders: List of template loaders to search for
+        :rtype: list
+
+        """
         loaders = []
         for template_loader in template_loaders:
             loader = self.find_template_loader(template_loader)
@@ -139,6 +155,20 @@ class Engine:
         return loaders
 
     def find_template_loader(self, loader):
+        """
+
+        Loads a template loader class based on the provided configuration.
+
+        Args:
+            loader: A string or a tuple containing the loader class name and optional arguments.
+
+        Returns:
+            An instance of the template loader class.
+
+        Raises:
+            ImproperlyConfigured: If the loader configuration is invalid.
+
+        """
         if isinstance(loader, (tuple, list)):
             loader, *args = loader
         else:
@@ -153,6 +183,15 @@ class Engine:
             )
 
     def find_template(self, name, dirs=None, skip=None):
+        """
+        Find a template by name, searching through available template loaders.
+
+        :param name: The name of the template to find
+        :param dirs: Optional directory list to search for templates
+        :param skip: Templates to skip during the search
+        :returns: A tuple containing the found template and its origin
+        :raises TemplateDoesNotExist: If the template is not found in any loader
+        """
         tried = []
         for loader in self.template_loaders:
             try:

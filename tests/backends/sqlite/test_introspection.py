@@ -36,6 +36,9 @@ class IntrospectionTests(TestCase):
                         cursor.execute("DROP TABLE test_primary")
 
     def test_get_primary_key_column_pk_constraint(self):
+        """
+        Tests that the get_primary_key_column method correctly identifies the primary key column in a given table, specifically when the primary key is defined as a named constraint.
+        """
         sql = """
             CREATE TABLE test_primary(
                 id INTEGER NOT NULL,
@@ -80,6 +83,9 @@ class ParsingTests(TestCase):
         )
 
     def test_unique_column(self):
+        """
+        Tests the parsing of unique column definitions, verifying that the 'unique' constraint is correctly identified and no primary key or check constraints are generated from the sql definition
+        """
         tests = (
             ('"ref" integer UNIQUE,', ["ref"]),
             ("ref integer UNIQUE,", ["ref"]),
@@ -94,6 +100,13 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_unique_constraint(self):
+        """
+        Tests the parsing of SQL unique constraint definitions.
+
+        Verifies that the constraint name and unique columns are correctly extracted
+        from various SQL definitions, ensuring proper parsing and validation of
+        unique constraints with different naming conventions and syntaxes.
+        """
         tests = (
             ('CONSTRAINT "ref" UNIQUE ("ref"),', "ref", ["ref"]),
             ("CONSTRAINT ref UNIQUE (ref),", "ref", ["ref"]),
@@ -116,6 +129,11 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_unique_constraint_multicolumn(self):
+        """
+        Tests the parsing of unique constraints defined across multiple columns in SQL statements.
+
+        Verifies that the constraint name and columns are extracted correctly, and that the constraint is identified as a unique constraint.
+        """
         tests = (
             (
                 'CONSTRAINT "ref" UNIQUE ("ref", "customname"),',
@@ -132,6 +150,9 @@ class ParsingTests(TestCase):
                 self.assertIsNone(check)
 
     def test_check_column(self):
+        """
+        Tests the parsing of SQL CHECK constraints for columns, verifying that the constraint and its details are correctly identified and validated.
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\'),', ["ref"]),
             ("ref varchar(255) CHECK (ref != 'test'),", ["ref"]),
@@ -152,6 +173,12 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_constraint(self):
+        """
+        Tests the parsing of CHECK constraints in SQL definitions.
+
+        Verifies that the constraint name and affected columns are correctly extracted
+        from a variety of CHECK constraint syntax variations.
+        """
         tests = (
             ('CONSTRAINT "ref" CHECK ("ref" != \'test\'),', "ref", ["ref"]),
             ("CONSTRAINT ref CHECK (ref != 'test'),", "ref", ["ref"]),
@@ -174,6 +201,9 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_column_with_operators_and_functions(self):
+        """
+        Tests the parsing of SQL column definitions with CHECK constraints that contain operators and functions, verifying that the constraint is correctly identified and its columns are properly extracted.
+        """
         tests = (
             ('"ref" integer CHECK ("ref" BETWEEN 1 AND 10),', ["ref"]),
             ('"ref" varchar(255) CHECK ("ref" LIKE \'test%\'),', ["ref"]),
@@ -190,6 +220,9 @@ class ParsingTests(TestCase):
                 self.assertConstraint(check, columns, check=True)
 
     def test_check_and_unique_column(self):
+        """
+        Tests the correct parsing of SQL definitions containing CHECK and UNIQUE constraints on a single column, ensuring that both constraints are properly captured and verified.
+        """
         tests = (
             ('"ref" varchar(255) CHECK ("ref" != \'test\') UNIQUE,', ["ref"]),
             ("ref varchar(255) UNIQUE CHECK (ref != 'test'),", ["ref"]),

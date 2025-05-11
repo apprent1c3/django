@@ -53,6 +53,9 @@ class BaseDatabaseWrapper:
     def __init__(self, settings_dict, alias=DEFAULT_DB_ALIAS):
         # Connection related attributes.
         # The underlying database connection.
+        """
+        Initializes a database connection object, setting up its properties and internal state, including connection settings, query logging, and transaction management.
+        """
         self.connection = None
         # `settings_dict` should be a dictionary containing keys such as
         # NAME, USER, etc. It's called `settings_dict` instead of `settings`
@@ -725,6 +728,19 @@ class BaseDatabaseWrapper:
         return self.SchemaEditorClass(self, *args, **kwargs)
 
     def on_commit(self, func, robust=False):
+        """
+
+        Register a function to be executed when the current database transaction is committed.
+
+        The function will be executed after the transaction has been committed successfully,
+        either immediately for autocommit mode, or when the transaction is committed for
+        non-autocommit mode. If the transaction is rolled back, the function will not be
+        called.
+
+        :param func: A callable to be executed when the transaction is committed.
+        :param robust: Whether to catch and log any exceptions raised by the callable.
+
+        """
         if not callable(func):
             raise TypeError("on_commit()'s callback must be a callable.")
         if self.in_atomic_block:
@@ -750,6 +766,12 @@ class BaseDatabaseWrapper:
                 func()
 
     def run_and_clear_commit_hooks(self):
+        """
+        Runs and clears registered commit hooks.
+
+        This function executes all functions previously registered to run on commit, 
+        handling exceptions for robust hooks, and clears the list of pending hooks afterwards.
+        """
         self.validate_no_atomic_block()
         current_run_on_commit = self.run_on_commit
         self.run_on_commit = []

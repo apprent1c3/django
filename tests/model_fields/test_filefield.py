@@ -66,6 +66,11 @@ class FileFieldTests(TestCase):
 
     @unittest.skipIf(sys.platform == "win32", "Crashes with OSError on Windows.")
     def test_save_without_name(self):
+        """
+
+        Tests that a SuspiciousFileOperation exception is raised when attempting to save a file with a path that could be used for a path traversal attack, when no file name is provided.
+
+        """
         with tempfile.NamedTemporaryFile(suffix=".txt") as tmp:
             document = Document.objects.create(myfile="something.txt")
             document.myfile = File(tmp)
@@ -74,6 +79,9 @@ class FileFieldTests(TestCase):
                 document.save()
 
     def test_save_content_file_without_name(self):
+        """
+        Tests that saving a document with a ContentFile missing a name attribute raises a FieldError with a descriptive message.
+        """
         d = Document()
         d.myfile = ContentFile(b"")
         msg = "File for myfile must have the name attribute specified to be saved."
@@ -86,6 +94,9 @@ class FileFieldTests(TestCase):
             )
 
     def test_delete_content_file(self):
+        """
+        Tests that deleting a content file associated with a document model instance correctly sets the attribute to None and raises an error when attempting to access the non-existent file.
+        """
         file = ContentFile(b"", name="foo")
         d = Document.objects.create(myfile=file)
         d.myfile.delete()
@@ -137,6 +148,12 @@ class FileFieldTests(TestCase):
         self.assertEqual(d.myfile, d.myfile.open())
 
     def test_media_root_pathlib(self):
+        """
+
+        Tests that a file uploaded to the Document model is stored in the correct location
+        on the file system, as determined by the MEDIA_ROOT setting.
+
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(MEDIA_ROOT=Path(tmp_dir)):
                 with TemporaryUploadedFile(
@@ -151,6 +168,9 @@ class FileFieldTests(TestCase):
                     )
 
     def test_pickle(self):
+        """
+        Tests that Document and its FileField instances can be successfully pickled and unpickled without losing any data, specifically verifying that file attributes such as storage, instance, and field are preserved.
+        """
         with tempfile.TemporaryDirectory() as tmp_dir:
             with override_settings(MEDIA_ROOT=Path(tmp_dir)):
                 with open(__file__, "rb") as fp:

@@ -192,6 +192,9 @@ class SelectMultipleTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a form field with choices, verifying that the widget does not use a fieldset and produces the expected HTML output.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

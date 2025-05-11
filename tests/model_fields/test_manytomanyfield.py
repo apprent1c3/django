@@ -29,6 +29,9 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+        Tests that abstract model app relative foreign keys are resolved correctly when the model is defined in different apps.
+        """
         class AbstractReferent(models.Model):
             reference = models.ManyToManyField("Referred", through="Through")
 
@@ -37,6 +40,13 @@ class ManyToManyFieldTests(SimpleTestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+
+            Asserts that an application model is correctly resolved by checking the related model and through model of a reference field.
+
+            This function verifies the integrity of the relationship between the ConcreteReferent model and the Referred model, ensuring that the relationship is established through the Through model.
+
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -63,6 +73,9 @@ class ManyToManyFieldTests(SimpleTestCase):
         assert_app_model_resolved("tests")
 
     def test_invalid_to_parameter(self):
+        """
+        Checks that a ManyToManyField with an invalid first parameter raises a TypeError, ensuring that only valid models, model names, or the string 'self' can be used.
+        """
         msg = (
             "ManyToManyField(1) is invalid. First parameter to "
             "ManyToManyField must be either a model, a model name, or the "
@@ -75,6 +88,10 @@ class ManyToManyFieldTests(SimpleTestCase):
 
     @isolate_apps("model_fields")
     def test_through_db_table_mutually_exclusive(self):
+        """
+        Tests that using an intermediary model with ManyToManyField and specifying db_table raises a ValueError, 
+        since these options are mutually exclusive.
+        """
         class Child(models.Model):
             pass
 

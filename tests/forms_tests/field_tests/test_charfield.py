@@ -7,6 +7,9 @@ from . import FormFieldAssertionsMixin
 
 class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_charfield_1(self):
+        """
+        Tests the cleaning functionality of a CharField instance, ensuring that it can handle various input types and values, including integers, strings, lists, None, and empty strings, and that it raises the expected ValidationError for empty or missing values.
+        """
         f = CharField()
         self.assertEqual("1", f.clean(1))
         self.assertEqual("hello", f.clean("hello"))
@@ -19,6 +22,9 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_2(self):
+        """
+        Tests the cleaning functionality of a non-required CharField, verifying that it correctly handles various input types and returns the expected string representation.
+        """
         f = CharField(required=False)
         self.assertEqual("1", f.clean(1))
         self.assertEqual("hello", f.clean("hello"))
@@ -29,6 +35,11 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_3(self):
+        """
+        This function tests the functionality of a CharField with a maximum length of 10 characters and not required. 
+        It verifies that valid input is cleaned correctly, exceeds the maximum length validation raises an error, 
+        and that the field's length properties are properly set.
+        """
         f = CharField(max_length=10, required=False)
         self.assertEqual("12345", f.clean("12345"))
         self.assertEqual("1234567890", f.clean("1234567890"))
@@ -39,6 +50,13 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_length)
 
     def test_charfield_4(self):
+        """
+        Tests the validation behavior of a CharField with a specified minimum length.
+
+        Verifies that empty strings are allowed when the field is not required, and that
+        values with fewer than the minimum number of characters raise a ValidationError.
+        Also checks that valid values are cleaned and returned without modification.
+        """
         f = CharField(min_length=10, required=False)
         self.assertEqual("", f.clean(""))
         msg = "'Ensure this value has at least 10 characters (it has 5).'"
@@ -50,6 +68,11 @@ class CharFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_length, 10)
 
     def test_charfield_5(self):
+        """
+        Tests the validation behavior of a CharField with minimum length constraint. 
+        Verifies that empty strings and strings shorter than the minimum length raise a ValidationError, 
+        while strings that meet the length requirement are cleaned successfully.
+        """
         f = CharField(min_length=10, required=True)
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")

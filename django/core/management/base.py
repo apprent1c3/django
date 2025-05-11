@@ -99,6 +99,14 @@ def no_translations(handle_func):
     """Decorator that forces a command to run with translations deactivated."""
 
     def wrapper(*args, **kwargs):
+        """
+        Temporarily deactivates Django's translation system to ensure a function runs without locale interference.
+
+        Executes the wrapped function with the original arguments and keyword arguments, then restores the previous locale setting.
+
+        Returns:
+            The result of the wrapped function execution.
+        """
         from django.utils import translation
 
         saved_locale = translation.get_language()
@@ -174,6 +182,15 @@ class OutputWrapper(TextIOBase):
         return hasattr(self._out, "isatty") and self._out.isatty()
 
     def write(self, msg="", style_func=None, ending=None):
+        """
+
+        Write a message to the output stream, optionally applying a style function and appending an ending character.
+
+        :param msg: The message to be written
+        :param style_func: A function to apply styling to the message, defaults to the object's default style function
+        :param ending: The ending character to append to the message, defaults to the object's default ending
+
+        """
         ending = self.ending if ending is None else ending
         if ending and not msg.endswith(ending):
             msg += ending
@@ -269,6 +286,15 @@ class BaseCommand:
     suppressed_base_arguments = set()
 
     def __init__(self, stdout=None, stderr=None, no_color=False, force_color=False):
+        """
+
+        Initializes a command object with options for output streams and color formatting.
+
+        Sets up output wrappers for stdout and stderr, and configures the output style based on the
+        no_color and force_color options. Validates the requires_system_checks setting to ensure it is
+        either a list, tuple, or the special value ALL_CHECKS.
+
+        """
         self.stdout = OutputWrapper(stdout or sys.stdout)
         self.stderr = OutputWrapper(stderr or sys.stderr)
         if no_color and force_color:
@@ -633,6 +659,19 @@ class AppCommand(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+
+        Handles application configurations for specified app labels and returns output.
+
+        Processes the provided app labels, retrieves their respective configurations, 
+        and generates output based on these configurations. If any app label is not 
+        found in the INSTALLED_APPS setting, it raises a CommandError.
+
+        :param app_labels: Variable number of application labels to process
+        :param options: Additional options for handling application configurations
+        :returns: String output generated from the handled application configurations
+
+        """
         from django.apps import apps
 
         try:
@@ -678,6 +717,13 @@ class LabelCommand(BaseCommand):
         parser.add_argument("args", metavar=self.label, nargs="+")
 
     def handle(self, *labels, **options):
+        """
+        Handle a variable number of labels and return their processed output as a string.
+
+        The function takes in one or more labels and optional keyword arguments, 
+        applies the :meth:`handle_label` processing to each label, 
+        and returns a newline-separated string of the non-empty results.
+        """
         output = []
         for label in labels:
             label_output = self.handle_label(label, **options)

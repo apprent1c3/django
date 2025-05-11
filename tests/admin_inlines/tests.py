@@ -67,6 +67,9 @@ class TestInline(TestDataMixin, TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the test class, creating required objects and assigning necessary permissions to a view-only user.
+        """
         super().setUpTestData()
         cls.holder = Holder.objects.create(dummy=13)
         Inner.objects.create(dummy=42, holder=cls.holder)
@@ -148,6 +151,13 @@ class TestInline(TestDataMixin, TestCase):
         self.assertContains(response, 'id="id_Author_books-TOTAL_FORMS"')
 
     def test_inline_primary(self):
+        """
+
+        Tests the creation of a Fashionista instance with an inline Shopping Weakness in the admin interface.
+
+        Verifies that a POST request to the admin add view with valid data results in a successful redirect and the creation of a new Fashionista object.
+
+        """
         person = Person.objects.create(firstname="Imelda")
         item = OutfitItem.objects.create(name="Shoes")
         # Imelda likes shoes, but can't carry her own bags.
@@ -553,6 +563,9 @@ class TestInline(TestDataMixin, TestCase):
         self.assertEqual(Sighting.objects.filter(et__name="Martian").count(), 1)
 
     def test_custom_get_extra_form(self):
+        """
+        Tests that the custom get extra form functionality in the admin interface for BinaryTree models returns the correct values for MAX_NUM_FORMS and TOTAL_FORMS.
+        """
         bt_head = BinaryTree.objects.create(name="Tree Head")
         BinaryTree.objects.create(name="First Child", parent=bt_head)
         # The maximum number of forms should respect 'get_max_num' on the
@@ -603,6 +616,9 @@ class TestInline(TestDataMixin, TestCase):
         self.assertInHTML(total_forms, response.rendered_content)
 
     def test_custom_min_num(self):
+        """
+        Tests that the `get_min_num` method in a custom `TabularInline` class is correctly used to determine the minimum number of inline forms displayed in the Django admin interface. Verifies that the minimum number of forms changes depending on whether an object is being added or edited.
+        """
         bt_head = BinaryTree.objects.create(name="Tree Head")
         BinaryTree.objects.create(name="First Child", parent=bt_head)
 
@@ -687,6 +703,9 @@ class TestInline(TestDataMixin, TestCase):
         )
 
     def test_stacked_inline_edit_form_contains_has_original_class(self):
+        """
+        Tests that a stacked inline edit form contains elements with the correct 'has_original' class designation, indicating original and newly added items.
+        """
         holder = Holder.objects.create(dummy=1)
         holder.inner_set.create(dummy=1)
         response = self.client.get(
@@ -792,6 +811,9 @@ class TestInline(TestDataMixin, TestCase):
         )  # Stacked.
 
     def test_inlines_based_on_model_state(self):
+        """
+        Tests that inlines are updated based on the model state when the 'show_inlines' field is modified in the admin interface.
+        """
         parent = ShowInlineParent.objects.create(show_inlines=False)
         data = {
             "show_inlines": "on",
@@ -813,6 +835,9 @@ class TestInlineMedia(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_inline_media_only_base(self):
+        """
+        Tests that the custom JavaScript file 'my_awesome_admin_scripts.js' is included in the inline media for the holder admin change page.
+        """
         holder = Holder(dummy=13)
         holder.save()
         Inner(dummy=42, holder=holder).save()
@@ -821,6 +846,9 @@ class TestInlineMedia(TestDataMixin, TestCase):
         self.assertContains(response, "my_awesome_admin_scripts.js")
 
     def test_inline_media_only_inline(self):
+        """
+        Tests that the correct JavaScript media are included when rendering an inline admin formset, verifying that both the standard admin scripts and custom inline scripts are present.
+        """
         holder = Holder3(dummy=13)
         holder.save()
         Inner3(dummy=42, holder=holder).save()
@@ -839,6 +867,9 @@ class TestInlineMedia(TestDataMixin, TestCase):
         self.assertContains(response, "my_awesome_inline_scripts.js")
 
     def test_all_inline_media(self):
+        """
+        Tests that the admin interface for editing a Holder2 instance includes the required JavaScript files, ensuring inline media functionality.
+        """
         holder = Holder2(dummy=13)
         holder.save()
         Inner2(dummy=42, holder=holder).save()
@@ -872,6 +903,9 @@ class TestInlineProtectedOnDelete(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_deleting_inline_with_protected_delete_does_not_validate(self):
+        """
+        Tests that deleting an inline object with a protected delete does not validate when attempting to delete a related object that has protected dependencies, ensuring data integrity is maintained by preventing cascading deletes that would result in loss of related data.
+        """
         lotr = Novel.objects.create(name="Lord of the rings")
         chapter = Chapter.objects.create(novel=lotr, name="Many Meetings")
         foot_note = FootNote.objects.create(chapter=chapter, note="yadda yadda")
@@ -907,6 +941,9 @@ class TestInlinePermissions(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating a staff user with permissions to add and change authors and holders, and populating the database with sample author, book, holder, and inner objects. This data is used as a foundation for subsequent tests.
+        """
         cls.user = User(username="admin", is_staff=True, is_active=True)
         cls.user.set_password("secret")
         cls.user.save()
@@ -1008,6 +1045,9 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_inner2_set-TOTAL_FORMS"')
 
     def test_inline_add_m2m_view_only_perm(self):
+        """
+        Tests that a user with view-only permission on a many-to-many relationship can view the inline formset but cannot add, change, or delete relationships. Verifies that the permission checks are correctly applied and that the inline formset is rendered without the \"Add another\" button.
+        """
         permission = Permission.objects.get(
             codename="view_book", content_type=self.book_ct
         )
@@ -1044,6 +1084,9 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, "Add another Author-Book Relationship")
 
     def test_inline_add_m2m_add_perm(self):
+        """
+        Tests that adding a specific permission to a user hides the many-to-many field for adding book relationships when creating a new author through the admin interface.
+        """
         permission = Permission.objects.get(
             codename="add_book", content_type=self.book_ct
         )
@@ -1062,6 +1105,9 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_Author_books-TOTAL_FORMS"')
 
     def test_inline_add_fk_add_perm(self):
+        """
+        Tests the addition of an inline object to a form when the user has the required \"add\" permission, verifying the inline formset is rendered with the correct heading, \"Add another\" link, and total forms count.
+        """
         permission = Permission.objects.get(
             codename="add_inner2", content_type=self.inner_ct
         )
@@ -1082,6 +1128,9 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_m2m_add_perm(self):
+        """
+        Tests that adding a many-to-many relationship permission to a user does not display inline change functionality for that relationship on the associated object's change page.
+        """
         permission = Permission.objects.get(
             codename="add_book", content_type=self.book_ct
         )
@@ -1101,6 +1150,9 @@ class TestInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_Author_books-0-DELETE"')
 
     def test_inline_change_m2m_view_only_perm(self):
+        """
+        Tests that a user with view-only permission can access an inline many-to-many field on a change page, and verifies that the field is displayed as read-only, without options to add, change, or delete related objects.
+        """
         permission = Permission.objects.get(
             codename="view_book", content_type=self.book_ct
         )
@@ -1143,6 +1195,12 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_m2m_change_perm(self):
+        """
+
+        Tests the inline change functionality for many-to-many relationships,
+        verifying that permissions are properly applied and the change form is rendered correctly.
+
+        """
         permission = Permission.objects.get(
             codename="change_book", content_type=self.book_ct
         )
@@ -1183,6 +1241,12 @@ class TestInlinePermissions(TestCase):
         self.assertContains(response, 'id="id_Author_books-0-DELETE"')
 
     def test_inline_change_fk_add_perm(self):
+        """
+
+        Tests that a user with 'add' permission for an inline foreign key model can see the 'Add another' button 
+        and the correct initial formset when viewing the change page for a related model instance.
+
+        """
         permission = Permission.objects.get(
             codename="add_inner2", content_type=self.inner_ct
         )
@@ -1210,6 +1274,9 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_fk_change_perm(self):
+        """
+        Tests that the user can view and edit inline instances of Inner2 via the holder change page after being granted the 'change_inner2' permission.
+        """
         permission = Permission.objects.get(
             codename="change_inner2", content_type=self.inner_ct
         )
@@ -1258,6 +1325,9 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_fk_add_change_perm(self):
+        """
+        Tests that the 'add' and 'change' permissions for an inline foreign key model allow the user to view the inline change form.
+        """
         permission = Permission.objects.get(
             codename="add_inner2", content_type=self.inner_ct
         )
@@ -1288,6 +1358,9 @@ class TestInlinePermissions(TestCase):
         )
 
     def test_inline_change_fk_change_del_perm(self):
+        """
+        Tests that a user with change and delete permissions for Inner2 objects can see the inline change form for Inner2 objects on the holder change page.
+        """
         permission = Permission.objects.get(
             codename="change_inner2", content_type=self.inner_ct
         )
@@ -1319,6 +1392,9 @@ class TestInlinePermissions(TestCase):
         self.assertContains(response, 'id="id_inner2_set-0-DELETE"')
 
     def test_inline_change_fk_all_perms(self):
+        """
+        Tests that a user with all permissions can view the change page for an object with an inline formset, specifically verifying that the page contains the expected form fields and headings, including delete checkboxes and hidden form fields, when the user has add, change, and delete permissions for the related model.
+        """
         permission = Permission.objects.get(
             codename="add_inner2", content_type=self.inner_ct
         )
@@ -1373,6 +1449,9 @@ class TestInlinePermissions(TestCase):
 class TestReadOnlyChangeViewInlinePermissions(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing the application, including creating a staff user with required permissions and a default poll for testing purposes.
+        """
         cls.user = User.objects.create_user(
             "testing", password="password", is_staff=True
         )
@@ -1423,6 +1502,9 @@ class TestReadOnlyChangeViewInlinePermissions(TestCase):
         self.assertNotContains(response, input % self.poll.name, html=True)
 
     def test_inlines_are_rendered_as_read_only(self):
+        """
+        Tests that inline objects are rendered as read-only in the admin interface, verifying that their text is displayed but editing fields are not available.
+        """
         question = Question.objects.create(
             text="How will this be rendered?", poll=self.poll
         )
@@ -1434,6 +1516,10 @@ class TestReadOnlyChangeViewInlinePermissions(TestCase):
         self.assertNotContains(response, 'id="id_related_objs-0-DELETE"')
 
     def test_submit_line_shows_only_close_button(self):
+        """
+        Checks that the submit line for a model instance contains only a Close button, 
+        without Delete, Save and add another, or Save and continue editing options.
+        """
         response = self.client.get(self.change_url)
         self.assertContains(
             response,
@@ -1474,6 +1560,9 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
     factory = RequestFactory()
 
     def test_verbose_name_inline(self):
+        """
+        Checks the rendering of inline models in the admin interface, verifying that verbose names are correctly displayed in headings and \"Add another\" links, across different scenarios including non-verbose, singular, plural, and models with both verbose names.
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name = "Non-verbose childs"
@@ -1570,6 +1659,15 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
         self.assertNotContains(response, "Add another Model with both - name")
 
     def test_verbose_name_plural_inline(self):
+        """
+        Test that the verbose_name_plural attribute is correctly used in admin inlines.
+
+        Checks that when a model is used in an inline within the admin interface,
+        the verbose_name_plural attribute defined on the model or its Meta class
+        is used in the HTML heading, and that the default 'Add another' link is correctly
+        displayed with the verbose_name or verbose_name_plural of the model if defined,
+        otherwise it falls back to the model name.
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name_plural = "Non-verbose childs"
@@ -1663,6 +1761,12 @@ class TestVerboseNameInlineForms(TestDataMixin, TestCase):
         )
 
     def test_both_verbose_names_inline(self):
+        """
+
+        Tests that verbose names are displayed correctly in the Django admin interface for inlines,
+        including cases where both verbose name and verbose name plural are provided.
+
+        """
         class NonVerboseProfileInline(TabularInline):
             model = Profile
             verbose_name = "Non-verbose childs - name"
@@ -1769,6 +1873,9 @@ class TestInlineWithFieldsets(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_inline_headings(self):
+        """
+        Check the HTML structure and content of the 'admin:admin_inlines_photographer_add' admin page, verifying that it contains the expected heading elements and fieldsets with correct classes and labels.
+        """
         response = self.client.get(reverse("admin:admin_inlines_photographer_add"))
         # Page main title.
         self.assertContains(response, "<h1>Add photographer</h1>", html=True)
@@ -1882,6 +1989,12 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.take_screenshot("added")
 
     def test_delete_stackeds(self):
+        """
+        Tests the deletion of stacked inlines in the admin interface.
+
+        Verifies that the delete links for inner stacked inlines are functional and
+        that all inline rows can be successfully removed after adding additional rows.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -1909,6 +2022,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             self.assertCountSeleniumElements(rows_selector, 0)
 
     def test_delete_invalid_stacked_inlines(self):
+        """
+        Test that deleting an inline form with invalid (duplicate) data removes the error and the form from the page, without affecting the saving of valid data.
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -1975,6 +2091,11 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(Inner4Stacked.objects.count(), 4)
 
     def test_delete_invalid_tabular_inlines(self):
+        """
+        Tests the deletion of an invalid tabular inline in the admin interface. 
+        Verifies that a formset with a duplicate value can be saved, and that 
+        an invalid formset can be deleted, resolving validation errors.
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -2131,6 +2252,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(Profile.objects.count(), 3)
 
     def test_add_inline_link_absent_for_view_only_parent_model(self):
+        """
+        Test that the \"Add another\" link for inline questions is absent when the user only has view permission on the parent poll model, but has add/change/delete permissions on the question model.
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
 
@@ -2156,6 +2280,14 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.selenium.find_element(By.LINK_TEXT, "Add another Question")
 
     def test_delete_inlines(self):
+        """
+
+        Tests the deletion of inlined model instances in the admin interface.
+
+        This test verifies that deleting inlined instances decreases the total count of instances
+        and removes the specific deleted instances from the page.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2213,6 +2345,15 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_collapsed_inlines(self):
+        """
+        Tests the collapsed state of inlines in the admin interface.
+
+        Verifies that inlines are initially collapsed, can be expanded by clicking on their summary elements,
+        and can be collapsed again by clicking on the same summary elements, across various display settings.
+
+        Captures screenshots of the inlines in their loaded, expanded, and collapsed states for visual inspection.
+
+        """
         from selenium.webdriver.common.by import By
 
         # Collapsed inlines use details and summary elements.
@@ -2241,6 +2382,9 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @screenshot_cases(["desktop_size", "mobile_size", "rtl", "dark", "high_contrast"])
     def test_added_stacked_inline_with_collapsed_fields(self):
+        """
+        Tests the behavior of stacked inline fields in the admin interface, specifically the addition and expansion/collapse of fields. Verifies the correct rendering and behavior of the fields in various states, including the initial collapsed state, expanded state, and subsequent collapse. The test covers multiple scenarios and takes screenshots for visual verification.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2265,6 +2409,20 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.take_screenshot("collapsed")
 
     def assertBorder(self, element, border):
+        """
+
+        Checks if the given element has the specified border properties.
+
+        The border is expected to be in the format 'width style color' where width is the border width,
+        style is the border style, and color is the border color in hexadecimal format.
+
+        Args:
+            element: The element to check the border for.
+            border: The expected border string in the format 'width style color'.
+
+        Verifies that the element's border has the specified width, style, and color for all sides.
+
+        """
         width, style, color = border.split(" ")
         border_properties = [
             "border-bottom-%s",
@@ -2289,6 +2447,9 @@ class SeleniumTests(AdminSeleniumTestCase):
             self.assertIn(element.value_of_css_property(prop % "color"), colors)
 
     def test_inline_formset_error_input_border(self):
+        """
+        Tests that input fields within stacked and tabular inline formsets display the correct error border color when errors are present after submitting the form.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2332,6 +2493,13 @@ class SeleniumTests(AdminSeleniumTestCase):
             )
 
     def test_inline_formset_error(self):
+        """
+
+        Checks that inline formsets in the admin interface properly display and hide errors.
+
+        Tests both stacked and tabular inline formsets to ensure that error details are shown and hidden as expected.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")
@@ -2424,6 +2592,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.assertEqual(chosen.text, "CHOSEN ATTENDANT")
 
     def test_tabular_inline_layout(self):
+        """
+        Tests that the admin interface's tabular inline layout for adding a photographer displays the correct table headers and does not contain specific unwanted text.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret")

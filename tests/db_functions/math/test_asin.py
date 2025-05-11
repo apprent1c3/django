@@ -16,6 +16,14 @@ class ASinTests(TestCase):
         self.assertIsNone(obj.null_asin)
 
     def test_decimal(self):
+        """
+
+        Tests the use of the ASin database function with Decimal model fields.
+
+        Verifies that the result of the ASin function is a Decimal instance and 
+        accurately calculates the arcsine of the input values.
+
+        """
         DecimalModel.objects.create(n1=Decimal("0.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_asin=ASin("n1"), n2_asin=ASin("n2")
@@ -26,6 +34,9 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.n2_asin, Decimal(math.asin(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the functionality of the ASin database function on float fields, verifying that it correctly calculates the arcsine value and returns a float result.
+        """
         FloatModel.objects.create(f1=-0.5, f2=0.87)
         obj = FloatModel.objects.annotate(
             f1_asin=ASin("f1"), f2_asin=ASin("f2")
@@ -36,6 +47,9 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.f2_asin, math.asin(obj.f2))
 
     def test_integer(self):
+        """
+        Tests that the ASin database function correctly calculates the arcsine of integer values.
+        """
         IntegerModel.objects.create(small=0, normal=1, big=-1)
         obj = IntegerModel.objects.annotate(
             small_asin=ASin("small"),
@@ -50,6 +64,9 @@ class ASinTests(TestCase):
         self.assertAlmostEqual(obj.big_asin, math.asin(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField to support trigonometric functions, specifically the inverse sine (ASin) operation, in database queries
+        """
         with register_lookup(DecimalField, ASin):
             DecimalModel.objects.create(n1=Decimal("0.1"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

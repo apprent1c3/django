@@ -163,6 +163,9 @@ class DistanceTest(SimpleTestCase):
                 self.assertEqual(att, D.unit_attname(nm))
 
     def test_unit_att_name_invalid(self):
+        """
+        Tests that an AttributeError is raised when an invalid unit name is passed to the unit_attname method of classes D and A, ensuring correct error handling for unknown unit types.
+        """
         msg = "Unknown unit type: invalid-unit-name"
         with self.assertRaisesMessage(AttributeError, msg):
             D.unit_attname("invalid-unit-name")
@@ -170,6 +173,10 @@ class DistanceTest(SimpleTestCase):
             A.unit_attname("invalid-unit-name")
 
     def test_hash(self):
+        """
+        Tests that instances of D with equivalent values have the same hash, 
+        while instances with different values have different hashes.
+        """
         d1 = D(m=99)
         d2 = D(m=100)
         d3 = D(km=0.1)
@@ -306,6 +313,9 @@ class AreaTest(unittest.TestCase):
         self.assertEqual(A.unit_attname("Hectare"), "ha")
 
     def test_hash(self):
+        """
+        Tests the hash function of class A, ensuring that instances with equivalent area measurements but different units produce the same hash value, while instances with distinct areas produce different hash values.
+        """
         a1 = A(sq_m=100)
         a2 = A(sq_m=1000000)
         a3 = A(sq_km=1)

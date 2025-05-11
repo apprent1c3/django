@@ -15,6 +15,15 @@ from .base import MultipleLocaleActivationTestCase, extended_locale_paths
 
 
 def setup(templates, *args, **kwargs):
+    """
+
+        Decorator factory for setting up translation and trans tags in a function.
+
+        This function takes a dictionary of templates and returns a decorator that can be used 
+        to configure translation tags in a wrapped function. It supports both 'trans' and 'translate' 
+        tags, applying the corresponding setup to the wrapped function based on the provided templates.
+
+    """
     translate_setup = base_setup(templates, *args, **kwargs)
     trans_setup = base_setup(
         {
@@ -30,7 +39,21 @@ def setup(templates, *args, **kwargs):
 
     def decorator(func):
         @wraps(func)
+        """
+        Decorator that wraps a function to apply setup functions from the tags dictionary before calling the original function.
+
+        The setup functions are applied based on the presence of 'tag_name' in the function's signature parameters. If 'tag_name' is present, the setup function is called with a partial application of the original function; otherwise, the setup function is called with the original function directly.
+
+        This decorator enables dynamic configuration and setup of the original function based on the tags dictionary, allowing for flexible and reusable functionality.
+        """
         def inner(self, *args):
+            """
+            Decorates a function to perform setup operations based on provided tags.
+
+            The decoration checks for the presence of a 'tag_name' parameter in the original function's signature.
+            If present, the setup function associated with each tag is called with the original function and the tag name.
+            If not present, the setup function is called with the original function alone, applied to the current object.
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:

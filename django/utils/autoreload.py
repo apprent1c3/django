@@ -58,7 +58,20 @@ def is_django_path(path):
 
 def check_errors(fn):
     @wraps(fn)
+    """
+
+    Decorator to catch and record exceptions raised by a function, 
+    tracking the filenames where errors occur and re-raising the exception. 
+
+    """
     def wrapper(*args, **kwargs):
+        """
+        ”:param fn: The original function being wrapped
+            :param args: Variable-length non-keyword arguments
+            :param kwargs: Variable-length keyword arguments
+            :raises Exception: The original exception raised by the wrapped function
+            :note: Catches exceptions raised by the wrapped function, stores information about the error and the file where it occurred, and re-raises the exception.
+        """
         global _exception
         try:
             fn(*args, **kwargs)
@@ -268,6 +281,9 @@ def trigger_reload(filename):
 
 
 def restart_with_reloader():
+    """
+    Restart a process with auto-reload functionality enabled, continuously restarting until a non-reload exit code is encountered.
+    """
     new_environ = {**os.environ, DJANGO_AUTORELOAD_ENV: "true"}
     args = get_child_arguments()
     while True:
@@ -283,6 +299,14 @@ class BaseReloader:
         self._stop_condition = threading.Event()
 
     def watch_dir(self, path, glob):
+        """
+
+        Registers a directory for file system event monitoring based on a specified glob pattern.
+
+        :param path: The directory path to monitor.
+        :param glob: The glob pattern to filter events.
+
+        """
         path = Path(path)
         try:
             path = path.absolute()
@@ -327,6 +351,9 @@ class BaseReloader:
             return False
 
     def run(self, django_main_thread):
+        """
+        Runs the autoreload process, waiting for Django apps to become ready and then triggering the autoreload loop.
+        """
         logger.debug("Waiting for apps ready_event.")
         self.wait_for_apps_ready(apps, django_main_thread)
         from django.urls import get_resolver
@@ -344,6 +371,13 @@ class BaseReloader:
         self.run_loop()
 
     def run_loop(self):
+        """
+
+        Runs the main loop of the process until it is stopped.
+
+        Iterates over a sequence of ticks, executing each one until the loop is stopped or the sequence is exhausted.
+
+        """
         ticker = self.tick()
         while not self.should_stop:
             try:
@@ -385,6 +419,14 @@ class StatReloader(BaseReloader):
     SLEEP_TIME = 1  # Check for changes once per second.
 
     def tick(self):
+        """
+
+        Monitors file modifications in the background.
+
+        Observes files and triggers notifications when any file's modification time changes,
+        indicating that the file has been updated. This function runs indefinitely until stopped.
+
+        """
         mtimes = {}
         while True:
             for filepath, mtime in self.snapshot_files():
@@ -407,6 +449,9 @@ class StatReloader(BaseReloader):
 
     def snapshot_files(self):
         # watched_files may produce duplicate paths if globs overlap.
+        """
+        Generates a snapshot of watched files, yielding each file along with its last modification time, skipping files that are inaccessible or have been previously seen.
+        """
         seen_files = set()
         for file in self.watched_files():
             if file in seen_files:
@@ -449,6 +494,14 @@ class WatchmanReloader(BaseReloader):
         # inside watch_glob() and watch_dir() is expensive, instead this could
         # could fall back to the StatReloader if this case is detected? For
         # now, watching its parent, if possible, is sufficient.
+        """
+        Set up a watch on the given root directory, handling non-existent directories by watching their parent instead.
+
+        Returns a tuple containing the watch ID and relative path, or logs warnings if errors occur during the setup process.
+
+        Note: This function uses the Watchman client to interface with the watch-project service.
+
+        """
         if not root.exists():
             if not root.parent.exists():
                 logger.warning(
@@ -468,6 +521,14 @@ class WatchmanReloader(BaseReloader):
         return self.client.query("clock", root)["clock"]
 
     def _subscribe(self, directory, name, expression):
+        """
+        Subscribes to a Watchman subscription for a specific directory, filtering by a given expression.
+
+        This method sets up a subscription for changes to files within the specified directory, 
+        applying the provided expression to filter the results. It ensures the subscription only 
+        reports changes to files and symlinks, and removes duplicate results. The subscription 
+        is then registered with Watchman under the given name.
+        """
         root, rel_path = self._watch_root(directory)
         # Only receive notifications of files changing, filtering out other types
         # like special files: https://facebook.github.io/watchman/docs/type
@@ -493,6 +554,9 @@ class WatchmanReloader(BaseReloader):
         self.client.query("subscribe", root, name, query)
 
     def _subscribe_dir(self, directory, filenames):
+        """
+        Subscribes to a directory and its specified files, adapting to the case where the directory does not yet exist by observing its parent directory instead. The subscription is created with an expression that matches the specified filenames within the observed directory.
+        """
         if not directory.exists():
             if not directory.parent.exists():
                 logger.warning(
@@ -542,6 +606,9 @@ class WatchmanReloader(BaseReloader):
         return frozenset((*extra_directories, *watched_file_dirs, *sys_paths))
 
     def _update_watches(self):
+        """
+        Updates the watches for the current instance by identifying common roots among watched files, subscribing to directories, and watching glob patterns.
+        """
         watched_files = list(self.watched_files(include_globs=False))
         found_roots = common_roots(self.watched_roots(watched_files))
         logger.debug("Watching %s files", len(watched_files))
@@ -560,6 +627,9 @@ class WatchmanReloader(BaseReloader):
             )
 
     def update_watches(self):
+        """
+        Updates watches, handling potential exceptions and server status checks to ensure reliable operation.
+        """
         try:
             self._update_watches()
         except Exception as ex:
@@ -568,6 +638,12 @@ class WatchmanReloader(BaseReloader):
                 raise
 
     def _check_subscription(self, sub):
+        """
+        Checks the status of a Watchman subscription and notifies about changed files.
+
+        Processes the results of the subscription, determining the root directory for each result and 
+        then notifying about each changed file within that directory.
+        """
         subscription = self.client.getSubscription(sub)
         if not subscription:
             return
@@ -587,6 +663,15 @@ class WatchmanReloader(BaseReloader):
         self.processed_request.set()
 
     def tick(self):
+        """
+
+        Runs the monitoring loop for Watchman client subscriptions.
+
+        This function establishes connections, checks for incoming requests, and updates
+        watches while handling potential Watchman errors and timeouts. It runs indefinitely,
+        periodically yielding control and sleeping to allow for other tasks to run.
+
+        """
         request_finished.connect(self.request_processed)
         self.update_watches()
         while True:
@@ -621,6 +706,15 @@ class WatchmanReloader(BaseReloader):
 
     @classmethod
     def check_availability(cls):
+        """
+        Check if the Watchman service is available and meets the required version.
+
+        This method verifies that the pywatchman library is installed, can connect to the
+        Watchman service, and that the service version is 4.9 or later. If any of these
+        checks fail, a WatchmanUnavailable exception is raised.
+
+        :raises WatchmanUnavailable: if the Watchman service is not available or does not meet the required version.
+        """
         if not pywatchman:
             raise WatchmanUnavailable("pywatchman not installed.")
         client = pywatchman.client(timeout=0.1)
@@ -647,6 +741,17 @@ def get_reloader():
 
 
 def start_django(reloader, main_func, *args, **kwargs):
+    """
+
+    Starts the Django application in a separate thread, handling reloading and running the main function.
+
+    :paramref:`reloader` is responsible for managing the reloading process,
+    :paramref:`main_func` is the main entry point of the Django application.
+    Additional arguments and keyword arguments are passed to :paramref:`main_func`.
+
+    This function ensures that the main function runs in a separate thread and can be reloaded as needed.
+
+    """
     ensure_echo_on()
 
     main_func = check_errors(main_func)
@@ -661,6 +766,16 @@ def start_django(reloader, main_func, *args, **kwargs):
 
 
 def run_with_reloader(main_func, *args, **kwargs):
+    """
+    Run the main function with support for automatic reloading on file changes.
+
+    This function provides a way to execute the main application logic while enabling
+    automatic reloading when modifications are detected in the code. It detects the
+    environment variable DJANGO_AUTORELOAD_ENV and starts the reloader accordingly.
+    If the reloader is enabled, it will watch for file changes and restart the application
+    automatically. If not enabled, the application will exit with a code returned by
+    the restart_with_reloader function.
+    """
     signal.signal(signal.SIGTERM, lambda *args: sys.exit(0))
     try:
         if os.environ.get(DJANGO_AUTORELOAD_ENV) == "true":

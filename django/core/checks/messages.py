@@ -8,6 +8,9 @@ CRITICAL = 50
 
 class CheckMessage:
     def __init__(self, level, msg, hint=None, obj=None, id=None):
+        """
+        Initializes an error or log message object, capturing the level of severity, the message itself, and optional information including a hint, related object, and a unique identifier.
+        """
         if not isinstance(level, int):
             raise TypeError("The first argument should be level.")
         self.level = level
@@ -23,6 +26,9 @@ class CheckMessage:
         )
 
     def __str__(self):
+        """
+        Returns a string representation of the object, providing a human-readable description including the object type, identifier, message, and optional hint.
+        """
         from django.db import models
 
         if self.obj is None:

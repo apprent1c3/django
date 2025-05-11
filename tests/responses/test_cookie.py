@@ -93,6 +93,9 @@ class SetCookieTests(SimpleTestCase):
             )
 
     def test_httponly_cookie(self):
+        """
+        Tests that an HTTP-only cookie is properly set with the 'httponly' flag.
+        """
         response = HttpResponse()
         response.set_cookie("example", httponly=True)
         example_cookie = response.cookies["example"]
@@ -109,6 +112,9 @@ class SetCookieTests(SimpleTestCase):
         self.assertEqual(response.cookies["test"].value, cookie_value)
 
     def test_samesite(self):
+        """
+        Tests the setting of the SameSite cookie attribute in an HTTP response.
+        """
         response = HttpResponse()
         response.set_cookie("example", samesite="None")
         self.assertEqual(response.cookies["example"]["samesite"], "None")
@@ -125,6 +131,11 @@ class SetCookieTests(SimpleTestCase):
 
 class DeleteCookieTests(SimpleTestCase):
     def test_default(self):
+        """
+        Tests the default properties of a deleted cookie in an HTTP response.
+
+        Verifies that a cookie deleted from an HTTP response has the expected expiration and security settings, ensuring correct behavior for client-side handling of the deleted cookie.
+        """
         response = HttpResponse()
         response.delete_cookie("c")
         cookie = response.cookies["c"]

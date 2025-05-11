@@ -58,6 +58,9 @@ class LoadDataWithNaturalKeysAndMultipleDatabasesTestCase(TestCase):
 
     def test_load_data_with_user_permissions(self):
         # Create test contenttypes for both databases
+        """
+        Tests loading data with user permissions, specifically verifying that permissions are correctly associated with their respective content types across different databases.
+        """
         default_objects = [
             ContentType.objects.db_manager("default").create(
                 model="examplemodela",
@@ -115,6 +118,9 @@ class UserManagerTestCase(TransactionTestCase):
     ]
 
     def test_create_user(self):
+        """
+        Tests the creation of a new user, verifying that the email and username are correctly set and that the user does not have a usable password initially.
+        """
         email_lowercase = "normal@normal.com"
         user = User.objects.create_user("user", email_lowercase)
         self.assertEqual(user.email, email_lowercase)
@@ -140,6 +146,9 @@ class UserManagerTestCase(TransactionTestCase):
             User.objects.create_user(username="")
 
     def test_create_user_is_staff(self):
+        """
+        Tests that a user created with staff privileges has the correct attributes set, including email, username, and staff status.
+        """
         email = "normal@normal.com"
         user = User.objects.create_user("user", email, is_staff=True)
         self.assertEqual(user.email, email)
@@ -167,6 +176,11 @@ class UserManagerTestCase(TransactionTestCase):
             )
 
     def test_runpython_manager_methods(self):
+        """
+        Test the runpython manager methods in migrations.
+
+        Verifies that the RunPython operation successfully creates a user and checks their password.
+        """
         def forwards(apps, schema_editor):
             UserModel = apps.get_model("auth", "User")
             user = UserModel.objects.create_user("user1", password="secure")
@@ -204,6 +218,9 @@ class AbstractBaseUserTests(SimpleTestCase):
 
     def test_clean_normalize_username(self):
         # The normalization happens in AbstractBaseUser.clean()
+        """
+        Tests the normalization of usernames with special characters, ensuring that they are cleaned and stored correctly for different user models.
+        """
         ohm_username = "iamtheΩ"  # U+2126 OHM SIGN
         for model in ("auth.User", "auth_tests.CustomUser"):
             with self.subTest(model=model), self.settings(AUTH_USER_MODEL=model):
@@ -227,6 +244,11 @@ class AbstractBaseUserTests(SimpleTestCase):
 class AbstractUserTestCase(TestCase):
     def test_email_user(self):
         # valid send_mail parameters
+        """
+
+        Tests the email_user method of the User class, ensuring that it correctly sends an email with the provided subject, message, and from email address.
+
+        """
         kwargs = {
             "fail_silently": False,
             "auth_user": None,
@@ -301,6 +323,11 @@ class AbstractUserTestCase(TestCase):
 
     @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
     async def test_acheck_password_upgrade(self):
+        """
+        Test that checking a password against a user's password hash correctly upgrades the hash if the password is valid and the hash algorithm's iterations have increased.
+
+        Verifies that the `acheck_password` method returns True for a valid password, does not trigger a password changed signal when the hash is upgraded, and updates the user's password hash with the new iterations.
+        """
         user = await sync_to_async(User.objects.create_user)(
             username="user", password="foo"
         )
@@ -335,6 +362,12 @@ class CustomModelBackend(ModelBackend):
 class UserWithPermTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for permission and user-related tests.
+
+        Creates a permission, multiple test users, groups, and a superuser with varying permission setups to support comprehensive testing of user authentication and authorization scenarios.\"\"\"
+        ```
+        """
         content_type = ContentType.objects.get_for_model(Group)
         cls.permission = Permission.objects.create(
             name="test",
@@ -383,6 +416,9 @@ class UserWithPermTestCase(TestCase):
                 User.objects.with_perm(perm)
 
     def test_invalid_backend_type(self):
+        """
+        Tests that User.objects.with_perm raises a TypeError when an invalid backend type is provided, ensuring that only dotted import path strings are accepted.
+        """
         msg = "backend must be a dotted import path string (got %r)."
         for backend in (b"auth_tests.CustomModelBackend", object()):
             with self.subTest(backend):
@@ -390,6 +426,14 @@ class UserWithPermTestCase(TestCase):
                     User.objects.with_perm("auth.test", backend=backend)
 
     def test_basic(self):
+        """
+
+        Tests the User.objects.with_perm method to retrieve users with specific permissions.
+
+        Verifies that the method correctly filters users based on keyword arguments such as 
+        object instances, user activity status, and inclusion of superusers.
+
+        """
         active_users = [self.user1, self.user2]
         tests = [
             ({}, [*active_users, self.superuser]),
@@ -462,6 +506,9 @@ class UserWithPermTestCase(TestCase):
         ]
     )
     def test_multiple_backends(self):
+        """
+        Tests that using multiple authentication backends requires providing the `backend` argument when checking user permissions.
+        """
         msg = (
             "You have multiple authentication backends configured and "
             "therefore must provide the `backend` argument."
@@ -482,6 +529,9 @@ class IsActiveTestCase(TestCase):
     """
 
     def test_builtin_user_isactive(self):
+        """
+        -verifies the correct functionality of a user's `is_active` flag, ensuring it is set to True by default and can be successfully updated.
+        """
         user = User.objects.create(username="foo", email="foo@bar.com")
         # is_active is true by default
         self.assertIs(user.is_active, True)
@@ -537,6 +587,13 @@ class AnonymousUserTests(SimpleTestCase):
         self.user = AnonymousUser()
 
     def test_properties(self):
+        """
+
+        Verifies that a newly created user object has the expected default properties.
+
+        The function checks the user's primary key, username, authentication status, and permissions to ensure they are set to their initial state.
+
+        """
         self.assertIsNone(self.user.pk)
         self.assertEqual(self.user.username, "")
         self.assertEqual(self.user.get_username(), "")

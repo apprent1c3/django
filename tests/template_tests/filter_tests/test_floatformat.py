@@ -33,6 +33,9 @@ class FloatformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_inputs(self):
+        """
+        Tests the floatformat function with various inputs to ensure it correctly formats floating point numbers as strings.
+        """
         self.assertEqual(floatformat(7.7), "7.7")
         self.assertEqual(floatformat(7.0), "7")
         self.assertEqual(floatformat(0.7), "0.7")
@@ -75,6 +78,11 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(1.00000000000000015, 16), "1.0000000000000002")
 
     def test_invalid_inputs(self):
+        """
+        Tests floatformat function with various invalid inputs to ensure it returns an empty string.
+
+        Validates that the function correctly handles a range of edge cases, including None, empty data structures, objects, strings with and without numeric characters, and malformed exponential notation expressions.
+        """
         cases = [
             # Non-numeric strings.
             None,
@@ -114,6 +122,9 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(value, "bar"), "")
 
     def test_force_grouping(self):
+        """
+        Tests the floatformat function with different formatting options and locale settings to ensure proper grouping and decimal separation.
+        """
         with translation.override("en"):
             self.assertEqual(floatformat(10000, "g"), "10,000")
             self.assertEqual(floatformat(66666.666, "1g"), "66,666.7")
@@ -126,6 +137,15 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(10000, "g2"), "10000")
 
     def test_unlocalize(self):
+        """
+
+        Tests the unlocalization of float formatting.
+
+        Verifies that the floatformat function behaves correctly when the locale is
+        overridden, and that the USE_THOUSAND_SEPARATOR and NUMBER_GROUPING settings
+        are respected.
+
+        """
         with translation.override("de", deactivate=True):
             self.assertEqual(floatformat(66666.666, "2"), "66666,67")
             self.assertEqual(floatformat(66666.666, "2u"), "66666.67")
@@ -140,6 +160,10 @@ class FunctionTests(SimpleTestCase):
             self.assertEqual(floatformat(66666.666, "u2"), "66666.666")
 
     def test_zero_values(self):
+        """
+        Tests the floatformat function with zero values and small decimal numbers, 
+        verifying it correctly formats and rounds the input according to the specified precision.
+        """
         self.assertEqual(floatformat(0, 6), "0.000000")
         self.assertEqual(floatformat(0, 7), "0.0000000")
         self.assertEqual(floatformat(0, 10), "0.0000000000")
@@ -164,6 +188,11 @@ class FunctionTests(SimpleTestCase):
                 self.assertEqual(floatformat(num, decimal_places), expected)
 
     def test_infinity(self):
+        """
+        Tests formatting of infinity and NaN values.
+
+        Verifies that the floatformat function correctly handles positive and negative infinity, as well as Not a Number (NaN) values, converting them to their corresponding string representations ('inf', '-inf', and 'nan' respectively).
+        """
         pos_inf = float(1e30000)
         neg_inf = float(-1e30000)
         self.assertEqual(floatformat(pos_inf), "inf")
@@ -171,6 +200,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(floatformat(pos_inf / pos_inf), "nan")
 
     def test_float_dunder_method(self):
+        """
+        Tests the formatting of a floating-point number using the floatformat function and the __float__ dunder method. Verifies that the function correctly formats the number to the specified precision.
+        """
         class FloatWrapper:
             def __init__(self, value):
                 self.value = value

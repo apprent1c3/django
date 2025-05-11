@@ -57,6 +57,10 @@ class Join:
         filtered_relation=None,
     ):
         # Join table
+        """
+        Initializes a database join operation, specifying the tables involved, join type, and conditions. 
+        It captures essential details for performing relational queries, including handling nullable fields and optional filtered relations.
+        """
         self.table_name = table_name
         self.parent_alias = parent_alias
         # Note: table_alias is not necessarily known at instantiation time.
@@ -152,6 +156,14 @@ class Join:
         return sql, params
 
     def relabeled_clone(self, change_map):
+        """
+
+        Creates a new instance of the same class with relabeled parent and table aliases.
+
+        The new instance has its parent and table aliases replaced according to the provided change map,
+        while keeping other attributes unchanged. If a filtered relation exists, it is also cloned with relabeled aliases.
+
+        """
         new_parent_alias = change_map.get(self.parent_alias, self.parent_alias)
         new_table_alias = change_map.get(self.table_alias, self.table_alias)
         if self.filtered_relation is not None:

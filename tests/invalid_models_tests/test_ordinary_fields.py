@@ -24,6 +24,9 @@ class AutoFieldTests(SimpleTestCase):
 
     def test_primary_key(self):
         # primary_key must be True. Refs #12467.
+        """
+        Tests that an AutoField without primary_key=True raises an error, ensuring AutoFields are correctly configured as primary keys.
+        """
         class Model(models.Model):
             field = models.AutoField(primary_key=False)
 
@@ -66,6 +69,9 @@ class AutoFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class BinaryFieldTests(SimpleTestCase):
     def test_valid_default_value(self):
+        """
+        Tests validation of default values for binary fields in a model, ensuring they pass field checks without raising any errors.
+        """
         class Model(models.Model):
             field1 = models.BinaryField(default=b"test")
             field2 = models.BinaryField(default=None)
@@ -109,6 +115,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(field.check(), [])
 
     def test_missing_max_length(self):
+        """
+        Verifies that a CharField without a specified max_length attribute raises the correct error, taking into account the database connection's support for unlimited CharFields.
+        """
         class Model(models.Model):
             field = models.CharField()
 
@@ -228,6 +237,9 @@ class CharFieldTests(TestCase):
         )
 
     def test_iterable_of_iterable_choices(self):
+        """
+        Tests that an iterable of iterable choices is properly validated in a model field.
+        """
         class ThingItem:
             def __init__(self, value, display):
                 self.value = value
@@ -249,6 +261,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(ThingWithIterableChoices._meta.get_field("thing").check(), [])
 
     def test_choices_containing_non_pairs(self):
+        """
+        Tests that the check method on a model field raises an error when the choices attribute contains non-pair values, ensuring that choices are correctly defined as tuples of (actual value, human-readable name) or a mapping of actual values to human-readable names.
+        """
         class Model(models.Model):
             field = models.CharField(max_length=10, choices=[(1, 2, 3), (1, 2, 3)])
 
@@ -363,6 +378,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_choices_in_max_length(self):
+        """
+        Tests that a CharField's max_length can accommodate the longest value in its choices, including nested choices, and raises the appropriate error when it cannot.
+        """
         class Model(models.Model):
             field = models.CharField(
                 max_length=2,
@@ -429,6 +447,9 @@ class CharFieldTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "mysql", "Test valid only for MySQL")
     def test_too_long_char_field_under_mysql(self):
+        """
+        Tests the behavior of unique CharFields under MySQL when their max_length exceeds 255 characters, ensuring the expected DjangoWarning is raised.
+        """
         from django.db.backends.mysql.validation import DatabaseValidation
 
         class Model(models.Model):
@@ -453,6 +474,14 @@ class CharFieldTests(TestCase):
         )
 
     def test_db_collation(self):
+        """
+
+        Checks if a database supports a collation on CharFields.
+
+        This test case verifies that a database error is raised when a CharField
+        is defined with a collation on a database that does not support it.
+
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100, db_collation="anything")
 
@@ -469,6 +498,9 @@ class CharFieldTests(TestCase):
         self.assertEqual(field.check(databases=self.databases), expected)
 
     def test_db_collation_required_db_features(self):
+        """
+        Checks if a CharField with a specified database collation is properly validated when the required database features are defined in the model's Meta class.
+        """
         class Model(models.Model):
             field = models.CharField(max_length=100, db_collation="anything")
 
@@ -484,6 +516,9 @@ class DateFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_auto_now_and_auto_now_add_raise_error(self):
+        """
+        Tests that using auto_now, auto_now_add, and default options together on a DateTimeField raises an error, as these options are mutually exclusive.
+        """
         class Model(models.Model):
             field0 = models.DateTimeField(auto_now=True, auto_now_add=True, default=now)
             field1 = models.DateTimeField(
@@ -513,6 +548,13 @@ class DateFieldTests(SimpleTestCase):
             self.assertEqual(checks, expected)
 
     def test_fix_default_value(self):
+        """
+
+        Tests that a default value set to a fixed date/time will trigger a warning,
+        ensuring that developers are aware of potential issues with setting fixed defaults
+        instead of using django.utils.timezone.now for dynamic date/time defaults.
+
+        """
         class Model(models.Model):
             field_dt = models.DateField(default=now())
             field_d = models.DateField(default=now().date())
@@ -558,6 +600,11 @@ class DateTimeFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_fix_default_value(self):
+        """
+
+        Tests that a warning is raised when a fixed default value is provided for a DateTimeField.
+
+        """
         class Model(models.Model):
             field_dt = models.DateTimeField(default=now())
             field_d = models.DateTimeField(default=now().date())
@@ -737,6 +784,9 @@ class FileFieldTests(SimpleTestCase):
         )
 
     def test_upload_to_callable_not_checked(self):
+        """
+        Tests that FileField does not check the upload_to callable in its validation checks.
+        """
         def callable(instance, filename):
             return "/" + filename
 
@@ -792,6 +842,9 @@ class GenericIPAddressFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class ImageFieldTests(SimpleTestCase):
     def test_pillow_installed(self):
+        """
+        Checks if the Pillow library is installed, and verifies that Django's ImageField raises the correct error when Pillow is not available.
+        """
         try:
             from PIL import Image  # NOQA
         except ImportError:
@@ -825,6 +878,9 @@ class ImageFieldTests(SimpleTestCase):
 @isolate_apps("invalid_models_tests")
 class IntegerFieldTests(SimpleTestCase):
     def test_max_length_warning(self):
+        """
+        Tests that a warning is raised when 'max_length' is used with integer fields in a Django model, as 'max_length' is ignored for these field types.
+        """
         class Model(models.Model):
             integer = models.IntegerField(max_length=2)
             biginteger = models.BigIntegerField(max_length=2)
@@ -893,6 +949,9 @@ class TimeFieldTests(SimpleTestCase):
     maxDiff = None
 
     def test_fix_default_value(self):
+        """
+        Tests that Django's checks for fixed default values on date and time fields raise the correct warnings when using now(), now().time(), and now().timetz() as default values.
+        """
         class Model(models.Model):
             field_dt = models.TimeField(default=now())
             field_t = models.TimeField(default=now().time())
@@ -951,6 +1010,9 @@ class TimeFieldTests(SimpleTestCase):
 class TextFieldTests(TestCase):
     @skipIfDBFeature("supports_index_on_text_field")
     def test_max_length_warning(self):
+        """
+        Tests that a warning is raised when trying to create a database index on a text field, which is not supported by the database.
+        """
         class Model(models.Model):
             value = models.TextField(db_index=True)
 
@@ -973,6 +1035,9 @@ class TextFieldTests(TestCase):
         )
 
     def test_db_collation(self):
+        """
+        Checks the validation of a model field with a database collation to ensure compatibility with the underlying database, specifically testing for support of collation on TextField instances.
+        """
         class Model(models.Model):
             field = models.TextField(db_collation="anything")
 
@@ -989,6 +1054,9 @@ class TextFieldTests(TestCase):
         self.assertEqual(field.check(databases=self.databases), expected)
 
     def test_db_collation_required_db_features(self):
+        """
+        Checks that a model's field with db_collation set can be validated against the database's supported features.
+        """
         class Model(models.Model):
             field = models.TextField(db_collation="anything")
 
@@ -1061,6 +1129,9 @@ class JSONFieldTests(TestCase):
         self.assertEqual(Model._meta.get_field("field").check(), [])
 
     def test_valid_callable_default(self):
+        """
+        Checks if a valid callable function is accepted as a default value for a JSONField in a Django model.
+        """
         def callable_default():
             return {"it": "works"}
 
@@ -1073,6 +1144,9 @@ class JSONFieldTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class DbCommentTests(TestCase):
     def test_db_comment(self):
+        """
+        Tests checking of database comments on model fields to ensure compatibility with different databases.
+        """
         class Model(models.Model):
             field = models.IntegerField(db_comment="Column comment")
 
@@ -1092,6 +1166,9 @@ class DbCommentTests(TestCase):
         self.assertEqual(errors, expected)
 
     def test_db_comment_required_db_features(self):
+        """
+        Checks that specifying a database comment on a model field requires the \"supports_comments\" database feature.
+        """
         class Model(models.Model):
             field = models.IntegerField(db_comment="Column comment")
 
@@ -1105,6 +1182,9 @@ class DbCommentTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class InvalidDBDefaultTests(TestCase):
     def test_db_default(self):
+        """
+        Checks if a field with an expression-based default value is properly validated against the capabilities of the underlying database, ensuring compatibility with databases that support or do not support default database values with expressions.
+        """
         class Model(models.Model):
             field = models.FloatField(db_default=Pi())
 
@@ -1122,6 +1202,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, expected_errors)
 
     def test_db_default_literal(self):
+        """
+        Tests that a model field's database-level default value is validated successfully.
+        """
         class Model(models.Model):
             field = models.IntegerField(db_default=1)
 
@@ -1130,6 +1213,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, [])
 
     def test_db_default_required_db_features(self):
+        """
+        Tests that a model field with an expression default value does not raise any errors when checked against a database that supports expression defaults, ensuring required database features are correctly specified.
+        """
         class Model(models.Model):
             field = models.FloatField(db_default=Pi())
 
@@ -1141,6 +1227,9 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, [])
 
     def test_db_default_expression_invalid(self):
+        """
+        Tests the validation of a model field's db_default attribute when set to an invalid expression, ensuring proper error handling for both databases that support and don't support expression defaults.
+        """
         expression = models.F("field_name")
 
         class Model(models.Model):
@@ -1161,6 +1250,14 @@ class InvalidDBDefaultTests(TestCase):
         self.assertEqual(errors, expected_errors)
 
     def test_db_default_expression_required_db_features(self):
+        """
+
+        Tests that the check framework correctly handles the case when a field's 
+        db_default is an expression that requires the database to support expression 
+        defaults, and that an error is raised if the expression is used in db_default 
+        when the database does support expression defaults.
+
+        """
         expression = models.F("field_name")
 
         class Model(models.Model):
@@ -1181,6 +1278,10 @@ class InvalidDBDefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_db_default_combined_invalid(self):
+        """
+        Tests that an invalid expression default (a combination of a Value and an F expression) 
+        raises the expected error when applied to a field's db_default attribute.
+        """
         expression = models.Value(4.5) + models.F("field_name")
 
         class Model(models.Model):
@@ -1195,6 +1296,9 @@ class InvalidDBDefaultTests(TestCase):
 
     @skipUnlessDBFeature("supports_expression_defaults")
     def test_db_default_function_arguments_invalid(self):
+        """
+        Tests that database default value functions with arguments are not allowed in model fields, ensuring that invalid expressions are properly validated and reported.
+        """
         expression = Coalesce(models.Value(4.5), models.F("field_name"))
 
         class Model(models.Model):
@@ -1211,6 +1315,9 @@ class InvalidDBDefaultTests(TestCase):
 @isolate_apps("invalid_models_tests")
 class GeneratedFieldTests(TestCase):
     def test_not_supported(self):
+        """
+        Checks if a database connection supports generated fields and tests error handling for unsupported cases.
+        """
         db_persist = connection.features.supports_stored_generated_columns
 
         class Model(models.Model):
@@ -1252,6 +1359,9 @@ class GeneratedFieldTests(TestCase):
         )
 
     def test_not_supported_stored_required_db_features(self):
+        """
+        Checks that model validation correctly handles the requirement for stored generated columns in the database, ensuring that a model with a generated field marked for database persistence raises no validation errors when the required database feature 'supports_stored_generated_columns' is specified.
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1266,6 +1376,9 @@ class GeneratedFieldTests(TestCase):
         self.assertEqual(Model.check(databases=self.databases), [])
 
     def test_not_supported_virtual_required_db_features(self):
+        """
+        Tests that a model with virtual generated columns raises no errors when the required database feature is not supported.
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1281,6 +1394,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_not_supported_virtual(self):
+        """
+        Tests the behavior of non-persisted generated fields on databases that do not support virtual generated columns, ensuring the expected error is raised when db_persist=False.
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1310,6 +1426,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_virtual_generated_columns")
     def test_not_supported_stored(self):
+        """
+        Tests if a model's generated field raises an error when persistence is enabled on a database that does not support stored generated columns.
+        """
         class Model(models.Model):
             name = models.IntegerField()
             field = models.GeneratedField(
@@ -1339,6 +1458,11 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_output_field_check_error(self):
+        """
+        Tests that :class:`~django.db.models.GeneratedField` validation correctly handles invalid output field configurations.
+
+        Verifies that errors are raised when the output field's decimal places or max digits are invalid.
+        """
         class Model(models.Model):
             value = models.DecimalField(max_digits=5, decimal_places=2)
             field = models.GeneratedField(
@@ -1363,6 +1487,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_output_field_charfield_unlimited_error(self):
+        """
+        Verifies that an error is raised when a CharField with unlimited max_length is used as the output field for a GeneratedField, if the database does not support unlimited CharFields.
+        """
         class Model(models.Model):
             name = models.CharField(max_length=255)
             field = models.GeneratedField(
@@ -1391,6 +1518,9 @@ class GeneratedFieldTests(TestCase):
 
     @skipUnlessDBFeature("supports_stored_generated_columns")
     def test_output_field_check_warning(self):
+        """
+        Tests that a warning is raised when using a GeneratedField with an output_field that contains ignored attributes.
+        """
         class Model(models.Model):
             value = models.IntegerField()
             field = models.GeneratedField(

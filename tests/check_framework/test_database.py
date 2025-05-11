@@ -18,6 +18,9 @@ class DatabaseCheckTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "mysql", "Test only for MySQL")
     def test_mysql_strict_mode(self):
+        """
+        Tests the database backends for MySQL databases running with or without strict mode enabled, verifying the expected warnings are raised when the mode is not strictly set.
+        """
         def _clean_sql_mode():
             for alias in self.databases:
                 if hasattr(connections[alias], "sql_mode"):

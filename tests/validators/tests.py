@@ -662,6 +662,12 @@ TEST_DATA.extend((URLValidator(), url, ValidationError) for url in INVALID_URLS)
 
 class TestValidators(SimpleTestCase):
     def test_validators(self):
+        """
+        Tests the provided validation functions using a set of predefined test data.
+
+        Checks if each validator behaves as expected, either by returning the correct result or raising the anticipated exception for invalid input.
+
+        """
         for validator, value, expected in TEST_DATA:
             name = (
                 validator.__name__
@@ -723,6 +729,9 @@ class TestValidatorEquality(TestCase):
     """
 
     def test_regex_equality(self):
+        """
+        Tests that two RegexValidator instances are considered equal if and only if they have the same regular expression pattern, error messages, and flags.
+        """
         self.assertEqual(
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
             RegexValidator(r"^(?:[a-z0-9.-]*)://"),
@@ -755,6 +764,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_regex_equality_nocache(self):
+        """
+        Checks if two RegexValidator instances with the same pattern are considered equal, even after the regex cache has been purged.
+        """
         pattern = r"^(?:[a-z0-9.-]*)://"
         left = RegexValidator(pattern)
         re.purge()
@@ -790,6 +802,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_basic_equality(self):
+        """
+        Tests the equality of different validator objects, ensuring that instances with the same parameters are considered equal and instances with different parameters or types are considered unequal.
+        """
         self.assertEqual(
             MaxValueValidator(44),
             MaxValueValidator(44),
@@ -831,6 +846,13 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_file_extension_equality(self):
+        """
+        Test the equality of FileExtensionValidator instances.
+
+        This test checks that instances with the same extension lists are considered equal, 
+        regardless of the order or case of the extensions. It also verifies that instances 
+        with different extension lists, codes, or error messages are not equal.
+        """
         self.assertEqual(FileExtensionValidator(), FileExtensionValidator())
         self.assertEqual(
             FileExtensionValidator(["txt"]), FileExtensionValidator(["txt"])
@@ -883,6 +905,9 @@ class TestValidatorEquality(TestCase):
         )
 
     def test_domain_name_equality(self):
+        """
+        Checks the equality of DomainNameValidator instances, ensuring that identical validators with the same attributes are considered equal, while those with different attributes or classes are not.
+        """
         self.assertEqual(
             DomainNameValidator(),
             DomainNameValidator(),

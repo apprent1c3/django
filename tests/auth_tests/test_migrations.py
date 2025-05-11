@@ -41,6 +41,14 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         )
 
     def test_proxy_model_permissions_contenttype(self):
+        """
+
+        Test that proxy model permissions are updated to reference the correct content type.
+
+        Verifies that default and custom permissions are correctly updated to point to the
+        proxy model content type after running the update_proxy_model_permissions function.
+
+        """
         proxy_model_content_type = ContentType.objects.get_for_model(
             UserProxy, for_concrete_model=False
         )
@@ -58,6 +66,12 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         self.assertEqual(self.custom_permission.content_type, proxy_model_content_type)
 
     def test_user_has_now_proxy_model_permissions(self):
+        """
+        Tests that a user's proxy model permissions are updated correctly when 
+        the proxy model permissions are applied. Verifies that the user initially 
+        has the standard model permissions, then checks that these are replaced 
+        by the proxy model permissions after the update is applied.
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -73,6 +87,12 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
             self.assertTrue(user.has_perm("auth_tests." + permission.codename))
 
     def test_migrate_backwards(self):
+        """
+
+        Tests the migration of proxy permissions in reverse.
+        Checks that permissions are correctly updated and reverted to their original state.
+
+        """
         with connection.schema_editor() as editor:
             update_proxy_permissions.update_proxy_model_permissions(apps, editor)
             update_proxy_permissions.revert_proxy_model_permissions(apps, editor)
@@ -86,6 +106,12 @@ class ProxyModelWithDifferentAppLabelTests(TransactionTestCase):
         )
 
     def test_user_keeps_same_permissions_after_migrating_backward(self):
+        """
+
+        Tests that a user's permissions remain unchanged after migrating backward.
+        Verifies that the user retains their original permissions after the migration.
+
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -129,6 +155,14 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         )
 
     def test_proxy_model_permissions_contenttype(self):
+        """
+
+        Verifies that the content types of permissions are updated correctly when switching to a proxy model.
+
+        Tests that the content type of default and custom permissions are initially set to the concrete model,
+        and after running the update proxy model permissions function, they are updated to the proxy model.
+
+        """
         proxy_model_content_type = ContentType.objects.get_for_model(
             Proxy, for_concrete_model=False
         )
@@ -146,6 +180,9 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         self.assertEqual(self.custom_permission.content_type, proxy_model_content_type)
 
     def test_user_still_has_proxy_model_permissions(self):
+        """
+        Tests that a user's proxy model permissions are preserved after updating the proxy model permissions.
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -159,6 +196,9 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
             self.assertTrue(user.has_perm("auth_tests." + permission.codename))
 
     def test_migrate_backwards(self):
+        """
+        Tests the migration of proxy model permissions backwards, ensuring that content types are correctly reverted to their original state after an update.
+        """
         with connection.schema_editor() as editor:
             update_proxy_permissions.update_proxy_model_permissions(apps, editor)
             update_proxy_permissions.revert_proxy_model_permissions(apps, editor)
@@ -172,6 +212,13 @@ class ProxyModelWithSameAppLabelTests(TransactionTestCase):
         )
 
     def test_user_keeps_same_permissions_after_migrating_backward(self):
+        """
+
+        Checks that a user's permissions remain unchanged after migrating the database schema backward.
+
+        Verifies that a user retains their assigned permissions after reverting proxy model permissions.
+
+        """
         user = User.objects.create()
         user.user_permissions.add(self.default_permission)
         user.user_permissions.add(self.custom_permission)
@@ -236,6 +283,11 @@ class MultiDBProxyModelAppLabelTests(TransactionTestCase):
         )
 
     def test_migrate_other_database(self):
+        """
+        Tests migration of database permissions to the 'other' database, verifying 
+        that proxy model permissions are correctly updated and associated with the 
+        correct content type.
+        """
         proxy_model_content_type = ContentType.objects.db_manager(
             "other"
         ).get_for_model(Proxy, for_concrete_model=False)

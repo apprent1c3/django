@@ -26,6 +26,9 @@ TZ = timezone.get_default_timezone()
 class FeedTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing purposes, creating a set of entries and an article with predefined attributes.
+        """
         cls.e1 = Entry.objects.create(
             title="My first entry",
             updated=datetime.datetime(1980, 1, 1, 12, 30),
@@ -207,6 +210,9 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertChildNodeContent(chan, {"ttl": "700"})
 
     def test_rss2_feed_with_decorated_methods(self):
+        """
+        Tests the RSS2 feed at the '/syndication/rss2/with-decorated-methods/' endpoint, verifying that it contains the expected categories, channel metadata, and item details, specifically checking for overridden values decorated by the @wraps function.
+        """
         response = self.client.get("/syndication/rss2/with-decorated-methods/")
         doc = minidom.parseString(response.content)
         chan = doc.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0]
@@ -274,6 +280,9 @@ class SyndicationFeedTest(FeedTestCase):
             )
 
     def test_rss2_single_enclosure(self):
+        """
+        Tests the RSS 2.0 feed with a single enclosure to ensure each item contains exactly one enclosure element.
+        """
         response = self.client.get("/syndication/rss2/single-enclosure/")
         doc = minidom.parseString(response.content)
         chan = doc.getElementsByTagName("rss")[0].getElementsByTagName("channel")[0]
@@ -419,6 +428,9 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertNotEqual(published, updated)
 
     def test_atom_single_enclosure(self):
+        """
+        Tests an Atom feed with a single enclosure to ensure it contains exactly one enclosure link in each feed entry.
+        """
         response = self.client.get("/syndication/atom/single-enclosure/")
         feed = minidom.parseString(response.content).firstChild
         items = feed.getElementsByTagName("entry")
@@ -428,6 +440,9 @@ class SyndicationFeedTest(FeedTestCase):
             self.assertEqual(len(links), 1)
 
     def test_atom_multiple_enclosures(self):
+        """
+        Tests the Atom feed for a single entry with multiple enclosures, verifying that each enclosure is correctly represented with a 'link' element having 'rel' attribute set to 'enclosure'.
+        """
         response = self.client.get("/syndication/atom/multiple-enclosure/")
         feed = minidom.parseString(response.content).firstChild
         items = feed.getElementsByTagName("entry")
@@ -462,6 +477,14 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertEqual(updated, latest_updated)
 
     def test_custom_feed_generator(self):
+        """
+
+        Tests the custom feed generator.
+
+        Verifies the structure and content of the generated feed, including its root element,
+        attributes, and child nodes. Additionally, checks the number and properties of feed entries.
+
+        """
         response = self.client.get("/syndication/custom/")
         feed = minidom.parseString(response.content).firstChild
 
@@ -550,6 +573,9 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertEqual(published[-6:], "+00:42")
 
     def test_feed_no_content_self_closing_tag(self):
+        """
+        Checks if the provided feed generators correctly produce self-closing tags for feed URLs in the output XML.
+        """
         tests = [
             (Atom1Feed, "link"),
             (Rss201rev2Feed, "atom:link"),
@@ -575,6 +601,9 @@ class SyndicationFeedTest(FeedTestCase):
         self.assertNotIn("xml-stylesheet", feed.writeString("utf-8"))
 
     def test_stylesheets(self):
+        """
+        Tests the rendering of stylesheet links in RSS feeds, verifying that various input types, such as URLs, static file references, and stylesheet objects, result in the correct XML stylesheet tags.
+        """
         testdata = [
             # Plain strings.
             ("/test.xsl", 'href="/test.xsl" type="text/xsl" media="screen"'),
@@ -636,6 +665,9 @@ class SyndicationFeedTest(FeedTestCase):
                 self.assertIn(f"<?xml-stylesheet {expected}?>", doc)
 
     def test_stylesheets_instructions_are_at_the_top(self):
+        """
+        Checks that XML stylesheets instructions are correctly placed at the top of the XML document returned by the /syndication/stylesheet/ endpoint, with the expected stylesheet:href, type, and media attributes.
+        """
         response = self.client.get("/syndication/stylesheet/")
         doc = minidom.parseString(response.content)
         self.assertEqual(doc.childNodes[0].nodeName, "xml-stylesheet")
@@ -822,6 +854,11 @@ class SyndicationFeedTest(FeedTestCase):
                 self.assertEqual(views.add_domain(*prefix[0]), prefix[1])
 
     def test_get_object(self):
+        """
+
+        Tests the retrieval of an RSS feed for a specific article, verifying its contents.
+
+        """
         response = self.client.get("/syndication/rss2/articles/%s/" % self.e1.pk)
         doc = minidom.parseString(response.content)
         feed = doc.getElementsByTagName("rss")[0]

@@ -34,6 +34,9 @@ class StaticLiveServerChecks(LiveServerBase):
     def setUpClass(cls):
         # If contrib.staticfiles isn't configured properly, the exception
         # should bubble up to the main thread.
+        """
+        Set up the class by temporarily overriding the STATIC_URL setting to test exception handling, restoring the original value afterwards.
+        """
         old_STATIC_URL = TEST_SETTINGS["STATIC_URL"]
         TEST_SETTINGS["STATIC_URL"] = None
         try:
@@ -48,6 +51,11 @@ class StaticLiveServerChecks(LiveServerBase):
 
     @classmethod
     def raises_exception(cls):
+        """
+        .. classmethod:: raises_exception(cls)
+
+            Verifies that :meth:`setUpClass` raises an :exc:`ImproperlyConfigured` exception as expected. If no exception is raised, it raises an :exc:`Exception` to signal the test failure.
+        """
         try:
             super().setUpClass()
         except ImproperlyConfigured:

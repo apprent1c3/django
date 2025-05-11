@@ -44,6 +44,13 @@ class AccessMixin:
         return self.redirect_field_name
 
     def handle_no_permission(self):
+        """
+        Handle the case when a user does not have permission to access a resource.
+
+        If the user is authenticated or an exception is to be raised, a PermissionDenied
+        exception is raised. Otherwise, the user is redirected to the login page,
+        preserving the current request path if the login URL is on the same domain.
+        """
         if self.raise_exception or self.request.user.is_authenticated:
             raise PermissionDenied(self.get_permission_denied_message())
 

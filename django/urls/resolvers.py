@@ -45,6 +45,9 @@ class ResolverMatch:
         captured_kwargs=None,
         extra_kwargs=None,
     ):
+        """
+        Initializes a new instance to store and manage view function metadata, including the function itself, its arguments, URL name, route, and namespace information, providing a centralized way to access and manipulate view function details.
+        """
         self.func = func
         self.args = args
         self.kwargs = kwargs
@@ -77,6 +80,9 @@ class ResolverMatch:
         return (self.func, self.args, self.kwargs)[index]
 
     def __repr__(self):
+        """
+        Return a string representation of the ResolverMatch object, detailing the matched URL's associated function and captured parameters.
+        """
         if isinstance(self.func, functools.partial):
             func = repr(self.func)
         else:
@@ -193,6 +199,14 @@ class RegexPattern(CheckURLMixin):
     regex = LocaleRegexDescriptor()
 
     def __init__(self, regex, name=None, is_endpoint=False):
+        """
+        Initializes a routing rule with a regular expression pattern.
+
+        :param regex: The regular expression pattern to match.
+        :param name: An optional name for the rule.
+        :param is_endpoint: A flag indicating whether this rule represents an endpoint.
+
+        """
         self._regex = regex
         self._regex_dict = {}
         self._is_endpoint = is_endpoint
@@ -200,6 +214,15 @@ class RegexPattern(CheckURLMixin):
         self.converters = {}
 
     def match(self, path):
+        """
+        ::
+
+            Matches a given path against the object's regular expression pattern.
+
+            If a match is found, returns a tuple containing the remaining unprocessed path,
+            positional arguments, and keyword arguments extracted from the match.
+            Otherwise, returns None.
+        """
         match = (
             self.regex.fullmatch(path)
             if self._is_endpoint and self.regex.pattern.endswith("$")
@@ -216,6 +239,12 @@ class RegexPattern(CheckURLMixin):
         return None
 
     def check(self):
+        """
+        Checks the current configuration for potential issues and returns a list of warnings.
+
+        These checks include verifying if endpoint patterns start with a slash and 
+        (if not an endpoint) ensuring that patterns include a trailing dollar sign.
+        """
         warnings = []
         warnings.extend(self._check_pattern_startswith_slash())
         if not self._is_endpoint:
@@ -315,6 +344,16 @@ class RoutePattern(CheckURLMixin):
     regex = LocaleRegexRouteDescriptor()
 
     def __init__(self, route, name=None, is_endpoint=False):
+        """
+        Initializes a route with the given path.
+
+        This constructor transforms the route into a regular expression and 
+        stores other relevant information such as whether this route acts as an endpoint.
+
+        :param route: The path of the route to be initialized
+        :param name: Optional name for the route, defaults to None
+        :param is_endpoint: Flag indicating if the route is an endpoint, defaults to False
+        """
         self._route = route
         self._regex, self.converters = _route_to_regex(str(route), is_endpoint)
         self._regex_dict = {}
@@ -322,6 +361,11 @@ class RoutePattern(CheckURLMixin):
         self.name = name
 
     def match(self, path):
+        """
+        Match a URL path against a predefined regular expression pattern.
+
+        The function attempts to find a match in the given path, and if successful, it extracts and converts any captured values using predefined converters. The function returns a tuple containing the unmatched part of the path, an empty tuple for positional arguments, and a dictionary of keyword arguments if a match is found. If no match is found or a conversion fails, the function returns None.
+        """
         match = self.regex.search(path)
         if match:
             # RoutePattern doesn't allow non-named groups so args are ignored.
@@ -336,6 +380,12 @@ class RoutePattern(CheckURLMixin):
         return None
 
     def check(self):
+        """
+        Checks the URL pattern for potential issues and returns a list of warnings. 
+        The function verifies the pattern for startswith slash, unmatched angle brackets, and 
+        regex syntax leftovers from django.urls.re_path() syntax, 
+        which may cause inconsistencies when using django.urls.path().
+        """
         warnings = [
             *self._check_pattern_startswith_slash(),
             *self._check_pattern_unmatched_angle_brackets(),
@@ -353,6 +403,12 @@ class RoutePattern(CheckURLMixin):
         return warnings
 
     def _check_pattern_unmatched_angle_brackets(self):
+        """
+        Check if the URL pattern contains unmatched angle brackets.
+
+        Returns a list of warnings if the pattern has unmatched '<' or '>' characters.
+
+        """
         warnings = []
         msg = "Your URL pattern %s has an unmatched '%s' bracket."
         brackets = re.findall(r"[<>]", str(self._route))
@@ -387,6 +443,12 @@ class LocalePrefixPattern:
 
     @property
     def language_prefix(self):
+        """
+        ..: property::
+            Returns the language prefix for the current context.
+
+            The prefix is determined by the current language code, and is empty if the current language is the default language and :attr:`prefix_default_language` is False. Otherwise, the prefix is the language code followed by a slash.
+        """
         language_code = get_language() or settings.LANGUAGE_CODE
         if language_code == settings.LANGUAGE_CODE and not self.prefix_default_language:
             return ""
@@ -440,6 +502,15 @@ class URLPattern:
             return []
 
     def _check_callback(self):
+        """
+        檢查 URL 模式的調用函數是否是一個有效的 View 實例。
+
+        ：rierIFT：檢查調用函數是否是 Django View 類別的一個實例，如果不是則返回一個錯誤列表。
+
+        ：param self: 當前 URL模式實例
+
+        ：return: 一個列表，包含錯誤信息，如果調用函數無效，则返回一個錯誤列表，否則返回空列表。
+        """
         from django.views import View
 
         view = self.callback
@@ -459,6 +530,15 @@ class URLPattern:
         return []
 
     def resolve(self, path):
+        """
+
+        Resolve a given path against a predefined pattern.
+
+        Matches the path to extract positional arguments and keyword arguments, 
+        then returns a ResolverMatch object containing the associated callback, 
+        arguments, and other relevant metadata.
+
+        """
         match = self.pattern.match(path)
         if match:
             new_path, args, captured_kwargs = match
@@ -494,6 +574,9 @@ class URLResolver:
     def __init__(
         self, pattern, urlconf_name, default_kwargs=None, app_name=None, namespace=None
     ):
+        """
+        Initializes an instance for handling URL patterns, namespaces, and applications, preparing it for URL resolution and reverse URL lookup.
+        """
         self.pattern = pattern
         # urlconf_name is the dotted Python path to the module defining
         # urlpatterns. It may also be an object with an urlpatterns attribute
@@ -513,6 +596,9 @@ class URLResolver:
         self._local = Local()
 
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its class name, URL configuration, app name, namespace, and pattern description.
+        """
         if isinstance(self.urlconf_name, list) and self.urlconf_name:
             # Don't bother to output the whole list, it can be huge
             urlconf_repr = "<%s list>" % self.urlconf_name[0].__class__.__name__
@@ -537,6 +623,12 @@ class URLResolver:
         # infinite recursion. Concurrent threads may call this at the same
         # time and will need to continue, so set 'populating' on a
         # thread-local variable.
+        """
+        Populates internal data structures for efficient URL reversal and resolution.
+        This includes building dictionaries of URL patterns, namespaces, and applications,
+        which are used to handle URL lookups and reverse lookups.
+        The populated data is stored on the instance and is language-code specific.
+        """
         if getattr(self._local, "populating", False):
             return
         try:
@@ -658,6 +750,21 @@ class URLResolver:
         return name in self._callback_strs
 
     def resolve(self, path):
+        """
+
+        Resolves a URL path against the registered URL patterns.
+
+        This method attempts to match a given path against the defined URL patterns and returns a ResolverMatch object if a match is found.
+        If no match is found, it raises a Resolver404 exception with information about the attempted matches.
+
+        The resolution process involves the following steps:
+
+        * Matching the path against the main pattern
+        * For a successful match, recursively resolving the new path against the registered sub-patterns
+        * Returning a ResolverMatch object with the resolved function, arguments, and other relevant information if a match is found
+        * Raising a Resolver404 exception if no match is found, providing information about the attempted matches
+
+        """
         path = str(path)  # path may be a reverse_lazy object
         tried = []
         match = self.pattern.match(path)
@@ -715,6 +822,12 @@ class URLResolver:
     @cached_property
     def url_patterns(self):
         # urlconf_module might be a valid set of patterns, so we default to it
+        """
+        Returns the URL patterns from the included URL configuration module.
+
+        If the module does not define any patterns, an error is raised, indicating a possible circular import issue.
+
+        """
         patterns = getattr(self.urlconf_module, "urlpatterns", self.urlconf_module)
         try:
             iter(patterns)
@@ -729,6 +842,17 @@ class URLResolver:
         return patterns
 
     def resolve_error_handler(self, view_type):
+        """
+
+        Resolve an error handler for a given view type.
+
+        This method attempts to find an error handler callback from the current URL configuration module,
+        falling back to Django's default error handlers if not found.
+
+        :param view_type: Type of view (e.g. '404', '500')
+        :return: Resolved error handler callback
+
+        """
         callback = getattr(self.urlconf_module, "handler%s" % view_type, None)
         if not callback:
             # No handler specified in file; use lazy import, since
@@ -742,6 +866,11 @@ class URLResolver:
         return self._reverse_with_prefix(lookup_view, "", *args, **kwargs)
 
     def _reverse_with_prefix(self, lookup_view, _prefix, *args, **kwargs):
+        """
+        Reverses a URL pattern for a given view, prefix, and arguments.
+
+        Given a view name, prefix, positional arguments, and keyword arguments, attempts to find a matching URL pattern in the reverse dictionary. If a match is found, the function returns the corresponding URL. If no match is found, a NoReverseMatch exception is raised with a descriptive error message.
+        """
         if args and kwargs:
             raise ValueError("Don't mix *args and **kwargs in call to reverse()!")
 

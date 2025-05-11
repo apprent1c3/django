@@ -187,6 +187,14 @@ class BaseSpatialOperations:
         )
 
     def get_area_att_for_field(self, field):
+        """
+        Returns the area attribute for a given field, taking into account the field's unit of measurement and geodetic coordinate system support.
+
+        This function determines the appropriate area unit attribute based on whether the field is geodetic or not, and if it has a defined unit of measurement.
+
+        :raises NotImplementedError: if the field is geodetic and area calculation on geodetic coordinate systems is not supported.
+        :returns: the area attribute for the field, or raises an exception if not supported.
+        """
         if field.geodetic(self.connection):
             if self.connection.features.supports_area_geodetic:
                 return "sq_m"
@@ -199,6 +207,11 @@ class BaseSpatialOperations:
                 return AreaMeasure.unit_attname(units_name)
 
     def get_distance_att_for_field(self, field):
+        """
+
+        Returns the distance attribute for a given field, taking into account its geodetic properties and the connection's capabilities.
+
+        """
         dist_att = None
         if field.geodetic(self.connection):
             if self.connection.features.supports_distance_geodetic:

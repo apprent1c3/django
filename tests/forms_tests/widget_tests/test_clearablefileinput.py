@@ -127,6 +127,9 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_render_no_disabled(self):
+        """
+        Tests that rendering a form with a clearable file field does not produce any template debug logs when the field is not disabled.
+        """
         class TestForm(Form):
             clearable_file = FileField(
                 widget=self.widget, initial=FakeFieldFile(), required=False
@@ -201,6 +204,9 @@ class ClearableFileInputTest(WidgetTest):
             self.widget.render("myfile", FailingURLFieldFile())
 
     def test_url_as_property(self):
+        """
+        Tests the URL property of a URLFieldFile object is properly rendered as a hyperlink.
+        """
         class URLFieldFile:
             @property
             def url(self):
@@ -213,6 +219,9 @@ class ClearableFileInputTest(WidgetTest):
         self.assertInHTML('<a href="https://www.python.org/">value</a>', html)
 
     def test_return_false_if_url_does_not_exists(self):
+        """
+        Tests that the widget returns a basic file input field when the URL does not exist.
+        """
         class NoURLFieldFile:
             def __str__(self):
                 return "value"
@@ -237,6 +246,9 @@ class ClearableFileInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a form containing file fields with the given widget, including cases where the field has an initial value and where the field is clearable.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = FileField(widget=self.widget)

@@ -86,6 +86,15 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": ["empty_models"]})
     def test_contenttypes_removed_in_installed_apps_without_models(self):
+        """
+
+        Tests removal of stale content types when certain apps are removed from INSTALLED_APPS.
+
+        Verifies that the 'remove_stale_contenttypes' command correctly handles content types
+        associated with apps that no longer have models, while excluding apps that are
+        still present in INSTALLED_APPS.
+
+        """
         ContentType.objects.create(app_label="empty_models", model="Fake 1")
         ContentType.objects.create(app_label="no_models", model="Fake 2")
         with (
@@ -105,6 +114,12 @@ class RemoveStaleContentTypesTests(TestCase):
 
     @modify_settings(INSTALLED_APPS={"remove": ["empty_models"]})
     def test_contenttypes_removed_for_apps_not_in_installed_apps(self):
+        """
+        Tests the removal of stale content types for models in apps not listed in INSTALLED_APPS.
+
+        Verifies that the 'remove_stale_contenttypes' command correctly identifies and removes content types for models
+        belonging to apps not in INSTALLED_APPS, ensuring the database is cleaned of stale references.
+        """
         ContentType.objects.create(app_label="empty_models", model="Fake 1")
         ContentType.objects.create(app_label="no_models", model="Fake 2")
         with (

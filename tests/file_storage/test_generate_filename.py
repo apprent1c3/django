@@ -43,6 +43,9 @@ class StorageGenerateFilenameTests(SimpleTestCase):
     storage_class = Storage
 
     def test_valid_names(self):
+        """
+        Tests the generation of valid filenames from a variety of input names, including those containing special characters, dots, and backslashes, ensuring the output is consistent and properly normalized.
+        """
         storage = self.storage_class()
         name = "UnTRIVíAL @fil$ena#me!"
         valid_name = storage.get_valid_name(name)
@@ -70,6 +73,11 @@ class FileSystemStorageGenerateFilenameTests(StorageGenerateFilenameTests):
 
 class GenerateFilenameStorageTests(SimpleTestCase):
     def test_storage_dangerous_paths(self):
+        """
+        Tests the handling of potentially malicious file paths in the FileSystemStorage class.
+
+        Verifies that the get_available_name and generate_filename methods raise a SuspiciousFileOperation exception for paths that could be used to access or overwrite arbitrary files on the file system.
+        """
         candidates = [
             ("/tmp/..", ".."),
             ("\\tmp\\..", ".."),
@@ -92,6 +100,13 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     s.generate_filename(file_name)
 
     def test_storage_dangerous_paths_dir_name(self):
+        """
+        Tests that FileSystemStorage correctly handles potentially dangerous directory paths.
+
+        This test case verifies that the get_available_name and generate_filename methods raise 
+        SuspiciousFileOperation exceptions when provided with file names that could lead to path 
+        traversal attacks, both with and without the allow_overwrite option enabled.
+        """
         candidates = [
             ("../path", ".."),
             ("..\\path", ".."),
@@ -113,6 +128,9 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     s.generate_filename(file_name)
 
     def test_filefield_dangerous_filename(self):
+        """
+        Tests that the FileField correctly raises a SuspiciousFileOperation exception when given a potentially dangerous filename, such as one containing relative paths or special characters.
+        """
         candidates = [
             ("..", "some/folder/.."),
             (".", "some/folder/."),
@@ -134,6 +152,9 @@ class GenerateFilenameStorageTests(SimpleTestCase):
             f.generate_filename(None, "../path")
 
     def test_filefield_generate_filename_absolute_path(self):
+        """
+        Tests the generate_filename method of a FileField to prevent absolute path detection and prevent path traversal attacks.
+        """
         f = FileField(upload_to="some/folder/")
         candidates = [
             "/tmp/path",
@@ -163,6 +184,9 @@ class GenerateFilenameStorageTests(SimpleTestCase):
         )
 
     def test_filefield_generate_filename_upload_to_overrides_dangerous_filename(self):
+        """
+        Tests that the generate_filename method of a FileField respects the upload_to parameter and ignores potentially dangerous filename inputs, ensuring that the filename is always overridden by the specified upload_to function.
+        """
         def upload_to(instance, filename):
             return "test.txt"
 
@@ -185,6 +209,12 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                 self.assertEqual(f.generate_filename(None, file_name), "test.txt")
 
     def test_filefield_generate_filename_upload_to_absolute_path(self):
+        """
+        Tests the generation of filenames for file uploads to prevent path traversal attacks.
+
+        Verifies that the FileField correctly detects and raises a SuspiciousFileOperation exception when given
+        a filename that could be used to access files outside the intended upload directory.
+        """
         def upload_to(instance, filename):
             return "/tmp/" + filename
 
@@ -202,6 +232,11 @@ class GenerateFilenameStorageTests(SimpleTestCase):
                     f.generate_filename(None, file_name)
 
     def test_filefield_generate_filename_upload_to_dangerous_filename(self):
+        """
+        Tests that the FileField generate_filename method raises a SuspiciousFileOperation 
+        when given a potentially dangerous filename (i.e. one that could be used to access 
+        files outside of the intended directory).
+        """
         def upload_to(instance, filename):
             return "/tmp/" + filename
 

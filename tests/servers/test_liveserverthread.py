@@ -10,6 +10,14 @@ class LiveServerThreadTest(TransactionTestCase):
     available_apps = []
 
     def run_live_server_thread(self, connections_override=None):
+        """
+        Run a live server in a separate thread, allowing for asynchronous testing.
+
+        This method creates a server thread, starts it, waits for it to become ready, 
+        and then terminates it. The connections_override parameter can be used to 
+        customize the server's connections.
+
+        """
         thread = LiveServerTestCase._create_server_thread(connections_override)
         thread.daemon = True
         thread.start()
@@ -17,6 +25,12 @@ class LiveServerThreadTest(TransactionTestCase):
         thread.terminate()
 
     def test_closes_connections(self):
+        """
+        Tests that database connections are properly closed after use.
+
+        Verifies that a connection is initially established, then closed after running
+        the live server thread, ensuring thread sharing is managed correctly.
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         # Pass a connection to the thread to check they are being closed.
         connections_override = {DEFAULT_DB_ALIAS: conn}
@@ -31,6 +45,9 @@ class LiveServerThreadTest(TransactionTestCase):
             conn.dec_thread_sharing()
 
     def test_server_class(self):
+        """
+        Verifies that the LiveServerTestCase creates a server instance of the expected class.
+        """
         class FakeServer:
             def __init__(*args, **kwargs):
                 pass

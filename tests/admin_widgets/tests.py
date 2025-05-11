@@ -145,6 +145,9 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         self.assertIsNone(ff.empty_label)
 
     def test_radio_fields_foreignkey_formfield_overrides_empty_label(self):
+        """
+        Tests that form field overrides for foreign key fields are correctly applied when using radio fields in a model admin, specifically that the custom empty label is used.
+        """
         class MyModelAdmin(admin.ModelAdmin):
             radio_fields = {"parent": admin.VERTICAL}
             formfield_overrides = {
@@ -276,6 +279,11 @@ class AdminFormfieldForDBFieldTests(SimpleTestCase):
         )
 
     def test_m2m_widgets_no_allow_multiple_selected(self):
+        """
+        Tests that ManyToManyField widgets behave correctly when allow_multiple_selected is set to False, 
+        ensuring that a standard filtered select multiple widget is still used for form rendering, 
+        regardless of the widget override in the admin interface.
+        """
         class NoAllowMultipleSelectedWidget(forms.SelectMultiple):
             allow_multiple_selected = False
 
@@ -325,6 +333,9 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_nonexistent_target_id(self):
+        """
+        Tests that selecting a nonexistent target ID when adding an event in the admin interface returns a validation error.
+        """
         band = Band.objects.create(name="Bogey Blues")
         pk = band.pk
         band.delete()
@@ -360,6 +371,10 @@ class AdminForeignKeyRawIdWidget(TestDataMixin, TestCase):
         self.assertEqual(lookup1, lookup2)
 
     def test_url_params_from_lookup_dict_callable(self):
+        """
+        Tests that url_params_from_lookup_dict correctly handles callable values in the lookup dictionary, 
+        ensuring they are evaluated and resulting strings are used as url parameters.
+        """
         def my_callable():
             return "works"
 
@@ -461,6 +476,10 @@ class AdminSplitDateTimeWidgetTest(SimpleTestCase):
 
 class AdminURLWidgetTest(SimpleTestCase):
     def test_get_context_validates_url(self):
+        """
+        Tests the get_context method of the AdminURLFieldWidget to ensure it correctly validates URLs. 
+        Checks that invalid URLs (e.g. empty, relative, or malicious) are flagged as invalid, while valid URLs are accepted.
+        """
         w = widgets.AdminURLFieldWidget()
         for invalid in ["", "/not/a/full/url/", 'javascript:alert("Danger XSS!")']:
             with self.subTest(url=invalid):
@@ -676,6 +695,11 @@ class AdminFileWidgetTests(TestDataMixin, TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class ForeignKeyRawIdWidgetTest(TestCase):
     def test_render(self):
+        """
+        Tests the rendering of a ForeignKeyRawIdWidget for related objects, 
+        verifying that the widget correctly displays the object's UUID and lookup link, 
+        and properly handles cases where no object is selected.
+        """
         band = Band.objects.create(name="Linkin Park")
         band.album_set.create(
             name="Hybrid Theory", cover_art=r"albums\hybrid_theory.jpg"
@@ -704,6 +728,12 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_relations_to_non_primary_key(self):
         # ForeignKeyRawIdWidget works with fields which aren't related to
         # the model's primary key.
+        """
+        Verifies rendering of a raw ID widget for a foreign key relation to a non-primary key field.
+
+        Tests that the widget correctly displays the related object's identifier and provides a link to look up the related object.
+
+        """
         apple = Inventory.objects.create(barcode=86, name="Apple")
         Inventory.objects.create(barcode=22, name="Pear")
         core = Inventory.objects.create(barcode=87, name="Core", parent=apple)
@@ -722,6 +752,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_fk_related_model_not_in_admin(self):
         # FK to a model not registered with admin site. Raw ID widget should
         # have no magnifying glass link. See #16542
+        """
+        Tests that the foreign key related model is correctly represented in the admin interface when using the ForeignKeyRawIdWidget.
+        """
         big_honeycomb = Honeycomb.objects.create(location="Old tree")
         big_honeycomb.bee_set.create()
         rel = Bee._meta.get_field("honeycomb").remote_field
@@ -737,6 +770,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
     def test_fk_to_self_model_not_in_admin(self):
         # FK to self, not registered with admin site. Raw ID widget should have
         # no magnifying glass link. See #16542
+        """
+        Tests that a foreign key pointing to the same model (self-referential) is properly rendered as a raw ID widget in the admin interface, including the display of the related object's string representation.
+        """
         subject1 = Individual.objects.create(name="Subject #1")
         Individual.objects.create(name="Child", parent=subject1)
         rel = Individual._meta.get_field("parent").remote_field
@@ -751,6 +787,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
 
     def test_proper_manager_for_label_lookup(self):
         # see #9258
+        """
+        Tests that the proper manager is used for label lookup in the ForeignKeyRawIdWidget, ensuring that hidden items are correctly displayed.
+        """
         rel = Inventory._meta.get_field("parent").remote_field
         w = widgets.ForeignKeyRawIdWidget(rel, widget_admin_site)
 
@@ -793,6 +832,9 @@ class ForeignKeyRawIdWidgetTest(TestCase):
 @override_settings(ROOT_URLCONF="admin_widgets.urls")
 class ManyToManyRawIdWidgetTest(TestCase):
     def test_render(self):
+        """
+        Tests the rendering of a ManyToMany raw ID widget for the band members field, ensuring it correctly displays the selected member IDs and includes a lookup link.
+        """
         band = Band.objects.create(name="Linkin Park")
 
         m1 = Member.objects.create(name="Chester")
@@ -826,6 +868,9 @@ class ManyToManyRawIdWidgetTest(TestCase):
     def test_m2m_related_model_not_in_admin(self):
         # M2M relationship with model not registered with admin site. Raw ID
         # widget should have no magnifying glass link. See #16542
+        """
+        Tests that a ManyToMany related model field is correctly rendered in the admin interface as a raw id input field, with the selected instance IDs separated by commas.
+        """
         consultor1 = Advisor.objects.create(name="Rockstar Techie")
 
         c1 = Company.objects.create(name="Doodle")
@@ -857,6 +902,12 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(w.can_add_related)
 
     def test_select_multiple_widget_cant_change_delete_related(self):
+        """
+
+        Tests that a SelectMultiple widget for a related field 
+        does not allow changing or deleting related objects.
+
+        """
         rel = Individual._meta.get_field("parent").remote_field
         widget = forms.SelectMultiple()
         wrapper = widgets.RelatedFieldWidgetWrapper(
@@ -872,6 +923,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(wrapper.can_delete_related)
 
     def test_on_delete_cascade_rel_cant_delete_related(self):
+        """
+        Tests that a related field widget wrapper correctly disables deletion of related objects when the relationship is defined with on_delete=cascade.
+        """
         rel = Individual._meta.get_field("soulmate").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(
@@ -887,6 +941,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertFalse(wrapper.can_delete_related)
 
     def test_custom_widget_render(self):
+        """
+        Tests that a custom widget can be successfully used to render a related field, ensuring the custom rendering output is included in the final HTML output.
+        """
         class CustomWidget(forms.Select):
             def render(self, *args, **kwargs):
                 return "custom render output"
@@ -905,6 +962,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIn("custom render output", output)
 
     def test_widget_delegates_value_omitted_from_data(self):
+        """
+        Tests that a custom widget's value_omitted_from_data method is correctly invoked by the RelatedFieldWidgetWrapper, ensuring that the method's return value is used to determine whether the widget's value is omitted from the data.
+        """
         class CustomWidget(forms.Select):
             def value_omitted_from_data(self, data, files, name):
                 return False
@@ -915,6 +975,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIs(wrapper.value_omitted_from_data({}, {}, "band"), False)
 
     def test_widget_is_hidden(self):
+        """
+        Tests that a hidden widget for a related field is correctly rendered as hidden and does not contain a link.
+        """
         rel = Album._meta.get_field("band").remote_field
         widget = forms.HiddenInput()
         widget.choices = ()
@@ -927,6 +990,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertNotIn("<a ", output)
 
     def test_widget_is_not_hidden(self):
+        """
+        Verify that the RelatedFieldWidgetWrapper does not hide the widget by default.
+        """
         rel = Album._meta.get_field("band").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(widget, rel, widget_admin_site)
@@ -938,6 +1004,9 @@ class RelatedFieldWidgetWrapperTests(SimpleTestCase):
         self.assertIn("<a ", output)
 
     def test_data_model_ref_when_model_name_is_camel_case(self):
+        """
+        Tests the rendering of a RelatedFieldWidgetWrapper when the model name contains camel case, ensuring the widget is not hidden and the rendered HTML is correct.
+        """
         rel = VideoStream._meta.get_field("release_event").remote_field
         widget = forms.Select()
         wrapper = widgets.RelatedFieldWidgetWrapper(widget, rel, widget_admin_site)
@@ -1237,6 +1306,9 @@ class DateTimePickerAltTimezoneSeleniumTests(DateTimePickerShortcutsSeleniumTest
 
 class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def setUp(self):
+        """
+        Sets up test data, including a school and several students, for use in subsequent tests.
+        """
         super().setUp()
         self.lisa = Student.objects.create(name="Lisa")
         self.john = Student.objects.create(name="John")
@@ -1251,6 +1323,14 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
     def assertActiveButtons(
         self, mode, field_name, choose, remove, choose_all=None, remove_all=None
     ):
+        """
+        Verify that the add/remove buttons for a given field are in the expected state.
+
+        This function checks if the 'choose' and 'remove' buttons for a field are active,
+        and if 'choose all' and 'remove all' buttons are active when the mode is 'horizontal'.
+        It ensures that the button states match the expected values of choose, remove, choose_all, and remove_all.
+
+        """
         choose_link = "#id_%s_add_link" % field_name
         choose_all_link = "#id_%s_add_all_link" % field_name
         remove_link = "#id_%s_remove_link" % field_name
@@ -1262,6 +1342,16 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
             self.assertEqual(self.has_css_class(remove_all_link, "active"), remove_all)
 
     def execute_basic_operations(self, mode, field_name):
+        """
+        Execute basic operations on a dynamic filter element.
+
+        Perform a series of actions on a filter element, including selecting and deselecting options, 
+        adding and removing options, and verifying the state of the filter buttons. The operations 
+        can be performed in either 'horizontal' or 'vertical' mode.
+
+        :param mode: The mode in which to perform the operations ('horizontal' or 'vertical')
+        :param field_name: The name of the field being filtered
+        """
         from selenium.webdriver.common.by import By
 
         original_url = self.selenium.current_url
@@ -1463,6 +1553,12 @@ class HorizontalVerticalFilterSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertEqual(self.selenium.current_url, original_url)
 
     def test_basic(self):
+        """
+        Tests basic CRUD operations on the School admin page.
+
+        Verifies that a user can successfully interact with the student and alumni 
+        widgets, save changes, and that the updated data is correctly persisted to the database.
+        """
         from selenium.webdriver.common.by import By
 
         self.school.students.set([self.lisa, self.peter])
@@ -1681,6 +1777,9 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
         Band.objects.create(id=98, name="Green Potatoes")
 
     def test_ForeignKey(self):
+        """
+        Tests the ForeignKey functionality by clicking on the link to select a related object and verifying that the correct value is populated in the main window.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1717,6 +1816,14 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
         self.wait_for_value("#id_main_band", "98")
 
     def test_many_to_many(self):
+        """
+
+        Tests the many-to-many functionality in the admin interface.
+
+        Verifies that the relationship between events and supporting bands can be established and
+        displayed correctly, using the Django admin's lookup popup to select and add bands.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1766,6 +1873,9 @@ class AdminRawIdWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
 
 class RelatedFieldWidgetSeleniumTests(AdminWidgetSeleniumTestCase):
     def test_ForeignKey_using_to_field(self):
+        """
+        Tests the functionality of a foreign key field in the admin interface, specifically using the 'to_field' attribute, by simulating user interactions to create and edit a profile with a foreign key to a user.
+        """
         from selenium.webdriver import ActionChains
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import Select
@@ -1853,6 +1963,12 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
             ).click()
 
     def _run_image_upload_path(self):
+        """
+        Run image upload test for student creation in the admin interface.
+
+        Tests that an image can be successfully uploaded when creating a new student through the admin interface,
+        verifying that the image is saved with the expected filename pattern.
+        """
         from selenium.webdriver.common.by import By
 
         self.admin_login(username="super", password="secret", login_url="/")
@@ -1870,6 +1986,12 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertRegex(student.photo.name, r"^photos\/(test|test_.+).png")
 
     def test_clearablefileinput_widget(self):
+        """
+
+        Tests the ClearableFileInput widget functionality by uploading an image, clearing it, 
+        and verifying that the associated field is properly updated and cleared.
+
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()
@@ -1884,6 +2006,11 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertNotIn("Change", photo_field_row.text)
 
     def test_clearablefileinput_widget_invalid_file(self):
+        """
+        Tests that the ClearableFileInput widget handles invalid images correctly, 
+        displaying an error message when a corrupted image is uploaded and 
+        retaining the ability to change or clear the current image.
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()
@@ -1905,6 +2032,14 @@ class ImageFieldWidgetsSeleniumTests(AdminWidgetSeleniumTestCase):
         self.assertIn("Change", photo_field_row.text)
 
     def test_clearablefileinput_widget_preserve_clear_checkbox(self):
+        """
+
+        Tests that the clearable file input widget preserves the state of the clear checkbox 
+        after submission when the associated field has an error. Verifies the checkbox 
+        is initially unchecked, becomes checked after being clicked, and remains checked 
+        after form submission with a validation error. 
+
+        """
         from selenium.webdriver.common.by import By
 
         self._run_image_upload_path()

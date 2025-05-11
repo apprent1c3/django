@@ -193,6 +193,11 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(troy.state.name, "Western Australia")
 
     def test_null_join_promotion(self):
+        """
+        [Test the promotion of null joins in database queries]
+        Checks if the ORM correctly handles null joins in related object queries, 
+        ensuring that the resulting SQL queries are efficient and correctly constructed.
+        """
         australia = Country.objects.create(name="Australia")
         active = ClientStatus.objects.create(name="active")
 
@@ -223,6 +228,10 @@ class SelectRelatedRegressTests(TestCase):
         self.assertEqual(Chick.objects.select_related()[0].mother.name, "Hen")
 
     def test_regression_10733(self):
+        """
+        Tests that the select_related method is able to efficiently load related objects 
+        with the specified attributes, without incurring additional database queries.
+        """
         a = A.objects.create(name="a", lots_of_text="lots_of_text_a", a_field="a_field")
         b = B.objects.create(name="b", lots_of_text="lots_of_text_b", b_field="b_field")
         c = C.objects.create(
@@ -247,6 +256,11 @@ class SelectRelatedRegressTests(TestCase):
             self.assertEqual(qs_c.c_b.name, "b")
 
     def test_regression_22508(self):
+        """
+        Tests that selecting a related object in a previous query prevents additional database queries.
+
+        Verifies that using select_related() when fetching the port object reduces the number of database queries when accessing the device and building objects associated with the port.
+        """
         building = Building.objects.create(name="101")
         device = Device.objects.create(name="router", building=building)
         Port.objects.create(port_number="1", device=device)

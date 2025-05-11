@@ -38,6 +38,12 @@ class FlatPage(models.Model):
         return "%s -- %s" % (self.url, self.title)
 
     def get_absolute_url(self):
+        """
+        Returns the absolute URL for the current flatpage.
+
+                   Attempts to reverse the URL pattern for the flatpage view, 
+                   falling back to constructing a URI from the script prefix if no match is found.
+        """
         from .views import flatpage
 
         for url in (self.url.lstrip("/"), self.url):

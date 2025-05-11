@@ -10,6 +10,9 @@ from django.core.checks import Error, Tags, Warning, register
 
 @register(Tags.models)
 def check_all_models(app_configs=None, **kwargs):
+    """
+    Checks all models for errors, performing checks on model configuration, table name uniqueness, index uniqueness, and constraint uniqueness, and returns a list of errors found.
+    """
     db_table_models = defaultdict(list)
     indexes = defaultdict(list)
     constraints = defaultdict(list)
@@ -133,6 +136,13 @@ def _check_lazy_references(apps, ignore=None):
         return operation, args, keywords
 
     def app_model_error(model_key):
+        """
+
+        Returns an error message for a given model if it cannot be found in the app configuration.
+
+        The message indicates whether the app is installed and provides the model, or if the model is missing from an installed app.
+
+        """
         try:
             apps.get_app_config(model_key[0])
             model_error = "app '%s' doesn't provide model '%s'" % model_key
@@ -159,6 +169,26 @@ def _check_lazy_references(apps, ignore=None):
         return Error(error_msg % params, obj=keywords["field"], id="fields.E307")
 
     def signal_connect_error(model_key, func, args, keywords):
+        """
+        Raises an error when a signal is connected with a lazy reference to an unavailable model.
+
+        Parameters
+        ----------
+        model_key : str
+            Key of the model that triggered the error.
+        func : function
+            Function related to the signal connection.
+        args : list
+            List of arguments, including the receiver.
+        keywords : dict
+            Dictionary of keyword arguments.
+
+        Returns
+        -------
+        Error
+            An error object containing a formatted error message and details about the receiver and model involved.
+
+        """
         error_msg = (
             "%(receiver)s was connected to the '%(signal)s' signal with a "
             "lazy reference to the sender '%(model)s', but %(model_error)s."

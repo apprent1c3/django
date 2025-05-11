@@ -35,6 +35,12 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save"], True)
 
     def test_submit_row_save_as_new_add_permission_required(self):
+        """
+
+        Test that the 'Save as new' button is displayed in the admin interface
+        based on the 'add' permission of the user.
+
+        """
         change_user = User.objects.create_user(
             username="change_user", password="secret", is_staff=True
         )
@@ -67,6 +73,9 @@ class AdminTemplateTagsTest(AdminViewBasicTestCase):
         self.assertIs(template_context["show_save_as_new"], True)
 
     def test_override_show_save_and_add_another(self):
+        """
+        Tests if the show_save_and_add_another flag can be overridden in the admin interface for user change views.
+        """
         request = self.request_factory.get(
             reverse("admin:auth_user_change", args=[self.superuser.pk]),
         )
@@ -142,6 +151,9 @@ class DateHierarchyTests(TestCase):
         )
 
     def test_choice_links(self):
+        """
+        Tests the generation of links for the date hierarchy field on the Question model admin changelist page, ensuring that the correct choices are displayed based on the current date filter.
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "posted"
 
@@ -188,6 +200,9 @@ class DateHierarchyTests(TestCase):
                 self.assertEqual(choices, expected_choices)
 
     def test_choice_links_datetime(self):
+        """
+        Tests that the date hierarchy links in the admin changelist are correctly generated for the Question model, taking into account the specified date_hierarchy field and query parameters.
+        """
         modeladmin = ModelAdmin(Question, site)
         modeladmin.date_hierarchy = "expires"
         Question.objects.bulk_create(

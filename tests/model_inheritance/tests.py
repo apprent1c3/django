@@ -37,6 +37,14 @@ class ModelInheritanceTests(TestCase):
         # subclassing. This is useful if you want to factor out common
         # information for programming purposes, but still completely
         # independent separate models at the database level.
+        """
+
+        Tests the functionality of abstract base models and their child classes.
+        Verifies that the string representation of model instances is correctly implemented,
+        and that the model manager for the abstract base model is not accessible.
+        Also checks the ordering of the Student model and the values retrieved from the Worker model.
+
+        """
         w1 = Worker.objects.create(name="Fred", age=35, job="Quarry worker")
         Worker.objects.create(name="Barney", age=34, job="Quarry worker")
 
@@ -82,6 +90,12 @@ class ModelInheritanceTests(TestCase):
 
     def test_model_with_distinct_accessors(self):
         # The Post model has distinct accessors for the Comment and Link models.
+        """
+        Tests that attempting to access a non-existent accessor on a Post object raises an AttributeError.\"\"\"
+        \"\"\" 
+            This test ensures that the model instance does not have accessors for non-existent related objects.
+
+        """
         post = Post.objects.create(title="Lorem Ipsum")
         post.attached_comment_set.create(content="Save $ on V1agr@", is_spam=True)
         post.attached_link_set.create(
@@ -140,6 +154,13 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(Restaurant._meta.ordering, ["-rating"])
 
     def test_custompk_m2m(self):
+        """
+
+        Tests whether a Many-To-Many relationship with a custom primary key functions correctly.
+        Verifies that the primary keys of related objects are distinct and that the relationship
+        is properly established.
+
+        """
         b = Base.objects.create()
         b.titles.add(Title.objects.create(title="foof"))
         s = SubBase.objects.create(sub_id=b.id)
@@ -160,6 +181,13 @@ class ModelInheritanceTests(TestCase):
             common_child.save()
 
     def test_create_diamond_mti_common_parent(self):
+        """
+
+        Tests creation of an ItalianRestaurantCommonParent instance, 
+        verifying the expected relationships between its pointers 
+        and that the correct number of database queries are executed.
+
+        """
         with self.assertNumQueries(4):
             italian_restaurant_child = ItalianRestaurantCommonParent.objects.create(
                 name="Ristorante Miron",
@@ -227,6 +255,9 @@ class ModelInheritanceTests(TestCase):
                     self.assertIn("INSERT INTO", sql, sql)
 
     def test_create_copy_with_inherited_m2m(self):
+        """
+        Tests that creating a copy of a supplier with inherited many-to-many relationships correctly preserves the relationships.
+        """
         restaurant = Restaurant.objects.create()
         supplier = CustomSupplier.objects.create(
             name="Central market", address="944 W. Fullerton"
@@ -253,6 +284,9 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_abstract_parent_link(self):
+        """
+        Tests that a OneToOneField with parent_link=True correctly links to the abstract parent model.
+        """
         class A(models.Model):
             pass
 
@@ -269,6 +303,9 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_init_subclass(self):
+        """
+        Tests the correct passing of keyword arguments to the __init_subclass__ method when a model subclass is initialized with keyword arguments.
+        """
         saved_kwargs = {}
 
         class A(models.Model):
@@ -285,6 +322,15 @@ class ModelInheritanceTests(TestCase):
 
     @isolate_apps("model_inheritance")
     def test_set_name(self):
+        """
+
+        Tests that the __set_name__ method of a class attribute descriptor is called correctly 
+        upon setting the attribute in a model class.
+
+        Verifies that the descriptor's __set_name__ method is invoked with the correct owner 
+        and attribute name when an instance of the descriptor is assigned to a class attribute.
+
+        """
         class ClassAttr:
             called = None
 
@@ -298,6 +344,9 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(A.attr.called, (A, "attr"))
 
     def test_inherited_ordering_pk_desc(self):
+        """
+        Tests that the inherited ordering for the Parent model is correctly applied, specifically that the default ordering is by the primary key of the grandparent model in descending order.
+        """
         p1 = Parent.objects.create(first_name="Joe", email="joe@email.com")
         p2 = Parent.objects.create(first_name="Jon", email="jon@email.com")
         expected_order_by_sql = "ORDER BY %s.%s DESC" % (
@@ -314,6 +363,9 @@ class ModelInheritanceTests(TestCase):
         self.assertIs(models.QuerySet[Post, int, str], models.QuerySet)
 
     def test_shadow_parent_attribute_with_field(self):
+        """
+        Tests that a model field in a subclass correctly shadows an attribute from its parent model with the same name.
+        """
         class ScalarParent(models.Model):
             foo = 1
 
@@ -323,6 +375,9 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(type(ScalarOverride.foo), DeferredAttribute)
 
     def test_shadow_parent_property_with_field(self):
+        """
+        Verifies that a model's property is correctly shadowed by a field of the same name in a subclass, ensuring the property is replaced by the field.
+        """
         class PropertyParent(models.Model):
             @property
             def foo(self):
@@ -334,6 +389,9 @@ class ModelInheritanceTests(TestCase):
         self.assertEqual(type(PropertyOverride.foo), DeferredAttribute)
 
     def test_shadow_parent_method_with_field(self):
+        """
+        Tests that a field defined in a subclass correctly shadows a method defined in its parent class, ensuring the field is treated as a DeferredAttribute rather than being called as a method.
+        """
         class MethodParent(models.Model):
             def foo(self):
                 pass
@@ -444,6 +502,9 @@ class ModelInheritanceDataTests(TestCase):
 
     def test_related_objects_for_inherited_models(self):
         # Related objects work just as they normally do.
+        """
+        Tests the functionality of related objects for inherited models, specifically focusing on the relationships between suppliers, restaurants, and their respective providers. Verifies that the correct relationships are established and that the appropriate exceptions are raised when attempting to access non-existent related objects.
+        """
         s1 = Supplier.objects.create(name="Joe's Chickens", address="123 Sesame St")
         s1.customers.set([self.restaurant, self.italian_restaurant])
         s2 = Supplier.objects.create(name="Luigi's Pasta", address="456 Sesame St")
@@ -489,6 +550,9 @@ class ModelInheritanceDataTests(TestCase):
     def test_update_works_on_parent_and_child_models_at_once(self):
         # The update() command can update fields in parent and child classes at
         # once (although it executed multiple SQL queries to do so).
+        """
+        Tests that the update method works correctly on both parent and child models simultaneously, verifying the number of rows updated and the resulting state of the affected model instance.
+        """
         rows = Restaurant.objects.filter(
             serves_hot_dogs=True, name__contains="D"
         ).update(name="Demon Puppies", serves_hot_dogs=False)
@@ -538,6 +602,9 @@ class ModelInheritanceDataTests(TestCase):
         self.assertEqual(qs[1].italianrestaurant.rating, 4)
 
     def test_parent_cache_reuse(self):
+        """
+        atches whether the cache is reused when accessing indirect parent and child relationships, confirming that related objects are retrieved efficiently without additional database queries.
+        """
         place = Place.objects.create()
         GrandChild.objects.create(place=place)
         grand_parent = GrandParent.objects.latest("pk")
@@ -608,6 +675,13 @@ class ModelInheritanceDataTests(TestCase):
 @isolate_apps("model_inheritance", "model_inheritance.tests")
 class InheritanceSameModelNameTests(SimpleTestCase):
     def test_abstract_fk_related_name(self):
+        """
+        Tests the generation of related names for foreign keys in abstract models.
+
+        Verifies that the related name for a foreign key to an abstract model is correctly
+        generated and does not conflict with related names from other foreign keys to the
+        same model, even when the abstract model is used in different apps.
+        """
         related_name = "%(app_label)s_%(class)s_references"
 
         class Referenced(models.Model):

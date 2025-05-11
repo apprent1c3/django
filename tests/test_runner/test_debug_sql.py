@@ -53,6 +53,14 @@ class TestDebugSQL(unittest.TestCase):
                 raise Exception
 
     def _test_output(self, verbosity):
+        """
+
+        Runs a test suite with various test cases (passing, failing, error) to test the output.
+
+        The function simulates a test run with different test outcomes using the DiscoverRunner
+        and returns the test output as a string, allowing to verify how test results are reported.
+
+        """
         runner = DiscoverRunner(debug_sql=True, verbosity=0)
         suite = runner.test_suite()
         suite.addTest(self.FailingTest())
@@ -74,6 +82,10 @@ class TestDebugSQL(unittest.TestCase):
         return stream.getvalue()
 
     def test_output_normal(self):
+        """
+        Verifies that the function's normal output matches the expected results, 
+        including the presence of certain outputs and the absence of verbose messages.
+        """
         full_output = self._test_output(1)
         for output in self.expected_outputs:
             self.assertIn(output, full_output)
@@ -81,6 +93,9 @@ class TestDebugSQL(unittest.TestCase):
             self.assertNotIn(output, full_output)
 
     def test_output_verbose(self):
+        """
+        Verifies that the output of a test contains both the expected and verbose output messages.
+        """
         full_output = self._test_output(2)
         for output in self.expected_outputs:
             self.assertIn(output, full_output)
@@ -134,6 +149,9 @@ class TestDebugSQL(unittest.TestCase):
     ]
 
     def test_setupclass_exception(self):
+        """
+        Tests that an exception raised in setUpClass is properly handled and reported by the test runner.
+        """
         runner = DiscoverRunner(debug_sql=True, verbosity=0)
         suite = runner.test_suite()
         suite.addTest(self.ErrorSetUpTestDataTest())

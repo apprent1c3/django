@@ -36,6 +36,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.docstring = self.__doc__
 
     def test_parse_docstring(self):
+        """
+        Tests the parsing of a docstring into title, description, and metadata components.
+        """
         title, description, metadata = parse_docstring(self.docstring)
         docstring_title = (
             "This __doc__ output is required for testing. I copied this example from\n"
@@ -53,6 +56,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(metadata, {"some_metadata": "some data"})
 
     def test_title_output(self):
+        """
+        Verify the correct rendering of a title parsed from a docstring, ensuring it matches an expected HTML output.
+        """
         title, description, metadata = parse_docstring(self.docstring)
         title_output = parse_rst(title, "model", "model:admindocs")
         self.assertIn("TITLE", title_output)
@@ -98,6 +104,9 @@ class TestUtils(AdminDocsSimpleTestCase):
         self.assertEqual(parse_rst("`title`", "tag"), markup % "tags/#title")
 
     def test_parse_rst_with_docstring_no_leading_line_feed(self):
+        """
+        Tests the parsing of a reStructuredText (RST) docstring without a leading line feed, verifying correct title and body extraction and RST parsing without errors.
+        """
         title, body, _ = parse_docstring("firstline\n\n    second line")
         with captured_stderr() as stderr:
             self.assertEqual(parse_rst(title, ""), "<p>firstline</p>\n")

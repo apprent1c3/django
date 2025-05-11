@@ -252,6 +252,9 @@ class BaseDeleteView(DeletionMixin, FormMixin, BaseDetailView):
         # Inlined because having DeletionMixin as the first base, for
         # get_success_url(), makes leveraging super() with ProcessFormView
         # overly complex.
+        """
+        Handles HTTP POST requests, processing the associated form and returning a response based on its validity.
+        """
         self.object = self.get_object()
         form = self.get_form()
         if form.is_valid():

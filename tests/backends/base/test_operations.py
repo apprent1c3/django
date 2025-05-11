@@ -156,6 +156,9 @@ class SimpleDatabaseOperationTests(SimpleTestCase):
             self.ops.datetime_extract_sql(None, None, None, None)
 
     def test_prepare_join_on_clause(self):
+        """
+        Tests preparation of a SQL join on clause, verifying the correct left and right hand side expressions are generated for joining two tables based on a foreign key relationship.
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         book_table = Book._meta.db_table
@@ -188,6 +191,9 @@ class DatabaseOperationTests(TestCase):
 
     @skipIfDBFeature("supports_temporal_subtraction")
     def test_subtract_temporals(self):
+        """
+        Tests that subtraction of temporals raises a NotSupportedError on backends without temporal subtraction support.
+        """
         duration_field = DurationField()
         duration_field_internal_type = duration_field.get_internal_type()
         msg = (
@@ -205,6 +211,9 @@ class SqlFlushTests(TransactionTestCase):
         self.assertEqual(connection.ops.sql_flush(no_style(), []), [])
 
     def test_execute_sql_flush_statements(self):
+        """
+        Tests the execution of SQL flush statements, ensuring that model instances are properly cleared and primary key sequences are reset.
+        """
         with transaction.atomic():
             author = Author.objects.create(name="George Orwell")
             Book.objects.create(author=author)
@@ -243,6 +252,10 @@ class DeprecationTests(TestCase):
             base_ops.field_cast_sql("integer", "IntegerField")
 
     def test_field_cast_sql_usage_warning(self):
+        """
+        Tests that using DatabaseOperations.field_cast_sql() raises a RemovedInDjango60Warning, 
+        as it is deprecated in favor of DatabaseOperations.lookup_cast().
+        """
         compiler = Author.objects.all().query.get_compiler(connection.alias)
         msg = (
             "The usage of DatabaseOperations.field_cast_sql() is deprecated. Implement "

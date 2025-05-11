@@ -76,6 +76,14 @@ class Point(GEOSGeometry):
         return capi.create_point(cs)
 
     def _set_list(self, length, items):
+        """
+        Sets the geometry as a list of items with a specified length, replacing any existing geometry.
+
+        This function handles SRID (Spatial Reference System Identifier) preservation and validation of the resulting geometry.
+
+        Raises:
+            GEOSException: If the resulting geometry is invalid.
+        """
         ptr = self._create_point(length, items)
         if ptr:
             srid = self.srid
@@ -106,6 +114,12 @@ class Point(GEOSGeometry):
             return 2
 
     def _get_single_external(self, index):
+        """
+        Returns a single external value based on the provided index.
+
+            :param int index: The index of the external value to be retrieved (0, 1, or 2)
+            :return: The corresponding external value (self.x, self.y, or self.z)
+        """
         if index == 0:
             return self.x
         elif index == 1:

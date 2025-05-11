@@ -16,6 +16,10 @@ class ACosTests(TestCase):
         self.assertIsNone(obj.null_acos)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the inverse cosine (acos) of decimal values in a database model, 
+        verify the result is of the correct type and matches the expected value from the math library.
+        """
         DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_acos=ACos("n1"), n2_acos=ACos("n2")
@@ -26,6 +30,9 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.n2_acos, Decimal(math.acos(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the annotation of float fields in a database model with the inverse cosine (ACos) function, verifying the output is of the correct type and matches the expected mathematical result.
+        """
         FloatModel.objects.create(f1=-0.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_acos=ACos("f1"), f2_acos=ACos("f2")
@@ -36,6 +43,14 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.f2_acos, math.acos(obj.f2))
 
     def test_integer(self):
+        """
+
+        Test the calculation of the inverse cosine function for integer values.
+
+        Verifies that the ACos database function returns the correct floating-point results 
+        for positive, zero, and negative input values, matching the math.acos function.
+
+        """
         IntegerModel.objects.create(small=0, normal=1, big=-1)
         obj = IntegerModel.objects.annotate(
             small_acos=ACos("small"),
@@ -50,6 +65,9 @@ class ACosTests(TestCase):
         self.assertAlmostEqual(obj.big_acos, math.acos(obj.big))
 
     def test_transform(self):
+        """
+        Tests the ACos lookup transformation on DecimalField, verifying that it correctly filters DecimalModel instances based on the inverse cosine of their n1 values.
+        """
         with register_lookup(DecimalField, ACos):
             DecimalModel.objects.create(n1=Decimal("0.5"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.9"), n2=Decimal("0"))

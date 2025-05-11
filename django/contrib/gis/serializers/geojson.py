@@ -11,6 +11,9 @@ class Serializer(JSONSerializer):
     """
 
     def _init_options(self):
+        """
+        Initializes additional options for the object, including the geometry field, id field, and spatial reference system identifier (SRID), and ensures the geometry field is included in the selected fields if specified.
+        """
         super()._init_options()
         self.geometry_field = self.json_kwargs.pop("geometry_field", None)
         self.id_field = self.json_kwargs.pop("id_field", None)
@@ -35,6 +38,9 @@ class Serializer(JSONSerializer):
         self.stream.write("]}")
 
     def start_object(self, obj):
+        """
+        Maps the geometry field of the given object and initializes geometry tracking for serialization.
+        """
         super().start_object(obj)
         self._geometry = None
         if self.geometry_field is None:
@@ -45,6 +51,9 @@ class Serializer(JSONSerializer):
                     break
 
     def get_dump_object(self, obj):
+        """
+        Returns a GeoJSON dump of the provided object, including its type, identifier, properties, and geometry, if applicable. The resulting dump is formatted as a GeoJSON Feature object.
+        """
         data = {
             "type": "Feature",
             "id": obj.pk if self.id_field is None else getattr(obj, self.id_field),

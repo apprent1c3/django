@@ -32,6 +32,9 @@ class SiteManager(models.Manager):
         return SITE_CACHE[site_id]
 
     def _get_site_by_request(self, request):
+        """
+        Returns a Site instance based on the domain from the given request, caching sites for future lookups to improve performance. If a site is not found by exact domain, it falls back to the domain without port.
+        """
         host = request.get_host()
         try:
             # First attempt to look up the site by host with or without port.

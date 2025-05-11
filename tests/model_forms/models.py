@@ -402,6 +402,9 @@ class CustomErrorMessage(models.Model):
     )
 
     def clean(self):
+        """
+        Raises a ValidationError if the instance's name1 attribute has a forbidden value, providing a corresponding error message.
+        """
         if self.name1 == "FORBIDDEN_VALUE":
             raise ValidationError(
                 {"name1": [ValidationError("Model.clean() error messages.")]}

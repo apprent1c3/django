@@ -7,6 +7,14 @@ from . import FormFieldAssertionsMixin
 
 class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
     def test_integerfield_1(self):
+        """
+        Tests the functionality of the IntegerField class.
+
+        Verifies that the field renders correctly as an input of type 'number', requires input,
+        and validates that the input is a whole number. Ensures that the field's clean method
+        returns an integer, and that invalid inputs (e.g. non-numeric, floating point) raise
+        ValidationError with informative messages.
+        """
         f = IntegerField()
         self.assertWidgetRendersTo(
             f, '<input type="number" name="f" id="id_f" required>'
@@ -32,6 +40,12 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_2(self):
+        """
+
+        Tests the functionality of the IntegerField class, verifying it correctly handles 
+        different types of input, including empty strings, None, valid integers, and invalid data.
+
+        """
         f = IntegerField(required=False)
         self.assertIsNone(f.clean(""))
         self.assertEqual("None", repr(f.clean("")))
@@ -51,6 +65,15 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_3(self):
+        """
+
+        Tests the IntegerField form field with a specified max value to ensure correct rendering and validation.
+
+        The test checks for proper HTML rendering, required field validation, and bounds checking. It verifies that
+        the field correctly handles integer and string inputs within the specified range and raises validation errors
+        for values outside the allowed range.
+
+        """
         f = IntegerField(max_value=10)
         self.assertWidgetRendersTo(
             f, '<input max="10" type="number" name="f" id="id_f" required>'
@@ -72,6 +95,15 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertIsNone(f.min_value)
 
     def test_integerfield_4(self):
+        """
+
+        Tests the functionality of an IntegerField with a minimum value constraint.
+
+        Checks that the field renders correctly in HTML, enforces the minimum value, 
+        handles required field validation, and correctly cleans integer values from 
+        both integer and string inputs.
+
+        """
         f = IntegerField(min_value=10)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" type="number" name="f" min="10" required>'
@@ -90,6 +122,12 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_value, 10)
 
     def test_integerfield_5(self):
+        """
+        Tests the functionality of an IntegerField with min and max value constraints.
+
+        Verifies that the field renders correctly, raises validation errors for invalid input,
+        and correctly cleans valid integer and string inputs within the specified range.
+        """
         f = IntegerField(min_value=10, max_value=20)
         self.assertWidgetRendersTo(
             f, '<input id="id_f" max="20" type="number" name="f" min="10" required>'
@@ -113,6 +151,13 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.min_value, 10)
 
     def test_integerfield_6(self):
+        """
+        Tests the functionality of an IntegerField with a specified step size.
+
+        Verifies that the field renders correctly as an HTML input, that validation
+        correctly rejects values not matching the step size, and that valid values
+        are cleaned and returned as integers.
+        """
         f = IntegerField(step_size=3)
         self.assertWidgetRendersTo(
             f,
@@ -127,6 +172,14 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         self.assertEqual(f.step_size, 3)
 
     def test_integerfield_step_size_min_value(self):
+        """
+
+        Tests the IntegerField's step size and minimum value functionality.
+
+        Verifies that the field correctly enforces the minimum value and step size when cleaning input values, 
+        and raises a ValidationError for invalid values.
+
+        """
         f = IntegerField(step_size=3, min_value=-1)
         self.assertWidgetRendersTo(
             f,
@@ -153,6 +206,12 @@ class IntegerFieldTest(FormFieldAssertionsMixin, SimpleTestCase):
         )
 
     def test_integerfield_float(self):
+        """
+        Tests the cleaning functionality of an IntegerField with float inputs.
+
+        Verifies that the field correctly converts various float representations to integers,
+        and raises a ValidationError for non-integer inputs.
+        """
         f = IntegerField()
         self.assertEqual(1, f.clean(1.0))
         self.assertEqual(1, f.clean("1.0"))

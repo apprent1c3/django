@@ -130,6 +130,14 @@ class ServerHandler(simple_server.ServerHandler):
         )
 
     def cleanup_headers(self):
+        """
+
+        Adjusts HTTP headers according to the request method and server configuration.
+
+        Modifies the 'Content-Length' and 'Connection' headers to ensure correct behavior
+        for HEAD requests and to handle connection closure when necessary.
+
+        """
         super().cleanup_headers()
         if (
             self.environ["REQUEST_METHOD"] == "HEAD"
@@ -158,6 +166,9 @@ class ServerHandler(simple_server.ServerHandler):
         super().close()
 
     def finish_response(self):
+        """
+        Completes the current response, handling the special case of a HEAD request by discarding the response body and sending headers if necessary. In other cases, delegates to the superclass implementation.
+        """
         if self.environ["REQUEST_METHOD"] == "HEAD":
             try:
                 deque(self.result, maxlen=0)  # Consume iterator.
@@ -182,6 +193,20 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         return self.client_address[0]
 
     def log_message(self, format, *args):
+        """
+        Logs a message with varying log levels based on the provided status code.
+
+        Parameters
+        ----------
+        format : str
+            The format string for the message.
+        *args
+            Variable number of arguments to be used in the format string.
+
+        The function automatically determines the log level based on the status code.
+        If the status code is 500 or above, it logs an error; if it's 400 or above but less than 500, it logs a warning; otherwise, it logs an informational message.
+        Additional context, such as the request and server time, are also included in the log entry.
+        """
         extra = {
             "request": self.request,
             "server_time": self.log_date_time_string(),
@@ -224,6 +249,9 @@ class WSGIRequestHandler(simple_server.WSGIRequestHandler):
         return super().get_environ()
 
     def handle(self):
+        """
+        Handles incoming requests on a connection, processing them in a loop until the connection is closed, then shuts down the connection to prevent further writes.
+        """
         self.close_connection = True
         self.handle_one_request()
         while not self.close_connection:
@@ -262,6 +290,23 @@ def run(
     on_bind=None,
     server_cls=WSGIServer,
 ):
+    """
+    Runs a WSGI server.
+
+    This function starts a WSGI server at the specified address and port, 
+    handling incoming requests with the provided WSGI handler. It supports 
+    optional configuration for IPv6, threading, and custom server classes. 
+    An optional callback function can be specified to be called after the 
+    server is bound.
+
+    :param addr: Server address
+    :param port: Server port
+    :param wsgi_handler: WSGI handler to use
+    :param ipv6: Enable IPv6 (default: False)
+    :param threading: Enable threading (default: False)
+    :param on_bind: Function to call after binding (default: None)
+    :param server_cls: Server class to use (default: WSGIServer)
+    """
     server_address = (addr, port)
     if threading:
         httpd_cls = type("WSGIServer", (socketserver.ThreadingMixIn, server_cls), {})

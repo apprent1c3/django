@@ -34,6 +34,18 @@ class ModelBackend(BaseBackend):
     """
 
     def authenticate(self, request, username=None, password=None, **kwargs):
+        """
+
+        Authenticate a user against the provided credentials.
+
+        This function attempts to verify the given username and password against an existing user.
+        If the credentials match, it returns the authenticated user; otherwise, it returns None.
+
+        :param request: The current request.
+        :param username: The username to authenticate, defaults to the value of UserModel.USERNAME_FIELD in kwargs if not provided.
+        :param password: The password to authenticate with.
+
+        """
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         if username is None or password is None:
@@ -99,6 +111,16 @@ class ModelBackend(BaseBackend):
         return self._get_permissions(user_obj, obj, "group")
 
     def get_all_permissions(self, user_obj, obj=None):
+        """
+        Return a set of all permissions for the given user object.
+
+        This function optimizes permission retrieval by caching results for active, non-anonymous users.
+        If the user is inactive, anonymous, or an object is provided, an empty set is returned.
+
+        :param user_obj: The user object to retrieve permissions for
+        :param obj: An optional object to consider (default is None)
+        :returns: A set of permission strings
+        """
         if not user_obj.is_active or user_obj.is_anonymous or obj is not None:
             return set()
         if not hasattr(user_obj, "_perm_cache"):
@@ -153,6 +175,9 @@ class ModelBackend(BaseBackend):
         return UserModel._default_manager.filter(user_q)
 
     def get_user(self, user_id):
+        """
+        Retrieves a user by ID if the requesting user has permission to authenticate the target user, otherwise returns None.
+        """
         try:
             user = UserModel._default_manager.get(pk=user_id)
         except UserModel.DoesNotExist:

@@ -30,6 +30,9 @@ class ModTests(TestCase):
         self.assertAlmostEqual(obj.f_mod, math.fmod(obj.f1, obj.f2))
 
     def test_integer(self):
+        """
+        Verifies the functionality of the Mod database function, testing its correctness in performing modulo operations on integer fields.
+        """
         IntegerModel.objects.create(small=20, normal=15, big=1)
         obj = IntegerModel.objects.annotate(
             small_mod=Mod("small", "normal"),

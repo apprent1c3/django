@@ -25,6 +25,9 @@ class ImageFile(File):
         return self._get_image_dimensions()[1]
 
     def _get_image_dimensions(self):
+        """
+        Returns the dimensions of the image, caching the result to avoid repeated computations
+        """
         if not hasattr(self, "_dimensions_cache"):
             close = self.closed
             self.open()

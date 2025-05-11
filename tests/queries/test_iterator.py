@@ -25,6 +25,13 @@ class QuerySetIteratorTests(TestCase):
                     Article.objects.iterator(chunk_size=size)
 
     def test_default_iterator_chunk_size(self):
+        """
+
+        Tests the default iterator chunk size.
+
+        Verifies that the default chunk size of 2000 is used when iterating over a QuerySet.
+
+        """
         qs = Article.objects.iterator()
         with mock.patch(
             "django.db.models.sql.compiler.cursor_iter", side_effect=cursor_iter
@@ -35,6 +42,19 @@ class QuerySetIteratorTests(TestCase):
         self.assertEqual(mock_args[self.itersize_index_in_mock_args], 2000)
 
     def test_iterator_chunk_size(self):
+        """
+        Tests that the iterator chunk size is correctly applied when retrieving query set objects.
+
+        Verifies that the database cursor iterator is called with the specified chunk size, 
+        ensuring efficient data retrieval in batches. This test case simulates the iteration 
+        process and checks the resulting database query execution. 
+
+        Parameters: None
+
+        Returns: None
+
+        Raises: AssertionError if the chunk size is not correctly applied.
+        """
         batch_size = 3
         qs = Article.objects.iterator(chunk_size=batch_size)
         with mock.patch(

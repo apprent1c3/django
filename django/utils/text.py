@@ -50,6 +50,9 @@ def wrap(text, width):
     """
 
     def _generator():
+        """
+        Generates text lines within a specified width, wrapping lines at word boundaries when possible and preserving newline characters.
+        """
         for line in text.splitlines(True):  # True keeps trailing linebreaks
             max_width = min((line.endswith("\n") and width + 1 or width), width)
             while len(line) > max_width:
@@ -70,6 +73,13 @@ def wrap(text, width):
 
 
 def add_truncation_text(text, truncate=None):
+    """
+    Appends a truncation indicator to the given text if it does not already end with one.
+
+    :param text: The input text to be processed.
+    :param truncate: Optional truncation indicator; defaults to '%(truncated_text)s…' if not provided.
+    :returns: The input text with a truncation indicator appended if necessary.
+    """
     if truncate is None:
         truncate = pgettext(
             "String to return when truncating text", "%(truncated_text)s…"
@@ -86,6 +96,9 @@ def add_truncation_text(text, truncate=None):
 
 
 def calculate_truncate_chars_length(length, replacement):
+    """
+    Calculates the effective length of a string after truncation, taking into account the length of a replacement string that is appended to indicate truncation, and accounting for Unicode combining characters.
+    """
     truncate_len = length
     for char in add_truncation_text("", replacement):
         if not unicodedata.combining(char):
@@ -100,6 +113,9 @@ class TruncateHTMLParser(HTMLParser):
         pass
 
     def __init__(self, *, length, replacement, convert_charrefs=True):
+        """
+        Initializes an HTML parser with a fixed output length, replacing excess characters with a specified string and optionally converting character references.
+        """
         super().__init__(convert_charrefs=convert_charrefs)
         self.tags = deque()
         self.output = ""
@@ -123,6 +139,9 @@ class TruncateHTMLParser(HTMLParser):
             self.tags.appendleft(tag)
 
     def handle_endtag(self, tag):
+        """
+        #: Closes an HTML tag by appending the corresponding endtag to the output and removing it from the list of opened tags if it exists.
+        """
         if tag not in self.void_elements:
             self.output += f"</{tag}>"
             try:
@@ -131,6 +150,11 @@ class TruncateHTMLParser(HTMLParser):
                 pass
 
     def handle_data(self, data):
+        """
+        Handles incoming data by processing it and updating the internal state.
+
+        If the data exceeds the remaining allowed length, it is truncated and a completion exception is raised. Otherwise, the processed data is added to the output and the remaining length is updated.
+        """
         data, output = self.process(data)
         data_len = len(data)
         if self.remaining < data_len:
@@ -141,6 +165,9 @@ class TruncateHTMLParser(HTMLParser):
         self.output += output
 
     def feed(self, data):
+        """
+        Feed data into the object, handling truncation and resetting the state accordingly.
+        """
         try:
             super().feed(data)
         except self.TruncationCompleted:
@@ -163,6 +190,9 @@ class TruncateCharsHTMLParser(TruncateHTMLParser):
         )
 
     def process(self, data):
+        """
+        Process input data, track progress, and extract relevant parts to generate escaped output. If processing is complete, combine remaining data, issue a completion signal, and exit.
+        """
         self.processed_chars += len(data)
         if (self.processed_chars == self.length) and (
             len(self.output) + len(data) == len(self.rawdata)
@@ -353,6 +383,16 @@ def _get_random_filename(max_random_bytes):
 
 
 def compress_string(s, *, max_random_bytes=None):
+    """
+    Compress a string using gzip and optionally add a random filename to the header.
+
+    This function compresses the input string using gzip with a specified compression level, then modifies the gzip header to include a random filename if requested.
+
+    :param s: The input string to be compressed.
+    :param max_random_bytes: The maximum number of random bytes to use for the filename. If None, no filename is added.
+    :rtype: bytes
+    :returns: The compressed bytes with an optional random filename in the gzip header.
+    """
     compressed_data = gzip_compress(s, compresslevel=6, mtime=0)
 
     if not max_random_bytes:
@@ -377,6 +417,15 @@ class StreamingBuffer(BytesIO):
 
 # Like compress_string, but for iterators of strings.
 def compress_sequence(sequence, *, max_random_bytes=None):
+    """
+    Generates a sequence of compressed data chunks from an input sequence, 
+    using gzip compression. Yields each chunk as it becomes available, allowing 
+    for efficient streaming of compressed data. 
+
+    :param sequence: Input sequence of data to be compressed
+    :param max_random_bytes: Optional maximum number of random filename bytes, 
+                              used to generate a temporary filename for compression
+    """
     buf = StreamingBuffer()
     filename = _get_random_filename(max_random_bytes) if max_random_bytes else None
     with GzipFile(

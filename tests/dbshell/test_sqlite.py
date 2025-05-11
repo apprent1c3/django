@@ -28,6 +28,9 @@ class SqliteDbshellCommandTestCase(SimpleTestCase):
 
     @skipUnless(connection.vendor == "sqlite", "SQLite test")
     def test_non_zero_exit_status_when_path_to_db_is_path(self):
+        """
+        Tests that a non-zero exit status is correctly handled when the path to the SQLite database is specified, ensuring an informative error message is displayed in case of failure.
+        """
         sqlite_with_path = {
             "ENGINE": "django.db.backends.sqlite3",
             "NAME": Path("test.db.sqlite3"),

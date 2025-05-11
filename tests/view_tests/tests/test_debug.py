@@ -70,6 +70,11 @@ class CallableSettingWrapperTests(SimpleTestCase):
     """Unittests for CallableSettingWrapper"""
 
     def test_repr(self):
+        """
+
+        Tests that the repr of a CallableSettingWrapper instance reflects the repr of the wrapped callable.
+
+        """
         class WrappedCallable:
             def __repr__(self):
                 return "repr from the wrapped callable"
@@ -84,6 +89,15 @@ class CallableSettingWrapperTests(SimpleTestCase):
 @override_settings(DEBUG=True, ROOT_URLCONF="view_tests.urls")
 class DebugViewTests(SimpleTestCase):
     def test_files(self):
+        """
+
+        Tests error handling for file upload requests.
+
+        Verifies that a 500 error is returned when a request to the /raises/ endpoint
+        fails, both with and without a file uploaded. Also checks that the uploaded
+        file name is logged, but its contents are not exposed in the error response.
+
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises/")
         self.assertEqual(response.status_code, 500)
@@ -166,6 +180,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_404_not_in_urls(self):
+        """
+        Tests that a 404 error is handled correctly when a URL is not found in the defined URL patterns.
+        """
         response = self.client.get("/not-in-urls")
         self.assertNotContains(response, "Raised by:", status_code=404)
         self.assertNotContains(
@@ -209,6 +226,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_technical_404(self):
+        """
+        Tests the technical 404 error page, verifying that it correctly renders with the expected HTML structure and content, including the summary, info, and explanation sections, when a 404 status code is returned.
+        """
         response = self.client.get("/technical404/")
         self.assertContains(response, '<header id="summary">', status_code=404)
         self.assertContains(response, '<main id="info">', status_code=404)
@@ -243,6 +263,12 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_technical_500(self):
+        """
+        Tests that a 500 internal server error page is rendered correctly when a view raises an exception.
+
+        The test checks the HTML structure of the error page, including the presence of specific HTML elements.
+        It also verifies that the error page is rendered in plain text format when the 'Accept' header is set to 'text/plain'.
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises500/")
         self.assertContains(response, '<header id="summary">', status_code=500)
@@ -263,6 +289,9 @@ class DebugViewTests(SimpleTestCase):
         )
 
     def test_classbased_technical_500(self):
+        """
+        Tests a class-based view that intentionally raises a 500 error to ensure it is handled correctly, checking both HTML and text responses.
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/classbased500/")
         self.assertContains(
@@ -306,6 +335,9 @@ class DebugViewTests(SimpleTestCase):
             )
 
     def test_template_exceptions(self):
+        """
+        Tests that Django correctly logs an error when a template exception is raised during a request, and verifies that the exception originates from the expected location.
+        """
         with self.assertLogs("django.request", "ERROR"):
             try:
                 self.client.get(reverse("template_exception"))
@@ -448,6 +480,10 @@ class DebugViewTests(SimpleTestCase):
         DEFAULT_EXCEPTION_REPORTER="view_tests.views.TemplateOverrideExceptionReporter"
     )
     def test_template_override_exception_reporter(self):
+        """
+        Tests the TemplateOverrideExceptionReporter for handling 500 errors, 
+        verifying the correct error message is displayed in both HTML and plain text formats.
+        """
         with self.assertLogs("django.request", "ERROR"):
             response = self.client.get("/raises500/")
         self.assertContains(
@@ -577,6 +613,11 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertIn("<p>Request data not supplied</p>", html)
 
     def test_sharing_traceback(self):
+        """
+
+        Tests that the exception reporter correctly includes a form to share the traceback on dpaste.com in the generated HTML traceback.
+
+        """
         try:
             raise ValueError("Oops")
         except ValueError:
@@ -625,6 +666,9 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("<p>Request data not supplied</p>", html)
 
     def test_suppressed_context(self):
+        """
+        Tests the generation of an exception report HTML when the suppressed context of a raised exception is intentionally cleared.
+        """
         try:
             try:
                 raise RuntimeError("Can't find my keys")
@@ -647,6 +691,15 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("During handling of the above exception", html)
 
     def test_innermost_exception_without_traceback(self):
+        """
+
+        Tests reporting of the innermost exception without a traceback.
+
+        Verifies that the ExceptionReporter correctly captures and formats exception
+        information, including the exception type, value, and context, as well as
+        request details (if available).
+
+        """
         try:
             try:
                 raise RuntimeError("Oops")
@@ -688,6 +741,9 @@ class ExceptionReporterTests(SimpleTestCase):
 
     @skipUnless(PY311, "Exception notes were added in Python 3.11.")
     def test_exception_with_notes(self):
+        """
+        Tests the rendering of exception notes in error reports, verifying that notes are properly displayed in both HTML and text formats, and that HTML notes are safely escaped to prevent XSS attacks.
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -721,6 +777,12 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_mid_stack_exception_without_traceback(self):
+        """
+        Tests the generation of traceback HTML and text for a mid-stack exception without a traceback.
+
+        Verifies that the ExceptionReporter correctly handles a RuntimeError raised with a custom context, 
+        and checks the generated HTML and text for the expected exception type, value, and traceback details.
+        """
         try:
             try:
                 raise RuntimeError("Inner Oops")
@@ -755,6 +817,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_of_nested_exceptions(self):
+        """
+        Tests the reporting of nested exceptions in HTML and text formats, ensuring that the cause of each exception is correctly identified and displayed in the traceback.
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -799,6 +864,9 @@ class ExceptionReporterTests(SimpleTestCase):
     )
     @skipUnless(PY311, "Fine-grained error locations were added in Python 3.11.")
     def test_highlight_error_position(self):
+        """
+        Tests the highlighting of error positions in exception reports, verifying that the correct lines of code are marked when an exception occurs, and that this information is correctly included in both the HTML and text representations of the traceback.
+        """
         request = self.rf.get("/test_view/")
         try:
             try:
@@ -866,6 +934,18 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_without_source(self):
+        """
+        Tests the generation of reporting frames for an exception without an available source code.\"\"\"
+
+        \"\"\"This function verifies the correctness of ExceptionReporter's get_traceback_frames, 
+        get_traceback_html, and get_traceback_text methods in the context of an exception occurring 
+        in compiled code with no original source code available. The test checks that frames are 
+        properly populated with available information (filename, function name, line number), 
+        and that the correct placeholder is used for the source code.\"\"\"
+
+         \"\"\"Checks are performed for both HTML and text representations of the traceback to ensure 
+         consistencies and accuracy across different formats.
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -901,6 +981,9 @@ class ExceptionReporterTests(SimpleTestCase):
         )
 
     def test_reporting_frames_source_not_match(self):
+        """
+        Tests the behavior of ExceptionReporter when the source code for a frame in the traceback does not match the actual source code. Verifies that the correct filename, function name, and line number are included in the traceback, and that a message indicating the source code is not available is displayed.
+        """
         try:
             source = "def funcName():\n    raise Error('Whoops')\nfuncName()"
             namespace = {}
@@ -941,6 +1024,13 @@ class ExceptionReporterTests(SimpleTestCase):
             )
 
     def test_reporting_frames_for_cyclic_reference(self):
+        """
+
+        Tests that the ExceptionReporter correctly handles cyclic references in exception chains.
+
+        Verifies that a warning is raised when a cycle is detected and that the traceback frames are generated correctly.
+
+        """
         try:
 
             def test_func():
@@ -1003,6 +1093,12 @@ class ExceptionReporterTests(SimpleTestCase):
         self.assertNotIn("<p>Request data not supplied</p>", html)
 
     def test_message_only(self):
+        """
+        Tests the generation of a traceback HTML report with a message only.
+
+        Verifies that the report contains the expected header and message, but lacks
+        request-specific information since it was not provided.
+        """
         reporter = ExceptionReporter(None, None, "I'm a little teapot", None)
         html = reporter.get_traceback_html()
         self.assertInHTML("<h1>Report</h1>", html)
@@ -1227,6 +1323,9 @@ class ExceptionReporterTests(SimpleTestCase):
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_get_raw_insecure_uri(self):
+        """
+        Tests the construction of an insecure URI for exception reporting purposes, validating whether absolute and relative URLs are correctly handled when the request host does not match the allowed hosts setting.
+        """
         factory = RequestFactory(headers={"host": "evil.com"})
         tests = [
             ("////absolute-uri", "http://evil.com//absolute-uri"),
@@ -1296,6 +1395,10 @@ class PlainTextReportTests(SimpleTestCase):
 
     @override_settings(DEBUG=True)
     def test_template_exception(self):
+        """
+        Tests that template exceptions are correctly reported with a detailed error message.\"\"\"
+        ```
+        """
         request = self.rf.get("/test_view/")
         try:
             render(request, "debug/template_error.html")
@@ -1580,6 +1683,9 @@ class ExceptionReporterFilterTests(
             self.verify_safe_email(sensitive_view)
 
     def test_async_sensitive_request(self):
+        """
+        Tests the async sensitive request view under different settings to ensure it behaves correctly in both debug and production modes, verifying its response and email handling.
+        """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(async_sensitive_view)
             self.verify_unsafe_email(async_sensitive_view)
@@ -1589,6 +1695,9 @@ class ExceptionReporterFilterTests(
             self.verify_safe_email(async_sensitive_view)
 
     def test_async_sensitive_nested_request(self):
+        """
+        Tests the async_sensitive_view_nested under different conditions to ensure its responses and emails are secure and correctly handled in both debug and production environments.
+        """
         with self.settings(DEBUG=True):
             self.verify_unsafe_response(async_sensitive_view_nested)
             self.verify_unsafe_email(async_sensitive_view_nested)
@@ -1848,6 +1957,9 @@ class ExceptionReporterFilterTests(
         )
 
     def test_cleanse_setting_recurses_in_list_tuples(self):
+        """
+        This function tests the recursive cleansing of sensitive information in settings, specifically lists and tuples, by verifying that the cleanse_setting method correctly replaces sensitive data with a substitute value.
+        """
         reporter_filter = SafeExceptionReporterFilter()
         initial = [
             {
@@ -2042,6 +2154,12 @@ class NonHTMLResponseExceptionReporterFilter(
 
 class DecoratorsTests(SimpleTestCase):
     def test_sensitive_variables_not_called(self):
+        """
+        Tests that the sensitive_variables decorator raises a TypeError if not called.
+
+        Ensures that using @sensitive_variables without calling it (i.e., @sensitive_variables())
+        results in an error, as it must be called to properly function as a decorator.
+        """
         msg = (
             "sensitive_variables() must be called to use it as a decorator, "
             "e.g., use @sensitive_variables(), not @sensitive_variables."
@@ -2053,6 +2171,9 @@ class DecoratorsTests(SimpleTestCase):
                 pass
 
     def test_sensitive_post_parameters_not_called(self):
+        """
+        Tests that the sensitive_post_parameters decorator raises a TypeError when used without being called. Ensures the decorator is correctly invoked with parentheses, i.e., @sensitive_post_parameters(), to avoid unintended behavior.
+        """
         msg = (
             "sensitive_post_parameters() must be called to use it as a "
             "decorator, e.g., use @sensitive_post_parameters(), not "
@@ -2065,6 +2186,16 @@ class DecoratorsTests(SimpleTestCase):
                 return index_page(request)
 
     def test_sensitive_post_parameters_http_request(self):
+        """
+
+        Tests that the sensitive_post_parameters decorator correctly raises a TypeError when 
+        the decorated view does not receive an HttpRequest object.
+
+        Verifies that the decorator's error message is correctly displayed when 
+        a TypeError is raised, specifically when the decoration is applied to a 
+        classmethod without using @method_decorator.
+
+        """
         class MyClass:
             @sensitive_post_parameters()
             def a_view(self, request):

@@ -47,6 +47,11 @@ class ValidationMessagesTest(TestCase):
         )
 
     def test_date_field_raises_error_message(self):
+        """
+        Tests that a DateField raises an appropriate error message when given invalid date values.
+
+        The test verifies error messages are generated for dates with incorrect formats and dates with valid formats but invalid values (e.g. February 30th).
+        """
         f = models.DateField()
         self._test_validation_messages(
             f,

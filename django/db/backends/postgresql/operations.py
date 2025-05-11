@@ -82,6 +82,16 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def date_extract_sql(self, lookup_type, sql, params):
         # https://www.postgresql.org/docs/current/functions-datetime.html#FUNCTIONS-DATETIME-EXTRACT
+        """
+
+        Generate a SQL expression to extract a specific date component from a given SQL date value.
+
+        The function takes a lookup type and a SQL date value, and returns a tuple containing the generated SQL expression and the original parameters.
+        The supported lookup types are 'week_day', 'iso_week_day', 'iso_year', and any other date component supported by the SQL EXTRACT function.
+
+        Raises a ValueError if the lookup type is not recognized.
+
+        """
         if lookup_type == "week_day":
             # For consistency across backends, we return Sunday=1, Saturday=7.
             return f"EXTRACT(DOW FROM {sql}) + 1", params
@@ -101,6 +111,13 @@ class DatabaseOperations(BaseDatabaseOperations):
         return f"DATE_TRUNC(%s, {sql})", (lookup_type, *params)
 
     def _prepare_tzname_delta(self, tzname):
+        """
+        Reverses the timezone offset in a given tzname string, returning the result.
+
+               If the input tzname has an offset, it flips the sign of the offset.
+               If the input tzname has no offset, it returns the original tzname.
+
+        """
         tzname, sign, offset = split_tzname_delta(tzname)
         if offset:
             sign = "-" if sign == "+" else "+"
@@ -154,6 +171,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         return cursor.fetchall()
 
     def lookup_cast(self, lookup_type, internal_type=None):
+        """
+        Returns a formatted string for use in database queries, 
+        enabling the specified lookup type and converting the value 
+        to the correct data type based on the internal type provided.
+        """
         lookup = "%s"
         # Cast text lookups to text to allow things like filter(x__contains=4)
         if lookup_type in (
@@ -196,6 +218,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return "SELECT set_config('TimeZone', %s, false)"
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        Generate SQL statements to truncate specified tables, with options to reset sequences and allow cascade deletion.
+        """
         if not tables:
             return []
 
@@ -214,6 +239,15 @@ class DatabaseOperations(BaseDatabaseOperations):
     def sequence_reset_by_name_sql(self, style, sequences):
         # 'ALTER SEQUENCE sequence_name RESTART WITH 1;'... style SQL statements
         # to reset sequence indices
+        """
+        Generates SQL statements to reset sequences for a given list of tables and columns. 
+
+        The generated SQL uses the `setval` function to reset the sequence value to 1 for each specified table and column, helping to synchronize sequence values with actual data in the tables. 
+
+        :param style: Style object used for formatting SQL keywords and identifiers.
+        :param sequences: List of dictionaries containing sequence information, each with 'table' and optional 'column' keys.
+        :rtype: List of SQL statements to reset the sequences.
+        """
         sql = []
         for sequence_info in sequences:
             table_name = sequence_info["table"]
@@ -237,6 +271,16 @@ class DatabaseOperations(BaseDatabaseOperations):
             return "TABLESPACE %s" % self.quote_name(tablespace)
 
     def sequence_reset_sql(self, style, model_list):
+        """
+        Generates SQL statements to reset sequences for a list of Django models.
+
+        Args:
+            style: The database style to use for quoting names.
+            model_list: A list of Django models for which to reset sequences.
+
+        Returns:
+            A list of SQL statements to reset the sequences.
+        """
         from django.db import models
 
         output = []
@@ -287,6 +331,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return 63
 
     def distinct_sql(self, fields, params):
+        """
+        Generates the SQL DISTINCT clause with optional distinct fields.
+
+        :param fields: list of fields to apply DISTINCT ON
+        :param params: list of parameters to be used in the query
+
+        :returns: tuple containing the SQL clause and the updated parameters
+        """
         if fields:
             params = [param for param_list in params for param in param_list]
             return (["DISTINCT ON (%s)" % ", ".join(fields)], params)
@@ -296,6 +348,14 @@ class DatabaseOperations(BaseDatabaseOperations):
     if is_psycopg3:
 
         def last_executed_query(self, cursor, sql, params):
+            """
+            Returns the last executed SQL query.
+
+            If the database connection uses server-side parameter binding, attempts to
+            reconstruct the query from the given SQL and parameters. Otherwise, retrieves
+            the last query executed by the given cursor. Returns None if the query cannot
+            be determined or reconstructed.
+            """
             if self.connection.features.uses_server_side_binding:
                 try:
                     return self.compose_sql(sql, params)
@@ -356,6 +416,12 @@ class DatabaseOperations(BaseDatabaseOperations):
         return Jsonb(value, dumps=get_json_dumps(encoder))
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Subtract two temporal values of the given internal type.
+
+        Supports subtraction of DateField types, returning an interval in days.
+        For other internal types, uses the superclass implementation.
+        """
         if internal_type == "DateField":
             lhs_sql, lhs_params = lhs
             rhs_sql, rhs_params = rhs
@@ -364,6 +430,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().subtract_temporals(internal_type, lhs, rhs)
 
     def explain_query_prefix(self, format=None, **options):
+        """
+        Generate a prefix for explaining a query, allowing for optional formatting and additional options.
+
+        :param format: The format of the query explanation
+        :param options: Additional options to include in the prefix, where valid options are defined by the class
+
+        :return: A prefix string for explaining a query, including any specified format and options
+        """
         extra = {}
         # Normalize options.
         if options:
@@ -383,6 +457,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         return prefix
 
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
+        """
+        (\".. 
+            Generate an SQL suffix clause for handling conflicts that occur during an upsert operation.
+
+            :param fields: list of fields being inserted
+            :param on_conflict: conflict resolution strategy
+            :param update_fields: fields to update in case of a conflict
+            :param unique_fields: unique fields that define a conflict
+            :return: SQL suffix clause as a string
+        .. )
+        """
         if on_conflict == OnConflict.IGNORE:
             return "ON CONFLICT DO NOTHING"
         if on_conflict == OnConflict.UPDATE:

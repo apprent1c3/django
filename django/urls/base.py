@@ -25,6 +25,15 @@ def resolve(path, urlconf=None):
 
 
 def reverse(viewname, urlconf=None, args=None, kwargs=None, current_app=None):
+    """
+    Reverses URLs by view name, providing a way to construct URLs for specific views.
+    param viewname: Name of the view, optionally prefixed with namespace, in the form \"namespace:view\".
+    param urlconf: URL configuration to use for reversing. Defaults to the current URL configuration if not provided.
+    param args: Non-keyword arguments to pass to the view.
+    param kwargs: Keyword arguments to pass to the view.
+    param current_app: Current application to use for namespace resolution.
+    return: The reversed URL as a string.
+    """
     if urlconf is None:
         urlconf = get_urlconf()
     resolver = get_resolver(urlconf)

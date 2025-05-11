@@ -15,6 +15,23 @@ class DeleteQuery(Query):
     compiler = "SQLDeleteCompiler"
 
     def do_query(self, table, where, using):
+        """
+        Executes a SQL query on the specified table with given conditions.
+
+        Parameters
+        ----------
+        table : str
+            Name of the table to perform the query on.
+        where : str
+            Conditions for the query.
+        using : str
+            Database alias to use for the query.
+
+        Returns
+        -------
+        int
+            Number of rows affected by the query.
+        """
         self.alias_map = {table: self.alias_map[table]}
         self.where = where
         cursor = self.get_compiler(using).execute_sql(CURSOR)
@@ -69,6 +86,13 @@ class UpdateQuery(Query):
         return obj
 
     def update_batch(self, pk_list, values, using):
+        """
+        Updates a batch of database records by applying the given values to the records with the specified primary keys.
+
+        :param pk_list: List of primary keys to update
+        :param values: Values to update
+        :param using: Database alias to use for the update operation
+        """
         self.add_update_values(values)
         for offset in range(0, len(pk_list), GET_ITERATOR_CHUNK_SIZE):
             self.clear_where()
@@ -148,6 +172,13 @@ class InsertQuery(Query):
     def __init__(
         self, *args, on_conflict=None, update_fields=None, unique_fields=None, **kwargs
     ):
+        """
+        Initializes the object with parameters for handling conflicts and updating fields during data insertion or update.
+
+        :param on_conflict: Handler for when a conflict occurs during data insertion or update.
+        :param update_fields: List of fields to update when a conflict occurs.
+        :param unique_fields: List of fields that must be unique.
+        """
         super().__init__(*args, **kwargs)
         self.fields = []
         self.objs = []

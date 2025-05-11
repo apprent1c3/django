@@ -10,6 +10,9 @@ from django.test import SimpleTestCase
 @unittest.skipUnless(connection.vendor == "sqlite", "SQLite tests")
 class TestDbSignatureTests(SimpleTestCase):
     def test_custom_test_name(self):
+        """
+        Verifies custom test database name is correctly applied and reflected in the test database signature.
+        """
         test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
         test_connection.settings_dict = copy.deepcopy(
             connections[DEFAULT_DB_ALIAS].settings_dict
@@ -20,6 +23,10 @@ class TestDbSignatureTests(SimpleTestCase):
         self.assertEqual(signature, (None, "custom.sqlite.db"))
 
     def test_get_test_db_clone_settings_name(self):
+        """
+        Tests that the get_test_db_clone_settings method returns the correct clone name for a test database, 
+        ensuring proper naming conventions are followed when cloning the test database.
+        """
         test_connection = copy.copy(connections[DEFAULT_DB_ALIAS])
         test_connection.settings_dict = copy.deepcopy(
             connections[DEFAULT_DB_ALIAS].settings_dict,

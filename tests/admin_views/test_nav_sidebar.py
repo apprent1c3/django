@@ -86,6 +86,9 @@ class AdminSidebarTests(TestCase):
         ]
     )
     def test_sidebar_aria_current_page_missing_without_request_context_processor(self):
+        """
+        Tests that the sidebar's aria-current attribute is not present when the request context processor is missing, ensuring accessibility features are only applied when the request context is available.
+        """
         url = reverse("test_with_sidebar:auth_user_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -103,6 +106,9 @@ class AdminSidebarTests(TestCase):
             self.client.get(url)
 
     def test_sidebar_model_name_non_ascii(self):
+        """
+        Tests the rendering of the admin changelist page for a model with a non-ASCII name in the sidebar, verifying that the model name is correctly displayed and linked.
+        """
         url = reverse("test_with_sidebar:admin_views_héllo_changelist")
         response = self.client.get(url)
         self.assertContains(
@@ -147,6 +153,11 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_can_be_closed(self):
+        """
+        Tests that the sidebar can be closed by verifying its initial state, 
+        then clicking the toggle button and checking that the sidebar is hidden 
+        and the main content area is adjusted accordingly.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -170,6 +181,15 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertNotIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_state_persists(self):
+        """
+
+         Tests that the sidebar state persists across page reloads.
+
+        Verifies that the 'navSidebarIsOpen' state stored in local storage is correctly 
+        updated when the sidebar is toggled, and that the sidebar's display state 
+        persists when the page is reloaded.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(
@@ -220,6 +240,9 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertIn("shifted", main_element.get_attribute("class").split())
 
     def test_sidebar_filter_persists(self):
+        """
+        Tests that the sidebar filter value in a Django admin interface persists in session storage. Verifies that the initial value is None, then sets a filter value and checks that it is correctly stored.
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(

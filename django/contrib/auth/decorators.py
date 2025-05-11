@@ -20,7 +20,20 @@ def user_passes_test(
     """
 
     def decorator(view_func):
+        """
+         Decorator that wraps a view function to check if the user passes a test function.
+        If the test passes, the view function is called. If the test fails, the user is redirected to the login page.
+        The decorator supports both regular and asynchronous view functions, and handles the test function being either regular or asynchronous. 
+        """
         def _redirect_to_login(request):
+            """
+
+            Redirects the user to the login page, preserving the current request path if the login URL is on the same scheme and netloc.
+
+            :param request: The current HTTP request.
+            :return: A redirect response to the login page.
+
+            """
             path = request.build_absolute_uri()
             resolved_login_url = resolve_url(login_url or settings.LOGIN_URL)
             # If the login url is the same scheme and net location then just
@@ -38,6 +51,12 @@ def user_passes_test(
         if asyncio.iscoroutinefunction(view_func):
 
             async def _view_wrapper(request, *args, **kwargs):
+                """
+                Asynchronous wrapper for views that applies an authentication test.
+
+                Checks user authentication using the provided test function and redirects to login if the test fails.
+                Otherwise, it continues to the original view function, passing through the original request arguments.
+                """
                 auser = await request.auser()
                 if asyncio.iscoroutinefunction(test_func):
                     test_pass = await test_func(auser)
@@ -51,6 +70,19 @@ def user_passes_test(
         else:
 
             def _view_wrapper(request, *args, **kwargs):
+                """
+
+                Wraps a view function with a permission test.
+
+                This function checks if the user passes a provided test function. If the test passes, 
+                it calls the original view function; otherwise, it redirects the user to the login page.
+
+                :param request: The current HTTP request
+                :param args: Additional positional arguments
+                :param kwargs: Additional keyword arguments
+                :return: Response from the view function if the test passes, or a redirect to the login page
+
+                """
                 if asyncio.iscoroutinefunction(test_func):
                     test_pass = async_to_sync(test_func)(request.user)
                 else:
@@ -107,10 +139,21 @@ def permission_required(perm, login_url=None, raise_exception=False):
         perms = perm
 
     def decorator(view_func):
+        """
+        Checks a user's permissions before allowing them to access a view function, 
+        raising an exception or redirecting to a login page if the user lacks the required permissions.
+        """
         if asyncio.iscoroutinefunction(view_func):
 
             async def check_perms(user):
                 # First check if the user has the permission (even anon users).
+                """
+                Checks if a user has the required permissions.
+
+                :param user: The user to check permissions for
+                :raises PermissionDenied: If raise_exception is True and the user lacks permissions
+                :return: True if the user has permissions, False otherwise
+                """
                 if await sync_to_async(user.has_perms)(perms):
                     return True
                 # In case the 403 handler should be called raise the exception.
@@ -123,6 +166,10 @@ def permission_required(perm, login_url=None, raise_exception=False):
 
             def check_perms(user):
                 # First check if the user has the permission (even anon users).
+                """
+                Checks if a user has the required permissions, returning True if they do and False otherwise. 
+                If the user lacks the necessary permissions and raise_exception is set, a PermissionDenied exception is raised.
+                """
                 if user.has_perms(perms):
                     return True
                 # In case the 403 handler should be called raise the exception.

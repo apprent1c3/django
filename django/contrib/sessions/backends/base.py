@@ -87,6 +87,11 @@ class SessionBase:
         return (await self._aget_session()).pop(key, *args)
 
     def setdefault(self, key, value):
+        """
+        Sets a default value for a given key if it does not exist in the session.
+
+        :return: The value for the given key, either the existing value or the newly set default value.
+        """
         if key in self._session:
             return self._session[key]
         else:
@@ -94,6 +99,10 @@ class SessionBase:
             return value
 
     async def asetdefault(self, key, value):
+        """
+        pulumi
+         Sets a value in the session if the key does not already exist, returning the existing or newly set value. If the key already exists, returns its current value.
+        """
         session = await self._aget_session()
         if key in session:
             return session[key]
@@ -129,6 +138,11 @@ class SessionBase:
         )
 
     def decode(self, session_data):
+        """
+        Decodes the given session data using the configured signing key and serializer, 
+        returning the decoded data if valid. If the data is corrupted or tampered with, 
+        a security warning is logged. Returns an empty dictionary if decoding fails.
+        """
         try:
             return signing.loads(
                 session_data, salt=self.key_salt, serializer=self.serializer
@@ -250,6 +264,9 @@ class SessionBase:
         return self._session_cache
 
     async def _aget_session(self, no_load=False):
+        """
+        Retrieves the current session, loading it from storage if necessary and `no_load` is not set. If `no_load` is True or a session key is not available, an empty session is returned.
+        """
         self.accessed = True
         try:
             return self._session_cache
@@ -293,6 +310,18 @@ class SessionBase:
         return delta.days * 86400 + delta.seconds
 
     async def aget_expiry_age(self, **kwargs):
+        """
+
+        Calculates the age of session expiry in seconds.
+
+        Takes into account the session modification time and expiry time. If the expiry time
+        is not provided, it defaults to the session expiry time stored in the session.
+        If the modification time is not provided, it defaults to the current time.
+
+        Returns the expiry age as a total number of seconds. If the expiry time is not set
+        or is invalid, it returns the default session cookie age.
+
+        """
         try:
             modification = kwargs["modification"]
         except KeyError:
@@ -335,6 +364,12 @@ class SessionBase:
         return modification + timedelta(seconds=expiry)
 
     async def aget_expiry_date(self, **kwargs):
+        """
+        **:param kwargs: Keyword arguments, potentially containing 'modification' and 'expiry' keys
+            :return: The calculated session expiry date as a datetime object
+            :raises: Raises no exceptions itself, but may propagate exceptions from datetime.fromisoformat
+            Calculates the session expiry date based on the provided or default modification time and expiry period.**
+        """
         try:
             modification = kwargs["modification"]
         except KeyError:
@@ -380,6 +415,13 @@ class SessionBase:
         self["_session_expiry"] = value
 
     async def aset_expiry(self, value):
+        """
+        Set the session expiry value.
+
+        Sets the session expiry to the specified value, or removes it if the value is None.
+        The value can be either a datetime.timedelta object, a datetime.datetime object, or an ISO-formatted string.
+        If a timedelta object is provided, it is added to the current time to determine the expiry time.
+        """
         if value is None:
             # Remove any custom expiration for this session.
             try:

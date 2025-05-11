@@ -73,6 +73,9 @@ class TranslateNode(Node):
     child_nodelists = ()
 
     def __init__(self, filter_expression, noop, asvar=None, message_context=None):
+        """
+        Initializes a filter object with a specified expression and configuration options, allowing for customizable filtering and variable handling within a message context.
+        """
         self.noop = noop
         self.asvar = asvar
         self.message_context = message_context
@@ -82,6 +85,9 @@ class TranslateNode(Node):
             self.filter_expression.var = Variable("'%s'" % self.filter_expression.var)
 
     def render(self, context):
+        """
+        Renders the filter expression in the given context, handles message context and variable assignment, and escapes or marks the output as safe accordingly.
+        """
         self.filter_expression.var.translate = not self.noop
         if self.message_context:
             self.filter_expression.var.message_context = self.message_context.resolve(
@@ -114,6 +120,13 @@ class BlockTranslateNode(Node):
         asvar=None,
         tag_name="blocktranslate",
     ):
+        """
+        Initializes the block translation object.
+
+        Sets up the translation context with the given singular and optional plural forms,
+        counter variables, and message context. Provides flexibility in handling translations
+        with or without counters and custom tag names.
+        """
         self.extra_context = extra_context
         self.singular = singular
         self.plural = plural
@@ -132,6 +145,13 @@ class BlockTranslateNode(Node):
         )
 
     def render_token_list(self, tokens):
+        """
+        Render a list of tokens into a formatted string and extract variable names.
+
+        The function replaces special characters, handles text and variable tokens, 
+        and optionally trims whitespace from the resulting string, returning it along 
+        with a list of variable names present in the tokens.
+        """
         result = []
         vars = []
         for token in tokens:
@@ -146,6 +166,11 @@ class BlockTranslateNode(Node):
         return msg, vars
 
     def render(self, context, nested=False):
+        """
+        stitution is handled according to the provided context and applies the appropriate translation based on message context and counter values, using singular or plural forms as needed. 
+
+        The function handles the process of translating a string and replacing placeholders within it, while also taking into account the counter for pluralization. The translated and formatted string is then returned, or stored in a variable if specified.
+        """
         if self.message_context:
             message_context = self.message_context.resolve(context)
         else:
@@ -178,6 +203,9 @@ class BlockTranslateNode(Node):
         default_value = context.template.engine.string_if_invalid
 
         def render_value(key):
+            """
+            Render a value based on the provided key, using the context to resolve it if possible, or a default value as a fallback.
+            """
             if key in context:
                 val = context[key]
             else:

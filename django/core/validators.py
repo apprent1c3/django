@@ -27,6 +27,17 @@ class RegexValidator:
     def __init__(
         self, regex=None, message=None, code=None, inverse_match=None, flags=None
     ):
+        """
+
+        Initializes a regular expression validation object.
+
+        :param regex: The regular expression pattern to match.
+        :param message: The error message to display on invalid input.
+        :param code: A unique error code for the validation rule.
+        :param inverse_match: Whether to invert the match result.
+        :param flags: Flags to pass to the regular expression compiler.
+
+        """
         if regex is not None:
             self.regex = regex
         if message is not None:
@@ -97,6 +108,9 @@ class DomainNameValidator(RegexValidator):
     max_length = 255
 
     def __init__(self, **kwargs):
+        """
+        Initializes the object, setting up the regular expression pattern for URL validation based on whether to accept internationalized domain names (IDNA) or only ASCII domains.
+        """
         self.accept_idna = kwargs.pop("accept_idna", True)
 
         if self.accept_idna:
@@ -113,6 +127,9 @@ class DomainNameValidator(RegexValidator):
         super().__init__(**kwargs)
 
     def __call__(self, value):
+        """
+        Validates a string value against a set of rules, including a maximum length constraint and an optional ASCII-only requirement, raising a ValidationError if the value is invalid.
+        """
         if not isinstance(value, str) or len(value) > self.max_length:
             raise ValidationError(self.message, code=self.code, params={"value": value})
         if not self.accept_idna and not value.isascii():
@@ -160,6 +177,20 @@ class URLValidator(RegexValidator):
             self.schemes = schemes
 
     def __call__(self, value):
+        """
+
+        Validate a URL string.
+
+        Checks if the provided URL meets the expected criteria, including:
+        - Being a string with a limited length
+        - Not containing unsafe characters
+        - Having a valid scheme (e.g. http, https)
+        - Conforming to URL syntax rules
+        - Having a valid hostname/IP address
+
+        Raises a ValidationError if any validation check fails.
+
+        """
         if not isinstance(value, str) or len(value) > self.max_length:
             raise ValidationError(self.message, code=self.code, params={"value": value})
         if self.unsafe_chars.intersection(value):
@@ -244,6 +275,13 @@ class EmailValidator:
     domain_allowlist = ["localhost"]
 
     def __init__(self, message=None, code=None, allowlist=None):
+        """
+        Initializes an error object with optional message, code, and domain allowlist.
+
+        :param message: Custom error message
+        :param code: Error code
+        :param allowlist: List of allowed domains
+        """
         if message is not None:
             self.message = message
         if code is not None:
@@ -254,6 +292,17 @@ class EmailValidator:
     def __call__(self, value):
         # The maximum length of an email is 320 characters per RFC 3696
         # section 3.
+        """
+        Validate an email address.
+
+        Checks if the provided email address is valid by verifying its format, 
+        local part against a user regex, and domain part against an allowlist or 
+        using a validation function. Raises a ValidationError if the email address 
+        is invalid.
+
+        :param value: The email address to be validated.
+        :raises: ValidationError
+        """
         if not value or "@" not in value or len(value) > 320:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
@@ -276,6 +325,9 @@ class EmailValidator:
             raise ValidationError(self.message, code=self.code, params={"value": value})
 
     def validate_domain_part(self, domain_part):
+        """
+        Checks if a domain part matches the domain regex pattern or is a valid IPv4/IPv6 address enclosed in square brackets.
+        """
         if self.domain_regex.match(domain_part):
             return True
 
@@ -340,6 +392,14 @@ def validate_ipv6_address(value):
 
 
 def validate_ipv46_address(value):
+    """
+
+    Validate whether the provided value is a valid IPv4 or IPv6 address.
+
+    Raises:
+        ValidationError: If the value is neither a valid IPv4 nor IPv6 address.
+
+    """
     try:
         validate_ipv4_address(value)
     except ValidationError:
@@ -405,6 +465,13 @@ class BaseValidator:
             self.message = message
 
     def __call__(self, value):
+        """
+
+        Validates a given value against a limit value, raising an error if the validation fails.
+
+        :raises: ValidationError if the cleaned value does not meet the comparison criteria with the limit value.
+
+        """
         cleaned = self.clean(value)
         limit_value = (
             self.limit_value() if callable(self.limit_value) else self.limit_value
@@ -463,6 +530,13 @@ class StepValueValidator(BaseValidator):
         self.offset = offset
 
     def __call__(self, value):
+        """
+        Raises a ValidationError if a cleaned value exceeds a given limit value by a certain offset.
+
+        The validation process involves cleaning the input value and comparing it with a limit value.
+        If the cleaned value exceeds the limit, a ValidationError is raised with a formatted error message and parameters.
+        This method is typically used to enforce conditional validation rules based on a threshold value and offset.
+        """
         if self.offset is None:
             super().__call__(value)
         else:
@@ -554,6 +628,13 @@ class DecimalValidator:
         self.decimal_places = decimal_places
 
     def __call__(self, value):
+        """
+        Validates if a decimal value adheres to the specified constraints.
+
+        Raises ValidationError if the value contains an invalid exponent,
+        exceeds the maximum allowed digits, or exceeds the maximum allowed decimal places.
+
+        """
         digit_tuple, exponent = value.as_tuple()[1:]
         if exponent in {"F", "n", "N"}:
             raise ValidationError(
@@ -618,6 +699,16 @@ class FileExtensionValidator:
     code = "invalid_extension"
 
     def __init__(self, allowed_extensions=None, message=None, code=None):
+        """
+        Initializes a validation object for file extensions.
+
+        :param allowed_extensions: List of allowed file extensions ( defaults to None)
+        :param message: Custom error message ( defaults to None)
+        :param code: Custom error code ( defaults to None)
+
+        This method sets up the validation object with the provided parameters, 
+        normalizing the allowed extensions to lowercase for case-insensitive comparison.
+        """
         if allowed_extensions is not None:
             allowed_extensions = [
                 allowed_extension.lower() for allowed_extension in allowed_extensions
@@ -655,6 +746,9 @@ class FileExtensionValidator:
 
 
 def get_available_image_extensions():
+    """
+    Returns a list of available image file extensions supported by the Python Imaging Library (PIL). If PIL is not installed, returns an empty list.
+    """
     try:
         from PIL import Image
     except ImportError:

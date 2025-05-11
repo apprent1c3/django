@@ -48,6 +48,14 @@ class LoginRequiredMiddleware(MiddlewareMixin):
     redirect_field_name = REDIRECT_FIELD_NAME
 
     def process_view(self, request, view_func, view_args, view_kwargs):
+        """
+        Checks if the view requires authentication and handles unauthorized requests.
+
+        This method is used to determine if the current view requires the user to be logged in.
+        If the user is authenticated or the view does not require login, it returns None.
+        Otherwise, it handles the case where the user lacks permission to access the view.
+
+        """
         if request.user.is_authenticated:
             return None
 
@@ -70,6 +78,14 @@ class LoginRequiredMiddleware(MiddlewareMixin):
         return getattr(view_func, "redirect_field_name", self.redirect_field_name)
 
     def handle_no_permission(self, request, view_func):
+        """
+
+        Redirects the user to the login page when permission is denied.
+
+        This function handles cases where the user lacks permission to access a view.
+        It determines the login URL and redirects the user, preserving the original path if the login URL is on the same scheme and domain.
+
+        """
         path = request.build_absolute_uri()
         resolved_login_url = resolve_url(self.get_login_url(view_func))
         # If the login url is the same scheme and net location then use the
@@ -110,6 +126,14 @@ class RemoteUserMiddleware(MiddlewareMixin):
 
     def process_request(self, request):
         # AuthenticationMiddleware is required so that request.user exists.
+        """
+        Authenticates a user based on a remote user header in the request.
+
+        Raises an exception if the authentication middleware is not installed. If the
+        remote user header is missing and the user is currently logged in, the function
+        logs out the user if forced logout is enabled. Otherwise, it authenticates the
+        user using the provided username and logs them in if authentication is successful.
+        """
         if not hasattr(request, "user"):
             raise ImproperlyConfigured(
                 "The Django remote user auth middleware requires the"

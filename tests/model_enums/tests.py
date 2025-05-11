@@ -45,6 +45,9 @@ class Gender(models.TextChoices):
 
 class ChoicesTests(SimpleTestCase):
     def test_integerchoices(self):
+        """
+        Tests the Suit class for correctness, covering its choices, labels, values, names, representation, and instance methods to ensure proper functionality and conformance to expected types.
+        """
         self.assertEqual(
             Suit.choices, [(1, "Diamond"), (2, "Spade"), (3, "Heart"), (4, "Club")]
         )
@@ -86,6 +89,16 @@ class ChoicesTests(SimpleTestCase):
         self.assertNotIn(0, Suit)
 
     def test_textchoices(self):
+        """
+
+        Tests the YearInSchool choices enumeration, verifying its values, labels, and behavior.
+
+        Checks the correctness of the choices, labels, and values attributes, as well as the
+        individual choice instances and their properties. Ensures that the enumeration
+        behaves as expected, including lookup by value and name, and checks the types of
+        the enumeration and its instances.
+
+        """
         self.assertEqual(
             YearInSchool.choices,
             [
@@ -140,6 +153,10 @@ class ChoicesTests(SimpleTestCase):
         self.assertNotIn("XX", YearInSchool)
 
     def test_textchoices_blank_value(self):
+        """
+        Verifies that a TextChoices class with a blank value is correctly represented, 
+        including its labels, values, and names.
+        """
         class BlankStr(models.TextChoices):
             EMPTY = "", "(Empty)"
             ONE = "ONE", "One"
@@ -149,6 +166,9 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(BlankStr.names, ["EMPTY", "ONE"])
 
     def test_invalid_definition(self):
+        """
+        Tests the case when a model's choice definition is invalid, specifically when a string value is passed where an integer is expected, and when duplicate values are used in an IntegerChoices enum.
+        """
         msg = "'str' object cannot be interpreted as an integer"
         with self.assertRaisesMessage(TypeError, msg):
 
@@ -187,6 +207,9 @@ class ChoicesTests(SimpleTestCase):
 
     def test_do_not_call_in_templates_member(self):
         # do_not_call_in_templates is not implicitly treated as a member.
+        """
+        Tests the functionality of a model's IntegerChoices member with a name that should be excluded from being called directly in templates.
+        """
         Special = models.IntegerChoices("Special", "do_not_call_in_templates")
         self.assertIn("do_not_call_in_templates", Special.__members__)
         self.assertEqual(
@@ -200,6 +223,10 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_do_not_call_in_templates_nonmember(self):
+        """
+        Verify that the 'do_not_call_in_templates' attribute of the Suit class is properly configured, 
+        checking its presence and behavior as a class property across different Python versions.
+        """
         self.assertNotIn("do_not_call_in_templates", Suit.__members__)
         if PY311:
             self.assertIs(Suit.do_not_call_in_templates, True)
@@ -310,6 +337,9 @@ class CustomChoicesTests(SimpleTestCase):
                 self.assertNotIn(None, choice_enum.labels)
 
     def test_bool_unsupported(self):
+        """
+        Tests that attempting to use 'bool' as a base type for models.Choices raises a TypeError with a descriptive error message, as 'bool' is not a supported base type.
+        """
         msg = "type 'bool' is not an acceptable base type"
         with self.assertRaisesMessage(TypeError, msg):
 

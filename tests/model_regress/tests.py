@@ -89,6 +89,9 @@ class ModelTests(TestCase):
 
     def test_date_lookup(self):
         # Regression test for #659
+        """
+        Checks the functionality of date-based filtering for the Party model, verifying that lookup by month, year, and day returns the correct results.
+        """
         Party.objects.create(when=datetime.datetime(1999, 12, 31))
         Party.objects.create(when=datetime.datetime(1998, 12, 31))
         Party.objects.create(when=datetime.datetime(1999, 1, 1))
@@ -161,6 +164,9 @@ class ModelTests(TestCase):
     def test_date_filter_null(self):
         # Date filtering was failing with NULL date values in SQLite
         # (regression test for #3501, among other things).
+        """
+        Tests the filtering of objects by a date field when the field may be null, ensuring the correct object is returned and the filtered dates match the expected value.
+        """
         Party.objects.create(when=datetime.datetime(1999, 1, 1))
         Party.objects.create()
         p = Party.objects.filter(when__month=1)[0]
@@ -174,6 +180,9 @@ class ModelTests(TestCase):
     def test_get_next_prev_by_field(self):
         # get_next_by_FIELD() and get_previous_by_FIELD() don't crash when
         # microseconds values are stored in the database.
+        """
+        Tests the functionality of getting the next and previous events by a specific field, verifying that the correct adjacent events are returned in chronological order.
+        """
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 16, 0, 0))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 6, 1, 1))
         Event.objects.create(when=datetime.datetime(2000, 1, 1, 13, 1, 1))
@@ -186,6 +195,9 @@ class ModelTests(TestCase):
         )
 
     def test_get_next_prev_by_field_unsaved(self):
+        """
+        Tests that attempting to retrieve the next or previous instance by a specific field (in this case, 'when') raises a ValueError when invoked on an unsaved object.
+        """
         msg = "get_next/get_previous cannot be used on unsaved objects."
         with self.assertRaisesMessage(ValueError, msg):
             Event().get_next_by_when()
@@ -204,6 +216,9 @@ class ModelTests(TestCase):
         # Regression test for #10443.
         # The idea is that all these creations and saving should work without
         # crashing. It's not rocket science.
+        """
+        Checks that timezone-aware datetime objects can be correctly stored and updated in the database.
+        """
         dt1 = datetime.datetime(2008, 8, 31, 16, 20, tzinfo=get_fixed_timezone(600))
         dt2 = datetime.datetime(2008, 8, 31, 17, 20, tzinfo=get_fixed_timezone(600))
         obj = Article.objects.create(
@@ -271,6 +286,9 @@ class EvaluateMethodTest(TestCase):
 
 class ModelFieldsCacheTest(TestCase):
     def test_fields_cache_reset_on_copy(self):
+        """
+        Verifies that the cache is properly reset when a Worker object is copied, ensuring that changes to the copied object do not affect the original object.
+        """
         department1 = Department.objects.create(id=1, name="department1")
         department2 = Department.objects.create(id=2, name="department2")
         worker1 = Worker.objects.create(name="worker", department=department1)

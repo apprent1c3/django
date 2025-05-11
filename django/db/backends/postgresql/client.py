@@ -8,6 +8,25 @@ class DatabaseClient(BaseDatabaseClient):
 
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
+        """
+        Constructs command line arguments and environment variables from a dictionary of database settings for use with a PostgreSQL executable. 
+
+        The function takes into account various database connection options such as host, port, username, password, and SSL settings, generating a list of command line arguments and a dictionary of environment variables accordingly. 
+
+        The generated command line arguments and environment variables can be used to establish a database connection. 
+
+        Parameters
+        ----------
+        settings_dict : dict
+            A dictionary containing database connection settings
+        parameters : list
+            A list of additional command line parameters
+
+        Returns
+        -------
+        tuple
+            A tuple containing a list of command line arguments and a dictionary of environment variables, or None if no environment variables are set.
+        """
         args = [cls.executable_name]
         options = settings_dict["OPTIONS"]
 
@@ -54,6 +73,12 @@ class DatabaseClient(BaseDatabaseClient):
         return args, (env or None)
 
     def runshell(self, parameters):
+        """
+
+        Runs a shell command, temporarily ignoring any interrupt signals (SIGINT) 
+        raised during execution, to prevent interruptions from aborting the process.
+
+        """
         sigint_handler = signal.getsignal(signal.SIGINT)
         try:
             # Allow SIGINT to pass to psql to abort queries.

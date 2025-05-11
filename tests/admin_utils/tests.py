@@ -64,6 +64,11 @@ class NestedObjectsTests(TestCase):
         self._check([0])
 
     def test_cyclic(self):
+        """
+
+        Tests the collection of a cyclic graph structure, verifying the expected recursive collection result.
+
+        """
         self._connect(0, 2)
         self._connect(1, 0)
         self._connect(2, 1)
@@ -152,6 +157,11 @@ class UtilsTests(SimpleTestCase):
             self.assertEqual(value, resolved_value)
 
     def test_empty_value_display_for_field(self):
+        """
+        Tests that different model fields display empty values correctly. 
+
+        Verifies that the display value for various empty values in different model fields matches the expected empty value display.
+        """
         tests = [
             models.CharField(),
             models.DateField(),
@@ -197,6 +207,9 @@ class UtilsTests(SimpleTestCase):
                 )
 
     def test_number_formats_display_for_field(self):
+        """
+        Tests the display format of numeric fields, ensuring FloatField, DecimalField, and IntegerField values are correctly displayed as strings without formatting modifications.
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -214,6 +227,9 @@ class UtilsTests(SimpleTestCase):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_number_formats_with_thousand_separator_display_for_field(self):
+        """
+        Tests the display of number fields with thousand separators enabled, verifying that FloatField, DecimalField, and IntegerField values are formatted correctly.
+        """
         display_value = display_for_field(
             12345.6789, models.FloatField(), self.empty_value
         )
@@ -303,6 +319,9 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_failed_lookup(self):
+        """
+        Tests the `label_for_field` function to ensure it returns the correct label and handles failed lookups. The test verifies that it raises an `AttributeError` when the lookup fails and successfully retrieves labels from model admin attributes when provided.
+        """
         msg = "Unable to lookup 'site__unknown' on Article"
         with self.assertRaisesMessage(AttributeError, msg):
             label_for_field("site__unknown", Article)
@@ -324,6 +343,13 @@ class UtilsTests(SimpleTestCase):
         )
 
     def test_label_for_field_form_argument(self):
+        """
+
+        Tests the label_for_field function, which determines the human-readable label for a given field on a model or form.
+
+        Verifies that the function correctly returns the label for an existing field and raises an AttributeError when attempting to lookup a nonexistent field.
+
+        """
         class ArticleForm(forms.ModelForm):
             extra_form_field = forms.BooleanField()
 
@@ -340,6 +366,9 @@ class UtilsTests(SimpleTestCase):
             label_for_field("nonexistent", Article, form=ArticleForm())
 
     def test_label_for_property(self):
+        """
+        Returns the label for a given field, considering the description provided by the model admin's property decorator.
+        """
         class MockModelAdmin:
             @property
             @admin.display(description="property short description")
@@ -380,6 +409,9 @@ class UtilsTests(SimpleTestCase):
 
     def test_safestring_in_field_label(self):
         # safestring should not be escaped
+        """
+        Tests the rendering of field labels in an admin form, ensuring that safe strings (i.e., HTML markup) are properly displayed and escaped strings are correctly encoded.
+        """
         class MyForm(forms.Form):
             text = forms.CharField(label=mark_safe("<i>text</i>"))
             cb = forms.BooleanField(label=mark_safe("<i>cb</i>"))

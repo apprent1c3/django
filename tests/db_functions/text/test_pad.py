@@ -8,6 +8,9 @@ from ..models import Author
 
 class PadTests(TestCase):
     def test_pad(self):
+        """
+        Tests the LPad and RPad database functions for various padding lengths and values, ensuring correct left and right padding of strings.
+        """
         Author.objects.create(name="John", alias="j")
         none_value = (
             "" if connection.features.interprets_empty_strings_as_nulls else None

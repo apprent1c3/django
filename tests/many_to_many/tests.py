@@ -19,6 +19,9 @@ class ManyToManyTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a couple of Publications.
+        """
+        Sets up test data for publications and articles, creating a set of predefined publications and articles with associated relationships for testing purposes.
+        """
         cls.p1 = Publication.objects.create(title="The Python Journal")
         cls.p2 = Publication.objects.create(title="Science News")
         cls.p3 = Publication.objects.create(title="Science Weekly")
@@ -40,6 +43,12 @@ class ManyToManyTests(TestCase):
 
     def test_add(self):
         # Create an Article.
+        """
+        Test the add method of a many-to-many relationship between Article and Publication models. 
+        Ensures that attempting to access the relationship before saving the Article instance raises a ValueError, 
+        and that adding Publication instances to Article works as expected, including handling duplicate additions and incorrect object types. 
+        Also tests the ability to create a new Publication instance directly on the Article instance.
+        """
         a5 = Article(headline="Django lets you create web apps easily")
         # You can't associate it with a Publication until it's been saved.
         msg = (
@@ -82,6 +91,9 @@ class ManyToManyTests(TestCase):
         )
 
     def test_add_remove_set_by_pk(self):
+        """
+        Tests the addition, removal, and replacement of publications by primary key in an Article instance.
+        """
         a5 = Article.objects.create(headline="Django lets you create web apps easily")
         a5.publications.add(self.p1.pk)
         self.assertSequenceEqual(a5.publications.all(), [self.p1])
@@ -91,6 +103,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(a5.publications.all(), [])
 
     def test_add_remove_set_by_to_field(self):
+        """
+        Tests the addition, removal, and replacement of authors in an Article instance using the to_field argument, ensuring correct functionality of the many-to-many relationship between articles and authors.
+        """
         user_1 = User.objects.create(username="Jean")
         user_2 = User.objects.create(username="Joe")
         a5 = Article.objects.create(headline="Django lets you create web apps easily")
@@ -102,6 +117,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(a5.authors.all(), [])
 
     def test_related_manager_refresh(self):
+        """
+        $: Tests the behavior of a related manager when the underlying object is refreshed from the database, ensuring that changes to the object and its relations are correctly reflected.
+        """
         user_1 = User.objects.create(username="Jean")
         user_2 = User.objects.create(username="Joe")
         self.a3.authors.add(user_1.username)
@@ -128,6 +146,12 @@ class ManyToManyTests(TestCase):
 
     def test_reverse_add(self):
         # Adding via the 'other' end of an m2m
+        """
+        Tests the reverse relationship behavior of articles and publications, 
+        ensuring articles are correctly added to a publication and the publications 
+        are correctly assigned to the article, and that the many-to-many relationship 
+        is maintained in a specific order.
+        """
         a5 = Article(headline="NASA finds intelligent life on Mars")
         a5.save()
         self.p2.article_set.add(a5)
@@ -169,6 +193,10 @@ class ManyToManyTests(TestCase):
 
     @skipUnlessDBFeature("supports_ignore_conflicts")
     def test_slow_add_ignore_conflicts(self):
+        """
+        Test that adding a publication with ignore conflicts works as expected when the database supports it, 
+        verifying that the required methods are called during the operation.
+        """
         manager_cls = self.a1.publications.__class__
         # Simulate a race condition between the missing ids retrieval and
         # the bulk insertion attempt.
@@ -184,6 +212,9 @@ class ManyToManyTests(TestCase):
 
     def test_related_sets(self):
         # Article objects have access to their related Publication objects.
+        """
+        Tests the relationships between articles and publications, verifying that the correct publications are associated with each article and vice versa.
+        """
         self.assertSequenceEqual(self.a1.publications.all(), [self.p1])
         self.assertSequenceEqual(
             self.a2.publications.all(),
@@ -205,6 +236,15 @@ class ManyToManyTests(TestCase):
 
     def test_selects(self):
         # We can perform kwarg queries across m2m relationships
+        """
+        Tests the filtering and lookup functionality for articles based on their publications.
+
+         Verifies that articles can be retrieved based on publication id, primary key, or publication object, and that lookup types such as 'exact', 'startswith', and 'in' work as expected.
+
+         Also tests the distinct method for removing duplicates and the count method for getting the number of results, as well as the exclude method for excluding articles based on publication.
+
+         Validates the results of these lookups to ensure that the correct articles are returned in the expected order.
+        """
         self.assertSequenceEqual(
             Article.objects.filter(publications__id__exact=self.p1.id),
             [self.a1, self.a2],
@@ -267,6 +307,9 @@ class ManyToManyTests(TestCase):
     def test_reverse_selects(self):
         # Reverse m2m queries are supported (i.e., starting at the table that
         # doesn't have a ManyToManyField).
+        """
+        Tests the correctness of Django ORM's reverse select queries, ensuring that different lookup methods and syntaxes return the expected publications based on related article instances.
+        """
         python_journal = [self.p1]
         self.assertSequenceEqual(
             Publication.objects.filter(id__exact=self.p1.id), python_journal
@@ -307,6 +350,13 @@ class ManyToManyTests(TestCase):
 
     def test_delete(self):
         # If we delete a Publication, its Articles won't be able to access it.
+        """
+
+        Tests the deletion of publications and articles.
+        Verifies that publications and articles are correctly removed 
+        from the database and their respective relationships are updated.
+
+        """
         self.p1.delete()
         self.assertSequenceEqual(
             Publication.objects.all(),
@@ -326,6 +376,14 @@ class ManyToManyTests(TestCase):
 
     def test_bulk_delete(self):
         # Bulk delete some Publications - references to deleted publications should go
+        """
+
+        Tests the functionality of bulk deletion in the database.
+
+        Checks that objects are correctly removed from the database and that 
+        related objects are updated accordingly. 
+
+        """
         Publication.objects.filter(title__startswith="Science").delete()
         self.assertSequenceEqual(
             Publication.objects.all(),
@@ -351,6 +409,11 @@ class ManyToManyTests(TestCase):
 
     def test_remove(self):
         # Removing publication from an article:
+        """
+        Tests the removal of articles from a publication and the corresponding removal of the publication from the article's publications.
+
+        Verifies that the article set of the publication and the publication set of the articles are correctly updated after removal operations.
+        """
         self.assertSequenceEqual(
             self.p2.article_set.all(),
             [self.a3, self.a2, self.a4],
@@ -367,6 +430,9 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(self.a3.publications.all(), [])
 
     def test_set(self):
+        """
+        Tests the functionality of setting and clearing article sets for publications, ensuring that the articles are correctly added, removed, and updated in both the publication's article set and the article's publications.
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -432,6 +498,11 @@ class ManyToManyTests(TestCase):
 
     def test_assign(self):
         # Relation sets can be assigned using set().
+        """
+        Tests the assignment and reassignment of articles to a publication, 
+        verifying that the relationships are correctly updated on both the publication 
+        and article objects.
+        """
         self.p2.article_set.set([self.a4, self.a3])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -450,6 +521,9 @@ class ManyToManyTests(TestCase):
 
     def test_assign_ids(self):
         # Relation sets can also be set using primary key values
+        """
+        Tests the assignment of IDs to objects in a many-to-many relationship, ensuring correct membership and synchronization between related object sets.
+        """
         self.p2.article_set.set([self.a4.id, self.a3.id])
         self.assertSequenceEqual(
             self.p2.article_set.all(),
@@ -464,6 +538,9 @@ class ManyToManyTests(TestCase):
         # Querysets used in m2m assignments are pre-evaluated so their value
         # isn't affected by the clearing operation in ManyRelatedManager.set()
         # (#19816).
+        """
+        Tests the forward assignment of a queryset to a relation field, verifying that it correctly updates the related objects.
+        """
         self.a1.publications.set([self.p1, self.p2])
 
         qs = self.a1.publications.filter(title="The Python Journal")
@@ -476,6 +553,9 @@ class ManyToManyTests(TestCase):
         # Querysets used in M2M assignments are pre-evaluated so their value
         # isn't affected by the clearing operation in ManyRelatedManager.set()
         # (#19816).
+        """
+        Tests that assigning a queryset to a reverse relationship manager updates the relationship correctly, ensuring that only the objects matching the queryset are retained in the relationship.
+        """
         self.p1.article_set.set([self.a1, self.a2])
 
         qs = self.p1.article_set.filter(
@@ -488,6 +568,13 @@ class ManyToManyTests(TestCase):
 
     def test_clear(self):
         # Relation sets can be cleared:
+        """
+
+        Tests the clearing of many-to-many relationships between articles and publications.
+
+        Verifies that clearing a publication's articles removes the relationship from both the publication and the articles.
+
+        """
         self.p2.article_set.clear()
         self.assertSequenceEqual(self.p2.article_set.all(), [])
         self.assertSequenceEqual(self.a4.publications.all(), [])
@@ -528,6 +615,9 @@ class ManyToManyTests(TestCase):
         self.assertCountEqual(a4.publications.all(), [self.p2, p5])
 
     def test_set_after_prefetch(self):
+        """
+        Tests the ability to set the publications of an article after prefetching the related publications, ensuring the correct count of publications is maintained.
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertEqual(a4.publications.count(), 1)
         a4.publications.set([self.p2, self.p1])
@@ -536,6 +626,9 @@ class ManyToManyTests(TestCase):
         self.assertEqual(a4.publications.count(), 1)
 
     def test_add_then_remove_after_prefetch(self):
+        """
+        Tests that adding and then removing a publication from an article after prefetching works as expected.
+        """
         a4 = Article.objects.prefetch_related("publications").get(id=self.a4.id)
         self.assertEqual(a4.publications.count(), 1)
         a4.publications.add(self.p1)
@@ -564,6 +657,15 @@ class ManyToManyTests(TestCase):
         self.assertSequenceEqual(b.publications.all(), [self.p3])
 
     def test_custom_default_manager_exists_count(self):
+        """
+
+        Verifies that a default manager exists and its count and exists methods behave correctly
+        by testing the article_set relationship on a Publication instance.
+
+        The test checks that the count and exists methods execute with the expected number of queries
+        and that the generated SQL includes a JOIN clause.
+
+        """
         a5 = Article.objects.create(headline="deleted")
         a5.publications.add(self.p2)
         with self.assertNumQueries(2) as ctx:
@@ -620,6 +722,9 @@ class ManyToManyQueryTests(TestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_count_join_optimization(self):
+        """
+        」Tests that the count() method of a related fieldset does not perform an SQL JOIN when retrieving the count of related objects, verifying query optimization for foreign key relationships.
+        """
         with self.assertNumQueries(1) as ctx:
             self.article.publications.count()
         self.assertNotIn("JOIN", ctx.captured_queries[0]["sql"])
@@ -640,6 +745,9 @@ class ManyToManyQueryTests(TestCase):
 
     @skipUnlessDBFeature("supports_foreign_keys")
     def test_exists_join_optimization(self):
+        """
+        Tests the optimization of exists() queries for joined models, ensuring no JOIN is performed in the SQL query when using exists() after a prefetch_related() call or on a nullable foreign key, verifying efficient database query handling.
+        """
         with self.assertNumQueries(1) as ctx:
             self.article.publications.exists()
         self.assertNotIn("JOIN", ctx.captured_queries[0]["sql"])
@@ -660,6 +768,9 @@ class ManyToManyQueryTests(TestCase):
         self.assertIn("JOIN", ctx.captured_queries[0]["sql"])
 
     def test_prefetch_related_no_queries_optimization_disabled(self):
+        """
+        Tests that prefetch_related optimization is disabled when accessing related objects, even after the initial query, ensuring no additional database queries are made.
+        """
         qs = Article.objects.prefetch_related("publications")
         article = qs.get()
         with self.assertNumQueries(0):

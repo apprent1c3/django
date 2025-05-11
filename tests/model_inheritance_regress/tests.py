@@ -51,6 +51,9 @@ class ModelInheritanceTest(TestCase):
         # 'narrow()' API would require a similar approach.
 
         # Create a child-parent-grandparent chain
+        """
+        Tests the model inheritance mechanism by creating instances of different models and verifying their relationships and data integrity after various CRUD operations.
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -203,6 +206,14 @@ class ModelInheritanceTest(TestCase):
         # Regression test for #7276: calling delete() on a model with
         # multi-table inheritance should delete the associated rows from any
         # ancestor tables, as well as any descendent objects.
+        """
+
+        Tests the correct behavior of deleting a model instance in an inheritance hierarchy.
+
+        Verifies that deleting a model instance in a child class correctly cascades to its parent classes,
+        and that attempting to retrieve the related instances after deletion raises the expected exceptions.
+
+        """
         place1 = Place(name="Guido's House of Pasta", address="944 W. Fullerton")
         place1.save_base(raw=True)
         restaurant = Restaurant(
@@ -385,6 +396,15 @@ class ModelInheritanceTest(TestCase):
     def test_abstract_base_class_m2m_relation_inheritance(self):
         # many-to-many relations defined on an abstract base class are
         # correctly inherited (and created) on the child class.
+        """
+        Tests the inheritance of many-to-many relationships in abstract base classes.
+
+        Verifies that the relationships are correctly established and inherited between
+        concrete models, and that the correct related objects are retrieved through
+        the relationships. Also checks that relationships defined on intermediate
+        models in the inheritance chain are not accidentally exposed on unrelated
+        models.
+        """
         p1 = Person.objects.create(name="Alice")
         p2 = Person.objects.create(name="Bob")
         p3 = Person.objects.create(name="Carol")
@@ -498,6 +518,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(str(qs.query).count("JOIN"), 1)
 
     def test_issue_21554(self):
+        """
+        Tests the retrieval of a Senator object from the database to ensure its attributes are correctly persisted.
+        """
         senator = Senator.objects.create(name="John Doe", title="X", state="Y")
         senator = Senator.objects.get(pk=senator.pk)
         self.assertEqual(senator.name, "John Doe")
@@ -516,6 +539,9 @@ class ModelInheritanceTest(TestCase):
 
     def test_inheritance_select_related(self):
         # Regression test for #7246
+        """
+        Tests that the select_related method correctly retrieves related objects in an inheritance scenario, ensuring that the query fetches the related restaurant information for suppliers.
+        """
         r1 = Restaurant.objects.create(
             name="Nobu", serves_hot_dogs=True, serves_pizza=False
         )
@@ -551,6 +577,9 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(r.place_ptr._state.db, "default")
 
     def test_related_filtering_query_efficiency_ticket_15844(self):
+        """
+        Tests the efficiency of filtering queries related to restaurants and their suppliers, ensuring that related objects can be retrieved with a minimal number of database queries.
+        """
         r = Restaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",
@@ -564,6 +593,9 @@ class ModelInheritanceTest(TestCase):
             self.assertSequenceEqual(r.supplier_set.all(), [s])
 
     def test_queries_on_parent_access(self):
+        """
+        Checks the relationship between an ItalianRestaurant instance and its parent Restaurant class, ensuring that access to parent attributes does not trigger unnecessary database queries.
+        """
         italian_restaurant = ItalianRestaurant.objects.create(
             name="Guido's House of Pasta",
             address="944 W. Fullerton",
@@ -600,6 +632,9 @@ class ModelInheritanceTest(TestCase):
             self.assertEqual(restaurant.italianrestaurant, italian_restaurant)
 
     def test_id_field_update_on_ancestor_change(self):
+        """
+        Tests that the 'id' field of a model instance is updated when its 'ancestor' model changes, ensuring the instance's primary key remains in sync with its parent model's primary key, and handling cases where the ancestor is set to None.
+        """
         place1 = Place.objects.create(name="House of Pasta", address="944 Fullerton")
         place2 = Place.objects.create(name="House of Pizza", address="954 Fullerton")
         place3 = Place.objects.create(name="Burger house", address="964 Fullerton")
@@ -637,6 +672,10 @@ class ModelInheritanceTest(TestCase):
         self.assertIsNone(italian_restaurant.id)
 
     def test_create_new_instance_with_pk_equals_none(self):
+        """
+        Tests the creation of a new Profile instance when the primary key is set to None, 
+         verifying that it results in a new database entry without affecting the original profile.
+        """
         p1 = Profile.objects.create(username="john")
         p2 = User.objects.get(pk=p1.user_ptr_id).profile
         # Create a new profile by setting pk = None.
@@ -648,6 +687,10 @@ class ModelInheritanceTest(TestCase):
         self.assertEqual(User.objects.get(pk=p1.user_ptr_id).username, "john")
 
     def test_create_new_instance_with_pk_equals_none_multi_inheritance(self):
+        """
+        Tests creating a new instance with primary key equal to None in a multi-inheritance scenario, 
+        verifying that a new instance is created without overwriting the existing one.
+        """
         c1 = Congressman.objects.create(state="PA", name="John", title="senator 1")
         c2 = Person.objects.get(pk=c1.pk).congressman
         # Create a new congressman by setting pk = None.

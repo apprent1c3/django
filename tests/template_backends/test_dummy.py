@@ -53,6 +53,9 @@ class TemplateStringsTests(SimpleTestCase):
             self.engine.get_template("template_backends/syntax_error.html")
 
     def test_html_escaping(self):
+        """
+        Verify that HTML template rendering properly escapes user input to prevent XSS attacks.
+        """
         template = self.engine.get_template("template_backends/hello.html")
         context = {"name": '<script>alert("XSS!");</script>'}
         content = template.render(context)
@@ -61,6 +64,9 @@ class TemplateStringsTests(SimpleTestCase):
         self.assertNotIn("<script>", content)
 
     def test_django_html_escaping(self):
+        """
+        Tests that Django's HTML escaping is working correctly in the given template engine by comparing the rendered template content with the expected output. The test verifies that form and media objects are properly escaped when rendered in a template.
+        """
         if self.backend_name == "dummy":
             self.skipTest("test doesn't apply to dummy backend")
 
@@ -83,6 +89,10 @@ class TemplateStringsTests(SimpleTestCase):
         self.assertEqual(token1, token2)
 
     def test_csrf_token(self):
+        """
+        Tests that a CSRF token is generated and correctly rendered in the template for a given request.\"\"\"
+        ```
+        """
         request = HttpRequest()
         CsrfViewMiddleware(lambda req: HttpResponse()).process_view(
             request, lambda r: None, (), {}

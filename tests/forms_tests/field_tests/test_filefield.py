@@ -17,6 +17,9 @@ else:
 
 class FileFieldTest(SimpleTestCase):
     def test_filefield_1(self):
+        """
+        Tests the behavior of a FileField, ensuring that it raises the correct validation errors for various invalid file submissions, and returns the expected value for valid file submissions.
+        """
         f = FileField()
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -67,6 +70,12 @@ class FileFieldTest(SimpleTestCase):
         )
 
     def test_filefield_2(self):
+        """
+        Tests the validation and cleaning functionality of a FileField.
+
+            Verifies that the field correctly raises a ValidationError when a filename exceeds the maximum allowed length,
+            and that it properly handles empty and None values, as well as successfully uploaded files.
+        """
         f = FileField(max_length=5)
         with self.assertRaisesMessage(
             ValidationError,
@@ -131,6 +140,11 @@ class MultipleFileField(FileField):
         super().__init__(*args, **kwargs)
 
     def clean(self, data, initial=None):
+        """
+        Cleans the given data, which can be either a single item or a list/tuple of items. 
+        If multiple items are provided, each item is cleaned individually and the results are returned as a list. 
+        An optional initial value can be specified to influence the cleaning process.
+        """
         single_file_clean = super().clean
         if isinstance(data, (list, tuple)):
             result = [single_file_clean(d, initial) for d in data]
@@ -149,6 +163,9 @@ class MultipleFileFieldTest(SimpleTestCase):
         self.assertEqual(f.clean(files), files)
 
     def test_file_multiple_empty(self):
+        """
+        Tests that the MultipleFileField raises a ValidationError when an empty file is included in the list of uploaded files, regardless of its position.
+        """
         f = MultipleFileField()
         files = [
             SimpleUploadedFile("empty", b""),
@@ -162,6 +179,10 @@ class MultipleFileFieldTest(SimpleTestCase):
 
     @unittest.skipUnless(HAS_PILLOW, "Pillow not installed")
     def test_file_multiple_validation(self):
+        """
+        Test validation of multiple file uploads, specifically checking that files with 
+        disallowed extensions are rejected while valid files pass through unmodified.
+        """
         f = MultipleFileField(validators=[validate_image_file_extension])
 
         good_files = [

@@ -16,6 +16,9 @@ class FloorTests(TestCase):
         self.assertIsNone(obj.null_floor)
 
     def test_decimal(self):
+        """
+        Test that the Floor database function correctly floors decimal fields, ensuring the result is a Decimal instance and matches the expected floor value.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_floor=Floor("n1"), n2_floor=Floor("n2")
@@ -26,6 +29,9 @@ class FloorTests(TestCase):
         self.assertEqual(obj.n2_floor, Decimal(math.floor(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the correct functionality of the Floor database function with float values, verifying that it correctly calculates the floor of negative and positive numbers and returns the result as a float.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_floor=Floor("f1"), f2_floor=Floor("f2")
@@ -36,6 +42,12 @@ class FloorTests(TestCase):
         self.assertEqual(obj.f2_floor, math.floor(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the database functionality for applying the floor function to integer fields.
+
+        Verifies that the floor function returns an integer result for both positive and negative values, 
+        and that the result matches the expected value calculated using the math.floor function.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_floor=Floor("small"),
@@ -50,6 +62,9 @@ class FloorTests(TestCase):
         self.assertEqual(obj.big_floor, math.floor(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField values using the Floor lookup, ensuring that it correctly filters objects based on the floor value of a decimal field.
+        """
         with register_lookup(DecimalField, Floor):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.4"), n2=Decimal("0"))

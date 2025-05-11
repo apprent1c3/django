@@ -8,6 +8,11 @@ from ..models import Article, Author
 
 class StrIndexTests(TestCase):
     def test_annotate_charfield(self):
+        """
+        Tests annotating a CharField in a Django model with the index of a substring.
+
+        Verifies that the StrIndex function correctly identifies the position of 'R.' in author names.
+        """
         Author.objects.create(name="George. R. R. Martin")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="Terry Pratchett")
@@ -33,6 +38,9 @@ class StrIndexTests(TestCase):
         )
 
     def test_order_by(self):
+        """
+        Test the order_by function by verifying it can sort Author objects based on a substring ('R.') within their names in both ascending and descending order.
+        """
         Author.objects.create(name="Terry Pratchett")
         Author.objects.create(name="J. R. R. Tolkien")
         Author.objects.create(name="George. R. R. Martin")
@@ -56,6 +64,9 @@ class StrIndexTests(TestCase):
         )
 
     def test_unicode_values(self):
+        """
+        Test the annotation of model instances with the index of a specific Unicode substring within a string field.
+        """
         Author.objects.create(name="ツリー")
         Author.objects.create(name="皇帝")
         Author.objects.create(name="皇帝 ツリー")

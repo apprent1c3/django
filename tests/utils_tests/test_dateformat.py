@@ -24,6 +24,9 @@ class DateFormatTests(SimpleTestCase):
 
     def test_naive_ambiguous_datetime(self):
         # dt is ambiguous in Europe/Copenhagen.
+        """
+        Checks the formatting of an ambiguous datetime object during daylight saving time, verifying that various format specifiers produce the expected output.
+        """
         dt = datetime(2015, 10, 25, 2, 30, 0)
 
         # Try all formatters that involve self.timezone.
@@ -43,6 +46,11 @@ class DateFormatTests(SimpleTestCase):
 
     @requires_tz_support
     def test_datetime_with_tzinfo(self):
+        """
+        Tests the conversion of datetime objects with timezone information.
+
+        Verifies that datetime objects are correctly converted between different timezones and compared to their original values, ensuring accurate timezone-aware datetime manipulation.
+        """
         tz = get_fixed_timezone(-510)
         ltz = get_default_timezone()
         dt = make_aware(datetime(2009, 5, 16, 5, 30, 30), ltz)
@@ -72,6 +80,9 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(my_birthday, ""), "")
 
     def test_am_pm(self):
+        """
+        Tests the dateformat module's AM/PM formatting capabilities, ensuring it correctly outputs 'a.m.' or 'p.m.' and 'AM' or 'PM' for morning and evening times respectively.
+        """
         morning = time(7, 00)
         evening = time(19, 00)
         self.assertEqual(dateformat.format(morning, "a"), "a.m.")
@@ -152,6 +163,9 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(datetime(2000, 12, 31), "z"), "366")
 
     def test_timezones(self):
+        """
+        Tests datetime formatting with various timezones, ensuring correct output for different format specifiers and time conversion scenarios.
+        """
         my_birthday = datetime(1979, 7, 8, 22, 00)
         summertime = datetime(2005, 10, 30, 1, 00)
         wintertime = datetime(2005, 10, 30, 4, 00)
@@ -195,6 +209,11 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(aware_dt, "O"), "-0330")
 
     def test_invalid_time_format_specifiers(self):
+        """
+        Tests that date objects cannot be formatted with time-related format specifiers.
+
+        Verifies that attempting to format a date object with any of the time-related format specifiers ('a', 'A', 'f', 'g', 'G', 'h', 'H', 'i', 'P', 's', 'u') raises a TypeError with a descriptive error message.
+        """
         my_birthday = date(1984, 8, 7)
 
         for specifier in ["a", "A", "f", "g", "G", "h", "H", "i", "P", "s", "u"]:
@@ -213,6 +232,9 @@ class DateFormatTests(SimpleTestCase):
 
     @requires_tz_support
     def test_e_format_with_time_zone_with_unimplemented_tzname(self):
+        """
+        Tests formatting a datetime object with an 'e' format specifier when the time zone's tzname is unimplemented, verifying that an empty string is returned.
+        """
         class NoNameTZ(tzinfo):
             """Time zone without .tzname() defined."""
 
@@ -252,6 +274,9 @@ class DateFormatTests(SimpleTestCase):
             )
 
     def test_S_format(self):
+        """
+        Tests the correct application of ordinal suffixes ('st', 'nd', 'rd', 'th') to dates using the 'S' format specifier.
+        """
         for expected, days in [
             ("st", [1, 21, 31]),
             ("nd", [2, 22]),
@@ -281,6 +306,9 @@ class DateFormatTests(SimpleTestCase):
         self.assertEqual(dateformat.format(datetime(999, 1, 1), "Y"), "0999")
 
     def test_twelve_hour_format(self):
+        """
+        Tests the 12-hour format functionality of the dateformat module, ensuring correct output for hours in various ranges.
+        """
         tests = [
             (0, "12", "12"),
             (1, "1", "01"),

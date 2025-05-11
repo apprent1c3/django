@@ -163,6 +163,9 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_circular_graph_2(self):
+        """
+        Checks if the migration graph can detect a circular dependency between nodes, ensuring that the graph remains acyclic.
+        """
         graph = MigrationGraph()
         graph.add_node(("A", "0001"), None)
         graph.add_node(("C", "0001"), None)
@@ -175,6 +178,12 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_iterative_dfs(self):
+        """
+
+        Tests the iterative depth-first search functionality in the MigrationGraph class.
+        Verifies that the forwards and backwards plans are correctly generated for a linear graph.
+
+        """
         graph = MigrationGraph()
         root = ("app_a", "1")
         graph.add_node(root, None)
@@ -262,6 +271,17 @@ class GraphTests(SimpleTestCase):
             graph.add_dependency("app_a.0002", ("app_a", "0002"), ("app_a", "0001"))
 
     def test_validate_consistency_missing_parent(self):
+        """
+        Validate the consistency of a migration graph, specifically checking for missing parent nodes in dependencies. 
+
+        Args:
+            None
+
+        Raises:
+            NodeNotFoundError: If a dependency references a nonexistent parent node. 
+
+        This test case verifies that the validate_consistency method correctly identifies and raises an error when a dependency is made to a non-existent parent node.
+        """
         graph = MigrationGraph()
         graph.add_node(("app_a", "0001"), None)
         graph.add_dependency(
@@ -275,6 +295,9 @@ class GraphTests(SimpleTestCase):
             graph.validate_consistency()
 
     def test_validate_consistency_missing_child(self):
+        """
+        Tests that validate_consistency raises a NodeNotFoundError when a migration depends on a nonexistent child node
+        """
         graph = MigrationGraph()
         graph.add_node(("app_b", "0002"), None)
         graph.add_dependency(
@@ -288,6 +311,9 @@ class GraphTests(SimpleTestCase):
             graph.validate_consistency()
 
     def test_validate_consistency_no_error(self):
+        """
+        Tests that the validate_consistency method does not raise an error when the dependency graph is consistent, even with dependencies added with skip_validation=True. Validates the correctness of the validation logic in presence of pre-existing dependencies.
+        """
         graph = MigrationGraph()
         graph.add_node(("app_a", "0001"), None)
         graph.add_node(("app_b", "0002"), None)
@@ -439,6 +465,13 @@ class GraphTests(SimpleTestCase):
             graph.ensure_not_cyclic()
 
     def test_stringify(self):
+        """
+
+        Tests that a MigrationGraph can be properly stringified.
+        Verifies that the string representation includes the correct number of nodes and edges,
+        and that the repr function returns a suitable string for debugging purposes.
+
+        """
         graph = MigrationGraph()
         self.assertEqual(str(graph), "Graph: 0 nodes, 0 edges")
 

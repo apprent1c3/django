@@ -48,6 +48,12 @@ except ImportError:
 @isolate_apps("postgres_tests")
 class BasicTests(PostgreSQLSimpleTestCase):
     def test_get_field_display(self):
+        """
+
+        Tests the get_field_display method of a model instance with an ArrayField.
+        Verifies that it correctly returns a human-readable representation of the field value.
+
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(
                 models.CharField(max_length=16),
@@ -69,6 +75,12 @@ class BasicTests(PostgreSQLSimpleTestCase):
                 self.assertEqual(instance.get_field_display(), display)
 
     def test_get_field_display_nested_array(self):
+        """
+        Tests the get_field_display method for a model field with nested array values.
+
+        Verifies that the display value of a nested array field is correctly retrieved 
+        for various choices, including simple and nested values, and tuple values.
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(
                 ArrayField(models.CharField(max_length=16)),
@@ -107,6 +119,17 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(instance.field, loaded.field)
 
     def test_dates(self):
+        """
+        Tests the correct saving and loading of datetime, date, and time arrays in the DateTimeArrayModel.\"\"\"
+
+         \"\"\"Verifies that the datetimes, dates, and times attributes are persisted correctly to the database.\"\"\"
+
+         Simplified version: 
+         \"\"\"Verifies that datetime, date, and time arrays are correctly saved and loaded.\"\"\"
+
+         Best answer:
+         \"\"\"Tests the persistence of datetime, date, and time arrays in the DateTimeArrayModel.
+        """
         instance = DateTimeArrayModel(
             datetimes=[timezone.now()],
             dates=[timezone.now().date()],
@@ -132,6 +155,14 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(loaded.field, [1])
 
     def test_default_null(self):
+        """
+
+        Verifies that a nullable integer array field is saved as null by default.
+
+        Tests that when an instance of the model is created and saved without assigning a value to the field,
+        it is correctly retrieved as null when the instance is loaded from the database.
+
+        """
         instance = NullableIntegerArrayModel()
         instance.save()
         loaded = NullableIntegerArrayModel.objects.get(pk=instance.pk)
@@ -139,6 +170,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(instance.field, loaded.field)
 
     def test_null_handling(self):
+        """
+        Tests the handling of null values in a model's fields to ensure that NullableIntegerArrayModel allows null values and IntegerArrayModel correctly raises an IntegrityError when attempting to save a null value.
+        """
         instance = NullableIntegerArrayModel(field=None)
         instance.save()
         loaded = NullableIntegerArrayModel.objects.get()
@@ -155,6 +189,9 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(instance.field, loaded.field)
 
     def test_other_array_types(self):
+        """
+        Tests the persistence of various array types in the OtherTypesArrayModel, verifying that all fields are correctly saved and loaded from the database.
+        """
         instance = OtherTypesArrayModel(
             ips=["192.168.0.1", "::1"],
             uuids=[uuid.uuid4()],
@@ -178,6 +215,12 @@ class TestSaveLoad(PostgreSQLTestCase):
         self.assertEqual(instance.bigint_ranges, loaded.bigint_ranges)
 
     def test_null_from_db_value_handling(self):
+        """
+
+        Tests that null values from the database are handled correctly, 
+        specifically for fields that are expected to be None when absent.
+
+        """
         instance = OtherTypesArrayModel.objects.create(
             ips=["192.168.0.1", "::1"],
             uuids=[uuid.uuid4()],
@@ -351,6 +394,14 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_contains_subquery(self):
+        """
+        Test the filtering of NullableIntegerArrayModel instances based on subqueries.
+
+            This test case covers two scenarios: filtering using the __contains lookup
+            with a subquery and filtering using the Exists condition with a related
+            subquery. The goal is to verify that the correct instances are returned
+            when applying these filters with subqueries on the 'field' attribute.
+        """
         IntegerArrayModel.objects.create(field=[2, 3])
         inner_qs = IntegerArrayModel.objects.values_list("field", flat=True)
         self.assertSequenceEqual(
@@ -424,6 +475,9 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_lookups_autofield_array(self):
+        """
+        Tests various Django ORM lookups on an array field, specifically for contained_by, contains, exact, and overlap operations, verifying the expected results are returned.
+        """
         qs = (
             NullableIntegerArrayModel.objects.filter(
                 field__0__isnull=False,
@@ -451,6 +505,13 @@ class TestQuerying(PostgreSQLTestCase):
 
     @skipUnlessDBFeature("allows_group_by_select_index")
     def test_group_by_order_by_select_index(self):
+        """
+
+        Tests that a query using group by and order by on a select index field works correctly.
+        Verifies that a single database query is executed and the results are ordered as expected.
+        Also checks that the generated SQL includes GROUP BY and ORDER BY clauses with the correct index.
+
+        """
         with self.assertNumQueries(1) as ctx:
             self.assertSequenceEqual(
                 NullableIntegerArrayModel.objects.filter(
@@ -595,6 +656,9 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_slicing_of_f_expressions(self):
+        """
+        Tests the slicing functionality of F expressions on model fields by creating test cases with different slicing scenarios and verifying that the results match the expected output after saving and refreshing the model instance.
+        """
         tests = [
             (F("field")[:2], [1, 2]),
             (F("field")[2:], [3, 4]),
@@ -612,6 +676,9 @@ class TestQuerying(PostgreSQLTestCase):
                 self.assertEqual(instance.field, expected)
 
     def test_slicing_of_f_expressions_with_annotate(self):
+        """
+        Tests the slicing functionality of F-expressions with annotations on array fields, ensuring correct extraction of subsets from an array field value.
+        """
         IntegerArrayModel.objects.create(field=[1, 2, 3])
         annotated = IntegerArrayModel.objects.annotate(
             first_two=F("field")[:2],
@@ -647,6 +714,9 @@ class TestQuerying(PostgreSQLTestCase):
         )
 
     def test_unsupported_lookup(self):
+        """
+        Tests that using unsupported lookups on ArrayField raises a FieldError with the expected error message.
+        """
         msg = (
             "Unsupported lookup '0_bar' for ArrayField or join on the field not "
             "permitted."
@@ -752,6 +822,9 @@ class TestQuerying(PostgreSQLTestCase):
 class TestDateTimeExactQuerying(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for datetime-related model tests, creating a DateTimeArrayModel instance with current datetime, date, and time values.
+        """
         now = timezone.now()
         cls.datetimes = [now]
         cls.dates = [now.date()]
@@ -781,6 +854,12 @@ class TestDateTimeExactQuerying(PostgreSQLTestCase):
 class TestOtherTypesExactQuerying(PostgreSQLTestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the class, initializing lists of IP addresses, UUIDs, decimals, and tags, 
+        and creating an instance of OtherTypesArrayModel using these data.
+
+        """
         cls.ips = ["192.168.0.1", "::1"]
         cls.uuids = [uuid.uuid4()]
         cls.decimals = [decimal.Decimal(1.25), 1.75]
@@ -818,6 +897,9 @@ class TestOtherTypesExactQuerying(PostgreSQLTestCase):
 @isolate_apps("postgres_tests")
 class TestChecks(PostgreSQLSimpleTestCase):
     def test_field_checks(self):
+        """
+        Tests that ArrayField with max_length=-1 raises an error during model checks.
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(models.CharField(max_length=-1))
 
@@ -829,6 +911,9 @@ class TestChecks(PostgreSQLSimpleTestCase):
         self.assertIn("max_length", errors[0].msg)
 
     def test_invalid_base_fields(self):
+        """
+        Checks if an ArrayField can be used with ManyToManyField as its base field, verifying that an error is raised when they are combined.
+        """
         class MyModel(PostgreSQLModel):
             field = ArrayField(
                 models.ManyToManyField("postgres_tests.IntegerArrayModel")
@@ -910,6 +995,9 @@ class TestMigrations(TransactionTestCase):
     available_apps = ["postgres_tests"]
 
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of an ArrayField, ensuring a new instance can be created with the same base field type but a distinct base field instance.
+        """
         field = ArrayField(models.IntegerField())
         name, path, args, kwargs = field.deconstruct()
         new = ArrayField(*args, **kwargs)
@@ -929,6 +1017,9 @@ class TestMigrations(TransactionTestCase):
         self.assertEqual(new.base_field.max_length, field.base_field.max_length)
 
     def test_subclass_deconstruct(self):
+        """
+        Tests the deconstruction of ArrayField and its subclass ArrayFieldSubclass, verifying that each returns the correct path to its class definition.
+        """
         field = ArrayField(models.IntegerField())
         name, path, args, kwargs = field.deconstruct()
         self.assertEqual(path, "django.contrib.postgres.fields.ArrayField")
@@ -944,6 +1035,9 @@ class TestMigrations(TransactionTestCase):
     )
     def test_adding_field_with_default(self):
         # See #22962
+        """
+        Tests the addition and removal of a database table with a field that has a default value using the migrate command.
+        """
         table_name = "postgres_tests_integerarraydefaultmodel"
         with connection.cursor() as cursor:
             self.assertNotIn(table_name, connection.introspection.table_names(cursor))
@@ -1010,6 +1104,9 @@ class TestSerialization(PostgreSQLSimpleTestCase):
 
 class TestValidation(PostgreSQLSimpleTestCase):
     def test_unbounded(self):
+        """
+        Tests that an ArrayField with an IntegerField throws a ValidationError when a null value is provided, ensuring that all items in the array are valid and non-null.
+        """
         field = ArrayField(models.IntegerField())
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean([1, None], None)
@@ -1025,6 +1122,14 @@ class TestValidation(PostgreSQLSimpleTestCase):
         field.clean([1, None], None)
 
     def test_with_size(self):
+        """
+
+        Tests the validation of an ArrayField with a specified size.
+
+        Verifies that the field correctly allows arrays within the size limit and raises
+        a ValidationError when the size limit is exceeded.
+
+        """
         field = ArrayField(models.IntegerField(), size=3)
         field.clean([1, 2, 3], None)
         with self.assertRaises(exceptions.ValidationError) as cm:
@@ -1035,6 +1140,9 @@ class TestValidation(PostgreSQLSimpleTestCase):
         )
 
     def test_with_size_singular(self):
+        """
+        Tests that an ArrayField with size 1 enforcement raises a ValidationError when a list with more than one item is provided.
+        """
         field = ArrayField(models.IntegerField(), size=1)
         field.clean([1], None)
         msg = "List contains 2 items, it should contain no more than 1."
@@ -1042,6 +1150,9 @@ class TestValidation(PostgreSQLSimpleTestCase):
             field.clean([1, 2], None)
 
     def test_nested_array_mismatch(self):
+        """
+        Tests that the ArrayField correctly raises a ValidationError when nested arrays have mismatched lengths.
+        """
         field = ArrayField(ArrayField(models.IntegerField()))
         field.clean([[1, 2], [3, 4]], None)
         with self.assertRaises(exceptions.ValidationError) as cm:
@@ -1052,6 +1163,9 @@ class TestValidation(PostgreSQLSimpleTestCase):
         )
 
     def test_with_base_field_error_params(self):
+        """
+        Tests the ArrayField validation with an item exceeding the max_length of its base field, ensuring it raises a ValidationError with the correct error message and parameters.
+        """
         field = ArrayField(models.CharField(max_length=2))
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean(["abc"], None)
@@ -1069,6 +1183,9 @@ class TestValidation(PostgreSQLSimpleTestCase):
         )
 
     def test_with_validators(self):
+        """
+        Tests the ArrayField with validators, ensuring it correctly raises a ValidationError when an item fails validation.
+        """
         field = ArrayField(
             models.IntegerField(validators=[validators.MinValueValidator(1)])
         )
@@ -1113,6 +1230,9 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_validate_fail_base_field_error_params(self):
+        """
+        Tests that a validation error is raised when attempting to clean an array field containing items that exceed the maximum allowed length, verifying that error messages and parameters are correctly reported.
+        """
         field = SimpleArrayField(forms.CharField(max_length=2))
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("abc,c,defg")
@@ -1184,6 +1304,9 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_min_length_singular(self):
+        """
+        Tests that SimpleArrayField validation correctly fails when the input list has fewer than the specified minimum length of items.
+        """
         field = SimpleArrayField(forms.IntegerField(), min_length=2)
         field.clean([1, 2])
         msg = "List contains 1 item, it should contain no fewer than 2."
@@ -1197,6 +1320,11 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(cm.exception.messages[0], "This field is required.")
 
     def test_model_field_formfield(self):
+        """
+        Tests that the form field generated for an ArrayField with CharField is correctly instantiated.
+
+        Verifies that the form field is a SimpleArrayField with a CharField as its base field, and that the base field's max_length attribute matches the model field's max_length parameter.
+        """
         model_field = ArrayField(models.CharField(max_length=27))
         form_field = model_field.formfield()
         self.assertIsInstance(form_field, SimpleArrayField)
@@ -1220,6 +1348,10 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(field.clean(vals), vals)
 
     def test_has_changed(self):
+        """
+        Tests whether the input to a field has changed from its initial value, 
+        ensuring correct handling of list and string comparisons for the SimpleArrayField.
+        """
         field = SimpleArrayField(forms.IntegerField())
         self.assertIs(field.has_changed([1, 2], [1, 2]), False)
         self.assertIs(field.has_changed([1, 2], "1,2"), False)
@@ -1227,6 +1359,9 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
         self.assertIs(field.has_changed([1, 2], "a,b"), True)
 
     def test_has_changed_empty(self):
+        """
+        Tests that the has_changed method returns False for empty or None input values.
+        """
         field = SimpleArrayField(forms.CharField())
         self.assertIs(field.has_changed(None, None), False)
         self.assertIs(field.has_changed(None, ""), False)
@@ -1237,6 +1372,10 @@ class TestSimpleFormField(PostgreSQLSimpleTestCase):
 
 class TestSplitFormField(PostgreSQLSimpleTestCase):
     def test_valid(self):
+        """
+        Tests the validation of the SplitArrayField with a group of fields of valid input values, 
+        ensuring the form is validated correctly and returns the expected cleaned data.
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(forms.CharField(), size=3)
 
@@ -1246,6 +1385,9 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(form.cleaned_data, {"array": ["a", "b", "c"]})
 
     def test_required(self):
+        """
+        Verifies that a SplitArrayField with required=True raises a validation error when all subfields are empty.
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(forms.CharField(), required=True, size=3)
 
@@ -1255,6 +1397,9 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(form.errors, {"array": ["This field is required."]})
 
     def test_remove_trailing_nulls(self):
+        """
+        Tests the removal of trailing nulls from a SplitArrayField when the remove_trailing_nulls option is enabled, ensuring that empty values at the end of the array are discarded during form validation.
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(
                 forms.CharField(required=False), size=5, remove_trailing_nulls=True
@@ -1272,6 +1417,13 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(form.cleaned_data, {"array": ["a", "", "b"]})
 
     def test_remove_trailing_nulls_not_required(self):
+        """
+
+        Tests that a SplitArrayField correctly removes trailing null values when the field is not required.
+
+        Ensures that when the field is submitted with empty values, the resulting cleaned data contains an empty list.
+
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(
                 forms.CharField(required=False),
@@ -1286,6 +1438,10 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(form.cleaned_data, {"array": []})
 
     def test_required_field(self):
+        """
+        Tests that the SplitArrayField correctly handles required fields by ensuring 
+        that the form is invalid when any item in the array is empty.
+        """
         class SplitForm(forms.Form):
             array = SplitArrayField(forms.CharField(), size=3)
 
@@ -1340,6 +1496,10 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         )
 
     def test_splitarraywidget_value_omitted_from_data(self):
+        """
+        Tests the behavior of SplitArrayWidget when a value is provided in the form data, 
+        verifying that the form is valid and the object is saved with the correct array value.
+        """
         class Form(forms.ModelForm):
             field = SplitArrayField(forms.IntegerField(), required=False, size=2)
 
@@ -1353,6 +1513,9 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
         self.assertEqual(obj.field, [1, 2])
 
     def test_splitarrayfield_has_changed(self):
+        """
+        Tests whether a SplitArrayField form field has changed based on initial data, user input, and field validation rules.
+        """
         class Form(forms.ModelForm):
             field = SplitArrayField(forms.IntegerField(), required=False, size=2)
 
@@ -1375,6 +1538,11 @@ class TestSplitFormField(PostgreSQLSimpleTestCase):
                 self.assertIs(form.has_changed(), expected_result)
 
     def test_splitarrayfield_remove_trailing_nulls_has_changed(self):
+        """
+        Test case to verify the behavior of SplitArrayField when remove_trailing_nulls is set to True.
+
+         Checks that the form's has_changed() method returns the correct result when the field is updated, considering various initial values and form data scenarios.
+        """
         class Form(forms.ModelForm):
             field = SplitArrayField(
                 forms.IntegerField(), required=False, size=2, remove_trailing_nulls=True
@@ -1472,6 +1640,9 @@ class TestSplitFormWidget(PostgreSQLWidgetTestCase):
         )
 
     def test_value_omitted_from_data(self):
+        """
+        Determines if a field's value is missing from the given data. This check is necessary for widgets that are composed of multiple sub-fields, where the presence of any sub-field's value in the data indicates that the field's value is not omitted.
+        """
         widget = SplitArrayWidget(forms.TextInput(), size=2)
         self.assertIs(widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
@@ -1501,6 +1672,15 @@ class TestAdminUtils(PostgreSQLTestCase):
         self.assertEqual(display_value, "1, 2")
 
     def test_array_with_choices_display_for_field(self):
+        """
+
+        Tests the display value of an array field with choices.
+
+        Verifies that the function display_for_field returns the correct choice label
+        when the array field's value matches one of the choices, and returns an empty value
+        when no match is found.
+
+        """
         array_field = ArrayField(
             models.IntegerField(),
             choices=[

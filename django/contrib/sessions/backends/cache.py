@@ -24,6 +24,9 @@ class SessionStore(SessionBase):
         return self.cache_key_prefix + await self._aget_or_create_session_key()
 
     def load(self):
+        """
+        Retrieves session data from the cache, falling back to an empty dictionary if not found.
+        """
         try:
             session_data = self._cache.get(self.cache_key)
         except Exception:
@@ -36,6 +39,9 @@ class SessionStore(SessionBase):
         return {}
 
     async def aload(self):
+        """
+        Retrieves session data from the cache, returning the cached data if available or an empty dictionary if not. If cache retrieval fails, it resets the session key and returns an empty dictionary.
+        """
         try:
             session_data = await self._cache.aget(await self.acache_key())
         except Exception:
@@ -51,6 +57,9 @@ class SessionStore(SessionBase):
         # because the cache is missing. So we try for a (large) number of times
         # and then raise an exception. That's the risk you shoulder if using
         # cache backing.
+        """
+        Attempt to create a new session key, retrying up to 10,000 times if the key already exists, and raises an error if unable to create a unique key within the maximum attempts.
+        """
         for i in range(10000):
             self._session_key = self._get_new_session_key()
             try:
@@ -65,6 +74,13 @@ class SessionStore(SessionBase):
         )
 
     async def acreate(self):
+        """
+        Attempts to create a new session key and save the object, retrying up to 10,000 times if creation fails due to a cache error.
+
+        Raises:
+            RuntimeError: If unable to create a new session key after maximum retries.
+
+        """
         for i in range(10000):
             self._session_key = await self._aget_new_session_key()
             try:
@@ -79,6 +95,16 @@ class SessionStore(SessionBase):
         )
 
     def save(self, must_create=False):
+        """
+        Saves the session to the cache, creating a new entry if necessary.
+
+        If the session does not exist and must_create is False, it will attempt to update an existing session.
+        If must_create is True, it will create a new session entry even if one already exists.
+
+        Raises:
+            UpdateError: If the session does not exist and must_create is False.
+            CreateError: If the session creation fails and must_create is True.
+        """
         if self.session_key is None:
             return self.create()
         if must_create:
@@ -96,6 +122,13 @@ class SessionStore(SessionBase):
             raise CreateError
 
     async def asave(self, must_create=False):
+        """
+        Saves the current session to the cache. If the session does not exist, it can be created automatically.
+
+         :param must_create: If True, creates a new session if one does not exist. If False, raises an UpdateError if the session is missing.
+         :raises UpdateError: If must_create is False and the session does not exist in the cache.
+         :raises CreateError: If must_create is True and the session creation fails.
+        """
         if self.session_key is None:
             return await self.acreate()
         if must_create:
@@ -123,6 +156,12 @@ class SessionStore(SessionBase):
         )
 
     def delete(self, session_key=None):
+        """
+        Delete a cached item associated with a session.
+
+        :param session_key: The key of the session to delete, defaults to the instance's session key if not provided
+        :note: If neither session_key nor self.session_key is set, this method does nothing
+        """
         if session_key is None:
             if self.session_key is None:
                 return
@@ -130,6 +169,14 @@ class SessionStore(SessionBase):
         self._cache.delete(self.cache_key_prefix + session_key)
 
     async def adelete(self, session_key=None):
+        """
+
+        Deletes a cached item associated with the specified session key.
+
+        If no session key is provided, the instance's default session key is used.
+        If no session key is available, the operation is skipped.
+
+        """
         if session_key is None:
             if self.session_key is None:
                 return

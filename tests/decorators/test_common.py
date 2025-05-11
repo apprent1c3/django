@@ -22,6 +22,9 @@ class NoAppendSlashTests(SimpleTestCase):
 
     def test_no_append_slash_decorator(self):
         @no_append_slash
+        """
+        Tests that the no_append_slash decorator correctly sets the should_append_slash attribute to False and allows the decorated view to return a response.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -30,6 +33,9 @@ class NoAppendSlashTests(SimpleTestCase):
 
     async def test_no_append_slash_decorator_async_view(self):
         @no_append_slash
+        """
+        Tests the no_append_slash decorator with an asynchronous view, verifying it does not append a slash to the URL and returns an HttpResponse instance.
+        """
         async def async_view(request):
             return HttpResponse()
 

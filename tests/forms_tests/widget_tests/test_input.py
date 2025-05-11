@@ -5,6 +5,13 @@ from .base import WidgetTest
 
 class InputTests(WidgetTest):
     def test_attrs_with_type(self):
+        """
+
+        Tests the construction of HTML input elements with specific attribute types.
+
+        Verifies that the Input widget correctly renders 'date' and 'number' type attributes.
+
+        """
         attrs = {"type": "date"}
         widget = Input(attrs)
         self.check_html(

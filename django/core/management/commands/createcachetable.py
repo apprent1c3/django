@@ -41,6 +41,18 @@ class Command(BaseCommand):
         )
 
     def handle(self, *tablenames, **options):
+        """
+        Handles the creation of database tables for caches.
+
+        Creates tables for the specified cache table names or all cache tables configured in the system, 
+        depending on whether table names are provided.
+
+        :param tablenames: variable number of table names to create
+        :param options: dictionary containing database, verbosity, and dry run options
+        :keyword database: database to create tables in
+        :keyword verbosity: level of output detail
+        :keyword dry_run: whether to perform a dry run or actually create tables
+        """
         db = options["database"]
         self.verbosity = options["verbosity"]
         dry_run = options["dry_run"]
@@ -55,6 +67,10 @@ class Command(BaseCommand):
                     self.create_table(db, cache._table, dry_run)
 
     def create_table(self, database, tablename, dry_run):
+        """
+        Creates a database table to be used for caching, if it does not already exist, and if the model is allowed to be migrated. 
+        Table columns include 'cache_key', 'value', and 'expires'. If dry_run is True, the SQL statement to create the table is printed instead of executed.
+        """
         cache = BaseDatabaseCache(tablename, {})
         if not router.allow_migrate_model(database, cache.cache_model_class):
             return

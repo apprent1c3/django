@@ -126,6 +126,9 @@ class RelatedField(FieldCacheMixin, Field):
         ]
 
     def _check_related_name_is_valid(self):
+        """
+        Checks if a related name is valid for use in a model field, ensuring it is either a valid Python identifier or ends with a '+'.
+        """
         import keyword
 
         related_name = self.remote_field.related_name
@@ -154,6 +157,9 @@ class RelatedField(FieldCacheMixin, Field):
         return []
 
     def _check_related_query_name_is_valid(self):
+        """
+        Checks the validity of the related query name for a relationship field, returning a list of errors if the name is invalid. This includes checks for names ending with an underscore and names containing lookup separators.
+        """
         if self.remote_field.hidden:
             return []
         rel_query_name = self.related_query_name()
@@ -187,6 +193,9 @@ class RelatedField(FieldCacheMixin, Field):
         return errors
 
     def _check_relation_model_exists(self):
+        """
+        Checks if the model defined in a relation field exists, is installed and is not abstract, returning any relevant errors if it does not meet these conditions.
+        """
         rel_is_missing = self.remote_field.model not in self.opts.apps.get_models(
             include_auto_created=True
         )
@@ -349,6 +358,21 @@ class RelatedField(FieldCacheMixin, Field):
         return None
 
     def contribute_to_class(self, cls, name, private_only=False, **kwargs):
+        """
+
+        Configures the relationship between a model and its related field.
+
+        This method is responsible for setting up the related name and related query name
+        for the field, as well as resolving the related class. It also handles cases where
+        the related name or query name are not explicitly defined, using default values
+        based on the model's name and app label.
+
+        :param cls: The model class that this field belongs to
+        :param name: The name of the field on the model
+        :param private_only: A flag indicating whether this field should be private
+        :param kwargs: Additional keyword arguments
+
+        """
         super().contribute_to_class(cls, name, private_only=private_only, **kwargs)
 
         self.opts = cls._meta
@@ -382,6 +406,9 @@ class RelatedField(FieldCacheMixin, Field):
             )
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, including name, path, arguments, and keyword arguments, while also incorporating additional metadata such as limit choices to, related name, and related query name.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self._limit_choices_to:
             kwargs["limit_choices_to"] = self._limit_choices_to
@@ -546,6 +573,13 @@ class ForeignObject(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+        Initializes a relationship between two models.
+
+        This constructor sets up the relationship by mapping fields from one model to another, 
+        specifying the behavior on deletion, and providing options for the relationship.
+
+        """
         if rel is None:
             rel = self.rel_class(
                 self,
@@ -585,6 +619,9 @@ class ForeignObject(RelatedField):
 
     def _check_to_fields_exist(self):
         # Skip nonexistent models.
+        """
+        Checks if all fields specified in `to_fields` exist on the related model and returns a list of errors if any of them do not exist.
+        """
         if isinstance(self.remote_field.model, str):
             return []
 
@@ -606,6 +643,9 @@ class ForeignObject(RelatedField):
         return errors
 
     def _check_unique_target(self):
+        """
+        Check if a foreign key's target model has a unique constraint on the related fields, returning errors if no unique constraint is found.
+        """
         rel_is_string = isinstance(self.remote_field.model, str)
         if rel_is_string or not self.requires_unique_target:
             return []
@@ -670,6 +710,10 @@ class ForeignObject(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the ForeignKey instance into its constituent parts, allowing for serialization and reconstruction. 
+        This method extends the deconstruction process to include additional information specific to the ForeignKey, such as on_delete behavior, related fields, and the target model, handling swappable models and setting references.
+        """
         name, path, args, kwargs = super().deconstruct()
         kwargs["on_delete"] = self.remote_field.on_delete
         kwargs["from_fields"] = self.from_fields
@@ -705,6 +749,14 @@ class ForeignObject(RelatedField):
         return name, path, args, kwargs
 
     def resolve_related_fields(self):
+        """
+        Resolves the related fields for a foreign key relationship.
+
+        Determines the corresponding fields in the related model based on the `from_fields` and `to_fields` definitions.
+        Returns a list of tuples, where each tuple contains a field from the current model and its corresponding field in the related model.
+
+        Raises a `ValueError` if the `from_fields` and `to_fields` lists are not of the same non-zero length, or if the related model cannot be resolved.
+        """
         if not self.from_fields or len(self.from_fields) != len(self.to_fields):
             raise ValueError(
                 "Foreign Object from and to fields must be the same non-zero length"
@@ -754,6 +806,12 @@ class ForeignObject(RelatedField):
 
     @staticmethod
     def get_instance_value_for_fields(instance, fields):
+        """
+        Returns a tuple of instance values for the specified model fields.
+
+        This method retrieves the values for each field on the given instance, taking into
+        account primary keys and their potential relationships with parent models.
+        """
         ret = []
         opts = instance._meta
         for field in fields:
@@ -949,6 +1007,13 @@ class ForeignKey(ForeignObject):
         db_constraint=True,
         **kwargs,
     ):
+        """
+        Initializes a foreign key field, establishing a relationship between the current model and another model.
+
+        The foreign key can be defined by providing a model, a model name as a string, or the recursive relationship constant.
+
+        Parameters are used to customize the foreign key, including the model to reference, the behavior when the referenced model instance is deleted, and options for database constraints and indexing.
+        """
         try:
             to._meta.model_name
         except AttributeError:
@@ -1005,6 +1070,13 @@ class ForeignKey(ForeignObject):
         ]
 
     def _check_on_delete(self):
+        """
+        Verifies the integrity of the on_delete rule for a foreign key field.
+
+        Checks that the field's on_delete rule is consistent with its nullability and existence of a default value,
+        raising errors if SET_NULL is specified without null=True or SET_DEFAULT is specified without a default value.
+        Returns a list of error objects if any issues are found.
+        """
         on_delete = getattr(self.remote_field, "on_delete", None)
         if on_delete == SET_NULL and not self.null:
             return [
@@ -1049,6 +1121,15 @@ class ForeignKey(ForeignObject):
         )
 
     def deconstruct(self):
+        """
+
+        Deconstructs the object into its constituent parts for serialization.
+
+        Removes and modifies certain arguments to ensure correct reconstruction, 
+        including handling of 'to_fields', 'from_fields', 'db_index', and 'db_constraint' 
+        as well as resolving the 'to_field' based on the remote field model.
+
+        """
         name, path, args, kwargs = super().deconstruct()
         del kwargs["to_fields"]
         del kwargs["from_fields"]
@@ -1076,6 +1157,13 @@ class ForeignKey(ForeignObject):
         return self.foreign_related_fields[0]
 
     def validate(self, value, model_instance):
+        """
+        Validates the given value for a model field, ensuring it corresponds to an existing instance of the related model.
+
+        Raises a ValidationError if the value does not exist in the related model, according to the defined limits and filters.
+
+        Used to enforce data integrity and prevent invalid relationships between models.
+        """
         if self.remote_field.parent_link:
             return
         super().validate(value, model_instance)
@@ -1100,6 +1188,9 @@ class ForeignKey(ForeignObject):
             )
 
     def resolve_related_fields(self):
+        """
+        Resolves related fields for the current model instance, validating that referenced fields are local to the related model.
+        """
         related_fields = super().resolve_related_fields()
         for from_field, to_field in related_fields:
             if (
@@ -1202,6 +1293,14 @@ class ForeignKey(ForeignObject):
         return converters
 
     def get_col(self, alias, output_field=None):
+        """
+
+        Returns a column object based on the given alias and output field.
+
+        The function resolves the output field by traversing foreign key relationships
+        if necessary, and raises an error if a circular reference is found.
+
+        """
         if output_field is None:
             output_field = self.target_field
             while isinstance(output_field, ForeignKey):
@@ -1247,6 +1346,14 @@ class OneToOneField(ForeignKey):
         return super().formfield(**kwargs)
 
     def save_form_data(self, instance, data):
+        """
+
+        Saves form data to the specified instance.
+
+        This method handles assigning the provided data to either the instance's attribute
+        name or its internal attribute name, depending on the type of data provided.
+
+        """
         if isinstance(data, self.remote_field.model):
             setattr(instance, self.name, data)
         else:
@@ -1262,6 +1369,9 @@ class OneToOneField(ForeignKey):
 
 
 def create_many_to_many_intermediary_model(field, klass):
+    """
+    Creates an intermediary model for a many-to-many field, which is used to store the relationships between two models. The generated model includes foreign keys to the related models and a meta class to define the database table and other model settings.
+    """
     from django.db import models
 
     def set_managed(model, related, through):
@@ -1352,6 +1462,22 @@ class ManyToManyField(RelatedField):
         swappable=True,
         **kwargs,
     ):
+        """
+
+        Initializes a ManyToManyField, representing a many-to-many relationship between models.
+
+        :param to: The related model, its name, or a recursive relationship constant.
+        :param related_name: Name of the relationship from the related object back to this one.
+        :param related_query_name: Name of the relationship to use in query lookup.
+        :param limit_choices_to: Dictionary of lookup arguments to restrict the available choices.
+        :param symmetrical: Whether the relationship is symmetrical (default is True for recursive relationships).
+        :param through: Intermediary model representing the relationship.
+        :param through_fields: Field names on the intermediary model to use as the relationship.
+        :param db_constraint: Whether to create a database constraint for the relationship (default is True).
+        :param db_table: Name of the database table to use for the relationship.
+        :param swappable: Whether the model can be swapped with another (default is True).
+
+        """
         try:
             to._meta
         except AttributeError:
@@ -1418,6 +1544,13 @@ class ManyToManyField(RelatedField):
         return []
 
     def _check_ignored_options(self, **kwargs):
+        """
+        Returns a list of warnings for ignored options on a ManyToManyField.
+
+        Checks for options that have no effect when used with a ManyToManyField, such as 
+        null, validators, related_name when symmetrical, and db_comment, and returns a 
+        list of warnings for any that are found.
+        """
         warnings = []
 
         if self.has_null_arg:
@@ -1458,6 +1591,13 @@ class ManyToManyField(RelatedField):
         return warnings
 
     def _check_relationship_model(self, from_model=None, **kwargs):
+        """
+        Checks the validity of a many-to-many relationship model. 
+
+        This function verifies that the model used as an intermediate table (through model) is installed, has foreign keys to the source and target models, and that the relationships are unambiguous. It also validates the through_fields argument, if provided, to ensure it specifies the correct foreign keys for the relation. 
+
+        It returns a list of errors if any issues are found with the relationship model.
+        """
         if hasattr(self.remote_field.through, "_meta"):
             qualified_model_name = "%s.%s" % (
                 self.remote_field.through._meta.app_label,
@@ -1688,6 +1828,11 @@ class ManyToManyField(RelatedField):
         return errors
 
     def _check_table_uniqueness(self, **kwargs):
+        """
+        Verifies that the auto-created many-to-many intermediary table does not conflict with an existing model's database table.
+
+        Checks for potential database table name clashes and returns a list of errors or warnings if a conflict is found. The list is empty if no conflicts are detected.
+        """
         if (
             isinstance(self.remote_field.through, str)
             or not self.remote_field.through._meta.managed
@@ -1740,6 +1885,11 @@ class ManyToManyField(RelatedField):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the ManyToManyField instance into a tuple containing its name, path, arguments, and keyword arguments, allowing it to be reconstructed later. 
+        This function is necessary to properly serialize and deserialize the ManyToManyField in certain contexts, such as database migrations. 
+        It handles various cases, including swappable models and custom database tables, to ensure accurate reconstruction.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Handle the simpler arguments.
         if self.db_table is not None:
@@ -1895,6 +2045,9 @@ class ManyToManyField(RelatedField):
         # specify *what* on my non-reversible relation?!"), so we set it up
         # automatically. The funky name reduces the chance of an accidental
         # clash.
+        """
+        Sets up a many-to-many relationship field on a model class. This method handles the configuration of the relationship, including setting the related name, resolving through models, and creating intermediary models as needed. It is used internally by Django's ORM to establish many-to-many relationships between models.
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == RECURSIVE_RELATIONSHIP_CONSTANT
             or self.remote_field.model == cls._meta.object_name
@@ -1940,6 +2093,17 @@ class ManyToManyField(RelatedField):
     def contribute_to_related_class(self, cls, related):
         # Internal M2Ms (i.e., those with a related name ending with '+')
         # and swapped models don't get a related descriptor.
+        """
+        Configures the many-to-many relationship between the current model and a related class.
+
+        Sets up the necessary descriptors and attributes for accessing and manipulating the relationship.
+
+        Parameters:
+            cls (class): The related class.
+            related (object): The related object.
+
+        Establishes the many-to-many relationship by setting the accessor name and creating partial functions for accessing the relationship's column and field names.
+        """
         if not self.remote_field.hidden and not related.related_model._meta.swapped:
             setattr(
                 cls,
@@ -1973,6 +2137,17 @@ class ManyToManyField(RelatedField):
         getattr(instance, self.attname).set(data)
 
     def formfield(self, *, using=None, **kwargs):
+        """
+        Return a form field for the relationship.
+
+        This method creates a form field that allows users to select related objects.
+        The field type and options can be customized using the provided keyword arguments.
+
+        :param using: The database alias to use for the queryset.
+        :param kwargs: Additional keyword arguments to pass to the form field constructor.
+        :returns: A form field object.
+
+        """
         defaults = {
             "form_class": forms.ModelMultipleChoiceField,
             "queryset": self.remote_field.model._default_manager.using(using),

@@ -6,6 +6,14 @@ FILE_RESPONSE_HOLDER = {}
 
 
 def file_response(request):
+    """
+
+    Returns a FileResponse object containing in-memory data.
+
+    The response is generated from a BytesIO buffer and includes a mechanism to
+    ensure proper cleanup of additional related buffers.
+
+    """
     f1 = BytesIO(b"test1")
     f2 = BytesIO(b"test2")
     response = FileResponse(f1)

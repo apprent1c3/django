@@ -19,6 +19,18 @@ class EarliestOrLatestTests(TestCase):
 
     def test_earliest(self):
         # Because no Articles exist yet, earliest() raises ArticleDoesNotExist.
+        """
+        Tests the earliest method of the Article queryset.
+
+        This method ensures that the earliest method behaves correctly when
+        given no model instances, when given model instances with different
+        dates, and when given model instances with the same date but 
+        different secondary order fields.
+
+        It also tests the earliest method when 'get_latest_by' is not specified
+        in the model's Meta and when it is specified, as well as with 
+        POSITIONAL arguments and with ascending/descending order.
+        """
         with self.assertRaises(Article.DoesNotExist):
             Article.objects.earliest()
 
@@ -102,6 +114,9 @@ class EarliestOrLatestTests(TestCase):
 
     def test_latest(self):
         # Because no Articles exist yet, latest() raises ArticleDoesNotExist.
+        """
+        Test the model's latest method to ensure it returns the most recent object based on the model's get_latest_by field or the provided field names, with correct handling of filtering, ordering, and error cases.
+        """
         with self.assertRaises(Article.DoesNotExist):
             Article.objects.latest()
 
@@ -184,6 +199,9 @@ class EarliestOrLatestTests(TestCase):
     def test_latest_manual(self):
         # You can still use latest() with a model that doesn't have
         # "get_latest_by" set -- just pass in the field name manually.
+        """
+        Tests the latest() method of the model's queryset, ensuring it raises a ValueError when called without specifying a field or 'get_latest_by' in the model's Meta, and returns the correct object when called with a field.
+        """
         Person.objects.create(name="Ralph", birthday=datetime(1950, 1, 1))
         p2 = Person.objects.create(name="Stephanie", birthday=datetime(1960, 2, 3))
         msg = (
@@ -197,6 +215,10 @@ class EarliestOrLatestTests(TestCase):
 
 class TestFirstLast(TestCase):
     def test_first(self):
+        """
+        Tests the functionality of retrieving the first object from a queryset of Person objects, 
+        ensuring correct ordering and filtering behavior.
+        """
         p1 = Person.objects.create(name="Bob", birthday=datetime(1950, 1, 1))
         p2 = Person.objects.create(name="Alice", birthday=datetime(1961, 2, 3))
         self.assertEqual(Person.objects.first(), p1)
@@ -209,6 +231,14 @@ class TestFirstLast(TestCase):
         )
 
     def test_last(self):
+        """
+
+        Tests the last() method of the Person queryset.
+
+        Verifies that last() returns the last object in the queryset based on the default ordering,
+        and that it works correctly with custom ordering and filtering.
+
+        """
         p1 = Person.objects.create(name="Alice", birthday=datetime(1950, 1, 1))
         p2 = Person.objects.create(name="Bob", birthday=datetime(1960, 2, 3))
         # Note: by default PK ordering.
@@ -230,6 +260,12 @@ class TestFirstLast(TestCase):
         def check():
             # We know that we've broken the __iter__ method, so the queryset
             # should always raise an exception.
+            """
+            Tests that querying IndexErrorArticle objects raises an IndexError.
+
+             Verifies that attempting to slice, retrieve the first, or retrieve the last 
+             IndexErrorArticle object results in an IndexError being raised, as expected.
+            """
             with self.assertRaises(IndexError):
                 IndexErrorArticle.objects.all()[:10:2]
             with self.assertRaises(IndexError):
@@ -248,6 +284,9 @@ class TestFirstLast(TestCase):
         check()
 
     def test_first_last_unordered_qs_aggregation_error(self):
+        """
+        Tests that attempting to call `first()` or `last()` on a queryset performing aggregation raises a TypeError when the queryset is unordered.
+        """
         a1 = Article.objects.create(
             headline="Article 1",
             pub_date=datetime(2005, 7, 26),

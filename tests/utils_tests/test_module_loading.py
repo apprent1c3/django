@@ -75,6 +75,9 @@ class EggLoader(unittest.TestCase):
         self.egg_dir = "%s/eggs" % os.path.dirname(__file__)
 
     def tearDown(self):
+        """
+        Resets the system module cache and removes specific modules from sys.modules to ensure a clean environment after testing.
+        """
         sys.path_importer_cache.clear()
 
         sys.modules.pop("egg_module.sub1.sub2.bad_module", None)
@@ -130,6 +133,14 @@ class EggLoader(unittest.TestCase):
 
 class ModuleImportTests(SimpleTestCase):
     def test_import_string(self):
+        """
+
+        Tests the :func:`import_string` functionality to ensure it correctly imports strings.
+
+        Verifies that the function can import existing modules, raises an :class:`ImportError` when given an invalid import path,
+        and provides descriptive error messages for missing attributes.
+
+        """
         cls = import_string("django.utils.module_loading.import_string")
         self.assertEqual(cls, import_string)
 
@@ -144,6 +155,9 @@ class ModuleImportTests(SimpleTestCase):
 @modify_settings(INSTALLED_APPS={"append": "utils_tests.test_module"})
 class AutodiscoverModulesTestCase(SimpleTestCase):
     def tearDown(self):
+        """
+        Cleans up the system modules and import cache after a test, removing any modules loaded during testing to prevent interference with subsequent tests.
+        """
         sys.path_importer_cache.clear()
 
         sys.modules.pop("utils_tests.test_module.another_bad_module", None)

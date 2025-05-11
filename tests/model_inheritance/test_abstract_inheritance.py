@@ -10,6 +10,9 @@ from django.test.utils import isolate_apps
 @isolate_apps("model_inheritance")
 class AbstractInheritanceTests(SimpleTestCase):
     def test_single_parent(self):
+        """
+        Tests that field definitions in abstract base classes are properly inherited by their descendants, including cases where a descendant overrides the field definition with its own version, and where the descendant is itself an abstract base class that is further inherited from by a concrete subclass.
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -125,6 +128,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertIsInstance(inherited_field, models.IntegerField)
 
     def test_multiple_inheritance_cannot_shadow_concrete_inherited_field(self):
+        """
+        Tests that multiple inheritance cannot shadow a concrete inherited field, ensuring that Django's model validation correctly identifies field clashes between abstract and concrete parents.
+        """
         class ConcreteParent(models.Model):
             name = models.CharField(max_length=255)
 
@@ -154,6 +160,10 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_virtual_field(self):
+        """
+        Test the behavior of virtual fields in model inheritance, 
+        ensuring that they are correctly overridden or extended in subclasses.
+        """
         class RelationModel(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -185,6 +195,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_cannot_override_indirect_abstract_field(self):
+        """
+        Tests that attempting to override an indirectly inherited abstract field in a Django model raises a FieldError, ensuring that inherited field names cannot be reused in descendant models.
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -204,6 +217,9 @@ class AbstractInheritanceTests(SimpleTestCase):
                 name = models.IntegerField()
 
     def test_override_field_with_attr(self):
+        """
+        Tests that overriding a model field with an attribute (instance method or variable) successfully removes the original field from the model's metadata.
+        """
         class AbstractBase(models.Model):
             first_name = models.CharField(max_length=50)
             last_name = models.CharField(max_length=50)
@@ -227,6 +243,9 @@ class AbstractInheritanceTests(SimpleTestCase):
             Descendant._meta.get_field("full_name")
 
     def test_overriding_field_removed_by_concrete_model(self):
+        """
+        Checks that a field removed by an intermediate abstract model can be successfully overridden by a concrete model.
+        """
         class AbstractModel(models.Model):
             foo = models.CharField(max_length=30)
 
@@ -244,6 +263,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_shadowed_fkey_id(self):
+        """
+        Tests that a field in a model subclass does not clash with a field from its parent, specifically when the field is a foreign key and the subclass has a field with the same name but suffixed by '_id'.
+        """
         class Foo(models.Model):
             pass
 
@@ -269,6 +291,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_shadow_related_name_when_set_to_none(self):
+        """
+        Tests that setting a field to None in a subclass of an abstract base model does not interfere with the related_name of a ForeignKey field to that subclass.
+        """
         class AbstractBase(models.Model):
             bar = models.IntegerField()
 
@@ -285,6 +310,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         self.assertEqual(Bar.check(), [])
 
     def test_reverse_foreign_key(self):
+        """
+        Tests that reverse foreign key accessor and related name do not clash with field name in models that use inheritance.
+        """
         class AbstractBase(models.Model):
             foo = models.CharField(max_length=100)
 
@@ -328,6 +356,16 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_multi_inheritance_field_clashes(self):
+        """
+        Tests whether Sphinx correctly handles field name clashes in multi-inheritance models.\"\"\"
+        \"\"\" 
+        Checks for name conflicts that arise when a field from a concrete parent model 
+        is redefined in its descendant model.
+
+        This test ensures proper detection and reporting of these clashes in the model 
+        validation process.
+
+        """
         class AbstractBase(models.Model):
             name = models.CharField(max_length=30)
 
@@ -357,6 +395,9 @@ class AbstractInheritanceTests(SimpleTestCase):
         )
 
     def test_override_one2one_relation_auto_field_clashes(self):
+        """
+        TEST: Test that attempting to override a one-to-one relation auto field raises a FieldError, specifically when a field name clashes between an auto-generated parent link and a manually declared field in a model class.
+        """
         class ConcreteParent(models.Model):
             name = models.CharField(max_length=255)
 
@@ -377,6 +418,10 @@ class AbstractInheritanceTests(SimpleTestCase):
                 concreteparent_ptr = models.CharField(max_length=30)
 
     def test_abstract_model_with_regular_python_mixin_mro(self):
+        """
+        Test that model inheritance and field overriding works correctly in abstract models 
+        when used with regular Python mixins and when following Python's method resolution order (MRO).
+        """
         class AbstractModel(models.Model):
             name = models.CharField(max_length=255)
             age = models.IntegerField()

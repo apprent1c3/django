@@ -59,6 +59,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return sql.quote(value, self.connection.connection)
 
     def _field_indexes_sql(self, model, field):
+        """
+        Generates SQL for field indexes, including a LIKE index if applicable, for the given model and field.
+        """
         output = super()._field_indexes_sql(model, field)
         like_index_statement = self._create_like_index_sql(model, field)
         if like_index_statement is not None:
@@ -120,6 +123,11 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return None
 
     def _using_sql(self, new_field, old_field):
+        """
+        Determines the USING clause for a SQL query when altering a field, 
+        based on the internal types and data types of the old and new fields. 
+        Returns the USING clause if a type conversion is necessary; otherwise, an empty string.
+        """
         using_sql = " USING %(column)s::%(type)s"
         new_internal_type = new_field.get_internal_type()
         old_internal_type = old_field.get_internal_type()
@@ -134,6 +142,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return ""
 
     def _get_sequence_name(self, table, column):
+        """
+        Returns the name of the sequence associated with a specific database table and column, or None if no sequence is found.
+        """
         with self.connection.cursor() as cursor:
             for sequence in self.connection.introspection.get_sequences(cursor, table):
                 if sequence["column"] == column:
@@ -145,6 +156,26 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     ):
         # Drop indexes on varchar/text/citext columns that are changing to a
         # different type.
+        """
+        Alters the type of an existing database column.
+
+        Handles the conversion of the column type and any necessary actions for 
+        database-specific operations such as dropping and creating indexes and 
+        sequences.
+
+        Parameters:
+            model (Model): The model that contains the column to be altered.
+            old_field (Field): The field instance representing the column to be altered.
+            new_field (Field): The field instance representing the new column definition.
+            new_type (str): The new type of the column.
+            old_collation (str): The old collation of the column.
+            new_collation (str): The new collation of the column.
+
+        Returns:
+            tuple: A tuple containing the SQL query to alter the column and a list of 
+            additional SQL queries to be executed after the alteration.
+
+        """
         old_db_params = old_field.db_parameters(connection=self.connection)
         old_type = old_db_params["type"]
         if (old_field.db_index or old_field.unique) and (
@@ -266,6 +297,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         new_db_params,
         strict=False,
     ):
+        """
+        Extends the base alter field functionality to handle additional index creation and removal logic when field properties such as db_index or unique constraints are modified.
+        """
         super()._alter_field(
             model,
             old_field,

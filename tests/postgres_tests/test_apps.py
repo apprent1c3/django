@@ -31,6 +31,9 @@ class PostgresConfigTests(TestCase):
     def test_install_app_no_warning(self):
         # Clear cache to force queries when (re)initializing the
         # "django.contrib.postgres" app.
+        """
+        Tests that installing an application does not result in any warnings and queries are executed. Verifies the minimum number of expected queries during application installation.
+        """
         get_hstore_oids.cache_clear()
         with CaptureQueriesContext(connection) as captured_queries:
             with override_settings(INSTALLED_APPS=["django.contrib.postgres"]):
@@ -38,6 +41,9 @@ class PostgresConfigTests(TestCase):
         self.assertGreaterEqual(len(captured_queries), 1)
 
     def test_register_type_handlers_connection(self):
+        """
+        Tests whether the register_type_handlers signal is connected to the connection_created signal when the 'django.contrib.postgres' app is installed.
+        """
         from django.contrib.postgres.signals import register_type_handlers
 
         self.assertNotIn(
@@ -52,6 +58,11 @@ class PostgresConfigTests(TestCase):
         )
 
     def test_register_serializer_for_migrations(self):
+        """
+        Tests that serializer for migration raises an error when Postgres range fields 
+        are used with non-serializable default values and that it works correctly when 
+        Postgres is installed and interpreter can import necessary modules.
+        """
         tests = (
             (DateRange(empty=True), DateRangeField),
             (DateTimeRange(empty=True), DateRangeField),
@@ -61,6 +72,13 @@ class PostgresConfigTests(TestCase):
         )
 
         def assertNotSerializable():
+            """
+            Verifies that certain objects cannot be serialized by MigrationWriter.
+
+            Ensures that a ValueError is raised when attempting to serialize fields 
+            with non-serializable defaults, testing each with a subtest to identify 
+            the specific default causing the issue.
+            """
             for default, test_field in tests:
                 with self.subTest(default=default):
                     field = test_field(default=default)

@@ -58,6 +58,10 @@ class AltersData:
     """
 
     def __init_subclass__(cls, **kwargs):
+        """
+        .. automethod:: __init_subclass__
+            Initializes a subclass, inheriting the :attr:`alters_data` attribute from parent classes for methods without this attribute.
+        """
         for fn_name, fn in vars(cls).items():
             if callable(fn) and not hasattr(fn, "alters_data"):
                 for base in cls.__bases__:

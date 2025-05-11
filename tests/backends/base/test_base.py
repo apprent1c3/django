@@ -66,6 +66,13 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 
     @override_settings(DEBUG=True)
     def test_commit_debug_log(self):
+        """
+        Tests database debug logging when committing a transaction.
+
+        Verifies that the start and end of a transaction are logged at the DEBUG level
+        when DEBUG mode is enabled, and that the corresponding SQL queries are recorded
+        in the queries log.
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         with CaptureQueriesContext(conn):
             with self.assertLogs("django.db.backends", "DEBUG") as cm:
@@ -88,6 +95,9 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
 
     @override_settings(DEBUG=True)
     def test_rollback_debug_log(self):
+        """
+        Tests the logging of rollback operations in Django's database backend when DEBUG mode is enabled, verifying that the rollback query is executed and logged at the DEBUG level.
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         with CaptureQueriesContext(conn):
             with self.assertLogs("django.db.backends", "DEBUG") as cm:
@@ -103,6 +113,9 @@ class DatabaseWrapperLoggingTests(TransactionTestCase):
                 )
 
     def test_no_logs_without_debug(self):
+        """
+        Tests that no database logs are generated when an operation is rolled back and debug logging is not enabled.
+        """
         with self.assertNoLogs("django.db.backends", "DEBUG"):
             with self.assertRaises(Exception), transaction.atomic():
                 Person.objects.create(first_name="first", last_name="last")
@@ -123,6 +136,14 @@ class ExecuteWrapperTests(TestCase):
     def call_executemany(self, connection, params=None):
         # executemany() must use an update query. Make sure it does nothing
         # by putting a false condition in the WHERE clause.
+        """
+        Execute a SQL query with multiple parameters on the database connection.
+
+        Deletes rows from the Square table using a dummy condition and varying parameters. 
+        The params argument can be used to specify the values to be used in the query. 
+        If not provided, three default values are used. This function appears to test 
+        database connectivity and prepared statement functionality with multiple parameters.
+        """
         sql = "DELETE FROM {} WHERE 0=1 AND 0=%s".format(Square._meta.db_table)
         if params is None:
             params = [(i,) for i in range(3)]
@@ -134,6 +155,12 @@ class ExecuteWrapperTests(TestCase):
         return MagicMock(side_effect=lambda execute, *args: execute(*args))
 
     def test_wrapper_invoked(self):
+        """
+        Tests that the execute wrapper is correctly invoked and provides expected parameters.
+
+        Verifies the wrapper function is called, the SQL query starts with 'SELECT', 
+        parameters are None, and the context contains the connection object.
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             self.call_execute(connection)
@@ -145,6 +172,9 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(context["connection"], connection)
 
     def test_wrapper_invoked_many(self):
+        """
+        Tests whether the connection execute wrapper is properly invoked when executing many queries, verifying the wrapper's call arguments, including the SQL statement, parameters, and execution context.
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             self.call_executemany(connection)
@@ -156,6 +186,13 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(context["connection"], connection)
 
     def test_database_queried(self):
+        """
+
+        Tests that a database is successfully queried by executing a simple SELECT statement.
+
+        Verifies that the query execution and result retrieval work as expected.
+
+        """
         wrapper = self.mock_wrapper()
         with connection.execute_wrapper(wrapper):
             with connection.cursor() as cursor:
@@ -166,6 +203,12 @@ class ExecuteWrapperTests(TestCase):
             self.call_executemany(connection)
 
     def test_nested_wrapper_invoked(self):
+        """
+        Tests the invocation of nested wrappers in the execute_wrapper context manager.
+
+        Verifies that the inner wrapper is correctly called when using nested wrappers, 
+        ensuring the wrapper's call count is incremented as expected for both execute and executemany operations.
+        """
         outer_wrapper = self.mock_wrapper()
         inner_wrapper = self.mock_wrapper()
         with (
@@ -178,6 +221,12 @@ class ExecuteWrapperTests(TestCase):
             self.assertEqual(inner_wrapper.call_count, 2)
 
     def test_outer_wrapper_blocks(self):
+        """
+
+        Tests that the outer execute wrapper blocks inner wrappers from being called,
+        ensuring that only the outermost wrapper executes queries on the database.
+
+        """
         def blocker(*args):
             pass
 
@@ -195,6 +244,9 @@ class ExecuteWrapperTests(TestCase):
                 self.assertEqual(wrapper.call_count, 2)
 
     def test_wrapper_gets_sql(self):
+        """
+        Verifies that the SQL query executed by the database cursor is correctly reported by the wrapper.
+        """
         wrapper = self.mock_wrapper()
         sql = "SELECT 'aloha'" + connection.features.bare_select_suffix
         with connection.execute_wrapper(wrapper), connection.cursor() as cursor:
@@ -203,6 +255,17 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(reported_sql, sql)
 
     def test_wrapper_connection_specific(self):
+        """
+        Tests the connection-specific execution of a wrapper function, 
+        verifying its registration and deregistration with the connection.\"\"\"
+
+        \"\"\" 
+            This function tests whether a wrapper function is executed and 
+            deregistered properly when using a specific database connection. 
+            It ensures that the wrapper is correctly registered with the 
+            connection before execution, and removed afterwards. 
+
+        """
         wrapper = self.mock_wrapper()
         with connections["other"].execute_wrapper(wrapper):
             self.assertEqual(connections["other"].execute_wrappers, [wrapper])
@@ -212,6 +275,9 @@ class ExecuteWrapperTests(TestCase):
         self.assertEqual(connections["other"].execute_wrappers, [])
 
     def test_wrapper_debug(self):
+        """
+        Tests that the database query wrapper correctly prepends a comment to the generated SQL query when executing a database query.
+        """
         def wrap_with_comment(execute, sql, params, many, context):
             return execute(f"/* My comment */ {sql}", params, many, context)
 
@@ -249,6 +315,14 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_enabled(self):
+        """
+
+        Tests that health checks for database connections are enabled and function correctly.
+
+        Verifies the behavior of connection checks when a connection becomes unusable,
+        ensuring a new connection is created when necessary.
+
+        """
         self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -287,6 +361,10 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_enabled_errors_occurred(self):
+        """
+        Tests that health checks are correctly enabled and handled when errors occur, 
+        ensuring that database connections are properly closed and reused as needed.
+        """
         self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -309,6 +387,13 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_health_checks_disabled(self):
+        """
+
+        Verifies the behavior of the database connection when health checks are disabled.
+
+        Tests that the connection is reused even when its usability cannot be confirmed.
+
+        """
         self.patch_settings_dict(conn_health_checks=False)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -333,6 +418,14 @@ class ConnectionHealthChecksTests(SimpleTestCase):
 
     @skipUnlessDBFeature("test_db_allows_multiple_connections")
     def test_set_autocommit_health_checks_enabled(self):
+        """
+        Tests the behavior of autocommit mode when connection health checks are enabled.
+
+        Verifies that the connection is recreated only when necessary, i.e., when the
+        current connection is unusable, and that the new connection is reused
+        appropriately. Ensures that health checks are performed correctly when
+        autocommit mode is toggled and queries are executed.
+        """
         self.patch_settings_dict(conn_health_checks=True)
         self.assertIsNone(connection.connection)
         # Newly created connections are considered healthy without performing
@@ -386,6 +479,11 @@ class MultiDatabaseTests(TestCase):
     databases = {"default", "other"}
 
     def test_multi_database_init_connection_state_called_once(self):
+        """
+        Tests that the database connection state initialization method is idempotent, 
+        i.e., it only calls the check database version supported method once, 
+        even if called multiple times on the same database connection.
+        """
         for db in self.databases:
             with self.subTest(database=db):
                 with patch.object(connections[db], "commit", return_value=None):

@@ -8,6 +8,9 @@ class SlugFieldTest(SimpleTestCase):
         self.assertEqual(f.clean("    aa-bb-cc    "), "aa-bb-cc")
 
     def test_slugfield_unicode_normalization(self):
+        """
+        Tests the slug field's ability to handle and normalize Unicode strings when allow_unicode is set to True.
+        """
         f = SlugField(allow_unicode=True)
         self.assertEqual(f.clean("a"), "a")
         self.assertEqual(f.clean("1"), "1")
@@ -18,6 +21,9 @@ class SlugFieldTest(SimpleTestCase):
         self.assertEqual(f.clean("foo-ıç-bar"), "foo-ıç-bar")
 
     def test_empty_value(self):
+        """
+        Tests the behavior of a SlugField when dealing with empty values, verifying that it correctly handles cases where the field is not required and has a specified empty value.
+        """
         f = SlugField(required=False)
         self.assertEqual(f.clean(""), "")
         self.assertEqual(f.clean(None), "")

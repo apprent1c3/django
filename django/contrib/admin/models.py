@@ -55,6 +55,16 @@ class LogEntryManager(models.Manager):
         self, user_id, queryset, action_flag, change_message="", *, single_object=False
     ):
         # RemovedInDjango60Warning.
+        """
+        Logs actions performed on a queryset of objects.
+
+        :param user_id: The ID of the user who performed the action.
+        :param queryset: The queryset of objects the action was performed on.
+        :param action_flag: The type of action performed.
+        :param change_message: An optional message describing the changes made, defaults to an empty string.
+        :param single_object: If True, saves the log entry for the first object in the queryset and returns it, otherwise bulk creates log entries for all objects, defaults to False.
+        :return: The saved log entry if single_object is True, otherwise the result of bulk creation.
+        """
         if type(self).log_action != LogEntryManager.log_action:
             warnings.warn(
                 "The usage of log_action() is deprecated. Implement log_actions() "
@@ -141,6 +151,9 @@ class LogEntry(models.Model):
         return str(self.action_time)
 
     def __str__(self):
+        """
+        Returns a human-readable string representation of the log entry, describing the type of log event (addition, change, or deletion) and the affected object.
+        """
         if self.is_addition():
             return gettext("Added “%(object)s”.") % {"object": self.object_repr}
         elif self.is_change():

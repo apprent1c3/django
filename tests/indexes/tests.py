@@ -89,6 +89,9 @@ class SchemaIndexesTests(TestCase):
 
     @skipUnlessDBFeature("can_create_inline_fk", "can_rollback_ddl")
     def test_alter_field_unique_false_removes_deferred_sql(self):
+        """
+        Tests that altering a field to have unique=False removes the associated deferred SQL operation when creating an inline foreign key.
+        """
         field_added = CharField(max_length=127, unique=True)
         field_added.set_attributes_from_name("charfield_added")
 
@@ -175,6 +178,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
         self.assertEqual(len(index_sql), 1)
 
     def test_ops_class(self):
+        """
+        Tests the addition of a custom index with a specific operator class to a model and verifies the index creation.
+        """
         index = Index(
             name="test_ops_class",
             fields=["headline"],
@@ -189,6 +195,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             )
 
     def test_ops_class_multiple_columns(self):
+        """
+        Tests adding an index with multiple columns and custom operation classes to the database, verifying that the correct operation classes are assigned to each column.
+        """
         index = Index(
             name="test_ops_class_multiple",
             fields=["headline", "body"],
@@ -205,6 +214,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), expected_ops_classes)
 
     def test_ops_class_partial(self):
+        """
+        Checks if a partial index with 'text_pattern_ops' operator class is correctly created on the 'body' field of IndexedArticle2 model and is recognized by the database.
+        """
         index = Index(
             name="test_ops_class_partial",
             fields=["body"],
@@ -220,6 +232,10 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             )
 
     def test_ops_class_partial_tablespace(self):
+        """
+        Tests addition of a partial index to a table with a specified tablespace, 
+        verifying that the created index contains the correct opclass and tablespace definition.
+        """
         indexname = "test_ops_class_tblspace"
         index = Index(
             name=indexname,
@@ -239,6 +255,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", indexname)])
 
     def test_ops_class_descending(self):
+        """
+        Tests the creation of a Postgres index with a descending text_pattern_ops operator class.
+        """
         indexname = "test_ops_class_ordered"
         index = Index(
             name=indexname,
@@ -252,6 +271,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
             self.assertCountEqual(cursor.fetchall(), [("text_pattern_ops", indexname)])
 
     def test_ops_class_descending_partial(self):
+        """
+        Tests the addition of a partial index with a descending order on a specific field, using a custom operator class. Verifies that the index is created correctly and can be queried using the custom operator class.
+        """
         indexname = "test_ops_class_ordered_partial"
         index = Index(
             name=indexname,
@@ -267,6 +289,13 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_ops_class_include(self):
+        """
+        .. note:: 
+            Tests the functionality of adding an index with specified operation classes and included columns.
+
+            Verifies that the operation class is correctly applied to the index and that the included column is properly indexed. 
+            This test is skipped unless the database backend supports covering indexes.
+        """
         index_name = "test_ops_class_include"
         index = Index(
             name=index_name,
@@ -282,6 +311,9 @@ class SchemaIndexesPostgreSQLTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_ops_class_include_tablespace(self):
+        """
+        Tests the inclusion of a tablespace in an index operation class, verifying the generated SQL and database representation match the specified options.
+        """
         index_name = "test_ops_class_include_tblspace"
         index = Index(
             name=index_name,
@@ -382,6 +414,9 @@ class PartialIndexTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_partial_index(self):
+        """
+        Tests the creation and removal of a partial database index on a model field with a condition, ensuring the index is correctly generated with the specified condition and properly added and removed from the database.
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -414,6 +449,9 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_integer_restriction_partial(self):
+        """
+        Tests the creation of a partial index with an integer restriction on the Article model.
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -436,6 +474,11 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_boolean_restriction_partial(self):
+        """
+        Tests the creation of a partial index with a boolean restriction.
+
+        Verifies that the index is correctly created with a 'WHERE' condition and that it is properly added and removed from the database schema.
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="published_index",
@@ -459,6 +502,9 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_functions_in_partial_indexes")
     def test_multiple_conditions(self):
+        """
+        Tests creation of a partial index with multiple conditions and verifies its successful application and removal from the database schema.
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -493,6 +539,9 @@ class PartialIndexTests(TransactionTestCase):
             editor.remove_index(index=index, model=Article)
 
     def test_is_null_condition(self):
+        """
+        Tests the creation of an index with a condition, specifically checking the handling of IS NULL conditions in the index definition.
+        """
         with connection.schema_editor() as editor:
             index = Index(
                 name="recent_article_idx",
@@ -516,6 +565,12 @@ class PartialIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_partial_func_index(self):
+        """
+        Tests the functionality of creating a partial functional index with a given condition.
+
+        This test ensures that a functional index is correctly created, indexed, and removed,
+        in accordance with the database's specific features and capabilities.
+        """
         index_name = "partial_func_idx"
         index = Index(
             Lower("headline").desc(),
@@ -559,6 +614,12 @@ class CoveringIndexTests(TransactionTestCase):
     available_apps = ["indexes"]
 
     def test_covering_index(self):
+        """
+        Tests the creation of a covering index on a model.
+
+        Verifies that the index includes the specified fields, and that it can be correctly
+        added and removed from the database schema.
+        """
         index = Index(
             name="covering_headline_idx",
             fields=["headline"],
@@ -596,6 +657,9 @@ class CoveringIndexTests(TransactionTestCase):
                 )
 
     def test_covering_partial_index(self):
+        """
+        Tests the creation and removal of a covering partial index on the Article model, ensuring correct SQL syntax and database constraints are applied.
+        """
         index = Index(
             name="covering_partial_headline_idx",
             fields=["headline"],
@@ -641,6 +705,12 @@ class CoveringIndexTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_covering_func_index(self):
+        """
+
+        Tests the creation and removal of a covering index using a function 
+        (Lower) and including an additional column (pub_date).
+
+        """
         index_name = "covering_func_headline_idx"
         index = Index(Lower("headline"), name=index_name, include=["pub_date"])
         with connection.schema_editor() as editor:

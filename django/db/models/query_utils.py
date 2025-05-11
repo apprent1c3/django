@@ -56,6 +56,13 @@ class Q(tree.Node):
         )
 
     def _combine(self, other, conn):
+        """
+        Combine two conditional query objects with a specified connector.
+
+        The resulting object is a new query that combines the current object and the given `other` query using the specified `conn` connector (e.g., AND, OR).
+
+        If either query is empty, it returns a copy of the non-empty query. If the `other` object is not a conditional query, a TypeError is raised.
+        """
         if getattr(other, "conditional", False) is False:
             raise TypeError(other)
         if not self:
@@ -143,6 +150,9 @@ class Q(tree.Node):
             return True
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts for re-creation, suitable for use in a serialization or reconstruction context, such as when creating a duplicate of a query object.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         if path.startswith("django.db.models.query_utils"):
             path = path.replace("django.db.models.query_utils", "django.db.models")
@@ -156,6 +166,13 @@ class Q(tree.Node):
 
     @cached_property
     def identity(self):
+        """
+        Unique identifier for this object, representing its decomposition into path, keyword arguments, and hashable positional arguments, allowing for efficient comparison and caching.\"\"\"
+
+         \"\"\" Returns:
+             tuple: A hashable tuple representing this object's identity.
+
+        """
         path, args, kwargs = self.deconstruct()
         identity = [path, *kwargs.items()]
         for child in args:
@@ -271,6 +288,9 @@ class RegisterLookupMixin:
     get_class_lookups = classmethod(get_class_lookups)
 
     def get_lookup(self, lookup_name):
+        """
+        Retrieves a lookup instance by name, falling back to the output field's lookup if the lookup is not found on the current instance. Returns None if the found lookup is not a subclass of Lookup.
+        """
         from django.db.models.lookups import Lookup
 
         found = self._get_lookup(lookup_name)
@@ -281,6 +301,13 @@ class RegisterLookupMixin:
         return found
 
     def get_transform(self, lookup_name):
+        """
+
+        Get a database transform for the given lookup name.
+
+        Returns the transform if found, or the transform from the output field if applicable.
+
+        """
         from django.db.models.lookups import Transform
 
         found = self._get_lookup(lookup_name)
@@ -307,6 +334,9 @@ class RegisterLookupMixin:
             subclass.get_class_lookups.cache_clear()
 
     def register_class_lookup(cls, lookup, lookup_name=None):
+        """
+        Registers a lookup instance with a class, allowing it to be retrieved by its name. If no lookup name is provided, it defaults to the lookup's own lookup name. This enables efficient lookup and caching of class-related data.
+        """
         if lookup_name is None:
             lookup_name = lookup.lookup_name
         if "class_lookups" not in cls.__dict__:
@@ -316,6 +346,9 @@ class RegisterLookupMixin:
         return lookup
 
     def register_instance_lookup(self, lookup, lookup_name=None):
+        """
+        Registers an instance lookup, which can be referenced by a unique name, to facilitate future retrieval. If no lookup name is provided, it defaults to the lookup's own defined name.
+        """
         if lookup_name is None:
             lookup_name = lookup.lookup_name
         if "instance_lookups" not in self.__dict__:
@@ -437,6 +470,13 @@ class FilteredRelation:
     """Specify custom filtering in the ON clause of SQL joins."""
 
     def __init__(self, relation_name, *, condition=Q()):
+        """
+        Initializes a relation object with a name and an optional condition.
+
+            :param relation_name: The name of the relation, must not be empty.
+            :param condition: A Q instance specifying the condition for the relation, defaults to an empty condition.
+
+        """
         if not relation_name:
             raise ValueError("relation_name cannot be empty.")
         self.relation_name = relation_name
@@ -459,6 +499,9 @@ class FilteredRelation:
         )
 
     def clone(self):
+        """
+        Creates a clone of the current FilteredRelation instance, copying its relation name, condition, alias, and resolved condition.
+        """
         clone = FilteredRelation(self.relation_name, condition=self.condition)
         clone.alias = self.alias
         if (resolved_condition := self.resolved_condition) is not None:

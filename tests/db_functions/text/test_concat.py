@@ -16,6 +16,12 @@ lorem_ipsum = """
 
 class ConcatTests(TestCase):
     def test_basic(self):
+        """
+        Tests the basic usage of concatenating author alias and goes_by fields.
+
+        Verifies that the Concat database function is applied correctly to the Author model,
+        ensuring the resulting annotation can be properly ordered and queried.
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -39,6 +45,9 @@ class ConcatTests(TestCase):
             Author.objects.annotate(joined=Concat("alias"))
 
     def test_many(self):
+        """
+        Tests the annotation of Authors with a concatenated name and \"goes by\" name, verifying correct ordering by name.
+        """
         Author.objects.create(name="Jayden")
         Author.objects.create(name="John Smith", alias="smithj", goes_by="John")
         Author.objects.create(name="Margaret", goes_by="Maggie")
@@ -58,6 +67,11 @@ class ConcatTests(TestCase):
         )
 
     def test_mixed_char_text(self):
+        """
+        Tests the concatenation and case modification of article title and text fields in the database.
+
+        Checks that the concatenated string is as expected and that uppercasing the concatenated string produces the correct result.
+        """
         Article.objects.create(
             title="The Title", text=lorem_ipsum, written=timezone.now()
         )
@@ -94,6 +108,9 @@ class ConcatTests(TestCase):
         self.assertEqual(str(qs.query), str(qs.all().query))
 
     def test_concat_non_str(self):
+        """
+        Tests concatenation of non-string fields in a query, verifying that the result is correctly formatted and that the query is executed efficiently with minimal database interactions.
+        """
         Author.objects.create(name="The Name", age=42)
         with self.assertNumQueries(1) as ctx:
             author = Author.objects.annotate(

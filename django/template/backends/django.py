@@ -17,6 +17,9 @@ class DjangoTemplates(BaseEngine):
     app_dirname = "templates"
 
     def __init__(self, params):
+        """
+        Initializes the template engine with provided parameters, setting default options and libraries as needed.
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         options.setdefault("autoescape", True)
@@ -47,6 +50,9 @@ class DjangoTemplates(BaseEngine):
         return []
 
     def _check_for_template_tags_with_the_same_name(self):
+        """
+        Checks for template tag conflicts by identifying modules with the same name but different paths, returning a list of warnings for duplicate module names.
+        """
         libraries = defaultdict(set)
 
         for module_name, module_path in get_template_tag_modules():
@@ -100,6 +106,9 @@ class Template:
         return self.template.origin
 
     def render(self, context=None, request=None):
+        """
+        Render the template using the provided context and request, handling template rendering exceptions and returning the rendered result.
+        """
         context = make_context(
             context, request, autoescape=self.backend.engine.autoescape
         )

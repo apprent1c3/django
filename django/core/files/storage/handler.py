@@ -22,6 +22,13 @@ class StorageHandler:
         return self._backends
 
     def __getitem__(self, alias):
+        """
+        Returns a storage instance associated with the given alias.
+
+        If the storage instance does not exist, it is created based on the configuration
+        found in settings.STORAGES. Raises InvalidStorageError if no configuration is found
+        for the given alias.
+        """
         try:
             return self._storages[alias]
         except KeyError:
@@ -36,6 +43,15 @@ class StorageHandler:
             return storage
 
     def create_storage(self, params):
+        """
+
+        Create a storage instance based on the provided backend and options.
+
+        :param params: A dictionary containing the storage backend and options.
+        :raises InvalidStorageError: If the specified backend cannot be found.
+        :return: A storage instance configured with the provided options.
+
+        """
         params = params.copy()
         backend = params.pop("BACKEND")
         options = params.pop("OPTIONS", {})

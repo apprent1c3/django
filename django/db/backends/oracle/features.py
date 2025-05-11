@@ -94,6 +94,9 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def django_test_skips(self):
+        """
+        Returns a dictionary of test skips specific to the Oracle database, where each key is a reason for skipping a test and the corresponding value is a set of test names to be skipped. The test skips are determined based on the Oracle database version and the version of the oracledb library.
+        """
         skips = {
             "Oracle doesn't support SHA224.": {
                 "db_functions.text.test_sha224.SHA224Tests.test_basic",
@@ -174,6 +177,14 @@ class DatabaseFeatures(BaseDatabaseFeatures):
 
     @cached_property
     def supports_collation_on_charfield(self):
+        """
+        Indicates whether the database supports collation on a CharField.
+
+        Checks if the database can handle a VARCHAR2 field of size greater than 4000 bytes,
+        returning True if it does and False otherwise. This check is performed by attempting
+        to execute a simple SQL query, catching any DatabaseError that may be raised due to
+        exceeding the allowed size limit.
+        """
         sql = "SELECT CAST('a' AS VARCHAR2(4001))" + self.bare_select_suffix
         with self.connection.cursor() as cursor:
             try:

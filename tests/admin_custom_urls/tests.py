@@ -21,6 +21,9 @@ class AdminCustomUrlsTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the application, creating a superuser and predefined actions with varying names to support testing scenarios.
+        """
         cls.superuser = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -80,6 +83,11 @@ class AdminCustomUrlsTest(TestCase):
     def test_admin_URLs_no_clash(self):
         # Should get the change_view for model instance with PK 'add', not show
         # the add_view
+        """
+        Tests the admin URLs for the action change view, ensuring no clash occurs with URL patterns.
+
+        This test case verifies that the action change view can be correctly accessed and rendered for both a simple action (e.g., 'add') and a more complex path (e.g., 'path/to/html/document.html'), without any URL pattern conflicts.
+        """
         url = reverse(
             "admin_custom_urls:%s_action_change" % Action._meta.app_label,
             args=(quote("add"),),

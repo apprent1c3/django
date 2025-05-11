@@ -45,6 +45,9 @@ class TagTestCase(SimpleTestCase):
 
 class SimpleTagTests(TagTestCase):
     def test_simple_tags(self):
+        """
+        Test the functionality of custom template tags by rendering various templates with different types of parameters and context, and asserting that the output matches the expected results.
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -130,6 +133,13 @@ class SimpleTagTests(TagTestCase):
             self.assertEqual(t.render(c), "Result: %s" % entry[1])
 
     def test_simple_tag_errors(self):
+        """
+        Tests tag syntax errors by rendering templates with incorrect arguments and checking for TemplateSyntaxErrors.
+
+        Verifies that various invalid usage patterns, such as unexpected keyword arguments,
+        too many positional arguments, missing required keyword arguments, and duplicate keyword arguments,
+        raise the expected error messages when rendering templates.
+        """
         errors = [
             (
                 "'simple_one_default' received unexpected keyword argument 'three'",
@@ -208,6 +218,9 @@ class SimpleTagTests(TagTestCase):
     def test_simple_tag_registration(self):
         # The decorators preserve the decorated function's docstring, name,
         # and attributes.
+        """
+        Tests registration of various custom template tags with different parameter and context configurations.
+        """
         self.verify_tag(custom.no_params, "no_params")
         self.verify_tag(custom.one_param, "one_param")
         self.verify_tag(custom.explicit_no_context, "explicit_no_context")
@@ -245,6 +258,9 @@ class SimpleTagTests(TagTestCase):
 
 class InclusionTagTests(TagTestCase):
     def test_inclusion_tags(self):
+        """
+        Tests various inclusion tags to ensure they load and render correctly, covering different scenarios such as zero, one, and multiple parameters, default values, keyword-only arguments, and unlimited positional and keyword arguments.
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -396,6 +412,9 @@ class InclusionTagTests(TagTestCase):
             )
 
     def test_inclusion_tags_from_template(self):
+        """
+        Tests various inclusion template tags to ensure they render correctly with different parameters and context values.
+        """
         c = Context({"value": 42})
 
         templates = [
@@ -465,6 +484,9 @@ class InclusionTagTests(TagTestCase):
     def test_inclusion_tag_registration(self):
         # The decorators preserve the decorated function's docstring, name,
         # and attributes.
+        """
+        Tests the registration of various inclusion tags to ensure correct functionality.
+        """
         self.verify_tag(inclusion.inclusion_no_params, "inclusion_no_params")
         self.verify_tag(inclusion.inclusion_one_param, "inclusion_one_param")
         self.verify_tag(
@@ -543,6 +565,9 @@ class TemplateTagLoadingTests(SimpleTestCase):
             Engine(libraries={"broken_tag": "template_tests.broken_tag"})
 
     def test_load_error_egg(self):
+        """
+        Tests that the Engine correctly raises an InvalidTemplateLibrary exception when attempting to load a template library that cannot be imported due to a missing module.
+        """
         egg_name = "%s/tagsegg.egg" % self.egg_dir
         msg = (
             "Invalid template library specified. ImportError raised when "
@@ -554,6 +579,9 @@ class TemplateTagLoadingTests(SimpleTestCase):
                 Engine(libraries={"broken_egg": "tagsegg.templatetags.broken_egg"})
 
     def test_load_working_egg(self):
+        """
+        Tests loading of a working Django template tag from an.egg file. Verifies that the \"working_egg\" template tag can be loaded and used successfully in a template string.
+        """
         ttext = "{% load working_egg %}"
         egg_name = "%s/tagsegg.egg" % self.egg_dir
         with extend_sys_path(egg_name):

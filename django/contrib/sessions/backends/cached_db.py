@@ -32,6 +32,9 @@ class SessionStore(DBStore):
         return self.cache_key_prefix + await self._aget_or_create_session_key()
 
     def load(self):
+        """
+        Loads cached data from the cache or database session, decoding and caching it if necessary. Returns the loaded data, falling back to an empty dictionary if no data is found.
+        """
         try:
             data = self._cache.get(self.cache_key)
         except Exception:
@@ -51,6 +54,12 @@ class SessionStore(DBStore):
         return data
 
     async def aload(self):
+        """
+
+        Loads data from the cache if available, otherwise fetches it from the database, 
+        decodes and stores it in the cache for future use.
+
+        """
         try:
             data = await self._cache.aget(await self.acache_key())
         except Exception:
@@ -86,6 +95,15 @@ class SessionStore(DBStore):
         )
 
     def save(self, must_create=False):
+        """
+        Saves the current object and caches it to improve future retrieval performance.
+
+        The :meth:`save` method extends the parent class's functionality by adding caching support.
+
+        :param bool must_create: whether to enforce object creation.
+        :raises Exception: Any exception that occurs while caching the object.
+        :note: Exception handling is in place to prevent cache saving errors from interfering with the save operation.
+        """
         super().save(must_create)
         try:
             self._cache.set(self.cache_key, self._session, self.get_expiry_age())
@@ -93,6 +111,14 @@ class SessionStore(DBStore):
             logger.exception("Error saving to cache (%s)", self._cache)
 
     async def asave(self, must_create=False):
+        """
+        Asynchronously saves the object to the database and updates the cache.
+
+        The save operation is only considered successful if both the database and cache save operations complete without error.
+
+        :param bool must_create: Whether the object must be created, rather than updated.
+
+        """
         await super().asave(must_create)
         try:
             await self._cache.aset(
@@ -104,6 +130,9 @@ class SessionStore(DBStore):
             logger.exception("Error saving to cache (%s)", self._cache)
 
     def delete(self, session_key=None):
+        """
+        Deletes the session data from the cache, optionally for a specific session key, ensuring data consistency by also invoking the parent class's deletion logic.
+        """
         super().delete(session_key)
         if session_key is None:
             if self.session_key is None:
@@ -112,6 +141,14 @@ class SessionStore(DBStore):
         self._cache.delete(self.cache_key_prefix + session_key)
 
     async def adelete(self, session_key=None):
+        """
+
+        Deletes the current session from the cache asynchronously.
+
+        This method removes the session data associated with the provided session key.
+        If no session key is provided, it defaults to the session key stored in the instance.
+
+        """
         await super().adelete(session_key)
         if session_key is None:
             if self.session_key is None:

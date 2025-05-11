@@ -35,6 +35,9 @@ class CustomFileUploadHandler(MemoryFileUploadHandler):
 
 class RequestsTests(SimpleTestCase):
     def test_httprequest(self):
+        """
+        Tests the default state of an HttpRequest object, verifying that various attributes are empty or None when initialized without any data.
+        """
         request = HttpRequest()
         self.assertEqual(list(request.GET), [])
         self.assertEqual(list(request.POST), [])
@@ -52,6 +55,13 @@ class RequestsTests(SimpleTestCase):
         self.assertIsNone(request.content_params)
 
     def test_httprequest_full_path(self):
+        """
+
+        Tests that the HttpRequest object correctly constructs its full path and full path info.
+        Verifies that the full path includes the properly escaped path and query string, 
+        and the full path info also includes the prefix.
+
+        """
         request = HttpRequest()
         request.path = "/;some/?awful/=path/foo:bar/"
         request.path_info = "/prefix" + request.path
@@ -61,6 +71,10 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.get_full_path_info(), "/prefix" + expected)
 
     def test_httprequest_full_path_with_query_string_and_fragment(self):
+        """
+        Tests that HttpRequest correctly constructs full path and full path info 
+        when the requested path contains a query string and a fragment.
+        """
         request = HttpRequest()
         request.path = "/foo#bar"
         request.path_info = "/prefix" + request.path
@@ -69,6 +83,12 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.get_full_path_info(), "/prefix/foo%23bar?baz#quux")
 
     def test_httprequest_repr(self):
+        """
+        Tests that the string representation of an HttpRequest is correctly formatted.
+
+        The expected representation should include the HTTP method and the request path.
+
+        """
         request = HttpRequest()
         request.path = "/somepath/"
         request.method = "GET"
@@ -79,6 +99,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<HttpRequest: GET '/somepath/'>")
 
     def test_httprequest_repr_invalid_method_and_path(self):
+        """
+        Tests the repr method of the HttpRequest class when initialized with various invalid method and path combinations to ensure it returns the default '<HttpRequest>' string.
+        """
         request = HttpRequest()
         self.assertEqual(repr(request), "<HttpRequest>")
         request = HttpRequest()
@@ -89,6 +112,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<HttpRequest>")
 
     def test_wsgirequest(self):
+        """
+        Tests the initialization and properties of a WSGIRequest object, verifying that it correctly handles empty data and populates metadata from the request environment.
+        """
         request = WSGIRequest(
             {
                 "PATH_INFO": "bogus",
@@ -202,6 +228,9 @@ class RequestsTests(SimpleTestCase):
             self.assertEqual(request.path, "/FORCED_PREFIX/somepath/")
 
     def test_wsgirequest_repr(self):
+        """
+        Tests the string representation of a WSGIRequest object, ensuring it correctly reflects the request method and path.
+        """
         request = WSGIRequest({"REQUEST_METHOD": "get", "wsgi.input": BytesIO(b"")})
         self.assertEqual(repr(request), "<WSGIRequest: GET '/'>")
         request = WSGIRequest(
@@ -218,6 +247,9 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(repr(request), "<WSGIRequest: GET '/somepath/'>")
 
     def test_wsgirequest_path_info(self):
+        """
+        Tests the handling of non-ASCII characters in the PATH_INFO attribute of a WSGI request, ensuring that the request's path is correctly decoded and encoded.
+        """
         def wsgi_str(path_info, encoding="utf-8"):
             path_info = path_info.encode(
                 encoding
@@ -256,6 +288,13 @@ class RequestsTests(SimpleTestCase):
 
     def test_limited_stream(self):
         # Read all of a limited stream
+        """
+
+        Tests the LimitedStream class to ensure it correctly limits the amount of data that can be read from an underlying stream.
+
+        This test checks various read scenarios, including reading the entire limited stream, reading in chunks, and reading lines.
+
+        """
         stream = LimitedStream(BytesIO(b"test"), 2)
         self.assertEqual(stream.read(), b"te")
         # Reading again returns nothing.
@@ -386,6 +425,12 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.POST, {"key": ["España"]})
 
     def test_non_utf8_charset_POST_bad_request(self):
+        """
+        Tests that a POST request with non-UTF8 charset raises a BadRequest exception.
+
+        Verifies that the application correctly handles requests with the 'application/x-www-form-urlencoded' content type
+        when the charset is not UTF-8, as required by the HTTP specification.
+        """
         payload = FakePayload(urlencode({"key": "España".encode("latin-1")}))
         request = WSGIRequest(
             {
@@ -405,6 +450,9 @@ class RequestsTests(SimpleTestCase):
             request.FILES
 
     def test_utf8_charset_POST(self):
+        """
+        Tests that a POST request with UTF-8 charset is correctly parsed, ensuring Unicode characters are handled properly.
+        """
         for charset in ["utf-8", "UTF-8"]:
             with self.subTest(charset=charset):
                 payload = FakePayload(urlencode({"key": "España"}))
@@ -560,6 +608,11 @@ class RequestsTests(SimpleTestCase):
         self.assertEqual(request.FILES, "_FILES")
 
     def test_request_methods_with_content(self):
+        """
+        \Test that request methods without content do not populate the POST dictionary.
+
+        This test case covers the GET, PUT, and DELETE HTTP methods to ensure that they do not mistakenly include data in the POST dictionary, even when the request includes a content body.
+        """
         for method in ["GET", "PUT", "DELETE"]:
             with self.subTest(method=method):
                 payload = FakePayload(urlencode({"key": "value"}))
@@ -696,6 +749,12 @@ class RequestsTests(SimpleTestCase):
         )
 
     def test_POST_multipart_with_file(self):
+        """
+
+        Tests handling of a POST request with a multipart/form-data payload containing a file and JSON data.
+        Verifies that the request's POST data and files are correctly parsed and stored.
+
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -738,6 +797,12 @@ class RequestsTests(SimpleTestCase):
         self.assertIsInstance((request.FILES["File"]), InMemoryUploadedFile)
 
     def test_base64_invalid_encoding(self):
+        """
+        Tests handling of multipart/form-data requests with invalid base64 encoding.
+
+        Verifies that a MultiPartParserError is raised when the request contains a
+        malformed base64-encoded file upload.
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -763,6 +828,9 @@ class RequestsTests(SimpleTestCase):
             request.POST
 
     def test_POST_binary_only(self):
+        """
+        Tests the handling of a binary POST request, verifying that the request body is correctly parsed and that POST and FILES dictionaries remain empty when the request contains only binary data without any Content-Type header or with an empty Content-Type header.
+        """
         payload = b"\r\n\x01\x00\x00\x00ab\x00\x00\xcd\xcc,@"
         environ = {
             "REQUEST_METHOD": "POST",
@@ -963,6 +1031,9 @@ class RequestsTests(SimpleTestCase):
             request.POST
 
     def test_multipart_with_header_fields_too_large(self):
+        """
+        Tests that a MultiPartParserError is raised when the total size of header fields in a multipart/form-data request exceeds the maximum allowed size.
+        """
         payload = FakePayload(
             "\r\n".join(
                 [
@@ -1037,6 +1108,9 @@ class RequestsTests(SimpleTestCase):
         # self.assertEqual(request.POST, {"name": ["Hello GĂŒnter"]})
 
     def test_set_encoding_clears_GET(self):
+        """
+        Checks the behavior of setting a custom encoding on a request, ensuring it correctly decodes query string parameters.
+        """
         payload = FakePayload("")
         request = WSGIRequest(
             {
@@ -1077,6 +1151,9 @@ class RequestsTests(SimpleTestCase):
         self.assertIs(request_copy.resolver_match, request.resolver_match)
 
     def test_deepcopy(self):
+        """
+        Tests that a deep copy of a request object does not share its session with the original request.
+        """
         request = RequestFactory().get("/")
         request.session = {}
         request_copy = copy.deepcopy(request)
@@ -1109,6 +1186,16 @@ class HostValidationTests(SimpleTestCase):
     )
     def test_http_get_host(self):
         # Check if X_FORWARDED_HOST is provided.
+        """
+
+        Determines the host of an incoming HTTP request.
+
+        This function retrieves the host from the request's meta data, prioritizing
+        the 'HTTP_HOST' header, and falling back to 'SERVER_NAME' and 'SERVER_PORT'
+        if necessary. It also validates the host against a list of allowed hosts,
+        raising a DisallowedHost exception if the host is not recognized.
+
+        """
         request = HttpRequest()
         request.META = {
             "HTTP_X_FORWARDED_HOST": "forward.com",
@@ -1179,6 +1266,17 @@ class HostValidationTests(SimpleTestCase):
     @override_settings(USE_X_FORWARDED_HOST=True, ALLOWED_HOSTS=["*"])
     def test_http_get_host_with_x_forwarded_host(self):
         # Check if X_FORWARDED_HOST is provided.
+        """
+        Tests the get_host method of an HttpRequest to ensure it correctly determines the host from the request's metadata.
+
+        The get_host method returns the hostname from the HTTP_X_FORWARDED_HOST header if it exists and USE_X_FORWARDED_HOST is True, 
+        otherwise it falls back to the HTTP_HOST header, and then to the SERVER_NAME. 
+
+        It also handles cases where a port number is present or absent, and validates the hostname to prevent HTTP Host header attacks. 
+
+        The test checks various legitimate hosts, including IPv4 and IPv6 addresses, as well as IDN domain names, and ensures that 
+        invalid hosts raise a DisallowedHost exception.
+        """
         request = HttpRequest()
         request.META = {
             "HTTP_X_FORWARDED_HOST": "forward.com",
@@ -1242,6 +1340,9 @@ class HostValidationTests(SimpleTestCase):
 
     @override_settings(USE_X_FORWARDED_PORT=False)
     def test_get_port(self):
+        """
+        Tests that the get_port method of an HttpRequest object returns the correct port number, defaulting to the SERVER_PORT setting when HTTP_X_FORWARDED_PORT is not used.
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_PORT": "8080",
@@ -1258,6 +1359,9 @@ class HostValidationTests(SimpleTestCase):
 
     @override_settings(USE_X_FORWARDED_PORT=True)
     def test_get_port_with_x_forwarded_port(self):
+        """
+        Tests the get_port method of an HttpRequest object to ensure it returns the correct port number when the USE_X_FORWARDED_PORT setting is enabled, prioritizing the HTTP_X_FORWARDED_PORT header if available, otherwise falling back to the SERVER_PORT setting.
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_PORT": "8080",
@@ -1394,6 +1498,9 @@ class BuildAbsoluteURITests(SimpleTestCase):
 
     def test_request_path_begins_with_two_slashes(self):
         # //// creates a request with a path beginning with //
+        """
+        Tests the `build_absolute_uri` method to ensure it correctly handles various input paths and joins them with the request's base URL, producing the expected absolute URI.
+        """
         request = self.factory.get("////absolute-uri")
         tests = (
             # location isn't provided
@@ -1460,6 +1567,10 @@ class RequestHeadersTests(SimpleTestCase):
         )
 
     def test_wsgi_request_headers_getitem(self):
+        """
+        Tests that the GETITEM method of WSGIRequest headers returns the expected values for various header keys, 
+        including case-insensitive and underscore-separated key variations.
+        """
         request = WSGIRequest(self.ENVIRON)
         self.assertEqual(request.headers["User-Agent"], "python-requests/1.2.0")
         self.assertEqual(request.headers["user-agent"], "python-requests/1.2.0")
@@ -1468,6 +1579,9 @@ class RequestHeadersTests(SimpleTestCase):
         self.assertEqual(request.headers["Content-Length"], "100")
 
     def test_wsgi_request_headers_get(self):
+        """
+        Tests the retrieval of request headers in a WSGI request, ensuring case-insensitivity and correct values.
+        """
         request = WSGIRequest(self.ENVIRON)
         self.assertEqual(request.headers.get("User-Agent"), "python-requests/1.2.0")
         self.assertEqual(request.headers.get("user-agent"), "python-requests/1.2.0")

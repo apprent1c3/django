@@ -19,6 +19,13 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         translation.trans_real._translations = {}
 
     def test_translated_regex_compiled_per_language(self):
+        """
+        .Test whether the compiled regex pattern is cached per language.
+
+            This function checks that the regex pattern is compiled only once for each language, 
+            and that subsequent requests for the same language return the same compiled pattern. 
+            It also verifies that the compiled pattern is correctly translated for each language.
+        """
         provider = RegexPattern(translation.gettext_lazy("^foo/$"))
         with translation.override("de"):
             de_compiled = provider.regex
@@ -35,6 +42,12 @@ class LocaleRegexDescriptorTests(SimpleTestCase):
         self.assertEqual(de_compiled, de_compiled_2)
 
     def test_nontranslated_regex_compiled_once(self):
+        """
+        Tests that a non-translated regex pattern is compiled only once across different languages.
+
+        Verifies that the compiled regex remains the same even when the language is changed, 
+        to prevent unnecessary recompilation of non-translated patterns.
+        """
         provider = RegexPattern("^foo/$")
         with translation.override("de"):
             de_compiled = provider.regex

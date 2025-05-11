@@ -56,6 +56,12 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
         super().startTest(test)
 
     def stopTest(self, test):
+        """
+        Stop a test and finalize logging.
+
+        Stops the test and removes the logger handler. If configured to show all output, 
+        it appends the debug SQL stream to the main stream, followed by a separator.
+        """
         super().stopTest(test)
         self.logger.removeHandler(self.handler)
         if self.showAll:
@@ -64,6 +70,9 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
             self.stream.writeln(self.separator2)
 
     def addError(self, test, err):
+        """
+        Adds an error to the list of errors, including any captured SQL output from the debug SQL stream, and updates the most recent error with the combined information.
+        """
         super().addError(test, err)
         if self.debug_sql_stream is None:
             # Error before tests e.g. in setUpTestData().
@@ -79,6 +88,14 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
         self.failures[-1] = self.failures[-1] + (self.debug_sql_stream.read(),)
 
     def addSubTest(self, test, subtest, err):
+        """
+
+        Adds a subtest to the test case and updates debug SQL stream for error handling.
+
+        If an error occurs, appends the captured debug SQL output to the corresponding
+        error or failure record for further investigation.
+
+        """
         super().addSubTest(test, subtest, err)
         if err is not None:
             self.debug_sql_stream.seek(0)
@@ -90,6 +107,9 @@ class DebugSQLTextTestResult(unittest.TextTestResult):
             errors[-1] = errors[-1] + (self.debug_sql_stream.read(),)
 
     def printErrorList(self, flavour, errors):
+        """
+        Prints a formatted list of errors, including a description of each test, the error message, and the debug SQL query, to the output stream for a given flavour of test.
+        """
         for test, err, sql_debug in errors:
             self.stream.writeln(self.separator1)
             self.stream.writeln("%s: %s" % (flavour, self.getDescription(test)))
@@ -121,6 +141,14 @@ class PDBDebugResult(unittest.TextTestResult):
         super().addSubTest(test, subtest, err)
 
     def debug(self, error):
+        """
+        Trigger interactive debugging via PDB when an error occurs.
+
+            Restores standard output, disables buffering, and opens a post-mortem
+            debugging session for the given error, allowing for step-by-step
+            inspection and analysis of the error's cause.
+
+        """
         self._restoreStdout()
         self.buffer = False
         exc_type, exc_value, traceback = error
@@ -147,6 +175,9 @@ class RemoteTestResult(unittest.TestResult):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the test result object, setting up default lists for tracking test outcomes, such as failures, errors, skipped tests, expected failures, and unexpected successes, and installs pickling support if available.
+        """
         super().__init__(*args, **kwargs)
         # Fake storage of results to reduce memory usage. These are used by the
         # unittest default methods, but here 'events' is used instead.
@@ -165,6 +196,9 @@ class RemoteTestResult(unittest.TestResult):
         # Make this class picklable by removing the file-like buffer
         # attributes. This is possible since they aren't used after unpickling
         # after being sent to ParallelTestSuite.
+        """
+        Returns the object's state, excluding transient attributes related to stdout and stderr buffering, for use in serialization or other state-saving operations.
+        """
         state = self.__dict__.copy()
         state.pop("_stdout_buffer", None)
         state.pop("_stderr_buffer", None)
@@ -211,6 +245,9 @@ with a cleaner failure message.
         # the root cause easier to figure out for users who aren't familiar
         # with the multiprocessing module. Since we're in a forked process,
         # our best chance to communicate with them is to print to stdout.
+        """
+        Checks if an exception is picklable and handles the logging of the failure case for the parallel test runner. If the exception is not picklable, it prints the original exception, the error encountered while trying to pickle it, and suggests re-running the test without parallelization to reproduce the failure and obtain a correct traceback.
+        """
         try:
             self._confirm_picklable(err)
         except Exception as exc:
@@ -264,6 +301,9 @@ failure and get a correct traceback.
             raise
 
     def check_subtest_picklable(self, test, subtest):
+        """
+        Checks if a subtest is picklable, printing an error message if it's not, and re-raises the exception.
+        """
         try:
             self._confirm_picklable(subtest)
         except Exception as exc:
@@ -303,6 +343,9 @@ failure and get a correct traceback.
     def addSubTest(self, test, subtest, err):
         # Follow Python's implementation of unittest.TestResult.addSubTest() by
         # not doing anything when a subtest is successful.
+        """
+        Adds a subtest to the given test, handling potential errors by checking their picklability and storing relevant information in the event log.
+        """
         if err is not None:
             # Call check_picklable() before check_subtest_picklable() since
             # check_picklable() performs the tblib check.
@@ -324,6 +367,14 @@ failure and get a correct traceback.
         # However we don't want tblib to be required for running the tests
         # when they pass or fail as expected. Drop the traceback when an
         # expected failure occurs.
+        """
+
+        Notifies the test result system of an expected failure in a test.
+
+        :param test: The test that failed as expected.
+        :param err: A tuple containing information about the error that occurred.
+
+        """
         if tblib is None:
             err = err[0], err[1], None
         self.check_picklable(test, err)
@@ -362,6 +413,13 @@ class RemoteTestRunner:
             self.resultclass = resultclass
 
     def run(self, test):
+        """
+        Run a test with the given result compiler and return the result.
+
+        :param test: Test to be executed with the compiled result
+        :return: Result of the test execution
+        :rtype: Result instance of the :attr:`resultclass` type
+        """
         result = self.resultclass()
         unittest.registerResult(result)
         result.failfast = self.failfast
@@ -486,6 +544,15 @@ class ParallelTestSuite(unittest.TestSuite):
     def __init__(
         self, subsuites, processes, failfast=False, debug_mode=False, buffer=False
     ):
+        """
+        Initializes a test runner with a set of subsuites to be executed.
+
+        :param subsuites: Suites of tests to be run
+        :param processes: Number of processes to use for test execution
+        :param failfast: Whether to stop testing as soon as a test fails
+        :param debug_mode: Whether to run tests in debug mode
+        :param buffer: Whether to buffer test output
+        """
         self.subsuites = subsuites
         self.processes = processes
         self.failfast = failfast
@@ -594,6 +661,12 @@ class Shuffler:
         return h.hexdigest()
 
     def __init__(self, seed=None):
+        """
+        Initializes the instance with a random seed.
+
+        The seed can be provided manually or generated automatically if not specified.
+        The source of the seed is tracked for reference.
+        """
         if seed is None:
             # Limit seeds to 10 digits for simpler output.
             seed = random.randint(0, 10**10 - 1)
@@ -667,6 +740,36 @@ class DiscoverRunner:
         durations=None,
         **kwargs,
     ):
+        """
+
+        Initialize the test runner with various settings.
+
+        This function sets up the test environment with parameters such as test pattern, verbosity, and debugging options.
+        It allows for customization of test execution, including interactive mode, fail-fast behavior, and parallel testing.
+        Additionally, it configures logging, test filtering, and timing options.
+
+        :param pattern: The test pattern to match
+        :param top_level: The top-level test module or package
+        :param verbosity: The verbosity level of test output
+        :param interactive: Whether to run tests in interactive mode
+        :param failfast: Whether to stop testing after the first failure
+        :param keepdb: Whether to keep the test database after testing
+        :param reverse: Whether to run tests in reverse order
+        :param debug_mode: Whether to enable debug mode
+        :param debug_sql: Whether to enable SQL debugging
+        :param parallel: The number of parallel test runners
+        :param tags: A set of tags to include in testing
+        :param exclude_tags: A set of tags to exclude from testing
+        :param test_name_patterns: A list of patterns to match test names
+        :param pdb: Whether to enable post-mortem debugging
+        :param buffer: Whether to buffer test output
+        :param enable_faulthandler: Whether to enable the fault handler
+        :param timing: Whether to measure test execution time
+        :param shuffle: Whether to shuffle the test order
+        :param logger: The logger to use for test output
+        :param durations: A dictionary to store test durations
+
+        """
         self.pattern = pattern
         self.top_level = top_level
         self.verbosity = verbosity
@@ -706,6 +809,10 @@ class DiscoverRunner:
 
     @classmethod
     def add_arguments(cls, parser):
+        """
+        Adds command-line arguments for customizing test suite execution to the given parser. 
+        These arguments control test discovery, execution order, debug settings, database handling, and output formatting.
+        """
         parser.add_argument(
             "--failfast",
             action="store_true",
@@ -846,6 +953,13 @@ class DiscoverRunner:
         unittest.installHandler()
 
     def setup_shuffler(self):
+        """
+        Configures and initializes a shuffler for randomization if shuffling is enabled.
+
+         Returns immediately if shuffling is disabled.
+
+         Sets up the instance's shuffler with a specified seed and logs the seed used for reproducibility.
+        """
         if self.shuffle is False:
             return
         shuffler = Shuffler(seed=self.shuffle)
@@ -854,6 +968,14 @@ class DiscoverRunner:
 
     @contextmanager
     def load_with_patterns(self):
+        """
+        Temporarily sets the test name patterns for the test loader to the specified patterns, restoring the original patterns when finished.
+
+        This context manager allows for the isolation of test loading to specific patterns without permanently altering the test loader's configuration.
+
+        :yield: The context in which the test loader uses the specified test name patterns.
+
+        """
         original_test_name_patterns = self.test_loader.testNamePatterns
         self.test_loader.testNamePatterns = self.test_name_patterns
         try:
@@ -863,6 +985,15 @@ class DiscoverRunner:
             self.test_loader.testNamePatterns = original_test_name_patterns
 
     def load_tests_for_label(self, label, discover_kwargs):
+        """
+        Loads tests for the given label, which can be a dotted module name or a path to a directory.
+
+         The function attempts to load tests from the label using various methods, such as importing the label as a module or searching for tests in the specified directory.
+
+         :param label: The label to load tests for
+         :param discover_kwargs: Keyword arguments to pass to the test discovery process
+         :return: A test suite containing the loaded tests
+        """
         label_as_path = os.path.abspath(label)
         tests = None
 
@@ -900,6 +1031,20 @@ class DiscoverRunner:
         return tests
 
     def build_suite(self, test_labels=None, **kwargs):
+        """
+
+        Builds a test suite based on the provided test labels and configuration.
+
+        The function discovers tests matching the specified labels and configuration, filters them by tags if required,
+        and reorders the tests according to the specified ordering strategy. It then constructs a test suite, which can be
+        executed sequentially or in parallel if parallelization is enabled.
+
+        :param test_labels: Optional list of test labels to include in the suite; if not provided, all tests in the current
+                            directory and subdirectories are included.
+        :param kwargs: Additional keyword arguments for test discovery.
+        :return: A constructed test suite.
+
+        """
         test_labels = test_labels or ["."]
 
         discover_kwargs = {}
@@ -994,6 +1139,17 @@ class DiscoverRunner:
         call_command("check", verbosity=self.verbosity, databases=databases)
 
     def run_suite(self, suite, **kwargs):
+        """
+
+        Run a test suite.
+
+        This method executes a set of tests defined in the given suite using the configured test runner.
+        It also handles logging of the shuffle seed used, if applicable.
+
+        :param suite: The test suite to be executed
+        :return: The result of the test suite execution
+
+        """
         kwargs = self.get_test_runner_kwargs()
         runner = self.test_runner(**kwargs)
         try:
@@ -1022,6 +1178,17 @@ class DiscoverRunner:
         )
 
     def _get_databases(self, suite):
+        """
+
+        Returns a dictionary of databases required by the given test suite.
+
+        The dictionary keys are database aliases, and the values indicate whether
+        serialized rollback is enabled for the corresponding database.
+
+        This function inspects each test case in the suite, determines the databases
+        it requires, and accumulates the results into a single dictionary.
+
+        """
         databases = {}
         for test in iter_test_cases(suite):
             test_databases = getattr(test, "databases", None)
@@ -1036,6 +1203,10 @@ class DiscoverRunner:
         return databases
 
     def get_databases(self, suite):
+        """
+        Returns the list of databases associated with the given suite, 
+        logging a debug message if any unused databases are detected.
+        """
         databases = self._get_databases(suite)
         unused_databases = [alias for alias in connections if alias not in databases]
         if unused_databases:
@@ -1114,6 +1285,9 @@ def find_top_level(top_level):
     # a directory in the cwd, which would be equally valid if considered as a
     # top-level module or as a directory path, unittest unfortunately prefers
     # the latter.
+    """
+    Returns the top-level package directory by traversing upwards from the given path until an __init__.py file is no longer found.
+    """
     while True:
         init_py = os.path.join(top_level, "__init__.py")
         if not os.path.exists(init_py):
@@ -1216,6 +1390,16 @@ def partition_suite_by_case(suite):
 
 
 def test_match_tags(test, tags, exclude_tags):
+    """
+
+    Determines whether a test matches a set of specified tags and does not match a set of excluded tags.
+
+    :param test: The test object to evaluate.
+    :param tags: A list of tags that the test must match.
+    :param exclude_tags: A list of tags that the test must not match.
+    :returns: True if the test matches the specified criteria, False otherwise.
+
+    """
     if isinstance(test, unittest.loader._FailedTest):
         # Tests that couldn't load always match to prevent tests from falsely
         # passing due e.g. to syntax errors.

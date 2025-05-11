@@ -27,6 +27,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
     request_factory = RequestFactory()
 
     def test_log_message(self):
+        """
+        Tests that WSGIRequestHandler logs messages with the correct log level based on HTTP status codes.
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
         handler = WSGIRequestHandler(request, "192.168.0.2", None)
@@ -51,6 +54,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
                         )
 
     def test_https(self):
+        """
+        Tests that the development server correctly logs an error when accessed over HTTPS.
+        """
         request = WSGIRequest(self.request_factory.get("/").environ)
         request.makefile = lambda *args, **kwargs: BytesIO()
 
@@ -109,6 +115,9 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertEqual(body, b"HTTP_SOME_HEADER:good")
 
     def test_no_body_returned_for_head_requests(self):
+        """
+        Tests that the WSGIRequestHandler correctly handles HEAD requests by not returning a response body. It verifies that the 'Content-Length' header is absent from the response and that the connection is kept alive.
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 
@@ -162,6 +171,12 @@ class WSGIRequestHandlerTestCase(SimpleTestCase):
         self.assertNotIn(b"Connection: close\r\n", lines)
 
     def test_non_zero_content_length_set_head_request(self):
+        """
+        Test that non-zero Content-Length is set in response to a HEAD request.
+
+        This test case ensures that the server responds with the correct Content-Length
+        header and no body in the response to a HEAD request, as per the HTTP specification.
+        """
         hello_world_body = b"<!DOCTYPE html><html><body>Hello World</body></html>"
         content_length = len(hello_world_body)
 

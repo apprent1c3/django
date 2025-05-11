@@ -111,6 +111,9 @@ class LineString(LinearGeometryMixin, GEOSGeometry):
     _get_single_internal = _get_single_external
 
     def _set_list(self, length, items):
+        """
+        Sets a list of coordinates into the geometry object, replacing its existing coordinates with the provided items, and optionally setting the spatial reference system identifier (SRID) if it is not None. The new geometry is then validated, and an exception is raised if it is invalid.
+        """
         ndim = self._cs.dims
         hasz = self._cs.hasz  # I don't understand why these are different
         srid = self.srid

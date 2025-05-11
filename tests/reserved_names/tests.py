@@ -30,6 +30,9 @@ class ReservedNameTests(TestCase):
         )
 
     def test_simple(self):
+        """
+        Tests the creation of Thing objects with simple data and verifies their attributes are set correctly.
+        """
         day1 = datetime.date(2005, 1, 1)
         t = Thing.objects.create(
             when="a",

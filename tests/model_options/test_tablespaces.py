@@ -40,6 +40,9 @@ class TablespacesTests(TransactionTestCase):
             model._meta.managed = True
 
     def tearDown(self):
+        """
+        Reverts changes made to model metadata after a test, restoring their original state to prevent interference with other tests.
+        """
         for model in Article, Authors, Reviewers, Scientist:
             model._meta.managed = False
 
@@ -57,6 +60,12 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_model(self):
+        """
+        Tests the generation of SQL for a model when using tablespaces.
+
+        Verifies that the correct tablespace is included in the SQL output, taking into
+        account the default index tablespace setting.=
+        """
         sql = sql_for_table(Scientist).lower()
         if settings.DEFAULT_INDEX_TABLESPACE:
             # 1 for the table
@@ -74,6 +83,12 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_indexed_field(self):
+        """
+        Tests that the tablespace for an indexed field is correctly included in the SQL query.
+
+        Verifies that the default index tablespace is referenced in the expected number of places in the SQL query
+        for an Article table, and that the tablespace for the index itself is also correctly specified.
+        """
         sql = sql_for_table(Article).lower()
         if settings.DEFAULT_INDEX_TABLESPACE:
             # 1 for the table
@@ -94,6 +109,11 @@ class TablespacesTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_tablespaces")
     def test_tablespace_for_many_to_many_field(self):
+        """
+        Tests the usage of tablespaces for many-to-many fields.
+
+        Checks whether the SQL generated for tables and indexes of models with many-to-many fields correctly includes or excludes the default index tablespace and the 'tbl_tbsp' and 'idx_tbsp' tablespaces as expected, based on the value of DEFAULT_INDEX_TABLESPACE in the settings.
+        """
         sql = sql_for_table(Authors).lower()
         # The join table of the ManyToManyField goes to the model's tablespace,
         # and its indexes too, unless DEFAULT_INDEX_TABLESPACE is set.

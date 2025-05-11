@@ -8,6 +8,9 @@ from django.test import SimpleTestCase
 
 class SplitDateTimeFieldTest(SimpleTestCase):
     def test_splitdatetimefield_1(self):
+        """
+        Tests the functionality of the SplitDateTimeField, ensuring it produces the correct widget and handles various input validation scenarios, including empty, malformed, and correct date and time inputs.
+        """
         f = SplitDateTimeField()
         self.assertIsInstance(f.widget, SplitDateTimeWidget)
         self.assertEqual(
@@ -30,6 +33,9 @@ class SplitDateTimeFieldTest(SimpleTestCase):
             f.clean(["hello", "07:30"])
 
     def test_splitdatetimefield_2(self):
+        """
+        Tests the validation and formatting of a SplitDateTimeField, ensuring correct datetime object creation from various input formats and handling of invalid inputs.
+        """
         f = SplitDateTimeField(required=False)
         self.assertEqual(
             datetime.datetime(2006, 1, 10, 7, 30),
@@ -60,6 +66,9 @@ class SplitDateTimeFieldTest(SimpleTestCase):
             f.clean(["", "07:30"])
 
     def test_splitdatetimefield_changed(self):
+        """
+        Tests that SplitDateTimeField correctly detects changes in its value, handling different input formats.
+        """
         f = SplitDateTimeField(input_date_formats=["%d/%m/%Y"])
         self.assertFalse(
             f.has_changed(["11/01/2012", "09:18:15"], ["11/01/2012", "09:18:15"])

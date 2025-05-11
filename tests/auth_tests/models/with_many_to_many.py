@@ -8,6 +8,14 @@ class Organization(models.Model):
 
 class CustomUserWithM2MManager(BaseUserManager):
     def create_superuser(self, username, orgs, password):
+        """
+        Create a new superuser account with the specified username, organizations, and password.
+
+            :param username: The username for the superuser account.
+            :param orgs: The organizations to associate with the superuser account.
+            :param password: The password for the superuser account.
+            :return: The newly created superuser object.
+        """
         user = self.model(username=username)
         user.set_password(password)
         user.save(using=self._db)

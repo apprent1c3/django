@@ -13,6 +13,14 @@ from .models import Tag
 @skipUnlessDBFeature("supports_explaining_query_execution")
 class ExplainTests(TestCase):
     def test_basic(self):
+        """
+        Tests the explain functionality on various querysets.
+
+        Checks that explain generates valid output in all supported formats and 
+        ensures it executes a single query. Also verifies the explain result 
+        when no format is specified and when using select_for_update if supported.
+
+        """
         querysets = [
             Tag.objects.filter(name="test"),
             Tag.objects.filter(name="test").select_related("parent"),
@@ -63,6 +71,12 @@ class ExplainTests(TestCase):
             Tag.objects.explain(**{"TEST": 1, "TEST2": 1})
 
     def test_unknown_format(self):
+        """
+        Tests that an invalid format raises a ValueError when using explain on a QuerySet.
+
+        Verifies that the error message includes the list of supported formats if available, 
+        or a note that the database does not support any formats.
+        """
         msg = "DOES NOT EXIST is not a recognized format."
         if connection.features.supported_explain_formats:
             msg += " Allowed formats: %s" % ", ".join(
@@ -75,6 +89,12 @@ class ExplainTests(TestCase):
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
     def test_postgres_options(self):
+        """
+        Tests various EXPLAIN options for PostgreSQL database queries.
+
+        Verifies that the provided options are correctly included in the EXPLAIN output.
+
+        """
         qs = Tag.objects.filter(name="test")
         test_options = [
             {"COSTS": False, "BUFFERS": True, "ANALYZE": True},
@@ -97,6 +117,9 @@ class ExplainTests(TestCase):
                     self.assertIn(option, captured_queries[0]["sql"])
 
     def test_multi_page_text_explain(self):
+        """
+        Tests whether the database backend correctly supports the TEXT explain format by generating a large query with multiple pages of results and verifying that the explain output contains enough pages.
+        """
         if "TEXT" not in connection.features.supported_explain_formats:
             self.skipTest("This backend does not support TEXT format.")
 
@@ -106,6 +129,9 @@ class ExplainTests(TestCase):
         self.assertGreaterEqual(result.count("\n"), 100)
 
     def test_option_sql_injection(self):
+        """
+        Tests that the explain method raises a ValueError when an option name is potentially malicious, specifically in cases that resemble SQL injection attacks.
+        """
         qs = Tag.objects.filter(name="test")
         options = {"SUMMARY true) SELECT 1; --": True}
         msg = "Invalid option name: 'SUMMARY true) SELECT 1; --'"
@@ -113,6 +139,13 @@ class ExplainTests(TestCase):
             qs.explain(**options)
 
     def test_invalid_option_names(self):
+        """
+        Tests that the explain method raises a ValueError for invalid option names.
+
+        Validates that a range of invalid option names, including those with special characters,
+        spaces, and non-ASCII characters, are correctly rejected and raise an informative error
+        message with the invalid option name provided.
+        """
         qs = Tag.objects.filter(name="test")
         tests = [
             'opt"ion',
@@ -138,6 +171,9 @@ class ExplainTests(TestCase):
     def test_mysql_text_to_traditional(self):
         # Ensure these cached properties are initialized to prevent queries for
         # the MariaDB or MySQL version during the QuerySet evaluation.
+        """
+        Tests MySQL's ability to explain queries in traditional format.
+        """
         connection.features.supported_explain_formats
         with CaptureQueriesContext(connection) as captured_queries:
             Tag.objects.filter(name="test").explain(format="text")
@@ -148,6 +184,17 @@ class ExplainTests(TestCase):
         connection.vendor == "mysql", "MariaDB and MySQL >= 8.0.18 specific."
     )
     def test_mysql_analyze(self):
+        """
+        Tests the explain analyze functionality for MySQL, specifically for versions 
+        that support the ANALYZE or EXPLAIN ANALYZE syntax.
+
+        This test case verifies that the correct SQL query is generated when using the 
+        explain method with analyze=True, and that the query format can be specified 
+        as JSON. 
+
+        The test is skipped unless the database connection is to a MySQL or MariaDB 
+        database. 
+        """
         qs = Tag.objects.filter(name="test")
         with CaptureQueriesContext(connection) as captured_queries:
             qs.explain(analyze=True)

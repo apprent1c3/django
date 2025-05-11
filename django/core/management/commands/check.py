@@ -11,6 +11,19 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+
+        Add command-line arguments to the parser for customizing the execution of checks.
+
+        The supported arguments include:
+            - Application label(s) to check
+            - Tags to filter checks
+            - Options to list available tags, check deployment settings, and specify failure levels
+            - Databases to run checks against
+
+        These arguments allow users to tailor the checks to their specific needs and environments.
+
+        """
         parser.add_argument("args", metavar="app_label", nargs="*")
         parser.add_argument(
             "--tag",
@@ -50,6 +63,21 @@ class Command(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+        Handle system checks for specified applications or tags.
+
+        Performs system checks and reports on any errors found. Can be used to list available tags with the --list-tags option or to run checks on specific applications or tags. The --deploy option determines whether to include deployment checks.
+
+        The function takes application labels and options as input and returns check results, either directly or by raising an error if an invalid tag is specified.
+
+        Options:
+            - deploy: Whether to include deployment checks.
+            - list_tags: Whether to list available tags.
+            - tags: List of tags to run checks for.
+            - fail_level: The level at which to fail the check.
+            - databases: List of databases to run checks on.
+
+        """
         include_deployment_checks = options["deploy"]
         if options["list_tags"]:
             self.stdout.write(

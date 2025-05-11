@@ -5,6 +5,9 @@ from django.test import SimpleTestCase
 
 class MultipleChoiceFieldTest(SimpleTestCase):
     def test_multiplechoicefield_1(self):
+        """
+        Tests the MultipleChoiceField by verifying required validation, valid value cleaning, and error handling for different input types, including empty values, strings, lists, and tuples with valid and invalid choices.
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")])
         with self.assertRaisesMessage(ValidationError, "'This field is required.'"):
             f.clean("")
@@ -26,6 +29,11 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_2(self):
+        """
+        Tests the MultipleChoiceField to ensure correct cleaning and validation of input values.
+
+        The test covers various input scenarios, including empty values, single and multiple choices, and invalid inputs, to verify that the field behaves as expected and raises the appropriate validation errors.
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two")], required=False)
         self.assertEqual([], f.clean(""))
         self.assertEqual([], f.clean(None))
@@ -43,6 +51,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["3"])
 
     def test_multiplechoicefield_3(self):
+        """
+        Tests the MultipleChoiceField with nested and flat choices to ensure proper cleaning and validation of input values.
+        """
         f = MultipleChoiceField(
             choices=[
                 ("Numbers", (("1", "One"), ("2", "Two"))),
@@ -64,6 +75,9 @@ class MultipleChoiceFieldTest(SimpleTestCase):
             f.clean(["1", "6"])
 
     def test_multiplechoicefield_changed(self):
+        """
+        Tests the has_changed method of MultipleChoiceField, ensuring it correctly detects changes in field values.
+        """
         f = MultipleChoiceField(choices=[("1", "One"), ("2", "Two"), ("3", "Three")])
         self.assertFalse(f.has_changed(None, None))
         self.assertFalse(f.has_changed([], None))

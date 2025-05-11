@@ -114,6 +114,9 @@ class FeedgeneratorTests(SimpleTestCase):
     # Two regression tests for #14202
 
     def test_feed_without_feed_url_gets_rendered_without_atom_link(self):
+        """
+        Tests the rendering of an RSS feed when no explicit feed URL is specified, verifying that the feed's content does not contain an Atom link or a self-referential link.
+        """
         feed = feedgenerator.Rss201rev2Feed("title", "/link/", "descr")
         self.assertIsNone(feed.feed["feed_url"])
         feed_content = feed.writeString("utf-8")
@@ -122,6 +125,9 @@ class FeedgeneratorTests(SimpleTestCase):
         self.assertNotIn('rel="self"', feed_content)
 
     def test_feed_with_feed_url_gets_rendered_with_atom_link(self):
+        """
+        Verifies that an RSS feed with a specified feed URL is correctly rendered with an Atom link.
+        """
         feed = feedgenerator.Rss201rev2Feed(
             "title", "/link/", "descr", feed_url="/feed/"
         )
@@ -152,6 +158,9 @@ class FeedgeneratorTests(SimpleTestCase):
                 )
 
     def test_stylesheet_keeps_lazy_urls(self):
+        """
+        Tests that creating a Stylesheet with a lazy URL does not immediately evaluate the URL, but rather delays it until the stylesheet is serialized as a string.
+        """
         m = mock.Mock(return_value="test.css")
         stylesheet = feedgenerator.Stylesheet(SimpleLazyObject(m))
         m.assert_not_called()

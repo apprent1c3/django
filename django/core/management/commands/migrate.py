@@ -21,6 +21,11 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        Add command line arguments to a parser for database migration operations.
+
+        The arguments allow users to customize the migration process, including options to skip system checks, specify the application label and migration name, control user input, select the database, and choose between applying or faking migrations. Additional options enable features such as showing a plan of actions, running syncdb, checking for unapplied migrations, and pruning nonexistent migrations.
+        """
         parser.add_argument(
             "--skip-checks",
             action="store_true",
@@ -96,6 +101,9 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *args, **options):
+        """
+        This function handles the migration process for a Django application. It takes various options, including the database to use, verbosity level, and whether to skip checks or run in interactive mode. It checks for conflicting migrations, prepares the database, and then applies the necessary migrations to bring the database up to date. The function can also be used to prune unused migrations, plan migrations without applying them, or check for unapplied migrations. It emits signals before and after the migration process to allow other parts of the application to react to the changes.
+        """
         database = options["database"]
         if not options["skip_checks"]:
             self.check(databases=[database])
@@ -391,6 +399,13 @@ class Command(BaseCommand):
         )
 
     def migration_progress_callback(self, action, migration=None, fake=False):
+        """
+        Reports on the progress of a database migration.
+
+        Provides output to the console for various stages of the migration process,
+        including applying, unapplying, and rendering model states, with optional timing
+        information based on verbosity level and whether the migration is being faked.
+        """
         if self.verbosity >= 1:
             compute_time = self.verbosity > 1
             if action == "apply_start":

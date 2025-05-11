@@ -115,6 +115,9 @@ class PickleabilityTestCase(TestCase):
         self.assertEqual(original, reloaded)
 
     def test_model_pickle_dynamic(self):
+        """
+        Tests the ability to pickle and unpickle a dynamically created subclass of Event, ensuring that the original and reloaded instances are equal and the class type is preserved.
+        """
         class Meta:
             proxy = True
 
@@ -140,6 +143,9 @@ class PickleabilityTestCase(TestCase):
         )
 
     def test_pickle_prefetch_related_idempotence(self):
+        """
+        Tests that prefetching related objects in a QuerySet remains idempotent after pickling and unpickling, ensuring the same results are returned each time the pickled QuerySet is loaded.
+        """
         g = Group.objects.create(name="foo")
         groups = Group.objects.prefetch_related("event_set")
 
@@ -154,6 +160,9 @@ class PickleabilityTestCase(TestCase):
     def test_pickle_prefetch_queryset_usable_outside_of_prefetch(self):
         # Prefetch shouldn't affect the fetch-on-pickle behavior of the
         # queryset passed to it.
+        """
+        Tests if a prefetched queryset remains usable outside of its prefetch context after pickling and unpickling, ensuring that no additional database queries are executed when its results are accessed.
+        """
         Group.objects.create(name="foo")
         events = Event.objects.order_by("id")
         Group.objects.prefetch_related(models.Prefetch("event_set", queryset=events))
@@ -171,6 +180,9 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(groups2.filter(id__gte=0), [g])
 
     def test_pickle_prefetch_queryset_not_evaluated(self):
+        """
+        Tests that a prefetched queryset is not re-evaluated when pickled and unpickled, ensuring that the queryset cache is preserved, thus avoiding additional database queries.
+        """
         Group.objects.create(name="foo")
         groups = Group.objects.prefetch_related(
             models.Prefetch("event_set", queryset=Event.objects.order_by("id"))
@@ -194,6 +206,12 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(m2ms, [m2m])
 
     def test_pickle_boolean_expression_in_Q__queryset(self):
+        """
+
+        Tests the functionality of pickling a QuerySet that filters groups based on the existence of related events.
+        Verifies that the pickled QuerySet returns the same results as the original when unpickled.
+
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.filter(
@@ -207,6 +225,9 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(groups2, [group])
 
     def test_pickle_exists_queryset_still_usable(self):
+        """
+        Tests that a queryset remains usable after being pickled and unpickled, specifically when using annotation with exists subquery.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -218,6 +239,9 @@ class PickleabilityTestCase(TestCase):
         self.assertSequenceEqual(groups2.filter(has_event=True), [group])
 
     def test_pickle_exists_queryset_not_evaluated(self):
+        """
+        Tests that a queryset with an Exists annotation can be pickled without triggering additional database queries after the initial evaluation.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -230,6 +254,9 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_exists_kwargs_queryset_not_evaluated(self):
+        """
+        Tests that a queryset with Exists annotation can be pickled, without causing additional database queries.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -242,6 +269,10 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_subquery_queryset_not_evaluated(self):
+        """
+        Tests that a queryset with a subquery annotation is not evaluated when pickled, 
+        preventing unnecessary database queries during the unpickling process.
+        """
         group = Group.objects.create(name="group")
         Event.objects.create(title="event", group=group)
         groups = Group.objects.annotate(
@@ -254,6 +285,11 @@ class PickleabilityTestCase(TestCase):
             self.assert_pickles(groups)
 
     def test_pickle_filteredrelation(self):
+        """
+
+        Test that a FilteredRelation can be pickled and loaded without losing its annotation.
+
+        """
         group = Group.objects.create(name="group")
         event_1 = Event.objects.create(title="Big event", group=group)
         event_2 = Event.objects.create(title="Small event", group=group)
@@ -275,6 +311,12 @@ class PickleabilityTestCase(TestCase):
         self.assertEqual(groups.get().sum_number, 5)
 
     def test_pickle_filteredrelation_m2m(self):
+        """
+
+        Tests the pickling and unpickling of a Django ORM query that uses a FilteredRelation
+        to annotate a model, ensuring that the filtered relation and subsequent aggregations are properly preserved.
+
+        """
         group = Group.objects.create(name="group")
         m2mmodel = M2MModel.objects.create(added=datetime.date(2020, 1, 1))
         m2mmodel.groups.add(group)
@@ -305,6 +347,9 @@ class PickleabilityTestCase(TestCase):
 
     def test_annotation_values_list(self):
         # values_list() is reloaded to values() when using a pickled query.
+        """
+        enslies to test whether Annotation values lists can be properly pickled and unpickled to store and retrieve query results from the database, ensuring data integrity by comparing reloaded query results with expected values.
+        """
         tests = [
             Happening.objects.values_list("name"),
             Happening.objects.values_list("name", flat=True),
@@ -377,6 +422,9 @@ class InLookupTests(TestCase):
         self.assertSequenceEqual(reloaded_events, [self.e1])
 
     def test_in_lookup_query_evaluation(self):
+        """
+        Tests that an `Event` query using `in_lookup` can be pickled and reloaded without executing any database queries, and that the resulting events are correctly filtered.
+        """
         events = Event.objects.filter(group__in=Group.objects.values("id").query)
 
         with self.assertNumQueries(0):

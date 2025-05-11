@@ -2,6 +2,12 @@ from django.db import migrations
 
 
 def assert_foo_contenttype_not_cached(apps, schema_editor):
+    """
+    Verifies that the 'contenttypes_tests.Foo' ContentType is not cached or has been correctly updated.
+
+    This function checks the status of the 'contenttypes_tests.Foo' ContentType to ensure it is not lingering in an invalid state.
+    It raises an AssertionError if the ContentType is cached or has an incorrect model attribute.
+    """
     ContentType = apps.get_model("contenttypes", "ContentType")
     try:
         content_type = ContentType.objects.get_by_natural_key(

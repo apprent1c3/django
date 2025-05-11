@@ -138,6 +138,13 @@ class Serializer(base.Serializer):
             ):
                 # If the objects in the m2m have a natural key, use it
                 def handle_m2m(value):
+                    """
+
+                    Represents a many-to-many relationship by generating an XML element for the given object.
+
+                     SERIALizes the object's natural key into a nested XML structure, allowing for serialization of complex relationships between objects.
+
+                    """
                     natural = value.natural_key()
                     # Iterable natural keys are rolled out as subelements
                     self.xml.startElement("object", {})
@@ -196,6 +203,17 @@ class Deserializer(base.Deserializer):
         ignorenonexistent=False,
         **options,
     ):
+        """
+
+        Initializes the database importer from an XML stream or string.
+
+        :param stream_or_string: The input XML stream or string to parse.
+        :param using: The database alias to use, defaults to the default database alias.
+        :param ignorenonexistent: Whether to ignore non-existent records during import, defaults to False.
+
+        This initializer sets up the internal parser and database connection for subsequent import operations.
+
+        """
         super().__init__(stream_or_string, **options)
         self.handle_forward_references = options.pop("handle_forward_references", False)
         self.event_stream = pulldom.parse(self.stream, self._make_parser())
@@ -207,6 +225,11 @@ class Deserializer(base.Deserializer):
         return DefusedExpatParser()
 
     def __next__(self):
+        """
+        Iterates through the event stream and yields the next object element, 
+        handling its contents when encountered. If no more objects are found, 
+        raises a StopIteration exception.
+        """
         for event, node in self.event_stream:
             if event == "START_ELEMENT" and node.nodeName == "object":
                 self.event_stream.expandNode(node)
@@ -340,6 +363,9 @@ class Deserializer(base.Deserializer):
         if hasattr(default_manager, "get_by_natural_key"):
 
             def m2m_convert(n):
+                """
+                Converts an XML node representing a many-to-many field into a primary key of the related object.
+                """
                 keys = n.getElementsByTagName("natural")
                 if keys:
                     # If there are 'natural' subelements, it must be a natural key
@@ -439,6 +465,9 @@ class DefusedExpatParser(_ExpatParser):
         raise ExternalReferenceForbidden(context, base, sysid, pubid)
 
     def reset(self):
+        """
+        Resets the parser state, reinitializing handlers for document type declarations, entity declarations, and external entity references.
+        """
         _ExpatParser.reset(self)
         parser = self._parser
         parser.StartDoctypeDeclHandler = self.start_doctype_decl
@@ -472,6 +501,13 @@ class EntitiesForbidden(DefusedXmlException):
     """Entity definition is forbidden."""
 
     def __init__(self, name, value, base, sysid, pubid, notation_name):
+        """
+        Initializes a notation object with the given parameters.
+
+        The initialized object represents a notation in an XML context, capturing its name,
+        value, base URI, system identifier, public identifier, and notation name.
+
+        """
         super().__init__()
         self.name = name
         self.value = value
@@ -489,6 +525,15 @@ class ExternalReferenceForbidden(DefusedXmlException):
     """Resolving an external reference is forbidden."""
 
     def __init__(self, context, base, sysid, pubid):
+        """
+        Initializes an instance with basic configuration settings. 
+
+        :param context: The context for this instance.
+        :param base: The base setting for this instance.
+        :param sysid: The system identifier.
+        :param pubid: The public identifier. 
+        This method sets up the initial state of the object, storing the provided context, base, sysid, and pubid for later use.
+        """
         super().__init__()
         self.context = context
         self.base = base

@@ -87,6 +87,15 @@ def _get_varchar_column(data):
 
 
 def ensure_timezone(connection, ops, timezone_name):
+    """
+    Ensures the specified timezone is set for the given database connection.
+
+    :param connection: The database connection to modify.
+    :param ops: Operations object containing the SQL to set the timezone.
+    :param timezone_name: The name of the timezone to be set.
+    :rtype: bool
+    :returns: True if the timezone was changed, False otherwise.
+    """
     conn_timezone_name = connection.info.parameter_status("TimeZone")
     if timezone_name and conn_timezone_name != timezone_name:
         with connection.cursor() as cursor:
@@ -96,6 +105,9 @@ def ensure_timezone(connection, ops, timezone_name):
 
 
 def ensure_role(connection, ops, role_name):
+    """
+    Sets the role for the current database connection if a role name is provided.
+    """
     if role_name:
         with connection.cursor() as cursor:
             sql = ops.compose_sql("SET ROLE %s", [role_name])
@@ -201,6 +213,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @property
     def pool(self):
+        """
+        Returns a database connection pool instance if pooling is enabled and configured for the current database alias.
+
+        The pool is created lazily and is stored in the internal cache. If pooling is not enabled or the database alias does not support pooling, returns None.
+
+        Raises ImproperlyConfigured if persistent connections are used with pooling or if the psycopg[pool] module is not installed.
+        """
         pool_options = self.settings_dict["OPTIONS"].get("pool")
         if self.alias == NO_DB_ALIAS or not pool_options:
             return None
@@ -253,6 +272,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return divmod(self.pg_version, 10000)
 
     def get_connection_params(self):
+        """
+        Args are inferred from the object state. Returns a dictionary of parameters to establish a database connection, validating and transforming settings from the object instance to ensure compatibility with PostgreSQL.
+        """
         settings_dict = self.settings_dict
         # None may be used to connect to the default 'postgres' db
         if settings_dict["NAME"] == "" and not settings_dict["OPTIONS"].get("service"):
@@ -326,6 +348,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         #   default when no value is explicitly specified in options.
         # - before calling _set_autocommit() because if autocommit is on, that
         #   will set connection.isolation_level to ISOLATION_LEVEL_AUTOCOMMIT.
+        """
+        Establishes a new database connection.
+
+        Retrieves a connection from the pool if available, or creates a new one.
+        Applies the specified transaction isolation level if configured.
+        Returns the established database connection.
+        """
         options = self.settings_dict["OPTIONS"]
         set_isolation_level = False
         try:
@@ -383,6 +412,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return commit_role or commit_tz
 
     def _close(self):
+        """
+        Closes the current database connection, returning it to the connection pool if one is in use, or closing it otherwise.
+        """
         if self.connection is not None:
             # `wrap_database_errors` only works for `putconn` as long as there
             # is no `reset` function set in the pool because it is deferred
@@ -399,6 +431,13 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                     return self.connection.close()
 
     def init_connection_state(self):
+        """
+
+        Initializes the connection state, configuring the connection and committing changes if necessary.
+
+        This method extends the base class initialization to handle connection setup and autocommit mode.
+
+        """
         super().init_connection_state()
 
         if self.connection is not None and not self.pool:
@@ -409,6 +448,17 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def create_cursor(self, name=None):
+        """
+        Create a database cursor for executing SQL queries.
+
+        The cursor can be server-side or client-side, depending on the database settings.
+        The function also handles timezone settings for Django applications.
+
+        :param name: Optional name for a named cursor.
+        :rtype: A database cursor object.
+        :return: A cursor object ready to execute SQL queries.
+
+        """
         if name:
             if is_psycopg3 and (
                 self.settings_dict["OPTIONS"].get("server_side_binding") is not True
@@ -447,6 +497,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def chunked_cursor(self):
+        """
+        Gets a new named cursor instance, incrementing the internal counter for each call, 
+        and ensuring uniqueness across threads and asynchronous tasks.
+        """
         self._named_cursor_idx += 1
         # Get the current async task
         # Note that right now this is behind @async_unsafe, so this is
@@ -487,6 +541,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
             cursor.execute("SET CONSTRAINTS ALL DEFERRED")
 
     def is_usable(self):
+        """
+        Checks whether the database connection is usable by attempting a simple query, returning True if successful and False otherwise.
+        """
         if self.connection is None:
             return False
         try:
@@ -506,6 +563,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @contextmanager
     def _nodb_cursor(self):
+        """
+        Context manager for obtaining a database cursor, handling connectivity issues by falling back to the first available PostgreSQL database if the default 'postgres' database is inaccessible.
+        """
         cursor = None
         try:
             with super()._nodb_cursor() as cursor:
@@ -559,6 +619,13 @@ if is_psycopg3:
         """
 
         def callproc(self, name, args=None):
+            """
+            Calls a stored procedure with the given name and arguments.
+
+            :param name: The name of the procedure to call
+            :param args: Optional list of arguments to pass to the procedure
+            :return: The list of arguments passed to the procedure
+            """
             if not isinstance(name, sql.Identifier):
                 name = sql.Identifier(name)
 

@@ -33,6 +33,13 @@ fully_decorated.anything = "Expected __dict__"
 
 def compose(*functions):
     # compose(f, g)(*args, **kwargs) == f(g(*args, **kwargs))
+    """
+    .Compose multiple functions into a single function.
+
+    This function takes any number of functions as arguments and returns a new function 
+    that applies these functions sequentially from right to left. It enables the 
+    creation of complex functions by combining simpler ones.
+    """
     functions = list(reversed(functions))
 
     def _inner(*args, **kwargs):
@@ -171,6 +178,9 @@ class MethodDecoratorTests(SimpleTestCase):
     """
 
     def test_preserve_signature(self):
+        """
+        Tests that the simple decorator preserves the original function signature when applied to an instance method.
+        """
         class Test:
             @simple_dec_m
             def say(self, arg):
@@ -181,6 +191,10 @@ class MethodDecoratorTests(SimpleTestCase):
     def test_preserve_attributes(self):
         # Sanity check myattr_dec and myattr2_dec
         @myattr_dec
+        """
+        Test that various decorator combinations preserve attributes on functions and methods, 
+        including when applied to classes and instances, while also maintaining the original function's docstring and name.
+        """
         def func():
             pass
 
@@ -266,6 +280,9 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(obj.method(), True)
 
     def test_bad_iterable(self):
+        """
+        Tests that attempting to use a set of decorators with method_decorator raises a TypeError, as sets are not subscriptable.
+        """
         decorators = {myattr_dec_m, myattr2_dec_m}
         msg = "'set' object is not subscriptable"
         with self.assertRaisesMessage(TypeError, msg):
@@ -278,6 +295,9 @@ class MethodDecoratorTests(SimpleTestCase):
 
     # Test for argumented decorator
     def test_argumented(self):
+        """
+        Checks that the method decorator correctly overrides the method's return value when applied to a class method.
+        """
         class Test:
             @method_decorator(ClsDec(False))
             def method(self):
@@ -286,6 +306,9 @@ class MethodDecoratorTests(SimpleTestCase):
         self.assertIs(Test().method(), False)
 
     def test_descriptors(self):
+        """
+         Tests the application of decorators to descriptors and ensures they work correctly with instance methods, covering descriptor and bound wrapper interactions.
+        """
         def original_dec(wrapped):
             def _wrapped(arg):
                 return wrapped(arg)
@@ -418,6 +441,14 @@ class MethodDecoratorTests(SimpleTestCase):
 
         def decorator(func):
             @wraps(func)
+            """
+
+            Preserves the original function's name and module information when applied as a decorator.
+
+            This decorator is used to maintain the metadata of the original function, 
+            enabling accurate identification and logging of function calls.
+
+            """
             def inner(*args, **kwargs):
                 nonlocal func_name, func_module
                 func_name = getattr(func, "__name__", None)

@@ -60,6 +60,13 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     data_types_reverse = FlexibleFieldLookupDict()
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the type of field based on the provided data type and description.
+
+        This method overrides the base implementation to apply additional field type overrides, 
+        specifically changing integer-like fields to AutoField when they represent a primary key, 
+        and applying JSONField when a JSON constraint is present.
+        """
         field_type = super().get_field_type(data_type, description)
         if description.pk and field_type in {
             "BigIntegerField",
@@ -169,6 +176,11 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return [name for _, name, *_, pk in cursor.fetchall() if pk]
 
     def _parse_column_or_constraint_definition(self, tokens, columns):
+        """
+        Parses a column or constraint definition from SQL tokens, identifying the constraint type, name, and affected columns.
+
+        Returns a tuple containing the constraint name, unique constraint definition, check constraint definition, and the current token.
+        """
         token = None
         is_constraint_definition = None
         field_name = None
@@ -271,6 +283,14 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     def _parse_table_constraints(self, sql, columns):
         # Check constraint parsing is based of SQLite syntax diagram.
         # https://www.sqlite.org/syntaxdiagrams.html#table-constraint
+        """
+        Parses table constraints from a SQL statement, extracting constraint names and definitions.
+
+        Returns a dictionary of constraint names mapped to their corresponding definitions.
+        The function handles both named and unnamed constraints, assigning unique identifiers
+        to unnamed constraints. The parsed constraints include information about unique and check constraints.
+
+        """
         statement = sqlparse.parse(sql)[0]
         constraints = {}
         unnamed_constrains_index = 0
@@ -405,6 +425,14 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return constraints
 
     def _get_index_columns_orders(self, sql):
+        """
+        Retrieve column ordering instructions (ASC/DESC) from an SQL query.
+
+        Extracts column order information from the parentheses in the SQL string,
+        splitting and parsing the contents to determine the order of each column.
+        Returns a list of 'ASC' or 'DESC' ordering instructions, or None if no parentheses
+        are found in the SQL query.
+        """
         tokens = sqlparse.parse(sql)[0]
         for token in tokens:
             if isinstance(token, sqlparse.sql.Parenthesis):
@@ -413,6 +441,15 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return None
 
     def _get_column_collations(self, cursor, table_name):
+        """
+        Extracts column collations from an SQLite table.
+
+        The function queries the sqlite_master table to obtain the SQL statement that created the specified table, 
+        then parses this statement to extract the column names and their corresponding collations. 
+
+        Returns a dictionary where the keys are column names and the values are their respective collations, 
+        or None if no collation is specified.
+        """
         row = cursor.execute(
             """
             SELECT sql

@@ -82,6 +82,11 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(result, data)
 
     def test_smart_bytes(self):
+        """
+
+        Converts an object into bytes, handling various input types such as strings, lazy translation objects, and other objects.
+
+        """
         class Test:
             def __str__(self):
                 return "ŠĐĆŽćžšđ"
@@ -96,6 +101,9 @@ class TestEncodingUtils(SimpleTestCase):
         self.assertEqual(smart_bytes("foo"), b"foo")
 
     def test_smart_str(self):
+        """
+        Converts an object to its string representation, handling lazy translation objects and non-ASCII characters correctly.
+        """
         class Test:
             def __str__(self):
                 return "ŠĐĆŽćžšđ"
@@ -115,6 +123,9 @@ class TestEncodingUtils(SimpleTestCase):
     def test_repercent_broken_unicode_recursion_error(self):
         # Prepare a string long enough to force a recursion error if the tested
         # function uses recursion.
+        """
+        Tests that the repercent_broken_unicode function correctly handles large inputs without raising a RecursionError, ensuring it can process broken Unicode sequences up to the system's recursion limit.
+        """
         data = b"\xfc" * sys.getrecursionlimit()
         try:
             self.assertEqual(
@@ -124,6 +135,9 @@ class TestEncodingUtils(SimpleTestCase):
             self.fail("Unexpected RecursionError raised.")
 
     def test_repercent_broken_unicode_small_fragments(self):
+        """
+        Tests the repcent_broken_unicode function to ensure it correctly handles and encodes broken Unicode sequences in small data fragments. Verifies that the function's output matches the expected result and that it properly decodes the input paths during the encoding process.
+        """
         data = b"test\xfctest\xfctest\xfc"
         decoded_paths = []
 
@@ -153,6 +167,11 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
         self.assertEqual(filepath_to_uri(Path("upload\\test.png")), "upload/test.png")
 
     def test_iri_to_uri(self):
+        """
+        Tests the conversion of Internationalized Resource Identifiers (IRIs) to Uniform Resource Identifiers (URIs).
+
+        Verifies that the iri_to_uri function correctly handles a variety of input cases, including special characters and Unicode sequences, and ensures that consecutive conversions produce the same result.
+        """
         cases = [
             # Valid UTF-8 sequences are encoded.
             ("red%09rosé#red", "red%09ros%C3%A9#red"),
@@ -175,6 +194,13 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(iri_to_uri(iri_to_uri(iri)), uri)
 
     def test_uri_to_iri(self):
+        """
+
+        Test the conversion of a URI to an IRI (Internationalized Resource Identifier).
+        Verifies that the uri_to_iri function correctly handles various input cases,
+        including those with special characters and percent-encoded values.
+
+        """
         cases = [
             (None, None),
             # Valid UTF-8 sequences are decoded.
@@ -202,6 +228,9 @@ class TestRFC3987IEncodingUtils(unittest.TestCase):
                 self.assertEqual(uri_to_iri(uri_to_iri(uri)), iri)
 
     def test_complementarity(self):
+        """
+        Tests the complementarity of uri_to_iri and iri_to_uri conversions by checking if a URI/IRI converted to the other form and back results in the original string. Covers various cases with Unicode characters and percent-encoded values.
+        """
         cases = [
             (
                 "/blog/for/J%C3%BCrgen%20M%C3%BCnster/",

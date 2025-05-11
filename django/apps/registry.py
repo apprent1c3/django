@@ -21,6 +21,14 @@ class Apps:
         # installed_apps is set to None when creating the main registry
         # because it cannot be populated at that point. Other registries must
         # provide a list of installed apps and are populated immediately.
+        """
+        Initializes the application registry with the given installed applications.
+
+        The registry manages the state of applications and their models, providing a centralized point for application configuration and model registration.
+
+        :raises RuntimeError: If no installed applications are provided and a default list is not available.
+        :param installed_apps: A tuple of installed applications that should be registered with the registry.
+        """
         if installed_apps is None and hasattr(sys.modules[__name__], "apps"):
             raise RuntimeError("You must supply an installed_apps argument.")
 
@@ -216,6 +224,9 @@ class Apps:
         # Since this method is called when models are imported, it cannot
         # perform imports because of the risk of import loops. It mustn't
         # call get_app_config().
+        """
+        Registers a model within the given application label, checking for potential conflicts and warnings if the model has already been registered. If a conflict is detected, it raises an error to prevent inconsistencies, particularly with related models. The registration process also triggers pending operations and clears the cache.
+        """
         model_name = model._meta.model_name
         app_models = self.all_models[app_label]
         if model_name in app_models:

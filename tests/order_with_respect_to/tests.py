@@ -17,6 +17,9 @@ class OrderWithRespectToBaseTests(BaseOrderWithRespectToTests, TestCase):
 class OrderWithRespectToTests(SimpleTestCase):
     @isolate_apps("order_with_respect_to")
     def test_duplicate_order_field(self):
+        """
+        Checks that only one OrderWithRespectTo field is created on a model when order_with_respect_to Meta option is used.
+        """
         class Bar(models.Model):
             class Meta:
                 app_label = "order_with_respect_to"
@@ -39,6 +42,9 @@ class OrderWithRespectToTests(SimpleTestCase):
 
 class TestOrderWithRespectToOneToOnePK(TestCase):
     def test_set_order(self):
+        """
+        Tests that the set_component_order method correctly updates the order of components within a dimension.
+        """
         e = Entity.objects.create()
         d = Dimension.objects.create(entity=e)
         c1 = d.component_set.create()

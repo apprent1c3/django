@@ -69,6 +69,9 @@ class UpdateCacheMiddleware(MiddlewareMixin):
     """
 
     def __init__(self, get_response):
+        """
+        Initializes the cache middleware, setting up cache timeout and key prefix based on project settings.
+        """
         super().__init__(get_response)
         self.cache_timeout = settings.CACHE_MIDDLEWARE_SECONDS
         self.page_timeout = None
@@ -197,6 +200,16 @@ class CacheMiddleware(UpdateCacheMiddleware, FetchFromCacheMiddleware):
     """
 
     def __init__(self, get_response, cache_timeout=None, page_timeout=None, **kwargs):
+        """
+        Initializes a cache middleware instance with configuration settings.
+
+        :param get_response: The next middleware or view in the call chain.
+        :param cache_timeout: The timeout for cache entries, defaults to None.
+        :param page_timeout: The timeout for page cache entries, defaults to None.
+        :param key_prefix: Prefix for cache keys, defaults to an empty string if not provided.
+        :param cache_alias: Alias for the cache backend, defaults to DEFAULT_CACHE_ALIAS if not provided.
+        :keyword kwargs: Additional keyword arguments, including key_prefix and cache_alias.
+        """
         super().__init__(get_response)
         # We need to differentiate between "provided, but using default value",
         # and "not provided". If the value is provided using a default, then

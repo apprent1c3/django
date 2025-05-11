@@ -61,6 +61,9 @@ class Trans:
     """
 
     def __getattr__(self, real_name):
+        """
+        Proxy attribute access to Django's translation module, handling internationalization settings and autoreloading of translation files if USE_I18N is enabled.
+        """
         from django.conf import settings
 
         if settings.USE_I18N:
@@ -113,6 +116,9 @@ pgettext_lazy = lazy(pgettext, str)
 
 
 def lazy_number(func, resultclass, number=None, **kwargs):
+    """
+    Provides a lazily-translated string that can be formatted as either singular or plural based on a given number, with support for dictionary formatting and modulus operator usage.
+    """
     if isinstance(number, int):
         kwargs["number"] = number
         proxy = lazy(func, resultclass)(**kwargs)
@@ -144,6 +150,13 @@ def lazy_number(func, resultclass, number=None, **kwargs):
                 return self._translate(number_value).format(*args, **kwargs)
 
             def __mod__(self, rhs):
+                """
+                Return the result of the modulus operation on the translated value.
+
+                The operation is performed with the provided value, which can be either a dictionary
+                or a raw value, and returns the translated result. If the operation fails, the
+                translated value is returned unchanged.
+                """
                 if isinstance(rhs, dict) and number:
                     number_value = self._get_number_value(rhs)
                 else:
@@ -192,6 +205,13 @@ class override(ContextDecorator):
         self.deactivate = deactivate
 
     def __enter__(self):
+        """
+        Sets up a language context for the duration of the `with` block.
+
+        Saves the current language and activates the specified language if provided,
+        or deactivates all languages otherwise, and restores the original language
+        when exiting the block.
+        """
         self.old_language = get_language()
         if self.language is not None:
             activate(self.language)
@@ -199,6 +219,11 @@ class override(ContextDecorator):
             deactivate_all()
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exits the runtime context, restoring the previous language state.
+
+        Deactivates all languages, the current language, or reactivates the previous language, depending on the initial setup and the deactivate flag.
+        """
         if self.old_language is None:
             deactivate_all()
         elif self.deactivate:
@@ -267,6 +292,22 @@ def deactivate_all():
 
 
 def get_language_info(lang_code):
+    """
+
+    Retrieve language information for a given language code.
+
+    The function returns a dictionary containing information about the language,
+    including its name and other relevant details. If the language code is not
+    found, it will attempt to retrieve information for a fallback language code.
+
+    Raises:
+        KeyError: If the language code is not recognized and no suitable fallback
+            is found.
+
+    Returns:
+        dict: A dictionary containing language information.
+
+    """
     from django.conf.locale import LANG_INFO
 
     try:

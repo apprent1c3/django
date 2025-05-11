@@ -338,6 +338,13 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_selectdate_required(self):
+        """
+
+        Tests the behavior of the SelectDateWidget in required and non-required DateField contexts.
+
+        Verifies that the widget correctly reflects the required status of its associated DateField.
+
+        """
         class GetNotRequiredDate(Form):
             mydate = DateField(widget=SelectDateWidget, required=False)
 
@@ -348,6 +355,11 @@ class SelectDateWidgetTest(WidgetTest):
         self.assertTrue(GetRequiredDate().fields["mydate"].widget.is_required)
 
     def test_selectdate_empty_label(self):
+        """
+        Tests that the SelectDateWidget class correctly handles the empty_label parameter, 
+        verifying that it renders the expected HTML for both single and multiple empty label values, 
+        and raises a ValueError for invalid empty label input.
+        """
         w = SelectDateWidget(years=("2014",), empty_label="empty_label")
 
         # Rendering the default state with empty_label set as string.
@@ -430,6 +442,9 @@ class SelectDateWidgetTest(WidgetTest):
 
     @translation.override("nl")
     def test_l10n(self):
+        """
+        Tests the functionality of the SelectDateWidget class, particularly its ability to correctly render date fields and parse date values, with different years and localized month names.
+        """
         w = SelectDateWidget(
             years=(
                 "2007",
@@ -545,6 +560,9 @@ class SelectDateWidgetTest(WidgetTest):
 
     @override_settings(DATE_INPUT_FORMATS=["%d.%m.%Y"])
     def test_custom_input_format(self):
+        """
+        Tests the value formatting and parsing of a SelectDateWidget using a custom date input format ('%d.%m.%Y'). Specifically, verifies that the widget correctly translates its form values into the expected date string and back into a dictionary of integer values for year, month, and day.
+        """
         w = SelectDateWidget(years=("0001", "1899", "2009", "2010"))
         with translation.override(None):
             for values, expected_value in (
@@ -567,6 +585,11 @@ class SelectDateWidgetTest(WidgetTest):
                     self.assertEqual(w.format_value(expected_value), expected_dict)
 
     def test_format_value(self):
+        """
+        Tests the format_value method of a widget to ensure it correctly parses date strings.
+
+        The test covers both valid and invalid date formats, verifying that the method returns a dictionary with year, month, and day values for valid formats and None for all values in case of invalid formats.
+        """
         valid_formats = [
             "2000-1-1",
             "2000-10-15",
@@ -603,6 +626,9 @@ class SelectDateWidgetTest(WidgetTest):
                 )
 
     def test_value_from_datadict(self):
+        """
+        Tests the value_from_datadict method of a widget, verifying it correctly constructs a date string from a datadict containing year, month, and day fields, handling various edge cases including empty and null values.
+        """
         tests = [
             (("2000", "12", "1"), "2000-12-01"),
             (("", "12", "1"), "0-12-1"),
@@ -629,6 +655,15 @@ class SelectDateWidgetTest(WidgetTest):
                 )
 
     def test_value_omitted_from_data(self):
+        """
+        Check if a value for a given field is omitted from the provided data.
+
+        Determines whether the field's value is absent from the data, considering related date fields.
+
+        :param data: Dictionary containing data to check
+        :param field: Name of the field to verify
+        :returns: True if the value is omitted, False otherwise
+        """
         self.assertIs(self.widget.value_omitted_from_data({}, {}, "field"), True)
         self.assertIs(
             self.widget.value_omitted_from_data({"field_month": "12"}, {}, "field"),
@@ -711,6 +746,9 @@ class SelectDateWidgetTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that a form field is rendered as a fieldset when the corresponding widget option is enabled.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = DateField(widget=self.widget)

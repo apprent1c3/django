@@ -39,6 +39,11 @@ class CommandTests(SimpleTestCase):
         self.assertIn("I don't feel like dancing Rock'n'Roll.\n", out.getvalue())
 
     def test_command_style(self):
+        """
+        Tests the dance command's handling of the style option, verifying that 
+        it correctly interprets and responds to 'Jive' style, whether specified 
+        positionally or via the --style flag.
+        """
         out = StringIO()
         management.call_command("dance", style="Jive", stdout=out)
         self.assertIn("I don't feel like dancing Jive.\n", out.getvalue())
@@ -203,6 +208,9 @@ class CommandTests(SimpleTestCase):
         mocked_check.assert_called_once_with(tags=[Tags.staticfiles, Tags.models])
 
     def test_requires_system_checks_invalid(self):
+        """
+        Tests that a Command's requires_system_checks attribute must be a list or tuple, raising a TypeError otherwise.
+        """
         class Command(BaseCommand):
             requires_system_checks = "x"
 
@@ -211,6 +219,14 @@ class CommandTests(SimpleTestCase):
             Command()
 
     def test_check_migrations(self):
+        """
+
+        Verifies that the migrations check is disabled by default for the dance command.
+
+        Tests the behavior when the check is toggled on and off to ensure the expected
+        migrations check functionality.
+
+        """
         requires_migrations_checks = dance.Command.requires_migrations_checks
         self.assertIs(requires_migrations_checks, False)
         try:
@@ -224,6 +240,9 @@ class CommandTests(SimpleTestCase):
             dance.Command.requires_migrations_checks = requires_migrations_checks
 
     def test_call_command_unrecognized_option(self):
+        """
+        Tests that calling the 'dance' command with unrecognized options raises a TypeError with a descriptive error message, including a list of valid options.
+        """
         msg = (
             "Unknown option(s) for dance command: unrecognized. Valid options "
             "are: example, force_color, help, integer, no_color, opt_3, "
@@ -264,6 +283,9 @@ class CommandTests(SimpleTestCase):
         self.assertIn("Detected that --version already exists", out.getvalue())
 
     def test_mutually_exclusive_group_required_options(self):
+        """
+        Tests that the management command 'mutually_exclusive_required' enforces the requirement of at least one option from a list of mutually exclusive arguments.
+        """
         out = StringIO()
         management.call_command("mutually_exclusive_required", foo_id=1, stdout=out)
         self.assertIn("foo_id", out.getvalue())
@@ -280,6 +302,9 @@ class CommandTests(SimpleTestCase):
             management.call_command("mutually_exclusive_required", stdout=out)
 
     def test_mutually_exclusive_group_required_const_options(self):
+        """
+        Tests a mutually exclusive group in a command where required constant options are passed as both command-line arguments and keyword arguments, verifying the output matches the expected format.
+        """
         tests = [
             ("append_const", [42]),
             ("const", 31),
@@ -305,6 +330,9 @@ class CommandTests(SimpleTestCase):
                 self.assertIn(expected_output, out.getvalue())
 
     def test_mutually_exclusive_group_required_with_same_dest_options(self):
+        """
+        Tests if the \"mutually_exclusive_required_with_same_dest\" command appropriately raises an error when two mutually exclusive options with the same destination are provided.
+        """
         tests = [
             {"until": "2"},
             {"for": "1", "until": "2"},
@@ -322,6 +350,9 @@ class CommandTests(SimpleTestCase):
                     )
 
     def test_mutually_exclusive_group_required_with_same_dest_args(self):
+        """
+        Tests the command 'mutually_exclusive_required_with_same_dest' to ensure that mutually exclusive arguments with the same destination are handled correctly, specifically when used with either the '--until' or '--for' options.
+        """
         tests = [
             ("--until=1",),
             ("--until", 1),
@@ -340,6 +371,12 @@ class CommandTests(SimpleTestCase):
                 self.assertIn("until=1", output)
 
     def test_required_list_option(self):
+        """
+        Tests the functionality of the required list option for management commands.
+
+        Verifies that the foo_list option is correctly set and displayed as [1, 2] 
+        when using either command line arguments or keyword arguments.
+        """
         tests = [
             (("--foo-list", [1, 2]), {}),
             ((), {"foo_list": [1, 2]}),
@@ -357,6 +394,9 @@ class CommandTests(SimpleTestCase):
                     self.assertIn("foo_list=[1, 2]", out.getvalue())
 
     def test_required_const_options(self):
+        """
+        Tests that the required_constant_option management command correctly handles constant options and appends them to its output.
+        """
         args = {
             "append_const": [42],
             "const": 31,
@@ -400,6 +440,14 @@ class CommandTests(SimpleTestCase):
         self.assertIn("bar", out.getvalue())
 
     def test_subparser_invalid_option(self):
+        """
+
+        Tests the subparser command in management with invalid options.
+
+        Verifies that the command raises a CommandError when an invalid option is provided
+        and when a required argument is missing.
+
+        """
         msg = "invalid choice: 'test' (choose from 'foo')"
         with self.assertRaisesMessage(CommandError, msg):
             management.call_command("subparser", "test", 12)
@@ -420,6 +468,9 @@ class CommandTests(SimpleTestCase):
         self.assertEqual(parser.formatter_class, ArgumentDefaultsHelpFormatter)
 
     def test_outputwrapper_flush(self):
+        """
+        Verifies the outputwrapper management command writes the expected output and flushes the stdout buffer.
+        """
         out = StringIO()
         with mock.patch.object(out, "flush") as mocked_flush:
             management.call_command("outputwrapper", stdout=out)
@@ -470,6 +521,9 @@ class CommandRunTests(AdminScriptTestCase):
         self.assertEqual(out.strip(), "Set foo")
 
     def test_subparser_error_formatting(self):
+        """
+        Tests error formatting for subparser commands, specifically when invalid input is provided, to ensure proper error messages are displayed.
+        """
         self.write_settings("settings.py", apps=["user_commands"])
         out, err = self.run_manage(["subparser", "foo", "twelve"])
         self.maxDiff = None
@@ -482,6 +536,9 @@ class CommandRunTests(AdminScriptTestCase):
         )
 
     def test_subparser_non_django_error_formatting(self):
+        """
+        Tests error formatting for the subparser when a non-Django related error occurs, ensuring correct error messages are displayed for invalid input values.
+        """
         self.write_settings("settings.py", apps=["user_commands"])
         out, err = self.run_manage(["subparser_vanilla", "foo", "seven"])
         self.assertNoOutput(out)

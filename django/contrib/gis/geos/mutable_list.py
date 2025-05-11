@@ -60,6 +60,10 @@ class ListMixin:
     # ### Python initialization and special list interface methods ###
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting up internal methods for single element retrieval and setting, 
+        and extended slice assignment if not already defined, before calling the parent class constructor.
+        """
         if not hasattr(self, "_get_single_internal"):
             self._get_single_internal = self._get_single_external
 
@@ -141,6 +145,10 @@ class ListMixin:
         return self
 
     def __eq__(self, other):
+        """
+        Determines whether the instance is equal to another object by comparing their elements sequentially. 
+        Returns True if all elements are equal and both have the same length, False otherwise.
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -153,6 +161,13 @@ class ListMixin:
         return len(self) == olen
 
     def __lt__(self, other):
+        """
+        Defines the less than operator for comparing objects.
+
+        Returns True if this object is considered less than the provided object, 
+        False otherwise. The comparison is performed element-wise from left to right, 
+        with shorter objects considered less than longer ones if all elements match.
+        """
         olen = len(other)
         for i in range(olen):
             try:
@@ -218,6 +233,14 @@ class ListMixin:
 
     # ### Private routines ###
     def _rebuild(self, newLen, newItems):
+        """
+        Rebuilds the internal list with the given length and items, enforcing the minimum and maximum length constraints.
+
+            :param newLen: The new length of the list.
+            :param newItems: The new items to populate the list.
+            :raises ValueError: If the new length is less than the minimum length or greater than the maximum length.
+
+        """
         if newLen and newLen < self._minlength:
             raise ValueError("Must have at least %d items" % self._minlength)
         if self._maxlength is not None and newLen > self._maxlength:
@@ -229,6 +252,9 @@ class ListMixin:
         self._set_slice(slice(index, index + 1, 1), [value])
 
     def _checkindex(self, index):
+        """
+        Checks if an index is valid for the current object and returns a normalized index within bounds, raising an IndexError if the index is invalid.
+        """
         length = len(self)
         if 0 <= index < length:
             return index
@@ -275,6 +301,9 @@ class ListMixin:
         newVals = dict(zip(indexList, valueList))
 
         def newItems():
+            """
+            Generates a sequence of new items, either by reusing existing values or generating new ones internally.
+            """
             for i in range(newLen):
                 if i in newVals:
                     yield newVals[i]
@@ -303,6 +332,9 @@ class ListMixin:
         newLen = origLen - stop + start + len(valueList)
 
         def newItems():
+            """
+            Generates a sequence of new items by yielding from a specified list at a given start index and including unchanged internal items that are outside of a specified range.
+            """
             for i in range(origLen + 1):
                 if i == start:
                     yield from valueList

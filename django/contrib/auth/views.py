@@ -78,6 +78,9 @@ class LoginView(RedirectURLMixin, FormView):
     @method_decorator(csrf_protect)
     @method_decorator(never_cache)
     def dispatch(self, request, *args, **kwargs):
+        """
+        Dispatches a request to the view, handling authenticated user redirection if configured. If the user is authenticated and redirection is enabled, it redirects them to a specified success URL to prevent access to the login page.
+        """
         if self.redirect_authenticated_user and self.request.user.is_authenticated:
             redirect_to = self.get_success_url()
             if redirect_to == self.request.path:
@@ -266,6 +269,15 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
     @method_decorator(sensitive_post_parameters())
     @method_decorator(never_cache)
     def dispatch(self, *args, **kwargs):
+        """
+
+        Dispatches a password reset request, validating the provided token and user ID.
+
+        Verifies that the URL path contains the required 'uidb64' and 'token' parameters.
+        If valid, checks the token against the user's stored token or a session token.
+        If the token is valid, the request is processed; otherwise, renders an error response.
+
+        """
         if "uidb64" not in kwargs or "token" not in kwargs:
             raise ImproperlyConfigured(
                 "The URL path must contain 'uidb64' and 'token' parameters."
@@ -298,6 +310,12 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return self.render_to_response(self.get_context_data())
 
     def get_user(self, uidb64):
+        """
+        Retrieve a user instance from the database given a URL-safe base64-encoded user ID.
+
+            :param uidb64: URL-safe base64-encoded user ID
+            :return: The user instance if found, otherwise None
+        """
         try:
             # urlsafe_base64_decode() decodes to bytestring
             uid = urlsafe_base64_decode(uidb64).decode()
@@ -318,6 +336,9 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return kwargs
 
     def form_valid(self, form):
+        """
+        Handles the form validation for a password reset, saves the form changes to the user object, cleans up the reset session token, and logs in the user if post-reset login is enabled.
+        """
         user = form.save()
         del self.request.session[INTERNAL_RESET_SESSION_TOKEN]
         if self.post_reset_login:
@@ -325,6 +346,12 @@ class PasswordResetConfirmView(PasswordContextMixin, FormView):
         return super().form_valid(form)
 
     def get_context_data(self, **kwargs):
+        """
+        Extends the parent class context data with password reset link validation information.
+
+        Updates the context with 'validlink' key indicating whether the password reset link is valid.
+        If the link is invalid, additional context keys 'form' and 'title' are updated to reflect the unsuccessful password reset attempt.
+        """
         context = super().get_context_data(**kwargs)
         if self.validlink:
             context["validlink"] = True

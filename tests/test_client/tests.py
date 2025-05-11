@@ -83,6 +83,12 @@ class ClientTest(TestCase):
         self.assertEqual(response.templates[0].name, "GET Template")
 
     def test_copy_response(self):
+        """
+        Tests that the response object can be copied correctly.
+
+        Verifies that copying a response preserves its original attributes, including 
+        the client, resolver match, and WSGI request, for various views.
+        """
         tests = ["/cbv_view/", "/get_view/"]
         for url in tests:
             with self.subTest(url=url):
@@ -94,6 +100,10 @@ class ClientTest(TestCase):
                 self.assertIs(response_copy.wsgi_request, response.wsgi_request)
 
     async def test_copy_response_async(self):
+        """
+        Tests the asynchronous copying of a response object, verifying that the 
+        copy has the same representation and shares key attributes with the original.
+        """
         response = await self.async_client.get("/async_get_view/")
         response_copy = copy.copy(response)
         self.assertEqual(repr(response), repr(response_copy))
@@ -188,6 +198,9 @@ class ClientTest(TestCase):
         self.assertTrue(mock_encoding.encode.called)
 
     def test_put(self):
+        """
+        Tests a PUT request to the '/put_view/' endpoint, verifying a successful response, correct template rendering, and proper handling of request data.
+        """
         response = self.client.put("/put_view/", {"foo": "bar"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.templates[0].name, "PUT Template")
@@ -360,6 +373,10 @@ class ClientTest(TestCase):
                 self.assertEqual(response.request["REQUEST_METHOD"], method.upper())
 
     def test_follow_307_and_308_preserves_query_string(self):
+        """
+        Tests if HTTP requests using various methods (POST, OPTIONS, PUT, PATCH, DELETE, TRACE) 
+        with follow=True and 307/308 status codes correctly preserve the query string during redirects.
+        """
         methods = ("post", "options", "put", "patch", "delete", "trace")
         codes = (307, 308)
         for method, code in itertools.product(methods, codes):
@@ -376,6 +393,11 @@ class ClientTest(TestCase):
                 self.assertEqual(response.request["QUERY_STRING"], "hello=world")
 
     def test_follow_307_and_308_get_head_query_string(self):
+        """
+
+        Tests that HTTP 307 and 308 redirects preserve the query string for GET and HEAD requests.
+
+        """
         methods = ("get", "head")
         codes = (307, 308)
         for method, code in itertools.product(methods, codes):
@@ -408,6 +430,9 @@ class ClientTest(TestCase):
                 self.assertContains(response, "a=b is the body")
 
     def test_follow_307_and_308_preserves_get_params(self):
+        """
+        Tests that following 307 and 308 redirects preserves query parameters in GET requests.
+        """
         data = {"var": 30, "to": "/get_view/"}
         for code in (307, 308):
             with self.subTest(code=code):
@@ -917,6 +942,12 @@ class ClientTest(TestCase):
             self.client.get("/broken_view/")
 
     def test_exc_info(self):
+        """
+        Tests that a client retrieves exception information from a broken view.
+
+        Verifies that the client returns an HTTP status code 500 and exception details,
+        including type, value, and traceback, when encountering a KeyError in the view.
+        """
         client = Client(raise_request_exception=False)
         response = client.get("/broken_view/")
         self.assertEqual(response.status_code, 500)
@@ -1004,6 +1035,11 @@ class ClientTest(TestCase):
         self.assertEqual(response.content, b"named_temp_file")
 
     def test_query_params(self):
+        """
+        Tests that query parameters are correctly passed with various HTTP methods.
+
+        Verifies that the server handles query parameters as expected for GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, and TRACE requests.
+        """
         tests = (
             "get",
             "post",
@@ -1021,6 +1057,12 @@ class ClientTest(TestCase):
                 self.assertEqual(response.wsgi_request.GET["example"], "data")
 
     def test_cannot_use_data_and_query_params_together(self):
+        """
+        Tests that query parameters and request data cannot be used together for GET and HEAD requests.
+
+        Verifies that attempting to use both query parameters and request data raises a ValueError,
+        as these parameters are mutually exclusive for these HTTP methods.
+        """
         tests = ["get", "head"]
         msg = "query_params and data arguments are mutually exclusive."
         for method in tests:
@@ -1109,6 +1151,11 @@ class RequestFactoryTest(SimpleTestCase):
         self.assertContains(response, echoed_request_line)
 
     def test_request_factory_default_headers(self):
+        """
+        Tests that the RequestFactory correctly handles default headers, 
+        including case-insensitive 'Authorization' and custom headers, 
+        converting them to their HTTP_* META equivalents.
+        """
         request = RequestFactory(
             headers={
                 "authorization": "Bearer faketoken",
@@ -1132,6 +1179,9 @@ class RequestFactoryTest(SimpleTestCase):
         self.assertIn("HTTP_X_ANOTHER_HEADER", request.META)
 
     def test_request_factory_sets_headers(self):
+        """
+        Tests that the request factory correctly sets and converts headers to HTTP_ prefixed form in the request's META dictionary, handling both lowercase and uppercase header names.
+        """
         for method_name, view in self.http_methods_and_views:
             method = getattr(self.request_factory, method_name)
             request = method(
@@ -1159,6 +1209,9 @@ class RequestFactoryTest(SimpleTestCase):
             self.assertIn("HTTP_X_ANOTHER_HEADER", request.META)
 
     def test_request_factory_query_params(self):
+        """
+        Tests the request factory's handling of query parameters across various HTTP methods. Verifies that query parameters are properly included in the constructed request for each method.
+        """
         tests = (
             "get",
             "post",
@@ -1195,6 +1248,13 @@ class AsyncClientTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     async def test_follow_redirect(self):
+        """
+        Tests HTTP redirects for all supported HTTP methods.
+
+        Verifies that each method (GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, TRACE) 
+        can follow redirects and return a successful response (200 status code) that 
+        resolves to the 'get_view' URL name.
+        """
         tests = (
             "get",
             "post",
@@ -1232,6 +1292,13 @@ class AsyncClientTest(TestCase):
         self.assertContains(response, "Viewing GET page.")
 
     async def test_query_params(self):
+        """
+        Tests that query parameters are properly passed to async client methods.\"\"\"
+
+        \"\"\"Verifies query parameter support for various HTTP methods, including GET, POST, PUT, PATCH, DELETE, HEAD, OPTIONS, and TRACE.\"\"\"
+
+        \"\"\"Ensures that query parameters are correctly received by the server from the client for all supported HTTP methods.
+        """
         tests = (
             "get",
             "post",
@@ -1256,6 +1323,13 @@ class AsyncRequestFactoryTest(SimpleTestCase):
     request_factory = AsyncRequestFactory()
 
     async def test_request_factory(self):
+        """
+
+        Tests the request factory for all supported HTTP methods.
+
+        Verifies that each method returns a successful response when passed to a generic view.
+
+        """
         tests = (
             "get",
             "post",
@@ -1280,6 +1354,10 @@ class AsyncRequestFactoryTest(SimpleTestCase):
                 self.assertEqual(response.status_code, 200)
 
     async def test_request_factory_data(self):
+        """
+        Tests the request factory to ensure it correctly constructs a POST request 
+        with JSON data and verifies the response from a generic asynchronous view.
+        """
         async def async_generic_view(request):
             return HttpResponse(status=200, content=request.body)
 
@@ -1295,6 +1373,9 @@ class AsyncRequestFactoryTest(SimpleTestCase):
         self.assertEqual(response.content, b'{"example": "data"}')
 
     async def test_request_limited_read(self):
+        """
+        Verifies that a request's read method is properly limited, ensuring that no data is read when the request body is empty, for both GET and POST HTTP methods.
+        """
         tests = ["GET", "POST"]
         for method in tests:
             with self.subTest(method=method):
@@ -1305,6 +1386,9 @@ class AsyncRequestFactoryTest(SimpleTestCase):
                 self.assertEqual(request.read(200), b"")
 
     def test_request_factory_sets_headers(self):
+        """
+        Tests that the request factory correctly sets headers on outgoing requests, including the Authorization header and custom headers like X-Another-Header, and that these headers are properly reflected in the request's META dictionary.
+        """
         request = self.request_factory.get(
             "/somewhere/",
             AUTHORIZATION="Bearer faketoken",
@@ -1333,6 +1417,11 @@ class AsyncRequestFactoryTest(SimpleTestCase):
         self.assertEqual(request.GET["example"], "data")
 
     def test_request_factory_query_params(self):
+        """
+        Tests the request factory's support for query parameters across different HTTP methods.
+
+        Verifies that query parameters are properly set in the request object for each method.
+        """
         tests = (
             "get",
             "post",
@@ -1350,6 +1439,18 @@ class AsyncRequestFactoryTest(SimpleTestCase):
                 self.assertEqual(request.GET["example"], "data")
 
     def test_cannot_use_data_and_query_params_together(self):
+        """
+        .Tests that HTTP requests cannot be made with both query parameters and data. 
+
+        Args:
+            None
+
+        Raises:
+            ValueError: If both query_params and data are provided to the request factory.
+
+        Note:
+            This test specifically checks 'get' and 'head' HTTP methods.
+        """
         tests = ["get", "head"]
         msg = "query_params and data arguments are mutually exclusive."
         for method in tests:

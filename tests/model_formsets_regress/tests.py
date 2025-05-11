@@ -270,6 +270,9 @@ class InlineFormsetTests(TestCase):
         )
 
     def test_initial_data(self):
+        """
+        Checks that the initial data for an inline formset is correctly set when using a mix of existing and new form instances, verifying that the initial values are properly assigned to the correct forms.
+        """
         user = User.objects.create(username="bibi", serial=1)
         UserSite.objects.create(user=user, data=7)
         FormSet = inlineformset_factory(User, UserSite, extra=2, fields="__all__")
@@ -307,6 +310,9 @@ class FormsetTests(TestCase):
             self.assertIsInstance(form.non_field_errors(), ErrorList)
 
     def test_initial_data(self):
+        """
+        Verifies the initialization of formset data, ensuring that initial values are correctly set for both existing and extra forms.
+        """
         User.objects.create(username="bibi", serial=1)
         Formset = modelformset_factory(User, fields="__all__", extra=2)
         formset = Formset(initial=[{"username": "apollo11"}, {"username": "apollo12"}])
@@ -315,6 +321,11 @@ class FormsetTests(TestCase):
         self.assertIn('value="apollo12"', formset.extra_forms[1].as_p())
 
     def test_extraneous_query_is_not_run(self):
+        """
+        Tests that an extraneous query is not run when saving a formset with no existing instances.
+
+         Verifies that only one database query is executed when saving a formset with a single new instance.
+        """
         Formset = modelformset_factory(Network, fields="__all__")
         data = {
             "test-TOTAL_FORMS": "1",
@@ -359,6 +370,9 @@ class FormfieldCallbackTests(TestCase):
     """
 
     def test_inlineformset_factory_default(self):
+        """
+        Tests that the formset factory correctly creates a form with custom widgets for 'id' and 'data' fields, and proper localization settings.
+        """
         Formset = inlineformset_factory(
             User, UserSite, form=UserSiteForm, fields="__all__"
         )
@@ -369,6 +383,9 @@ class FormfieldCallbackTests(TestCase):
         self.assertTrue(form.fields["data"].localize)
 
     def test_modelformset_factory_default(self):
+        """
+        Tests that modelformset_factory produces a formset with the correct widget types and localization settings for UserSite model fields.
+        """
         Formset = modelformset_factory(UserSite, form=UserSiteForm)
         form = Formset().forms[0]
         self.assertIsInstance(form["id"].field.widget, CustomWidget)
@@ -539,6 +556,9 @@ class FormfieldShouldDeleteFormTests(TestCase):
 
 class RedeleteTests(TestCase):
     def test_resubmit(self):
+        """
+        Tests the formset resubmission functionality by creating a user and associated user site, then deleting the user site through the formset, and verifying that the deletion persists even after resubmitting the formset.
+        """
         u = User.objects.create(username="foo", serial=1)
         us = UserSite.objects.create(user=u, data=7)
         formset_cls = inlineformset_factory(User, UserSite, fields="__all__")
@@ -565,6 +585,12 @@ class RedeleteTests(TestCase):
         self.assertEqual(UserSite.objects.count(), 0)
 
     def test_delete_already_deleted(self):
+        """
+        Verifies deletion of an already deleted UserSite instance via an inline formset.
+
+        Ensures the formset remains valid and saves correctly even after the associated
+        UserSite has been deleted, resulting in no UserSite instances remaining.
+        """
         u = User.objects.create(username="foo", serial=1)
         us = UserSite.objects.create(user=u, data=7)
         formset_cls = inlineformset_factory(User, UserSite, fields="__all__")

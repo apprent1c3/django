@@ -67,6 +67,12 @@ def get_complete_version(version=None):
 
 
 def get_docs_version(version=None):
+    """
+    .. function:: get_docs_version(version=None)
+        Returns the version to be used in documentation for a given version.
+
+        If the version is not yet final, returns 'dev'. Otherwise, returns the major and minor version numbers.
+    """
     version = get_complete_version(version)
     if version[3] != "final":
         return "dev"

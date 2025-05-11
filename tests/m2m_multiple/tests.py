@@ -7,6 +7,10 @@ from .models import Article, Category
 
 class M2MMultipleTests(TestCase):
     def test_multiple(self):
+        """
+        Tests the assignment of articles to multiple categories, both primary and secondary, 
+         and verifies that the relationships are correctly established in both directions.
+        """
         c1, c2, c3, c4 = [
             Category.objects.create(name=name)
             for name in ["Sports", "News", "Crime", "Life"]

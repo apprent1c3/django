@@ -55,6 +55,9 @@ class BaseStorage:
     """
 
     def __init__(self, request, *args, **kwargs):
+        """
+        Initializes a new instance, setting up the request and internal state for message handling.
+        """
         self.request = request
         self._queued_messages = []
         self.used = False
@@ -65,6 +68,9 @@ class BaseStorage:
         return len(self._loaded_messages) + len(self._queued_messages)
 
     def __iter__(self):
+        """
+        Returns an iterator over the loaded messages, ensuring that any queued messages are processed first. This method is used to iterate over the messages, and it also marks the object as used.
+        """
         self.used = True
         if self._queued_messages:
             self._loaded_messages.extend(self._queued_messages)

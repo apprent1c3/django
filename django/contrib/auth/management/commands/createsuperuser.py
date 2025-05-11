@@ -36,6 +36,12 @@ class Command(BaseCommand):
         )
 
     def add_arguments(self, parser):
+        """
+        Adds command-line arguments for creating a superuser to the given parser.
+
+        The arguments include login credentials, optional fields for the superuser, and database selection.
+
+        """
         parser.add_argument(
             "--%s" % self.UserModel.USERNAME_FIELD,
             help="Specifies the login for the superuser.",
@@ -90,6 +96,16 @@ class Command(BaseCommand):
         return super().execute(*args, **options)
 
     def handle(self, *args, **options):
+        """
+
+        Handles the creation of a superuser in the database.
+
+        Prompts the user to enter a username, password, and other required information,
+        or uses environment variables if the --noinput option is provided.
+
+        After validating the input, creates a new superuser instance with the provided data.
+
+        """
         username = options[self.UserModel.USERNAME_FIELD]
         database = options["database"]
         user_data = {}

@@ -241,6 +241,12 @@ class GeoModelTest(TestCase):
 
     @skipUnlessDBFeature("supports_empty_geometries")
     def test_empty_geometries(self):
+        """
+        Verify the database can store and retrieve empty geographic geometries for various geometry classes.
+
+        Test coverage includes empty Point, LineString, LinearRing, Polygon, MultiPoint, MultiLineString, MultiPolygon, and GeometryCollection instances, 
+        with and without 3D storage support. It ensures that empty geometries are correctly created and retrieved from the database without alteration of their type or spatial reference system ID (SRID).
+        """
         geometry_classes = [
             Point,
             LineString,
@@ -349,6 +355,9 @@ class GeoLookupTest(TestCase):
 
     @skipUnlessDBFeature("supports_isvalid_lookup")
     def test_isvalid_lookup(self):
+        """
+        Tests the 'isvalid' lookup functionality for geometric fields, ensuring that it correctly identifies valid and invalid geometric objects in the database.
+        """
         invalid_geom = fromstr("POLYGON((0 0, 0 1, 1 1, 1 0, 1 1, 1 0, 0 0))")
         State.objects.create(name="invalid", poly=invalid_geom)
         qs = State.objects.all()
@@ -569,6 +578,14 @@ class GeoLookupTest(TestCase):
         )
 
     def test_gis_lookups_with_complex_expressions(self):
+        """
+
+        Tests geographic lookup operations with complex expressions.
+
+        Verifies that a set of GIS lookup operations can be performed on a model's
+        geographic field with a complex expression, such as a spatial union function.
+
+        """
         multiple_arg_lookups = {
             "dwithin",
             "relate",
@@ -686,6 +703,9 @@ class GeoQuerySetTest(TestCase):
 
     @skipUnlessDBFeature("supports_union_aggr")
     def test_geoagg_subquery(self):
+        """
+        Tests the usage of a subquery in a geo aggregation query, verifying that the resulting geometry matches the expected union of points.
+        """
         tx = Country.objects.get(name="Texas")
         union = GEOSGeometry("MULTIPOINT(-96.801611 32.782057,-95.363151 29.763374)")
         # Use distinct() to force the usage of a subquery for aggregation.

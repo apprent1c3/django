@@ -23,6 +23,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         # flatatt #
         ###########
 
+        """
+        Tests the flatatt function, which converts a dictionary of HTML attributes into a string format suitable for inclusion in HTML tags, handling boolean and None values correctly.
+        """
         self.assertEqual(flatatt({"id": "header"}), ' id="header"')
         self.assertEqual(
             flatatt({"class": "news", "title": "Read this"}),
@@ -66,6 +69,9 @@ class FormsUtilsTestCase(SimpleTestCase):
         ###################
 
         # Can take a string.
+        """
+        Tests the rendering of error messages into HTML using the ErrorList and ErrorDict classes.
+        """
         self.assertHTMLEqual(
             str(ErrorList(ValidationError("There was an error.").messages)),
             '<ul class="errorlist"><li>There was an error.</li></ul>',
@@ -162,6 +168,10 @@ class FormsUtilsTestCase(SimpleTestCase):
         )
 
     def test_error_dict_copy(self):
+        """
+        Tests that ErrorDict instances can be correctly copied using the copy module, 
+        ensuring both shallow and deep copies produce equivalent dictionaries.
+        """
         e = ErrorDict()
         e["__all__"] = ErrorList(
             [
@@ -198,6 +208,12 @@ class FormsUtilsTestCase(SimpleTestCase):
         self.assertIsInstance(ErrorDict(), dict)
 
     def test_error_dict_is_json_serializable(self):
+        """
+        Tests that an ErrorDict instance is JSON serializable.
+
+        Verifies that the ErrorDict can be converted to a JSON-compatible format,
+        allowing error messages to be easily transmitted or stored.
+        """
         init_errors = ErrorDict(
             [
                 (

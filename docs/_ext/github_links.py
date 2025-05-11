@@ -31,6 +31,13 @@ class CodeLocator(ast.NodeVisitor):
         self.visit_node(node)
 
     def visit_ImportFrom(self, node):
+        """
+
+        Handles the processing of ImportFrom nodes, updating the import locations dictionary based on the imported module and names.
+
+        Processes names with and without aliases, and handles wildcard imports by parsing the contents of the imported file to extract additional import locations.
+
+        """
         for alias in node.names:
             if alias.asname:
                 # Exclude linking aliases (`import x as y`) to avoid confusion
@@ -65,6 +72,12 @@ def module_name_to_file_path(module_name):
     # Avoid importlib machinery as locating a module involves importing its
     # parent, which would trigger import side effects.
 
+    """
+    Resolves a module name to its corresponding file path.
+
+    The function iterates over possible file suffixes and returns the first existing file path found in the parent directory hierarchy.
+    If no matching file is found, it raises a CodeNotFound exception.
+    """
     for suffix in [".py", "/__init__.py"]:
         file_path = pathlib.Path(__file__).parents[2] / (
             module_name.replace(".", "/") + suffix
@@ -76,6 +89,18 @@ def module_name_to_file_path(module_name):
 
 
 def get_path_and_line(module, fullname):
+    """
+
+    Determines the file path and line number of a specific object (e.g., function, class, variable) within a given module.
+
+    Args:
+        module (str): The name of the module to search in.
+        fullname (str): The fully qualified name of the object to locate.
+
+    Returns:
+        tuple: A tuple containing the file path and line number of the object, or raises an exception if not found.
+
+    """
     path = module_name_to_file_path(module_name=module)
 
     locator = get_locator(path)
@@ -130,6 +155,18 @@ def get_branch(version, next_version):
 
 
 def github_linkcode_resolve(domain, info, *, version, next_version):
+    """
+    Resolves a GitHub link to the source code of a Python object.
+
+    This function takes into account the current version and next version to determine the correct GitHub branch.
+
+    Returns the URL of the GitHub page for the specified Python object, or None if the domain is not Python or the object cannot be found.
+
+    :param domain: The domain of the object (expected to be 'py')
+    :param info: A dictionary containing information about the object (including 'module' and 'fullname')
+    :param version: The current version
+    :param next_version: The next version
+    """
     if domain != "py":
         return None
 

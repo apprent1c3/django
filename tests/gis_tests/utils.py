@@ -15,6 +15,14 @@ def skipUnlessGISLookup(*gis_lookups):
 
     def decorator(test_func):
         @wraps(test_func)
+        """
+
+        Decorator to skip the test function if the database does not support all required GIS lookups.
+
+        Raises:
+            unittest.SkipTest: If the database does not support all GIS lookups in :data:`gis_lookups`.
+
+        """
         def skip_wrapper(*args, **kwargs):
             if any(key not in connection.ops.gis_operators for key in gis_lookups):
                 raise unittest.SkipTest(
@@ -37,8 +45,31 @@ class FuncTestMixin:
     """Assert that Func expressions aren't mutated during their as_sql()."""
 
     def setUp(self):
+        """
+        Sets up a test environment to ensure that database functions are not mutated during compilation, by patching the function's `as_sql` method to check for attribute changes.
+        """
         def as_sql_wrapper(original_as_sql):
+            """
+            Ensures that a given function's state remains unchanged after execution.
+
+            This wrapper function verifies that the original function does not mutate its instance during compilation, 
+            by comparing its internal state before and after execution. If a mutation is detected, an assertion error is raised.
+
+            :param original_as_sql: The original function to be wrapped.
+            :returns: The wrapped function with the added assertion check.
+            :raises: AssertionError if the function's state is changed during execution.
+
+            """
             def inner(*args, **kwargs):
+                """
+                Ensures a function's internal state remains unchanged during execution.
+
+                Invokes the original function with provided arguments, while verifying that its 
+                attributes do not undergo any modifications in the process, raising an assertion 
+                error if any changes are detected.
+
+                Returns the result of the original function call.
+                """
                 func = original_as_sql.__self__
                 # Resolve output_field before as_sql() so touching it in
                 # as_sql() won't change __dict__.
@@ -54,6 +85,12 @@ class FuncTestMixin:
             return inner
 
         def __getattribute__(self, name):
+            """
+
+            Custom attribute accessor that intercepts access to the vendor implementation attribute,
+            wrapping its result with as_sql_wrapper to handle vendor-specific SQL generation.
+
+            """
             if name != vendor_impl:
                 return __getattribute__original(self, name)
             try:

@@ -62,6 +62,13 @@ class View:
 
     @classproperty
     def view_is_async(cls):
+        """
+        .. classproperty:: view_is_async
+
+            Determines whether a class view uses asynchronous or synchronous HTTP handlers.
+            Verifies that all handlers for a given view are either all async or all sync, raising an exception otherwise.
+            Returns True if the handlers are asynchronous, False otherwise.
+        """
         handlers = [
             getattr(cls, method)
             for method in cls.http_method_names
@@ -94,6 +101,16 @@ class View:
                 )
 
         def view(request, *args, **kwargs):
+            """
+
+            Initializes and dispatches a class-based view, setting up the necessary request context.
+
+            This function serves as the main entry point for the view, handling initialization, setup, and request dispatch in a single call.
+
+            Raises:
+                AttributeError: If the view instance is missing a 'request' attribute after setup.
+
+            """
             self = cls(**initkwargs)
             self.setup(request, *args, **kwargs)
             if not hasattr(self, "request"):
@@ -134,6 +151,9 @@ class View:
         # Try to dispatch to the right method; if a method doesn't exist,
         # defer to the error handler. Also defer to the error handler if the
         # request method isn't on the approved list.
+        """
+        Dispatches an HTTP request to the appropriate handler method based on the request's HTTP method. If a matching handler is found, it calls the handler with the request and any additional arguments; otherwise, it returns a \"405 Method Not Allowed\" response.
+        """
         if request.method.lower() in self.http_method_names:
             handler = getattr(
                 self, request.method.lower(), self.http_method_not_allowed
@@ -143,6 +163,9 @@ class View:
         return handler(request, *args, **kwargs)
 
     def http_method_not_allowed(self, request, *args, **kwargs):
+        """
+        ReceiveProps a request and returns an HttpResponseNotAllowed with a list of allowed methods when the request method is not supported. Logs a warning with the request method and path. Supports both synchronous and asynchronous views.
+        """
         logger.warning(
             "Method Not Allowed (%s): %s",
             request.method,
@@ -254,6 +277,9 @@ class RedirectView(View):
         return url
 
     def get(self, request, *args, **kwargs):
+        """
+        Handles HTTP redirect requests, returning a redirect response if a URL is found, otherwise returns a 410 Gone response if no URL is available.
+        """
         url = self.get_redirect_url(*args, **kwargs)
         if url:
             if self.permanent:

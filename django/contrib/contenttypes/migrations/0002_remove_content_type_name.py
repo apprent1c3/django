@@ -2,6 +2,15 @@ from django.db import migrations, models
 
 
 def add_legacy_name(apps, schema_editor):
+    """
+
+    Updates the name of all ContentType instances to their legacy name.
+
+    This function is used to ensure backwards compatibility by updating the name of 
+    ContentType instances to match the object name of their corresponding model, 
+    or the model name if the model can no longer be found.
+
+    """
     alias = schema_editor.connection.alias
     ContentType = apps.get_model("contenttypes", "ContentType")
     for ct in ContentType.objects.using(alias):

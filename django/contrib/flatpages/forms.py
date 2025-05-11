@@ -41,6 +41,10 @@ class FlatpageForm(forms.ModelForm):
         )
 
     def clean_url(self):
+        """
+        Validates and sanitizes a URL by checking for a leading slash and 
+        optionally a trailing slash, raising a ValidationError if either is missing.
+        """
         url = self.cleaned_data["url"]
         if not url.startswith("/"):
             raise ValidationError(
@@ -55,6 +59,15 @@ class FlatpageForm(forms.ModelForm):
         return url
 
     def clean(self):
+        """
+
+        Verify that a flat page with the given URL does not already exist for the specified sites.
+
+        Checks for duplicate URLs across sites to prevent data inconsistencies.
+
+        Raises a ValidationError if a duplicate URL is found for any of the specified sites.
+
+        """
         url = self.cleaned_data.get("url")
         sites = self.cleaned_data.get("sites")
 

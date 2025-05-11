@@ -67,6 +67,9 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
 
     @classmethod
     def _make_connections_override(cls):
+        """
+        Overrides database connection settings to enable persistent connections for the duration of the class instance, returning a dictionary containing the modified connection.
+        """
         conn = connections[DEFAULT_DB_ALIAS]
         cls.conn = conn
         cls.old_conn_max_age = conn.settings_dict["CONN_MAX_AGE"]
@@ -91,6 +94,9 @@ class LiveServerTestCloseConnectionTest(LiveServerBase):
     def test_closes_connections(self):
         # The server's request thread sets this event after closing
         # its database connections.
+        """
+        Tests that connections are properly closed after use, ensuring that resources are released and the connection is terminated as expected.
+        """
         closed_event = self.server_thread.httpd._connections_closed
         conn = self.conn
         # Open a connection to the database.
@@ -148,6 +154,13 @@ class LiveServerTestCaseSetupTest(LiveServerBase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Setup the class by configuring allowed hosts and performing necessary class-level setup.
+
+        This method ensures that the environment is properly set up for testing purposes, handling any potential errors that may occur during the setup process.
+
+        :raises RuntimeError: If the server setup does not fail as expected.
+        """
         cls.check_allowed_hosts(["testserver"])
         try:
             super().setUpClass()
@@ -258,6 +271,9 @@ class LiveServerViews(LiveServerBase):
             conn.close()
 
     def test_keep_alive_connection_clears_previous_request_data(self):
+        """
+        Tests that a keep-alive connection clears previous request data when a new request is made with the 'Connection: close' header.
+        """
         conn = HTTPConnection(
             LiveServerViews.server_thread.host, LiveServerViews.server_thread.port
         )

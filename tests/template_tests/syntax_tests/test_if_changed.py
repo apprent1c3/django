@@ -287,6 +287,11 @@ class IfChangedTests(SimpleTestCase):
         # The generator is not passed to the 'for' loop, because it does a list(values)
         # instead, call gen.next() in the template to control the generator.
         def gen():
+            """
+            A generator function that yields a sequence of numbers, used for testing template rendering with incremental values.\"\"\"
+
+            Note: This docstring is quite vague because the provided function seems to mix concerns. For better documentation and testability, consider splitting it into separate functions for generating numbers and testing template rendering.
+            """
             yield 1
             yield 2
             # Simulate that another thread is now rendering.

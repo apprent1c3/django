@@ -5,6 +5,21 @@ class Command(InspectDBCommand):
     db_module = "django.contrib.gis.db"
 
     def get_field_type(self, connection, table_name, row):
+        """
+        Determines the type of a database field.
+
+            Refines the field type if it's a GeometryField by fetching additional
+            geometry-specific parameters from the database connection.
+
+            Args:
+                connection: The database connection to use for introspection.
+                table_name (str): The name of the table the field belongs to.
+                row: The database row containing the field information.
+
+            Returns:
+                A tuple containing the field type, its parameters, and any notes.
+
+        """
         field_type, field_params, field_notes = super().get_field_type(
             connection, table_name, row
         )

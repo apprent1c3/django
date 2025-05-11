@@ -16,6 +16,19 @@ class BaseOrderWithRespectToTests:
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a sample question and associated answers.\"\"\"
+
+        Alternatively, a longer version:
+
+        \"\"\"Creates test data for the class, including a question with multiple possible answers, to facilitate testing of related functionality.\"\"\"
+
+        In this case, since the function is small and does a simple straightforward thing, a very short docstring would be the most suitable, such as 
+        \"\"\"Sets up sample test data.\"\"\"
+
+        So the best and most suitable one is: 
+        \"\"\"Sets up sample test data.
+        """
         cls.q1 = cls.Question.objects.create(
             text="Which Beatle starts with the letter 'R'?"
         )
@@ -40,6 +53,10 @@ class BaseOrderWithRespectToTests:
     def test_previous_and_next_in_order(self):
         # We can retrieve the answers related to a particular object, in the
         # order they were created, once we have a particular object.
+        """
+        Tests navigation between answers in order, verifying that 
+        previous and next answers are retrieved correctly for a given question.
+        """
         a1 = self.q1.answer_set.all()[0]
         self.assertEqual(a1.text, "John")
         self.assertEqual(a1.get_next_in_order().text, "Paul")
@@ -50,6 +67,10 @@ class BaseOrderWithRespectToTests:
 
     def test_item_ordering(self):
         # We can retrieve the ordering of the queryset from a particular item.
+        """
+        Tests that answer ordering is correctly retrieved from the question object, 
+        and remains consistent after adding new answers.
+        """
         a1 = self.q1.answer_set.all()[1]
         id_list = [o.pk for o in self.q1.answer_set.all()]
         self.assertSequenceEqual(a1.question.get_answer_order(), id_list)
@@ -70,6 +91,13 @@ class BaseOrderWithRespectToTests:
 
     def test_change_ordering(self):
         # The ordering can be altered
+        """
+
+        Tests changing the ordering of answers for a question.
+
+        Verifies that the answer order can be updated successfully and that the new order is reflected in the question's answer set.
+
+        """
         a = self.Answer.objects.create(text="Number five", question=self.q1)
 
         # Swap the last two items in the order list
@@ -90,6 +118,9 @@ class BaseOrderWithRespectToTests:
         )
 
     def test_recursive_ordering(self):
+        """
+        Tests that posts are ordered recursively based on their parent-child relationships.
+        """
         p1 = self.Post.objects.create(title="1")
         p2 = self.Post.objects.create(title="2")
         p1_1 = self.Post.objects.create(title="1.1", parent=p1)
@@ -99,6 +130,9 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(p1.get_post_order(), [p1_1.pk, p1_2.pk, p1_3.pk])
 
     def test_delete_and_insert(self):
+        """
+        Tests the deletion and insertion of answers, ensuring correct association with their respective questions and maintaining the expected sequence of answers.
+        """
         q1 = self.Question.objects.create(text="What is your favorite color?")
         q2 = self.Question.objects.create(text="What color is it?")
         a1 = self.Answer.objects.create(text="Blue", question=q1)
@@ -113,6 +147,11 @@ class BaseOrderWithRespectToTests:
         self.assertSequenceEqual(q1.answer_set.all(), [a2, a4, new_answer])
 
     def test_database_routing(self):
+        """
+        Tests database routing by setting up a router to write to the 'other' database and checks that queries are executed on the expected databases.\"\"\"
+
+        Note: `self.q1.set_answer_order([3, 1, 2, 4])` is assumed to be the method that triggers database write operation. This might need adjustment based on actual class/objects and methods-names being used in the function.
+        """
         class WriteToOtherRouter:
             def db_for_write(self, model, **hints):
                 return "other"

@@ -43,6 +43,16 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        Generates formatted output comparing the given Django project settings to a default configuration.
+
+        The comparison is output in the specified format, either 'hash' or 'unified', and includes the differences between the project's settings and the default settings.
+
+        :param options: A dictionary containing the comparison options, including 'default' and 'output'.
+        :returns: A string representing the formatted comparison of the project settings to the default settings.
+
+        """
         from django.conf import Settings, global_settings, settings
 
         # Because settings are imported lazily, we need to explicitly load them.
@@ -62,6 +72,23 @@ class Command(BaseCommand):
 
     def output_hash(self, user_settings, default_settings, **options):
         # Inspired by Postfix's "postconf -n".
+        """
+        Produces a list of key-value pairs where user settings differ from default settings.
+
+        Parameters
+        ----------
+        user_settings : dict
+            User-defined settings.
+        default_settings : dict
+            Default settings.
+        **options
+            Additional options, including 'all' to include unchanged settings marked as comments.
+
+        Returns
+        -------
+        list
+            List of settings with differences or all settings if 'all' option is specified.
+        """
         output = []
         for key in sorted(user_settings):
             if key not in default_settings:
@@ -73,6 +100,14 @@ class Command(BaseCommand):
         return output
 
     def output_unified(self, user_settings, default_settings, **options):
+        """
+        Returns a formatted list comparing user settings with default settings.
+
+        The output highlights differences between the two settings, including values
+        that exist only in user settings and settings with different values. The
+        'all' option can be used to include all settings, even if they match the
+        default settings.
+        """
         output = []
         for key in sorted(user_settings):
             if key not in default_settings:

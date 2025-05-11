@@ -13,6 +13,9 @@ class LoremTagTests(SimpleTestCase):
 
     @setup({"lorem_random": "{% lorem 3 w random %}"})
     def test_lorem_random(self):
+        """
+        Tests that the lorem filter generates a specified number of random words when used in a template.
+        """
         output = self.engine.render_to_string("lorem_random")
         words = output.split(" ")
         self.assertEqual(len(words), 3)

@@ -22,6 +22,10 @@ class StaticFilesStorage(FileSystemStorage):
     """
 
     def __init__(self, location=None, base_url=None, *args, **kwargs):
+        """
+        Initializes the instance with the specified location and base URL, 
+         defaults to project settings if not provided, and performs basic configuration.
+        """
         if location is None:
             location = settings.STATIC_ROOT
         if base_url is None:
@@ -106,6 +110,9 @@ class HashedFilesMixin:
     keep_intermediate_files = True
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, setting up file patterns and compiling regular expressions for later use, with optional support for JavaScript module import aggregation.
+        """
         if self.support_js_module_import_aggregation:
             self.patterns += (self._js_module_import_aggregation_patterns,)
         super().__init__(*args, **kwargs)
@@ -134,6 +141,19 @@ class HashedFilesMixin:
     def hashed_name(self, name, content=None, filename=None):
         # `filename` is the name of file to hash if `content` isn't given.
         # `name` is the base name to construct the new hashed filename from.
+        """
+
+        Generates a hashed version of a filename by computing a hash from its content.
+
+        The function can operate on a provided content or open a file to read its content.
+        It replaces the original filename with a new one containing the computed hash.
+
+        The output is the hashed name in the same format as the input name. If the input name
+        is a URL, the hashed name will also be a URL.
+
+        If the file cannot be found or opened, it returns the original name.
+
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         filename = (filename and urlsplit(unquote(filename)).path.strip()) or clean_name
@@ -332,6 +352,21 @@ class HashedFilesMixin:
 
     def _post_process(self, paths, adjustable_paths, hashed_files):
         # Sort the files by directory level
+        """
+        Post-processes a set of files by cleaning and hashing their names, and applying substitutions to their contents.
+
+        Yields tuples containing the original file name, the hashed file name, a boolean indicating whether the file was processed,
+        and a boolean indicating whether any substitutions were made.
+
+        The processing involves reading the file contents, applying patterns and templates to substitute URLs, and saving the modified
+        contents to a new file. The function also handles cases where the hashed file already exists or where errors occur during
+        processing. 
+
+        Parameters:
+            paths (dict): A dictionary of file paths to process
+            adjustable_paths (set): A set of file paths that require additional processing
+            hashed_files (dict): A dictionary of hashed file names for comparison
+        """
         def path_level(name):
             return len(name.split(os.sep))
 
@@ -417,6 +452,14 @@ class HashedFilesMixin:
         # Normalize the path to avoid multiple names for the same file like
         # ../foo/bar.css and ../foo/../foo/bar.css which normalize to the same
         # path.
+        """
+        Returns the stored or hashed name for a given file, using a cache if available.
+
+        This function normalizes and cleans the input name, then checks if a hashed version
+        is already cached. If not, it generates a new hashed name and returns the cleaned
+        version of it. The function is used to ensure consistent and unique naming for
+        stored files.
+        """
         name = posixpath.normpath(name)
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
@@ -426,6 +469,12 @@ class HashedFilesMixin:
         return cache_name
 
     def stored_name(self, name):
+        """
+
+        Return a hashed and normalized filename by iteratively cleaning and hashing the input name until a stable result is achieved, 
+        caching the result to avoid redundant computation. Raises a ValueError if the name cannot be hashed within a limited number of attempts.
+
+        """
         cleaned_name = self.clean_name(name)
         hash_key = self.hash_key(cleaned_name)
         cache_name = self.hashed_files.get(hash_key)
@@ -456,6 +505,13 @@ class ManifestFilesMixin(HashedFilesMixin):
     keep_intermediate_files = False
 
     def __init__(self, *args, manifest_storage=None, **kwargs):
+        """
+
+        Initializes the object, loading the manifest and setting up file hashes.
+
+        :param manifest_storage: Optional storage object for manifest data, defaults to self if not provided.
+
+        """
         super().__init__(*args, **kwargs)
         if manifest_storage is None:
             manifest_storage = self
@@ -463,6 +519,11 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.hashed_files, self.manifest_hash = self.load_manifest()
 
     def read_manifest(self):
+        """
+        Retrieves the contents of a manifest file.
+
+        Returns the file contents as a string if the file exists, otherwise returns None.
+        """
         try:
             with self.manifest_storage.open(self.manifest_name) as manifest:
                 return manifest.read().decode()
@@ -470,6 +531,13 @@ class ManifestFilesMixin(HashedFilesMixin):
             return None
 
     def load_manifest(self):
+        """
+        Loads a manifest file into memory, parsing its JSON content.
+
+         Returns a tuple containing a dictionary of paths and a hash value. If the manifest cannot be loaded or parsed, raises a ValueError with a descriptive error message.
+
+         Supported manifest versions are 1.0 and 1.1.
+        """
         content = self.read_manifest()
         if content is None:
             return {}, ""
@@ -493,6 +561,11 @@ class ManifestFilesMixin(HashedFilesMixin):
             self.save_manifest()
 
     def save_manifest(self):
+        """
+        Saves the manifest, a collection of file paths and hashes, to storage.
+        It calculates a unique hash for the manifest, creates a payload containing the file paths, manifest version, and hash, 
+        then stores this payload in the designated manifest storage location, overwriting any existing manifest.
+        """
         self.manifest_hash = self.file_hash(
             None, ContentFile(json.dumps(sorted(self.hashed_files.items())).encode())
         )
@@ -507,6 +580,13 @@ class ManifestFilesMixin(HashedFilesMixin):
         self.manifest_storage._save(self.manifest_name, ContentFile(contents))
 
     def stored_name(self, name):
+        """
+
+        Returns the stored name of a file, taking into account hashed filenames and manifest entries.
+        The function resolves the name to its hashed version if it exists in the manifest, otherwise
+        it generates a hashed name, handling cases where the original name contains query or fragment parts.
+
+        """
         parsed_name = urlsplit(unquote(name))
         clean_name = parsed_name.path.strip()
         hash_key = self.hash_key(clean_name)

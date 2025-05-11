@@ -59,6 +59,11 @@ def get_callable(lookup_view):
 def get_mod_func(callback):
     # Convert 'django.views.news.stories.story_detail' to
     # ['django.views.news.stories', 'story_detail']
+    """
+    Return a tuple containing the module name and function name from a given callback string.
+
+    The callback string is expected to be in the format 'module_name.function_name'. If the string does not contain a dot, it is assumed to be a function name only, and an empty string is returned as the module name.
+    """
     try:
         dot = callback.rindex(".")
     except ValueError:

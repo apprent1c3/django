@@ -101,6 +101,9 @@ class ContentTypesTests(TestCase):
 
     @isolate_apps("contenttypes_tests")
     def test_get_for_models_migrations_create_model(self):
+        """
+        Tests the get_for_models method of ContentType to ensure it correctly retrieves ContentTypes for the given models, including when migrations are involved.
+        """
         state = ProjectState.from_apps(apps.get_app_config("contenttypes"))
 
         class Foo(models.Model):
@@ -120,6 +123,9 @@ class ContentTypesTests(TestCase):
 
     def test_get_for_models_full_cache(self):
         # Full cache
+        """
+        Tests that the get_for_models method of ContentType's manager is cached, ensuring no additional database queries are executed after initial model content types retrieval.
+        """
         ContentType.objects.get_for_model(ContentType)
         ContentType.objects.get_for_model(FooWithUrl)
         with self.assertNumQueries(0):
@@ -248,6 +254,11 @@ class ContentTypesTests(TestCase):
         )
 
     def test_cache_not_shared_between_managers(self):
+        """
+        Tests that the cache of ContentType objects is not shared between different managers.
+
+        Verifies that the cache is correctly isolated, allowing each manager to maintain its own cache of ContentType objects.
+        """
         with self.assertNumQueries(1):
             ContentType.objects.get_for_model(ContentType)
         with self.assertNumQueries(0):
@@ -359,6 +370,9 @@ class GenericPrefetchTests(TestCase):
             GenericPrefetch("question")
 
     def test_values_queryset(self):
+        """
+        Tests that `GenericPrefetch` prevents the use of `values()` and `values_list()` in prefetch querysets, raising a `ValueError` with a descriptive message.
+        """
         msg = "Prefetch querysets cannot use raw(), values(), and values_list()."
         with self.assertRaisesMessage(ValueError, msg):
             GenericPrefetch("question", [Author.objects.values("pk")])

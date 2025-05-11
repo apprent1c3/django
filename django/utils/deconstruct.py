@@ -12,6 +12,14 @@ def deconstructible(*args, path=None):
     """
 
     def decorator(klass):
+        """
+
+        A decorator that modifies a class to track its constructor arguments and provides a deconstruction method.
+
+        The deconstruction method returns a 3-tuple containing the class import path, positional arguments, and keyword arguments.
+        This allows the class instances to be serialized and reconstructed, making it useful for applications such as migrations.
+
+        """
         def __new__(cls, *args, **kwargs):
             # We capture the arguments to make returning them trivial
             obj = super(klass, cls).__new__(cls)

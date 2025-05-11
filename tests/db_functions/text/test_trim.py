@@ -25,6 +25,10 @@ class TrimTests(TestCase):
         )
 
     def test_trim_transform(self):
+        """
+        Tests the trimming transformations (LTrim, RTrim, Trim) on Author objects, 
+        verifying that the database query correctly filters authors based on trimmed names.
+        """
         Author.objects.create(name=" John  ")
         Author.objects.create(name="Rhonda")
         tests = (

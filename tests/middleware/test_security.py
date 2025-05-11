@@ -14,7 +14,21 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return {"wsgi.url_scheme": "https"}
 
     def response(self, *args, headers=None, **kwargs):
+        """
+        Returns a function that generates an HttpResponse instance.
+
+        The returned function, when called, creates an HttpResponse object with the provided arguments and keyword arguments.
+        It also allows for customizing the response headers by providing a dictionary of header names and values.
+
+        Use this function to create a response generator that can be used to produce HTTP responses with customizable headers and content.
+        """
         def get_response(req):
+            """
+            Return an HTTP response object, optionally setting specified headers.
+
+            :param req: the request that triggered the response
+            :returns: an HttpResponse object with configured headers
+            """
             response = HttpResponse(*args, **kwargs)
             if headers:
                 for k, v in headers.items():
@@ -24,6 +38,13 @@ class SecurityMiddlewareTest(SimpleTestCase):
         return get_response
 
     def process_response(self, *args, secure=False, request=None, **kwargs):
+        """
+        Processes a request and its response, applying middleware and optional security settings. 
+
+        :param secure: Whether to apply secure request settings
+        :param request: Optional pre-generated request object, otherwise one will be created
+        :return: The processed response, or the result of middleware processing if applicable
+        """
         request_kwargs = {}
         if secure:
             request_kwargs.update(self.secure_request_kwargs)

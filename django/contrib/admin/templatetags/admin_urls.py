@@ -20,6 +20,14 @@ def admin_urlquote(value):
 
 @register.simple_tag(takes_context=True)
 def add_preserved_filters(context, url, popup=False, to_field=None):
+    """
+
+    Preserve filters in a URL when constructing a new URL, typically used in Django admin views.
+    This function merges preserved filters from the current request context with any existing query string
+    in the provided URL, and optionally adds parameters for popup windows or redirecting to a specific field.
+    It returns the constructed URL with the preserved filters applied.
+
+    """
     opts = context.get("opts")
     preserved_filters = context.get("preserved_filters")
     preserved_qsl = context.get("preserved_qsl")

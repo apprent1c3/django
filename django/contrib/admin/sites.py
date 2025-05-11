@@ -63,6 +63,9 @@ class AdminSite:
     final_catch_all_view = True
 
     def __init__(self, name="admin"):
+        """
+        Initializes an admin site instance with a given name, defaulting to 'admin', and sets up the site's registry and action mappings.
+        """
         self._registry = {}  # model_class class -> admin_class instance
         self.name = name
         self._actions = {"delete_selected": actions.delete_selected}
@@ -226,6 +229,15 @@ class AdminSite:
         """
 
         def inner(request, *args, **kwargs):
+            """
+
+            Checks if the request has permission to access the view.
+
+            If permission is denied, redirects the user to the login page, unless the request is to log out, in which case it redirects to the admin index page.
+
+            Otherwise, calls the view function with the original request and arguments.
+
+            """
             if not self.has_permission(request):
                 if request.path == reverse("admin:logout", current_app=self.name):
                     index_path = reverse("admin:index", current_app=self.name)
@@ -252,10 +264,20 @@ class AdminSite:
         # Since this module gets imported in the application's root package,
         # it cannot import models from other applications at the module level,
         # and django.contrib.contenttypes.views imports ContentType.
+        """
+        Returns a list of URL patterns for the admin site, including views for login, logout, password change, and autocomplete, as well as URLs for registered models and a catch-all view.
+        """
         from django.contrib.contenttypes import views as contenttype_views
         from django.urls import include, path, re_path
 
         def wrap(view, cacheable=False):
+            """
+
+            Decorator that wraps a view function with required admin site functionality.
+
+            Wraps the view in a manner that it can be used within the admin site, optionally making it cacheable.
+
+            """
             def wrapper(*args, **kwargs):
                 return self.admin_view(view, cacheable)(*args, **kwargs)
 
@@ -448,6 +470,13 @@ class AdminSite:
 
     @no_append_slash
     def catch_all_view(self, request, url):
+        """
+        Handles unspecific URL patterns by checking if a slash should be appended for redirection.
+
+        Redirects to the URL with a slash appended if the URL pattern exists and the view function allows it. If not, it raises a 404 error.
+
+        :raises: Http404
+        """
         if settings.APPEND_SLASH and not url.endswith("/"):
             urlconf = getattr(request, "urlconf", None)
             try:
@@ -571,6 +600,18 @@ class AdminSite:
         )
 
     def app_index(self, request, app_label, extra_context=None):
+        """
+
+        Renders the admin index page for a given application label.
+
+         Displays a list of models for the specified app, or raises an Http404 if the app does not exist.
+
+        :param request: Current request object.
+        :param app_label: Label of the application to display.
+        :param extra_context: Optional dictionary of extra context variables.
+        :return: A TemplateResponse object representing the rendered admin index page.
+
+        """
         app_list = self.get_app_list(request, app_label)
 
         if not app_list:

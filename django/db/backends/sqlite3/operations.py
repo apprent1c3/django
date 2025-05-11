@@ -44,6 +44,9 @@ class DatabaseOperations(BaseDatabaseOperations):
             return len(objs)
 
     def check_expression_support(self, expression):
+        """
+        Checks if an expression is supported by the SQLite database backend, specifically for aggregate functions and date/time fields. Raises an error if the expression is using an unsupported operation, such as summing or averaging date/time fields, or using DISTINCT on aggregate functions with multiple arguments.
+        """
         bad_fields = (models.DateField, models.DateTimeField, models.TimeField)
         bad_aggregates = (models.Sum, models.Avg, models.Variance, models.StdDev)
         if isinstance(expression, bad_aggregates):
@@ -173,6 +176,13 @@ class DatabaseOperations(BaseDatabaseOperations):
         # bind_parameters(state, self->statement, parameters);
         # Unfortunately there is no way to reach self->statement from Python,
         # so we quote and substitute parameters manually.
+        """
+        **:param cursor: Database cursor object**
+        **:param sql: SQL query string with optional placeholders for parameters**
+        **:param params: Dictionary or list/tuple of query parameters**
+        **:return: Last executed SQL query with parameters replaced by actual values**
+        **Returns the SQL query string after replacing placeholders with actual parameter values.**
+        """
         if params:
             if isinstance(params, (list, tuple)):
                 params = self._quote_params_for_last_executed_query(params)
@@ -195,6 +205,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return -1
 
     def __references_graph(self, table_name):
+        """
+
+        Returns a list of table names that have a foreign key reference to the given table.
+
+        The result includes the given table itself, as well as all tables that have a 
+        reference to it, either directly or transitively.
+
+        """
         query = """
         WITH tables AS (
             SELECT %s name
@@ -220,6 +238,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return lru_cache(maxsize=512)(self.__references_graph)
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        Generates SQL statements to delete data from the specified tables and optionally resets sequence values.
+
+        :param style: The SQL style object.
+        :param tables: List of table names to delete data from.
+        :param reset_sequences: Whether to reset sequence values after deletion, defaults to False.
+        :param allow_cascade: Whether to include referenced tables in the delete operation, defaults to False.
+        :return: A list of SQL statements to delete data and optionally reset sequences.
+        """
         if tables and allow_cascade:
             # Simulate TRUNCATE CASCADE by recursively collecting the tables
             # referencing the tables to be flushed.
@@ -260,6 +287,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         ]
 
     def adapt_datetimefield_value(self, value):
+        """
+        Adapts a datetime field value for use with the database backend.
+
+        This function takes a datetime value, handles timezone awareness based on project settings, and converts it to a string representation suitable for the database. If the input value is None, it returns None; otherwise, it ensures the value is timezone-agnostic if required by the project settings.
+        """
         if value is None:
             return None
 
@@ -276,6 +308,14 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def adapt_timefield_value(self, value):
+        """
+
+        Adapts a time field value for use with the SQLite backend.
+
+        This method converts the given time value to a string representation, ensuring it is not timezone-aware,
+        as SQLite does not support such times. If the input value is None, it returns None.
+
+        """
         if value is None:
             return None
 
@@ -286,6 +326,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def get_db_converters(self, expression):
+        """
+        Returns a list of converters for the given database expression.
+
+        Appends custom converters based on the internal field type, extending the default
+        list of converters provided by the parent class. Supports conversion for various
+        field types, including datetime, date, time, decimal, UUID, and boolean fields.
+
+        :param expression: The database expression to generate converters for.
+        :return: A list of converters for the expression.
+
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type == "DateTimeField":
@@ -303,6 +354,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         return converters
 
     def convert_datetimefield_value(self, value, expression, connection):
+        """
+        Converts a datetime field value to a timezone-aware datetime object if necessary. 
+
+        This conversion occurs when the value is not None, ensuring it is in a datetime format and making it timezone-aware if the project is configured to use timezones and the value is not already aware.
+        """
         if value is not None:
             if not isinstance(value, datetime.datetime):
                 value = parse_datetime(value)
@@ -325,6 +381,13 @@ class DatabaseOperations(BaseDatabaseOperations):
     def get_decimalfield_converter(self, expression):
         # SQLite stores only 15 significant digits. Digits coming from
         # float inaccuracy must be removed.
+        """
+        Returns a decimal field converter function.
+
+        The converter function takes a database value and returns a Decimal instance, 
+        quantized according to the specified decimal places if the input expression is a column, 
+        or with the default precision otherwise.
+        """
         create_decimal = decimal.Context(prec=15).create_decimal_from_float
         if isinstance(expression, Col):
             quantize_value = decimal.Decimal(1).scaleb(
@@ -356,6 +419,9 @@ class DatabaseOperations(BaseDatabaseOperations):
     def combine_expression(self, connector, sub_expressions):
         # SQLite doesn't have a ^ operator, so use the user-defined POWER
         # function that's registered in connect().
+        """
+        Generates a combined expression string based on the provided connector and sub-expressions, handling special cases for '^' (power) and '#' (bitwise XOR) operators.
+        """
         if connector == "^":
             return "POWER(%s)" % ",".join(sub_expressions)
         elif connector == "#":
@@ -363,6 +429,16 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().combine_expression(connector, sub_expressions)
 
     def combine_duration_expression(self, connector, sub_expressions):
+        """
+        Generate a duration expression by combining sub-expressions with a given connector.
+
+        The supported connectors are '+', '-', '*', and '/'. The resulting expression is
+        formatted as a string that can be used in a database query, specifically within
+        the 'django_format_dtdelta' function.
+
+        :raises: DatabaseError if the connector is invalid
+        :raises: ValueError if more than three parameters are provided
+        """
         if connector not in ["+", "-", "*", "/"]:
             raise DatabaseError("Invalid connector for timedelta: %s." % connector)
         fn_params = ["'%s'" % connector] + sub_expressions
@@ -382,6 +458,20 @@ class DatabaseOperations(BaseDatabaseOperations):
         return (-9223372036854775808, 9223372036854775807)
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+
+        Handles subtraction of temporal fields.
+
+        Given two temporal expressions and their parameters, generates SQL for subtracting 
+        the two values using either django_time_diff or django_timestamp_diff functions, 
+        depending on the internal type. 
+
+        :param internal_type: Type of temporal field being subtracted (e.g. 'TimeField')
+        :param lhs: Left-hand side of the subtraction operation (SQL expression and parameters)
+        :param rhs: Right-hand side of the subtraction operation (SQL expression and parameters)
+        :return: Tuple containing the SQL expression for the subtraction operation and its parameters
+
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         params = (*lhs_params, *rhs_params)

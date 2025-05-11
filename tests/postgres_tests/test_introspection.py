@@ -7,6 +7,16 @@ from . import PostgreSQLTestCase
 
 class InspectDBTests(PostgreSQLTestCase):
     def assertFieldsInModel(self, model, field_outputs):
+        """
+        Verifies that specified database fields exist in a given model.
+
+        This function inspects the database tables corresponding to the specified model
+        and checks that the expected field names are present.
+
+        :param model: The model to inspect.
+        :param field_outputs: A list of field names to verify.
+
+        """
         out = StringIO()
         call_command(
             "inspectdb",

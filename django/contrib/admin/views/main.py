@@ -85,6 +85,9 @@ class ChangeList:
         sortable_by,
         search_help_text,
     ):
+        """
+        Initializes the changelist view for a given model in the Django admin interface, setting up various parameters, querysets, and URLs for filtering, searching, and pagination.
+        """
         self.model = model
         self.opts = model._meta
         self.lookup_opts = self.opts
@@ -174,6 +177,15 @@ class ChangeList:
         return lookup_params
 
     def get_filters(self, request):
+        """
+        Returns a tuple containing filter specifications, a boolean indicating whether any filters are active, 
+        the updated lookup parameters, a boolean indicating whether the lookup parameters may have duplicates, 
+        and a boolean indicating whether any active filters are present.
+
+        This function is used to prepare and validate lookup parameters for filtering models in the Django admin interface, 
+        taking into account the allowed lookups defined in the `lookup_allowed` method of the model admin.
+        The function also handles date hierarchies and prepares lookup values for use in database queries.
+        """
         lookup_params = self.get_filters_params()
         may_have_duplicates = False
         has_active_filters = False
@@ -288,6 +300,18 @@ class ChangeList:
             raise IncorrectLookupParameters(e) from e
 
     def get_query_string(self, new_params=None, remove=None):
+        """
+
+        Constructs a query string based on the current filter parameters.
+
+        Modifies the query string by adding new parameters and removing existing ones.
+        The resulting string is URL encoded and sorted alphabetically by key.
+
+        :param new_params: Dictionary of new parameters to add to the query string
+        :param remove: List of parameter prefixes to remove from the query string
+        :return: The constructed query string, starting with a '?' character
+
+        """
         if new_params is None:
             new_params = {}
         if remove is None:
@@ -306,6 +330,14 @@ class ChangeList:
         return "?%s" % urlencode(sorted(p.items()), doseq=True)
 
     def get_results(self, request):
+        """
+
+        Fetches and processes the results of a query, handling pagination and result counting.
+
+        Retrieves the result list based on the current page number, and determines whether to show all results or a paginated subset.
+        Also calculates various flags and counts, such as the total result count, whether to show all results, and whether the result set is multi-page.
+
+        """
         paginator = self.model_admin.get_paginator(
             request, self.queryset, self.list_per_page
         )
@@ -346,6 +378,11 @@ class ChangeList:
         self.paginator = paginator
 
     def _get_default_ordering(self):
+        """
+        Returns the default ordering for the model.
+
+        Determines the ordering to use based on the model admin and lookup options settings, prioritizing the model admin ordering if available.
+        """
         ordering = []
         if self.model_admin.ordering:
             ordering = self.model_admin.ordering
@@ -536,6 +573,16 @@ class ChangeList:
 
     def get_queryset(self, request, exclude_parameters=None):
         # First, we collect all the declared list filters.
+        """
+        >Returns the queryset for the admin interface view, applying filters, search, ordering, and optimizations as configured. 
+
+        >Parameters:
+        >    request (object): The current request.
+        >    exclude_parameters (object): Optional parameters to exclude from filter application.
+
+        >Returns:
+        >    The filtered and ordered queryset, optionally with distinct results if filter or search duplicates are possible.
+        """
         (
             self.filter_specs,
             self.has_filters,
@@ -598,6 +645,17 @@ class ChangeList:
             return qs
 
     def apply_select_related(self, qs):
+        """
+
+        Applies the select_related optimization to a provided QuerySet based on the list_select_related configuration.
+
+        The purpose of this function is to reduce database query overhead by fetching related objects in a single query, 
+        improving performance when displaying related fields in a list view.
+
+        It takes into account the list_select_related setting, automatically enabling select_related for related fields in the list display, 
+        or using the specified related fields if provided.
+
+        """
         if self.list_select_related is True:
             return qs.select_related()
 
@@ -610,6 +668,13 @@ class ChangeList:
         return qs
 
     def has_related_field_in_list_display(self):
+        """
+        ..: 
+            Checks if any of the fields in the list display have a related field that is not the same as the field's attribute name.
+
+            :return: bool indicating whether a related field is found
+            :rtype: bool
+        """
         for field_name in self.list_display:
             try:
                 field = self.lookup_opts.get_field(field_name)

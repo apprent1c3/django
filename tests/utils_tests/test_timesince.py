@@ -10,6 +10,9 @@ from django.utils.translation import npgettext_lazy
 
 class TimesinceTests(TestCase):
     def setUp(self):
+        """
+        Initializes test date and time constants for use in tests, including a base datetime and various timedelta objects representing different units of time.
+        """
         self.t = datetime.datetime(2007, 8, 14, 13, 46, 0)
         self.onemicrosecond = datetime.timedelta(microseconds=1)
         self.onesecond = datetime.timedelta(seconds=1)
@@ -105,6 +108,9 @@ class TimesinceTests(TestCase):
         )
 
     def test_second_before_equal_first_humanize_time_strings(self):
+        """
+        Tests humanized time strings when the time difference is less than one minute, ensuring correct translation and output formatting.
+        """
         time_strings = {
             "minute": npgettext_lazy(
                 "naturaltime-future",
@@ -162,6 +168,9 @@ class TimesinceTests(TestCase):
         self.assertEqual(timeuntil(t - self.oneday, now), "0\xa0minutes")
 
     def test_naive_datetime_with_tzinfo_attribute(self):
+        """
+        Tests the behavior of the timesince and timeuntil functions when passed naive datetime objects with a tzinfo attribute set to a custom class that returns None from its utcoffset method, ensuring the functions return '0 minutes' in both the future and past cases.
+        """
         class naive(datetime.tzinfo):
             def utcoffset(self, dt):
                 return None
@@ -177,6 +186,9 @@ class TimesinceTests(TestCase):
         self.assertEqual(timeuntil(self.t, t), "1000\xa0years")
 
     def test_depth(self):
+        """
+        Tests the functionality of the timesince and timeuntil functions by comparing their output to expected results at varying depths of time resolution.
+        """
         t = (
             self.t
             + self.oneyear
@@ -207,6 +219,9 @@ class TimesinceTests(TestCase):
                 self.assertEqual(timeuntil(value, self.t, depth=depth), expected)
 
     def test_months_edge(self):
+        """
+        Tests the function `timesince` at month boundaries, ensuring it correctly calculates the time difference between two dates in terms of months and weeks.
+        """
         t = datetime.datetime(2022, 1, 1)
         tests = [
             (datetime.datetime(2022, 1, 31), "4\xa0weeks, 2\xa0days"),
@@ -244,6 +259,9 @@ class TimesinceTests(TestCase):
 
     @requires_tz_support
     def test_less_than_a_day_with_zoneinfo(self):
+        """
+        Tests the timesince function with various time intervals less than a day, using the zoneinfo library to ensure accurate time zone handling. Verifies that the function correctly calculates and formats time differences in minutes and hours.
+        """
         now_with_zoneinfo = timezone.now().astimezone(
             zoneinfo.ZoneInfo(key="Asia/Kathmandu")  # UTC+05:45
         )
@@ -260,6 +278,9 @@ class TimesinceTests(TestCase):
 
     @requires_tz_support
     def test_less_than_a_day_cross_day_with_zoneinfo(self):
+        """
+        Tests the timesince function with dates crossing a day boundary in a timezone-aware context, ensuring it returns the correct human-readable time difference from the current time in UTC.
+        """
         now_with_zoneinfo = timezone.make_aware(
             datetime.datetime(2023, 4, 14, 1, 30, 30),
             zoneinfo.ZoneInfo(key="Asia/Kathmandu"),  # UTC+05:45

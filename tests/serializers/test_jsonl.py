@@ -33,6 +33,14 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+
+        Validates if a given string contains valid JSON data split across multiple lines.
+
+        Returns:
+            bool: True if the string contains valid JSON, False otherwise.
+
+        """
         try:
             for line in serial_str.split("\n"):
                 if line:
@@ -64,6 +72,9 @@ class JsonlSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+        ..: Tests the usage of a custom JSON encoder for serializing model instances with Decimal fields. Verifies that the custom encoder correctly converts Decimal values to strings.
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 

@@ -162,6 +162,15 @@ class UserManager(BaseUserManager):
         return self._create_user(username, email, password, **extra_fields)
 
     def create_superuser(self, username, email=None, password=None, **extra_fields):
+        """
+
+        Creates a superuser with the specified username, email, and password.
+
+        The created superuser will also have staff and superuser privileges.
+        Any additional fields provided will be used to create the superuser, with
+        is_staff and is_superuser defaults set to True.
+
+        """
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
 
@@ -175,6 +184,23 @@ class UserManager(BaseUserManager):
     def with_perm(
         self, perm, is_active=True, include_superusers=True, backend=None, obj=None
     ):
+        """
+        Decorator to restrict access to a view based on a specific permission.
+
+        Args:
+            perm (str): The permission to check for.
+            is_active (bool, optional): Whether the user must be active. Defaults to True.
+            include_superusers (bool, optional): Whether superusers should be included. Defaults to True.
+            backend (str, optional): The authentication backend to use. Defaults to None.
+            obj (object, optional): The object to check permissions for. Defaults to None.
+
+        Returns:
+            A QuerySet or model manager that filters objects based on the given permission.
+
+        Note:
+            If multiple authentication backends are configured, the `backend` argument must be provided.
+
+        """
         if backend is None:
             backends = auth._get_backends(return_tuples=True)
             if len(backends) == 1:
@@ -202,6 +228,19 @@ class UserManager(BaseUserManager):
 
 # A few helper functions for common logic between User and AnonymousUser.
 def _user_get_permissions(user, obj, from_name):
+    """
+
+    Retrieves a set of permissions for a given user in relation to an object from various authentication backends.
+
+    The function aggregates permissions from backends that implement the :func:`get_<from_name>_permissions` method,
+    where <from_name> is the provided permission type. The result is a set of permissions that the user has on the object.
+
+    :param user: The user for whom permissions are being retrieved.
+    :param obj: The object for which permissions are being retrieved.
+    :param from_name: The name of the permission type to retrieve (e.g. \"model\" or \"view\").
+    :returns: A set of permissions the user has on the object.
+
+    """
     permissions = set()
     name = "get_%s_permissions" % from_name
     for backend in auth.get_backends():

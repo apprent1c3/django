@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class TypedMultipleChoiceFieldTest(SimpleTestCase):
     def test_typedmultiplechoicefield_1(self):
+        """
+        Tests the TypedMultipleChoiceField's cleaning functionality to ensure it correctly coerces input values and validates against available choices.
+        """
         f = TypedMultipleChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int)
         self.assertEqual([1], f.clean(["1"]))
         msg = "'Select a valid choice. 2 is not one of the available choices.'"
@@ -24,6 +27,9 @@ class TypedMultipleChoiceFieldTest(SimpleTestCase):
         self.assertEqual([True], f.clean(["-1"]))
 
     def test_typedmultiplechoicefield_4(self):
+        """
+        Tests the TypedMultipleChoiceField to ensure it correctly processes and validates user input, specifically checking that the field can clean a list of strings into a list of coerced integers and raises a ValidationError when an invalid choice is provided.
+        """
         f = TypedMultipleChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int)
         self.assertEqual([1, -1], f.clean(["1", "-1"]))
         msg = "'Select a valid choice. 2 is not one of the available choices.'"
@@ -33,6 +39,11 @@ class TypedMultipleChoiceFieldTest(SimpleTestCase):
     def test_typedmultiplechoicefield_5(self):
         # Even more weirdness: if you have a valid choice but your coercion function
         # can't coerce, you'll still get a validation error. Don't do this!
+        """
+        Tests the TypedMultipleChoiceField's validation behavior for invalid and empty input values.
+
+        The test verifies that the field correctly raises a ValidationError when an invalid choice is selected and when no value is provided, respectively.
+        """
         f = TypedMultipleChoiceField(choices=[("A", "A"), ("B", "B")], coerce=int)
         msg = "'Select a valid choice. B is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):

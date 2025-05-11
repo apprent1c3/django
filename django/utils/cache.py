@@ -45,6 +45,9 @@ def patch_cache_control(response, **kwargs):
     """
 
     def dictitem(s):
+        """
+        Parse a string into a key-value pair, where the key is case-insensitive and the value is everything after the first equals sign. If no equals sign is present, the value defaults to True.
+        """
         t = s.split("=", 1)
         if len(t) > 1:
             return (t[0].lower(), t[1])
@@ -136,6 +139,10 @@ def _precondition_failed(request):
 
 
 def _not_modified(request, response=None):
+    """
+    ..: 
+        Returns an HttpResponseNotModified object, copying relevant headers and cookies from an existing response if provided.
+    """
     new_response = HttpResponseNotModified()
     if response:
         # Preserve the headers required by RFC 9110 Section 15.4.5, as well as
@@ -163,6 +170,20 @@ def _not_modified(request, response=None):
 
 def get_conditional_response(request, etag=None, last_modified=None, response=None):
     # Only return conditional responses on successful requests.
+    """
+
+    Handles HTTP conditional requests, checking for etags and last modified dates to 
+    determine whether to return the provided response or a pre-condition failed or 
+    not modified response.
+
+    :param request: The incoming HTTP request
+    :param etag: The entity tag associated with the response
+    :param last_modified: The last modified date associated with the response
+    :param response: The response to be returned, or None to return a default response
+
+    :return: The response to be returned, potentially modified based on the request headers
+
+    """
     if response and not (200 <= response.status_code < 300):
         return response
 

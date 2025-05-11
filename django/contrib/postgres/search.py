@@ -16,6 +16,9 @@ class SearchVectorExact(Lookup):
     lookup_name = "exact"
 
     def process_rhs(self, qn, connection):
+        """
+        Ensures the right-hand side (RHS) of a query is properly formatted by wrapping it in a SearchQuery if necessary, and then delegates processing to the parent class.
+        """
         if not isinstance(self.rhs, (SearchQuery, CombinedSearchQuery)):
             config = getattr(self.lhs, "config", None)
             self.rhs = SearchQuery(self.rhs, config=config)
@@ -72,6 +75,16 @@ class SearchVectorCombinable:
     ADD = "||"
 
     def _combine(self, other, connector, reversed):
+        """
+        Combines the current search vector with another, using a specified logical connector.
+
+        :param other: The other search vector to combine with.
+        :param connector: The logical connector to use for combining.
+        :param reversed: Whether to reverse the order of the combined vectors.
+        :raises TypeError: If the other object is not a SearchVectorCombinable instance.
+        :return: A new CombinedSearchVector instance representing the combined search query.
+
+        """
         if not isinstance(other, SearchVectorCombinable):
             raise TypeError(
                 "SearchVector can only be combined with other SearchVector "
@@ -93,6 +106,9 @@ class SearchVector(SearchVectorCombinable, Func):
     output_field = SearchVectorField()
 
     def __init__(self, *expressions, config=None, weight=None):
+        """
+        Initializes a search query object, setting its configuration and weight for ranking results. The configuration is derived from the provided parameters, and the weight is optionally set to influence the search result ordering.
+        """
         super().__init__(*expressions)
         self.config = SearchConfig.from_parameter(config)
         if weight is not None and not hasattr(weight, "resolve_expression"):
@@ -112,6 +128,21 @@ class SearchVector(SearchVectorCombinable, Func):
         return resolved
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+        Returns the SQL representation of a search vector query.
+
+         :param compiler: The SQL compiler to use.
+         :param connection: The database connection to use.
+         :param function: Optional function to apply to the result.
+         :param template: Optional template to use for the SQL query.
+
+         :return: A tuple containing the SQL query and a list of parameters.
+
+         This function generates the SQL required to create a search vector, handling
+         configuration and weighting as necessary. It ensures that all expressions
+         are coerced to a compatible text type, and allows for custom templates and
+         functions to be applied to the query result.
+        """
         clone = self.copy()
         clone.set_source_expressions(
             [
@@ -160,6 +191,15 @@ class SearchQueryCombinable:
     BITOR = "||"
 
     def _combine(self, other, connector, reversed):
+        """
+        Combines the current SearchQuery with another SearchQueryCombinable instance using a specified connector.
+
+         :param other: The SearchQueryCombinable instance to combine with.
+         :param connector: The connector to use for combining the search queries.
+         :param reversed: Whether to reverse the order of the combined search queries.
+         :raises TypeError: If the other instance is not a SearchQueryCombinable.
+         :return: A new CombinedSearchQuery instance representing the combined search queries.
+        """
         if not isinstance(other, SearchQueryCombinable):
             raise TypeError(
                 "SearchQuery can only be combined with other SearchQuery "
@@ -203,6 +243,32 @@ class SearchQuery(SearchQueryCombinable, Func):
         invert=False,
         search_type="plain",
     ):
+        """
+        Initializes a search function with the given value and configuration.
+
+        Parameters
+        ----------
+        value : any
+            The value to search for.
+        output_field : any, optional
+            The output field for the search result.
+        config : any, optional
+            The search configuration.
+        invert : bool, optional
+            Whether to invert the search result.
+        search_type : str, optional
+            The type of search to perform (default is 'plain').
+
+        Raises
+        ------
+        ValueError
+            If the search type is unknown.
+
+        Notes
+        -----
+        Configures the search function with the provided parameters and validates the search type.
+
+        """
         self.function = self.SEARCH_TYPES.get(search_type)
         if self.function is None:
             raise ValueError("Unknown search_type argument '%s'." % search_type)
@@ -252,6 +318,9 @@ class SearchRank(Func):
         normalization=None,
         cover_density=False,
     ):
+        """
+        Initializes a full-text search ranking function, which calculates the relevance of a document vector with respect to a given query, allowing for optional weighting and normalization of results.
+        """
         from .fields.array import ArrayField
 
         if not hasattr(vector, "resolve_expression"):
@@ -293,6 +362,9 @@ class SearchHeadline(Func):
         max_fragments=None,
         fragment_delimiter=None,
     ):
+        """
+        Initializes a search object with an expression, query, and optional configuration settings to customize the search behavior.
+        """
         if not hasattr(query, "resolve_expression"):
             query = SearchQuery(query)
         options = {
@@ -315,6 +387,13 @@ class SearchHeadline(Func):
         super().__init__(*expressions)
 
     def as_sql(self, compiler, connection, function=None, template=None):
+        """
+
+        Generates the SQL string and parameters for this database operation, incorporating any specified options.
+
+        :returns: A tuple containing the SQL string and a list of parameters.
+
+        """
         options_sql = ""
         options_params = []
         if self.options:

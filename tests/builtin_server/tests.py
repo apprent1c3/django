@@ -80,6 +80,14 @@ class WSGIFileWrapperTests(TestCase):
     """
 
     def test_file_wrapper_uses_sendfile(self):
+        """
+
+        Tests if the FileWrapperHandler uses the sendfile functionality correctly.
+
+        Verifies that when the handler is run with a WSGI application using 
+        file wrapper, it correctly utilizes sendfile and produces no output.
+
+        """
         env = {"SERVER_PROTOCOL": "HTTP/1.0"}
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         handler.run(wsgi_app_file_wrapper)
@@ -88,6 +96,9 @@ class WSGIFileWrapperTests(TestCase):
         self.assertEqual(handler.stderr.getvalue(), b"")
 
     def test_file_wrapper_no_sendfile(self):
+        """
+        Tests that the FileWrapper handler does not use the sendfile method when running a WSGI application under the HTTP/1.0 protocol.
+        """
         env = {"SERVER_PROTOCOL": "HTTP/1.0"}
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         handler.run(wsgi_app)
@@ -118,6 +129,9 @@ class WSGIFileWrapperTests(TestCase):
 
     @override_settings(ROOT_URLCONF="builtin_server.urls")
     def test_file_response_call_request_finished(self):
+        """
+        Tests that the request_finished signal is emitted when a file response is generated, ensuring correct cleanup after the request is handled.
+        """
         env = RequestFactory().get("/fileresponse/").environ
         handler = FileWrapperHandler(BytesIO(), BytesIO(), BytesIO(), env)
         with mock.MagicMock() as signal_handler:

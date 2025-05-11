@@ -22,6 +22,13 @@ class Command(AppCommand):
         )
 
     def handle_app_config(self, app_config, **options):
+        """
+        \".. function:: handle_app_config(app_config, **options)
+
+           Handles application configuration by generating SQL commands to reset sequences 
+           for the given models in the specified database connection. Returns a string 
+           containing the SQL commands or an empty string if no sequences are found.\"
+        """
         if app_config.models_module is None:
             return
         connection = connections[options["database"]]

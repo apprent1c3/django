@@ -11,6 +11,9 @@ class DatabaseSequenceTests(TransactionTestCase):
     available_apps = []
 
     def test_get_sequences(self):
+        """
+        Tests retrieval of sequences for a database table, verifying that a single sequence exists and its details match the table and field expectations.
+        """
         with connection.cursor() as cursor:
             seqs = connection.introspection.get_sequences(
                 cursor, Square._meta.db_table, Square._meta.local_fields
@@ -21,6 +24,9 @@ class DatabaseSequenceTests(TransactionTestCase):
             self.assertEqual(seqs[0]["column"], "id")
 
     def test_get_sequences_manually_created_index(self):
+        """
+        Tests the retrieval of sequences for a manually created index on the Square model, verifying that the sequence is correctly detected after the identity column is dropped and the model is recreated.
+        """
         with connection.cursor() as cursor:
             with connection.schema_editor() as editor:
                 editor._drop_identity(Square._meta.db_table, "id")
@@ -36,6 +42,14 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_view_default_collation(self):
+        """
+
+        Tests that the default collation for a view is correctly identified as None.
+
+        Verifies that introspection of a view created from a table with a character field returns 
+        the expected column description, including the absence of a collation.
+
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )
@@ -59,6 +73,9 @@ class DatabaseSequenceTests(TransactionTestCase):
 
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_get_table_description_materialized_view_non_default_collation(self):
+        """
+        Tests whether the database correctly handles table description for a materialized view created with a non-default collation, verifying that the collation is detected and differs from the view's default collation.
+        """
         person_table = connection.introspection.identifier_converter(
             Person._meta.db_table
         )

@@ -2,6 +2,13 @@ import datetime
 
 
 def _get_duration_components(duration):
+    """
+    Breaks down a duration into its constituent time components.
+
+    :param duration: A duration object
+    :return: A tuple containing days, hours, minutes, seconds, and microseconds
+    :rtype: tuple[int, int, int, int, int]
+    """
     days = duration.days
     seconds = duration.seconds
     microseconds = duration.microseconds
@@ -29,6 +36,17 @@ def duration_string(duration):
 
 
 def duration_iso_string(duration):
+    """
+
+    Formats a time duration into an ISO 8601 duration string.
+
+    Args:
+        duration: A time duration, represented as a datetime.timedelta object.
+
+    Returns:
+        A string representing the duration in ISO 8601 format (e.g., \"P3DT12H30M45S\").
+
+    """
     if duration < datetime.timedelta(0):
         sign = "-"
         duration *= -1

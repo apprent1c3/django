@@ -269,6 +269,9 @@ class MigrationGraph:
     def ensure_not_cyclic(self):
         # Algo from GvR:
         # https://neopythonic.blogspot.com/2009/01/detecting-cycles-in-directed-graph.html
+        """
+        Verifies that the graph does not contain any cyclic dependencies, raising an error if a cycle is detected.
+        """
         todo = set(self.nodes)
         while todo:
             node = todo.pop()
@@ -304,6 +307,16 @@ class MigrationGraph:
         )
 
     def _generate_plan(self, nodes, at_end):
+        """
+        Generate a migration plan by traversing the given nodes and their dependencies.
+
+        The plan includes all migrations that are part of the forward plan for each node,
+        excluding any migrations that are already in the list of nodes unless at_end is True.
+        The resulting plan is returned as a list of migrations.
+
+        :param nodes: The nodes to generate the plan for
+        :param at_end: Whether to include migrations already in the nodes list
+        """
         plan = []
         for node in nodes:
             for migration in self.forwards_plan(node):

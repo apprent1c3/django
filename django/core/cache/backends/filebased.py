@@ -29,6 +29,16 @@ class FileBasedCache(BaseCache):
         return True
 
     def get(self, key, default=None, version=None):
+        """
+        Retrieve a value associated with the given key, optionally from a specific version.
+
+        The value is loaded from a compressed, pickled file. If the file is not found or its contents are expired, 
+        the specified default value is returned instead. If no default is provided, it will be None by default.
+
+        :param key: The identifier of the value to retrieve
+        :param default: The value to return if the key is not found, defaults to None
+        :param version: The version of the value to retrieve, defaults to None
+        """
         fname = self._key_to_file(key, version)
         try:
             with open(fname, "rb") as f:
@@ -44,6 +54,18 @@ class FileBasedCache(BaseCache):
         file.write(zlib.compress(pickle.dumps(value, self.pickle_protocol)))
 
     def set(self, key, value, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Set a value for a given key in the storage.
+
+        The value will be written to a file with a name derived from the key, and optionally a version.
+        A temporary file is used to avoid partial writes in case of failure.
+        The storage directory is created if it does not exist, and old files may be removed to free up space.
+
+        :param key: The key to store the value under
+        :param value: The value to store
+        :param timeout: The timeout to use when writing the value (default: DEFAULT_TIMEOUT)
+        :param version: An optional version to include in the file name
+        """
         self._createdir()  # Cache dir can be deleted at any time.
         fname = self._key_to_file(key, version)
         self._cull()  # make some room if necessary
@@ -59,6 +81,9 @@ class FileBasedCache(BaseCache):
                 os.remove(tmp_path)
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Updates the expiration time of a key, resetting its timeout and returning True if successful, or False if the key does not exist or has expired. The key's associated value is preserved during this operation.
+        """
         try:
             with open(self._key_to_file(key, version), "r+b") as f:
                 try:
@@ -79,6 +104,9 @@ class FileBasedCache(BaseCache):
         return self._delete(self._key_to_file(key, version))
 
     def _delete(self, fname):
+        """
+        Deletes a file if it exists within the designated directory.
+        """
         if not fname.startswith(self._dir) or not os.path.exists(fname):
             return False
         try:
@@ -89,6 +117,13 @@ class FileBasedCache(BaseCache):
         return True
 
     def has_key(self, key, version=None):
+        """
+        Checks if a key exists and has not expired.
+
+        :param key: The key to check for existence.
+        :param version: Optional version of the key.
+        :returns: True if the key exists and is valid, False otherwise.
+        """
         fname = self._key_to_file(key, version)
         try:
             with open(fname, "rb") as f:
@@ -116,6 +151,11 @@ class FileBasedCache(BaseCache):
     def _createdir(self):
         # Set the umask because os.makedirs() doesn't apply the "mode" argument
         # to intermediate-level directories.
+        """
+        .. method:: _createdir()
+
+           Creates the directory specified by :attr:`_dir` if it does not already exist, setting its permissions to 0700 (rwx------) in the process.
+        """
         old_umask = os.umask(0o077)
         try:
             os.makedirs(self._dir, 0o700, exist_ok=True)

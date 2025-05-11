@@ -11,6 +11,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return self.connection.ops.quote_name(name)
 
     def _get_database_create_suffix(self, encoding=None, template=None):
+        """
+        Generates a suffix for a database creation command, optionally specifying encoding and template.
+        """
         suffix = ""
         if encoding:
             suffix += " ENCODING '{}'".format(encoding)
@@ -38,6 +41,11 @@ class DatabaseCreation(BaseDatabaseCreation):
         return cursor.fetchone() is not None
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+        Creates a test database, skipping creation if the database already exists and keepdb is True.
+        Raises an exception if database creation fails due to a reason other than a duplicate database error, 
+        unless keepdb is False and a duplicate database error occurs, in which case the exception is propagated.
+        """
         try:
             if keepdb and self._database_exists(cursor, parameters["dbname"]):
                 # If the database should be kept and it already exists, don't
@@ -57,6 +65,15 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
         # CREATE DATABASE ... WITH TEMPLATE ... requires closing connections
         # to the template database.
+        """
+
+        Clone the test database with a specified suffix.
+
+        This function creates a copy of the main database and configures it for testing.
+        It closes existing connections, creates a new database with the specified suffix,
+        and handles any potential errors that may occur during the cloning process.
+
+        """
         self.connection.close()
         self.connection.close_pool()
 

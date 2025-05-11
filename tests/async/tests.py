@@ -17,6 +17,9 @@ from .models import SimpleModel
 class CacheTest(SimpleTestCase):
     def test_caches_local(self):
         @async_to_sync
+        """
+        Tests whether the local cache is shared across multiple synchronous accesses.
+        """
         async def async_cache():
             return caches[DEFAULT_CACHE_ALIAS]
 
@@ -76,6 +79,9 @@ class AsyncView(View):
 
 class ViewTests(SimpleTestCase):
     def test_views_are_correctly_marked(self):
+        """
+        Tests whether view classes are correctly identified as synchronous or asynchronous.
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -87,6 +93,9 @@ class ViewTests(SimpleTestCase):
                 self.assertIs(iscoroutinefunction(callback), is_async)
 
     def test_mixed_views_raise_error(self):
+        """
+        Tests that a view with mixed synchronous and asynchronous HTTP handlers raises an error.
+        """
         class MixedView(View):
             def get(self, request, *args, **kwargs):
                 return HttpResponse("Hello (mixed) world!")
@@ -102,6 +111,9 @@ class ViewTests(SimpleTestCase):
             MixedView.as_view()
 
     def test_options_handler_responds_correctly(self):
+        """
+        Tests that the options handler of SyncView and AsyncView responds correctly, verifying if the response is a coroutine or not, and that it returns an HttpResponse instance.
+        """
         tests = [
             (SyncView, False),
             (AsyncView, True),
@@ -120,6 +132,13 @@ class ViewTests(SimpleTestCase):
                 self.assertIsInstance(response, HttpResponse)
 
     def test_http_method_not_allowed_responds_correctly(self):
+        """
+        Tests that views respond correctly when receiving an HTTP method that is not allowed.
+
+        Checks both synchronous and asynchronous views, verifying that the response is an
+        instance of HttpResponseNotAllowed and that the response is a coroutine if the view is
+        asynchronous.
+        """
         request_factory = RequestFactory()
         tests = [
             (SyncView, False),

@@ -72,6 +72,14 @@ if not PY311:
     # Backport of unittest.case._enter_context() from Python 3.11.
     def _enter_context(cm, addcleanup):
         # Look up the special methods on the type to match the with statement.
+        """
+        Enters a context managed by the given context manager, while also providing a cleanup function for resource release.
+
+        :arg cm: The context manager instance.
+        :arg addcleanup: A function to schedule cleanup actions.
+        :return: The result of entering the context. 
+        :raises TypeError: If the context manager does not support the context management protocol.
+        """
         cls = type(cm)
         try:
             enter = cls.__enter__
@@ -106,6 +114,9 @@ def is_pickable(obj):
 
 
 def assert_and_parse_html(self, html, user_msg, msg):
+    """
+    Parses HTML content and asserts that it is valid, failing the test if parsing fails. If parsing succeeds, returns the parsed DOM.
+    """
     try:
         dom = parse_html(html)
     except HTMLParseError as e:
@@ -121,6 +132,15 @@ class _AssertNumQueriesContext(CaptureQueriesContext):
         super().__init__(connection)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+
+        Exits the context manager and verifies the number of executed queries matches the expected amount.
+
+        If an exception occurred during execution, this method exits without performing the verification.
+        Otherwise, it asserts the actual number of executed queries matches the expected number, 
+        failing the test case if they do not match and providing a detailed report of the captured queries.
+
+        """
         super().__exit__(exc_type, exc_value, traceback)
         if exc_type is not None:
             return
@@ -142,6 +162,9 @@ class _AssertNumQueriesContext(CaptureQueriesContext):
 
 class _AssertTemplateUsedContext:
     def __init__(self, test_case, template_name, msg_prefix="", count=None):
+        """
+        Initializes a class instance for template rendering in the context of a test case, storing the test case, template name, message prefix, count, and other rendering state.
+        """
         self.test_case = test_case
         self.template_name = template_name
         self.msg_prefix = msg_prefix
@@ -222,6 +245,9 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up the class for testing, configuring overridden and modified settings, and setting up test databases. Cleans up test databases after the class tests have completed.
+        """
         super().setUpClass()
         if cls._overridden_settings:
             cls.enterClassContext(override_settings(**cls._overridden_settings))
@@ -232,6 +258,11 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _validate_databases(cls):
+        """
+        Validate the list of databases specified by the class, checking for existence and correctness. 
+        If all databases are requested, returns a set of all available databases. 
+        Otherwise, returns a set of the specified databases if all are valid, raising an ImproperlyConfigured error if any are not found.
+        """
         if cls.databases == "__all__":
             return frozenset(connections)
         for alias in cls.databases:
@@ -253,6 +284,13 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _add_databases_failures(cls):
+        """
+        Replace disallowed database methods with failure-inducing mocks to prevent accidental database access.
+
+        This method validates databases, then for each unallowed database connection, it wraps disallowed methods to raise an error with a descriptive message, enforcing testing constraints.
+
+        The purpose of this function is to prevent test code from unintentionally accessing real databases, ensuring tests are isolated and reliable.
+        """
         cls.databases = cls._validate_databases()
         for alias in connections:
             if alias in cls.databases:
@@ -276,6 +314,11 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def _remove_databases_failures(cls):
+        """
+        .. classmethod:: _remove_databases_failures(cls)
+            Bypass database failure checks for connections not managed by this class.
+            Restores the original behavior of unmanaged database connections.
+        """
         for alias in connections:
             if alias in cls.databases:
                 continue
@@ -286,6 +329,11 @@ class SimpleTestCase(unittest.TestCase):
 
     @classmethod
     def ensure_connection_patch_method(cls):
+        """
+        Ensures that a database connection is established, while enforcing restrictions on 
+         threaded connections to certain databases. If a disallowed connection attempt is 
+         made, a mocked failure is returned instead.
+        """
         real_ensure_connection = BaseDatabaseWrapper.ensure_connection
 
         def patched_ensure_connection(self, *args, **kwargs):
@@ -556,6 +604,14 @@ class SimpleTestCase(unittest.TestCase):
     def _assert_contains(self, response, text, status_code, msg_prefix, html):
         # If the response supports deferred rendering and hasn't been rendered
         # yet, then ensure that it does get rendered before proceeding further.
+        """
+        Helper function to assert that a response contains specific text.
+
+         Checks the response status code and checks if the given text is present in the response content.
+         Can handle both HTML and non-HTML content, and provides a detailed error message if the assertion fails.
+         Returns a tuple containing the text representation, the actual count of the text in the content, 
+         a message prefix, and the content representation, which can be used for further assertion or logging.
+        """
         if (
             hasattr(response, "render")
             and callable(response.render)
@@ -659,6 +715,19 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _assert_form_error(self, form, field, errors, msg_prefix, form_repr):
+        """
+        Asserts that the specified form field contains the expected error messages.
+
+        Verifies that the form is bound, that the specified field exists within the form (if provided), 
+        and then checks that the error messages match the expected list of errors. Raises an assertion 
+        error if any of these conditions are not met.
+
+        :param form: The form object to be checked
+        :param field: The name of the field to check errors for, or None to check non-field errors
+        :param errors: A list of expected error messages
+        :param msg_prefix: A prefix to include in the failure message
+        :param form_repr: A string representation of the form to include in the failure message
+        """
         if not form.is_bound:
             self.fail(
                 f"{msg_prefix}The {form_repr} is not bound, it will never have any "
@@ -736,6 +805,19 @@ class SimpleTestCase(unittest.TestCase):
             )
 
     def _get_template_used(self, response, template_name, msg_prefix, method_name):
+        """
+        Determine the template used based on the provided response and template name.
+
+        This function validates the inputs, checks for the presence of templates in the response,
+        and returns the template name, a list of template names, or None, depending on the input values.
+
+        :param response: The response object to check for templates
+        :param template_name: The name of the template to look for
+        :param msg_prefix: A prefix for any error messages
+        :param method_name: The name of the method that triggered this check
+        :return: A tuple containing the template name, a list of template names, or None, and the error message prefix
+        :raise TypeError: If neither response nor template_name is provided
+        """
         if response is None and template_name is None:
             raise TypeError("response and/or template_name argument must be provided")
 
@@ -756,6 +838,15 @@ class SimpleTestCase(unittest.TestCase):
         return None, template_names, msg_prefix
 
     def _assert_template_used(self, template_name, template_names, msg_prefix, count):
+        """
+        Verifies that a specific template was used to render a response, 
+        optionally checking the number of times it was used.
+
+        :param template_name: The name of the template to check for.
+        :param template_names: A list of templates actually used to render the response.
+        :param msg_prefix: A prefix for error messages.
+        :param count: The expected number of times the template should have been used, or None for no count check.
+        """
         if not template_names:
             self.fail(msg_prefix + "No templates used to render the response")
         self.assertTrue(
@@ -828,6 +919,13 @@ class SimpleTestCase(unittest.TestCase):
     def _assertFooMessage(
         self, func, cm_attr, expected_exception, expected_message, *args, **kwargs
     ):
+        """
+        Returns a context manager to assert that a given function or method raises or warns with the expected exception and message.
+
+        If a callable object is provided, it will be executed within the context manager with the given arguments. Otherwise, the context manager will be returned to be used as needed.
+
+        This is a utility function for testing purposes, allowing for more expressive assertions about expected exceptions and warnings in code under test.
+        """
         callable_obj = None
         if args:
             callable_obj, *args = args
@@ -968,6 +1066,20 @@ class SimpleTestCase(unittest.TestCase):
             self.fail(self._formatMessage(msg, standardMsg))
 
     def assertInHTML(self, needle, haystack, count=None, msg_prefix=""):
+        """
+        Asserts that a given HTML snippet (needle) is present in another HTML snippet (haystack).
+
+         :param needle: The HTML snippet to search for.
+         :param haystack: The HTML snippet to search in.
+         :param count: The expected number of occurrences of the needle. If not provided, 
+                       the assertion will pass as long as the needle is found at least once.
+         :param msg_prefix: A prefix to add to the error message.
+
+         The function parses both the needle and haystack as HTML, then checks for the presence 
+         and optionally the count of the needle in the haystack. If the assertion fails, an 
+         error message will be generated with the given prefix, the expected and actual counts, 
+         and a representation of the haystack for debugging purposes.
+        """
         parsed_needle = assert_and_parse_html(
             self, needle, None, "First argument is not valid HTML:"
         )
@@ -1154,6 +1266,14 @@ class TransactionTestCase(SimpleTestCase):
         ]
 
     def _reset_sequences(self, db_name):
+        """
+        Resets database sequences for a given database connection.
+
+        This method checks if the database backend supports resetting sequences,
+        then generates and executes the necessary SQL to reset the sequences.
+
+        :param db_name: Name of the database connection to reset sequences for
+        """
         conn = connections[db_name]
         if conn.features.supports_sequence_reset:
             sql_list = conn.ops.sequence_reset_by_name_sql(
@@ -1166,6 +1286,12 @@ class TransactionTestCase(SimpleTestCase):
                             cursor.execute(sql)
 
     def _fixture_setup(self):
+        """
+        Sets up fixtures for databases by resetting sequences, restoring serialized database contents, and loading fixtures.
+
+        This method prepares the databases for testing by optionally resetting sequence counters, 
+        restoring the database to its serialized state, and loading specified fixtures.
+        """
         for db_name in self._databases_names(include_mirrors=False):
             # Reset sequences
             if self.reset_sequences:
@@ -1242,6 +1368,19 @@ class TransactionTestCase(SimpleTestCase):
             )
 
     def assertQuerySetEqual(self, qs, values, transform=None, ordered=True, msg=None):
+        """
+        Asserts that a queryset matches a list of expected values.
+
+        The comparison can be ordered or unordered, and a transformation function
+        can be applied to the queryset items before comparison.
+
+        :arg qs: The queryset to compare.
+        :arg values: The list of expected values.
+        :arg transform: An optional function to apply to queryset items before comparison.
+        :arg ordered: Whether the comparison should be ordered (default: True).
+        :arg msg: An optional error message to display on failure.
+
+        """
         values = list(values)
         items = qs
         if transform is not None:
@@ -1258,6 +1397,18 @@ class TransactionTestCase(SimpleTestCase):
         return self.assertEqual(list(items), values, msg=msg)
 
     def assertNumQueries(self, num, func=None, *args, using=DEFAULT_DB_ALIAS, **kwargs):
+        """
+        Asserts that a block of code executes a certain number of database queries.
+
+        This function can be used as a context manager to test that a piece of code
+        executes the expected number of queries, or it can be used as a decorator to
+        test a function.
+
+        :param int num: The expected number of queries to be executed.
+        :param func: The function to be tested, or None if used as a context manager.
+        :param str using: The database alias to use, defaults to the DEFAULT_DB_ALIAS.
+
+        """
         conn = connections[using]
 
         context = _AssertNumQueriesContext(self, num, conn)
@@ -1312,6 +1463,9 @@ class TestData:
         self.data = data
 
     def get_memo(self, testcase):
+        """
+        Retrieves a memoization dictionary associated with a given testcase, creating a new one if it does not exist.
+        """
         try:
             memo = getattr(testcase, self.memo_attr)
         except AttributeError:
@@ -1320,6 +1474,12 @@ class TestData:
         return memo
 
     def __get__(self, instance, owner):
+        """
+        Descriptor to manage data on instances, implementing lazy copying to avoid modifying shared state.
+
+        When accessed through an instance, returns a deep copy of the managed data, stored on the instance to avoid repeated copying.
+        When accessed through a class, returns the original managed data.
+        """
         if instance is None:
             return self.data
         memo = self.get_memo(instance)
@@ -1373,6 +1533,16 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def setUpClass(cls):
+        """
+
+        Sets up the test class by creating a transactional context and loading fixtures.
+
+        This method is responsible for preparing the test environment, ensuring that any
+        changes made during testing are properly isolated and rolled back after the test
+        completes. It loads any specified fixtures into the test databases and sets up
+        test data, wrapping these operations in a transaction to maintain data integrity.
+
+        """
         super().setUpClass()
         if not (
             cls._databases_support_transactions()
@@ -1405,6 +1575,9 @@ class TestCase(TransactionTestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """
+        Clean up after running a test class, rolling back atomic operations and closing database connections if the databases support transactions and savepoints.
+        """
         if (
             cls._databases_support_transactions()
             and cls._databases_support_savepoints()
@@ -1425,6 +1598,15 @@ class TestCase(TransactionTestCase):
         return super()._should_reload_connections()
 
     def _fixture_setup(self):
+        """
+
+        Sets up fixtures for a test case, handling support for transactions and savepoints.
+
+        If the databases do not support transactions, it sets up the test data directly.
+        Otherwise, it enters atomic mode and loads fixtures if necessary, or sets up test data
+        if the databases do not support savepoints.
+
+        """
         if not self._databases_support_transactions():
             # If the backend does not support transactions, we should reload
             # class data before each test
@@ -1445,6 +1627,13 @@ class TestCase(TransactionTestCase):
             self.setUpTestData()
 
     def _fixture_teardown(self):
+        """
+        Releases resources and cleans up after a test fixture.
+
+        This method handles teardown of the test environment, including checking
+        database constraints if necessary, and rolling back atomic transactions.
+        If the database does not support transactions, it delegates to the parent class.
+        """
         if not self._databases_support_transactions():
             return super()._fixture_teardown()
         try:
@@ -1506,6 +1695,13 @@ class CheckCondition:
 
     def __get__(self, instance, cls=None):
         # Trigger access for all bases.
+        """
+        Checks if a class should be skipped for unit testing.
+
+        Determines whether a class is marked for skipping based on its inheritance or 
+        custom conditions, setting the ``__unittest_skip__`` and ``__unittest_skip_why__`` 
+        attributes accordingly. Returns True if the class should be skipped, False otherwise.
+        """
         if any(getattr(base, "__unittest_skip__", False) for base in cls.__bases__):
             return True
         for condition, reason in self.conditions:
@@ -1518,7 +1714,24 @@ class CheckCondition:
 
 
 def _deferredSkip(condition, reason, name):
+    """
+
+    Decorator that skips a test if a given condition is met, providing a reason for the skip.
+
+    The decorator checks if the test can run against the specified database, raising a ValueError if not,
+    and skips the test if the condition function returns True, appending the reason to the test's skip message.
+
+    """
     def decorator(test_func):
+        """
+        Decorator to conditionally skip a test based on a specified condition.
+
+        If the condition is met, a unittest.SkipTest exception is raised. Additionally, 
+        the decorator checks if the test is allowed to run against the specified database, 
+        raising a ValueError if not. The decorator can be applied to both test functions 
+        and test case classes, and can be combined with other skip conditions.
+
+        """
         nonlocal condition
         if not (
             isinstance(test_func, type) and issubclass(test_func, unittest.TestCase)
@@ -1526,6 +1739,14 @@ def _deferredSkip(condition, reason, name):
 
             @wraps(test_func)
             def skip_wrapper(*args, **kwargs):
+                """
+                '''Decorator that conditionally skips a test or raises an error based on the current database connection.
+
+                Raises a ValueError if the test is run against a database that does not allow queries.
+                Skips the test if the specified condition is met, providing a reason for the skip.
+
+                Otherwise, the wrapped test function is executed unchanged.'''
+                """
                 if (
                     args
                     and isinstance(args[0], unittest.TestCase)
@@ -1643,6 +1864,14 @@ class FSFilesHandler(WSGIHandler):
         return url2pathname(relative_url)
 
     def get_response(self, request):
+        """
+        Attempts to handle an incoming request, delegating to the superclass if not handled.\"\"\"
+
+         Alternatively, for more clarity, you can use the following docstring:
+
+         \"\"\"Overrides the default get_response behavior to conditionally handle requests based on the path, 
+         otherwise falls back to the superclass implementation.
+        """
         from django.http import Http404
 
         if self._should_handle(request.path):
@@ -1699,6 +1928,9 @@ class LiveServerThread(threading.Thread):
     server_class = ThreadedWSGIServer
 
     def __init__(self, host, static_handler, connections_override=None, port=0):
+        """
+        Initializes a server instance with the specified host, port, and static handler, optionally overriding default connection settings.
+        """
         self.host = host
         self.port = port
         self.is_ready = threading.Event()
@@ -1778,6 +2010,9 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classmethod
     def _make_connections_override(cls):
+        """
+        Returns a dictionary of SQLite in-memory database connections, keyed by connection alias, to override default connections.
+        """
         connections_override = {}
         for conn in connections.all():
             # If using in-memory sqlite databases, pass the connections to
@@ -1796,6 +2031,12 @@ class LiveServerTestCase(TransactionTestCase):
 
     @classmethod
     def _start_server_thread(cls):
+        """
+        Starts the server thread for the class, initializing connections and preparing for execution.
+
+         This method is responsible for setting up the server thread, overriding connections, and handling 
+         thread termination. If an error occurs during server thread startup, it is propagated as an exception.
+        """
         connections_override = cls._make_connections_override()
         for conn in connections_override.values():
             # Explicitly enable thread-shareability for this connection.

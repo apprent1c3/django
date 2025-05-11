@@ -343,6 +343,15 @@ class BaseHandler:
     # Other utility methods.
 
     def make_view_atomic(self, view):
+        """
+
+        Makes a view atomic by wrapping it in a transaction atomic context.
+
+        Decorates the provided view function to ensure database transactions are atomic.
+        Exclusions can be controlled through the view's _non_atomic_requests attribute.
+        Raises an error if attempting to use atomic requests with async views.
+
+        """
         non_atomic_requests = getattr(view, "_non_atomic_requests", set())
         for alias, settings_dict in connections.settings.items():
             if settings_dict["ATOMIC_REQUESTS"] and alias not in non_atomic_requests:

@@ -21,6 +21,9 @@ def check_default_cache_is_configured(app_configs, **kwargs):
 
 @register(Tags.caches, deploy=True)
 def check_cache_location_not_exposed(app_configs, **kwargs):
+    """
+    Checks if cache locations are exposed through media, static files, or static file directories, potentially leading to data corruption or exposure, and returns a list of warnings if such configurations are found.
+    """
     errors = []
     for name in ("MEDIA_ROOT", "STATIC_ROOT", "STATICFILES_DIRS"):
         setting = getattr(settings, name, None)
@@ -60,6 +63,9 @@ def check_cache_location_not_exposed(app_configs, **kwargs):
 
 @register(Tags.caches)
 def check_file_based_cache_is_absolute(app_configs, **kwargs):
+    """
+    Checks if the LOCATION path of all file-based caches is absolute. Returns a list of warnings for caches with relative paths.
+    """
     errors = []
     for alias, config in settings.CACHES.items():
         cache = caches[alias]

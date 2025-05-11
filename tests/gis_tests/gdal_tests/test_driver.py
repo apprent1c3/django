@@ -62,6 +62,11 @@ class DriverTest(unittest.TestCase):
         """
 
         def check(count_val):
+            """
+            Verifies the registration behavior based on a given count value.
+
+            Checks if the registration is skipped or performed once depending on the input count value. If the count value is non-zero, asserts that registration is not attempted. Otherwise, verifies that registration is performed exactly once.
+            """
             reg.reset_mock()
             count.return_value = count_val
             Driver.ensure_registered()

@@ -27,6 +27,9 @@ class SessionStore(SessionBase):
 
     @classmethod
     def _get_storage_path(cls):
+        """
+        Get the path where session data is stored, defaulting to a temporary directory if not configured.
+        """
         try:
             return cls._storage_path
         except AttributeError:
@@ -77,6 +80,9 @@ class SessionStore(SessionBase):
         )
 
     def load(self):
+        """
+        Loads session data from file and decodes it, handling potential errors and session expiry. If the session has expired or an error occurs, a new session is created and the old one deleted.
+        """
         session_data = {}
         try:
             with open(self._key_to_file(), encoding="ascii") as session_file:
@@ -108,6 +114,10 @@ class SessionStore(SessionBase):
         return self.load()
 
     def create(self):
+        """
+
+        Creates a new session key for the object and saves it, ensuring the session key is unique by retrying if a CreateError occurs. 
+        """
         while True:
             self._session_key = self._get_new_session_key()
             try:
@@ -121,6 +131,13 @@ class SessionStore(SessionBase):
         return self.create()
 
     def save(self, must_create=False):
+        """
+        Saves the session data to a file, creating the file if it does not exist and must_create is True, or updating the existing file if it already exists. 
+
+        If must_create is True, raises an error if the file already exists. If must_create is False, raises an error if the file does not exist and cannot be updated. 
+
+        The save operation is atomic, ensuring that either the original file remains unchanged or the new data is successfully written.
+        """
         if self.session_key is None:
             return self.create()
         # Get the session data now, before we start messing
@@ -193,6 +210,10 @@ class SessionStore(SessionBase):
         return self.exists(session_key)
 
     def delete(self, session_key=None):
+        """
+        Deletes a session file associated with the provided session key, 
+        or the default session key if none is provided.
+        """
         if session_key is None:
             if self.session_key is None:
                 return
@@ -207,6 +228,10 @@ class SessionStore(SessionBase):
 
     @classmethod
     def clear_expired(cls):
+        """
+        Removes expired sessions from storage by iterating over session files and attempting to load each one. 
+        If a session is expired, the load operation willdelete it from storage.
+        """
         storage_path = cls._get_storage_path()
         file_prefix = settings.SESSION_COOKIE_NAME
 

@@ -35,6 +35,11 @@ class ReadOnlyPasswordHashWidget(forms.Widget):
     read_only = True
 
     def get_context(self, name, value, attrs):
+        """
+
+        Generates the context for displaying a password field, including a summary of the password's properties and a label for the password reset/set button.
+
+        """
         context = super().get_context(name, value, attrs)
         usable_password = value and not value.startswith(UNUSABLE_PASSWORD_PREFIX)
         summary = []
@@ -144,6 +149,14 @@ class SetPasswordMixin:
         password2_field_name="password2",
         usable_password_field_name="usable_password",
     ):
+        """
+        Validate passwords entered by a user, specifically checking if they are present, match, and meet usability criteria. 
+        The function fields are checked for the presence of two password fields ('password1' and 'password2'), 
+        ensuring they match, and handling cases where either field is empty or missing. 
+        If passwords do not match, validation errors are added to the form fields. 
+        Additionally, it determines if the user wishes to set a usable password ('usable_password') 
+        and stores this decision in the form's `cleaned_data` as `'set_usable_password'`.
+        """
         usable_password = (
             self.cleaned_data.pop(usable_password_field_name, None) != "false"
         )
@@ -176,6 +189,14 @@ class SetPasswordMixin:
             self.add_error(password2_field_name, error)
 
     def validate_password_for_user(self, user, password_field_name="password2"):
+        """
+
+        Validates a user's password against the password validation rules.
+
+        Checks the given password for the provided user, if the password is set to be usable.
+        If the password is invalid, adds an error message to the form.
+
+        """
         password = self.cleaned_data.get(password_field_name)
         if password and self.cleaned_data["set_usable_password"]:
             try:
@@ -184,6 +205,22 @@ class SetPasswordMixin:
                 self.add_error(password_field_name, error)
 
     def set_password_and_save(self, user, password_field_name="password1", commit=True):
+        """
+        Sets a user's password and saves the changes to the database.
+
+        If the form data indicates that a usable password should be set, the provided
+        password is used; otherwise, an unusable password is set. The changes are
+        committed to the database by default, but this can be skipped by passing
+        `commit=False`.
+
+        Args:
+            user: The user object whose password is being updated.
+            password_field_name (str): The name of the password field in the form data (defaults to 'password1').
+            commit (bool): Whether to save the user object to the database (defaults to True).
+
+        Returns:
+            The updated user object.
+        """
         if self.cleaned_data["set_usable_password"]:
             user.set_password(self.cleaned_data[password_field_name])
         else:
@@ -225,6 +262,11 @@ class BaseUserCreationForm(SetPasswordMixin, forms.ModelForm):
         self.validate_password_for_user(self.instance)
 
     def save(self, commit=True):
+        """
+        Saves the user instance, optionally committing the changes to the database.
+        Sets the user's password and saves any many-to-many relationships if configured.
+        The commit parameter controls whether the changes are immediately committed.
+        """
         user = super().save(commit=False)
         user = self.set_password_and_save(user, commit=commit)
         if commit and hasattr(self, "save_m2m"):
@@ -268,6 +310,11 @@ class UserChangeForm(forms.ModelForm):
         field_classes = {"username": UsernameField}
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the user form, customizing the password and user permissions fields to improve usability. 
+        Specifically, it updates the password field's help text when creating a new user or when the user does not have a usable password, 
+        and optimizes the user permissions field by selecting related content types to reduce database queries.
+        """
         super().__init__(*args, **kwargs)
         password = self.fields.get("password")
         if password:
@@ -322,6 +369,16 @@ class AuthenticationForm(forms.Form):
             self.fields["username"].label = capfirst(self.username_field.verbose_name)
 
     def clean(self):
+        """
+
+        Verifies the user's login credentials and authenticates the user.
+
+        Authenticates the provided username and password, checks if the user is allowed to log in,
+        and caches the user object if authentication is successful.
+
+        Raises an InvalidLoginError if authentication fails.
+
+        """
         username = self.cleaned_data.get("username")
         password = self.cleaned_data.get("password")
 
@@ -533,6 +590,9 @@ class AdminPasswordChangeForm(SetPasswordMixin, forms.Form):
     password1, password2 = SetPasswordMixin.create_password_fields()
 
     def __init__(self, user, *args, **kwargs):
+        """
+        Initializes a form instance for a given user, setting up the password fields and enabling autofocus on the first password field if the user does not have a usable password. If the user already has a usable password, an additional field is added to allow them to set a new password.
+        """
         self.user = user
         super().__init__(*args, **kwargs)
         self.fields["password1"].widget.attrs["autofocus"] = True

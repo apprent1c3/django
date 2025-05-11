@@ -14,6 +14,15 @@ class ConditionalGetMiddleware(MiddlewareMixin):
         # It's too late to prevent an unsafe request with a 412 response, and
         # for a HEAD request, the response body is always empty so computing
         # an accurate ETag isn't possible.
+        """
+
+        Handles HTTP response processing, specifically for GET requests.
+
+        Checks if an ETag is required and adds it if necessary.
+        If an ETag or Last-Modified header is present, it generates a conditional response.
+        Otherwise, returns the original response.
+
+        """
         if request.method != "GET":
             return response
 

@@ -31,6 +31,10 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_warning_when_unique_true_on_fk(self):
+        """
+        Tests that a warning is raised when unique=True is set on a ForeignKey field, 
+        indicating that a OneToOneField would be a better choice in this scenario.
+        """
         class Foo(models.Model):
             pass
 
@@ -79,6 +83,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields", "model_fields.tests")
     def test_abstract_model_app_relative_foreign_key(self):
+        """
+        Tests that an abstract model's app-relative foreign key can be successfully resolved to the correct model, both within its own app and in a different app.
+        """
         class AbstractReferent(models.Model):
             reference = models.ForeignKey("Referred", on_delete=models.CASCADE)
 
@@ -87,6 +94,10 @@ class ForeignKeyTests(TestCase):
                 abstract = True
 
         def assert_app_model_resolved(label):
+            """
+            Verifies that an application model has been properly resolved, 
+            ensuring correct association between a referent and its related model.
+            """
             class Referred(models.Model):
                 class Meta:
                     app_label = label
@@ -104,6 +115,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_to_python(self):
+        """
+        Tests the to_python method of a ForeignKey field in Django, ensuring it correctly converts a string representation of an ID to an integer.
+        """
         class Foo(models.Model):
             pass
 
@@ -114,6 +128,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_fk_to_fk_get_col_output_field(self):
+        """
+        Tests that the output field of a foreign key to a model with a foreign key primary key is correctly resolved to the primary key of the original model.
+        """
         class Foo(models.Model):
             pass
 
@@ -128,6 +145,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_recursive_fks_get_col(self):
+        """
+        Tests that recursive foreign keys raise a ValueError when attempting to get the column, as it cannot resolve the output field due to the circular reference.
+        """
         class Foo(models.Model):
             bar = models.ForeignKey("Bar", models.CASCADE, primary_key=True)
 
@@ -139,6 +159,9 @@ class ForeignKeyTests(TestCase):
 
     @isolate_apps("model_fields")
     def test_non_local_to_field(self):
+        """
+        Tests that a ForeignKey's to_field must refer to a field local to the model being referenced, as required by Django.
+        """
         class Parent(models.Model):
             key = models.IntegerField(unique=True)
 
@@ -156,6 +179,9 @@ class ForeignKeyTests(TestCase):
             Related._meta.get_field("child").related_fields
 
     def test_invalid_to_parameter(self):
+        """
+        Tests that providing an invalid \"to\" parameter to a ForeignKey field raises a TypeError with a descriptive error message, ensuring proper usage and model relationships.
+        """
         msg = (
             "ForeignKey(1) is invalid. First parameter to ForeignKey must be "
             "either a model, a model name, or the string 'self'"

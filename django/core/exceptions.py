@@ -192,6 +192,10 @@ class ValidationError(Exception):
         return list(self)
 
     def update_error_dict(self, error_dict):
+        """
+        Updates an error dictionary by incorporating error information from the current object, 
+        combining errors for specific fields or adding non-field errors as needed, and returns the updated dictionary.
+        """
         if hasattr(self, "error_dict"):
             for field, error_list in self.error_dict.items():
                 error_dict.setdefault(field, []).extend(error_list)
@@ -200,6 +204,12 @@ class ValidationError(Exception):
         return error_dict
 
     def __iter__(self):
+        """
+        Returns an iterator over validation errors.
+
+        Yields tuples or strings, depending on the error format. If error_dict is present, yields tuples of field names and lists of validation errors. Otherwise, yields strings representing error messages.
+
+        """
         if hasattr(self, "error_dict"):
             for field, errors in self.error_dict.items():
                 yield field, list(ValidationError(errors))
@@ -224,6 +234,12 @@ class ValidationError(Exception):
         return hash(self) == hash(other)
 
     def __hash__(self):
+        """
+
+        Returns a hash value for the instance based on its attributes, allowing it
+        to be used in hash-based data structures.
+
+        """
         if hasattr(self, "message"):
             return hash(
                 (

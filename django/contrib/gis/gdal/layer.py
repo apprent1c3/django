@@ -182,6 +182,9 @@ class Layer(GDALBase):
             return None
 
     def _set_spatial_filter(self, filter):
+        """
+        Sets a spatial filter on the underlying data source, limiting the data to a specific geographic region. The filter can be specified as an OGRGeometry instance, a 4-tuple of (xmin, ymin, xmax, ymax) coordinates, or None to remove any existing filter.
+        """
         if isinstance(filter, OGRGeometry):
             capi.set_spatial_filter(self.ptr, filter.ptr)
         elif isinstance(filter, (tuple, list)):

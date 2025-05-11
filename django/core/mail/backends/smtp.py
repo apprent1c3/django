@@ -30,6 +30,11 @@ class EmailBackend(BaseEmailBackend):
         ssl_certfile=None,
         **kwargs,
     ):
+        """
+        Initializes an email connection with the provided host, port, username, password, and other settings, 
+        using default values from global settings if not specified. Ensures mutually exclusive settings for 
+        TLS and SSL are not both enabled.
+        """
         super().__init__(fail_silently=fail_silently)
         self.host = host or settings.EMAIL_HOST
         self.port = port or settings.EMAIL_PORT
@@ -58,6 +63,12 @@ class EmailBackend(BaseEmailBackend):
 
     @cached_property
     def ssl_context(self):
+        """
+        Returns an SSL context for secure connections.
+
+        If SSL certificate and key files are provided, a custom SSL context is created and configured with the supplied certificate chain.
+        Otherwise, a default SSL context is returned, using the system's default trust store and settings.
+        """
         if self.ssl_certfile or self.ssl_keyfile:
             ssl_context = ssl.SSLContext(protocol=ssl.PROTOCOL_TLS_CLIENT)
             ssl_context.load_cert_chain(self.ssl_certfile, self.ssl_keyfile)

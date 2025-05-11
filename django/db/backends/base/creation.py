@@ -119,6 +119,14 @@ class BaseDatabaseCreation:
 
         # Iteratively return every object for all models to serialize.
         def get_objects():
+            """
+            Yields model instances from the database, filtered by migration status and app configuration.
+
+            This function generates a sequence of model objects from all migrated apps, 
+            excluding those listed in TEST_NON_SERIALIZED_APPS, and yields them in chunks 
+            for efficient processing. It respects database routing and model migration 
+            permissions.
+            """
             from django.db.migrations.loader import MigrationLoader
 
             loader = MigrationLoader(self.connection)

@@ -21,6 +21,9 @@ def csrf(request):
     """
 
     def _get_val():
+        """
+        Retrieves a token from the current request, returning 'NOTPROVIDED' if no token is found.
+        """
         token = get_token(request)
         if token is None:
             # In order to be able to provide debugging info in the

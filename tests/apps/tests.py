@@ -207,6 +207,9 @@ class AppsTests(SimpleTestCase):
     @override_settings(INSTALLED_APPS=SOME_INSTALLED_APPS)
     def test_clear_cache(self):
         # Set cache.
+        """
+        Tests cache clearing functionality of the 'apps' module, ensuring that the cache is properly reset after invoking the clear_cache method.
+        """
         self.assertIsNone(apps.get_swappable_settings_name("admin.LogEntry"))
         apps.get_models()
 
@@ -472,6 +475,9 @@ class AppConfigTests(SimpleTestCase):
         self.assertEqual(repr(ac), "<AppConfig: label>")
 
     def test_invalid_label(self):
+        """
+        Checks that an invalid AppConfig label, which is not a valid Python identifier, raises an ImproperlyConfigured exception.
+        """
         class MyAppConfig(AppConfig):
             label = "invalid.label"
 
@@ -581,6 +587,9 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_default_database_using_stored_procedure(self):
+        """
+        Tests querying the default database using a stored procedure created without parameters. Verifies the setup and teardown of the stored procedure.
+        """
         connection = connections["default"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -593,6 +602,12 @@ class QueryPerformingAppTests(TransactionTestCase):
 
     @skipUnlessDBFeature("create_test_procedure_without_params_sql")
     def test_query_other_database_using_stored_procedure(self):
+        """
+        Tests querying another database using a stored procedure.
+
+        Verifies the creation and execution of a stored procedure on a secondary database.
+
+        """
         connection = connections["other"]
         with connection.cursor() as cursor:
             cursor.execute(connection.features.create_test_procedure_without_params_sql)
@@ -604,6 +619,14 @@ class QueryPerformingAppTests(TransactionTestCase):
                 editor.remove_procedure("test_procedure")
 
     def run_setup(self, app_config_name):
+        """
+        Runs Django setup for the specified app configuration and returns query results.
+
+        This function dynamically sets up a Django application with a custom app configuration,
+        enables the necessary settings, and then retrieves the query results.
+        It ensures that the application setup is properly cleaned up afterwards.
+        The function also checks for a specific runtime warning during the setup process.
+        """
         custom_settings = override_settings(
             INSTALLED_APPS=[f"apps.query_performing_app.apps.{app_config_name}"]
         )

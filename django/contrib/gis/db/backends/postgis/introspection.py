@@ -14,6 +14,13 @@ class PostGISIntrospection(DatabaseIntrospection):
     ]
 
     def get_field_type(self, data_type, description):
+        """
+
+        Override to handle geometry and geography PostGIS field types.
+
+        Returns the type of field (e.g. GeometryField) for the given data type and description.
+
+        """
         if not self.postgis_oid_lookup:
             # Query PostgreSQL's pg_type table to determine the OID integers
             # for the PostGIS data types used in reverse lookup (the integers

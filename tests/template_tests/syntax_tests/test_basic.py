@@ -236,6 +236,9 @@ class BasicSyntaxTests(SimpleTestCase):
     # suppressed on dictionary and attribute lookup.
     @setup({"basic-syntax28": "{{ a.b }}"})
     def test_basic_syntax28(self):
+        """
+        Tests rendering of the dot notation syntax in the template engine, specifically when encountering an attribute that does not exist, using a custom class that silently handles attribute access attempts.
+        """
         output = self.engine.render_to_string(
             "basic-syntax28", {"a": SilentGetItemClass()}
         )
@@ -246,6 +249,14 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"basic-syntax29": "{{ a.b }}"})
     def test_basic_syntax29(self):
+        """
+
+        Tests the basic syntax for accessing attributes in a template.
+
+        Verifies that the rendering engine correctly handles the case when an attribute is accessed
+        on an object that does not allow attribute access.
+
+        """
         output = self.engine.render_to_string(
             "basic-syntax29", {"a": SilentAttrClass()}
         )
@@ -339,6 +350,10 @@ class BasicSyntaxTests(SimpleTestCase):
 
     @setup({"tpl-str": "%s", "tpl-percent": "%%", "tpl-weird-percent": "% %s"})
     def test_ignores_strings_that_look_like_format_interpolation(self):
+        """
+        Tests that the engine correctly ignores strings that resemble format interpolation patterns, 
+        rendering them unchanged in the output.
+        """
         output = self.engine.render_to_string("tpl-str")
         self.assertEqual(output, "%s")
         output = self.engine.render_to_string("tpl-percent")

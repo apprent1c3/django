@@ -237,6 +237,13 @@ class Signal:
 
             @sync_to_async
             def sync_send():
+                """
+                Sending function that asynchronously notifies all registered receivers, 
+                collecting and returning their responses.
+
+                :param None
+                :returns: A list of tuples, each containing a receiver and its response
+                """
                 responses = []
                 for receiver in sync_receivers:
                     response = receiver(signal=self, sender=sender, **named)
@@ -312,6 +319,11 @@ class Signal:
         if async_receivers:
 
             async def asend_and_wrap_exception(receiver):
+                """
+                Send a signal to the receiver, wrapping any exceptions that occur during the process.
+
+                The function handles sending a signal and returns the response if successful. If an exception occurs, it is logged and the exception instance is returned instead. This allows for robust error handling in asynchronous signal handling scenarios.
+                """
                 try:
                     response = await receiver(signal=self, sender=sender, **named)
                 except Exception as err:
@@ -370,6 +382,13 @@ class Signal:
 
             @sync_to_async
             def sync_send():
+                """
+
+                Sends a signal to all registered synchronous receivers, handling exceptions and logging failures.
+
+                Returns a list of tuples, where each tuple contains a receiver and either its response or an exception that occurred.
+
+                """
                 responses = []
                 for receiver in sync_receivers:
                     try:
@@ -387,6 +406,15 @@ class Signal:
                 return []
 
         async def asend_and_wrap_exception(receiver):
+            """
+
+            Sends a signal to the given receiver and wraps any exceptions that occur.
+
+            Takes a receiver and attempts to send it a signal. If an exception occurs during
+            this process, the error is logged and the exception is returned; otherwise, the
+            receiver's response is returned.
+
+            """
             try:
                 response = await receiver(signal=self, sender=sender, **named)
             except Exception as err:
@@ -484,6 +512,9 @@ def receiver(signal, **kwargs):
     """
 
     def _decorator(func):
+        """
+        Decorator to connect a function to a signal or a list of signals, enabling the function to receive notifications when the signal(s) are emitted.
+        """
         if isinstance(signal, (list, tuple)):
             for s in signal:
                 s.connect(func, **kwargs)

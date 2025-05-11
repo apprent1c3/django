@@ -141,6 +141,18 @@ class Template:
         # exactly one Django template engine is configured, use that engine.
         # This is required to preserve backwards-compatibility for direct use
         # e.g. Template('...').render(Context({...}))
+        """
+
+        Initializes a template object with a given string, origin, name, and engine.
+
+        :param template_string: The string representing the template.
+        :param origin: The origin of the template, defaults to an unknown source if not provided.
+        :param name: The name of the template, defaults to None.
+        :param engine: The engine used to render the template, defaults to the default engine if not provided.
+
+        The initialized template object is then compiled into a nodelist for further processing.
+
+        """
         if engine is None:
             from .engine import Engine
 
@@ -281,6 +293,10 @@ class Template:
 
 
 def linebreak_iter(template_source):
+    """
+    Yields the line numbers of the given template source string, 
+        iterating over each line break to facilitate line-based processing.
+    """
     yield 0
     p = template_source.find("\n")
     while p >= 0:
@@ -322,6 +338,12 @@ class Token:
         )
 
     def split_contents(self):
+        """
+
+        Splits the contents into individual parts, handling translated strings 
+        by keeping them together even if they span multiple lines.
+
+        """
         split = []
         bits = smart_split(self.contents)
         for bit in bits:
@@ -400,6 +422,10 @@ class Lexer:
 
 class DebugLexer(Lexer):
     def _tag_re_split_positions(self):
+        """
+        Generates an iterator of tuples representing positions of tags and non-tag regions within a template string.
+        Each tuple contains the start and end indices of a region, allowing for iteration over both tagged and untagged sections of the template.
+        """
         last = 0
         for match in tag_re.finditer(self.template_string):
             start, end = match.span()
@@ -436,6 +462,9 @@ class Parser:
     def __init__(self, tokens, libraries=None, builtins=None, origin=None):
         # Reverse the tokens so delete_first_token(), prepend_token(), and
         # next_token() can operate at the end of the list in constant time.
+        """
+        Initializes a parser object with the given tokens, libraries, builtins, and origin, setting up the internal state for further processing.
+        """
         self.tokens = list(reversed(tokens))
         self.tags = {}
         self.filters = {}
@@ -524,6 +553,9 @@ class Parser:
         return nodelist
 
     def skip_past(self, endtag):
+        """
+        Skips through tokens until the specified end block tag is encountered, raising an exception if the end tag is not found, indicating an unclosed block tag.
+        """
         while self.tokens:
             token = self.next_token()
             if token.token_type == TokenType.BLOCK and token.contents == endtag:
@@ -532,6 +564,9 @@ class Parser:
 
     def extend_nodelist(self, nodelist, node, token):
         # Check that non-text nodes don't appear before an extends tag.
+        """
+        Adds a node to the given node list, enforcing template tag ordering rules and updating the node list's state accordingly.
+        """
         if node.must_be_first and nodelist.contains_nontext:
             raise self.error(
                 token,
@@ -667,6 +702,9 @@ class FilterExpression:
     __slots__ = ("token", "filters", "var", "is_var")
 
     def __init__(self, token, parser):
+        """
+        Initializes a template parser with a token and parser, parsing the token into a variable and a list of applied filters.
+        """
         self.token = token
         matches = filter_re.finditer(token)
         var_obj = None
@@ -713,6 +751,14 @@ class FilterExpression:
         self.is_var = isinstance(var_obj, Variable)
 
     def resolve(self, context, ignore_failures=False):
+        """
+        Resolves the current object within the given context, applying filters and handling variable resolution.
+
+        The resolution process checks if the object is a variable and attempts to resolve it within the context.
+        If resolution fails and failures are not ignored, it returns a string indicating the error or a predefined invalid string.
+        Otherwise, it applies a series of filters to the resolved object, handling timezone and autoescape considerations.
+        The final resolved and filtered object is then returned.
+        """
         if self.is_var:
             try:
                 obj = self.var.resolve(context)
@@ -750,6 +796,13 @@ class FilterExpression:
         return obj
 
     def args_check(name, func, provided):
+        """
+        Checks if the number of provided arguments matches the requirements of a given function. 
+
+        Raises a TemplateSyntaxError if the number of provided arguments is less than the function's required arguments or more than the function's total arguments. 
+
+        Returns True if the number of provided arguments is valid.
+        """
         provided = list(provided)
         # First argument, filter input, is implied.
         plen = len(provided) + 1
@@ -798,6 +851,15 @@ class Variable:
     __slots__ = ("var", "literal", "lookups", "translate", "message_context")
 
     def __init__(self, var):
+        """
+        Initialize a variable wrapper.
+
+        This class represents a variable within a templating context, allowing it to be translated, accessed as a literal value, or resolved through a series of lookups.
+
+        :raises TypeError: If the variable is not a string.
+        :raises ValueError: If the variable is a malformed number or string literal.
+        :raises TemplateSyntaxError: If the variable or attribute name starts with an underscore.
+        """
         self.var = var
         self.literal = None
         self.lookups = None
@@ -1063,6 +1125,9 @@ class VariableNode(Node):
         return "<Variable Node: %s>" % self.filter_expression
 
     def render(self, context):
+        """
+        Renders the filtered expression in a given context, handling potential Unicode decoding errors and returning the formatted result.
+        """
         try:
             output = self.filter_expression.resolve(context)
         except UnicodeDecodeError:

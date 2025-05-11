@@ -57,6 +57,10 @@ class MiddlewareMixinTests(SimpleTestCase):
     ]
 
     def test_repr(self):
+        """
+        Registers tests to verify the correct string representation of MiddlewareMixin and CsrfViewMiddleware instances, 
+        ensuring that their `__repr__` method accurately reflects the provided get_response callable.
+        """
         class GetResponse:
             def __call__(self):
                 return HttpResponse()
@@ -84,6 +88,14 @@ class MiddlewareMixinTests(SimpleTestCase):
         )
 
     def test_passing_explicit_none(self):
+        """
+
+        Tests that passing an explicit None to a middleware raises a ValueError.
+
+        Verifies that each middleware correctly enforces the requirement of a get_response
+        function, handling the edge case where None is explicitly passed.
+
+        """
         msg = "get_response must be provided."
         for middleware in self.middlewares:
             with self.subTest(middleware=middleware):
@@ -91,6 +103,13 @@ class MiddlewareMixinTests(SimpleTestCase):
                     middleware(None)
 
     def test_coroutine(self):
+        """
+        Tests that middlewares correctly handle coroutine and synchronous functions.
+
+        Verifies that when a middleware is instantiated with an asynchronous function,
+        it returns a coroutine, and when instantiated with a synchronous function,
+        it returns a non-coroutine function.
+        """
         async def async_get_response(request):
             return HttpResponse()
 

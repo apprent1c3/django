@@ -95,6 +95,9 @@ def check_geom_offset(result, func, cargs, offset=-1):
 
 # ### Spatial Reference error-checking routines ###
 def check_srs(result, func, cargs):
+    """
+    Validate the spatial reference pointer returned from a function call, raising an exception if it is invalid.
+    """
     if isinstance(result, int):
         result = c_void_p(result)
     if not result:

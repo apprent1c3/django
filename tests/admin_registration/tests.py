@@ -40,6 +40,9 @@ class TestRegistration(SimpleTestCase):
             self.site.register(Person)
 
     def test_prevent_double_registration_for_custom_admin(self):
+        """
+        Tests that attempting to register a model with a custom Admin class that is already registered raises an AlreadyRegistered exception.
+        """
         class PersonAdmin(admin.ModelAdmin):
             pass
 
@@ -66,6 +69,12 @@ class TestRegistration(SimpleTestCase):
             self.site.get_model_admin(Person)
 
     def test_star_star_overrides(self):
+        """
+
+        Verifies that **kwargs in the register function override default admin options.
+        Tests that search_fields, list_display, and save_on_top are correctly set for a model admin.
+
+        """
         self.site.register(
             Person, NameAdmin, search_fields=["name"], list_display=["__str__"]
         )
@@ -75,6 +84,9 @@ class TestRegistration(SimpleTestCase):
         self.assertIs(person_admin.save_on_top, True)
 
     def test_iterable_registration(self):
+        """
+        .Tests registration and unregistration of multiple models with specified search fields on the admin site.
+        """
         self.site.register([Person, Place], search_fields=["name"])
         self.assertIsInstance(self.site.get_model_admin(Person), admin.ModelAdmin)
         self.assertEqual(self.site.get_model_admin(Person).search_fields, ["name"])
@@ -135,6 +147,9 @@ class TestRegistrationDecorator(SimpleTestCase):
         )
 
     def test_multiple_registration(self):
+        """
+        Tests the registration of multiple models with the admin site, verifying that each model is correctly registered and then unregistered.
+        """
         register(Traveler, Place)(NameAdmin)
         self.assertIsInstance(
             self.default_site.get_model_admin(Traveler), admin.ModelAdmin

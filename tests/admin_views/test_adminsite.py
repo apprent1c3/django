@@ -48,6 +48,13 @@ class SiteEachContextTest(TestCase):
         self.ctx = site.each_context(request)
 
     def test_each_context(self):
+        """
+
+        Verifies that the context contains the expected site metadata and permission status.
+
+        Checks that the site header, title, URL, and permission status are set to their default values.
+
+        """
         ctx = self.ctx
         self.assertEqual(ctx["site_header"], "Django administration")
         self.assertEqual(ctx["site_title"], "Django site admin")
@@ -55,6 +62,9 @@ class SiteEachContextTest(TestCase):
         self.assertIs(ctx["has_permission"], True)
 
     def test_custom_admin_titles(self):
+        """
+        Tests that the custom admin titles are correctly populated in the admin site context.
+        """
         request = self.request_factory.get(reverse("test_custom_adminsite:index"))
         request.user = self.u1
         ctx = custom_site.each_context(request)
@@ -69,6 +79,12 @@ class SiteEachContextTest(TestCase):
         self.assertEqual(site.each_context(request)["site_url"], "/my-script-name/")
 
     def test_available_apps(self):
+        """
+        Test that the available admin apps are correctly populated.
+
+        Verifies the number and contents of available admin apps, including app labels,
+        models, permissions, and URLs for admin views and model instances.
+        """
         ctx = self.ctx
         apps = ctx["available_apps"]
         # we have registered two models from two different apps
@@ -114,6 +130,9 @@ class SiteActionsTests(SimpleTestCase):
         self.assertEqual(self.site.get_action("test_action"), test_action)
 
     def test_disable_action(self):
+        """
+        Tests the disabling of an action in the site, verifying that it is successfully removed from the actions dictionary.
+        """
         action_name = "delete_selected"
         self.assertEqual(self.site._actions[action_name], delete_selected)
         self.site.disable_action(action_name)

@@ -59,6 +59,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_constructor_different_attrs(self):
+        """
+        Tests that SplitDateTimeWidget constructs the correct HTML with different attribute configurations.
+        """
         html = (
             '<input type="text" class="foo" value="2006-01-10" name="date_0">'
             '<input type="text" class="bar" value="07:30:00" name="date_1">'
@@ -105,6 +108,9 @@ class SplitDateTimeWidgetTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that the widget is rendered as a fieldset when used in a form, verifying both the widget's use_fieldset attribute and the resulting HTML output.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = SplitDateTimeField(widget=self.widget)

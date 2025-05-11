@@ -8,6 +8,17 @@ class BaseDatabaseValidation:
         return []
 
     def check_field(self, field, **kwargs):
+        """
+        Checks a model field for errors, returning a list of any issues found.
+
+        This method verifies that the database supports the field's required features and
+        checks the field type for any errors. It is primarily used to validate fields
+        before creating or altering database tables.
+
+        :param field: The model field to be checked
+        :param kwargs: Additional keyword arguments
+        :returns: A list of error messages for the field
+        """
         errors = []
         # Backends may implement a check_field_type() method.
         if (

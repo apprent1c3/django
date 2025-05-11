@@ -108,6 +108,9 @@ class UrlizeTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_urls(self):
+        """
+        Tests the urlize function to ensure it correctly converts URLs into HTML links with a rel=\"nofollow\" attribute.
+        """
         self.assertEqual(
             urlize("http://google.com"),
             '<a href="http://google.com" rel="nofollow">http://google.com</a>',
@@ -342,6 +345,9 @@ class FunctionTests(SimpleTestCase):
         )
 
     def test_wrapping_characters(self):
+        """
+        Tests the `urlize` function to ensure it correctly handles wrapping characters around URLs, verifying that the input wrapping characters are replaced with their corresponding HTML entities in the output.
+        """
         wrapping_chars = (
             ("()", ("(", ")")),
             ("<>", ("&lt;", "&gt;")),

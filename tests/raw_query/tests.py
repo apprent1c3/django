@@ -19,6 +19,9 @@ from .models import (
 class RawQueryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating instances of Author, Book, Coffee, and Reviewer objects to be used in tests.
+        """
         cls.a1 = Author.objects.create(
             first_name="Joe", last_name="Smith", dob=date(1950, 9, 20)
         )
@@ -316,6 +319,9 @@ class RawQueryTests(TestCase):
         self.assertSuccessfulRawQuery(Author, query, authors)
 
     def test_multiple_iterations(self):
+        """
+        Tests the consistency of raw database query results across multiple iterations, ensuring that Author objects retrieved via raw queries match those fetched using the ORM.
+        """
         query = "SELECT * FROM raw_query_author"
         normal_authors = Author.objects.all()
         raw_authors = Author.objects.raw(query)
@@ -336,6 +342,9 @@ class RawQueryTests(TestCase):
 
     def test_get_item(self):
         # Indexing on RawQuerySets
+        """
+        Tests the functionality of retrieving items from a QuerySet returned by Author.objects.raw().
+        """
         query = "SELECT * FROM raw_query_author ORDER BY id ASC"
         third_author = Author.objects.raw(query)[2]
         self.assertEqual(third_author.first_name, "Bob")

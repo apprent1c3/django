@@ -86,6 +86,14 @@ class BaseTests:
         )
 
     def test_add(self):
+        """
+
+        Verifies the functionality of adding new items to a storage instance.
+
+        Tests that the `added_new` flag is correctly set when new items are added, 
+        and that the items are stored with their corresponding messages and tags.
+
+        """
         storage = self.get_storage()
         self.assertFalse(storage.added_new)
         storage.add(constants.INFO, "Test message 1")
@@ -94,6 +102,14 @@ class BaseTests:
         self.assertEqual(len(storage), 2)
 
     def test_add_lazy_translation(self):
+        """
+
+        Verifies the addition of a lazy translation message to storage.
+
+        This test case checks that a lazy translation is successfully added and stored,
+        and that the stored message count is incremented accordingly.
+
+        """
         storage = self.get_storage()
         response = self.get_response()
 
@@ -104,6 +120,9 @@ class BaseTests:
         self.assertEqual(storing, 1)
 
     def test_no_update(self):
+        """
+        Verifies that no updates are made to storage when expected, confirming the absence of message storing.
+        """
         storage = self.get_storage()
         response = self.get_response()
         storage.update(response)
@@ -111,6 +130,9 @@ class BaseTests:
         self.assertEqual(storing, 0)
 
     def test_add_update(self):
+        """
+        Tests the addition and update of messages in storage, verifying that messages are correctly stored and counted.
+        """
         storage = self.get_storage()
         response = self.get_response()
 
@@ -122,6 +144,9 @@ class BaseTests:
         self.assertEqual(storing, 2)
 
     def test_existing_add_read_update(self):
+        """
+        Checks if updating an existing storage does not incorrectly add new messages when the response does not contain any new information.
+        """
         storage = self.get_existing_storage()
         response = self.get_response()
 
@@ -133,6 +158,9 @@ class BaseTests:
         self.assertEqual(storing, 0)
 
     def test_existing_read_add_update(self):
+        """
+        Tests if adding and updating messages to existing storage updates stored messages count correctly
+        """
         storage = self.get_existing_storage()
         response = self.get_response()
 
@@ -165,6 +193,14 @@ class BaseTests:
 
     @override_settings(MESSAGE_LEVEL=constants.DEBUG)
     def test_with_template_response(self):
+        """
+
+        Tests template response functionality with message passing.
+
+        Verifies that messages are correctly added, displayed and then cleared
+        from the template response view for different message levels.
+
+        """
         data = {
             "messages": ["Test message %d" % x for x in range(5)],
         }
@@ -306,6 +342,9 @@ class BaseTests:
 
     def test_default_level(self):
         # get_level works even with no storage on the request.
+        """
+        Tests the default level of messages in a request, verifying it remains unchanged by default and can be populated with level messages upon addition.
+        """
         request = self.get_request()
         self.assertEqual(get_level(request), constants.INFO)
 
@@ -319,6 +358,10 @@ class BaseTests:
         self.assertEqual(len(storage), 5)
 
     def test_low_level(self):
+        """
+        Tests the low-level functionality of setting and retrieving log levels, 
+        ensuring the proper storage and retrieval of level-related messages.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         request._messages = storage
@@ -330,6 +373,14 @@ class BaseTests:
         self.assertEqual(len(storage), 6)
 
     def test_high_level(self):
+        """
+
+        Tests setting and retrieving of a high log level and its associated messages.
+
+        This test case verifies that a high log level can be successfully set and retrieved,
+        and that the expected number of messages is added to the storage when the level is set.
+
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         request._messages = storage
@@ -342,6 +393,9 @@ class BaseTests:
 
     @override_settings(MESSAGE_LEVEL=29)
     def test_settings_level(self):
+        """
+        Tests that message levels are correctly applied to the messaging system when specified in settings, and verifies that level-specific messages are added to the storage accordingly.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
 
@@ -351,6 +405,14 @@ class BaseTests:
         self.assertEqual(len(storage), 3)
 
     def test_tags(self):
+        """
+        Tests that tags are correctly added to messages in the storage.\"\"\"
+
+         \"\"\" 
+            Verifies the presence of tags in various types of messages, including 
+            info, debug, warning, error, and success messages.
+
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)
@@ -361,6 +423,9 @@ class BaseTests:
         )
 
     def test_level_tag(self):
+        """
+        Tests the correctness of level tags assigned to messages in the storage. Verifies that the level tags are generated as expected when messages are added to the storage with different levels.
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)
@@ -377,6 +442,9 @@ class BaseTests:
         }
     )
     def test_custom_tags(self):
+        """
+        Tests the customizable message tags feature by verifying that messages are assigned the correct tags based on their level.
+        """
         storage = self.get_storage()
         storage.level = 0
         add_level_messages(storage)

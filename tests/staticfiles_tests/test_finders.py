@@ -29,6 +29,9 @@ class TestFinders:
         self.assertEqual(os.path.normcase(found), os.path.normcase(dst))
 
     def test_find_all(self):
+        """
+        Verifies that the finder can locate all expected items, comparing the discovered results to a predefined set of expected destinations.
+        """
         src, dst = self.find_all
         found = self.finder.find(src, find_all=True)
         found = [os.path.normcase(f) for f in found]
@@ -36,6 +39,9 @@ class TestFinders:
         self.assertEqual(found, dst)
 
     def test_find_all_deprecated_param(self):
+        """
+        Tests finding all files using the deprecated 'all' parameter, verifying a warning is raised and the results are correct.
+        """
         src, dst = self.find_all
         with self.assertWarnsMessage(RemovedInDjango61Warning, DEPRECATION_MSG):
             found = self.finder.find(src, all=True)
@@ -56,6 +62,10 @@ class TestFinders:
             self.finder.find(src, find_all=True, all=True)
 
     def test_find_all_unexpected_params(self):
+        """
+        Tests that the finder's find method raises a TypeError when given an unexpected keyword argument, 
+        ensuring that deprecation warnings are also raised for removed 'all' and 'find_all' arguments in Django 6.1.
+        """
         src, dst = self.find_all
         msg = (
             f"{self.finder.__class__.__qualname__}.find() got an unexpected keyword "
@@ -80,6 +90,9 @@ class TestFileSystemFinder(TestFinders, StaticFilesTestCase):
     """
 
     def setUp(self):
+        """
+        Initializes the test environment, setting up a file system finder and test file paths for subsequent tests
+        """
         super().setUp()
         self.finder = finders.FileSystemFinder()
         test_file_path = os.path.join(
@@ -95,6 +108,9 @@ class TestAppDirectoriesFinder(TestFinders, StaticFilesTestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by initializing the app directories finder and defining test file paths.
+        """
         super().setUp()
         self.finder = finders.AppDirectoriesFinder()
         test_file_path = os.path.join(
@@ -110,6 +126,14 @@ class TestDefaultStorageFinder(TestFinders, StaticFilesTestCase):
     """
 
     def setUp(self):
+        """
+
+        Set up the test environment with a default storage finder.
+
+        Initializes the storage finder with static files storage located at MEDIA_ROOT,
+        and defines test file paths for finding individual and multiple media files.
+
+        """
         super().setUp()
         self.finder = finders.DefaultStorageFinder(
             storage=storage.StaticFilesStorage(location=settings.MEDIA_ROOT)
@@ -143,6 +167,10 @@ class TestMiscFinder(SimpleTestCase):
             finders.get_finder("foo.bar.FooBarFinder")
 
     def test_cache(self):
+        """
+        Tests the caching behavior of the get_finder function, verifying that repeated lookups 
+        for the same finder result in cache hits and that the cache size remains as expected.
+        """
         finders.get_finder.cache_clear()
         for n in range(10):
             finders.get_finder("django.contrib.staticfiles.finders.FileSystemFinder")
@@ -181,6 +209,9 @@ class TestMiscFinder(SimpleTestCase):
             finders.find("spam", find_all=True, all=True)
 
     def test_searched_locations_unexpected_params(self):
+        """
+        Tests that the finders.find function raises a TypeError when unexpected keyword arguments are passed, ensuring deprecated function signatures are properly handled and raising correct warnings and errors.
+        """
         msg = "find() got an unexpected keyword argument 'wrong'"
         with (
             self.assertWarnsMessage(RemovedInDjango61Warning, DEPRECATION_MSG),

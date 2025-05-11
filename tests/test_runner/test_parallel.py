@@ -103,6 +103,9 @@ class RemoteTestResultTest(SimpleTestCase):
         self.assertEqual(result.events, loaded_result.events)
 
     def test_pickle_errors_detection(self):
+        """
+        Tests error detection when pickling exceptions, ensuring that picklable errors are handled correctly and unpicklable errors raise a TypeError with a meaningful message.
+        """
         picklable_error = RuntimeError("This is fine")
         not_unpicklable_error = ExceptionThatFailsUnpickling("arg")
 
@@ -115,6 +118,14 @@ class RemoteTestResultTest(SimpleTestCase):
 
     @unittest.skipUnless(tblib is not None, "requires tblib to be installed")
     def test_unpicklable_subtest(self):
+        """
+
+        Tests that a subtest which raises an error during unpickling is handled correctly.
+
+        Verifies that the test result captures the expected failure message when a subtest
+        fails due to a pickle error.
+
+        """
         result = RemoteTestResult()
         subtest_test = SampleFailingSubtest(methodName="pickle_error_test")
         subtest_test.run(result=result)

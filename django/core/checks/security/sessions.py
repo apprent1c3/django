@@ -65,6 +65,9 @@ W015 = Warning(
 
 @register(Tags.security, deploy=True)
 def check_session_cookie_secure(app_configs, **kwargs):
+    """
+    Checks if the session cookie is set to secure, raising warnings if it's not and certain session-related conditions are met, ensuring the security of session cookies in the application.
+    """
     if settings.SESSION_COOKIE_SECURE is True:
         return []
     errors = []
@@ -79,6 +82,9 @@ def check_session_cookie_secure(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_session_cookie_httponly(app_configs, **kwargs):
+    """
+    Checks if the session cookie is set to HTTP-only, and returns potential security warnings if it's not properly configured.
+    """
     if settings.SESSION_COOKIE_HTTPONLY is True:
         return []
     errors = []

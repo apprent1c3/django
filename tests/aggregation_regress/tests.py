@@ -52,6 +52,13 @@ from .models import (
 class AggregationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for testing purposes.
+
+        This method creates a set of authors, publishers, books, and stores with predefined relationships,
+        providing a comprehensive dataset for testing various scenarios and functionality.
+
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -172,6 +179,12 @@ class AggregationTests(TestCase):
             self.assertEqual(getattr(obj, attr), value)
 
     def test_annotation_with_value(self):
+        """
+
+        Tests the annotation of a query with a calculated value and checks the resulting query uses a single database query.
+        Verifies the sum of the annotated value is correctly calculated and the query uses GROUP BY clause when supported by the database backend.
+
+        """
         values = (
             Book.objects.filter(
                 name="Practical Django Projects",
@@ -264,6 +277,13 @@ class AggregationTests(TestCase):
 
     def test_aggregate(self):
         # Ordering requests are ignored
+        """
+
+        Tests the aggregate function on QuerySets of Author and Book models.
+
+        Verifies that aggregate calculations such as average and sum are performed correctly.
+
+        """
         self.assertEqual(
             Author.objects.order_by("name").aggregate(Avg("age")),
             {"age__avg": Approximate(37.444, places=1)},
@@ -297,6 +317,11 @@ class AggregationTests(TestCase):
 
     def test_annotation(self):
         # Annotations get combined with extra select clauses
+        """
+        Tests the usage of database query annotations and extra selects on model query sets to perform complex calculations and data retrieval.
+
+                Verifies the ability to chain annotations and extra selects in different orders, and to use the resulting annotated fields in further database queries and filtering operations. Also checks the correctness of the retrieved data and the behavior of annotations with different query types, such as when using `values()` or `annotate()` multiple times in a query.
+        """
         obj = (
             Book.objects.annotate(mean_auth_age=Avg("authors__age"))
             .extra(select={"manufacture_cost": "price * .5"})
@@ -595,6 +620,11 @@ class AggregationTests(TestCase):
 
     def test_field_error(self):
         # Bad field requests in aggregates are caught and reported
+        """
+
+        Checks that using an invalid field name in aggregate and annotate operations raises a FieldError with a helpful error message.
+
+        """
         msg = (
             "Cannot resolve keyword 'foo' into field. Choices are: authors, "
             "contact, contact_id, hardbackbook, id, isbn, name, pages, price, "
@@ -618,6 +648,17 @@ class AggregationTests(TestCase):
 
     def test_more(self):
         # Old-style count aggregations can be mixed with new-style
+        """
+        Tests various query operations in the Book and Publisher models, including annotations, aggregations, and filtering.\"\"\"
+
+         \"\"\"Specifically, it checks: 
+          - count of annotated books 
+          - aggregation of maximum number of authors in books
+          - maximum average book price by publisher
+          - aggregation of book pages
+          - retrieval of specific book details using select related and annotation
+          - count and filtering of books based on annotations
+        """
         self.assertEqual(Book.objects.annotate(num_authors=Count("authors")).count(), 6)
 
         # Non-ordinal, non-computed Aggregates over annotations correctly
@@ -700,6 +741,9 @@ class AggregationTests(TestCase):
     def test_aggregate_fexpr(self):
         # Aggregates can be used with F() expressions
         # ... where the F() is pushed into the HAVING clause
+        """
+        Tests for filtering and annotating Publishers based on their book count and awards, ensuring that queries with conditional filters and exclusions return the expected results.
+        """
         qs = (
             Publisher.objects.annotate(num_books=Count("book"))
             .filter(num_books__lt=F("num_awards") / 2)
@@ -772,6 +816,11 @@ class AggregationTests(TestCase):
     def test_boolean_conversion(self):
         # Aggregates mixed up ordering of columns for backend's convert_values
         # method. Refs #21126.
+        """
+        Tests the conversion of boolean fields in database queries.
+
+        Verifies that boolean fields are correctly retrieved and compared in complex queries involving related objects and annotations.
+        """
         e = Entries.objects.create(Entry="foo")
         c = Clues.objects.create(EntryID=e, Clue="bar")
         qs = Clues.objects.select_related("EntryID").annotate(Count("ID"))
@@ -782,6 +831,9 @@ class AggregationTests(TestCase):
     def test_empty(self):
         # Regression for #10089: Check handling of empty result sets with
         # aggregates
+        """
+        Tests the functionality of database queries when filtering with an empty list of IDs, validating that no results are returned and that aggregate values are correctly calculated as None or zero.
+        """
         self.assertEqual(Book.objects.filter(id__in=[]).count(), 0)
 
         vals = Book.objects.filter(id__in=[]).aggregate(
@@ -833,6 +885,9 @@ class AggregationTests(TestCase):
         # Regression for #10113 - Fields mentioned in order_by() must be
         # included in the GROUP BY. This only becomes a problem when the
         # order_by introduces a new join.
+        """
+        Tests various database query operations on the Book model, including annotation, filtering, ordering, and aggregation, to ensure correct functionality and data retrieval.
+        """
         self.assertQuerySetEqual(
             Book.objects.annotate(num_authors=Count("authors")).order_by(
                 "publisher__name", "name"
@@ -973,6 +1028,14 @@ class AggregationTests(TestCase):
         # avoided.
         # age is a field on Author, so it shouldn't be allowed as an aggregate.
         # But age isn't included in values(), so it is.
+        """
+
+        Tests the values queryset functionality for non-conflicting annotations.
+
+        Checks if the queryset returns the expected results when annotating with
+        Count and Avg aggregate functions, ensuring correct length and values.
+
+        """
         results = (
             Author.objects.values("name")
             .annotate(age=Count("book_contact_set"))
@@ -1012,6 +1075,9 @@ class AggregationTests(TestCase):
     def test_pickle(self):
         # Regression for #10197 -- Queries with aggregates can be pickled.
         # First check that pickling is possible at all. No crash = success
+        """
+        Tests that a queryset can be successfully pickled and unpickled without losing its original query structure.
+        """
         qs = Book.objects.annotate(num_authors=Count("authors"))
         pickle.dumps(qs)
 
@@ -1026,6 +1092,9 @@ class AggregationTests(TestCase):
     def test_more_more_more(self):
         # Regression for #10199 - Aggregate calls clone the original query so
         # the original query can still be used
+        """
+        Tests various aspects of Django's ORM, including aggregation, annotation, filtering, and ordering of querysets, as well as relationships between models such as Book, Publisher, and HardbackBook. Verifies the correctness of query results and handles expected errors, such as attempting to compute an aggregate on an already aggregated field.
+        """
         books = Book.objects.all()
         books.aggregate(Avg("authors__age"))
         self.assertQuerySetEqual(
@@ -1239,6 +1308,9 @@ class AggregationTests(TestCase):
         self.assertEqual(books[0], ("Sams", 1, Decimal("23.09"), 45.0, 528.0))
 
     def test_annotation_disjunction(self):
+        """
+        Tests the use of disjunctions in Django ORM queries, ensuring that the correct results are returned when combining filters with logical OR operations, including queries with annotations and aggregations.
+        """
         qs = (
             Book.objects.annotate(n_authors=Count("authors"))
             .filter(Q(n_authors=2) | Q(name="Python Web Development with Django"))
@@ -1322,6 +1394,9 @@ class AggregationTests(TestCase):
         )
 
     def test_stddev(self):
+        """
+        Tests the calculation of standard deviation and variance for Book objects, verifying that the results match expected values for both population and sample calculations.
+        """
         self.assertEqual(
             Book.objects.aggregate(StdDev("pages")),
             {"pages__stddev": Approximate(311.46, 1)},
@@ -1387,6 +1462,9 @@ class AggregationTests(TestCase):
 
         # The name of the explicitly provided annotation name in this case
         # poses no problem
+        """
+        Tests Django ORM query functionality for annotating and filtering by a calculated field, specifically when the annotation alias is specified or omitted, verifying correct query results and aggregate values.
+        """
         qs = (
             Author.objects.annotate(book_cnt=Count("book"))
             .filter(book_cnt=2)
@@ -1429,6 +1507,11 @@ class AggregationTests(TestCase):
     def test_aggregate_duplicate_columns(self):
         # Regression test for #17144
 
+        """
+        Tests that the database correctly groups aggregate queries by the primary key of a model.
+
+        Verifies that when using Count with an annotated field, the GROUP BY statement only includes the primary key and not other fields of the model. Also checks the expected values are returned for an annotated field and they are correctly ordered by name.
+        """
         results = Author.objects.annotate(num_contacts=Count("book_contact_set"))
 
         # There should only be one GROUP BY clause, for the `id` column.
@@ -1456,6 +1539,11 @@ class AggregationTests(TestCase):
     @skipUnlessDBFeature("allows_group_by_selected_pks")
     def test_aggregate_duplicate_columns_only(self):
         # Works with only() too.
+        """
+        Tests that grouped aggregate queries with selected primary keys only include
+        the primary key in the GROUP BY clause, and not other selected columns or
+        unselected columns, ensuring proper aggregation results for duplicate columns.
+        """
         results = Author.objects.only("id", "name").annotate(
             num_contacts=Count("book_contact_set")
         )
@@ -1482,6 +1570,10 @@ class AggregationTests(TestCase):
     @skipUnlessDBFeature("allows_group_by_selected_pks")
     def test_aggregate_duplicate_columns_select_related(self):
         # And select_related()
+        """
+        Tests the behavior of Django's ORM when using `select_related` and `annotate` with aggregate functions, 
+        ensuring correct grouping by primary keys when selecting related objects and annotating with count of duplicate columns.
+        """
         results = Book.objects.select_related("contact").annotate(
             num_authors=Count("authors")
         )
@@ -1556,6 +1648,11 @@ class AggregationTests(TestCase):
 
     @skipUnlessDBFeature("allows_group_by_selected_pks")
     def test_aggregate_unmanaged_model_as_tables(self):
+        """
+        Tests that an unmanaged model can be used as a table in a query with aggregation, 
+        by grouping the results of a Book query annotated with author counts. 
+        Verifies the correct formation of the grouping and ordering clauses.
+        """
         qs = Book.objects.select_related("contact").annotate(
             num_authors=Count("authors")
         )
@@ -1652,6 +1749,9 @@ class AggregationTests(TestCase):
         )
 
     def test_negated_aggregation(self):
+        """
+        Tests the negation of aggregation in Django ORM queries, ensuring that exclude and annotation methods are correctly applied to filter results based on aggregated conditions, specifically the count of books for each author.
+        """
         expected_results = Author.objects.exclude(
             pk__in=Author.objects.annotate(book_cnt=Count("book")).filter(book_cnt=2)
         ).order_by("name")
@@ -1814,6 +1914,10 @@ class AggregationTests(TestCase):
         self.assertSequenceEqual(qs, [29])
 
     def test_allow_distinct(self):
+        """
+        Tests that aggregates enforce their distinct allowance correctly, 
+        raising a TypeError if distinct is specified but not allowed by the aggregate.
+        """
         class MyAggregate(Aggregate):
             pass
 
@@ -1855,6 +1959,11 @@ class AggregationTests(TestCase):
         )
 
     def test_aggregate_and_annotate_duplicate_columns_proxy(self):
+        """
+
+        Tests the aggregation and annotation of RecipeProxies with duplicate columns, verifying correct results when handling proxy models.
+
+        """
         author = AuthorProxy.objects.latest("pk")
         recipe = RecipeProxy.objects.create(name="Dahl", author=author)
         recipe.tasters.add(author)
@@ -1868,6 +1977,9 @@ class AggregationTests(TestCase):
         )
 
     def test_aggregate_and_annotate_duplicate_columns_unmanaged(self):
+        """
+        Tests the ability to aggregate and annotate on unmanaged models with duplicate column names, ensuring correct values are returned.
+        """
         author = AuthorProxy.objects.latest("pk")
         recipe = RecipeProxy.objects.create(name="Dahl", author=author)
         recipe.tasters.add(author)
@@ -1881,6 +1993,13 @@ class AggregationTests(TestCase):
         )
 
     def test_aggregate_group_by_unseen_columns_unmanaged(self):
+        """
+
+        Tests the aggregation of authors by unseen columns in an unmanaged model.
+
+        Verifies that authors are correctly counted based on their associated recipes.
+
+        """
         author = AuthorProxy.objects.latest("pk")
         shadow_author = AuthorProxy.objects.create(name=author.name, age=author.age - 2)
         recipe = RecipeProxy.objects.create(name="Dahl", author=author)
@@ -1915,6 +2034,14 @@ class AggregationTests(TestCase):
 
 class JoinPromotionTests(TestCase):
     def test_ticket_21150(self):
+        """
+
+        Verifies the behavior of select_related and annotate queries when working with related objects.
+
+        Specifically, tests that annotated counts are correctly updated when related objects are modified, 
+        and that previously loaded related objects are updated correctly when requerying the database.
+
+        """
         b = Bravo.objects.create()
         c = Charlie.objects.create(bravo=b)
         qs = Charlie.objects.select_related("alfa").annotate(Count("bravo__charlie"))
@@ -1930,6 +2057,10 @@ class JoinPromotionTests(TestCase):
 
     def test_existing_join_not_promoted(self):
         # No promotion for existing joins
+        """
+        Tests whether Django correctly promotes a join from a LEFT OUTER JOIN to an INNER JOIN when 
+        the related model is filtered to exclude null values, depending on the order of annotate and filter calls.
+        """
         qs = Charlie.objects.filter(alfa__name__isnull=False).annotate(
             Count("alfa__name")
         )

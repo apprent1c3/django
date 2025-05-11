@@ -203,6 +203,12 @@ def items_for_result(cl, result, form):
     """
 
     def link_in_col(is_first, field_name, cl):
+        """
+        Indicates whether a field should be linked in the changelist view.
+
+        Determines if a field name is in the list of fields designated as links,
+        considering the first field and the list display links configuration.
+        """
         if cl.list_display_links is None:
             return False
         if is_first and not cl.list_display_links:
@@ -314,6 +320,11 @@ class ResultList(list):
 
 
 def results(cl):
+    """
+    Generates a sequence of result lists, optionally annotated with form data, 
+    from the given change list (cl). If a formset is present, yields result lists 
+    with corresponding form instances; otherwise, yields result lists without form data.
+    """
     if cl.formset:
         for res, form in zip(cl.result_list, cl.formset.forms):
             yield ResultList(form, items_for_result(cl, res, form))

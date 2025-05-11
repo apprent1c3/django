@@ -8,6 +8,9 @@ class GeoModelAdminMixin:
     gis_widget_kwargs = {}
 
     def formfield_for_dbfield(self, db_field, request, **kwargs):
+        """
+        Returns a form field for the given database field, using a geographic information system (GIS) widget if the field is a GeometryField and the widget supports its dimension. Otherwise, falls back to the default form field behavior.
+        """
         if isinstance(db_field, models.GeometryField) and (
             db_field.dim < 3 or self.gis_widget.supports_3d
         ):

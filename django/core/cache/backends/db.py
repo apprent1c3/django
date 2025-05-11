@@ -16,6 +16,9 @@ class Options:
     """
 
     def __init__(self, table):
+        """
+        Initializes a Django model object, setting properties for the model's metadata, such as its database table, label, name, and verbosity settings, with default values typical for a 'cache entry' model.
+        """
         self.db_table = table
         self.app_label = "django_cache"
         self.model_name = "cacheentry"
@@ -30,6 +33,9 @@ class Options:
 
 class BaseDatabaseCache(BaseCache):
     def __init__(self, table, params):
+        """
+        Initializes the object with a database table and parameters, setting up a cache model class for the specified table.
+        """
         super().__init__(params)
         self._table = table
 
@@ -52,6 +58,21 @@ class DatabaseCache(BaseDatabaseCache):
         return self.get_many([key], version).get(key, default)
 
     def get_many(self, keys, version=None):
+        """
+        Retrieves multiple cache values by their keys, filtering out expired entries.
+
+        Parameters
+        ----------
+        keys : list
+            List of keys to retrieve values for.
+        version : int, optional
+            Cache version to retrieve values from.
+
+        Returns
+        -------
+        dict
+            Dictionary mapping input keys to their corresponding cache values.
+        """
         if not keys:
             return {}
 
@@ -110,6 +131,16 @@ class DatabaseCache(BaseDatabaseCache):
         return self._base_set("touch", key, None, timeout)
 
     def _base_set(self, mode, key, value, timeout=DEFAULT_TIMEOUT):
+        """
+        Sets, adds or updates a cache entry in the database.
+
+        :param mode: Operation mode, one of 'set', 'add' or 'touch'
+        :param key: Cache key
+        :param value: Cache value
+        :param timeout: Cache expiration time in seconds, defaults to DEFAULT_TIMEOUT
+        :returns: True if the operation was successful, False otherwise
+        :note: May remove old cache entries if the maximum number of entries is exceeded
+        """
         timeout = self.get_backend_timeout(timeout)
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]
@@ -211,6 +242,12 @@ class DatabaseCache(BaseDatabaseCache):
         self._base_delete_many(keys)
 
     def _base_delete_many(self, keys):
+        """
+        Deletes multiple cache entries from the database associated with the given keys.
+
+        :param keys: List of cache keys to delete
+        :return: True if at least one entry was deleted, False otherwise
+        """
         if not keys:
             return False
 
@@ -232,6 +269,13 @@ class DatabaseCache(BaseDatabaseCache):
             return bool(cursor.rowcount)
 
     def has_key(self, key, version=None):
+        """
+        Checks if a key exists in the cache.
+
+                :param key: the key to check
+                :param version: optional version of the key
+                :return: True if the key exists and has not expired, False otherwise
+        """
         key = self.make_and_validate_key(key, version=version)
 
         db = router.db_for_read(self.cache_model_class)
@@ -254,6 +298,14 @@ class DatabaseCache(BaseDatabaseCache):
             return cursor.fetchone() is not None
 
     def _cull(self, db, cursor, now, num):
+        """
+        Remove expired cache entries and potentially old non-expired entries.
+
+        Removes cache entries that have reached their expiration time. If the cache
+        still contains too many entries, old entries are removed to maintain a
+        specific maximum number of entries. The frequency of culling non-expired
+        entries can be controlled, allowing for different cache eviction strategies.
+        """
         if self._cull_frequency == 0:
             self.clear()
         else:
@@ -286,6 +338,9 @@ class DatabaseCache(BaseDatabaseCache):
                     )
 
     def clear(self):
+        """
+        Deletes all entries from the cache table associated with the current cache model class in the database.
+        """
         db = router.db_for_write(self.cache_model_class)
         connection = connections[db]
         table = connection.ops.quote_name(self._table)

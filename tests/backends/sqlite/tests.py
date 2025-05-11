@@ -45,6 +45,9 @@ class Tests(TestCase):
                 )
 
     def test_distinct_aggregation(self):
+        """
+        Tests that SQLite raises a NotSupportedError when attempting to use the DISTINCT keyword with an aggregate function that accepts multiple arguments.
+        """
         class DistinctAggregate(Aggregate):
             allow_distinct = True
 
@@ -81,6 +84,12 @@ class Tests(TestCase):
         )
 
     def test_regexp_function(self):
+        """
+        Tests the functionality of the REGEXP SQL function.
+
+        Verifies that the function behaves as expected with different input combinations, 
+        including valid and invalid strings, patterns, and null values.
+        """
         tests = (
             ("test", r"[0-9]+", False),
             ("test", r"[a-z]+", True),
@@ -97,6 +106,13 @@ class Tests(TestCase):
                 self.assertIs(value, expected)
 
     def test_pathlib_name(self):
+        """
+
+        Tests the creation of a SQLite database file when using a Path object in the NAME setting of the database engine.
+
+        Verifies that a database file is successfully created and persisted when the connection is established and closed.
+
+        """
         with tempfile.TemporaryDirectory() as tmp:
             settings_dict = {
                 "default": {
@@ -117,6 +133,12 @@ class Tests(TestCase):
         self.assertTrue(mocked_get_database_version.called)
 
     def test_init_command(self):
+        """
+        Tests the initialization of a database connection with a custom init command.
+
+        Verifies that the database is properly configured with the specified pragmas,
+        ensuring that the synchronous mode and cache size are set as expected.
+        """
         settings_dict = {
             "default": {
                 "ENGINE": "django.db.backends.sqlite3",
@@ -207,6 +229,9 @@ class LastExecutedQueryTest(TestCase):
     def test_parameter_quoting(self):
         # The implementation of last_executed_queries isn't optimal. It's
         # worth testing that parameters are quoted (#14091).
+        """
+        Tests that parameter quoting is correctly handled when executing a query with special characters.
+        """
         query = "SELECT %s"
         params = ["\"'\\"]
         with connection.cursor() as cursor:
@@ -253,6 +278,12 @@ class ThreadSharing(TransactionTestCase):
     available_apps = ["backends"]
 
     def test_database_sharing_in_threads(self):
+        """
+        Tests that database connections are properly shared and closed across threads.
+
+        Verifies that a new object is created successfully in both the main thread and a spawned thread,
+        and that the connections used by the spawned thread are properly cleaned up afterwards.
+        """
         thread_connections = []
 
         def create_object():
@@ -277,6 +308,12 @@ class TestTransactionMode(SimpleTestCase):
     databases = {"default"}
 
     def test_default_transaction_mode(self):
+        """
+        Verifies that the default transaction mode is correctly initiated and committed.
+
+        Checks that a \"BEGIN\" query is executed to start a transaction and a \"COMMIT\" query 
+        is executed to commit the transaction when using an atomic transaction context.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             with transaction.atomic():
                 pass
@@ -296,6 +333,12 @@ class TestTransactionMode(SimpleTestCase):
                 new_connection.ensure_connection()
 
     def test_valid_transaction_modes(self):
+        """
+        Tests that transactions are correctly started in different modes.
+
+        Verifies that the database connection issues the correct SQL command to begin a transaction
+        when the transaction mode is set to 'deferred', 'immediate', or 'exclusive'.
+        """
         valid_transaction_modes = ("deferred", "immediate", "exclusive")
         for transaction_mode in valid_transaction_modes:
             with (
@@ -313,6 +356,15 @@ class TestTransactionMode(SimpleTestCase):
 
     @contextmanager
     def change_transaction_mode(self, transaction_mode):
+        """
+
+        Temporarily changes the transaction mode of a database connection.
+
+        This context manager creates a copy of the current connection with the specified transaction mode,
+        yielding the new connection for use within a 'with' block. The original connection remains unchanged.
+        When the block is exited, the new connection is automatically closed.
+
+        """
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"] = {
             **new_connection.settings_dict["OPTIONS"],

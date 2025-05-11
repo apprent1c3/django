@@ -11,6 +11,9 @@ from .models import Car, Part, Person, SportsCar
 class ManyToManySignalsTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating instances of cars, car parts, and people for use in tests.
+        """
         cls.vw = Car.objects.create(name="VW")
         cls.bmw = Car.objects.create(name="BMW")
         cls.toyota = Car.objects.create(name="Toyota")
@@ -103,6 +106,9 @@ class ManyToManySignalsTest(TestCase):
         models.signals.m2m_changed.disconnect(handler, Car.default_parts.through)
 
     def test_m2m_relations_add_remove_clear(self):
+        """
+        Test the emission of signals when adding, removing, or clearing many-to-many relations, ensuring that the expected pre_add and post_add messages are generated for both forward and reverse relations.
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -176,6 +182,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_give_the_self_vw_some_optional_parts(self):
+        """
+        Verifies the proper sending of signals for many-to-many relationship changes, ensuring that both forward and reverse relationships trigger the expected pre-add and post-add signals, particularly when adding optional parts to a vehicle or adding vehicles to a part.
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -317,6 +326,9 @@ class ManyToManySignalsTest(TestCase):
         )
 
     def test_m2m_relations_signals_alternative_ways(self):
+        """
+        Tests that Many-To-Many relation signals are properly sent when using alternative methods to add or remove related objects.
+        """
         expected_messages = []
 
         self._initialize_signal_car()
@@ -385,6 +397,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_clearing_removing(self):
+        """
+        Tests clearing and removing of many-to-many relations using signals, verifying that the correct signals are sent before and after each operation.
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)
@@ -450,6 +465,9 @@ class ManyToManySignalsTest(TestCase):
         self.assertEqual(self.m2m_changed_messages, expected_messages)
 
     def test_m2m_relations_signals_when_inheritance(self):
+        """
+        Tests many-to-many relationship signals when using model inheritance, verifying that the signals are sent correctly before and after adding objects to the relationship.
+        """
         expected_messages = []
 
         self._initialize_signal_car(add_default_parts_before_set_signal=True)

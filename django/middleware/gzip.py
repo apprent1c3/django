@@ -17,6 +17,18 @@ class GZipMiddleware(MiddlewareMixin):
 
     def process_response(self, request, response):
         # It's not worth attempting to compress really short responses.
+        """
+
+        Compresses an HTTP response using gzip if it meets certain conditions.
+
+        The function checks if the response can be compressed and if the client supports gzip compression.
+        If both conditions are met, the response content is compressed and the necessary headers are updated.
+        This is done to reduce the response size and improve transmission efficiency.
+
+        The function handles both streaming and non-streaming responses, and takes into account various factors such as
+        content length, content encoding, and ETag headers.
+
+        """
         if not response.streaming and len(response.content) < 200:
             return response
 

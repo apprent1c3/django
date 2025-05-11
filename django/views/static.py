@@ -69,6 +69,13 @@ template_translatable = gettext_lazy("Index of %(directory)s")
 
 
 def directory_index(path, fullpath):
+    """
+    Renders an HTML directory index page for the given path.
+
+        :param path: The directory path to index
+        :param fullpath: The full path of the directory
+        :return: An HttpResponse object containing the rendered directory index page
+    """
     try:
         t = loader.select_template(
             [

@@ -53,6 +53,9 @@ class QueryOtherDatabaseCursorAppConfig(CursorQueryAppConfig):
 
 class CursorQueryManyAppConfig(BaseAppConfig):
     def _perform_query(self):
+        """
+        Performs a database query to insert data into the TotallyNormal table, executing multiple insert statements in a single operation.
+        """
         from ..models import TotallyNormal
 
         connection = connections[self.database]

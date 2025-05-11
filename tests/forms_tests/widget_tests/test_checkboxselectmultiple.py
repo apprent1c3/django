@@ -196,6 +196,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        Checks if the widget correctly handles input values without localizing them, ensuring that numeric and date/time values are rendered as expected in the generated HTML.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -256,6 +259,9 @@ class CheckboxSelectMultipleTest(WidgetTest):
         self.assertEqual(bound_field.legend_tag(), "<legend>F:</legend>")
 
     def test_fieldset(self):
+        """
+        Tests that the use_fieldset attribute of a fieldset widget correctly renders a form with a fieldset.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

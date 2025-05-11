@@ -48,6 +48,10 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the type of field to be used based on the provided data type and description.
+        It considers additional factors such as auto increment, unsigned values, UUID data types, and JSON constraints to select the most suitable field type.
+        """
         field_type = super().get_field_type(data_type, description)
         if "auto_increment" in description.extra:
             if field_type == "IntegerField":
@@ -230,6 +234,13 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return result[0]
 
     def _parse_constraint_columns(self, check_clause, columns):
+        """
+        Extracts column names from a given SQL CHECK clause that match the provided list of columns. 
+
+        :param check_clause: The SQL CHECK clause to parse.
+        :param columns: The list of column names to match against.
+        :return: An OrderedSet of matching column names without quotes.
+        """
         check_columns = OrderedSet()
         statement = sqlparse.parse(check_clause)[0]
         tokens = (token for token in statement.flatten() if not token.is_whitespace)

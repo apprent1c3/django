@@ -32,6 +32,12 @@ class TestDataMixin:
 @override_settings(ROOT_URLCONF="generic_inline_admin.urls")
 class GenericAdminViewTest(TestDataMixin, TestCase):
     def setUp(self):
+        """
+
+        Sets up a test environment by creating a logged-in superuser and a sample episode
+        with associated media files, storing their primary keys for later use in tests.
+
+        """
         self.client.force_login(self.superuser)
 
         e = Episode.objects.create(name="This Week in Django")
@@ -203,6 +209,9 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.initial_form_count(), 1)
 
     def test_get_extra(self):
+        """
+        Tests that the get_extra method in a GenericTabularInline class correctly overrides the default extra value when rendering an admin change form.
+        """
         class GetExtraInline(GenericTabularInline):
             model = Media
             extra = 4
@@ -223,6 +232,9 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.extra, 2)
 
     def test_get_min_num(self):
+        """
+        Tests that the get_min_num method of a GenericTabularInline class is used to dynamically set the minimum number of inline formsets when editing a model instance.
+        """
         class GetMinNumInline(GenericTabularInline):
             model = Media
             min_num = 5
@@ -243,6 +255,9 @@ class GenericInlineAdminParametersTest(TestDataMixin, TestCase):
         self.assertEqual(formset.min_num, 2)
 
     def test_get_max_num(self):
+        """
+        Tests that the get_max_num method of a GenericTabularInline subclass is properly used to limit the number of inline form instances.
+        """
         class GetMaxNumInline(GenericTabularInline):
             model = Media
             extra = 5
@@ -269,6 +284,9 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
         self.client.force_login(self.superuser)
 
     def test_add(self):
+        """
+        Tests the addition of a contact through the admin interface, specifically when creating a new contact with an inline phone number form.
+        """
         category_id = Category.objects.create(name="male").pk
         prefix = "generic_inline_admin-phonenumber-content_type-object_id"
         post_data = {
@@ -289,6 +307,9 @@ class GenericInlineAdminWithUniqueTogetherTest(TestDataMixin, TestCase):
         self.assertEqual(response.status_code, 302)  # redirect somewhere
 
     def test_delete(self):
+        """
+        Tests the deletion of a contact with a phone number from the admin interface, verifying that a confirmation prompt is displayed.
+        """
         from .models import Contact
 
         c = Contact.objects.create(name="foo")
@@ -333,6 +354,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
 
     @ignore_warnings(category=RemovedInDjango60Warning)
     def test_get_formset_kwargs(self):
+        """
+        Tests the get_formset method of MediaInline to ensure it returns a formset with the correct max_num and can_order attributes, both with default and custom values.
+        """
         media_inline = MediaInline(Media, AdminSite())
 
         # Create a formset with default arguments
@@ -419,6 +443,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
     def test_get_fieldsets(self):
         # get_fieldsets is called when figuring out form fields.
         # Refs #18681.
+        """
+        Tests that the get_fieldsets method in a GenericTabularInline correctly limits the fields displayed in the form, ensuring only the specified fields are included.
+        """
         class MediaForm(ModelForm):
             class Meta:
                 model = Media
@@ -465,6 +492,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             self.assertIsInstance(formset, other_inline.get_formset(request).__class__)
 
     def test_get_inline_instances_override_get_inlines(self):
+        """
+        Tests the get_inline_instances method of the EpisodeAdmin class, verifying that it correctly overrides the get_inlines method by returning inline instances based on the request name.
+        """
         class MediaInline(GenericTabularInline):
             model = Media
 
@@ -475,6 +505,9 @@ class GenericInlineModelAdminTest(SimpleTestCase):
             inlines = (AlternateInline, MediaInline)
 
             def get_inlines(self, request, obj):
+                """
+                Returns a filtered list of inlines based on the name of the request, allowing for customization of inlines displayed for specific requests.
+                """
                 if hasattr(request, "name"):
                     if request.name == "alternate":
                         return self.inlines[:1]

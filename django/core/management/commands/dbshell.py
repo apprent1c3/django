@@ -26,6 +26,11 @@ class Command(BaseCommand):
         parameters.add_argument("parameters", nargs="*")
 
     def handle(self, **options):
+        """
+        Handles running a shell command for a specified database.
+
+        :raises CommandError: If the required executable is not installed or the command returns a non-zero exit status
+        """
         connection = connections[options["database"]]
         try:
             connection.client.runshell(options["parameters"])

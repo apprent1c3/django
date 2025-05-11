@@ -180,6 +180,13 @@ class TestFixtures(TestCase):
         self.assertEqual(Absolute.objects.count(), 1)
 
     def test_relative_path(self, path=["fixtures", "absolute.json"]):
+        """
+        Tests loading data from a JSON file using a relative path.
+
+        Checks that the Absolute model is populated with data after running the loaddata command.
+
+        :arg path: A list of path components to the JSON file, defaulting to ['fixtures', 'absolute.json']
+        """
         relative_path = os.path.join(*path)
         cwd = os.getcwd()
         try:

@@ -60,6 +60,16 @@ class TestGeom(TestObj):
         # Converting lists to tuples of certain keyword args
         # so coordinate test cases will match (JSON has no
         # concept of tuple).
+        """
+        Initializes the object with optional parameters for geometric data.
+
+        :param coords: Coordinates of the object
+        :param centroid: Centroid of the object
+        :param ext_ring_cs: Exterior ring coordinates of the object
+        :param kwargs: Additional keyword arguments passed to the superclass initializer
+
+        This initializer allows for the creation of an object with specific geometric properties, providing a foundation for further calculations or operations.
+        """
         if coords:
             self.coords = tuplize(coords)
         if centroid:

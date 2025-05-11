@@ -27,6 +27,12 @@ class Sitemap:
     x_default = False
 
     def _get(self, name, item, default=None):
+        """
+        رتReturns the value of the attribute with the given name from the current object. 
+        If the attribute exists and is callable, it calls the attribute with the provided item; 
+        otherwise, it returns the attribute value directly. 
+        If the attribute does not exist, it returns the default value.
+        """
         try:
             attr = getattr(self, name)
         except AttributeError:
@@ -61,6 +67,12 @@ class Sitemap:
         return self.items()
 
     def _location(self, item, force_lang_code=None):
+        """
+        .. method:: _location(item, force_lang_code=None)
+
+            Retrieves the location for a given item, taking into account internationalization (i18n) settings. 
+            If i18n is enabled, it overrides the translation to the specified language code before retrieving the location.
+        """
         if self.i18n:
             obj, lang_code = item
             # Activate language from item-tuple or forced one before calling location.
@@ -84,6 +96,15 @@ class Sitemap:
 
     def get_domain(self, site=None):
         # Determine domain
+        """
+
+        Retrieves the domain of the current site.
+
+        If a site is provided, its domain is returned. If not, the function attempts to
+        determine the current site using the Django sites framework. If the sites
+        framework is not enabled, an ImproperlyConfigured error is raised.
+
+        """
         if site is None:
             if django_apps.is_installed("django.contrib.sites"):
                 Site = django_apps.get_model("sites.Site")
@@ -104,6 +125,16 @@ class Sitemap:
         return self._urls(page, protocol, domain)
 
     def get_latest_lastmod(self):
+        """
+
+        Returns the latest 'last modified' date associated with the object.
+
+        If the object has a 'lastmod' attribute, its value is returned. If 'lastmod' is a callable, 
+        it is applied to each item in the object to determine the latest 'last modified' date. 
+
+        Returns None if 'lastmod' is not set or if determining the latest date fails.
+
+        """
         if not hasattr(self, "lastmod"):
             return None
         if callable(self.lastmod):
@@ -115,6 +146,9 @@ class Sitemap:
             return self.lastmod
 
     def _urls(self, page, protocol, domain):
+        """
+        Generates a list of URL information for a given page, including location, last modified date, change frequency, and priority, with support for internationalization and alternate languages.
+        """
         urls = []
         latest_lastmod = None
         all_items_lastmod = True  # track if all items have a lastmod
@@ -175,6 +209,9 @@ class GenericSitemap(Sitemap):
     changefreq = None
 
     def __init__(self, info_dict, priority=None, changefreq=None, protocol=None):
+        """
+        Initializes a class instance with metadata for generating a sitemap, including a queryset, optional date field, priority, change frequency, and protocol.
+        """
         self.queryset = info_dict["queryset"]
         self.date_field = info_dict.get("date_field")
         self.priority = self.priority or priority

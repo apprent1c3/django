@@ -18,6 +18,9 @@ from django.utils.version import PY311
 
 class FieldFile(File, AltersData):
     def __init__(self, instance, field, name):
+        """
+        Initializes a new instance of the class, setting up the relationship between the given instance, field, and name, and preparing the storage for data management.
+        """
         super().__init__(None, name)
         self.instance = instance
         self.field = field
@@ -76,6 +79,9 @@ class FieldFile(File, AltersData):
         return self.storage.size(self.name)
 
     def open(self, mode="rb"):
+        """
+        ..: Opens the associated file in the specified mode, creating a new file object if one does not exist or reopening the existing one.
+        """
         self._require_file()
         if getattr(self, "_file", None) is None:
             self.file = self.storage.open(self.name, mode)
@@ -94,6 +100,15 @@ class FieldFile(File, AltersData):
         setattr(self.instance, self.field.attname, name)
 
     def save(self, name, content, save=True):
+        """
+        Saves a file with the given content and associates it with the instance.
+
+        :param name: The filename to use for the saved file.
+        :param content: The file content to be saved.
+        :param save: If True, the instance will be saved after the file is saved. Defaults to True.
+
+        Saves the file using the storage backend and updates the instance with the saved file's name and content.
+        """
         name = self.field.generate_filename(self.instance, name)
         self.name = self.storage.save(name, content, max_length=self.field.max_length)
         self._set_instance_attribute(self.name, content)
@@ -106,6 +121,12 @@ class FieldFile(File, AltersData):
     save.alters_data = True
 
     def delete(self, save=True):
+        """
+        Deletes the associated file and updates the instance accordingly.
+
+        :param bool save: Whether to save the instance after deletion, defaults to True
+        :return: None
+        """
         if not self:
             return
         # Only close the file if it's already open, which we know by the
@@ -169,6 +190,18 @@ class FileDescriptor(DeferredAttribute):
     """
 
     def __get__(self, instance, cls=None):
+        """
+
+        Descriptor for getting a file attribute from an instance.
+
+        It ensures that the returned file attribute is properly initialized and
+        bound to the instance, regardless of whether it's a string, a File object,
+        or a FieldFile object. If the instance doesn't have the attribute yet,
+        it creates a new one according to the field's specification.
+
+        Returns the file attribute instance.
+
+        """
         if instance is None:
             return self
 
@@ -239,6 +272,17 @@ class FileField(Field):
     def __init__(
         self, verbose_name=None, name=None, upload_to="", storage=None, **kwargs
     ):
+        """
+        Initializes a field with optional custom storage and upload settings.
+
+        :param verbose_name: Human-readable name of the field.
+        :param name: Name of the field.
+        :param upload_to: Directory path to upload files to.
+        :param storage: Custom storage engine or instance to use.
+        :param kwargs: Additional keyword arguments to pass to the field constructor.
+
+        Configures the field with custom settings, including storage and upload locations, and sets default values for unspecified parameters.
+        """
         self._primary_key_set_explicitly = "primary_key" in kwargs
 
         self.storage = storage or default_storage
@@ -295,6 +339,9 @@ class FileField(Field):
             return []
 
     def deconstruct(self):
+        """
+        Deconstructs the field into its constituent parts, removing the 'max_length' parameter if it's set to the default value and setting 'upload_to' and 'storage' based on the field's configuration.
+        """
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 100:
             del kwargs["max_length"]
@@ -316,6 +363,13 @@ class FileField(Field):
         return str(value)
 
     def pre_save(self, model_instance, add):
+        """
+
+        Override the pre-save method to enforce file name specification and save the file to the storage system.
+
+        Raises a FieldError if a file is provided without a name attribute. If the file is not yet committed, it saves the file to the storage system without setting the `committed` flag.
+
+        """
         file = super().pre_save(model_instance, add)
         if file.name is None and file._file is not None:
             exc = FieldError(
@@ -430,6 +484,9 @@ class ImageField(FileField):
         ]
 
     def _check_image_library_installed(self):
+        """
+        Checks if the Pillow library is installed, required for ImageField functionality, and returns an error if it's not available.
+        """
         try:
             from PIL import Image  # NOQA
         except ImportError:
@@ -448,6 +505,9 @@ class ImageField(FileField):
             return []
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, inheriting from the parent class and adding width and height fields if they exist.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.width_field:
             kwargs["width_field"] = self.width_field

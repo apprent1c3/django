@@ -28,6 +28,11 @@ class DateTimeFieldTests(TestCase):
         self.assertEqual(f.to_python("01:02:03.999999"), datetime.time(1, 2, 3, 999999))
 
     def test_datetimes_save_completely(self):
+        """
+        Tests whether datetime objects are saved and retrieved correctly from the database.
+
+        Verifies that date, datetime, and time instances can be stored and loaded without data loss, ensuring their original values are preserved upon fetching from the database.
+        """
         dat = datetime.date(2014, 3, 12)
         datetim = datetime.datetime(2014, 3, 12, 21, 22, 23, 240000)
         tim = datetime.time(21, 22, 23, 240000)
@@ -40,6 +45,11 @@ class DateTimeFieldTests(TestCase):
 
     @override_settings(USE_TZ=False)
     def test_lookup_date_without_use_tz(self):
+        """
+        Tests the lookup of a DateTimeModel instance by date without timezone support.
+
+        Verifies that the model can be correctly retrieved from the database when the date part of a datetime field matches the specified date, regardless of the time component.
+        """
         d = datetime.date(2014, 3, 12)
         dt1 = datetime.datetime(2014, 3, 12, 21, 22, 23, 240000)
         dt2 = datetime.datetime(2014, 3, 11, 21, 22, 23, 240000)
@@ -53,6 +63,9 @@ class DateTimeFieldTests(TestCase):
     @skipUnlessDBFeature("has_zoneinfo_database")
     @override_settings(USE_TZ=True, TIME_ZONE="America/Vancouver")
     def test_lookup_date_with_use_tz(self):
+        """
+        Tests date lookup functionality when using time zones, ensuring correct results when filtering by date with DateTimeModel instances.
+        """
         d = datetime.date(2014, 3, 12)
         # The following is equivalent to UTC 2014-03-12 18:34:23.24000.
         dt1 = datetime.datetime(

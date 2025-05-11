@@ -13,6 +13,14 @@ from django.utils.translation import get_language
 
 
 def add_domain(domain, url, secure=False):
+    """
+    Adds a domain to a given URL, handling various URL formats and security protocols. 
+
+    :param domain: The domain to be added to the URL
+    :param url: The URL to be modified
+    :param secure: Whether to use a secure protocol (https), defaults to False
+    :returns: The modified URL with the added domain and specified protocol
+    """
     protocol = "https" if secure else "http"
     if url.startswith("//"):
         # Support network-path reference (see #16753) - RSS requires a protocol
@@ -33,6 +41,13 @@ class Feed:
     language = None
 
     def __call__(self, request, *args, **kwargs):
+        """
+        Generate an HTTP response serving a syndication feed for a given object.
+
+        Handles feed generation and caching, raising a 404 error if the requested object does not exist.
+
+        Returns an HttpResponse object containing the feed content, with optional Last-Modified header set if publication or update dates are provided.
+        """
         try:
             obj = self.get_object(request, *args, **kwargs)
         except ObjectDoesNotExist:
@@ -65,6 +80,9 @@ class Feed:
             )
 
     def item_enclosures(self, item):
+        """
+        Returns a list of enclosures for a given item, if available. The enclosure is represented by its URL, length, and MIME type, which are retrieved dynamically from the item's attributes. If no enclosure is found, an empty list is returned.
+        """
         enc_url = self._get_dynamic_attr("item_enclosure_url", item)
         if enc_url:
             enc = feedgenerator.Enclosure(
@@ -76,6 +94,16 @@ class Feed:
         return []
 
     def _get_dynamic_attr(self, attname, obj, default=None):
+        """
+
+        Retrieve a dynamic attribute from the current object, with support for callable attributes.
+
+        If the attribute does not exist, returns the provided default value.
+        If the attribute is callable, it will be invoked with the provided object as an argument, if applicable.
+
+        Raises ImproperlyConfigured if a callable attribute is not properly decorated.
+
+        """
         try:
             attr = getattr(self, attname)
         except AttributeError:

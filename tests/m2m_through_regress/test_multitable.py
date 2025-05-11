@@ -13,6 +13,9 @@ from .models import (
 class MultiTableTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up a fixed set of test data, including people, a team, team membership, an event, individual competitors, and a competing team, to be used in tests.
+        """
         cls.alice = Person.objects.create(name="Alice")
         cls.bob = Person.objects.create(name="Bob")
         cls.chris = Person.objects.create(name="Chris")

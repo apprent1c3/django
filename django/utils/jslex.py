@@ -12,6 +12,13 @@ class Tok:
     num = 0
 
     def __init__(self, name, regex, next=None):
+        """
+        Initializes a new token object with a name, regular expression, and optional next token reference.
+
+        :param name: Token name
+        :param regex: Regular expression pattern for token matching
+        :param next: Optional reference to the next token in the sequence
+        """
         self.id = Tok.num
         Tok.num += 1
         self.name = name
@@ -35,6 +42,9 @@ class Lexer:
     """
 
     def __init__(self, states, first):
+        """
+        Initialization method for a finite state machine, setting up regular expression patterns for each state based on provided rules and transition tokens, and defining the starting state.
+        """
         self.regexes = {}
         self.toks = {}
 

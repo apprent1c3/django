@@ -130,6 +130,16 @@ class UserAdmin(admin.ModelAdmin):
         # the permission to change users. To avoid the problem entirely, we
         # disallow users from adding users if they don't have change
         # permission.
+        """
+
+        Handles the addition of a new user view, first checking if the requesting user has the necessary change permission.
+
+        The view requires both 'add' and 'change' permissions to be set for the user account, 
+        especially when in debug mode, otherwise, it raises a permission denied exception.
+
+        It injects auto-populated fields and username help text into the view context before rendering.
+
+        """
         if not self.has_change_permission(request):
             if self.has_add_permission(request) and settings.DEBUG:
                 # Raise Http404 in debug mode so that the user gets a helpful
@@ -153,6 +163,14 @@ class UserAdmin(admin.ModelAdmin):
 
     @sensitive_post_parameters_m
     def user_change_password(self, request, id, form_url=""):
+        """
+
+        Handles user password changes through an administration interface.
+
+        Checks for the required permissions, and presents a form to update the user's password.
+        If the form is submitted successfully, saves the new password and logs the change.
+
+        """
         user = self.get_object(request, unquote(id))
         if not self.has_change_permission(request, user):
             raise PermissionDenied

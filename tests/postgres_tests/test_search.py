@@ -26,6 +26,13 @@ except ImportError:
 class GrailTestData:
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for scenes, characters and lines in the database.
+        This class method creates a set of test scenes, characters, and lines to be used in testing.
+        It includes multiple scenes with different characters and lines, including lines with specific dialogue configurations.
+
+        """
         cls.robin = Scene.objects.create(
             scene="Scene 10", setting="The dark forest of Ewing"
         )
@@ -129,6 +136,9 @@ class SimpleSearchTest(GrailTestData, PostgreSQLTestCase):
 
     def test_search_with_F_expression(self):
         # Non-matching query.
+        """
+        Tests that the search functionality using F expressions correctly filters LineSavedSearch objects.
+        """
         LineSavedSearch.objects.create(line=self.verse1, query="hearts")
         # Matching query.
         match = LineSavedSearch.objects.create(line=self.verse1, query="elbows")
@@ -227,6 +237,9 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.crowd])
 
     def test_phrase_search(self):
+        """
+        Tests the phrase search functionality by querying a list of lines with specific phrases and verifying the results match the expected outcomes.
+        """
         line_qs = Line.objects.annotate(search=SearchVector("dialogue"))
         searched = line_qs.filter(
             search=SearchQuery("burned body his away", search_type="phrase")
@@ -238,6 +251,9 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse1])
 
     def test_phrase_search_with_config(self):
+        """
+        Tests the phrase search functionality with a specific configuration, verifying that it correctly matches or does not match phrases in annotated objects based on the provided language settings.
+        """
         line_qs = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue", config="french"),
         )
@@ -251,6 +267,9 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.french])
 
     def test_raw_search(self):
+        """
+        Tests the raw search functionality on dialogue lines, ensuring that it correctly returns items matching a given query and supports both simple search terms and more complex queries with negation.
+        """
         line_qs = Line.objects.annotate(search=SearchVector("dialogue"))
         searched = line_qs.filter(search=SearchQuery("Robin", search_type="raw"))
         self.assertCountEqual(searched, [self.verse0, self.verse1])
@@ -271,6 +290,9 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.french])
 
     def test_web_search(self):
+        """
+        Tests web search functionality by querying lines of dialogue with specific phrases and verifying the expected results are returned.
+        """
         line_qs = Line.objects.annotate(search=SearchVector("dialogue"))
         searched = line_qs.filter(
             search=SearchQuery(
@@ -295,6 +317,9 @@ class MultipleFieldsTest(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse0, self.verse1])
 
     def test_web_search_with_config(self):
+        """
+        Tests web search functionality using a specific configuration, verifying that query phrases with negation and different word order are correctly filtered from the results.
+        """
         line_qs = Line.objects.annotate(
             search=SearchVector("scene__setting", "dialogue", config="french"),
         )
@@ -457,6 +482,9 @@ class TestCombinations(GrailTestData, PostgreSQLTestCase):
         self.assertCountEqual(searched, [self.verse0, self.verse1, self.verse2])
 
     def test_query_combined_mismatch(self):
+        """
+        Checks that combining a SearchQuery with None raises a TypeError, ensuring only SearchQuery instances can be combined using logical operators.
+        """
         msg = (
             "SearchQuery can only be combined with other SearchQuery "
             "instances, got NoneType."
@@ -492,6 +520,10 @@ class TestRankingAndWeights(GrailTestData, PostgreSQLTestCase):
         self.assertSequenceEqual(searched, [self.verse2, self.verse1, self.verse0])
 
     def test_weights_in_vector(self):
+        """
+        .. method:: test_weights_in_vector(self)
+           Tests the ranking of search results based on weighted vectors, ensuring that weights are correctly applied to produce the expected ordering of results.
+        """
         vector = SearchVector("dialogue", weight="A") + SearchVector(
             "character__name", weight="D"
         )

@@ -81,6 +81,11 @@ class TranslationCatalog:
         self._plurals = [trans.plural] if trans else [lambda n: int(n != 1)]
 
     def __getitem__(self, key):
+        """
+        Retrieves a value from one of the catalogs by key. 
+        If the key is found in any of the catalogs, its corresponding value is returned; 
+        otherwise, a KeyError is raised.
+        """
         for cat in self._catalogs:
             try:
                 return cat[key]
@@ -104,6 +109,9 @@ class TranslationCatalog:
 
     def update(self, trans):
         # Merge if plural function is the same, else prepend.
+        """
+        Updates the translation catalogs by merging the provided translation with existing ones, prioritizing the most recent. If the plural form of the provided translation matches an existing one, the corresponding catalog is updated; otherwise, the new translation is added as the primary catalog.
+        """
         for cat, plural in zip(self._catalogs, self._plurals):
             if trans.plural.__code__ == plural.__code__:
                 cat.update(trans._catalog)
@@ -113,6 +121,10 @@ class TranslationCatalog:
             self._plurals.insert(0, trans.plural)
 
     def get(self, key, default=None):
+        """
+        Retrieves a value from one of the catalogs in the collection by its key, 
+        returning the first matching value found or a default value if no match exists.
+        """
         missing = object()
         for cat in self._catalogs:
             result = cat.get(key, missing)
@@ -121,6 +133,15 @@ class TranslationCatalog:
         return default
 
     def plural(self, msgid, num):
+        """
+
+        Returns the plural form of a message based on the given number.
+
+        The function iterates over the available catalogs and plural rules to find the 
+        correct plural form for the given message id and number. If a matching plural 
+        form is found, it is returned; otherwise, a KeyError is raised.
+
+        """
         for cat, plural in zip(self._catalogs, self._plurals):
             tmsg = cat.get((msgid, plural(num)))
             if tmsg is not None:
@@ -273,6 +294,14 @@ class DjangoTranslation(gettext_module.GNUTranslations):
         return self.__to_language
 
     def ngettext(self, msgid1, msgid2, n):
+        """
+        Return a translated message in the correct plural form for the given number.
+
+        :param msgid1: The singular form of the message.
+        :param msgid2: The plural form of the message.
+        :param n: The number that determines which form to use.
+        :rtype: str
+        """
         try:
             tmsg = self._catalog.plural(msgid1, n)
         except KeyError:
@@ -394,6 +423,13 @@ def gettext(message):
 
 
 def pgettext(context, message):
+    """
+    Translates a message within a specific context, allowing for more precise translations of identical messages used in different parts of an application.
+
+    :param context: The context in which the message is used.
+    :param message: The message to be translated.
+    :return: The translated message, or the original message if no translation is found.
+    """
     msg_with_ctxt = "%s%s%s" % (context, CONTEXT_SEPARATOR, message)
     result = gettext(msg_with_ctxt)
     if CONTEXT_SEPARATOR in result:
@@ -415,6 +451,16 @@ def gettext_noop(message):
 
 
 def do_ntranslate(singular, plural, number, translation_function):
+    """
+    Translates a singular and plural string based on a given number, using the currently active translation or the default translation if none is active.
+
+    :param singular: The singular form of the string
+    :param plural: The plural form of the string
+    :param number: The number to determine whether to use the singular or plural form
+    :param translation_function: The function to use for translation (e.g. ngettext)
+
+    :return: The translated string
+    """
     global _default
 
     t = getattr(_active, "value", None)
@@ -434,6 +480,16 @@ def ngettext(singular, plural, number):
 
 
 def npgettext(context, singular, plural, number):
+    """
+
+    Translate a message using the given context, with plural support.
+
+    This function gets the proper translation for the given singular and plural
+    messages based on the provided number, taking into account the context to
+    allow for translation nuances. If the translation with context is not found,
+    it falls back to translating without context.
+
+    """
     msgs_with_ctxt = (
         "%s%s%s" % (context, CONTEXT_SEPARATOR, singular),
         "%s%s%s" % (context, CONTEXT_SEPARATOR, plural),

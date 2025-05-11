@@ -110,6 +110,9 @@ class BaseSpatialField(Field):
         super().__init__(**kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs a database field into its constituent parts, including the field's spatial reference system identifier (SRID) and spatial indexing settings.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Always include SRID for less fragility; include spatial index if it's
         # not the default value.
@@ -189,6 +192,9 @@ class BaseSpatialField(Field):
                 )
 
     def get_prep_value(self, value):
+        """
+        Prepares and converts a given value into a spatial object, handling various input types and exceptions, to ensure compatibility with spatial lookup operations.
+        """
         obj = super().get_prep_value(value)
         if obj is None:
             return None
@@ -278,6 +284,9 @@ class GeometryField(BaseSpatialField):
         super().__init__(verbose_name=verbose_name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, adding dimension, geography, extent, and tolerance details to the keyword arguments if they differ from the default values.
+        """
         name, path, args, kwargs = super().deconstruct()
         # Include kwargs if they're not the default values.
         if self.dim != 2:
@@ -422,6 +431,14 @@ class RasterField(BaseSpatialField):
         setattr(cls, self.attname, SpatialProxy(gdal.GDALRaster, self))
 
     def get_transform(self, name):
+        """
+        Return a transform object for the given raster band name.
+
+        The function first attempts to interpret the name as a band index, 
+        creating a SpecificRasterBandTransform instance if successful. 
+        If the name cannot be converted to an integer, it falls back to 
+        the parent class's implementation to handle other transform types.
+        """
         from django.contrib.gis.db.models.lookups import RasterBandTransform
 
         try:

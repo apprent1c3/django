@@ -37,6 +37,26 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        Changes the password for a specified user.
+
+        The username can be provided manually, otherwise the current system user is used.
+        The function prompts the user to input a new password, ensuring it matches the
+        validation rules and verifying that the two input attempts are identical.
+        It allows a maximum of three attempts before aborting the password change.
+        If successful, the user's password is updated in the specified database.
+
+        Args:
+            *args: Variable length argument list (not used).
+            **options: Dictionary containing 'username' and 'database' options.
+
+        Returns:
+            A message indicating the result of the password change operation.
+
+        Raises:
+            CommandError: If the user does not exist, the password change operation fails after three attempts.
+
+        """
         if options["username"]:
             username = options["username"]
         else:

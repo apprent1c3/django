@@ -27,6 +27,12 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_create_index = "CREATE INDEX %(name)s ON %(table)s (%(columns)s)%(extra)s"
 
     def quote_value(self, value):
+        """
+        .. method:: quote_value(value)
+           :return: str
+
+           Formats a given value into a string suitable for quoting, handling various data types such as dates, times, strings, and binary data.
+        """
         if isinstance(value, (datetime.date, datetime.time, datetime.datetime)):
             return "'%s'" % value
         elif isinstance(value, datetime.timedelta):
@@ -71,6 +77,9 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         )
 
     def alter_field(self, model, old_field, new_field, strict=False):
+        """
+        Alter a field in a model, handling specific Oracle database errors and applying workarounds as necessary. This method overrides the base implementation to provide additional error handling for Oracle-specific exceptions, ensuring successful field alteration in the presence of identity, primary key, or type modifications.
+        """
         try:
             super().alter_field(model, old_field, new_field, strict)
         except DatabaseError as e:
@@ -201,6 +210,14 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         return self.quote_value(value)
 
     def _field_should_be_indexed(self, model, field):
+        """
+
+        Determines whether a model field should be indexed, considering database limitations.
+
+        Overrides the parent class's behavior by checking if the field's database type is
+        limited, in which case indexing is not allowed.
+
+        """
         create_index = super()._field_should_be_indexed(model, field)
         db_type = field.db_type(self.connection)
         if (

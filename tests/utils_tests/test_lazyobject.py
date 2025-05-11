@@ -60,6 +60,11 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(obj.foo, "bar")
 
     def test_getattr_falsey(self):
+        """
+
+        Tests that lazy attribute wrapping correctly handles falsy values returned by __getattr__.
+
+        """
         class Thing:
             def __getattr__(self, key):
                 return []
@@ -68,6 +73,9 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(obj.main, [])
 
     def test_setattr(self):
+        """
+        Tests the setattr functionality of a lazily wrapped object, verifying that attribute assignments are correctly stored and retrieved.
+        """
         obj = self.lazy_wrap(Foo())
         obj.foo = "BAR"
         obj.bar = "baz"
@@ -76,6 +84,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_setattr2(self):
         # Same as test_setattr but in reversed order
+        """
+        Tests setting attribute values on an object wrapped by the lazy wrap functionality, verifying that the attributes are set correctly and their values can be retrieved as expected.
+        """
         obj = self.lazy_wrap(Foo())
         obj.bar = "baz"
         obj.foo = "BAR"
@@ -83,6 +94,12 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(obj.bar, "baz")
 
     def test_delattr(self):
+        """
+        Tests the deletion of an attribute from a lazy-wrapped object.
+
+        Verifies that the attribute can be set, retrieved, and then deleted, 
+        and that attempting to access the attribute after deletion raises an AttributeError.
+        """
         obj = self.lazy_wrap(Foo())
         obj.bar = "baz"
         self.assertEqual(obj.bar, "baz")
@@ -91,6 +108,9 @@ class LazyObjectTestCase(unittest.TestCase):
             obj.bar
 
     def test_cmp(self):
+        """
+        Tests the equality comparison of lazy wrapped objects. Verifies that objects with the same underlying value are considered equal and objects with different underlying values are not.
+        """
         obj1 = self.lazy_wrap("foo")
         obj2 = self.lazy_wrap("bar")
         obj3 = self.lazy_wrap("foo")
@@ -134,6 +154,9 @@ class LazyObjectTestCase(unittest.TestCase):
             self.assertEqual(len(obj), 3)
 
     def test_class(self):
+        """
+        Tests the functionality of lazy_wrap, verifying it returns an instance of the expected type for both primitives and class instances.
+        """
         self.assertIsInstance(self.lazy_wrap(42), int)
 
         class Bar(Foo):
@@ -148,6 +171,9 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(d["foo"], "bar")
 
     def test_contains(self):
+        """
+        Tests that the lazy_wrap method preserves the 'in' operator behavior for various data types, including strings, lists, dictionaries, and sets. This ensures that wrapped objects can still be searched for containment using the 'in' keyword.
+        """
         test_data = [
             ("c", "abcde"),
             (2, [1, 2, 3]),
@@ -164,6 +190,12 @@ class LazyObjectTestCase(unittest.TestCase):
             self.assertIn(self.lazy_wrap(needle), self.lazy_wrap(haystack))
 
     def test_getitem(self):
+        """
+        Tests the functionality of getting items from lazily wrapped lists and dictionaries.
+
+        Verifies correct behavior for indexing, slicing, and error handling when accessing
+        non-existent keys or indices.
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -180,6 +212,12 @@ class LazyObjectTestCase(unittest.TestCase):
             obj_dict["f"]
 
     def test_setitem(self):
+        """
+        Tests the functionality of setting items in lazily wrapped lists and dictionaries.
+
+        Verifies that modifications to wrapped lists and dictionaries behave as expected,
+        including indexed assignment for lists and key assignment for dictionaries.
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -193,6 +231,14 @@ class LazyObjectTestCase(unittest.TestCase):
         self.assertEqual(obj_dict, {"a": 100, "b": 2, "c": 3, "d": 400})
 
     def test_delitem(self):
+        """
+
+        Tests the deletion of items from lazily wrapped list and dictionary objects.
+
+        Verifies that the delitem operation works correctly for both lists and dictionaries, 
+        and that appropriate exceptions are raised when attempting to delete non-existent items.
+
+        """
         obj_list = self.lazy_wrap([1, 2, 3])
         obj_dict = self.lazy_wrap({"a": 1, "b": 2, "c": 3})
 
@@ -211,6 +257,9 @@ class LazyObjectTestCase(unittest.TestCase):
         # Tests whether an object's custom `__iter__` method is being
         # used when iterating over it.
 
+        """
+        Tests the lazy wrapping functionality with an iterable object, verifying it preserves the original data when converted to a list.
+        """
         class IterObject:
             def __init__(self, values):
                 self.values = values
@@ -223,6 +272,10 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_pickle(self):
         # See ticket #16563
+        """
+        Tests the pickling and unpickling of an object wrapped by lazy_wrap, 
+        verifying that the unpickled object is of the correct type and retains its attributes.
+        """
         obj = self.lazy_wrap(Foo())
         obj.bar = "baz"
         pickled = pickle.dumps(obj)
@@ -238,6 +291,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_list(self):
         # Copying a list works and returns the correct objects.
+        """
+        Tests that copying a lazily wrapped list results in a new, independent list object.
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -250,6 +306,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_list_no_evaluation(self):
         # Copying a list doesn't force evaluation.
+        """
+        Tests that copying a lazily wrapped list object does not evaluate it, and the copied object remains empty until explicitly evaluated.
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -261,6 +320,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_class(self):
         # Copying a class works and returns the correct objects.
+        """
+        Tests that copying a lazily wrapped object produces a distinct instance of the original class.
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -273,6 +335,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_copy_class_no_evaluation(self):
         # Copying a class doesn't force evaluation.
+        """
+        Tests that copying a lazily wrapped object does not trigger evaluation and creates a new, independent object.
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -284,6 +349,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_list(self):
         # Deep copying a list works and returns the correct objects.
+        """
+        Tests that copying a lazily wrapped list using deepcopy results in a new, independent list object.
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -296,6 +364,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_list_no_evaluation(self):
         # Deep copying doesn't force evaluation.
+        """
+        Tests that deepcopying a lazy-wrapped list does not trigger evaluation of the wrapped object.
+        """
         lst = [1, 2, 3]
 
         obj = self.lazy_wrap(lst)
@@ -307,6 +378,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_class(self):
         # Deep copying a class works and returns the correct objects.
+        """
+        Verifies that the deepcopy operation on a lazily wrapped object creates a new, independent instance of the original class, preserving its type and equality properties.
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -319,6 +393,9 @@ class LazyObjectTestCase(unittest.TestCase):
 
     def test_deepcopy_class_no_evaluation(self):
         # Deep copying doesn't force evaluation.
+        """
+        Tests that deepcopying a lazy-wrapped class does not trigger evaluation of the wrapped object.
+        """
         foo = Foo()
 
         obj = self.lazy_wrap(foo)
@@ -338,6 +415,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
 
     def test_repr(self):
         # First, for an unevaluated SimpleLazyObject
+        """
+        Tests the string representation of a lazy wrapped object, ensuring it correctly unwraps the object when needed and generates the expected string representation.
+        """
         obj = self.lazy_wrap(42)
         # __repr__ contains __repr__ of setup function and does not evaluate
         # the SimpleLazyObject
@@ -349,6 +429,11 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
         self.assertEqual(repr(obj), "<SimpleLazyObject: 42>")
 
     def test_add(self):
+        """
+
+        Tests the addition operation on lazily wrapped objects, verifying that they behave as expected with both integer and wrapped object operands.
+
+        """
         obj1 = self.lazy_wrap(1)
         self.assertEqual(obj1 + 1, 2)
         obj2 = self.lazy_wrap(2)
@@ -361,6 +446,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
 
     def test_trace(self):
         # See ticket #19456
+        """
+        Tests tracing functionality by installing a custom trace function and executing lazy wrap logic, ensuring that the original trace function is restored afterwards.
+        """
         old_trace_func = sys.gettrace()
         try:
 
@@ -375,6 +463,10 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
             sys.settrace(old_trace_func)
 
     def test_none(self):
+        """
+        Tests that SimpleLazyObject correctly handles functions that return None, 
+        ensuring the function is only evaluated once on initial access.
+        """
         i = [0]
 
         def f():
@@ -389,6 +481,10 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
 
     def test_dict(self):
         # See ticket #18447
+        """
+        Tests the functionality of a SimpleLazyObject instance with dictionary operations, 
+        including key access, modification, membership, and length calculation, as well as deletion and KeyError handling.
+        """
         lazydict = SimpleLazyObject(lambda: {"one": 1})
         self.assertEqual(lazydict["one"], 1)
         lazydict["one"] = -1
@@ -401,6 +497,9 @@ class SimpleLazyObjectTestCase(LazyObjectTestCase):
             lazydict["one"]
 
     def test_list_set(self):
+        """
+        Tests that SimpleLazyObject works correctly with lists and sets, verifying membership and length operations.
+        """
         lazy_list = SimpleLazyObject(lambda: [1, 2, 3, 4, 5])
         lazy_set = SimpleLazyObject(lambda: {1, 2, 3, 4})
         self.assertIn(1, lazy_list)
@@ -425,6 +524,12 @@ class BaseBaz:
         return super().__reduce__()
 
     def __eq__(self, other):
+        """
+        Override the equality operator to compare instances of the same class.
+
+        Checks if the objects have the same attributes ('bar', 'baz', 'quux') with the same values.
+        Returns True if objects are equal, False otherwise.
+        """
         if self.__class__ != other.__class__:
             return False
         for attr in ["bar", "baz", "quux"]:

@@ -16,6 +16,9 @@ class TestASGIStaticFilesHandler(StaticFilesTestCase):
     async_request_factory = AsyncRequestFactory()
 
     async def test_get_async_response(self):
+        """
+        Tests asynchronous retrieval of a static file, verifying that the response status code is 200 (OK).
+        """
         request = self.async_request_factory.get("/static/test/file.txt")
         handler = ASGIStaticFilesHandler(ASGIHandler())
         response = await handler.get_response_async(request)
@@ -29,6 +32,15 @@ class TestASGIStaticFilesHandler(StaticFilesTestCase):
         self.assertEqual(response.status_code, 404)
 
     async def test_non_http_requests_passed_to_the_wrapped_application(self):
+        """
+        Test that non-HTTP requests are correctly passed to the wrapped application.
+
+            Verify that the ASGIStaticFilesHandler properly handles WebSocket requests
+            and allows the wrapped application to handle non-static file paths.\"\"\"
+            # removed parameters as they were in original function signature
+            # let's keep documentation string independent of function parameters and inner workings
+            # it should explain why function exists
+        """
         tests = [
             "/static/path.txt",
             "/non-static/path.txt",

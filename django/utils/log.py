@@ -65,6 +65,14 @@ DEFAULT_LOGGING = {
 
 
 def configure_logging(logging_config, logging_settings):
+    """
+    Configures the logging system based on the provided configuration and settings.
+
+    :param logging_config: A string representing the import path to a logging configuration function.
+    :param logging_settings: Additional settings to be passed to the logging configuration function.
+
+    Applies default logging configuration and then optionally applies custom settings if a configuration function and settings are provided.
+    """
     if logging_config:
         # First find the logging configuration function ...
         logging_config_func = import_string(logging_config)
@@ -93,6 +101,16 @@ class AdminEmailHandler(logging.Handler):
 
     def emit(self, record):
         # Early return when no email will be sent.
+        """
+        Emits an error report via email based on the provided log record.
+
+        Sends error details to administrators if configured, including a formatted
+        subject, error message, and traceback information, either as plain text or
+        HTML, depending on the handler's settings.
+
+        If the send mail method has not been overridden, it skips sending email if no
+        admins are configured in the system settings.
+        """
         if (
             not settings.ADMINS
             # Method not overridden.
@@ -183,6 +201,9 @@ class ServerFormatter(logging.Formatter):
         super().__init__(*args, **kwargs)
 
     def format(self, record):
+        """
+        Formats log messages for HTTP requests, customizing the message style based on the status code and adding server time if necessary.
+        """
         msg = record.msg
         status_code = getattr(record, "status_code", None)
 

@@ -264,6 +264,16 @@ class EmailMessage:
         return self.connection
 
     def message(self):
+        """
+
+        Constructs and configures a MIME message object based on the instance's properties.
+
+        This function generates a SAFE MIME text message with the specified encoding, 
+        subject, from and to addresses, and additional headers. It also appends 
+        any extra headers and auto-generates the Date and Message-ID headers if not 
+        already provided. The configured message object is then returned.
+
+        """
         encoding = self.encoding or settings.DEFAULT_CHARSET
         msg = SafeMIMEText(self.body, self.content_subtype, encoding)
         msg = self._create_message(msg)
@@ -366,6 +376,15 @@ class EmailMessage:
         return self._create_attachments(msg)
 
     def _create_attachments(self, msg):
+        """
+        Prepares and attaches files or other MIME entities to a message.
+
+        Handles encoding and construction of a multipart message to carry attachments.
+        May attach existing MIMEBase objects or create new attachments from provided data.
+
+        :param msg: The message to which attachments will be added
+        :returns: The message with attachments, or the original message if no attachments were specified
+        """
         if self.attachments:
             encoding = self.encoding or settings.DEFAULT_CHARSET
             body_msg = msg
@@ -490,6 +509,10 @@ class EmailMultiAlternatives(EmailMessage):
         return self._create_attachments(self._create_alternatives(msg))
 
     def _create_alternatives(self, msg):
+        """
+        Creates an email message with alternative content, such as text and HTML versions, 
+        wrapping the provided message and additional alternatives in a multipart format.
+        """
         encoding = self.encoding or settings.DEFAULT_CHARSET
         if self.alternatives:
             body_msg = msg

@@ -14,6 +14,9 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.storage = InMemoryStorage()
 
     def test_write_string(self):
+        """
+        Tests the ability to write and read strings to and from files in the storage system, covering both text and binary modes.
+        """
         with self.storage.open("file.txt", "w") as fd:
             fd.write("hello")
         with self.storage.open("file.txt", "r") as fd:
@@ -78,6 +81,12 @@ class MemoryStorageIOTests(unittest.TestCase):
         self.assertEqual(self.storage.size("file.dat"), 2)
 
     def test_listdir(self):
+        """
+        Tests the listdir functionality of the storage system.
+
+        Verifies that the function correctly returns a list of subdirectories and files
+        in the root directory, after saving a mix of files and directories to the storage system.
+        """
         self.assertEqual(self.storage.listdir(""), ([], []))
 
         self.storage.save("file_a.txt", ContentFile("test"))
@@ -231,6 +240,9 @@ class MemoryStorageTimesTests(unittest.TestCase):
 
 class InMemoryStorageTests(SimpleTestCase):
     def test_deconstruction(self):
+        """
+        Tests the deconstruction of InMemoryStorage instances into their path, arguments, and keyword arguments, ensuring correct serialization and deserialization of storage settings.
+        """
         storage = InMemoryStorage()
         path, args, kwargs = storage.deconstruct()
         self.assertEqual(path, "django.core.files.storage.InMemoryStorage")

@@ -54,6 +54,9 @@ class SchemaTests(PostgreSQLTestCase):
             return connection.introspection.get_constraints(cursor, table)
 
     def test_check_constraint_range_value(self):
+        """
+        Checks that a check constraint ensuring a numeric range value falls within a specified range is correctly enforced on a database model.
+        """
         constraint_name = "ints_between"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -70,6 +73,9 @@ class SchemaTests(PostgreSQLTestCase):
         RangesModel.objects.create(ints=(10, 30))
 
     def test_check_constraint_array_contains(self):
+        """
+        #: Tests that the CheckConstraint for an array containing a specific value correctly raises a ValidationError when the constraint is violated and passes when it is not.
+        """
         constraint = CheckConstraint(
             condition=Q(field__contains=[1]),
             name="array_contains",
@@ -80,6 +86,9 @@ class SchemaTests(PostgreSQLTestCase):
         constraint.validate(IntegerArrayModel, IntegerArrayModel(field=[1]))
 
     def test_check_constraint_array_length(self):
+        """
+        Tests that a CheckConstraint for validating the length of an array field correctly raises a ValidationError when the length is invalid.
+        """
         constraint = CheckConstraint(
             condition=Q(field__len=1),
             name="array_length",
@@ -90,6 +99,9 @@ class SchemaTests(PostgreSQLTestCase):
         constraint.validate(IntegerArrayModel, IntegerArrayModel(field=[1]))
 
     def test_check_constraint_daterange_contains(self):
+        """
+        Tests the addition of a check constraint to ensure that a date range contains another date range, and verifies that violating this constraint raises an IntegrityError.
+        """
         constraint_name = "dates_contains"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -114,6 +126,9 @@ class SchemaTests(PostgreSQLTestCase):
         )
 
     def test_check_constraint_datetimerange_contains(self):
+        """
+        Tests the functionality of a check constraint that verifies if the 'timestamps_inner' range is contained within the 'timestamps' range in the RangesModel table.
+        """
         constraint_name = "timestamps_contains"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -147,6 +162,11 @@ class SchemaTests(PostgreSQLTestCase):
             constraint.validate(RangesModel, RangesModel(ints=(6, 10)))
 
     def test_check_constraint_range_lower_upper(self):
+        """
+
+        Tests the CheckConstraint to ensure it correctly enforces the lower and upper range bounds on the 'ints' field.
+
+        """
         constraint = CheckConstraint(
             condition=Q(ints__startswith__gte=0) & Q(ints__endswith__lte=99),
             name="ints_range_lower_upper",
@@ -171,6 +191,9 @@ class SchemaTests(PostgreSQLTestCase):
         constraint.validate(RangesModel, RangesModel())
 
     def test_opclass(self):
+        """
+        Tests the creation and removal of a unique constraint with a custom operator class on the Scene model's database table. Verifies that the constraint is successfully added, its operator class is correctly set, and that it is properly removed.
+        """
         constraint = UniqueConstraint(
             name="test_opclass",
             fields=["scene"],
@@ -191,6 +214,9 @@ class SchemaTests(PostgreSQLTestCase):
         self.assertNotIn(constraint.name, self.get_constraints(Scene._meta.db_table))
 
     def test_opclass_multiple_columns(self):
+        """
+        Tests the creation of a unique constraint with multiple columns and operator classes, verifying that the constraint is correctly applied with the specified operator classes.
+        """
         constraint = UniqueConstraint(
             name="test_opclass_multiple",
             fields=["scene", "setting"],
@@ -207,6 +233,11 @@ class SchemaTests(PostgreSQLTestCase):
             self.assertCountEqual(cursor.fetchall(), expected_opclasses)
 
     def test_opclass_partial(self):
+        """
+        Tests adding a partial unique constraint with a specific operator class to the Scene model. 
+
+        The constraint is specifically created for the 'scene' field with the 'varchar_pattern_ops' operator class and a condition that filters by the 'setting' field containing \"Sir Bedemir's Castle\". The test then verifies that the correct operator class is applied to the constraint.
+        """
         constraint = UniqueConstraint(
             name="test_opclass_partial",
             fields=["scene"],
@@ -224,6 +255,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     @skipUnlessDBFeature("supports_covering_indexes")
     def test_opclass_include(self):
+        """
+        Tests the inclusion of an opclass with a covering index, specifically verifying that a unique constraint with an opclass is correctly applied to a model.
+        """
         constraint = UniqueConstraint(
             name="test_opclass_include",
             fields=["scene"],
@@ -241,6 +275,9 @@ class SchemaTests(PostgreSQLTestCase):
 
     @skipUnlessDBFeature("supports_expression_indexes")
     def test_opclass_func(self):
+        """
+        Tests the creation and removal of a unique constraint on a model field using a specific operator class, ensuring that the constraint correctly enforces uniqueness in a case-insensitive manner.
+        """
         constraint = UniqueConstraint(
             OpClass(Lower("scene"), name="text_pattern_ops"),
             name="test_opclass_func",
@@ -267,6 +304,13 @@ class SchemaTests(PostgreSQLTestCase):
         Scene.objects.create(scene="ScEnE 10", setting="Sir Bedemir's Castle")
 
     def test_opclass_func_validate_constraints(self):
+        """
+        Tests the validation of a unique OpClass constraint.
+
+        Verifies that the UniqueConstraint is correctly applied to a Scene object,
+        ensuring that duplicate values in a specific OpClass do not pass validation.
+        (
+        """
         constraint_name = "test_opclass_func_validate_constraints"
         constraint = UniqueConstraint(
             OpClass(Lower("scene"), name="text_pattern_ops"),
@@ -348,6 +392,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
 
     @isolate_apps("postgres_tests")
     def test_check(self):
+        """
+        Tests model validation for exclusion constraints to ensure correct error messages are generated when constraints refer to nonexistent or joined fields.
+        """
         class Author(Model):
             name = CharField(max_length=255)
             alias = CharField(max_length=255)
@@ -398,6 +445,12 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_repr(self):
+        """
+        Tests the string representation of an ExclusionConstraint instance.
+
+        Verifies that the repr function correctly formats the constraint's attributes,
+        including index type, expressions, name, condition, deferrable, include, and error messages.
+        """
         constraint = ExclusionConstraint(
             name="exclude_overlapping",
             expressions=[
@@ -480,6 +533,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_eq(self):
+        """
+        Tests the equality of ExclusionConstraint instances based on their attributes.
+        """
         constraint_1 = ExclusionConstraint(
             name="exclude_overlapping",
             expressions=[
@@ -579,6 +635,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertEqual(constraint_12, constraint_12)
 
     def test_deconstruct(self):
+        """
+        Tests the deconstruction of an ExclusionConstraint instance into its constituent parts, ensuring correct path, arguments, and keyword arguments are returned.
+        """
         constraint = ExclusionConstraint(
             name="exclude_overlapping",
             expressions=[
@@ -603,6 +662,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_deconstruct_index_type(self):
+        """
+        Tests the deconstruction of an ExclusionConstraint instance, verifying that it correctly decomposes into its constituent parts, including path, arguments, and keyword arguments.
+        """
         constraint = ExclusionConstraint(
             name="exclude_overlapping",
             index_type="SPGIST",
@@ -629,6 +691,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_deconstruct_condition(self):
+        """
+        Tests that an ExclusionConstraint can be correctly deconstructed into its path, args, and kwargs components, ensuring accurate serialization and deserialization of the constraint's parameters.
+        """
         constraint = ExclusionConstraint(
             name="exclude_overlapping",
             expressions=[
@@ -655,6 +720,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_deconstruct_deferrable(self):
+        """
+        Tests that an ExclusionConstraint with a deferred deferrability can be properly deconstructed, ensuring that its path and constructor arguments are correctly extracted.
+        """
         constraint = ExclusionConstraint(
             name="exclude_overlapping",
             expressions=[("datespan", RangeOperators.OVERLAPS)],
@@ -675,6 +743,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_deconstruct_include(self):
+        """
+        Tests the deconstruction of an ExclusionConstraint instance with include parameters, verifying that it correctly breaks down into its constituent path and keyword arguments.
+        """
         constraint = ExclusionConstraint(
             name="exclude_overlapping",
             expressions=[("datespan", RangeOperators.OVERLAPS)],
@@ -696,6 +767,14 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
 
     def _test_range_overlaps(self, constraint):
         # Create exclusion constraint.
+        """
+        Verifies the behavior of a database constraint for overlapping date ranges in hotel reservations.
+
+        Checks that the constraint prevents reservations with overlapping dates for the same room, 
+        while allowing valid reservations for different rooms or with non-overlapping dates. 
+
+        Also tests edge cases, such as cancelled reservations and partial overlap exclusions.
+        """
         self.assertNotIn(
             constraint.name, self.get_constraints(HotelReservation._meta.db_table)
         )
@@ -797,6 +876,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_range_overlaps_custom(self):
+        """
+        Tests the exclusion constraint for overlapping date ranges with a custom operator class, ensuring that reservations with the same room do not overlap when they are not cancelled.
+        """
         class TsTzRange(Func):
             function = "TSTZRANGE"
             output_field = DateTimeRangeField()
@@ -826,6 +908,13 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self._test_range_overlaps(constraint)
 
     def test_range_adjacent(self):
+        """
+        Tests the application of an exclusion constraint to prevent adjacent integer ranges.
+
+        Verifies that adding and removing the exclusion constraint correctly enforces the 
+        adjacency rule, allowing or blocking the creation of models with adjacent integer ranges 
+        based on the presence or absence of the constraint.
+        """
         constraint_name = "ints_adjacent"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -850,6 +939,14 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_validate_range_adjacent(self):
+        """
+
+            Tests the validation of the ExclusionConstraint for adjacent range values.
+
+            Verifies that the constraint raises a ValidationError with a custom error code and message
+            when the range is adjacent to an existing range, and that it passes when the range is not adjacent.
+
+        """
         constraint = ExclusionConstraint(
             name="ints_adjacent",
             expressions=[("ints", RangeOperators.ADJACENT_TO)],
@@ -867,6 +964,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         constraint.validate(RangesModel, RangesModel(ints=(10, 20)), exclude={"ints"})
 
     def test_validate_with_custom_code_and_condition(self):
+        """
+        Tests that the ExclusionConstraint validation raises a ValidationError with a custom code when the range condition is met and the adjacent range is found, and that the constraint's custom error code is used in the raised exception.
+        """
         constraint = ExclusionConstraint(
             name="ints_adjacent",
             expressions=[("ints", RangeOperators.ADJACENT_TO)],
@@ -880,6 +980,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertEqual(cm.exception.code, "custom_code")
 
     def test_expressions_with_params(self):
+        """
+        Tests adding an exclusion constraint to the database table for Scene model with a specified name and Left expression parameter. Verifies that the constraint is successfully added by checking its presence in the database table before and after the addition.
+        """
         constraint_name = "scene_left_equal"
         self.assertNotIn(constraint_name, self.get_constraints(Scene._meta.db_table))
         constraint = ExclusionConstraint(
@@ -891,6 +994,10 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(Scene._meta.db_table))
 
     def test_expressions_with_key_transform(self):
+        """
+        Tests adding an exclusion constraint to the HotelReservation model with key transform, 
+        verifying that the constraint is successfully added to the database schema.
+        """
         constraint_name = "exclude_overlapping_reservations_smoking"
         constraint = ExclusionConstraint(
             name=constraint_name,
@@ -907,6 +1014,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_index_transform(self):
+        """
+        Verifies that an exclusion constraint can be successfully added to a model with an integer array field, ensuring the first element of the field equals a specified value.
+        """
         constraint_name = "first_index_equal"
         constraint = ExclusionConstraint(
             name=constraint_name,
@@ -920,6 +1030,10 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_range_adjacent_initially_deferred(self):
+        """
+        Tests if an exclusion constraint with deferred checking allows for the creation of adjacent ranges initially, 
+        but raises an IntegrityError when the constraint is set to immediate checking, and ensures the constraint is properly added and removed.
+        """
         constraint_name = "ints_adjacent_deferred"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -945,6 +1059,10 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         RangesModel.objects.create(ints=(51, 60))
 
     def test_range_adjacent_initially_deferred_with_condition(self):
+        """
+        Tests the creation and enforcement of an exclusion constraint on adjacent integer ranges, 
+        where the constraint is deferred and conditionally applied to ranges with integers less than (100, 200).
+        """
         constraint_name = "ints_adjacent_deferred_with_condition"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -978,6 +1096,13 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
             cursor.execute(f"SET CONSTRAINTS {quoted_name} IMMEDIATE")
 
     def test_range_adjacent_gist_include(self):
+        """
+        Tests that adjacent range exclusion constraints are correctly applied to a model.
+
+        Verifies that a range with adjacent bounds raises an IntegrityError when created, 
+        while non-adjacent ranges are allowed. Ensures the constraint is properly added to 
+        the database and respected by the model.
+        """
         constraint_name = "ints_adjacent_gist_include"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -998,6 +1123,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         RangesModel.objects.create(ints=(51, 60))
 
     def test_range_adjacent_spgist_include(self):
+        """
+        Tests the creation and enforcement of an exclusion constraint with an SP-GiST index that includes adjacent ranges for integer fields, ensuring data integrity by preventing overlapping ranges.
+        """
         constraint_name = "ints_adjacent_spgist_include"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1018,6 +1146,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         RangesModel.objects.create(ints=(51, 60))
 
     def test_range_adjacent_gist_include_condition(self):
+        """
+        Tests the creation of an exclusion constraint with an adjacent gist include condition on the RangesModel table. Verifies that the constraint is successfully added by checking its presence before and after creation.
+        """
         constraint_name = "ints_adjacent_gist_include_condition"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1034,6 +1165,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_spgist_include_condition(self):
+        """
+        Tests that adding an exclusion constraint to a model with an adjacent range condition and specified include values works as expected.
+        """
         constraint_name = "ints_adjacent_spgist_include_condition"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1050,6 +1184,11 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_gist_include_deferrable(self):
+        """
+
+        Tests the creation of a deferrable GIST exclusion constraint with an include clause on a range field, ensuring it is successfully added to the model's database table.
+
+        """
         constraint_name = "ints_adjacent_gist_include_deferrable"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1066,6 +1205,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_spgist_include_deferrable(self):
+        """
+        Tests the creation of an exclusion constraint on the RangesModel with an adjacent SP-GiST index that includes a column and is deferrable.
+        """
         constraint_name = "ints_adjacent_spgist_include_deferrable"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1082,6 +1224,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_opclass(self):
+        """
+        Tests the creation and removal of an exclusion constraint for adjacent range operations on the RangesModel's 'ints' field, verifying that adjacent ranges cannot be inserted while the constraint is active.
+        """
         constraint_name = "ints_adjacent_opclass"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1115,6 +1260,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         )
 
     def test_range_adjacent_opclass_condition(self):
+        """
+        Tests the creation and existence of an exclusion constraint with an adjacent operator class condition on the RangesModel table, verifying its addition and presence in the database.
+        """
         constraint_name = "ints_adjacent_opclass_condition"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1131,6 +1279,13 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_opclass_deferrable(self):
+        """
+
+        Tests that an exclusion constraint with an adjacent operator class and deferrable validation can be added to a model.
+
+        Verifies that the constraint is initially absent, then adds it and checks that it has been successfully created.
+
+        """
         constraint_name = "ints_adjacent_opclass_deferrable"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1147,6 +1302,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_gist_opclass_include(self):
+        """
+        Tests the creation of a GIST exclusion constraint with range adjacent operation and included columns.
+        """
         constraint_name = "ints_adjacent_gist_opclass_include"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1164,6 +1322,9 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_adjacent_spgist_opclass_include(self):
+        """
+        Tests the functionality of adding an exclusion constraint with a specific opclass and include clause to a model's table, ensuring the constraint is correctly applied to the database.
+        """
         constraint_name = "ints_adjacent_spgist_opclass_include"
         self.assertNotIn(
             constraint_name, self.get_constraints(RangesModel._meta.db_table)
@@ -1181,6 +1342,11 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
         self.assertIn(constraint_name, self.get_constraints(RangesModel._meta.db_table))
 
     def test_range_equal_cast(self):
+        """
+
+        Tests that an exclusion constraint with an equal range casting to an integer can be added to the Room model.
+
+        """
         constraint_name = "exclusion_equal_room_cast"
         self.assertNotIn(constraint_name, self.get_constraints(Room._meta.db_table))
         constraint = ExclusionConstraint(
@@ -1193,6 +1359,11 @@ class ExclusionConstraintTests(PostgreSQLTestCase):
 
     @isolate_apps("postgres_tests")
     def test_table_create(self):
+        """
+        Tests the creation of a table with an exclusion constraint in a PostgreSQL database.
+
+        Verifies that a model with an exclusion constraint can be created successfully and that the constraint is properly installed in the database schema.
+        """
         constraint_name = "exclusion_equal_number_tc"
 
         class ModelWithExclusionConstraint(Model):

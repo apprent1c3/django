@@ -30,6 +30,9 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
         return super().quote_value(value)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        Generates the SQL for a column, extending the base implementation to include spatial index creation for geometry fields when necessary.
+        """
         column_sql = super().column_sql(model, field, include_default)
         # MySQL doesn't support spatial indexes on NULL columns
         if isinstance(field, GeometryField) and field.spatial_index and not field.null:
@@ -54,6 +57,9 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
         self.create_spatial_indexes()
 
     def remove_field(self, model, field):
+        """
+        Remove a field from a model, including any associated spatial index if the field is a geometry field with a spatial index.
+        """
         if isinstance(field, GeometryField) and field.spatial_index and not field.null:
             index_name = self._create_spatial_index_name(model, field)
             sql = self._delete_index_sql(model, index_name)
@@ -72,6 +78,12 @@ class MySQLGISSchemaEditor(DatabaseSchemaEditor):
         return "%s_%s_id" % (model._meta.db_table, field.column)
 
     def create_spatial_indexes(self):
+        """
+        Creates spatial indexes in the database by executing a series of SQL statements.
+
+        This method is used to optimize spatial queries by creating indexes on geometry fields.
+        It supports MyISAM, Aria, and InnoDB storage engines, and logs an error if the operation fails.
+        """
         for sql in self.geometry_sql:
             try:
                 self.execute(sql)

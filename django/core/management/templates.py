@@ -44,6 +44,9 @@ class TemplateCommand(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments for configuring project generation, including application name, destination directory, template source, file extensions, and exclusions.
+        """
         parser.add_argument("name", help="Name of the application or project.")
         parser.add_argument(
             "directory", nargs="?", help="Optional destination directory"
@@ -84,6 +87,21 @@ class TemplateCommand(BaseCommand):
         )
 
     def handle(self, app_or_project, name, target=None, **options):
+        """
+
+        Handles the creation of a new Django application or project.
+
+        The function takes in the type of project ('app' or 'project'), its name, 
+        and optionally a target directory to create the project in. 
+        It uses a template to render the project files, replacing placeholders 
+        with actual values, and also handles file permissions and cleanup.
+
+        The function provides options for customizing the project creation process, 
+        including specifying additional files to include, excluded directories, 
+        and template rendering. It also supports override of file extensions 
+        and the possibility to include an external template for the project.
+
+        """
         self.app_or_project = app_or_project
         self.a_or_an = "an" if app_or_project == "app" else "a"
         self.paths_to_remove = []
@@ -258,6 +276,9 @@ class TemplateCommand(BaseCommand):
         )
 
     def validate_name(self, name, name_or_dir="name"):
+        """
+        Validate a given name for a project or application component, ensuring it is a valid identifier and does not conflict with an existing Python module.
+        """
         if name is None:
             raise CommandError(
                 "you must provide {an} {app} name".format(
@@ -294,6 +315,11 @@ class TemplateCommand(BaseCommand):
         """
 
         def cleanup_url(url):
+            """
+            Extracts the filename and normalized URL from a given URL.
+
+             Returns a tuple containing the filename and the URL with trailing slashes normalized for display purposes.
+            """
             tmp = url.rstrip("/")
             filename = tmp.split("/")[-1]
             if url.endswith("/"):

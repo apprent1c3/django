@@ -29,6 +29,13 @@ class LocalizeNode(Node):
         return "<%s>" % self.__class__.__name__
 
     def render(self, context):
+        """
+        Renders the template node list with the specified localization setting.
+
+        :param context: The template context to render with
+        :returns: The rendered output
+        :note: The function temporarily overrides the context's localization setting (`use_l10n`) to match the current object's setting (`self.use_l10n`), and then restores the original setting after rendering.
+        """
         old_setting = context.use_l10n
         context.use_l10n = self.use_l10n
         output = self.nodelist.render(context)

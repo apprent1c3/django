@@ -39,6 +39,9 @@ class PasswordInputTest(WidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that a form field renders correctly when the use_fieldset attribute is False, ensuring the widget is properly displayed without a fieldset.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)
