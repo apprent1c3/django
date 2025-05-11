@@ -73,6 +73,9 @@ class DebugContextProcessorTests(TestCase):
     databases = {"default", "other"}
 
     def test_debug(self):
+        """
+        Tests that the debug page is accessible when debug mode is enabled and not accessible when it is disabled.
+        """
         url = "/debug/"
         # We should have the debug flag in the template.
         response = self.client.get(url)

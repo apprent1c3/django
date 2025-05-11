@@ -26,6 +26,18 @@ class Library:
         self.tags = {}
 
     def tag(self, name=None, compile_function=None):
+        """
+        Registers or retrieves a tag function associated with a given name.
+
+        Accepts a name and optionally a compile function to register, 
+        or returns a decorator to associate a compile function with the tag.
+
+        If called without arguments, returns the currently registered tag function.
+        If called with a single callable, applies the tag to the callable and returns it.
+        If called with a name and a compile function, registers the compile function under the given name.
+
+        Raises ValueError if the arguments are not supported.
+        """
         if name is None and compile_function is None:
             # @register.tag()
             return self.tag_function
@@ -109,6 +121,14 @@ class Library:
         """
 
         def dec(func):
+            """
+            Decorator to convert a Python function into a templating tag.
+
+            It extracts the function's parameters, allows for 'as' variable assignment, and 
+            then compiles a SimpleNode to be used within templating. The decorated function 
+            can then be used as a tag in templating, with support for passing arguments 
+            and keyword arguments, and optional assignment of the result to a variable.
+            """
             (
                 params,
                 varargs,
@@ -122,6 +142,14 @@ class Library:
 
             @wraps(func)
             def compile_func(parser, token):
+                """
+                Compile a function into a SimpleNode, parsing the given token and extracting arguments and keyword arguments.
+
+                :params parser: The parser object to use for parsing the token.
+                :params token: The token to compile into a SimpleNode.
+                :returns: A SimpleNode representing the compiled function.
+
+                """
                 bits = token.split_contents()[1:]
                 target_var = None
                 if len(bits) >= 2 and bits[-2] == "as":
@@ -164,6 +192,14 @@ class Library:
         """
 
         def dec(func):
+            """
+            Decorator for registering a function as a template tag, allowing it to be used in template rendering.
+
+            This decorator compiles the function into a template node that can be used to render the function's output in a template. The compiled node is then registered with the templating engine under the function's name.
+
+            :param func: The function to register as a template tag
+            :return: The original function, now registered as a template tag
+            """
             (
                 params,
                 varargs,
@@ -218,6 +254,12 @@ class TagHelperNode(Node):
         self.kwargs = kwargs
 
     def get_resolved_arguments(self, context):
+        """
+        Resolves function arguments and keyword arguments in the given context.
+
+        Returns a tuple containing the resolved positional arguments and keyword arguments.
+        The positional arguments are ordered and include the context as the first argument if this function takes context.
+        """
         resolved_args = [var.resolve(context) for var in self.args]
         if self.takes_context:
             resolved_args = [context] + resolved_args
@@ -233,6 +275,10 @@ class SimpleNode(TagHelperNode):
         self.target_var = target_var
 
     def render(self, context):
+        """
+        Render the function with the given context, handling argument resolution, 
+        variable assignment, and auto-escaping as necessary, returning the rendered output.
+        """
         resolved_args, resolved_kwargs = self.get_resolved_arguments(context)
         output = self.func(*resolved_args, **resolved_kwargs)
         if self.target_var is not None:

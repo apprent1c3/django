@@ -7,6 +7,9 @@ from .models import Product, Stock
 class DecimalFieldLookupTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for product and stock instances, creating predefined products with respective stock entries, and annotates the product queryset with calculated fields for available quantity and required quantity.
+        """
         cls.p1 = Product.objects.create(name="Product1", qty_target=10)
         Stock.objects.create(product=cls.p1, qty_available=5)
         Stock.objects.create(product=cls.p1, qty_available=6)

@@ -251,6 +251,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
 
     def test_polygons_templates(self):
         # Accessing Polygon attributes in templates should work.
+        """
+        Tests rendering of polygon templates by verifying that the result contains the expected WKT representation of a multipolygon.
+        """
         engine = Engine()
         template = engine.from_string("{{ polygons.0.wkt }}")
         polygons = [OGRGeometry(p.wkt) for p in self.geometries.multipolygons[:2]]
@@ -638,6 +641,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(p.geos.ewkt, p.ewkt)
 
     def test_geometry_types(self):
+        """
+        Tests supported and unsupported geometry types to ensure correct creation and error handling of OGRGeometry objects, covering various 2D and 3D geometry types with and without measure (M) and Z (elevation) components.
+        """
         tests = [
             ("Point", 1, True),
             ("LineString", 2, True),
@@ -717,6 +723,10 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
                         OGRGeometry(f"{geom_type} EMPTY")
 
     def test_is_3d_and_set_3d(self):
+        """
+        Test the functionality of checking and setting 3D geometry status, 
+        ensuring the 'is_3d' property and WKT representation are updated correctly.
+        """
         geom = OGRGeometry("POINT (1 2)")
         self.assertIs(geom.is_3d, False)
         geom.set_3d(True)
@@ -730,6 +740,13 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
             geom.set_3d(None)
 
     def test_wkt_and_wkb_output(self):
+        """
+
+        Tests the conversion of various geometric shapes between WKT (Well-Known Text) and WKB (Well-Known Binary) formats.
+
+        Verifies that the WKT representation of a geometry matches the original input and that its WKB representation matches the expected output.
+
+        """
         tests = [
             # 2D
             ("POINT (1 2)", "0101000000000000000000f03f0000000000000040"),
@@ -813,6 +830,11 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
                 self.assertEqual(g.wkb.hex(), wkb)
 
     def test_measure_is_measure_and_set_measure(self):
+        """
+        Tests the is_measured state of a geometry and its interaction with the set_measured method.
+
+        Verifies that setting the measured state of a geometry correctly updates its Well-Known Text (WKT) representation and that invalid input to set_measured raises an error.
+        """
         geom = OGRGeometry("POINT (1 2 3)")
         self.assertIs(geom.is_measured, False)
         geom.set_measured(True)
@@ -826,6 +848,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
             geom.set_measured(None)
 
     def test_point_m_coordinate(self):
+        """
+        Tests the extraction of the M (measure) coordinate from POINT geometries.
+        """
         geom = OGRGeometry("POINT ZM (1 2 3 4)")
         self.assertEqual(geom.m, 4)
         geom = OGRGeometry("POINT (1 2 3 4)")
@@ -836,6 +861,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(geom.m, None)
 
     def test_point_m_tuple(self):
+        """
+        Tests that the tuple property of a point geometry matches its x, y, and optional z and m coordinates.
+        """
         geom = OGRGeometry("POINT ZM (1 2 3 4)")
         self.assertEqual(geom.tuple, (geom.x, geom.y, geom.z, geom.m))
         geom = OGRGeometry("POINT M (1 2 3)")
@@ -846,6 +874,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(geom.tuple, (geom.x, geom.y, geom.z))
 
     def test_point_m_wkt_wkb(self):
+        """
+        Checks the conversion of POINT ZM and POINT M geometries between WKT and WKB formats, verifying that the original and converted representations match.
+        """
         wkt = "POINT ZM (1 2 3 4)"
         geom = OGRGeometry(wkt)
         self.assertEqual(geom.wkt, wkt)
@@ -863,6 +894,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_point_m_dimension_types(self):
+        """
+        Tests that m-dimensional point geometries (2D with measure and 3D with measure) are correctly identified and classified.
+        """
         geom = OGRGeometry("POINT ZM (1 2 3 4)")
         self.assertEqual(geom.geom_type.name, "PointZM")
         self.assertEqual(geom.geom_type.num, 3001)
@@ -878,6 +912,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(geom.geos.wkt, "POINT (1 2)")
 
     def test_centroid(self):
+        """
+        Test that the centroid of various OGRGeometry types (point, linestring, polygon, multipoint, multilinestring, multipolygon, geometrycollection) is calculated correctly.
+        """
         point = OGRGeometry("POINT (1 2 3)")
         self.assertEqual(point.centroid.wkt, "POINT (1 2)")
         linestring = OGRGeometry("LINESTRING (0 0 0, 1 1 1, 2 2 2)")
@@ -901,6 +938,13 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(geometrycollection.centroid.wkt, "POINT (110 30)")
 
     def test_linestring_m_dimension(self):
+        """
+        Tests if the LineString geometry object with M dimension is correctly parsed and accessed.
+
+        Verifies that a LineString with M dimension is correctly identified as measured and its 
+        M values are properly retrieved. Also checks that the geometry object's measured property 
+        can be toggled and its effects on the M values and the geometry itself.
+        """
         geom = OGRGeometry("LINESTRING(0 1 2 10, 1 2 3 11, 2 3 4 12)")
         self.assertIs(geom.is_measured, True)
         self.assertEqual(geom.m, [10.0, 11.0, 12.0])
@@ -916,6 +960,10 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         self.assertIs(geom.m, None)
 
     def test_polygon_m_dimension(self):
+        """
+        Tester for polygon geometry with varying dimensionality (2D, 3D, 4D with measurement). 
+        Verifies creation, modification and geometry attribute access (is_measured, shell) of polygons in different dimessions.
+        """
         geom = OGRGeometry("POLYGON Z ((0 0 0, 10 0 0, 10 10 0, 0 10 0, 0 0 0))")
         self.assertIs(geom.is_measured, False)
         self.assertEqual(
@@ -944,6 +992,9 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_multi_geometries_m_dimension(self):
+        """
+        Tests that various multi-geometry objects (MULTIPOINT, MULTILINESTRING, MULTIPOLYGON, GEOMETRYCOLLECTION) with M dimension are correctly identified as measured geometries.
+        """
         tests = [
             "MULTIPOINT M ((10 40 10), (40 30 10), (20 20 10))",
             "MULTIPOINT ZM ((10 40 0 10), (40 30 1 10), (20 20 1 10))",
@@ -970,6 +1021,10 @@ class OGRGeomTest(SimpleTestCase, TestDataMixin):
 
 class DeprecationTests(SimpleTestCase):
     def test_coord_setter_deprecation(self):
+        """
+        Test that setting coord_dim on an OGRGeometry object emits a deprecation warning,
+        indicating that set_3d() should be used instead, while still updating the coord_dim value.
+        """
         geom = OGRGeometry("POINT (1 2)")
         msg = "coord_dim setter is deprecated. Use set_3d() instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):

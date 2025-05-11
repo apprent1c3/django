@@ -49,6 +49,11 @@ class BashCompletionTests(unittest.TestCase):
         sys.argv = input_str.split()
 
     def _run_autocomplete(self):
+        """
+        Generates autocomplete suggestions for management commands.
+
+        Retrieves and processes autocomplete output, handling any system exits that may occur during the process, and returns the suggestions as a list of strings.
+        """
         util = ManagementUtility(argv=sys.argv)
         with captured_stdout() as stdout:
             try:

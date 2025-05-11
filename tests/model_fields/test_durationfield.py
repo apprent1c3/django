@@ -68,6 +68,13 @@ class TestSerialization(SimpleTestCase):
 
 class TestValidation(SimpleTestCase):
     def test_invalid_string(self):
+        """
+
+        Verifies that the DurationField raises a ValidationError for an invalid string input.
+
+        Tests the field's ability to reject input that does not adhere to the expected duration format.
+
+        """
         field = models.DurationField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("not a datetime", None)

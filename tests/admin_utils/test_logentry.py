@@ -18,6 +18,10 @@ from .models import Article, ArticleProxy, Car, InheritedLogEntryManager, Site
 class LogEntryTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Setup test data for the class, creating a superuser, a site and multiple articles, 
+        as well as a log entry for one of the articles, providing a basic test environment.
+        """
         cls.user = User.objects.create_superuser(
             username="super", password="secret", email="super@example.com"
         )
@@ -217,6 +221,9 @@ class LogEntryTests(TestCase):
         self.assertIsNone(logentry.get_admin_url())
 
     def test_logentry_unicode(self):
+        """
+        Tests the string representation of a LogEntry object, verifying it correctly reflects different action flags, including handling of unknown flags by displaying a default message.
+        """
         log_entry = LogEntry()
 
         log_entry.action_flag = ADDITION
@@ -238,6 +245,9 @@ class LogEntryTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_action(self):
+        """
+        Tests the deprecation warning of the log_action method in LogEntry.objects, ensuring it behaves as expected when used and suggesting the use of log_actions instead.
+        """
         msg = "LogEntryManager.log_action() is deprecated. Use log_actions() instead."
         content_type_val = ContentType.objects.get_for_model(Article).pk
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):
@@ -252,6 +262,9 @@ class LogEntryTests(TestCase):
         self.assertEqual(log_entry, LogEntry.objects.latest("id"))
 
     def test_log_actions(self):
+        """
+        Tests logging of actions when deleting objects, verifying that a log entry is created for each deleted object with the correct user, content type, and change message.
+        """
         queryset = Article.objects.all().order_by("-id")
         msg = "Deleted Something"
         content_type = ContentType.objects.get_for_model(self.a1)
@@ -290,6 +303,9 @@ class LogEntryTests(TestCase):
 
     # RemovedInDjango60Warning.
     def test_log_action_fallback(self):
+        """
+        Tests the fallback behavior of the log_action() method when log_actions() is not implemented, verifying that it logs the correct actions and emits the expected deprecation warning.
+        """
         LogEntry.objects2 = InheritedLogEntryManager()
         queryset = Article.objects.all().order_by("-id")
         content_type = ContentType.objects.get_for_model(self.a1)
@@ -399,6 +415,9 @@ class LogEntryTests(TestCase):
         self.assertEqual(proxy_delete_log.content_type, proxy_content_type)
 
     def test_action_flag_choices(self):
+        """
+        Verifies that the display names for action flags in LogEntry instances match their corresponding choices.
+        """
         tests = ((1, "Addition"), (2, "Change"), (3, "Deletion"))
         for action_flag, display_name in tests:
             with self.subTest(action_flag=action_flag):
@@ -406,6 +425,11 @@ class LogEntryTests(TestCase):
                 self.assertEqual(log.get_action_flag_display(), display_name)
 
     def test_hook_get_log_entries(self):
+        """
+        Tests retrieval of log entries for specific model instances in admin views.
+
+        Verifies that log entries are correctly displayed for article changes and car additions in both the default and custom admin indexes.
+        """
         LogEntry.objects.log_actions(
             self.user.pk,
             [self.a1],

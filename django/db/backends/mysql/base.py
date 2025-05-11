@@ -71,6 +71,15 @@ class CursorWrapper:
         self.cursor = cursor
 
     def execute(self, query, args=None):
+        """
+
+        Execute a SQL query on the database.
+
+        This method takes a query string and optional arguments, executes the query, 
+        and returns the result. It also catches database operational errors and 
+        re-raises them as IntegrityError if they are related to data integrity issues.
+
+        """
         try:
             # args is None means no string interpolation
             return self.cursor.execute(query, args)
@@ -82,6 +91,15 @@ class CursorWrapper:
             raise
 
     def executemany(self, query, args):
+        """
+        Execute multiple SQL statements with provided query and arguments.
+
+        This method executes a single SQL query against all parameter sequences found in the args argument, allowing for efficient execution of multiple statements.
+
+        Raises:
+            IntegrityError: If an integrity error occurs during execution.
+            Database.OperationalError: For other operational errors encountered during execution.
+        """
         try:
             return self.cursor.executemany(query, args)
         except Database.OperationalError as e:
@@ -213,6 +231,11 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.mysql_version
 
     def get_connection_params(self):
+        """
+        Retrieves database connection parameters based on the current settings.
+        The returned dictionary includes database connection details such as username, password, host, port, and other options.
+        It also validates the specified transaction isolation level and updates the instance's isolation level accordingly.
+        """
         kwargs = {
             "conv": django_conversions,
             "charset": "utf8",
@@ -263,6 +286,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return connection
 
     def init_connection_state(self):
+        """
+        Initializes the connection state by setting SQL session variables.
+
+        Configures SQL_AUTO_IS_NULL and TRANSACTION ISOLATION LEVEL settings if they are enabled or specified.
+
+        """
         super().init_connection_state()
         assignments = []
         if self.features.is_sql_auto_is_null_enabled:
@@ -377,6 +406,10 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                         )
 
     def is_usable(self):
+        """
+        Checks if the database connection is usable by attempting to ping it.\"\"\"
+        ```
+        """
         try:
             self.connection.ping()
         except Database.Error:

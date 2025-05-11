@@ -16,6 +16,11 @@ class DegreesTests(TestCase):
         self.assertIsNone(obj.null_degrees)
 
     def test_decimal(self):
+        """
+        Tests the degrees database function for decimal fields.
+
+        Verifies that the Degrees function correctly converts decimal values to degrees and returns the result as a Decimal instance.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_degrees=Degrees("n1"), n2_degrees=Degrees("n2")
@@ -26,6 +31,9 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.n2_degrees, Decimal(math.degrees(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the conversion of float values to degrees using a custom database function.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_degrees=Degrees("f1"), f2_degrees=Degrees("f2")
@@ -36,6 +44,9 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.f2_degrees, math.degrees(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the Degrees database function with integer inputs, verifying it correctly converts radians to degrees and returns a floating-point result.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_degrees=Degrees("small"),
@@ -50,6 +61,9 @@ class DegreesTests(TestCase):
         self.assertAlmostEqual(obj.big_degrees, math.degrees(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of decimal values to degrees, ensuring correct filtering by degree values greater than 0.
+        """
         with register_lookup(DecimalField, Degrees):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-30"), n2=Decimal("0"))

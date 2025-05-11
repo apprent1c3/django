@@ -20,6 +20,9 @@ class ModelChoiceFieldTests(TestCase):
         cls.c3 = Category.objects.create(name="Third", slug="third-test", url="third")
 
     def test_basics(self):
+        """
+        Tests the basic functionality of a model choice field, including its rendered choices and validation behavior for various input types.
+        """
         f = forms.ModelChoiceField(Category.objects.all())
         self.assertEqual(
             list(f.choices),
@@ -64,6 +67,13 @@ class ModelChoiceFieldTests(TestCase):
             f.clean(c4.id)
 
     def test_clean_model_instance(self):
+        """
+
+        Verifies the cleaning functionality of a ModelChoiceField instance.
+
+        Ensures that a valid model instance is successfully cleaned and that an invalid model instance raises a ValidationError.
+
+        """
         f = forms.ModelChoiceField(Category.objects.all())
         self.assertEqual(f.clean(self.c1), self.c1)
         # An instance of incorrect model.
@@ -86,6 +96,12 @@ class ModelChoiceFieldTests(TestCase):
             f.clean("\x00something")
 
     def test_choices(self):
+        """
+        Tests the functionality of ModelChoiceField with various querysets and choice options.
+
+        Verifies that the field correctly cleans and validates input, generates choices,
+        and handles custom queryset and label_from_instance modifications.
+        """
         f = forms.ModelChoiceField(
             Category.objects.filter(pk=self.c1.id), required=False
         )
@@ -138,6 +154,9 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_choices_freshness(self):
+        """
+        Verifies the freshness of choices for a ModelChoiceField, ensuring that the choices are updated in real-time to reflect changes to the underlying model instances.
+        """
         f = forms.ModelChoiceField(Category.objects.order_by("pk"))
         self.assertEqual(len(f.choices), 4)
         self.assertEqual(
@@ -174,6 +193,19 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(bool(f.choices), True)
 
     def test_choices_radio_blank(self):
+        """
+        kiểm tra ModelChoiceField choices with RadioSelect widget when blank option is enabled or disabled. 
+
+        Args:
+            None
+
+        Returns:
+            None
+
+        Notes:
+            This test case verifies if the choices in a ModelChoiceField with RadioSelect widget include a blank option ('---------') 
+            when the blank parameter is set to True, and do not include it when blank is set to False.
+        """
         choices = [
             (self.c1.pk, "Entertainment"),
             (self.c2.pk, "A test"),
@@ -194,6 +226,9 @@ class ModelChoiceFieldTests(TestCase):
                     )
 
     def test_deepcopies_widget(self):
+        """
+        Tests that the widget of a ModelChoiceField is properly deepcopied when a form instance is created, ensuring that modifications to the widget do not affect the original form definition.
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(Category.objects.all())
 
@@ -205,6 +240,9 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIs(field1.widget.choices.field, field1)
 
     def test_result_cache_not_shared(self):
+        """
+        Tests that the result cache of a ModelChoiceField queryset is not shared between instances of the same form.
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(Category.objects.all())
 
@@ -216,6 +254,9 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIsNone(form2.fields["category"].queryset._result_cache)
 
     def test_queryset_none(self):
+        """
+        '''Tests that a ModelChoiceField can be populated with a queryset when it is initially set to None.'''
+        """
         class ModelChoiceForm(forms.Form):
             category = forms.ModelChoiceField(queryset=None)
 
@@ -246,6 +287,9 @@ class ModelChoiceFieldTests(TestCase):
             template.render(Context({"field": field}))
 
     def test_disabled_modelchoicefield(self):
+        """
+        Tests the behavior of a ModelChoiceField when it is disabled, ensuring that an error is raised when the form is validated, because a disabled field cannot be used to select a valid choice.
+        """
         class ModelChoiceForm(forms.ModelForm):
             author = forms.ModelChoiceField(Author.objects.all(), disabled=True)
 
@@ -275,6 +319,10 @@ class ModelChoiceFieldTests(TestCase):
         self.assertTrue(ModelChoiceForm(data={"categories": self.c1.pk}).is_valid())
 
     def test_disabled_multiplemodelchoicefield(self):
+        """
+        Tests the behavior of a ModelMultipleChoiceField in a form when the field is disabled, 
+        verifying that the field's value is not updated and no errors are raised when the form is submitted.
+        """
         class ArticleForm(forms.ModelForm):
             categories = forms.ModelMultipleChoiceField(
                 Category.objects.all(), required=False
@@ -327,6 +375,9 @@ class ModelChoiceFieldTests(TestCase):
         self.assertIsInstance(field.choices, CustomModelChoiceIterator)
 
     def test_choice_iterator_passes_model_to_widget(self):
+        """
+        Tests that the model instances are passed correctly to the widget used by a multiple choice field, allowing for custom attributes to be rendered.
+        """
         class CustomCheckboxSelectMultiple(CheckboxSelectMultiple):
             def create_option(
                 self, name, value, label, selected, index, subindex=None, attrs=None
@@ -359,6 +410,10 @@ class ModelChoiceFieldTests(TestCase):
         )
 
     def test_custom_choice_iterator_passes_model_to_widget(self):
+        """
+        Tests that a custom choice iterator and widget correctly pass a model instance to a form field widget, 
+        allowing for the addition of custom HTML attributes based on the model instance.
+        """
         class CustomModelChoiceValue:
             def __init__(self, value, obj):
                 self.value = value

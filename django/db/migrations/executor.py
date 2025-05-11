@@ -265,6 +265,11 @@ class MigrationExecutor:
 
     def record_migration(self, migration):
         # For replacement migrations, record individual statuses
+        """
+        Records a migration as applied.
+
+        Updates the recorder with the given migration, handling cases where the migration replaces existing ones.
+        """
         if migration.replaces:
             for app_label, name in migration.replaces:
                 self.recorder.record_applied(app_label, name)

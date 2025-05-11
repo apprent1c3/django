@@ -453,6 +453,15 @@ class ExtraRegressTests(TestCase):
         )
 
     def test_extra_values_distinct_ordering(self):
+        """
+
+        Tests the ordering of QuerySets with extra values when using distinct.
+
+        Verifies that the ordering of results is correct when using 'distinct' with 
+        extra values, both in ascending and descending order, and when selecting 
+        specific fields for the QuerySet.
+
+        """
         t1 = TestObject.objects.create(first="a", second="a", third="a")
         t2 = TestObject.objects.create(first="a", second="b", third="b")
         qs = (

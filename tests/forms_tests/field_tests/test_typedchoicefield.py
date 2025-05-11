@@ -7,6 +7,9 @@ from django.test import SimpleTestCase
 
 class TypedChoiceFieldTest(SimpleTestCase):
     def test_typedchoicefield_1(self):
+        """
+        Tests the TypedChoiceField for correct value cleaning and validation when provided with valid and invalid choices.
+        """
         f = TypedChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int)
         self.assertEqual(1, f.clean("1"))
         msg = "'Select a valid choice. 2 is not one of the available choices.'"
@@ -26,6 +29,9 @@ class TypedChoiceFieldTest(SimpleTestCase):
     def test_typedchoicefield_4(self):
         # Even more weirdness: if you have a valid choice but your coercion function
         # can't coerce, you'll still get a validation error. Don't do this!
+        """
+        Checks that TypedChoiceField correctly raises a ValidationError when an invalid choice or empty string is passed to its clean method.
+        """
         f = TypedChoiceField(choices=[("A", "A"), ("B", "B")], coerce=int)
         msg = "'Select a valid choice. B is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -53,6 +59,9 @@ class TypedChoiceFieldTest(SimpleTestCase):
 
     def test_typedchoicefield_has_changed(self):
         # has_changed should not trigger required validation
+        """
+        Tests the has_changed method of a TypedChoiceField to ensure it correctly detects changes in field values, handling various scenarios including initial and empty values, as well as different data types.
+        """
         f = TypedChoiceField(choices=[(1, "+1"), (-1, "-1")], coerce=int, required=True)
         self.assertFalse(f.has_changed(None, ""))
         self.assertFalse(f.has_changed(1, "1"))

@@ -219,6 +219,12 @@ class OperationTestBase(MigrationTestBase):
         super().tearDown()
 
     def cleanup_test_tables(self):
+        """
+        Drops all tables created during a test, restoring the initial database schema.
+
+        Removes any tables that were present in the database after setup but not initially.
+
+        """
         table_names = (
             frozenset(connection.introspection.table_names())
             - self._initial_table_names

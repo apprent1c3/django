@@ -34,6 +34,15 @@ class InspectDbTests(TestCase):
 
     @skipUnlessDBFeature("supports_3d_storage")
     def test_3d_columns(self):
+        """
+        Tests inspectdb command's ability to introspect 3D geometry fields.
+
+        Verifies that the command outputs the correct field types and dimensions
+        for 3D geometry fields, depending on the database's support for geometry
+        field introspection and geography fields.
+
+
+        """
         out = StringIO()
         call_command(
             "inspectdb",
@@ -83,6 +92,10 @@ class OGRInspectTest(SimpleTestCase):
         self.assertEqual(model_def, "\n".join(expected))
 
     def test_poly_multi(self):
+        """
+        Tests the ogrinspect function to generate model definitions for shapefiles 
+        containing multi-geometry fields, such as multi-polygons and multi-line strings.
+        """
         shp_file = os.path.join(TEST_DATA, "test_poly", "test_poly.shp")
         model_def = ogrinspect(shp_file, "MyModel", multi_geom=True)
         self.assertIn("geom = models.MultiPolygonField()", model_def)
@@ -113,6 +126,23 @@ class OGRInspectTest(SimpleTestCase):
     def test_time_field(self):
         # Getting the database identifier used by OGR, if None returned
         # GDAL does not have the support compiled in.
+        """
+        Tests the automatic generation of Django model fields for time-related fields (DateTimeField, TimeField, etc.) using ogrinspect.\"\"\"
+
+        \"\"\"
+        Checks if ogrinspect correctly generates model fields for time, date, decimal, float, integer, and character fields.
+
+        The test verifies that the generated model fields match the expected field types based on the database connection vendor and version.
+
+        Specifically, it checks the following:
+        - Decimal and Float field generation
+        - Integer field generation
+        - DateTime and Time field generation (skipped for MariaDB)
+        - Character field generation with correct max length
+
+        The test also handles differences in field generation based on the database vendor and GDAL version.
+
+        """
         ogr_db = get_ogr_db_string()
         if not ogr_db:
             self.skipTest("Unable to setup an OGR connection to your database")
@@ -171,6 +201,9 @@ class OGRInspectTest(SimpleTestCase):
         )
 
     def test_management_command(self):
+        """
+        Tests the functionality of the ogrinspect management command, verifying that it correctly generates a Django model based on the provided shapefile.
+        """
         shp_file = os.path.join(TEST_DATA, "cities", "cities.shp")
         out = StringIO()
         call_command("ogrinspect", shp_file, "City", stdout=out)
@@ -178,6 +211,11 @@ class OGRInspectTest(SimpleTestCase):
         self.assertIn("class City(models.Model):", output)
 
     def test_mapping_option(self):
+        """
+
+        Tests the mapping option of the ogrinspect command to ensure it generates the correct LayerMapping dictionary for the specified model.
+
+        """
         expected = (
             "    geom = models.PointField()\n"
             "\n"

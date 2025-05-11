@@ -3,6 +3,10 @@ from django.core.management.base import BaseCommand
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        """
+        Configures a parser to accept subcommands 'foo_1' and 'foo_2', 
+        with 'foo_2' requiring the '--bar' argument.
+        """
         subparsers_1 = parser.add_subparsers(dest="subcommand_1")
         parser_foo_1 = subparsers_1.add_parser("foo_1")
         subparsers_2 = parser_foo_1.add_subparsers(dest="subcommand_2")

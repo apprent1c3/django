@@ -19,6 +19,9 @@ searched_locations = []
 
 # RemovedInDjango61Warning: When the deprecation ends, remove completely.
 def _check_deprecated_find_param(class_name="", find_all=False, **kwargs):
+    """
+    Checks for deprecated `find` method parameters and converts them to their replacement `find_all` parameter, emitting a deprecation warning if necessary. Ensures that only valid keyword arguments are passed to the `find` method.
+    """
     method_name = "find" if not class_name else f"{class_name}.find"
     if "all" in kwargs:
         legacy_all = kwargs.pop("all")
@@ -91,6 +94,10 @@ class FileSystemFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # List of locations with static files
+        """
+        Initializes the instance with static file storage configurations from settings. 
+        It populates locations and creates a dictionary of storage objects for each location.
+        """
         self.locations = []
         # Maps dir paths to an appropriate storage instance
         self.storages = {}
@@ -108,6 +115,11 @@ class FileSystemFinder(BaseFinder):
         super().__init__(*args, **kwargs)
 
     def check(self, **kwargs):
+        """
+        Checks the STATICFILES_DIRS setting for potential errors and returns a list of any errors or warnings found. 
+        It verifies that the setting is a list or tuple and checks each directory for validity, ensuring that prefixes do not end with a slash, 
+        that the STATIC_ROOT is not included, and that each directory exists.
+        """
         errors = []
         if not isinstance(settings.STATICFILES_DIRS, (list, tuple)):
             errors.append(
@@ -206,6 +218,11 @@ class AppDirectoriesFinder(BaseFinder):
 
     def __init__(self, app_names=None, *args, **kwargs):
         # The list of apps that are handled
+        """
+        Initializes the object with optional application names, setting up storage instances for each matching app and storing them for later use. 
+        The application names can be specified to limit the setup to particular apps, otherwise all apps are considered. 
+        Only apps with existing storage directories are included.
+        """
         self.apps = []
         # Mapping of app names to storage instances
         self.storages = {}
@@ -274,6 +291,9 @@ class BaseStorageFinder(BaseFinder):
     storage = None
 
     def __init__(self, storage=None, *args, **kwargs):
+        """
+        Initializes the staticfiles storage finder instance, ensuring it has a valid storage class assigned. If no storage is provided, it raises an error. The storage class can be either a Storage object or a LazyObject that returns a Storage object when called.
+        """
         if storage is not None:
             self.storage = storage
         if self.storage is None:

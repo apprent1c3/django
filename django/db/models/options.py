@@ -99,6 +99,9 @@ class Options:
     default_apps = apps
 
     def __init__(self, meta, app_label=None):
+        """
+        Initializes a model options class, storing metadata and field information for a Django model, including database table configuration, field definitions, and permissions.
+        """
         self._get_fields_cache = {}
         self.local_fields = []
         self.local_many_to_many = []
@@ -169,6 +172,9 @@ class Options:
         return self.apps.app_configs.get(self.app_label)
 
     def contribute_to_class(self, cls, name):
+        """
+        Contributes metadata to a Django model class, configuring attributes such as verbose name, database table name, and meta options. This method is called when a model class is created, and it sets up the model's metadata based on its class attributes and the class's Meta options.
+        """
         from django.db import connection
         from django.db.backends.utils import truncate_name
 
@@ -245,6 +251,20 @@ class Options:
         return new_objs
 
     def _get_default_pk_class(self):
+        """
+        Returns the default primary key class for the application.
+
+        This method retrieves the primary key class path from the application configuration,
+        checks if the module can be imported and validates that the class is a subclass of AutoField.
+
+        Raises:
+            ImproperlyConfigured: If the primary key class path is empty or cannot be imported.
+            ValueError: If the primary key class does not subclass AutoField.
+
+        Returns:
+            The default primary key class.
+
+        """
         pk_class_path = getattr(
             self.app_config,
             "default_auto_field",
@@ -276,6 +296,14 @@ class Options:
         return pk_class
 
     def _prepare(self, model):
+        """
+        Prepares the model for ordering and primary key configuration. 
+
+        Configures the model's ordering with respect to a specified field if 
+        :attr:`order_with_respect_to` is provided, creating an ordering field if necessary. 
+        Additionally, sets up the primary key for the model if it does not already exist, 
+        either by promoting an existing field or creating a new one.
+        """
         if self.order_with_respect_to:
             # The app registry will not be ready at this point, so we cannot
             # use get_field().
@@ -328,6 +356,9 @@ class Options:
         # the "creation_counter" attribute of the field.
         # Move many-to-many related fields from self.fields into
         # self.many_to_many.
+        """
+        Adds a field to the model's metadata, categorizing it as either private, many-to-many, or a regular field, and updates the model's internal cache accordingly. The `private` parameter determines whether the field is added to the private fields list or the regular fields list. The function also handles foreign key relationships by expiring the related model's cache.
+        """
         if private:
             self.private_fields.append(field)
         elif field.is_relation and field.many_to_many:
@@ -437,6 +468,9 @@ class Options:
 
     @cached_property
     def managers(self):
+        """
+        Returns a list of manager instances associated with the model, considering the model's inheritance hierarchy. The managers are sorted based on their depth in the model's inheritance order and their creation counter, and duplicates are removed based on their name. The resulting list is immutable.
+        """
         managers = []
         seen_managers = set()
         bases = (b for b in self.model.mro() if hasattr(b, "_meta"))
@@ -461,6 +495,9 @@ class Options:
 
     @cached_property
     def base_manager(self):
+        """
+        Return the base manager for the model, if explicitly set, or the first non-default base manager found in the model's inheritance chain. If no base manager is found, a new default base manager is created and returned.
+        """
         base_manager_name = self.base_manager_name
         if not base_manager_name:
             # Get the first parent's base_manager_name if there's one.
@@ -490,6 +527,12 @@ class Options:
 
     @cached_property
     def default_manager(self):
+        """
+        Returns the default manager for the model, following these rules: 
+        if a default manager name is specified, returns the manager with that name; 
+        otherwise, if no local managers are defined, attempts to inherit the default manager from parent classes; 
+        if still no default manager is found, returns the first manager defined for the model.
+        """
         default_manager_name = self.default_manager_name
         if not default_manager_name and not self.local_managers:
             # Get the first parent's default_manager_name if there's one.
@@ -624,6 +667,9 @@ class Options:
 
     @cached_property
     def _forward_fields_map(self):
+        """
+        Returns a dictionary mapping field names and attribute names to their corresponding field objects, for fields in the forward direction.
+        """
         res = {}
         fields = self._get_fields(reverse=False)
         for field in fields:
@@ -639,6 +685,10 @@ class Options:
 
     @cached_property
     def fields_map(self):
+        """
+        Returns a dictionary mapping field names and attribute names to their corresponding field objects, 
+        including hidden fields. This mapping is used to quickly look up fields by their names or attribute names.
+        """
         res = {}
         fields = self._get_fields(forward=False, include_hidden=True)
         for field in fields:
@@ -836,6 +886,15 @@ class Options:
     def _expire_cache(self, forward=True, reverse=True):
         # This method is usually called by apps.cache_clear(), when the
         # registry is finalized, or when a new field is added.
+        """
+        Expires cached properties for the object.
+
+        Removes forward and/or reverse cache keys from the object's internal cache,
+        depending on the provided flags. This is typically used to invalidate cached
+        data when underlying properties change. The cache keys removed include those
+        listed in FORWARD_PROPERTIES and REVERSE_PROPERTIES, with the latter only being
+        applied if the object is not abstract.
+        """
         if forward:
             for cache_key in self.FORWARD_PROPERTIES:
                 if cache_key in self.__dict__:

@@ -162,6 +162,9 @@ def _ogrinspect(
     # Creating lists from the `null`, `blank`, and `decimal`
     # keyword arguments.
     def process_kwarg(kwarg):
+        """
+        Converts input keyword argument to a list of lowercase strings. If the input is a list or tuple, it normalizes each string to lowercase; otherwise, if the input is truthy, it lowercases a set of predefined OGR fields; a falsy input returns an empty list.
+        """
         if isinstance(kwarg, (list, tuple)):
             return [s.lower() for s in kwarg]
         elif kwarg:
@@ -175,6 +178,10 @@ def _ogrinspect(
 
     # Gets the `null` and `blank` keywords for the given field name.
     def get_kwargs_str(field_name):
+        """
+        Returns a string of keyword arguments for a Django model field based on its name, 
+        specifying if the field allows null or blank values.
+        """
         kwlist = []
         if field_name.lower() in null_fields:
             kwlist.append("null=True")

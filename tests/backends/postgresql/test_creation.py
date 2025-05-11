@@ -20,6 +20,19 @@ else:
 class DatabaseCreationTests(SimpleTestCase):
     @contextmanager
     def changed_test_settings(self, **kwargs):
+        """
+
+        Temporarily modify test settings for the duration of a test.
+
+        This context manager changes the specified test settings to the provided values,
+        restoring the original settings when the context is exited. This is useful for
+        isolating the effects of test settings modifications within a specific test or
+        test suite.
+
+        :param kwargs: Keyword arguments specifying the test settings to modify and
+            their new values.
+
+        """
         settings = connection.settings_dict["TEST"]
         saved_values = {}
         for name in kwargs:
@@ -88,6 +101,9 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stdout", new_callable=StringIO)
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db(self, *mocked_objects):
+        """
+        Tests the creation of a test database, including error handling for database already existing and permission denied scenarios.
+        """
         creation = DatabaseCreation(connection)
         # Simulate test database creation raising "database already exists"
         with self.patch_test_db_creation(self._execute_raise_database_already_exists):

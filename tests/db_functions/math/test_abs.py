@@ -15,6 +15,12 @@ class AbsTests(TestCase):
         self.assertIsNone(obj.null_abs)
 
     def test_decimal(self):
+        """
+
+        Tests the functionality of calculating absolute values for decimal fields in a model.
+        Verifies that the absolute values are correctly calculated and returns Decimal instances.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-0.8"), n2=Decimal("1.2"))
         obj = DecimalModel.objects.annotate(n1_abs=Abs("n1"), n2_abs=Abs("n2")).first()
         self.assertIsInstance(obj.n1_abs, Decimal)
@@ -23,6 +29,9 @@ class AbsTests(TestCase):
         self.assertEqual(obj.n2, obj.n2_abs)
 
     def test_float(self):
+        """
+        Tests that annotating a FloatModel instance with absolute values of its float fields results in correct calculation and float return types. Verifies that the annotated absolute values match the expected mathematical results.
+        """
         obj = FloatModel.objects.create(f1=-0.5, f2=12)
         obj = FloatModel.objects.annotate(f1_abs=Abs("f1"), f2_abs=Abs("f2")).first()
         self.assertIsInstance(obj.f1_abs, float)
@@ -31,6 +40,9 @@ class AbsTests(TestCase):
         self.assertEqual(obj.f2, obj.f2_abs)
 
     def test_integer(self):
+        """
+        Tests the creation and annotation of IntegerModel instances, verifying the correctness of absolute value calculations for small, normal, and big integer fields.
+        """
         IntegerModel.objects.create(small=12, normal=0, big=-45)
         obj = IntegerModel.objects.annotate(
             small_abs=Abs("small"),
@@ -45,6 +57,9 @@ class AbsTests(TestCase):
         self.assertEqual(obj.big, -obj.big_abs)
 
     def test_transform(self):
+        """
+        Tests the transformation of a DecimalField using the absolute value lookup.
+        """
         with register_lookup(DecimalField, Abs):
             DecimalModel.objects.create(n1=Decimal("-1.5"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.5"), n2=Decimal("0"))

@@ -50,6 +50,9 @@ from .models import (
 
 class DeletionTests(TestCase):
     def test_deletion(self):
+        """
+        Tests the functionality of deleting a Poet instance using a formset.
+        """
         PoetFormSet = modelformset_factory(Poet, fields="__all__", can_delete=True)
         poet = Poet.objects.create(name="test")
         data = {
@@ -130,6 +133,9 @@ class DeletionTests(TestCase):
         self.assertEqual(Poet.objects.count(), 0)
 
     def test_outdated_deletion(self):
+        """
+        Tests the deletion of a poem instance in a formset when the formset data does not match the actual database state, ensuring that outdated records are properly removed and the correct records are updated.
+        """
         poet = Poet.objects.create(name="test")
         poem = Poem.objects.create(name="Brevity is the soul of wit", poet=poet)
 
@@ -172,6 +178,9 @@ class ModelFormsetTest(TestCase):
             modelformset_factory(Author)
 
     def test_simple_save(self):
+        """
+        Tests the functionality of saving data using a formset. It checks the formset's initial state, saving new instances, and updating existing ones. The test also covers cases with optional fields and the delete functionality.
+        """
         qs = Author.objects.all()
         AuthorFormSet = modelformset_factory(Author, fields="__all__", extra=3)
 
@@ -376,6 +385,10 @@ class ModelFormsetTest(TestCase):
     def test_commit_false(self):
         # Test the behavior of commit=False and save_m2m
 
+        """
+        Tests the creation of an AuthorMeeting instance with a formset, 
+        ensuring that authors can be added to the meeting and saved correctly.
+        """
         author1 = Author.objects.create(name="Charles Baudelaire")
         author2 = Author.objects.create(name="Paul Verlaine")
         author3 = Author.objects.create(name="Walt Whitman")
@@ -419,6 +432,9 @@ class ModelFormsetTest(TestCase):
         # all existing related objects/inlines for a given object to be
         # displayed, but not allow the creation of new inlines beyond max_num.
 
+        """
+        Tests the behavior of the Author FormSet with various configurations of the max_num parameter to ensure that it correctly limits the number of forms and handles the initial queryset and extra forms accordingly.
+        """
         a1 = Author.objects.create(name="Charles Baudelaire")
         a2 = Author.objects.create(name="Paul Verlaine")
         a3 = Author.objects.create(name="Walt Whitman")
@@ -461,6 +477,9 @@ class ModelFormsetTest(TestCase):
     def test_min_num(self):
         # Test the behavior of min_num with model formsets. It should be
         # added to extra.
+        """
+        Tests the behavior of a model formset when the min_num parameter is set, ensuring that it enforces the minimum number of forms required.
+        """
         qs = Author.objects.none()
 
         AuthorFormSet = modelformset_factory(Author, fields="__all__", extra=0)
@@ -481,6 +500,12 @@ class ModelFormsetTest(TestCase):
 
     def test_min_num_with_existing(self):
         # Test the behavior of min_num with existing objects.
+        """
+
+        Tests that a formset created with a minimum number of forms (min_num) correctly handles an existing query set.
+        Verifies that the formset contains the expected number of forms when extra forms are not allowed.
+
+        """
         Author.objects.create(name="Charles Baudelaire")
         qs = Author.objects.all()
 
@@ -491,9 +516,19 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(len(formset.forms), 1)
 
     def test_custom_save_method(self):
+        """
+        Tests that a custom save method on a form overrides default behavior when saving a formset.
+        """
         class PoetForm(forms.ModelForm):
             def save(self, commit=True):
                 # change the name to "Vladimir Mayakovsky" just to be a jerk.
+                """
+                Saves an author object with a predefined name, optionally committing the changes to the database.
+
+                :param commit: Whether to commit the changes to the database
+                :rtype: The saved author object
+                :return: The author object with its name set to 'Vladimir Mayakovsky'
+                """
                 author = super().save(commit=False)
                 author.name = "Vladimir Mayakovsky"
                 if commit:
@@ -564,6 +599,14 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(len(formset.get_queryset()), 1)
 
     def test_model_inheritance(self):
+        """
+        Tests the correct behavior of the BetterAuthorFormSet.
+
+        Verifies that the formset is properly initialized, renders correctly, and
+        saves its data as expected, including handling inheritance and initial data
+        for new forms. Also checks that the formset is able to validate and save
+        incoming form data correctly, retaining previously saved instances.
+        """
         BetterAuthorFormSet = modelformset_factory(BetterAuthor, fields="__all__")
         formset = BetterAuthorFormSet()
         self.assertEqual(len(formset.forms), 1)
@@ -637,6 +680,15 @@ class ModelFormsetTest(TestCase):
         # We can also create a formset that is tied to a parent model. This is
         # how the admin system's edit inline functionality works.
 
+        """
+        Tests the functionality of an inline formset for creating and editing book instances associated with an author instance.
+
+        The test covers creating a new author with a formset of empty book forms, saving a new book to the author, and then editing the existing book and adding a new one.
+
+        The formset is created with and without an existing author instance to test for proper functionality in both cases.
+
+        This test ensures that the inline formset behaves correctly when creating and editing related instances in a one-to-many relationship, specifically between the Author and Book models.
+        """
         AuthorBooksFormSet = inlineformset_factory(
             Author, Book, can_delete=False, extra=3, fields="__all__"
         )
@@ -764,6 +816,9 @@ class ModelFormsetTest(TestCase):
     def test_inline_formsets_save_as_new(self):
         # The save_as_new parameter lets you re-associate the data to a new
         # instance.  This is used in the admin for save_as functionality.
+        """
+        Tests the functionality of inline formsets when saving new instances, including validation, instance creation, and rendering of form fields. Verifies that the formset correctly handles save_as_new, creates new instances with the provided data, and generates the expected HTML for form rendering.
+        """
         AuthorBooksFormSet = inlineformset_factory(
             Author, Book, can_delete=False, extra=2, fields="__all__"
         )
@@ -822,6 +877,9 @@ class ModelFormsetTest(TestCase):
     def test_inline_formsets_with_custom_pk(self):
         # Test inline formsets where the inline-edited object has a custom
         # primary key that is not the fk to the parent object.
+        """
+        Tests the usage of an inline formset with a custom primary key, ensuring it correctly renders, validates, and saves data to the associated model instances.
+        """
         self.maxDiff = 1024
 
         AuthorBooksFormSet2 = inlineformset_factory(
@@ -869,6 +927,13 @@ class ModelFormsetTest(TestCase):
         # Test inline formsets where the inline-edited object uses multi-table
         # inheritance, thus has a non AutoField yet auto-created primary key.
 
+        """
+        Tests the creation and validation of an inline formset using multi-table inheritance.
+
+        Verifies that the formset can correctly create a new instance of the related model (AlternateBook) 
+        when bound to an instance of the parent model (Author), and that the saved instance has the expected attributes.
+
+        """
         AuthorBooksFormSet3 = inlineformset_factory(
             Author, AlternateBook, can_delete=False, extra=1, fields="__all__"
         )
@@ -915,6 +980,14 @@ class ModelFormsetTest(TestCase):
         # Test inline formsets where the inline-edited object has a
         # unique_together constraint with a nullable member
 
+        """
+        Test that inline formsets handle nullable unique together constraints correctly.
+
+        This test case creates an inline formset for books belonging to an author, 
+        with a unique together constraint on the title. It verifies that the formset 
+        is valid and saves the data correctly even when two books have the same title.
+
+        """
         AuthorBooksFormSet4 = inlineformset_factory(
             Author,
             BookWithOptionalAltEditor,
@@ -948,6 +1021,11 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(book2.title, "Les Fleurs du Mal")
 
     def test_inline_formsets_with_custom_save_method(self):
+        """
+        Tests the usage of inline formsets with custom save methods, 
+        including validation, saving, and rendering of forms. 
+        It also tests the usage of custom querysets to filter and order the inline forms.
+        """
         AuthorBooksFormSet = inlineformset_factory(
             Author, Book, can_delete=False, extra=2, fields="__all__"
         )
@@ -961,6 +1039,9 @@ class ModelFormsetTest(TestCase):
         class PoemForm(forms.ModelForm):
             def save(self, commit=True):
                 # change the name to "Brooklyn Bridge" just to be a jerk.
+                """
+                Saves the poem instance, overriding its name to 'Brooklyn Bridge' and committing to the database if specified.
+                """
                 poem = super().save(commit=False)
                 poem.name = "Brooklyn Bridge"
                 if commit:
@@ -1109,6 +1190,11 @@ class ModelFormsetTest(TestCase):
 
         class PoemForm2(forms.ModelForm):
             def save(self, commit=True):
+                """
+                Saves a poem instance, automatically updating its name to include the poet's name. 
+                The save operation can be committed immediately or delayed by setting the commit parameter. 
+                Returns the saved poem instance.
+                """
                 poem = super().save(commit=False)
                 poem.name = "%s by %s" % (poem.name, poem.poet.name)
                 if commit:
@@ -1145,6 +1231,9 @@ class ModelFormsetTest(TestCase):
     def test_custom_pk(self):
         # We need to ensure that it is displayed
 
+        """
+        Tests the usage of custom primary keys with formsets, ensuring correct rendering and validation of forms, as well as proper saving of data to the database. Verifies the functionality of formsets with inline forms, custom primary keys, and validation of form data.
+        """
         CustomPrimaryKeyFormSet = modelformset_factory(
             CustomPrimaryKey, fields="__all__"
         )
@@ -1337,6 +1426,9 @@ class ModelFormsetTest(TestCase):
     def test_unique_true_enforces_max_num_one(self):
         # ForeignKey with unique=True should enforce max_num=1
 
+        """
+        Tests that when a formset is created with a unique inline formset factory, it enforces a maximum number of forms to be 1, effectively limiting the number of locations that can be associated with a place to one.
+        """
         place = Place.objects.create(pk=1, name="Giordanos", city="Chicago")
 
         FormSet = inlineformset_factory(
@@ -1367,6 +1459,9 @@ class ModelFormsetTest(TestCase):
         )
 
     def test_unique_validation(self):
+        """
+        Tests validation of unique fields in a Product formset, ensuring that attempting to save a Product with a slug that already exists results in a validation error.
+        """
         FormSet = modelformset_factory(Product, fields="__all__", extra=1)
         data = {
             "form-TOTAL_FORMS": "1",
@@ -1399,6 +1494,12 @@ class ModelFormsetTest(TestCase):
         # irrelevant here (it's output as a hint for the client but its
         # value in the returned data is not checked)
 
+        """
+        Tests the validation of a model formset when the maximum number of forms is exceeded.\"\"\"
+
+        \"\"\"Verifies that the 'validate_max' parameter correctly enforces the 'max_num' constraint, 
+        and that the error message 'Please submit at most X form(s).' is returned when this constraint is violated.
+        """
         data = {
             "form-TOTAL_FORMS": "2",
             "form-INITIAL_FORMS": "0",
@@ -1423,6 +1524,13 @@ class ModelFormsetTest(TestCase):
         self.assertTrue(formset.is_valid())
 
     def test_modelformset_min_num_equals_max_num_less_than(self):
+        """
+        Verifies that a ModelFormSet with min_num equal to max_num enforces the maximum number of forms when more forms are submitted.\"\"\"
+
+         \"\"\"Tests the ModelFormSet validation when the minimum and maximum numbers of forms are equal and less than the number of forms provided in the data.\"\"\"
+
+         \"\"\"Checks that a ModelFormSet raises an error when attempting to submit more forms than allowed by max_num when min_num equals max_num.
+        """
         data = {
             "form-TOTAL_FORMS": "3",
             "form-INITIAL_FORMS": "0",
@@ -1445,6 +1553,13 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(formset.non_form_errors(), ["Please submit at most 2 forms."])
 
     def test_modelformset_min_num_equals_max_num_more_than(self):
+        """
+
+        Tests that a ModelFormSet with min_num equal to max_num greater than 1
+        correctly validates when fewer than min_num forms are provided, returning
+        the correct error message.
+
+        """
         data = {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -1465,6 +1580,9 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(formset.non_form_errors(), ["Please submit at least 2 forms."])
 
     def test_unique_together_validation(self):
+        """
+        Tests that the Price model's unique_together validation on the price and quantity fields is enforced when using a formset.
+        """
         FormSet = modelformset_factory(Price, fields="__all__", extra=1)
         data = {
             "form-TOTAL_FORMS": "1",
@@ -1498,6 +1616,9 @@ class ModelFormsetTest(TestCase):
     def test_unique_together_with_inlineformset_factory(self):
         # Also see bug #8882.
 
+        """
+        Tests that the unique_together constraint on Repository and Revision models is enforced when using an inline formset factory to create new revisions.
+        """
         repository = Repository.objects.create(name="Test Repo")
         FormSet = inlineformset_factory(Repository, Revision, extra=1, fields="__all__")
         data = {
@@ -1558,6 +1679,9 @@ class ModelFormsetTest(TestCase):
     def test_callable_defaults(self):
         # Use of callable defaults (see bug #7975).
 
+        """
+        Tests the functionality of formsets with callable default values, ensuring that dates are correctly initialized and form validation works as expected.
+        """
         person = Person.objects.create(name="Ringo")
         FormSet = inlineformset_factory(
             Person, Membership, can_delete=False, extra=1, fields="__all__"
@@ -1657,6 +1781,12 @@ class ModelFormsetTest(TestCase):
     def test_inlineformset_factory_with_null_fk(self):
         # inlineformset_factory tests with fk having null=True. see #9462.
         # create some data that will exhibit the issue
+        """
+
+        Tests the behavior of an inline formset factory with a null foreign key.
+        Verifies that the formset handles instances with and without a parent object correctly.
+
+        """
         team = Team.objects.create(name="Red Vipers")
         Player(name="Timmy").save()
         Player(name="Bobby", team=team).save()
@@ -1673,6 +1803,9 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(player1.name, "Bobby")
 
     def test_inlineformset_with_arrayfield(self):
+        """
+        Tests that an inline formset with an array field correctly raises a validation error when a duplicate value is detected across multiple forms in the set, ensuring data integrity.
+        """
         class SimpleArrayField(forms.CharField):
             """A proxy for django.contrib.postgres.forms.SimpleArrayField."""
 
@@ -1704,6 +1837,9 @@ class ModelFormsetTest(TestCase):
         )
 
     def test_inlineformset_with_jsonfield(self):
+        """
+        Tests the behavior of an inline formset with a JSONField when provided with duplicate values, ensuring that the formset correctly identifies and reports the duplicate values.
+        """
         class BookForm(forms.ModelForm):
             title = forms.JSONField()
 
@@ -1740,6 +1876,9 @@ class ModelFormsetTest(TestCase):
     def test_model_formset_with_initial_model_instance(self):
         # has_changed should compare model instance and primary key
         # see #18898
+        """
+        Tests the behavior of a model formset when initialized with an existing model instance. Verifies that a formset with an initial instance does not report the form as changed when no modifications are made.
+        """
         FormSet = modelformset_factory(Poem, fields="__all__")
         john_milton = Poet(name="John Milton")
         john_milton.save()
@@ -1756,6 +1895,9 @@ class ModelFormsetTest(TestCase):
     def test_model_formset_with_initial_queryset(self):
         # has_changed should work with queryset and list of pk's
         # see #18898
+        """
+        Tests the model formset with an initial queryset to ensure it correctly handles unchanged forms.
+        """
         FormSet = modelformset_factory(AuthorMeeting, fields="__all__")
         Author.objects.create(pk=1, name="Charles Baudelaire")
         data = {
@@ -1770,6 +1912,9 @@ class ModelFormsetTest(TestCase):
         self.assertFalse(formset.extra_forms[0].has_changed())
 
     def test_prevent_duplicates_from_with_the_same_formset(self):
+        """
+        Checks that formsets with duplicate data raise validation errors for fields that must be unique, considering constraints such as unique together, slug fields, and date-based uniqueness.
+        """
         FormSet = modelformset_factory(Product, fields="__all__", extra=2)
         data = {
             "form-TOTAL_FORMS": 2,
@@ -1921,6 +2066,11 @@ class ModelFormsetTest(TestCase):
         )
 
     def test_prevent_change_outer_model_and_create_invalid_data(self):
+        """
+        Tests that modifying a formset to reference an instance outside the initial queryset
+        does not allow saving the formset with the modified data, thus preventing accidental
+        modification of unrelated models.
+        """
         author = Author.objects.create(name="Charles")
         other_author = Author.objects.create(name="Walt")
         AuthorFormSet = modelformset_factory(Author, fields="__all__")
@@ -2023,6 +2173,9 @@ class ModelFormsetTest(TestCase):
         self.assertEqual(formset.initial_form_count(), 0)
 
     def test_edit_only(self):
+        """
+        Tests that an edit-only formset only updates existing instances and does not create new ones. Verifies that the formset is valid and saves correctly, and checks that the database remains unchanged except for the updated instance.
+        """
         charles = Author.objects.create(name="Charles Baudelaire")
         AuthorFormSet = modelformset_factory(Author, fields="__all__", edit_only=True)
         data = {
@@ -2052,6 +2205,11 @@ class ModelFormsetTest(TestCase):
         self.assertSequenceEqual(Author.objects.all(), [charles])
 
     def test_edit_only_inlineformset_factory(self):
+        """
+        Tests the functionality of an inline formset with edit-only mode for author book instances.
+
+        Verifies that the formset correctly validates and saves data for an existing book instance without creating new ones or deleting existing ones.
+        """
         charles = Author.objects.create(name="Charles Baudelaire")
         book = Book.objects.create(author=charles, title="Les Paradis Artificiels")
         AuthorFormSet = inlineformset_factory(
@@ -2079,6 +2237,9 @@ class ModelFormsetTest(TestCase):
         self.assertSequenceEqual(Book.objects.all(), [book])
 
     def test_edit_only_object_outside_of_queryset(self):
+        """
+        Tests the ability to edit only an object outside of a queryset when using a ModelFormSet with edit_only=True.
+        """
         charles = Author.objects.create(name="Charles Baudelaire")
         walt = Author.objects.create(name="Walt Whitman")
         data = {
@@ -2094,6 +2255,14 @@ class ModelFormsetTest(TestCase):
         self.assertCountEqual(Author.objects.all(), [charles, walt])
 
     def test_edit_only_formset_factory_with_basemodelformset(self):
+        """
+
+        Tests if the edit only formset factory works correctly with BaseModelFormSet.
+
+        Verifies that a formset created with the factory can successfully validate and save data,
+        creating new instances and updating existing ones without allowing deletions.
+
+        """
         charles = Author.objects.create(name="Charles Baudelaire")
 
         class AuthorForm(forms.ModelForm):
@@ -2188,6 +2357,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(form["title"].help_text, "Choose carefully.")
 
     def test_modelformset_factory_error_messages_overrides(self):
+        """
+        Tests whether error messages defined in the model form set factory are correctly applied to the form instance. Specifically, this test verifies that a custom error message for the 'title' field is displayed when the input exceeds the maximum allowed length.
+        """
         author = Author.objects.create(pk=1, name="Charles Baudelaire")
         BookFormSet = modelformset_factory(
             Book,
@@ -2199,6 +2371,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(form.errors, {"title": ["Title too long!!"]})
 
     def test_inlineformset_factory_error_messages_overrides(self):
+        """
+        Tests that error messages for inline formset factory can be overridden with custom messages.
+        """
         author = Author.objects.create(pk=1, name="Charles Baudelaire")
         BookFormSet = inlineformset_factory(
             Author,
@@ -2211,6 +2386,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(form.errors, {"title": ["Title too long!!"]})
 
     def test_modelformset_factory_field_class_overrides(self):
+        """
+        Tests that the field_class parameter in modelformset_factory correctly overrides the default field class for a model field, in this case using a SlugField for the 'title' field of the Book model, while keeping the original field type (CharField) unchanged in the model definition.
+        """
         author = Author.objects.create(pk=1, name="Charles Baudelaire")
         BookFormSet = modelformset_factory(
             Book,
@@ -2224,6 +2402,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertIsInstance(form.fields["title"], forms.SlugField)
 
     def test_inlineformset_factory_field_class_overrides(self):
+        """
+        Verify that the inline formset factory correctly overrides field classes, ensuring that the form field type differs from the corresponding model field type.
+        """
         author = Author.objects.create(pk=1, name="Charles Baudelaire")
         BookFormSet = inlineformset_factory(
             Author,
@@ -2238,6 +2419,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertIsInstance(form.fields["title"], forms.SlugField)
 
     def test_modelformset_factory_absolute_max(self):
+        """
+        Tests the absolute_max parameter of modelformset_factory to ensure it limits the number of forms in a formset, and correctly displays an error message when exceeded.
+        """
         AuthorFormSet = modelformset_factory(
             Author, fields="__all__", absolute_max=1500
         )
@@ -2255,6 +2439,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_modelformset_factory_absolute_max_with_max_num(self):
+        """
+        Tests the behavior of a ModelFormSet factory when the absolute maximum number of forms is exceeded, ensuring that the formset is invalid and only a maximum number of forms are processed, with a corresponding error message.
+        """
         AuthorFormSet = modelformset_factory(
             Author,
             fields="__all__",
@@ -2275,6 +2462,15 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_inlineformset_factory_absolute_max(self):
+        """
+
+        Tests the validation of an inline formset with an absolute maximum number of forms.
+
+        Verifies that when the number of forms exceeds the defined maximum, the formset is
+        invalid and displays an error message, while still rendering the maximum allowed
+        number of forms.
+
+        """
         author = Author.objects.create(name="Charles Baudelaire")
         BookFormSet = inlineformset_factory(
             Author,
@@ -2296,6 +2492,11 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_inlineformset_factory_absolute_max_with_max_num(self):
+        """
+        Tests that an inline formset factory with absolute_max returns an invalid formset 
+        when the number of submitted forms exceeds the max_num, and that the formset is 
+        limited to absolute_max forms when max_num is exceeded.
+        """
         author = Author.objects.create(name="Charles Baudelaire")
         BookFormSet = inlineformset_factory(
             Author,
@@ -2318,6 +2519,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         )
 
     def test_modelformset_factory_can_delete_extra(self):
+        """
+        Tests the modelformset_factory function to ensure it creates a formset that allows deletion of extra forms and includes delete checkboxes for each form.
+        """
         AuthorFormSet = modelformset_factory(
             Author,
             fields="__all__",
@@ -2331,6 +2535,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertIn("DELETE", formset.forms[1].fields)
 
     def test_modelformset_factory_disable_delete_extra(self):
+        """
+        Tests that modelformset_factory correctly disables the delete option for extra forms when can_delete_extra is set to False.
+        """
         AuthorFormSet = modelformset_factory(
             Author,
             fields="__all__",
@@ -2344,6 +2551,11 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertNotIn("DELETE", formset.forms[1].fields)
 
     def test_inlineformset_factory_can_delete_extra(self):
+        """
+        Tests whether an inline formset factory can create a formset that allows deletion of extra forms. 
+
+        This test case verifies the creation of a formset with the capability to delete extra forms and ensures that the 'DELETE' field is included in each form.
+        """
         BookFormSet = inlineformset_factory(
             Author,
             Book,
@@ -2358,6 +2570,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertIn("DELETE", formset.forms[1].fields)
 
     def test_inlineformset_factory_can_not_delete_extra(self):
+        """
+        Verifies that an inline formset factory created with can_delete_extra set to False does not include delete checkboxes in the generated forms, even when can_delete is enabled.
+        """
         BookFormSet = inlineformset_factory(
             Author,
             Book,
@@ -2372,6 +2587,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertNotIn("DELETE", formset.forms[1].fields)
 
     def test_inlineformset_factory_passes_renderer(self):
+        """
+        Tests that inlineformset_factory correctly passes the provided renderer to the generated formset.
+        """
         from django.forms.renderers import Jinja2
 
         renderer = Jinja2()
@@ -2385,6 +2603,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(formset.renderer, renderer)
 
     def test_modelformset_factory_passes_renderer(self):
+        """
+        Checks if a ModelFormSet correctly uses a provided renderer when created using the modelformset_factory function. Verifies that the renderer passed to the factory function is properly assigned to the resulting formset.
+        """
         from django.forms.renderers import Jinja2
 
         renderer = Jinja2()
@@ -2393,6 +2614,9 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertEqual(formset.renderer, renderer)
 
     def test_modelformset_factory_default_renderer(self):
+        """
+        Tests that the default renderer is properly set for a ModelForm in a modelformset_factory when using Django's templating engine.
+        """
         class CustomRenderer(DjangoTemplates):
             pass
 
@@ -2412,6 +2636,14 @@ class TestModelFormsetOverridesTroughFormMeta(TestCase):
         self.assertIsInstance(formset.renderer, DjangoTemplates)
 
     def test_inlineformset_factory_default_renderer(self):
+        """
+
+        Tests that the default renderer is correctly applied to forms in an inline formset.
+
+        Verifies that the renderer specified in the form class is used for both bound and unbound forms,
+        while the formset itself defaults to the standard DjangoTemplates renderer.
+
+        """
         class CustomRenderer(DjangoTemplates):
             pass
 

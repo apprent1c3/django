@@ -15,6 +15,19 @@ class OracleIntrospection(DatabaseIntrospection):
         }
 
     def get_geometry_type(self, table_name, description):
+        """
+        Retrieves geometry type information for a given table and column.
+
+        Given a table name and column description, this function queries the 
+        USER_SDO_GEOM_METADATA table to determine the geometry type and 
+        parameters (e.g., SRID, dimension) for the specified column.
+
+        Returns a tuple containing the geometry field type ('GeometryField') 
+        and a dictionary of field parameters (e.g., SRID, dimension).
+
+        Raises an exception if the column metadata cannot be found in the 
+        USER_SDO_GEOM_METADATA table.
+        """
         with self.connection.cursor() as cursor:
             # Querying USER_SDO_GEOM_METADATA to get the SRID and dimension information.
             try:

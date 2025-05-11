@@ -31,6 +31,16 @@ class HumanizeTests(SimpleTestCase):
     def humanize_tester(
         self, test_list, result_list, method, normalize_result_func=escape
     ):
+        """
+        Tests the given humanize method by rendering a template with test content and comparing the result to the expected output.
+
+        :arg test_list: List of test content to be rendered
+        :arg result_list: Expected results for each test content
+        :arg method: Name of the humanize method to be tested
+        :arg normalize_result_func: Optional function to normalize the expected result (defaults to escape)
+
+        This function ensures that the humanize method produces the correct output for a variety of test cases, providing detailed error messages for any failures.
+        """
         for test_content, result in zip(test_list, result_list):
             with self.subTest(test_content):
                 t = Template("{%% load humanize %%}{{ test_content|%s }}" % method)
@@ -204,6 +214,9 @@ class HumanizeTests(SimpleTestCase):
             self.humanize_tester(test_list, result_list, "intcomma")
 
     def test_l10n_intcomma(self):
+        """
+        Tests the functionality of the intcomma formatting, which adds commas as thousand separators to numeric values, under various input conditions and with different formatting options. The test covers a range of numeric inputs including integers, floats, and Decimal instances, as well as non-numeric inputs, in different languages.
+        """
         test_list = (
             100,
             -100,
@@ -283,6 +296,13 @@ class HumanizeTests(SimpleTestCase):
 
     def test_intword(self):
         # Positive integers.
+        """
+
+        Tests the intword function's ability to convert large integers into human-readable words.
+
+        Verifies that a wide range of positive and negative integer values are correctly converted into their word equivalents, including those in the millions, billions, trillions, and beyond.
+
+        """
         test_list_positive = (
             "100",
             "1000000",
@@ -322,6 +342,9 @@ class HumanizeTests(SimpleTestCase):
             )
 
     def test_i18n_intcomma(self):
+        """
+        Tests the intcomma filter from Django's humanize module with various inputs to ensure it correctly formats integers and floats with a thousand separator, as expected in the German locale (de).
+        """
         test_list = (
             100,
             1000,
@@ -356,6 +379,9 @@ class HumanizeTests(SimpleTestCase):
 
     def test_i18n_intword(self):
         # Positive integers.
+        """
+        Tests the functionality of converting integer words to their German representation with thousand separators, covering both positive and negative numbers in various scales, such as millions, billions, and more.
+        """
         test_list_positive = (
             "100",
             "1000000",
@@ -386,6 +412,9 @@ class HumanizeTests(SimpleTestCase):
                 )
 
     def test_apnumber(self):
+        """
+        Tests the apnumber filter by passing a list of numbers as strings and comparing the results to the expected humanized values in English.
+        """
         test_list = [str(x) for x in range(1, 11)]
         test_list.append(None)
         result_list = (
@@ -405,6 +434,11 @@ class HumanizeTests(SimpleTestCase):
             self.humanize_tester(test_list, result_list, "apnumber")
 
     def test_naturalday(self):
+        """
+        Tests the naturalday filter, which returns a human-readable representation of dates, 
+        such as 'today', 'yesterday', or 'tomorrow' for dates within the last or next day, 
+        and the full date for other dates, while leaving non-date values unchanged.
+        """
         today = datetime.date.today()
         yesterday = today - datetime.timedelta(days=1)
         tomorrow = today + datetime.timedelta(days=1)
@@ -424,6 +458,13 @@ class HumanizeTests(SimpleTestCase):
         self.humanize_tester(test_list, result_list, "naturalday")
 
     def test_naturalday_tz(self):
+        """
+
+        Tests that humanize.naturalday handles dates in different timezones correctly.
+
+        Verifies that the natural day representation of the same date in two different timezones is not equal.
+
+        """
         today = datetime.date.today()
         tz_one = get_fixed_timezone(-720)
         tz_two = get_fixed_timezone(720)
@@ -441,6 +482,9 @@ class HumanizeTests(SimpleTestCase):
     def test_naturalday_uses_localtime(self):
         # Regression for #18504
         # This is 2012-03-08HT19:30:00-06:00 in America/Chicago
+        """
+        Verifies that the naturalday function uses the local time zone when formatting a date.
+        """
         dt = datetime.datetime(2012, 3, 9, 1, 30, tzinfo=datetime.timezone.utc)
 
         orig_humanize_datetime, humanize.datetime = humanize.datetime, MockDateTime
@@ -452,6 +496,10 @@ class HumanizeTests(SimpleTestCase):
             humanize.datetime = orig_humanize_datetime
 
     def test_naturaltime(self):
+        """
+        Tests the naturaltime function to ensure it correctly handles various date and time inputs, 
+        including timestamps with and without timezone information, and returns the expected human-readable strings.
+        """
         class naive(datetime.tzinfo):
             def utcoffset(self, dt):
                 return None

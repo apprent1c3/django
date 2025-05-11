@@ -96,6 +96,13 @@ def get_exception_reporter_class(request):
 
 
 def get_caller(request):
+    """
+    Determines the path of the view function handling the given request.
+
+    This function relies on the Django resolver to extract the view function's path from the request.
+    If the resolver match is not found in the request, it attempts to resolve it using the request path.
+    The function returns an empty string if the resolver match is not found, otherwise the view function's path.
+    """
     resolver_match = request.resolver_match
     if resolver_match is None:
         try:
@@ -223,6 +230,11 @@ class SafeExceptionReporterFilter:
                 return request.POST
 
     def cleanse_special_types(self, request, value):
+        """
+        Cleanses special types in the provided value, specifically handling MultiValueDict instances.
+
+        Returns the cleansed value, or an error message if an exception occurs during evaluation.
+        """
         try:
             # If value is lazy or a complex object of another kind, this check
             # might raise an exception. isinstance checks that lazy
@@ -319,6 +331,13 @@ class ExceptionReporter:
         return builtin_template_path("technical_500.txt")
 
     def __init__(self, request, exc_type, exc_value, tb, is_email=False):
+        """
+        Initialize an exception reporter.
+
+        This class is responsible for collecting and processing information about an exception that occurred.
+        It stores details about the request, exception, and traceback, and provides a basis for further error handling and reporting.
+        The is_email flag indicates whether the report is intended for email delivery or other purposes.
+        """
         self.request = request
         self.filter = get_exception_reporter_filter(self.request)
         self.exc_type = exc_type
@@ -436,6 +455,14 @@ class ExceptionReporter:
         return t.render(c)
 
     def _get_source(self, filename, loader, module_name):
+        """
+        Returns the source code of a module, attempting to retrieve it from the loader if available, otherwise reading from the file system.
+
+                :param filename: The path to the module file
+                :param loader: The loader object used to load the module
+                :param module_name: The name of the module
+                :return: The source code of the module as a list of lines, or None if it could not be retrieved
+        """
         source = None
         if hasattr(loader, "get_source"):
             try:
@@ -496,6 +523,15 @@ class ExceptionReporter:
 
     def get_traceback_frames(self):
         # Get the exception and all its causes
+        """
+        Returns a list of frames representing the exception traceback chain.
+
+         Processed frames are collected by walking the exception chain, starting from the current exception value.
+
+         In cases where a cycle is detected in the exception chain, a warning is raised and the cycle is broken to prevent infinite looping.
+
+         The resulting frames can be used to inspect the call stack at the time each exception occurred, providing valuable information for error analysis and debugging purposes.
+        """
         exceptions = []
         exc_value = self.exc_value
         while exc_value:
@@ -528,6 +564,20 @@ class ExceptionReporter:
         return frames
 
     def get_exception_traceback_frames(self, exc_value, tb):
+        """
+
+        Generates a series of frames representing the traceback for a given exception.
+
+        Yields dictionaries containing information about each frame, including the filename,
+        function name, line number, local variables, and source code context lines.
+        The frames also include information about the exception cause and whether it is
+        explicit or implicit.
+
+        The function skips frames marked with the '__traceback_hide__' local variable
+        and provides additional information such as column numbers and source code
+        underlining for frames where the source code is available.
+
+        """
         exc_cause = self._get_explicit_or_implicit_cause(exc_value)
         exc_cause_explicit = getattr(exc_value, "__cause__", True)
         if tb is None:

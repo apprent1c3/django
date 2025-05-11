@@ -101,6 +101,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
         self.assertContains(response, "False")
 
     def test_auto_transaction(self):
+        """
+        Tests that the /in_transaction/ endpoint correctly identifies when the request is wrapped in an atomic database transaction.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -110,6 +113,9 @@ class TransactionsPerRequestTests(TransactionTestCase):
         self.assertContains(response, "True")
 
     async def test_auto_transaction_async_view(self):
+        """
+        Tests that using ATOMIC_REQUESTS with async views raises a RuntimeError, ensuring atomic request functionality is not compatible with asynchronous views.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -120,6 +126,14 @@ class TransactionsPerRequestTests(TransactionTestCase):
             connection.settings_dict["ATOMIC_REQUESTS"] = old_atomic_requests
 
     def test_no_auto_transaction(self):
+        """
+        Tests that certain views do not auto-transactionalize under specific conditions.
+
+        Verifies that the views '/not_in_transaction/', '/not_in_transaction_using_none/', 
+        and '/not_in_transaction_using_text/' behave as expected when the 
+        'ATOMIC_REQUESTS' setting is enabled, checking for the presence of 'False' or 
+        'True' in the responses to ensure correct transactional behavior.
+        """
         old_atomic_requests = connection.settings_dict["ATOMIC_REQUESTS"]
         try:
             connection.settings_dict["ATOMIC_REQUESTS"] = True
@@ -145,6 +159,12 @@ class TransactionsPerRequestTests(TransactionTestCase):
 @override_settings(ROOT_URLCONF="handlers.urls")
 class SignalsTests(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment to track request lifecycle events.
+
+        Connects to request started and finished signals, registering handlers to track the start and end of requests.
+
+        """
         self.signals = []
         self.signaled_environ = None
         request_started.connect(self.register_started)
@@ -194,6 +214,9 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertEqual(response.status_code, 400)
 
     def test_invalid_urls(self):
+        """
+        Tests that the application correctly handles and encodes invalid URLs, ensuring that a 404 status code is returned and the request path is properly encoded in the response context.
+        """
         response = self.client.get("~%A9helloworld")
         self.assertEqual(response.status_code, 404)
         self.assertEqual(response.context["request_path"], "/~%25A9helloworld")
@@ -217,6 +240,9 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertIsInstance(environ["PATH_INFO"], str)
 
     def test_handle_accepts_httpstatus_enum_value(self):
+        """
+        Tests that the WSGIHandler correctly handles HTTP status codes represented as enumeration values, verifying a successful response with a 200 OK status.
+        """
         def start_response(status, headers):
             start_response.status = status
 
@@ -231,6 +257,9 @@ class HandlerRequestTests(SimpleTestCase):
             self.client.get("/")
 
     def test_no_response(self):
+        """
+        Test that views do not return None instead of an HttpResponse object, ensuring proper response handling.
+        """
         msg = (
             "The view %s didn't return an HttpResponse object. It returned None "
             "instead."
@@ -252,6 +281,11 @@ class HandlerRequestTests(SimpleTestCase):
         self.assertEqual(b"".join(list(response)), b"streaming content")
 
     def test_async_streaming(self):
+        """
+        Tests the asynchronous streaming functionality of the client.
+
+        Verifies that the server returns a 200 status code and that the response content matches the expected streaming content, while also checking for a warning about consuming asynchronous iterators.
+        """
         response = self.client.get("/async_streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (
@@ -327,6 +361,9 @@ class AsyncHandlerRequestTests(SimpleTestCase):
             await self.async_client.get("/unawaited/")
 
     def test_root_path(self):
+        """
+        Tests that the root path is correctly set in an asynchronous request
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(
             **{"path": "/root/somepath/", "root_path": "/root"}
@@ -337,6 +374,9 @@ class AsyncHandlerRequestTests(SimpleTestCase):
 
     @override_settings(FORCE_SCRIPT_NAME="/FORCED_PREFIX")
     def test_force_script_name(self):
+        """
+        Tests that the FORCE_SCRIPT_NAME setting correctly influences the path and script name of a request
+        """
         async_request_factory = AsyncRequestFactory()
         request = async_request_factory.request(**{"path": "/FORCED_PREFIX/somepath/"})
         self.assertEqual(request.path, "/FORCED_PREFIX/somepath/")
@@ -344,6 +384,9 @@ class AsyncHandlerRequestTests(SimpleTestCase):
         self.assertEqual(request.path_info, "/somepath/")
 
     async def test_sync_streaming(self):
+        """
+        Tests the synchronous streaming functionality of the asynchronous client, verifying that it correctly serves content and raises the expected warning when using a synchronous iterator.
+        """
         response = await self.async_client.get("/streaming/")
         self.assertEqual(response.status_code, 200)
         msg = (

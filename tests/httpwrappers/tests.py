@@ -36,6 +36,9 @@ class QueryDictTests(SimpleTestCase):
             q.__getitem__("foo")
 
     def test_immutability(self):
+        """
+        Tests that QueryDict instances remain immutable by verifying that attempts to modify them raise AttributeError exceptions.
+        """
         q = QueryDict()
         with self.assertRaises(AttributeError):
             q.__setitem__("something", "bar")
@@ -57,6 +60,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.get("foo", "default"), "default")
 
     def test_immutable_basic_operations(self):
+        """
+        Checks the behavior of an empty QueryDict, verifying its initial state and basic operations.
+        """
         q = QueryDict()
         self.assertEqual(q.getlist("foo"), [])
         self.assertNotIn("foo", q)
@@ -112,6 +118,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(q.urlencode(), "foo=bar")
 
     def test_urlencode(self):
+        """
+        Tests the urlencode method of a QueryDict object to ensure it correctly encodes special characters and handles the 'safe' parameter.
+        """
         q = QueryDict(mutable=True)
         q["next"] = "/a&b/"
         self.assertEqual(q.urlencode(), "next=%2Fa%26b%2F")
@@ -143,6 +152,11 @@ class QueryDictTests(SimpleTestCase):
         self.assertNotIn("name", q)
 
     def test_basic_mutable_operations(self):
+        """
+        Tests the functionality of a mutable QueryDict, verifying that it correctly 
+         handles basic operations such as setting, getting, updating, and removing items, 
+         as well as iteration and encoding the data into a URL query string.
+        """
         q = QueryDict(mutable=True)
         q["name"] = "john"
         self.assertEqual(q.get("foo", "default"), "default")
@@ -226,6 +240,9 @@ class QueryDictTests(SimpleTestCase):
             q.__delitem__("vote")
 
     def test_pickle(self):
+        """
+        Checks that QueryDict instances can be correctly pickled and unpickled, preserving their original state and contents.
+        """
         q = QueryDict()
         q1 = pickle.loads(pickle.dumps(q, 2))
         self.assertEqual(q, q1)
@@ -284,6 +301,9 @@ class QueryDictTests(SimpleTestCase):
         self.assertEqual(QueryDict.fromkeys("xyzzy"), QueryDict("x&y&z&z&y"))
 
     def test_fromkeys_with_nondefault_encoding(self):
+        """
+        Tests that QueryDict.fromkeys method correctly handles non-default encoding (utf-16) when creating a new QueryDict instance.
+        """
         key_utf16 = b"\xff\xfe\x8e\x02\xdd\x01\x9e\x02"
         value_utf16 = b"\xff\xfe\xdd\x01n\x00l\x00P\x02\x8c\x02"
         q = QueryDict.fromkeys([key_utf16], value=value_utf16, encoding="utf-16")
@@ -301,6 +321,9 @@ class QueryDictTests(SimpleTestCase):
 
 class HttpResponseTests(SimpleTestCase):
     def test_headers_type(self):
+        """
+        Tests the behavior of the HttpResponse headers dictionary, including setting and retrieving values with different data types, handling encoding for non-ASCII characters, and ensuring that header keys are always strings.
+        """
         r = HttpResponse()
 
         # ASCII strings or bytes values are converted to strings.
@@ -346,6 +369,9 @@ class HttpResponseTests(SimpleTestCase):
     def test_long_line(self):
         # Bug #20889: long lines trigger newlines to be added to headers
         # (which is not allowed due to bug #10188)
+        """
+        Tests the handling of long filenames with special characters in HTTP responses, specifically in the Content-Disposition header.
+        """
         h = HttpResponse()
         f = b"zzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzzz a\xcc\x88"
         f = f.decode("utf-8")
@@ -358,6 +384,9 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_newlines_in_headers(self):
         # Bug #10188: Do not allow newlines in headers (CR or LF)
+        """
+        Tests that adding newlines to HttpResponse headers raises a BadHeaderError to prevent potential HTTP response splitting attacks.
+        """
         r = HttpResponse()
         with self.assertRaises(BadHeaderError):
             r.headers.__setitem__("test\rstr", "test")
@@ -394,6 +423,9 @@ class HttpResponseTests(SimpleTestCase):
 
     def test_non_string_content(self):
         # Bug 16494: HttpResponse should behave consistently with non-strings
+        """
+        Verifies that non-string content provided to an HttpResponse object is correctly converted to bytes.
+        """
         r = HttpResponse(12345)
         self.assertEqual(r.content, b"12345")
 
@@ -407,6 +439,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"memoryview")
 
     def test_iter_content(self):
+        """
+        Tests the behavior of the HttpResponse object when its content is set to an iterable, ensuring that it correctly concatenates the contents and returns the expected bytes.
+        """
         r = HttpResponse(["abc", "def", "ghi"])
         self.assertEqual(r.content, b"abcdefghi")
 
@@ -458,6 +493,21 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"helloworld")
 
     def test_file_interface(self):
+        """
+        Tests the functionality of the HttpResponse class interface, specifically writing to the response and checking its content and position.\"\"\"
+
+        \"\"\"Verifies correct functionality when writing bytes and strings, and when using different constructors and setting headers.\"\"\"
+
+         More suitable docstring:
+
+         \"\"\"Verifies the correct functionality of writing to an HttpResponse object and checks its resulting content and position.\"\"\"
+
+        Regardless of the content the best would be to describe simply what it tests: 
+
+         \"\"\"Tests the HttpResponse class interface.\"\"\"
+
+        Consider this last suggestion since the function is actually a test case.
+        """
         r = HttpResponse()
         r.write(b"hello")
         self.assertEqual(r.tell(), 5)
@@ -477,6 +527,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"abcdef")
 
     def test_stream_interface(self):
+        """
+        Tests the stream interface of the HttpResponse object, verifying its ability to store and retrieve content, as well as writing to it using the writelines method.
+        """
         r = HttpResponse("asdf")
         self.assertEqual(r.getvalue(), b"asdf")
 
@@ -486,6 +539,13 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, b"foo\nbar\nbaz\n")
 
     def test_unsafe_redirect(self):
+        """
+        Tests that certain unsafe redirects are properly disallowed.
+
+        Checks that URLs with potential security vulnerabilities, such as XSS or
+        access to sensitive files, raise a DisallowedRedirect exception when used
+        in HttpResponseRedirect and HttpResponsePermanentRedirect responses.
+        """
         bad_urls = [
             'data:text/html,<script>window.alert("xss")</script>',
             "mailto:test@example.com",
@@ -498,6 +558,9 @@ class HttpResponseTests(SimpleTestCase):
                 HttpResponsePermanentRedirect(url)
 
     def test_header_deletion(self):
+        """
+        Tests the deletion of headers from an HttpResponse object, ensuring that headers are correctly removed and that deleting a non-existent header does not raise an error.
+        """
         r = HttpResponse("hello")
         r.headers["X-Foo"] = "foo"
         del r.headers["X-Foo"]
@@ -533,6 +596,9 @@ class HttpResponseTests(SimpleTestCase):
 
 class HttpResponseSubclassesTests(SimpleTestCase):
     def test_redirect(self):
+        """
+        Tests the functionality of the HttpResponseRedirect, ensuring it correctly sets the status code to 302 and provides the expected content and location header.
+        """
         response = HttpResponseRedirect("/redirected/")
         self.assertEqual(response.status_code, 302)
         # Standard HttpResponse init args can be used
@@ -575,6 +641,9 @@ class HttpResponseSubclassesTests(SimpleTestCase):
         self.assertEqual(repr(response), expected)
 
     def test_not_modified(self):
+        """
+        Tests the HttpResponseNotModified object to ensure it behaves as expected, specifically verifying its status code and that it does not allow modification of its content.
+        """
         response = HttpResponseNotModified()
         self.assertEqual(response.status_code, 304)
         # 304 responses should not have content/content-type
@@ -638,6 +707,9 @@ class JsonResponseTests(SimpleTestCase):
         self.assertEqual(json.loads(response.content.decode()), str(u))
 
     def test_json_response_custom_encoder(self):
+        """
+        Tests that a custom encoder can be used with a JsonResponse to generate a non-standard JSON response.
+        """
         class CustomDjangoJSONEncoder(DjangoJSONEncoder):
             def encode(self, o):
                 return json.dumps({"foo": "bar"})
@@ -652,6 +724,15 @@ class JsonResponseTests(SimpleTestCase):
 
 class StreamingHttpResponseTests(SimpleTestCase):
     def test_streaming_response(self):
+        """
+
+        Tests the StreamingHttpResponse functionality.
+
+        Verifies that the StreamingHttpResponse class correctly handles iterable content,
+        returns chunks as bytes, and raises appropriate exceptions when attempting to
+        access or modify its content.
+
+        """
         r = StreamingHttpResponse(iter(["hello", "world"]))
 
         # iterating over the response itself yields bytestring chunks.
@@ -721,6 +802,9 @@ class StreamingHttpResponseTests(SimpleTestCase):
         )
 
     async def test_async_streaming_response(self):
+        """
+        Tests an asynchronous streaming HTTP response, verifying it correctly yields the expected chunks of data.
+        """
         async def async_iter():
             yield b"hello"
             yield b"world"
@@ -733,6 +817,9 @@ class StreamingHttpResponseTests(SimpleTestCase):
         self.assertEqual(chunks, [b"hello", b"world"])
 
     def test_async_streaming_response_warning(self):
+        """
+        Tests that a warning is raised when a StreamingHttpResponse is created with an asynchronous iterator, as it must be consumed synchronously.
+        """
         async def async_iter():
             yield b"hello"
             yield b"world"
@@ -765,6 +852,13 @@ class FileCloseTests(SimpleTestCase):
         self.addCleanup(request_finished.connect, close_old_connections)
 
     def test_response(self):
+        """
+
+        Verifies that HttpResponse correctly closes file handles when using a file object as content.
+
+        Tests the behavior of HttpResponse when a file object is passed to it, ensuring that the file is properly closed when the response is closed or when its content is reassigned.
+
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -783,6 +877,10 @@ class FileCloseTests(SimpleTestCase):
         self.assertTrue(file2.closed)
 
     def test_streaming_response(self):
+        """
+        Tests the behavior of StreamingHttpResponse when dealing with file objects, 
+        ensuring that the file remains open until the response is closed.
+        """
         filename = os.path.join(os.path.dirname(__file__), "abc.txt")
 
         # file isn't closed until we close the response.
@@ -918,6 +1016,9 @@ class CookieTests(unittest.TestCase):
         self.assertEqual(c["name"].value, "val")
 
     def test_pickle(self):
+        """
+        Tests the ability of SimpleCookie objects to be pickled and unpickled without losing their data, ensuring compatibility across all pickle protocols.
+        """
         rawdata = 'Customer="WILE_E_COYOTE"; Path=/acme; Version=1'
         expected_output = "Set-Cookie: %s" % rawdata
 
@@ -934,6 +1035,9 @@ class HttpResponseHeadersTestCase(SimpleTestCase):
     """Headers by treating HttpResponse like a dictionary."""
 
     def test_headers(self):
+        """
+        Tests HttpResponse object's interaction with HTTP headers, including setting, getting and removing headers, as well as header presence checks.
+        """
         response = HttpResponse()
         response["X-Foo"] = "bar"
         self.assertEqual(response["X-Foo"], "bar")
@@ -957,6 +1061,9 @@ class HttpResponseHeadersTestCase(SimpleTestCase):
         self.assertEqual(response.headers["X-Foo"], "bar")
 
     def test_newlines_in_headers(self):
+        """
+        Tests that setting HTTP response headers with newline characters raises a BadHeaderError, preventing potential HTTP response header injection vulnerabilities.
+        """
         response = HttpResponse()
         with self.assertRaises(BadHeaderError):
             response["test\rstr"] = "test"

@@ -21,6 +21,9 @@ class BaseChoiceIterator:
         return super().__eq__(other)
 
     def __getitem__(self, index):
+        """
+        Allows indexing into the collection, enabling access to specific elements by their position, with support for negative indices to access elements from the end.
+        """
         if index < 0:
             # Suboptimally consume whole iterator to handle negative index.
             return list(self)[index]

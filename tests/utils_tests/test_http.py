@@ -43,6 +43,10 @@ class URLEncodeTests(SimpleTestCase):
         self.assertEqual(urlencode({"a": (1, 2)}, doseq=False), "a=%281%2C+2%29")
 
     def test_custom_iterable_not_doseq(self):
+        """
+        Tests that urlencode correctly handles custom iterables when doseq is False, 
+        by verifying it uses the object's string representation instead of attempting to serialize the iterable.
+        """
         class IterableWithStr:
             def __str__(self):
                 return "custom"
@@ -336,6 +340,19 @@ class HttpDateProcessingTests(unittest.TestCase):
     @unittest.skipIf(platform.architecture()[0] == "32bit", "The Year 2038 problem.")
     @mock.patch("django.utils.http.datetime")
     def test_parsing_rfc850(self, mocked_datetime):
+        """
+        Tests the parsing of HTTP dates in RFC 850 format.
+
+        This test ensures that the parse_http_date function correctly interprets dates in the RFC 850 format,
+        considering the Year 2038 problem on 32-bit systems. It checks various date strings with different current times,
+        validating that the parsed dates match the expected results.\"\"\"
+
+        However, since the function being tested is `parse_http_date`, the following docstring would be more appropriate for it:
+
+        \"\"\"Parses an HTTP date string in RFC 850 format into a Unix timestamp.
+
+        The parsing considers the current time and takes into account the two-digit year ambiguity in RFC 850 format.
+        """
         mocked_datetime.side_effect = datetime
         now_1 = datetime(2019, 11, 6, 8, 49, 37, tzinfo=timezone.utc)
         now_2 = datetime(2020, 11, 6, 8, 49, 37, tzinfo=timezone.utc)

@@ -14,6 +14,9 @@ from django.utils.functional import cached_property
 
 class BaseMemcachedCache(BaseCache):
     def __init__(self, server, params, library, value_not_found_exception):
+        """
+        Initializes a client object with the specified server, parameters, and library, handling cases where the server is provided as a string or a list, and setting up the necessary options and exception handling.
+        """
         super().__init__(params)
         if isinstance(server, str):
             self._servers = re.split("[;,]", server)
@@ -101,6 +104,17 @@ class BaseMemcachedCache(BaseCache):
         self._cache.disconnect_all()
 
     def incr(self, key, delta=1, version=None):
+        """
+
+        Increments the value associated with the given key in the cache.
+
+        :param key: The key to be incremented.
+        :param delta: The amount by which to increment the key (default is 1).
+        :param version: Optional version parameter for the key.
+        :raises ValueError: If the key is not found in the cache.
+        :returns: The new value associated with the key after incrementation.
+
+        """
         key = self.make_and_validate_key(key, version=version)
         try:
             # Memcached doesn't support negative delta.
@@ -118,6 +132,17 @@ class BaseMemcachedCache(BaseCache):
         return val
 
     def set_many(self, data, timeout=DEFAULT_TIMEOUT, version=None):
+        """
+        Sets multiple values in the cache at once.
+
+        Synchronously sets the given data with the specified timeout and version, 
+        returning a list of keys that failed to be set.
+
+        :param data: Dictionary of key-value pairs to set in the cache
+        :param timeout: Optional timeout for the cache operation (default: DEFAULT_TIMEOUT)
+        :param version: Optional version for the cache operation
+        :returns: List of keys that failed to be set
+        """
         safe_data = {}
         original_keys = {}
         for key, value in data.items():

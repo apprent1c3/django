@@ -58,6 +58,14 @@ class BaseCache:
     _missing_key = object()
 
     def __init__(self, params):
+        """
+
+        Initialize a cache object with configuration parameters.
+
+        This method sets up the cache's default timeout, maximum number of entries, culling frequency,
+        key prefix, version, and key generation function based on the provided parameters.
+
+        """
         timeout = params.get("timeout", params.get("TIMEOUT", 300))
         if timeout is not None:
             try:

@@ -28,6 +28,9 @@ class GeometryField(forms.Field):
     }
 
     def __init__(self, *, srid=None, geom_type=None, **kwargs):
+        """
+        Initializes a geometry field, optionally specifying the Spatial Reference System Identifier (SRID) and geometry type, to configure the field's behavior and widget attributes.
+        """
         self.srid = srid
         if geom_type is not None:
             self.geom_type = geom_type

@@ -43,6 +43,13 @@ def stringfilter(func):
 
     @wraps(func)
     def _dec(first, *args, **kwargs):
+        """
+
+        Decorator wrapper function that simplifies the process of marking output as safe.
+        It ensures that if the input is an instance of SafeData and the original function is marked as safe, 
+        the result will also be marked as safe, avoiding unnecessary escaping. 
+
+        """
         first = str(first)
         result = func(first, *args, **kwargs)
         if isinstance(first, SafeData) and getattr(unwrap(func), "is_safe", False):
@@ -545,6 +552,12 @@ def _property_resolver(arg):
         parts = arg.split(VARIABLE_ATTRIBUTE_SEPARATOR)
 
         def resolve(value):
+            """
+            Resolves a nested attribute or key from a given value.
+
+            Navigates through a sequence of parts, attempting to access each part as a dictionary key or list index, 
+            and falls back to attribute access if typing errors occur, returning the resolved value.
+            """
             for part in parts:
                 try:
                     value = value[part]
@@ -678,6 +691,12 @@ def unordered_list(value, autoescape=True):
             return x
 
     def walk_items(item_list):
+        """
+        Generates pairs of consecutive items from a list, except when the next item is a collection, 
+        in which case the pair consists of the current item and the next collection item. 
+        Yields pairs until the end of the list is reached, with the last pair containing None as the second item 
+        if no collection is found at the end.
+        """
         item_iterator = iter(item_list)
         try:
             item = next(item_iterator)
@@ -702,6 +721,14 @@ def unordered_list(value, autoescape=True):
             pass
 
     def list_formatter(item_list, tabs=1):
+        """
+        Format a nested list into HTML, suitable for rendering as an unordered list.
+
+        :arg item_list: The list of items to format, where each item may have child items.
+        :arg tabs: The number of tabs to indent the list, defaulting to 1.
+        :returns: A string of formatted HTML list items.
+
+        """
         indent = "\t" * tabs
         output = []
         for item, children in walk_items(item_list):

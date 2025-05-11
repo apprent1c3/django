@@ -55,6 +55,9 @@ class RangeField(models.Field):
     empty_strings_allowed = False
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the object, ensuring it does not accept 'default_bounds' and properly sets up the base field if present.
+        """
         if "default_bounds" in kwargs:
             raise TypeError(
                 f"Cannot use 'default_bounds' with {self.__class__.__name__}."
@@ -87,6 +90,13 @@ class RangeField(models.Field):
         return "%s::{}".format(self.db_type(connection))
 
     def get_prep_value(self, value):
+        """
+        ..:param value: The value to prepare
+            :return: The prepared value, or None if the input value is None
+            :rtype: Range or None
+
+            Prepares a value for use, converting lists and tuples to Range objects if necessary.
+        """
         if value is None:
             return None
         elif isinstance(value, Range):
@@ -96,6 +106,9 @@ class RangeField(models.Field):
         return value
 
     def to_python(self, value):
+        """
+        Converts a given value into a Python object representation, specifically handling string and list/tuple inputs, and applying the base field's to_python method as needed to create a range type object.
+        """
         if isinstance(value, str):
             # Assume we're deserializing
             vals = json.loads(value)
@@ -112,6 +125,9 @@ class RangeField(models.Field):
         self.base_field.set_attributes_from_name(name)
 
     def value_to_string(self, obj):
+        """
+        Convert an object's value to a string representation, handling cases where the value is None, empty, or has bounds. The resulting string is a JSON object containing information about the value's bounds and ends.
+        """
         value = self.value_from_object(obj)
         if value is None:
             return None
@@ -238,6 +254,9 @@ class DateTimeRangeContains(PostgresOperatorLookup):
         return super().process_rhs(compiler, connection)
 
     def as_postgresql(self, compiler, connection):
+        """
+        Generates the PostgreSQL representation of a database query, including a potential type cast if the source and target fields have different types.
+        """
         sql, params = super().as_postgresql(compiler, connection)
         # Cast the rhs if needed.
         cast_sql = ""
@@ -280,6 +299,14 @@ class RangeContainedBy(PostgresOperatorLookup):
         return "%s::%s" % (rhs, cast_type), rhs_params
 
     def process_lhs(self, compiler, connection):
+        """
+        ..: process_lhs: 
+            Handle the left-hand side of a query, converting it to the correct database data type if necessary.
+
+            Converts output fields of type FloatField to numeric and SmallIntegerField to integer for compatibility with certain databases.
+
+            :return: A tuple containing the processed left-hand side and its parameters.
+        """
         lhs, lhs_params = super().process_lhs(compiler, connection)
         if isinstance(self.lhs.output_field, models.FloatField):
             lhs = "%s::numeric" % lhs

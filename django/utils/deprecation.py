@@ -53,6 +53,18 @@ class RenameMethodsBase(type):
     renamed_methods = ()
 
     def __new__(cls, name, bases, attrs):
+        """
+
+        Automatically redirects calls to old method names to their newly renamed counterparts in a class.
+
+        This metamethod overrides the creation of new classes, allowing for a seamless transition when method names are changed.
+        It checks for old and new method names in a class and its base classes, and sets up redirects accordingly.
+        If an old method name is still being used but the new name is not present, it raises a deprecation warning and sets up the redirect.
+        If a new method name is present but the old name is not, it sets up a redirect from the old name to the new one.
+
+        The redirects are set up using a wrapper function that logs a deprecation warning when the old method name is used.
+
+        """
         new_class = super().__new__(cls, name, bases, attrs)
 
         for base in inspect.getmro(new_class):
@@ -88,6 +100,9 @@ class MiddlewareMixin:
     async_capable = True
 
     def __init__(self, get_response):
+        """
+        Initializes the class instance with a get_response callback function, which is used to decide the response to an incoming request. The get_response function can be either synchronous or asynchronous.
+        """
         if get_response is None:
             raise ValueError("get_response must be provided.")
         self.get_response = get_response
@@ -112,6 +127,13 @@ class MiddlewareMixin:
 
     def __call__(self, request):
         # Exit out to async mode, if needed
+        """
+        Handle an incoming request and return a corresponding response.
+
+        This function is the entry point for processing requests, providing a flexible way to handle incoming requests either synchronously or asynchronously.
+        It leverages the optional :meth:`process_request` and :meth:`process_response` methods to allow for customization of the request and response handling workflow.
+        The response is ultimately generated or retrieved using the :meth:`get_response` method if :meth:`process_request` does not provide one.
+        """
         if self.async_mode:
             return self.__acall__(request)
         response = None

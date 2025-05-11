@@ -210,6 +210,9 @@ class ForTagTests(SimpleTestCase):
         }
     )
     def test_for_tag_unpack13(self):
+        """
+        Tests the unpacking of three values in a for loop using the for tag in a template
+        """
         output = self.engine.render_to_string(
             "for-tag-unpack13", {"items": (("one", 1, "carrot"), ("two", 2, "cheese"))}
         )

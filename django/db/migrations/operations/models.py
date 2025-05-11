@@ -9,6 +9,9 @@ from .fields import AddField, AlterField, FieldOperation, RemoveField, RenameFie
 
 
 def _check_for_duplicates(arg_name, objs):
+    """
+    Checks for duplicate values in a collection and raises an error if any are found, ensuring uniqueness in a specific argument of the CreateModel.
+    """
     used_vals = set()
     for val in objs:
         if val in used_vals:
@@ -45,6 +48,9 @@ class CreateModel(ModelOperation):
     serialization_expand_args = ["fields", "options", "managers"]
 
     def __init__(self, name, fields, options=None, bases=None, managers=None):
+        """
+        Initializes a model with the given name, fields, options, bases, and managers, performing duplicate checks to ensure data integrity.
+        """
         self.fields = fields
         self.options = options or {}
         self.bases = bases or (models.Model,)
@@ -67,6 +73,9 @@ class CreateModel(ModelOperation):
         _check_for_duplicates("managers", (name for name, _ in self.managers))
 
     def deconstruct(self):
+        """
+        Deconstructs the object into a tuple representing its class and initialization parameters, suitable for re-creating the object or for serialization purposes.
+        """
         kwargs = {
             "name": self.name,
             "fields": self.fields,
@@ -112,6 +121,9 @@ class CreateModel(ModelOperation):
         return self.name_lower
 
     def references_model(self, name, app_label):
+        """
+        Checks if the current model references another model with the given name and app label, either directly or through its base classes or fields.
+        """
         name_lower = name.lower()
         if name_lower == self.name_lower:
             return True
@@ -135,6 +147,9 @@ class CreateModel(ModelOperation):
         return False
 
     def reduce(self, operation, app_label):
+        """
+        Apply a database operation to a model, modifying its fields, options, or managers as necessary to reflect the changes specified by the operation. Returns a list of operations that represent the modified model.
+        """
         if (
             isinstance(operation, DeleteModel)
             and self.name_lower == operation.name_lower
@@ -445,6 +460,19 @@ class RenameModel(ModelOperation):
         state.rename_model(app_label, self.old_name, self.new_name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Alter a database table to reflect changes in a model.
+
+        This function renames a database table, updates related fields on other models,
+        and modifies many-to-many relationships as necessary to accommodate the model changes.
+
+        :param app_label: The label of the app containing the model.
+        :param schema_editor: The schema editor to use for database operations.
+        :param from_state: The previous state of the app's models.
+        :param to_state: The new state of the app's models.
+
+        """
         new_model = to_state.apps.get_model(app_label, self.new_name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
             old_model = from_state.apps.get_model(app_label, self.old_name)
@@ -493,6 +521,12 @@ class RenameModel(ModelOperation):
                 )
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Reverses the database migration by swapping the new and old names and then applying the forward migration logic in reverse.
+
+        This method is used to undo the changes made by the :meth:`database_forwards` method, effectively reversing the database migration.
+
+        """
         self.new_name_lower, self.old_name_lower = (
             self.old_name_lower,
             self.new_name_lower,
@@ -567,6 +601,14 @@ class AlterModelTable(ModelOptionOperation):
         state.alter_model_options(app_label, self.name_lower, {"db_table": self.table})
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Alter database tables in a migration.
+
+        This function is responsible for modifying the database schema from the old state to the new state.
+        It updates the database table for the model and its many-to-many fields as necessary.
+
+        """
         new_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
             old_model = from_state.apps.get_model(app_label, self.name)
@@ -666,6 +708,10 @@ class AlterTogetherOptionOperation(ModelOptionOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Applies the changes to the model's database schema for the specified app label, 
+        transitioning from the old state to the new state, considering migration permissions.
+        """
         new_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, new_model):
             old_model = from_state.apps.get_model(app_label, self.name)
@@ -751,6 +797,14 @@ class AlterOrderWithRespectTo(ModelOptionOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Apply database migration changes related to ordering fields for a specific model.
+
+        This method is responsible for adding or removing the ordering field ('_order')
+        from the model's database table when the ordering behavior is changed.
+
+        """
         to_model = to_state.apps.get_model(app_label, self.name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.name)
@@ -943,6 +997,13 @@ class AddIndex(IndexOperation):
         return "%s_%s" % (self.model_name_lower, self.index.name.lower())
 
     def reduce(self, operation, app_label):
+        """
+        Reduce a database operation affecting an index.
+
+        Handles index removal and renaming by either absorbing the removal operation 
+        or transforming a rename operation into an index addition with a new name. 
+        All other operations are delegated to the parent class.
+        """
         if isinstance(operation, RemoveIndex) and self.index.name == operation.name:
             return []
         if isinstance(operation, RenameIndex) and self.index.name == operation.old_name:
@@ -964,6 +1025,15 @@ class RemoveIndex(IndexOperation):
         state.remove_index(app_label, self.model_name_lower, self.name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Removes an index from the database schema when migrating from an old state to a new state.
+
+         :param app_label: The label of the app the model belongs to.
+         :param schema_editor: The database schema editor to use for making changes.
+         :param from_state: The old app state before the migration.
+         :param to_state: The new app state after the migration.
+
+        """
         model = from_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             from_model_state = from_state.models[app_label, self.model_name_lower]
@@ -971,6 +1041,15 @@ class RemoveIndex(IndexOperation):
             schema_editor.remove_index(model, index)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the removal of a database index.
+
+        This method is used by Django's migrations system to restore a database index 
+        that was previously removed. It adds the index back to the specified model 
+        in the database schema.
+
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             to_model_state = to_state.models[app_label, self.model_name_lower]
@@ -1002,6 +1081,18 @@ class RenameIndex(IndexOperation):
     category = OperationCategory.ALTERATION
 
     def __init__(self, model_name, new_name, old_name=None, old_fields=None):
+        """
+
+        Initialize a RenameIndex object.
+
+        Represents a renaming operation for an index in a database model. Requires either an old index name or a set of old fields to identify the index to be renamed. 
+
+        :param model_name: The name of the database model.
+        :param new_name: The new name for the index.
+        :param old_name: The current name of the index (mutually exclusive with old_fields).
+        :param old_fields: The current fields of the index (mutually exclusive with old_name).
+
+        """
         if not old_name and not old_fields:
             raise ValueError(
                 "RenameIndex requires one of old_name and old_fields arguments to be "
@@ -1025,6 +1116,9 @@ class RenameIndex(IndexOperation):
         return self.new_name.lower()
 
     def deconstruct(self):
+        """
+        Returns a deconstructed representation of the object as a tuple containing the class name, an empty list, and keyword arguments with the object's attributes.
+        """
         kwargs = {
             "model_name": self.model_name,
             "new_name": self.new_name,
@@ -1036,6 +1130,11 @@ class RenameIndex(IndexOperation):
         return (self.__class__.__qualname__, [], kwargs)
 
     def state_forwards(self, app_label, state):
+        """
+        Modifies the database schema to forward a state change for an index on a model.
+
+        Updates the index fields or renames the index if no fields have changed, while also removing related model options.
+        """
         if self.old_fields:
             state.add_index(
                 app_label,
@@ -1054,6 +1153,19 @@ class RenameIndex(IndexOperation):
             )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Renames an index on a database table as part of a database migration.
+
+        Migrates the index name from :attr:`old_name` to :attr:`new_name` for the model
+        specified by :attr:`model_name` in the app labeled by :attr:`app_label`.
+
+        The index must exist in the from state and the to state must not already have an
+        index with the new name. If multiple indexes match the old index name, or the
+        new index name already exists, an exception is raised.
+
+        This function is used internally by database migration operations to ensure
+        consistent index naming across different database states.
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if not self.allow_migrate_model(schema_editor.connection.alias, model):
             return
@@ -1094,6 +1206,14 @@ class RenameIndex(IndexOperation):
         schema_editor.rename_index(model, old_index, new_index)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the changes made by the database_forwards operation.
+
+        This method restores the previous state of the database schema by swapping the new and old field names, 
+        reversing the operation previously applied.
+
+        """
         if self.old_fields:
             # Backward operation with unnamed index is a no-op.
             return
@@ -1213,6 +1333,17 @@ class RemoveConstraint(IndexOperation):
         state.remove_constraint(app_label, self.model_name_lower, self.name)
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Removes a database constraint using the provided schema editor.
+
+        This method is used for database migrations, specifically for removing
+        a constraint from the target model when migrating from one state to another.
+
+        :param app_label: The label of the application containing the model
+        :param schema_editor: The schema editor to use for the migration
+        :param from_state: The previous state of the model
+        :param to_state: The target state of the model
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             from_model_state = from_state.models[app_label, self.model_name_lower]
@@ -1220,6 +1351,14 @@ class RemoveConstraint(IndexOperation):
             schema_editor.remove_constraint(model, constraint)
 
     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Reverses the application of a database constraint.
+
+        This method is used as part of a database migration to undo a previously applied constraint.
+        It retrieves the relevant model and constraint, then instructs the schema editor to add the constraint.
+
+        """
         model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, model):
             to_model_state = to_state.models[app_label, self.model_name_lower]

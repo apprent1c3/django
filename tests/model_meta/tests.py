@@ -33,6 +33,16 @@ class OptionsBaseTests(SimpleTestCase):
         return None if model == current_model else model
 
     def _details(self, current_model, relation):
+        """
+        Return relation details for a given model and relation.
+
+            The details include the original relation, the model it points to (or None if it points to the current model),
+            a flag indicating if the relation is direct, and a flag indicating if the field is many-to-many.
+
+            :param current_model: The current model being processed
+            :param relation: The relation to retrieve details for
+            :return: A tuple containing the relation, model, direct flag, and many-to-many flag
+        """
         direct = isinstance(relation, (Field, GenericForeignKey))
         model = relation.model._meta.concrete_model
         if model == current_model:
@@ -49,6 +59,10 @@ class OptionsBaseTests(SimpleTestCase):
 
 class GetFieldsTests(OptionsBaseTests):
     def test_get_fields_is_immutable(self):
+        """
+        Tests that the result of get_fields() is an immutable collection, 
+        attempting to modify it raises an AttributeError with a warning message.
+        """
         msg = IMMUTABLE_WARNING % "get_fields()"
         for _ in range(2):
             # Running unit test twice to ensure both non-cached and cached result
@@ -75,6 +89,14 @@ class DataTests(OptionsBaseTests):
             self.assertEqual([f.attname for f in fields], expected_result)
 
     def test_local_fields(self):
+        """
+
+        Tests the correctness of local fields in a model.
+
+        Verifies that the local fields of each model match the expected results and that 
+        each local field belongs to the model and is a data field.
+
+        """
         def is_data_field(f):
             return isinstance(f, Field) and not f.many_to_many
 
@@ -86,6 +108,12 @@ class DataTests(OptionsBaseTests):
                 self.assertTrue(is_data_field(f))
 
     def test_local_concrete_fields(self):
+        """
+        .\"\"\"
+        Tests the local concrete fields of a model, ensuring they match the expected results
+        and that each field has a column assigned.
+
+        """
         for model, expected_result in TEST_RESULTS["local_concrete_fields"].items():
             fields = model._meta.local_concrete_fields
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -95,6 +123,14 @@ class DataTests(OptionsBaseTests):
 
 class M2MTests(OptionsBaseTests):
     def test_many_to_many(self):
+        """
+
+        Verifies the correctness of many-to-many fields in models.
+
+        Checks that the attname of many-to-many fields matches the expected result and 
+        that each field is indeed a many-to-many relation.
+
+        """
         for model, expected_result in TEST_RESULTS["many_to_many"].items():
             fields = model._meta.many_to_many
             self.assertEqual([f.attname for f in fields], expected_result)
@@ -204,6 +240,9 @@ class GetFieldByNameTests(OptionsBaseTests):
         self.assertIsInstance(field_info[0], GenericRelation)
 
     def test_get_fields_only_searches_forward_on_apps_not_ready(self):
+        """
+        Verify that get_field only searches forward when the application models are not ready, preventing access to auto-created related fields.
+        """
         opts = Person._meta
         # If apps registry is not ready, get_field() searches over only
         # forward fields.
@@ -275,6 +314,13 @@ class RelationTreeTests(SimpleTestCase):
 
     def test_first_relation_tree_access_populates_all(self):
         # On first access, relation tree should have populated cache.
+        """
+
+        Verifies that access to the relation tree of the first model populates the relation trees for all models.
+
+        Ensures that the relation tree is correctly initialized for all models, with the exception of abstract base models which are expected to have an empty relation tree.
+
+        """
         self.assertTrue(self.all_models[0]._meta._relation_tree)
 
         # AbstractPerson does not have any relations, so relation_tree

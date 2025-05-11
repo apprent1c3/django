@@ -50,6 +50,11 @@ class AutoEscapeControlNode(Node):
         self.nodelist = nodelist
 
     def render(self, context):
+        """
+        Renders the template nodes with autoescaping set to a specified value, 
+        temporarily overriding the current autoescape setting in the context. 
+        If autoescaping is enabled, the rendered output is marked as safe.
+        """
         old_setting = context.autoescape
         context.autoescape = self.setting
         output = self.nodelist.render(context)
@@ -71,6 +76,13 @@ class CsrfTokenNode(Node):
     child_nodelists = ()
 
     def render(self, context):
+        """
+        .. method:: render(context)
+            Renders a CSRF token as a hidden input field.
+
+            If a CSRF token is provided in the context, it is returned as a formatted HTML string.
+            If no token is provided, a warning is raised in debug mode and an empty string is returned.
+        """
         csrf_token = context.get("csrf_token")
         if csrf_token:
             if csrf_token == "NOTPROVIDED":
@@ -99,6 +111,16 @@ class CycleNode(Node):
         self.silent = silent
 
     def render(self, context):
+        """
+
+        Renders the value of this object within the provided context.
+
+        Iterates over the cycle variables, resolves the current value, and makes it available 
+        in the context. If a variable name is specified, the resolved value is assigned to it.
+        The rendered value is then returned, unless silent mode is enabled, in which case an 
+        empty string is returned.
+
+        """
         if self not in context.render_context:
             # First time the node is rendered in template
             context.render_context[self] = itertools_cycle(self.cyclevars)
@@ -119,6 +141,15 @@ class CycleNode(Node):
 
 class DebugNode(Node):
     def render(self, context):
+        """
+        Renders a debug representation of the given context.
+
+        When the application is running in debug mode, this function generates a human-readable
+        string containing the context values and a list of currently loaded modules. The output
+        is escaped to prevent any potential security vulnerabilities.
+
+        Returns an empty string if the application is not in debug mode.
+        """
         if not settings.DEBUG:
             return ""
 
@@ -148,6 +179,10 @@ class FirstOfNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+        Renders the first non-empty value from a list of variables in a given context.
+        If an 'asvar' attribute is set, the rendered value is stored in the context instead of being returned directly.
+        """
         first = ""
         for var in self.vars:
             value = var.resolve(context, ignore_failures=True)
@@ -166,6 +201,9 @@ class ForNode(Node):
     def __init__(
         self, loopvars, sequence, is_reversed, nodelist_loop, nodelist_empty=None
     ):
+        """
+        Initializes a loop object with variables and settings for iteration over a sequence, handling both regular and reversed iterations, and storing nodes for loop and empty iterations.
+        """
         self.loopvars = loopvars
         self.sequence = sequence
         self.is_reversed = is_reversed
@@ -186,6 +224,19 @@ class ForNode(Node):
         )
 
     def render(self, context):
+        """
+        Renders a template node list for a 'for' loop.
+
+        The function iterates over a provided sequence, resolving template variables and 
+        context for each iteration, and appends rendered node lists to the result. 
+
+        It also updates the context with loop variables such as counters and indicators 
+        for the first and last items in the sequence, and optionally unpacks items into 
+        multiple variables if specified. 
+
+        If the sequence is empty, it renders an alternative node list. The rendered 
+        nodes are then joined and returned as a marked safe string.
+        """
         if "forloop" in context:
             parentloop = context["forloop"]
         else:
@@ -260,6 +311,11 @@ class IfChangedNode(Node):
 
     def render(self, context):
         # Init state storage
+        """
+        Render the output of the nodelist based on the current state and comparison values.
+
+        The function maintains a state and compares it with the current values. If the state has changed, it updates the state and returns the output of the true nodelist. Otherwise, it returns the output of the false nodelist if available, or an empty string.
+        """
         state_frame = self._get_context_stack_frame(context)
         state_frame.setdefault(self)
 
@@ -314,6 +370,14 @@ class IfNode(Node):
         return NodeList(self)
 
     def render(self, context):
+        """
+        Renders a template section based on the evaluation of conditions against a given context.
+
+        The function iterates over predefined conditions and corresponding template node lists, 
+        evaluating each condition with the provided context until a matching condition is found.
+        If a condition matches, the function renders and returns the corresponding template section.
+        If no condition matches, an empty string is returned.
+        """
         for condition, nodelist in self.conditions_nodelists:
             if condition is not None:  # if / elif clause
                 try:
@@ -336,6 +400,12 @@ class LoremNode(Node):
         self.common = common
 
     def render(self, context):
+        """
+        Renders a specified amount of random text based on the provided context. 
+        The amount of text and its format are determined by the `count` and `method` attributes, 
+        respectively, with the `method` being either 'w' for words or 'p' for paragraphs. 
+        If the `count` cannot be resolved or is invalid, it defaults to 1.
+        """
         try:
             count = int(self.count.resolve(context))
         except (ValueError, TypeError):
@@ -365,6 +435,9 @@ class RegroupNode(Node):
         return self.expression.resolve(context, ignore_failures=True)
 
     def render(self, context):
+        """
+        Render the template within the given context, grouping objects based on a resolved key expression and making the grouped results available as a variable in the context.
+        """
         obj_list = self.target.resolve(context, ignore_failures=True)
         if obj_list is None:
             # target variable wasn't found in context; fail silently.
@@ -394,6 +467,16 @@ class NowNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+
+        Render the current date in a specific format.
+
+        The date is formatted according to the :attr:`format_string` and the 
+        current timezone (if :data:`settings.USE_TZ` is True). The formatted 
+        date can be returned directly or stored in a variable in the 
+        rendering context if :attr:`asvar` is specified.
+
+        """
         tzinfo = timezone.get_current_timezone() if settings.USE_TZ else None
         formatted = date(datetime.now(tz=tzinfo), self.format_string)
 
@@ -461,6 +544,14 @@ class URLNode(Node):
         )
 
     def render(self, context):
+        """
+
+        Render a URL using the current view name and arguments.
+
+        Returns the reversed URL as a string, or sets a variable in the context if `asvar` is specified.
+        If the URL cannot be reversed and `asvar` is not set, a `NoReverseMatch` exception is raised.
+
+        """
         from django.urls import NoReverseMatch, reverse
 
         args = [arg.resolve(context) for arg in self.args]
@@ -507,6 +598,18 @@ class WidthRatioNode(Node):
         self.asvar = asvar
 
     def render(self, context):
+        """
+
+        Calculate the ratio of a value to a maximum value and scale it to a maximum width.
+
+        Given a value and a maximum value, this function computes the ratio of the value to
+        the maximum value and scales it to a maximum width. It can also assign the result
+        to a variable in the context if specified.
+
+        The result is the scaled ratio as a string, rounded to the nearest integer.
+        If errors occur during computation, an empty string or an error is returned.
+
+        """
         try:
             value = self.val_expr.resolve(context)
             max_value = self.max_expr.resolve(context)

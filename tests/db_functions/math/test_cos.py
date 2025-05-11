@@ -16,6 +16,9 @@ class CosTests(TestCase):
         self.assertIsNone(obj.null_cos)
 
     def test_decimal(self):
+        """
+        Tests the calculation of cosine for Decimal fields in a model, verifying the result is a Decimal instance and matches the expected value from the math library.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_cos=Cos("n1"), n2_cos=Cos("n2")).first()
         self.assertIsInstance(obj.n1_cos, Decimal)
@@ -24,6 +27,9 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.n2_cos, Decimal(math.cos(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the correct application of the cosine function to floating point model fields, verifying that the result is a float and accurately represents the cosine of the original value.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cos=Cos("f1"), f2_cos=Cos("f2")).first()
         self.assertIsInstance(obj.f1_cos, float)
@@ -32,6 +38,14 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.f2_cos, math.cos(obj.f2))
 
     def test_integer(self):
+        """
+
+        Test the calculation of the cosine of integer values in a database model.
+
+        Verifies that the Cos database function correctly calculates the cosine of small, normal, and big integer values, 
+        and that the results are floats. Also checks the accuracy of the calculated cosine values against the math.cos function.
+
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_cos=Cos("small"),
@@ -46,6 +60,14 @@ class CosTests(TestCase):
         self.assertAlmostEqual(obj.big_cos, math.cos(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of decimal model objects using the Cos lookup function.
+
+        Verifies that the Cos function is correctly applied to the DecimalField,
+        allowing for filtering of objects based on the cosine of their values.
+
+        """
         with register_lookup(DecimalField, Cos):
             DecimalModel.objects.create(n1=Decimal("-8.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("3.14"), n2=Decimal("0"))

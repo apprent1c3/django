@@ -31,6 +31,11 @@ from .models import (
 class OrderingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for the test class, creating a set of articles and authors.
+
+        """
         cls.a1 = Article.objects.create(
             headline="Article 1", pub_date=datetime(2005, 7, 26)
         )
@@ -143,6 +148,9 @@ class OrderingTests(TestCase):
         self.assertSequenceEqual(queryset.reverse(), list(reversed(sequence)))
 
     def test_order_by_nulls_last(self):
+        """
+        Tests the database query ordering behavior with null values last, verifying correct sorting in both ascending and descending order, as well as with annotated and functional expressions.
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_last.
@@ -174,6 +182,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_nulls_first(self):
+        """
+        Tests the ordering of articles, ensuring null values are placed first when sorting in ascending order and last when sorting in descending order, including various field and annotation orderings.
+        """
         Article.objects.filter(headline="Article 3").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
         # asc and desc are chainable with nulls_first.
@@ -205,6 +216,14 @@ class OrderingTests(TestCase):
         )
 
     def test_orders_nulls_first_on_filtered_subquery(self):
+        """
+
+        Tests that null values are returned first when ordering a filtered subquery with nulls.
+
+        Verifies the correct ordering of authors based on the last publication date of their articles,
+        with authors having no articles (i.e., null last publication date) appearing first in the result set.
+
+        """
         Article.objects.filter(headline="Article 1").update(author=self.author_1)
         Article.objects.filter(headline="Article 2").update(author=self.author_1)
         Article.objects.filter(headline="Article 4").update(author=self.author_2)
@@ -328,6 +347,9 @@ class OrderingTests(TestCase):
         )
 
     def test_no_reordering_after_slicing(self):
+        """
+        Test that attempting to reorder or access last item of a sliced QuerySet raises a TypeError.
+        """
         msg = "Cannot reverse a query once a slice has been taken."
         qs = Article.objects.all()[0:2]
         with self.assertRaisesMessage(TypeError, msg):
@@ -425,6 +447,14 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_self_referential_fk(self):
+        """
+
+        Tests the ordering of articles based on self-referential foreign keys in the Author model.
+
+        The function verifies that articles can be sorted by their author's editor and editor ID,
+        demonstrating the correct usage of self-referential foreign keys in the model.
+
+        """
         self.a1.author = Author.objects.create(editor=self.author_1)
         self.a1.save()
         self.a2.author = Author.objects.create(editor=self.author_2)
@@ -508,6 +538,9 @@ class OrderingTests(TestCase):
 
     def test_order_by_constant_value(self):
         # Order by annotated constant from selected columns.
+        """
+        Tests that ordering by a constant value works as expected, maintaining the expected order of articles based on their headlines when the constant value does not affect the ordering.
+        """
         qs = Article.objects.annotate(
             constant=Value("1", output_field=CharField()),
         ).order_by("constant", "-headline")
@@ -555,6 +588,13 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_ptr_field_with_default_ordering_by_expression(self):
+        """
+
+        Test case for verifying that the default ordering by an expression works correctly 
+        when using the order_by method on a model with a 'article_ptr' field. This test 
+        ensures that the results are returned in the expected order based on the field.
+
+        """
         ca1 = ChildArticle.objects.create(
             headline="h2",
             pub_date=datetime(2005, 7, 27),
@@ -587,6 +627,9 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_parent_fk_with_expression_in_default_ordering(self):
+        """
+        Tests that the order_by method on the OrderedByExpressionChild model correctly orders instances based on their parent foreign key, using the default ordering defined on the parent model.
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")
@@ -599,6 +642,10 @@ class OrderingTests(TestCase):
         )
 
     def test_order_by_grandparent_fk_with_expression_in_default_ordering(self):
+        """
+        Tests the ordering of OrderedByExpressionGrandChild instances by their grandparent's foreign key, 
+        with the default ordering expression applied, ensuring the correct sequence is maintained.
+        """
         p3 = OrderedByExpression.objects.create(name="oBJ 3")
         p2 = OrderedByExpression.objects.create(name="OBJ 2")
         p1 = OrderedByExpression.objects.create(name="obj 1")

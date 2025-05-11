@@ -18,6 +18,17 @@ def vary_on_headers(*headers):
     """
 
     def decorator(func):
+        """
+
+        Decorator that wraps a view function to patch Vary headers in the response.
+
+        This decorator ensures that the Vary headers are properly set in the response, 
+        regardless of whether the wrapped function is synchronous or asynchronous. 
+
+        It preserves the original function's metadata and behavior, making it suitable 
+        for use with existing view functions.
+
+        """
         if iscoroutinefunction(func):
 
             async def _view_wrapper(request, *args, **kwargs):

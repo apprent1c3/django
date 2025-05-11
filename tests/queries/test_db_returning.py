@@ -27,6 +27,9 @@ class ReturningValuesTests(TestCase):
         self.assertIsInstance(obj.created, datetime.datetime)
 
     def test_insert_returning_multiple(self):
+        """
+        Tests that creating an object using Django's ORM returns the expected fields, specifically the primary key and 'created' timestamp, as specified by the RETURNING clause in the SQL query.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             obj = ReturningModel.objects.create()
         table_name = connection.ops.quote_name(ReturningModel._meta.db_table)
@@ -47,6 +50,9 @@ class ReturningValuesTests(TestCase):
 
     @skipUnlessDBFeature("can_return_rows_from_bulk_insert")
     def test_bulk_insert(self):
+        """
+        Tests the database's ability to return rows from bulk insert operations, ensuring that objects are correctly assigned primary keys and creation timestamps after a bulk create operation.
+        """
         objs = [ReturningModel(), ReturningModel(pk=2**11), ReturningModel()]
         ReturningModel.objects.bulk_create(objs)
         for obj in objs:

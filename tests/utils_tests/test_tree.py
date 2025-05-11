@@ -20,6 +20,10 @@ class NodeTests(unittest.TestCase):
         self.assertEqual(repr(self.node2), "<Node: (DEFAULT: )>")
 
     def test_hash(self):
+        """
+        Tests the hash function implementation of the Node class to ensure it behaves as expected.
+        Checks that different nodes with the same children have the same hash value, while nodes with different children or properties have different hash values.
+        """
         node3 = Node(self.node1_children, negated=True)
         node4 = Node(self.node1_children, connector="OTHER")
         node5 = Node(self.node1_children)
@@ -48,6 +52,9 @@ class NodeTests(unittest.TestCase):
 
     def test_add(self):
         # start with the same children of node1 then add an item
+        """
+        Tests the Node class's add method by verifying a new child is correctly added to a node and that the node's length and string representation are updated accordingly.
+        """
         node3 = Node(self.node1_children)
         node3_added_child = ("c", 3)
         # add() returns the added data
@@ -63,6 +70,9 @@ class NodeTests(unittest.TestCase):
 
     def test_negate(self):
         # negated is False by default
+        """
+        Tests the negation functionality of a node, verifying that it can be toggled on and off.
+        """
         self.assertFalse(self.node1.negated)
         self.node1.negate()
         self.assertTrue(self.node1.negated)
@@ -70,6 +80,9 @@ class NodeTests(unittest.TestCase):
         self.assertFalse(self.node1.negated)
 
     def test_create(self):
+        """
+        Tests the creation of a new Node instance by duplicating an existing node's properties, verifying that the resulting node is equal but has distinct child nodes.
+        """
         SubNode = type("SubNode", (Node,), {})
 
         a = SubNode([SubNode(["a", "b"], OR), "c"], AND)
@@ -85,6 +98,11 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_copy(self):
+        """
+
+        Tests that the copy module correctly copies a Node object without recursively copying its children.
+
+        """
         a = Node([Node(["a", "b"], OR), "c"], AND)
         b = copy.copy(a)
         self.assertEqual(a, b)
@@ -97,6 +115,9 @@ class NodeTests(unittest.TestCase):
             self.assertEqual(a_child, b_child)
 
     def test_deepcopy(self):
+        """
+        Verifies the correctness of deep copying a Node object, ensuring that the original and copied objects are equal but not identical, with their child nodes also being recursively deep copied.
+        """
         a = Node([Node(["a", "b"], OR), "c"], AND)
         b = copy.deepcopy(a)
         self.assertEqual(a, b)

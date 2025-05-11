@@ -17,6 +17,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     def test_context_has_priority_over_template_context_processors(self):
         # See ticket #23789.
+        """
+        Tests that template context has priority over context processors when rendering a Django template.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],
@@ -61,6 +64,9 @@ class DjangoTemplatesTests(TemplateStringsTests):
 
     @override_settings(INSTALLED_APPS=["template_backends.apps.good"])
     def test_templatetag_discovery(self):
+        """
+        Tests the discovery of Django template tags by the template engine, verifying that it correctly loads and resolves template tags from various libraries, including custom and overridden tags.
+        """
         engine = DjangoTemplates(
             {
                 "DIRS": [],

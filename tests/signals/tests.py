@@ -37,6 +37,10 @@ class BaseSignalSetup:
 
 class SignalTests(BaseSignalSetup, TestCase):
     def test_model_pre_init_and_post_init(self):
+        """
+        Tests that the pre_init and post_init signals are emitted correctly during model initialization, 
+        verifying that the pre_init signal has no instance and the post_init signal has the newly created instance.
+        """
         data = []
 
         def pre_init_callback(sender, args, **kwargs):
@@ -53,6 +57,11 @@ class SignalTests(BaseSignalSetup, TestCase):
         self.assertEqual(data, [{}, p1])
 
     def test_save_signals(self):
+        """
+        ีฬTest the save signals functionality.
+
+        Checks the pre_save and post_save signals are emitted correctly for various save scenarios, including object creation, updates, and raw saves.
+        """
         data = []
 
         def pre_save_handler(signal, sender, instance, **kwargs):
@@ -137,6 +146,11 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_save.disconnect(post_save_handler)
 
     def test_delete_signals(self):
+        """
+        Tests that pre_delete and post_delete signals are emitted correctly when deleting objects.
+
+        Verifies that both signals are sent with the correct parameters and that they are called in the expected order for both saved and unsaved objects.
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -193,6 +207,10 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_model(self):
+        """
+        Tests the behavior of pre_delete and post_delete signals when deleting models, 
+        verifying the correct sender and origin are passed to the signal handlers.
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -231,6 +249,15 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_delete_signals_origin_queryset(self):
+        """
+
+        Tests the deletion of signals origin queryset.
+
+        Checks that the pre and post delete handlers are correctly triggered
+        when a queryset of objects is deleted, and that the signal origin
+        is correctly set to the queryset being deleted.
+
+        """
         data = []
 
         def pre_delete_handler(signal, sender, instance, origin, **kwargs):
@@ -271,6 +298,9 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.post_delete.disconnect(post_delete_handler)
 
     def test_decorators(self):
+        """
+        Tests the functionality of decorators in handling signals, specifically the pre_save signal. Verifies that the signal is correctly received and handled by the decorated functions, both with and without a sender argument.
+        """
         data = []
 
         @receiver(signals.pre_save, weak=False)
@@ -289,6 +319,9 @@ class SignalTests(BaseSignalSetup, TestCase):
             signals.pre_save.disconnect(decorated_handler_with_sender_arg, sender=Car)
 
     def test_save_and_delete_signals_with_m2m(self):
+        """
+        Tests the signaling behavior for model instances with many-to-many relationships when saving and deleting, verifying that the pre_save, post_save, pre_delete, and post_delete signals are emitted as expected.
+        """
         data = []
 
         def pre_save_handler(signal, sender, instance, **kwargs):
@@ -297,6 +330,13 @@ class SignalTests(BaseSignalSetup, TestCase):
                 data.append("Is raw")
 
         def post_save_handler(signal, sender, instance, **kwargs):
+            """
+
+            Handler function for post-save signals, logging relevant information about the saved instance.
+
+            Appends messages to the data list indicating whether the instance was created or updated, and if the save was raw.
+
+            """
             data.append("post_save signal, %s" % instance)
             if "created" in kwargs:
                 if kwargs["created"]:
@@ -378,6 +418,9 @@ class SignalTests(BaseSignalSetup, TestCase):
 
     @mock.patch("weakref.ref")
     def test_lazy_model_signal(self, ref):
+        """
+        Tests the behavior of connecting and disconnecting signals with and without weak referencing to ensure correct usage of weakref.ref.
+        """
         def callback(sender, args, **kwargs):
             pass
 
@@ -392,6 +435,12 @@ class SignalTests(BaseSignalSetup, TestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_model(self, apps):
+        """
+        Tests the disconnection of a model's post-init signal receiver.
+
+        Verifies that the disconnect method correctly removes a receiver from the signal
+        and that the receiver is no longer called after disconnection.
+        """
         received = []
 
         def receiver(**kwargs):
@@ -433,6 +482,9 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
             signals.post_init.connect(self.receiver, sender="invalid")
 
     def test_already_loaded_model(self):
+        """
+        Tests if a signal is properly received when a model instance is created, ensuring signal handling is correctly set up for models that may already be loaded.
+        """
         signals.post_init.connect(self.receiver, sender="signals.Book", weak=False)
         try:
             instance = Book()
@@ -445,6 +497,9 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_not_loaded_model(self, apps):
+        """
+        Verifies that a specific signal is sent when a model instance is created, even if the model has not been loaded, by connecting to the post_init signal, creating an instance of the model, and checking if the expected signal was received.
+        """
         signals.post_init.connect(
             self.receiver, sender="signals.Created", weak=False, apps=apps
         )
@@ -470,6 +525,9 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_registered_model(self, apps):
+        """
+        Test that a receiver can be disconnected from a signal, and that disconnecting multiple times has no side effects.
+        """
         received = []
 
         def receiver(**kwargs):
@@ -497,6 +555,12 @@ class LazyModelRefTests(BaseSignalSetup, SimpleTestCase):
 
     @isolate_apps("signals", kwarg_name="apps")
     def test_disconnect_unregistered_model(self, apps):
+        """
+
+        Tests disconnecting a receiver from the post_init signal for an unregistered model.
+        Verifies that the receiver is properly disconnected and does not receive signals.
+
+        """
         received = []
 
         def receiver(**kwargs):
@@ -556,6 +620,9 @@ class AsyncHandler:
 
 class AsyncReceiversTests(SimpleTestCase):
     async def test_asend(self):
+        """
+        Tests the asynchronous sending functionality of a signal, verifying that both synchronous and asynchronous handlers are correctly invoked and return their expected results.
+        """
         sync_handler = SyncHandler()
         async_handler = AsyncHandler()
         signal = dispatch.Signal()
@@ -565,6 +632,9 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(sync_handler, 1), (async_handler, 1)])
 
     def test_send(self):
+        """
+        Tests the signal sending functionality to ensure both synchronous and asynchronous handlers are executed and return the expected results.
+        """
         sync_handler = SyncHandler()
         async_handler = AsyncHandler()
         signal = dispatch.Signal()
@@ -574,6 +644,10 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(sync_handler, 1), (async_handler, 1)])
 
     def test_send_robust(self):
+        """
+        иком古屋(probably a docstring, regarding code)
+        Tests the dispatch.Signal.send_robust method to ensure it correctly handles exceptions from connected handlers, returning a list of handler results or raised exceptions.
+        """
         class ReceiverException(Exception):
             pass
 
@@ -601,6 +675,14 @@ class AsyncReceiversTests(SimpleTestCase):
         )
 
     async def test_asend_robust(self):
+        """
+
+        Tests the robust asynchronous sending of signals to connected handlers.
+
+        Verifies that asend_robust can handle a mix of synchronous and asynchronous handlers,
+        and that it correctly returns the results or exceptions from each handler invocation.
+
+        """
         class ReceiverException(Exception):
             pass
 
@@ -628,6 +710,14 @@ class AsyncReceiversTests(SimpleTestCase):
         )
 
     async def test_asend_only_async_receivers(self):
+        """
+
+        Tests that Signal.asend only triggers asynchronous receivers.
+
+        Verifies that an asynchronous handler connected to a signal is correctly called
+        and returns the expected results when the signal is sent using asend.
+
+        """
         async_handler = AsyncHandler()
         signal = dispatch.Signal()
         signal.connect(async_handler)
@@ -636,6 +726,12 @@ class AsyncReceiversTests(SimpleTestCase):
         self.assertEqual(result, [(async_handler, 1)])
 
     async def test_asend_robust_only_async_receivers(self):
+        """
+        Tests that :meth:`dispatch.Signal.asend_robust` only triggers async receivers.
+
+        Verifies that the :meth:`asend_robust` method correctly calls asynchronous handlers
+        and returns the expected results, while ignoring non-async handlers.
+        """
         async_handler = AsyncHandler()
         signal = dispatch.Signal()
         signal.connect(async_handler)

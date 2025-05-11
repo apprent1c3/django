@@ -17,6 +17,9 @@ class TranslatableFileTests(SimpleTestCase):
         )
 
     def test_eq(self):
+        """
+        Tests the equality of TranslatableFile instances based on their directory path and file name.
+        """
         dirpath = "dir"
         file_name = "example"
         trans_file = TranslatableFile(

@@ -138,6 +138,15 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().geo_quote_name(name).upper()
 
     def convert_extent(self, clob):
+        """
+
+        Converts an extent from a geometry object to a bounding box tuple.
+
+        Takes a CLOB (Character Large OBject) containing a GEOS geometry and returns
+        a tuple representing the extent's bounding box in the format (xmin, ymin, xmax, ymax).
+        Supports Polygon and Point geometry types. If the input CLOB is empty, returns None.
+
+        """
         if clob:
             # Generally, Oracle returns a polygon for the extent -- however,
             # it can return a single point if there's only one Point in the
@@ -228,6 +237,9 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         return super().modify_insert_params(placeholder, params)
 
     def get_geometry_converter(self, expression):
+        """
+        Returns a converter function for geometric data, wrapping the value in a GEOSGeometryBase object with the correct SRID and geometry class.
+        """
         read = wkb_r().read
         srid = expression.output_field.srid
         if srid == -1:
@@ -235,6 +247,15 @@ class OracleOperations(BaseSpatialOperations, DatabaseOperations):
         geom_class = expression.output_field.geom_class
 
         def converter(value, expression, connection):
+            """
+            Converts a geometric value into a GEOSGeometry object.
+
+            :param value: The geometric value to be converted.
+            :param expression: The expression used in the conversion process.
+            :param connection: The database connection used for the conversion.
+
+            :returns: A GEOSGeometry object representing the converted geometric value.
+            """
             if value is not None:
                 geom = GEOSGeometryBase(read(memoryview(value.read())), geom_class)
                 if srid:

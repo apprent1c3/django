@@ -76,6 +76,17 @@ class AppModuleStub:
 
 @contextmanager
 def patch_formats(lang, **settings):
+    """
+
+    Temporarily patches the format settings for a given language.
+
+    This context manager sets the specified format settings for the provided language,
+    and then reverts the changes after the context is exited.
+
+    :param lang: The language for which to patch the format settings.
+    :param settings: Key-value pairs of format settings to apply.
+
+    """
     from django.utils.formats import _format_cache
 
     # Populate _format_cache with temporary values
@@ -131,6 +142,12 @@ class TranslationTests(SimpleTestCase):
         self.assertEqual(french._catalog[("%(num)d hour", 0)], "%(num)d heure")
 
     def test_override(self):
+        """
+        Tests that language override functionality works as expected.
+
+        Ensures that the get_language function returns the overridden language code, 
+        and that it reverts to the original language code after the override is cleared.
+        """
         activate("de")
         try:
             with translation.override("pl"):
@@ -147,6 +164,10 @@ class TranslationTests(SimpleTestCase):
 
     def test_override_decorator(self):
         @translation.override("pl")
+        """
+        Tests the behaviour of the translation.override decorator, 
+        ensuring language overrides are correctly applied and reverted
+        """
         def func_pl():
             self.assertEqual(get_language(), "pl")
 
@@ -213,6 +234,9 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_ngettext_lazy(self):
+        """
+        Tests the functionality of lazy translations for plural forms, including those with and without formatting, context, and deferred formatting, under different locales.
+        """
         simple_with_format = ngettext_lazy("%d good result", "%d good results")
         simple_context_with_format = npgettext_lazy(
             "Exclamation", "%d good result", "%d good results"
@@ -278,6 +302,12 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_ngettext_lazy_format_style(self):
+        """
+        Tests the usage of ngettext_lazy and npgettext_lazy functions with format styles.
+
+        Verifies that the functions correctly handle pluralization and formatting in different languages.
+
+        """
         simple_with_format = ngettext_lazy("{} good result", "{} good results")
         simple_context_with_format = npgettext_lazy(
             "Exclamation", "{} good result", "{} good results"
@@ -342,6 +372,9 @@ class TranslationTests(SimpleTestCase):
         self.assertFalse(ngettext_lazy("", ""))
 
     def test_ngettext_lazy_pickle(self):
+        """
+        Tests the pickling functionality of the ngettext_lazy function, ensuring it correctly handles plural forms after being serialized and deserialized.
+        """
         s1 = ngettext_lazy("%d good result", "%d good results")
         self.assertEqual(s1 % 1, "1 good result")
         self.assertEqual(s1 % 8, "8 good results")
@@ -351,6 +384,13 @@ class TranslationTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_pgettext(self):
+        """
+
+        Test the functionality of the pgettext and npgettext functions in a translated environment.
+
+        Verifies the correct translation of messages and plural forms in different contexts.
+
+        """
         trans_real._active = Local()
         trans_real._translations = {}
         with translation.override("de"):
@@ -487,6 +527,10 @@ class TranslationLoadingTests(SimpleTestCase):
 
 class TranslationThreadSafetyTests(SimpleTestCase):
     def setUp(self):
+        """
+        Set up environment for testing by storing the current language and 
+        modifying the translation setup to introduce a language code side effect.
+        """
         self._old_language = get_language()
         self._translations = trans_real._translations
 
@@ -514,6 +558,9 @@ class TranslationThreadSafetyTests(SimpleTestCase):
 
 class FormattingTests(SimpleTestCase):
     def setUp(self):
+        """
+        Set up test data and context for subsequent tests, initializing various attributes with sample numeric and datetime values, and creating a Context instance with these values.
+        """
         super().setUp()
         self.n = decimal.Decimal("66666.666")
         self.f = 99999.999
@@ -533,6 +580,14 @@ class FormattingTests(SimpleTestCase):
         )
 
     def test_all_format_strings(self):
+        """
+
+        Tests that all date and time format strings are correctly formatted for all locales.
+
+        Verifies that various date and time formats contain expected date components 
+        across different locales to ensure proper internationalization support.
+
+        """
         all_locales = LANG_INFO.keys()
         some_date = datetime.date(2017, 10, 14)
         some_datetime = datetime.datetime(2017, 10, 14, 10, 23)
@@ -668,6 +723,9 @@ class FormattingTests(SimpleTestCase):
                 self.assertEqual(1, get_format("FIRST_DAY_OF_WEEK"))
 
     def test_l10n_enabled(self):
+        """
+        Tests the formatting of dates, times, and numbers for different locales and settings, verifying that the correct format is used in various contexts, including templates and forms.
+        """
         self.maxDiff = 3000
         # Catalan locale
         with translation.override("ca", deactivate=True):
@@ -1171,6 +1229,13 @@ class FormattingTests(SimpleTestCase):
                 )
 
     def test_localized_input_func(self):
+        """
+
+        Tests the localized_input function to ensure it correctly formats input values.
+
+        Verifies that various input types, including boolean and date/time objects, are properly localized and converted to strings.
+
+        """
         tests = (
             (True, "True"),
             (datetime.date(1, 1, 1), "0001-01-01"),
@@ -1182,6 +1247,9 @@ class FormattingTests(SimpleTestCase):
                     self.assertEqual(localize_input(value), expected)
 
     def test_sanitize_strftime_format(self):
+        """
+        Tests the sanitization of strftime format strings to ensure correct year formatting for dates in different centuries.
+        """
         for year in (1, 99, 999, 1000):
             dt = datetime.date(year, 1, 1)
             for fmt, expected in [
@@ -1195,6 +1263,9 @@ class FormattingTests(SimpleTestCase):
                     self.assertEqual(dt.strftime(fmt), expected)
 
     def test_sanitize_strftime_format_with_escaped_percent(self):
+        """
+        Tests that the sanitize_strftime_format function correctly handles escaped percent signs and expected formatting codes for various date formats and years.
+        """
         dt = datetime.date(1, 1, 1)
         for fmt, expected in [
             ("%%C", "%C"),
@@ -1538,6 +1609,9 @@ class MiscTests(SimpleTestCase):
                 )
 
     def test_parse_literal_http_header(self):
+        """
+        Tests the parsing of the Accept-Language HTTP header to determine the user's preferred language.
+        """
         tests = [
             ("pt-br", "pt-br"),
             ("pt", "pt"),
@@ -1616,6 +1690,13 @@ class MiscTests(SimpleTestCase):
                 self.assertEqual(get_language_from_request(request), expected)
 
     def test_parse_language_cookie(self):
+        """
+
+        Tests the get_language_from_request function to ensure it correctly determines 
+        the language from the request's LANGUAGE_COOKIE_NAME cookie, with support for 
+        both specific and generic language codes (e.g., 'pt-br' and 'pt').
+
+        """
         g = get_language_from_request
         request = self.rf.get("/")
         request.COOKIES[settings.LANGUAGE_COOKIE_NAME] = "pt-br"
@@ -1653,6 +1734,18 @@ class MiscTests(SimpleTestCase):
         ],
     )
     def test_get_supported_language_variant_real(self):
+        """
+
+        Tests the get_supported_language_variant function to ensure it correctly 
+        determines the most specific supported language code from the available 
+        language variants.
+
+        This function verifies that the get_supported_language_variant function 
+        behaves as expected for various language codes and returns the most specific 
+        supported variant when possible. It also checks for strict mode behavior and 
+        correct error handling for unsupported, malformed, or oversized language codes.
+
+        """
         g = trans_real.get_supported_language_variant
         self.assertEqual(g("en"), "en")
         self.assertEqual(g("en-gb"), "en")
@@ -1684,6 +1777,16 @@ class MiscTests(SimpleTestCase):
         self.assertEqual(g("en-" * 30000), "en")  # catastrophic test
 
     def test_get_supported_language_variant_null(self):
+        """
+
+        Tests the get_supported_language_variant function which is expected to 
+        return the LANGUAGE_CODE from settings when a valid language code is provided.
+        Otherwise, it raises a LookupError for unsupported language variants and codes.
+
+        This test ensures the function behaves correctly for various scenarios, 
+        including strict mode and invalid language codes.
+
+        """
         g = trans_null.get_supported_language_variant
         self.assertEqual(g(settings.LANGUAGE_CODE), settings.LANGUAGE_CODE)
         with self.assertRaises(LookupError):
@@ -1714,6 +1817,11 @@ class MiscTests(SimpleTestCase):
         ],
     )
     def test_get_language_from_path_real(self):
+        """
+        Tests the get_language_from_path function to ensure it correctly extracts the language code from a given URL path.
+
+        The test covers various language codes, including those with region and script variants, as well as cases where the path does not match a supported language code. 
+        """
         g = trans_real.get_language_from_path
         tests = [
             ("/pl/", "pl"),
@@ -1783,6 +1891,9 @@ class AppResolutionOrderI18NTests(ResolutionOrderI18NTests):
     @override_settings(LANGUAGE_CODE="de")
     def test_app_translation(self):
         # Original translation.
+        """
+        Tests the translation of the application when the language is set to German, verifying that the correct translation is used in different scenarios, including with and without the admin app installed.
+        """
         self.assertGettext("Date/time", "Datum/Zeit")
 
         # Different translation.
@@ -1844,6 +1955,14 @@ class TestModels(TestCase):
 
 class TestLanguageInfo(SimpleTestCase):
     def test_localized_language_info(self):
+        """
+
+        Tests the validity of language information for a specific locale.
+
+        Verifies that the language code, localized name, and English name match 
+        expected values, and that the language is not bidirectional.
+
+        """
         li = get_language_info("de")
         self.assertEqual(li["code"], "de")
         self.assertEqual(li["name_local"], "Deutsch")
@@ -1859,6 +1978,9 @@ class TestLanguageInfo(SimpleTestCase):
             self.assertEqual(gettext("Title"), "Title")
 
     def test_unknown_only_country_code(self):
+        """
+        Tests handling of unknown country code in language information retrieval, ensuring the language code, local name, and English name are correctly extracted, and bidirectional text support is set accordingly.
+        """
         li = get_language_info("de-xx")
         self.assertEqual(li["code"], "de")
         self.assertEqual(li["name_local"], "Deutsch")
@@ -1975,6 +2097,15 @@ class CountrySpecificLanguageTests(SimpleTestCase):
     rf = RequestFactory()
 
     def test_check_for_language(self):
+        """
+
+        Checks if a given language code is valid.
+
+        The function tests language codes for validity, returning True for valid codes 
+        and False for invalid ones. A valid language code may contain letters, 
+        hyphens and at signs, but must not contain any other special characters.
+
+        """
         self.assertTrue(check_for_language("en"))
         self.assertTrue(check_for_language("en-us"))
         self.assertTrue(check_for_language("en-US"))
@@ -1997,6 +2128,9 @@ class CountrySpecificLanguageTests(SimpleTestCase):
 
     def test_get_language_from_request(self):
         # issue 19919
+        """
+        Extracts the preferred language from a given HTTP request, parsing the Accept-Language header to determine the most suitable language code.
+        """
         request = self.rf.get(
             "/", headers={"accept-language": "en-US,en;q=0.8,bg;q=0.6,ru;q=0.4"}
         )
@@ -2015,6 +2149,9 @@ class CountrySpecificLanguageTests(SimpleTestCase):
         self.assertEqual("en-us", lang)
 
     def test_get_language_from_request_null(self):
+        """
+        Tests that get_language_from_request function returns the default language when the request is None, and that it uses the LANGUAGE_CODE setting from the project's settings when available.
+        """
         lang = trans_null.get_language_from_request(None)
         self.assertEqual(lang, "en")
         with override_settings(LANGUAGE_CODE="de"):
@@ -2023,6 +2160,9 @@ class CountrySpecificLanguageTests(SimpleTestCase):
 
     def test_specific_language_codes(self):
         # issue 11915
+        """
+        Tests language code resolution for specific language codes, ensuring that 'pt' and 'pt-pt' are resolved to 'pt-br'
+        """
         request = self.rf.get(
             "/", headers={"accept-language": "pt,en-US;q=0.8,en;q=0.6,ru;q=0.4"}
         )
@@ -2077,6 +2217,9 @@ class NonDjangoLanguageTests(SimpleTestCase):
 
     @override_settings(USE_I18N=True)
     def test_check_for_language(self):
+        """
+        Checks if a language is available by verifying the presence of a corresponding.mo file in the app's locale directory.
+        """
         with tempfile.TemporaryDirectory() as app_dir:
             os.makedirs(os.path.join(app_dir, "locale", "dummy_Lang", "LC_MESSAGES"))
             open(
@@ -2119,6 +2262,9 @@ class WatchForTranslationChangesTests(SimpleTestCase):
         self.assertGreater(mocked_sender.watch_dir.call_count, 1)
 
     def test_i18n_locale_paths(self):
+        """
+        Tests that the watch_for_translation_changes function correctly watches the LOCALE_PATHS directories for translation file changes.
+        """
         mocked_sender = mock.MagicMock()
         with tempfile.TemporaryDirectory() as app_dir:
             with self.settings(LOCALE_PATHS=[app_dir]):
@@ -2126,6 +2272,9 @@ class WatchForTranslationChangesTests(SimpleTestCase):
             mocked_sender.watch_dir.assert_any_call(Path(app_dir), "**/*.mo")
 
     def test_i18n_app_dirs(self):
+        """
+        Tests that the watch_for_translation_changes function correctly monitors the application directories for translation changes. Verifies that the function watches for *.mo files in the locale directory of the installed application.
+        """
         mocked_sender = mock.MagicMock()
         with self.settings(INSTALLED_APPS=["i18n.sampleproject"]):
             watch_for_translation_changes(mocked_sender)
@@ -2161,6 +2310,9 @@ class TranslationFileChangedTests(SimpleTestCase):
         self.assertEqual(gettext_module._translations, {"foo": "bar"})
 
     def test_resets_cache_with_mo_files(self):
+        """
+        Tests that cache is reset when a.mo translation file is detected, ensuring that stale translation data is updated correctly.
+        """
         gettext_module._translations = {"foo": "bar"}
         trans_real._translations = {"foo": "bar"}
         trans_real._default = 1

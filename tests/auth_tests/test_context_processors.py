@@ -97,6 +97,14 @@ class AuthContextProcessorTests(TestCase):
         self.assertContains(response, "Session accessed")
 
     def test_perms_attrs(self):
+        """
+
+        Tests that the permissions attribute is correctly checked and displayed.
+
+        Verifies that a user with specific permissions can access a page and that the
+        page correctly indicates the presence of those permissions.
+
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(
@@ -111,6 +119,12 @@ class AuthContextProcessorTests(TestCase):
         self.assertNotContains(response, "nonexistent")
 
     def test_perm_in_perms_attrs(self):
+        """
+
+        Tests that the auth_processor view correctly identifies permissions in a user's perms_attr.
+        Verifies that a user with the 'add_permission' permission is recognized as having auth permissions.
+
+        """
         u = User.objects.create_user(username="normal", password="secret")
         u.user_permissions.add(
             Permission.objects.get(

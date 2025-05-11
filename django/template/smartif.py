@@ -157,6 +157,12 @@ class IfParser:
 
     def __init__(self, tokens):
         # Turn 'is','not' and 'not','in' into single tokens.
+        """
+
+        Initializes a token parser, pre-processing a list of tokens to handle special cases like 'is not' and 'not in' phrases, 
+        and setting up the parser's state for subsequent token processing.
+
+        """
         num_tokens = len(tokens)
         mapped_tokens = []
         i = 0
@@ -176,6 +182,9 @@ class IfParser:
         self.current_token = self.next_token()
 
     def translate_token(self, token):
+        """
+        Translates a given token into a corresponding operator or a variable, attempting to match it against a dictionary of known operators and defaulting to variable creation if no match is found.
+        """
         try:
             op = OPERATORS[token]
         except (KeyError, TypeError):
@@ -184,6 +193,9 @@ class IfParser:
             return op()
 
     def next_token(self):
+        """
+        Returns the next token in the sequence, incrementing the current position, or an EndToken if the end of the sequence is reached.
+        """
         if self.pos >= len(self.tokens):
             return EndToken
         else:
@@ -201,6 +213,12 @@ class IfParser:
         return retval
 
     def expression(self, rbp=0):
+        """
+        Parses an expression based on the current token and its operator precedence rules.
+
+        :param int rbp: The right binding power for the expression.
+        :returns: The parsed expression result.
+        """
         t = self.current_token
         self.current_token = self.next_token()
         left = t.nud(self)

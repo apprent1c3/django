@@ -25,6 +25,11 @@ class TableTests(SimpleTestCase):
         self.assertIs(self.reference.references_table("other"), False)
 
     def test_rename_table_references(self):
+        """
+        Tests the renaming of table references in a reference object, 
+        ensuring that the references are updated correctly and existing 
+        references are removed as expected.
+        """
         self.reference.rename_table_references("other", "table")
         self.assertIs(self.reference.references_table("table"), True)
         self.assertIs(self.reference.references_table("other"), False)
@@ -51,6 +56,9 @@ class ColumnsTests(TableTests):
         self.assertIs(self.reference.references_column("table", "first_column"), True)
 
     def test_rename_column_references(self):
+        """
+        Tests the rename_column_references method to ensure it correctly updates column references in the reference object.
+        """
         self.reference.rename_column_references("other", "first_column", "third_column")
         self.assertIs(self.reference.references_column("table", "first_column"), True)
         self.assertIs(self.reference.references_column("table", "third_column"), False)
@@ -132,6 +140,9 @@ class ForeignKeyNameTests(IndexNameTests):
         self.assertIs(self.reference.references_table("to_table"), False)
 
     def test_rename_column_references(self):
+        """
+        Tests the renaming of column references in a table, verifying that the references are updated correctly after the rename operation.
+        """
         super().test_rename_column_references()
         self.reference.rename_column_references(
             "to_table", "second_column", "third_column"
@@ -283,6 +294,13 @@ class ExpressionsTests(TransactionTestCase):
         self.assertIs(self.expressions.references_column(table, "other"), False)
 
     def test_rename_table_references(self):
+        """
+
+        Tests the renaming of table references within an expression, 
+        ensuring that the original table name is no longer referenced 
+        and the new table name is correctly used.
+
+        """
         table = Person._meta.db_table
         self.expressions.rename_table_references(table, "other")
         self.assertIs(self.expressions.references_table(table), False)
@@ -297,6 +315,12 @@ class ExpressionsTests(TransactionTestCase):
         )
 
     def test_rename_table_references_without_alias(self):
+        """
+        Tests renaming of table references in expressions without alias columns.
+
+        Verifies the correct replacement of the original table name with a new one
+        and the resulting SQL expression string after renaming the references.
+        """
         compiler = Query(Person, alias_cols=False).get_compiler(connection=connection)
         table = Person._meta.db_table
         expressions = Expressions(
@@ -318,6 +342,9 @@ class ExpressionsTests(TransactionTestCase):
         self.assertEqual(str(expressions), expected_str)
 
     def test_rename_column_references(self):
+        """
+        Tests whether the rename_column_references method correctly updates column references in an expression. Verifies that the renamed column is referenced and the original column is no longer referenced after renaming.
+        """
         table = Person._meta.db_table
         self.expressions.rename_column_references(table, "first_name", "other")
         self.assertIs(self.expressions.references_column(table, "other"), True)

@@ -8,6 +8,9 @@ from django.utils.timezone import get_fixed_timezone
 
 class DateTimeFieldTest(SimpleTestCase):
     def test_datetimefield_clean(self):
+        """
+        Tests the DateTimeField's clean method with various datetime input formats to ensure it correctly parses and converts them to datetime objects.
+        """
         tests = [
             (date(2006, 10, 25), datetime(2006, 10, 25, 0, 0)),
             (datetime(2006, 10, 25, 14, 30), datetime(2006, 10, 25, 14, 30)),
@@ -65,6 +68,14 @@ class DateTimeFieldTest(SimpleTestCase):
                 self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_clean_invalid(self):
+        """
+        Tests the DateTimeField's clean method with invalid input values.
+
+        Verifies that the method raises a ValidationError with a specific error message
+        when given various types of invalid date/time strings, including strings that
+        are not in the expected format, are incomplete, or contain invalid values.
+        Also tests that the method enforces the specified input format when one is provided.
+        """
         f = DateTimeField()
         msg = "'Enter a valid date/time.'"
         with self.assertRaisesMessage(ValidationError, msg):
@@ -80,6 +91,9 @@ class DateTimeFieldTest(SimpleTestCase):
             f.clean("2006.10.25 14:30:45")
 
     def test_datetimefield_clean_input_formats(self):
+        """
+        Tests the DateTimeField's ability to correctly parse various date and time input formats, ensuring it produces the expected datetime objects.
+        """
         tests = [
             (
                 "%Y %m %d %I:%M %p",
@@ -116,6 +130,9 @@ class DateTimeFieldTest(SimpleTestCase):
                     self.assertEqual(f.clean(value), expected_datetime)
 
     def test_datetimefield_not_required(self):
+        """
+        Tests the behavior of a DateTimeField when it is not required, verifying that None and empty string inputs result in a cleaned value of None.
+        """
         f = DateTimeField(required=False)
         self.assertIsNone(f.clean(None))
         self.assertEqual("None", repr(f.clean(None)))

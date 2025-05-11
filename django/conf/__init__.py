@@ -156,6 +156,9 @@ class LazySettings(LazyObject):
 class Settings:
     def __init__(self, settings_module):
         # update this dict from global settings (but only for ALL_CAPS settings)
+        """
+        Initializes a settings object by importing and applying project-specific settings from a specified module, while also validating and applying global settings. Raises exceptions for invalid or incompatible settings.
+        """
         for setting in dir(global_settings):
             if setting.isupper():
                 setattr(self, setting, getattr(global_settings, setting))

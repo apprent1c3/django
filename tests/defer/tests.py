@@ -31,6 +31,11 @@ class DeferTests(AssertionMixin, TestCase):
         cls.p1 = Primary.objects.create(name="p1", value="xx", related=cls.s1)
 
     def test_defer(self):
+        """
+        Tests the defer method to ensure that it correctly delays the loading of specified fields.
+
+        Verifies that deferring fields results in the expected number of database queries when querying a queryset or retrieving a single object.
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.defer("name")[0], 1)
         self.assert_delayed(qs.defer("name").get(pk=self.p1.pk), 1)
@@ -38,6 +43,9 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(qs.defer("name").defer("value")[0], 2)
 
     def test_only(self):
+        """
+        Tests the behavior of the only() method in delayed loading of related objects and fields, covering various use cases such as specifying fields, using get() method, and chaining multiple only() calls, to ensure correct loading delay counts.
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.only("name")[0], 2)
         self.assert_delayed(qs.only("name").get(pk=self.p1.pk), 2)
@@ -52,6 +60,9 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(self.s1.primary_set.only("pk")[0], 2)
 
     def test_defer_only_chaining(self):
+        """
+        Tests the interaction between `only` and `defer` query chaining methods, verifying that the correct number of database queries are delayed when using these methods in various combinations.
+        """
         qs = Primary.objects.all()
         self.assert_delayed(qs.only("name", "value").defer("name")[0], 2)
         self.assert_delayed(qs.defer("name").only("value", "name")[0], 2)
@@ -125,6 +136,9 @@ class DeferTests(AssertionMixin, TestCase):
         self.assert_delayed(obj, 0)
 
     def test_only_with_select_related(self):
+        """
+        Tests the behavior of a model instance when retrieved with select_related and only, ensuring that the object and its related object are correctly lazy loaded and their attributes are accessible.
+        """
         obj = Primary.objects.select_related().only("related__first")[0]
         self.assert_delayed(obj, 2)
         self.assert_delayed(obj.related, 1)
@@ -141,6 +155,9 @@ class DeferTests(AssertionMixin, TestCase):
     def test_saving_object_with_deferred_field(self):
         # Saving models with deferred fields is possible (but inefficient,
         # since every field has to be retrieved first).
+        """
+        Verify that saving an object with a deferred field updates the object's changed fields in the database while preserving the deferred fields' original values.
+        """
         Primary.objects.create(name="p2", value="xy", related=self.s1)
         obj = Primary.objects.defer("value").get(name="p2")
         obj.name = "a new name"
@@ -158,6 +175,12 @@ class DeferTests(AssertionMixin, TestCase):
     def test_defer_baseclass_when_subclass_has_no_added_fields(self):
         # Regression for #10572 - A subclass with no extra fields can defer
         # fields from the base class
+        """
+        Test that deferring base class fields works correctly when a subclass has no additional fields.
+
+         This test ensures that fields are properly delayed and can be loaded on demand, 
+         even when the subclass does not introduce any new fields beyond those in the parent class.
+        """
         Child.objects.create(name="c1", value="foo", related=self.s1)
         # You can defer a field on a baseclass when the subclass has no fields
         obj = Child.objects.defer("value").get(name="c1")
@@ -167,6 +190,9 @@ class DeferTests(AssertionMixin, TestCase):
 
     def test_only_baseclass_when_subclass_has_no_added_fields(self):
         # You can retrieve a single column on a base class with no fields
+        """
+        Tests that when a subclass has no added fields, only the base class's fields are loaded when using the only method, and subsequent access to the subclass's fields causes a database query to load the remaining fields.
+        """
         Child.objects.create(name="c1", value="foo", related=self.s1)
         obj = Child.objects.only("name").get(name="c1")
         # on an inherited model, its PK is also fetched, hence '3' deferred fields.
@@ -193,6 +219,9 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 
     def test_defer_baseclass_when_subclass_has_added_field(self):
         # You can defer a field on a baseclass
+        """
+        Tests that deferring fields on a base model still works when the subclass has added fields.
+        """
         obj = BigChild.objects.defer("value").get(name="b1")
         self.assert_delayed(obj, 1)
         self.assertEqual(obj.name, "b1")
@@ -201,6 +230,10 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 
     def test_defer_subclass(self):
         # You can defer a field on a subclass
+        """
+        Tests the deferred loading of a subclass's fields, ensuring that only 
+        necessary fields are loaded initially and the rest are loaded on demand.
+        """
         obj = BigChild.objects.defer("other").get(name="b1")
         self.assert_delayed(obj, 1)
         self.assertEqual(obj.name, "b1")
@@ -214,6 +247,10 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 
     def test_only_baseclass_when_subclass_has_added_field(self):
         # You can retrieve a single field on a baseclass
+        """
+        Tests the behavior of the 'only' method when retrieving a subclass instance that has added fields. 
+        Verifies that the added fields are populated correctly, even when 'only' is used to limit the retrieved fields.
+        """
         obj = BigChild.objects.only("name").get(name="b1")
         # when inherited model, its PK is also fetched, hence '4' deferred fields.
         self.assert_delayed(obj, 4)
@@ -223,6 +260,12 @@ class BigChildDeferTests(AssertionMixin, TestCase):
 
     def test_only_subclass(self):
         # You can retrieve a single field on a subclass
+        """
+
+        Tests that a model instance loaded with only a subset of fields can still access other fields, 
+        using the delayed loading feature when necessary.
+
+        """
         obj = BigChild.objects.only("other").get(name="b1")
         self.assert_delayed(obj, 4)
         self.assertEqual(obj.name, "b1")
@@ -265,6 +308,9 @@ class TestDefer2(AssertionMixin, TestCase):
         self.assertEqual(s1_defer, s1)
 
     def test_refresh_not_loading_deferred_fields(self):
+        """
+        Tests that deferred fields are loaded on demand after a model instance is refreshed from the database, while still respecting the initially loaded fields to minimize database queries.
+        """
         s = Secondary.objects.create()
         rf = Primary.objects.create(name="foo", value="bar", related=s)
         rf2 = Primary.objects.only("related", "value").get()
@@ -278,6 +324,9 @@ class TestDefer2(AssertionMixin, TestCase):
             self.assertEqual(rf2.name, "new foo")
 
     def test_custom_refresh_on_deferred_loading(self):
+        """
+        Tests that refreshing a primary object via a proxy when deferred loading is used updates the object with the correct data, and that this operation occurs within a single database query.
+        """
         s = Secondary.objects.create()
         rf = RefreshPrimaryProxy.objects.create(name="foo", value="bar", related=s)
         rf2 = RefreshPrimaryProxy.objects.only("related").get()
@@ -293,6 +342,9 @@ class TestDefer2(AssertionMixin, TestCase):
 
 class InvalidDeferTests(SimpleTestCase):
     def test_invalid_defer(self):
+        """
+        Tests that defer() raises exceptions when attempting to defer non-existent fields on primary and related models.
+        """
         msg = "Primary has no field named 'missing'"
         with self.assertRaisesMessage(FieldDoesNotExist, msg):
             list(Primary.objects.defer("missing"))
@@ -303,6 +355,9 @@ class InvalidDeferTests(SimpleTestCase):
             list(Primary.objects.defer("related__missing"))
 
     def test_invalid_only(self):
+        """
+        Tests that attempting to use the `only` method with a non-existent field raises the correct errors, covering both direct field references and references through related objects.
+        """
         msg = "Primary has no field named 'missing'"
         with self.assertRaisesMessage(FieldDoesNotExist, msg):
             list(Primary.objects.only("missing"))
@@ -338,6 +393,11 @@ class DeferredRelationTests(TestCase):
         )
 
     def test_defer_not_clear_cached_relations(self):
+        """
+        Tests the behavior of deferred fields in conjunction with cached relations, 
+        verifying that accessing a cached relation after a deferred field does not 
+        trigger an additional database query.
+        """
         obj = Secondary.objects.defer("first").get(pk=self.secondary.pk)
         with self.assertNumQueries(1):
             obj.primary_o2o
@@ -346,6 +406,9 @@ class DeferredRelationTests(TestCase):
             obj.primary_o2o
 
     def test_only_not_clear_cached_relations(self):
+        """
+        Tests that Django's `only` method does not clear cached relations, ensuring that subsequent access to a relation does not trigger additional database queries.
+        """
         obj = Secondary.objects.only("first").get(pk=self.secondary.pk)
         with self.assertNumQueries(1):
             obj.primary_o2o

@@ -31,6 +31,9 @@ class SitesFrameworkTests(TestCase):
 
     def test_site_manager(self):
         # Make sure that get_current() does not return a deleted Site object.
+        """
+        Tests the functionality of the Site manager by retrieving the current site, verifying its type, deleting it, and then checking that it no longer exists.
+        """
         s = Site.objects.get_current()
         self.assertIsInstance(s, Site)
         s.delete()
@@ -40,6 +43,9 @@ class SitesFrameworkTests(TestCase):
     def test_site_cache(self):
         # After updating a Site object (e.g. via the admin), we shouldn't return a
         # bogus value from the SITE_CACHE.
+        """
+        Tests the caching behavior of the Site model, verifying that changes to a site are reflected in the cached instance.
+        """
         site = Site.objects.get_current()
         self.assertEqual("example.com", site.name)
         s2 = Site.objects.get(id=settings.SITE_ID)
@@ -59,6 +65,14 @@ class SitesFrameworkTests(TestCase):
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_get_current_site(self):
         # The correct Site object is returned
+        """
+
+        Tests the functionality of retrieving the current site from a given HTTP request.
+        Checks if the site is correctly identified from the request's metadata and 
+        if it falls back to the request site when the site does not exist or the sites 
+        app is not installed.
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -82,6 +96,14 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com"])
     def test_get_current_site_no_site_id(self):
+        """
+
+        Tests that get_current_site returns the correct site when SITE_ID is not set.
+
+        Verifies that the function falls back to the domain from the request's HTTP headers
+        when no SITE_ID is specified, ensuring the correct site is identified.
+
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -106,6 +128,14 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example.com", "example.net"])
     def test_get_current_site_no_site_id_and_handle_port_fallback(self):
+        """
+
+        Tests the functionality of getting the current site based on the request's HTTP_HOST header.
+
+        The test covers scenarios where the SITE_ID setting is not set and the ALLOWED_HOSTS setting contains multiple domains.
+        It checks the fallback behavior when the port number in the HTTP_HOST header does not match any site's domain.
+
+        """
         request = HttpRequest()
         s1 = self.site
         s2 = Site.objects.create(domain="example.com:80", name="example.com:80")
@@ -143,6 +173,9 @@ class SitesFrameworkTests(TestCase):
     def test_domain_name_with_whitespaces(self):
         # Regression for #17320
         # Domain names are not allowed contain whitespace characters
+        """
+        Tests that a site's domain name cannot contain whitespace characters, including spaces, tabs, and newlines.
+        """
         site = Site(name="test name", domain="test test")
         with self.assertRaises(ValidationError):
             site.full_clean()
@@ -155,6 +188,12 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(ALLOWED_HOSTS=["example.com"])
     def test_clear_site_cache(self):
+        """
+        Clears the site cache by removing all cached site instances associated with the given instance.
+
+        This function is used to reset the cache after a site instance has been modified or deleted. 
+        It takes a site model, instance and database alias as parameters, and removes the corresponding cache entries.
+        """
         request = HttpRequest()
         request.META = {
             "SERVER_NAME": "example.com",
@@ -176,6 +215,11 @@ class SitesFrameworkTests(TestCase):
 
     @override_settings(SITE_ID=None, ALLOWED_HOSTS=["example2.com"])
     def test_clear_site_cache_domain(self):
+        """
+
+        Tests the clear_site_cache function to ensure it correctly clears the site cache when given a specific site instance and database alias.
+
+        """
         site = Site.objects.create(name="example2.com", domain="example2.com")
         request = HttpRequest()
         request.META = {

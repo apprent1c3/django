@@ -41,6 +41,9 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_inheritance(self):
+        """
+        Tests the inheritance of relationships between Event, Screening, and Movie models, verifying correct retrieval of related objects through various methods and filtering conditions.
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 
@@ -67,6 +70,9 @@ class NestedForeignKeysTests(TestCase):
 
     # These all work because the second foreign key in the chain has null=True.
     def test_inheritance_null_FK(self):
+        """
+        Tests the inheritance of null foreign key relationships in the database, specifically the interaction between the Event, ScreeningNullFK, and Movie models. Verifies that various query methods, such as select_related, values, filter, and exclude, work correctly when dealing with null foreign keys and related models.
+        """
         Event.objects.create()
         ScreeningNullFK.objects.create(movie=None)
         ScreeningNullFK.objects.create(movie=self.movie)
@@ -105,6 +111,13 @@ class NestedForeignKeysTests(TestCase):
     # This test failed in #16715 because in some cases INNER JOIN was selected
     # for the second foreign key relation instead of LEFT OUTER JOIN.
     def test_explicit_ForeignKey(self):
+        """
+        Tests explicit usage of ForeignKey relationships in Package models.
+
+        Verifies the correctness of querysets, related objects, and field values 
+        when using select_related, values, filter, and exclude methods on 
+        Package objects with ForeignKey references to Screening and Movie models.
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)
@@ -134,6 +147,12 @@ class NestedForeignKeysTests(TestCase):
 
     # These all work because the second foreign key in the chain has null=True.
     def test_explicit_ForeignKey_NullFK(self):
+        """
+        '''
+        Tests Django model interactions with explicit ForeignKey referencing models with 
+        null foreign keys, verifying correct functionality in various query scenarios.
+        '''
+        """
         PackageNullFK.objects.create()
         screening = ScreeningNullFK.objects.create(movie=None)
         screening_with_movie = ScreeningNullFK.objects.create(movie=self.movie)
@@ -181,6 +200,9 @@ class DeeplyNestedForeignKeysTests(TestCase):
         )
 
     def test_inheritance(self):
+        """
+        Tests the inheritance and relationships between Event, Screening, and Movie models, ensuring proper creation, filtering, and querying of related objects. Verifies that Django's ORM methods, such as select_related and values, work as expected with the modeled relationships.
+        """
         Event.objects.create()
         Screening.objects.create(movie=self.movie)
 
@@ -243,6 +265,10 @@ class DeeplyNestedForeignKeysTests(TestCase):
         )
 
     def test_explicit_ForeignKey(self):
+        """
+        Verifies the correct behavior of the ForeignKey relationship in the Package model, 
+        ensuring proper creation, filtering, and retrieval of related objects through various ORM methods.
+        """
         Package.objects.create()
         screening = Screening.objects.create(movie=self.movie)
         Package.objects.create(screening=screening)

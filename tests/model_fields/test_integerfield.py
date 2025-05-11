@@ -97,6 +97,9 @@ class IntegerFieldTests(TestCase):
             instance.full_clean()
 
     def test_backend_range_min_value_lookups(self):
+        """
+        Tests lookup behavior for values below the minimum defined by the backend. Ensures that lookups below the minimum value do not generate database queries when the value is known to be out of range, and that lookups that could include the minimum value generate a single database query.
+        """
         min_value = self.backend_range[0]
         if min_value is None:
             raise SkipTest("Backend doesn't define an integer min value.")
@@ -117,6 +120,11 @@ class IntegerFieldTests(TestCase):
             self.model.objects.get(value__lte=underflow_value)
 
     def test_backend_range_max_value_lookups(self):
+        """
+        Test backend's integer range max value lookups by attempting to retrieve objects
+        with values equal to, greater than, or less than the maximum value, ensuring correct
+        query behavior and zero or expected query count for lookups that should not match.
+        """
         max_value = self.backend_range[-1]
         if max_value is None:
             raise SkipTest("Backend doesn't define an integer max value.")
@@ -179,6 +187,9 @@ class IntegerFieldTests(TestCase):
                         ranged_value_field.run_validators(max_backend_value + 1)
 
     def test_types(self):
+        """
+        Validate that the 'value' attribute of the model instance remains an integer type both before and after being saved to the database and retrieved.
+        """
         instance = self.model(value=1)
         self.assertIsInstance(instance.value, int)
         instance.save()
@@ -192,6 +203,11 @@ class IntegerFieldTests(TestCase):
         self.assertEqual(instance.value, 10)
 
     def test_invalid_value(self):
+        """
+        Verifies that creating a model instance with an invalid 'value' field raises the expected error.
+
+        Tests multiple invalid input types, including non-numeric strings, byte-strings, and various non-numeric objects, ensuring that the correct exception is raised with a meaningful error message.
+        """
         tests = [
             (TypeError, ()),
             (TypeError, []),
@@ -297,6 +313,9 @@ class ValidationTests(SimpleTestCase):
         self.assertIsNone(f.clean(None, None))
 
     def test_integerfield_raises_error_on_empty_input(self):
+        """
+        Tests that IntegerField raises a ValidationError when given empty input, ensuring that null=False fields cannot be left blank.
+        """
         f = models.IntegerField(null=False)
         with self.assertRaises(ValidationError):
             f.clean(None, None)
@@ -313,6 +332,9 @@ class ValidationTests(SimpleTestCase):
         self.assertEqual(f.clean("1", None), 1)
 
     def test_enum_choices_invalid_input(self):
+        """
+        Checks that invalid choices for an integer field with enum choices raise a ValidationError.
+        """
         f = models.IntegerField(choices=self.Choices)
         with self.assertRaises(ValidationError):
             f.clean("A", None)
@@ -320,6 +342,14 @@ class ValidationTests(SimpleTestCase):
             f.clean("3", None)
 
     def test_callable_choices(self):
+        """
+
+        Tests that choices for a model field can be defined by a callable function.
+
+        Verifies that the field accepts valid choices returned by the callable and raises
+        a ValidationError for invalid choices.
+
+        """
         def get_choices():
             return {i: str(i) for i in range(3)}
 

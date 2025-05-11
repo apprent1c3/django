@@ -80,6 +80,9 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
         return getattr(DesiredCapabilities, browser.upper())
 
     def create_options(self):
+        """
+        Configures and returns browser options for the current session, including enabling headless mode when required.
+        """
         options = self.import_options(self.browser)()
         if self.headless:
             match self.browser:
@@ -90,6 +93,15 @@ class SeleniumTestCaseBase(type(LiveServerTestCase)):
         return options
 
     def create_webdriver(self):
+        """
+
+        Creates a new webdriver instance based on the specified browser and configuration.
+
+        The function either uses a remote Selenium hub or imports the webdriver module locally,
+        depending on whether a Selenium hub is configured. It also sets the desired capabilities
+        for the specified browser before returning the created webdriver instance.
+
+        """
         options = self.create_options()
         if self.selenium_hub:
             from selenium import webdriver
@@ -123,6 +135,14 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @classmethod
     def __init_subclass__(cls, **kwargs):
+        """
+        :param cls: The subclass being initialized
+        :param **kwargs: Additional keyword arguments passed to the superclass
+        :note: This method is a class builder that transforms screenshot test functions into 
+               multiple test methods, each wrapped with different screenshot cases. It allows 
+               for more fine-grained control over screenshot testing by dynamically generating 
+               test methods based on the provided screenshot cases.
+        """
         super().__init_subclass__(**kwargs)
         if not cls.screenshots:
             return
@@ -185,6 +205,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
     @contextmanager
     def dark(self):
         # Navigate to a page before executing a script.
+        """
+        Temporarily sets the application theme to dark mode, allowing tests to interact with the dark theme without affecting subsequent tests.
+        """
         self.selenium.get(self.live_server_url)
         self.selenium.execute_script("localStorage.setItem('theme', 'dark');")
         with self.desktop_size():
@@ -194,6 +217,12 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 self.selenium.execute_script("localStorage.removeItem('theme');")
 
     def set_emulated_media(self, *, media=None, features=None):
+        """
+        Sets emulated media settings for the current browser session.
+
+        This method allows you to specify media type and features to emulate, 
+        such as a printer or screen, and is only supported on Chromium and Chrome-based browsers.
+        """
         if self.browser not in {"chrome", "edge"}:
             self.skipTest(
                 "Emulation.setEmulatedMedia is only supported on Chromium and "
@@ -215,6 +244,9 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
     @contextmanager
     def high_contrast(self):
+        """
+        Temporarily enables high contrast mode by emulating forced colors, resetting to default after use.
+        """
         self.set_emulated_media(features=[{"name": "forced-colors", "value": "active"}])
         with self.desktop_size():
             try:
@@ -225,6 +257,13 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
                 )
 
     def take_screenshot(self, name):
+        """
+        Captures a screenshot of the current browser window during a test.
+
+        The screenshot is saved to a file named based on the test case, screenshot case, and provided name, in the 'screenshots' directory of the current working directory.
+
+        This method is typically used to visually capture the state of the application at a specific point during a test, for later analysis or debugging purposes.
+        """
         if not self.screenshots:
             return
         test = getattr(self, self._testMethodName)
@@ -252,6 +291,14 @@ class SeleniumTestCase(LiveServerTestCase, metaclass=SeleniumTestCaseBase):
 
 
 def screenshot_cases(method_names):
+    """
+    Marks a test function to capture screenshots for specific test cases.
+
+    The decorator takes a comma-separated string of method names or an iterable of method names,
+    associating the decorated function with these method names for screenshot capture.
+
+    The function is also tagged with 'screenshot' to facilitate filtering and organization of test cases.
+    """
     if isinstance(method_names, str):
         method_names = method_names.split(",")
 

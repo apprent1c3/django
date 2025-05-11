@@ -103,6 +103,10 @@ bbox_data = (
 class Geo3DLoadingHelper:
     def _load_interstate_data(self):
         # Interstate (2D / 3D and Geographic/Projected variants)
+        """
+        Loads and creates interstate data objects in 2D and 3D geometry representations, 
+        including their projections, from pre-defined interstate data.
+        """
         for name, line, exp_z in interstate_data:
             line_3d = GEOSGeometry(line, srid=4269)
             line_2d = LineString([coord[:2] for coord in line_3d.coords], srid=4269)
@@ -123,6 +127,12 @@ class Geo3DLoadingHelper:
             )
 
     def _load_polygon_data(self):
+        """
+
+        Loads polygon data into the database, creating 2D and 3D bounding box polygons 
+        from the provided bbox data and storing them as separate Polygon2D and Polygon3D objects.
+
+        """
         bbox_wkt, bbox_z = bbox_data
         bbox_2d = GEOSGeometry(bbox_wkt, srid=32140)
         bbox_3d = Polygon(
@@ -246,6 +256,21 @@ class Geo3DTest(Geo3DLoadingHelper, TestCase):
 
     @skipUnlessDBFeature("supports_3d_functions")
     def test_extent3d_filter(self):
+        """
+        Tests the Extent3D database function with a 3D filter.
+
+        Verifies that the aggregate function correctly calculates the 3D extent
+        of a set of 3D points filtered by a spatial query.
+
+        This test case loads city data, applies a filter to cities with names
+        containing 'll', and checks the resulting extent against a known reference
+        value to ensure accuracy.\"\"\"
+
+        or more concise version:
+
+        \"\"\"Tests the Extent3D database function with a 3D filter, verifying accuracy
+        against a known reference value.
+        """
         self._load_city_data()
         extent3d = City3D.objects.aggregate(
             ll_cities=Extent3D("point", filter=Q(name__contains="ll"))

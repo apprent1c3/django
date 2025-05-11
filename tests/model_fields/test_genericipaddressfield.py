@@ -29,6 +29,9 @@ class GenericIPAddressFieldTests(TestCase):
         self.assertIsNone(o.ip)
 
     def test_blank_string_saved_as_null(self):
+        """
+        Tests that a GenericIPAddress object with a blank string is saved and updated as a null value in the database.
+        """
         o = GenericIPAddress.objects.create(ip="")
         o.refresh_from_db()
         self.assertIsNone(o.ip)

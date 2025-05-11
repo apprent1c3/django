@@ -13,6 +13,9 @@ class RadioSelectTest(ChoiceWidgetTest):
     widget = RadioSelect
 
     def test_render(self):
+        """
+        Tests that the radio select widget correctly renders HTML for a radio input with given choices, including a blank choice and multiple options.
+        """
         html = """
         <div>
           <div>
@@ -427,6 +430,9 @@ class RadioSelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_input_value(self):
+        """
+        Tests that the widget does not localize the input values for radio buttons, verifying that the value attributes in the generated HTML are not formatted according to the USE_THOUSAND_SEPARATOR setting, ensuring correct functionality for both numeric and time-based choices.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -492,6 +498,9 @@ class RadioSelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests that a ChoiceField within a Form correctly uses a fieldset when rendering, ensuring the expected HTML structure is produced.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(

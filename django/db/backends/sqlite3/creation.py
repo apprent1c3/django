@@ -23,6 +23,15 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def _create_test_db(self, verbosity, autoclobber, keepdb=False):
+        """
+        Creates a test database, destroying any existing one if necessary.
+
+            :param bool keepdb: If True, the function will not attempt to destroy the existing database.
+            :param int verbosity: Controls the level of logging output.
+            :param bool autoclobber: If True, the function will automatically delete the existing database without prompting for confirmation.
+            :return: The name of the test database.
+
+        """
         test_database_name = self._get_test_db_name()
 
         if keepdb:
@@ -52,6 +61,10 @@ class DatabaseCreation(BaseDatabaseCreation):
         return test_database_name
 
     def get_test_db_clone_settings(self, suffix):
+        """
+        Returns a modified database settings dictionary for creating a test database clone, 
+        modifying the original database name by appending a suffix to support testing.
+        """
         orig_settings_dict = self.connection.settings_dict
         source_database_name = orig_settings_dict["NAME"] or ":memory:"
 
@@ -72,6 +85,14 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        Clone the test database, optionally preserving an existing clone.
+
+        This function creates a copy of the test database, naming it with the provided suffix.
+        It may destroy an existing clone if keepdb is False, and handles in-memory databases
+        differently depending on the multiprocessing start method. Upon failure, the process
+        is terminated with a non-zero exit code.
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         if not self.is_in_memory_db(source_database_name):
@@ -128,6 +149,16 @@ class DatabaseCreation(BaseDatabaseCreation):
         return tuple(sig)
 
     def setup_worker_connection(self, _worker_id):
+        """
+
+        Sets up a worker connection for a given worker ID.
+
+        This function prepares the database connection settings for a worker process,
+        taking into account the multiprocessing start method. If the start method is 'fork',
+        it updates the existing connection settings. If the start method is 'spawn', it
+        creates a new in-memory database by copying data from a source database.
+
+        """
         settings_dict = self.get_test_db_clone_settings(_worker_id)
         # connection.settings_dict must be updated in place for changes to be
         # reflected in django.db.connections. Otherwise new threads would

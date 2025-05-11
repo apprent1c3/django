@@ -58,6 +58,9 @@ class OperationTestCase(TransactionTestCase):
             return migration.apply(project_state, editor)
 
     def set_up_test_model(self, force_raster_creation=False):
+        """
+        Sets up a test model for geographic information system (GIS) testing, optionally including a raster field if the database connection supports it or if forced.
+        """
         test_fields = [
             ("id", models.AutoField(primary_key=True)),
             ("name", models.CharField(max_length=100, unique=True)),
@@ -79,6 +82,15 @@ class OperationTestCase(TransactionTestCase):
         )
 
     def assertSpatialIndexExists(self, table, column, raster=False):
+        """
+
+        .Assert that a spatial index exists for a given table and column.
+
+        :parameter table: Name of the table to check.
+        :parameter column: Name of the column to check.
+        :parameter raster: Whether to check for a raster spatial index (default is False).
+
+        """
         with connection.cursor() as cursor:
             constraints = connection.introspection.get_constraints(cursor, table)
         if raster:
@@ -100,6 +112,16 @@ class OperationTestCase(TransactionTestCase):
         field_class=None,
         field_class_kwargs=None,
     ):
+        """
+        Alter a GIS model by applying a migration operation.
+
+        :param migration_class: The migration operation class to apply.
+        :param model_name: The name of the model to alter.
+        :param field_name: The name of the field to alter or add.
+        :param field_class: The field class to use for the alteration, defaults to None.
+        :param field_class_kwargs: Keyword arguments to pass to the field class, defaults to None.
+        :returns: None
+        """
         args = [model_name, field_name]
         if field_class:
             field_class_kwargs = field_class_kwargs or {}
@@ -136,6 +158,14 @@ class OperationTests(OperationTestCase):
     @skipUnless(connection.vendor == "mysql", "MySQL specific test")
     def test_remove_geom_field_nullable_with_index(self):
         # MySQL doesn't support spatial indexes on NULL columns.
+        """
+        Test removal of a nullable geographic field with an index on a MySQL database.
+
+        Verifies that adding and then removing a nullable LineStringField to a GIS model 
+        results in the correct SQL queries and no errors are logged, with the spatial index 
+        not being created when adding the field and the column being correctly removed when 
+        the field is removed.
+        """
         with self.assertNumQueries(1) as ctx:
             self.alter_gis_model(
                 migrations.AddField,
@@ -231,6 +261,9 @@ class OperationTests(OperationTestCase):
         self.assertColumnNotExists("gis_neighborhood", "rast")
 
     def test_create_model_spatial_index(self):
+        """
+        Tests the creation of a spatial index for the model's geometry and raster fields, if supported by the database backend.
+        """
         if not self.has_spatial_indexes:
             self.skipTest("No support for Spatial indexes")
 
@@ -241,6 +274,11 @@ class OperationTests(OperationTestCase):
 
     @skipUnlessDBFeature("supports_3d_storage")
     def test_add_3d_field_opclass(self):
+        """
+        Tests adding a 3D field operation class to a PostGIS-enabled database.
+
+        Verifies that the correct opclass is used for the added field, ensuring support for 3D spatial operations.
+        """
         if not connection.ops.postgis:
             self.skipTest("PostGIS-specific test.")
 
@@ -264,6 +302,9 @@ class OperationTests(OperationTestCase):
 
     @skipUnlessDBFeature("can_alter_geometry_field", "supports_3d_storage")
     def test_alter_geom_field_dim(self):
+        """
+        Tests the ability to alter the dimension of a geometry field in a model, ensuring that the dimension is correctly updated and reflected in the model instances.
+        """
         Neighborhood = self.current_state.apps.get_model("gis", "Neighborhood")
         p1 = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         Neighborhood.objects.create(name="TestDim", geom=MultiPolygon(p1, p1))
@@ -290,6 +331,9 @@ class OperationTests(OperationTestCase):
         "supports_column_check_constraints", "can_introspect_check_constraints"
     )
     def test_add_check_constraint(self):
+        """
+        Tests adding a check constraint to a model's geographic field, ensuring the constraint is properly applied and introspected by the database backend.
+        """
         Neighborhood = self.current_state.apps.get_model("gis", "Neighborhood")
         poly = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         constraint = models.CheckConstraint(

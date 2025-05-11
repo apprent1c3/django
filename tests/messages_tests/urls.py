@@ -26,6 +26,14 @@ TEMPLATE = """{% if messages %}
 def add(request, message_type):
     # Don't default to False here to test that it defaults to False if
     # unspecified.
+    """
+
+    Dispatches a list of messages of a specified type to the user's message queue.
+
+    :param request: The current HTTP request
+    :param message_type: The type of message to display (e.g. success, error, warning)
+
+    """
     fail_silently = request.POST.get("fail_silently", None)
     for msg in request.POST.getlist("messages"):
         if fail_silently is not None:

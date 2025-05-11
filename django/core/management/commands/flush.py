@@ -30,6 +30,18 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Handles the flushing of a database, removing all data and returning tables to an empty state.
+
+        The function takes various options, including the database to flush, verbosity level, and interactive mode.
+        It prompts the user for confirmation in interactive mode before executing the flush operation.
+        If the operation fails, it raises a CommandError with a hint for troubleshooting.
+
+        Options that control the flush behavior include:
+            - reset_sequences: Whether to reset auto-incrementing sequences (default: True)
+            - allow_cascade: Whether to allow cascade deletions (default: False)
+            - inhibit_post_migrate: Whether to inhibit post-migrate signals (default: False)
+        """
         database = options["database"]
         connection = connections[database]
         verbosity = options["verbosity"]

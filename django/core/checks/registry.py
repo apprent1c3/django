@@ -48,6 +48,9 @@ class CheckRegistry:
         """
 
         def inner(check):
+            """
+            Registers a new check function with the system, associating it with the specified tags and adding it to the list of deployment or registered checks, depending on the context in which it is used.
+            """
             if not func_accepts_kwargs(check):
                 raise TypeError(
                     "Check functions must accept keyword arguments (**kwargs)."

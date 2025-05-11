@@ -324,6 +324,9 @@ class Urlizer:
         nofollow=False,
         autoescape=False,
     ):
+        """
+        Handles a word that may contain a URL or email address, and formats it accordingly, applying optional URL trimming, nofollow attribute, and autoescaping of input. If the word is considered safe, it may be marked as such, otherwise it will be escaped to prevent code injection.
+        """
         if "." in word or "@" in word or ":" in word:
             # lead: Punctuation trimmed from the beginning of the word.
             # middle: State of the word.

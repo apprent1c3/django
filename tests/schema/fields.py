@@ -31,6 +31,21 @@ class CustomManyToManyField(RelatedField):
         db_table=None,
         **kwargs,
     ):
+        """
+        Initializes a many-to-many relation between two models, specifying various relationship characteristics.
+
+         :param to: The model to which the relationship is established.
+         :param db_constraint: Whether a database constraint should be created for the relationship.
+         :param swappable: Whether the model this relationship belongs to can be swapped with another.
+         :param related_name: The name of the relation from the target model back to this one.
+         :param related_query_name: The name that can be used in doing reverse lookups.
+         :param limit_choices_to: Conditions that limit the available choices for this relationship.
+         :param symmetrical: Whether the relationship should be symmetrical.
+         :param through: An intermediate model representing the relationship.
+         :param through_fields: Fields on the intermediate model representing the relationship.
+         :param db_table: The database table name for the relationship.
+
+        """
         try:
             to._meta
         except AttributeError:
@@ -64,6 +79,12 @@ class CustomManyToManyField(RelatedField):
         )
 
     def contribute_to_class(self, cls, name, **kwargs):
+        """
+
+         Sets up the Many-To-Many relationship on the class, handling symmetrical cases and 
+         creating an intermediary model if necessary, and attaches the necessary descriptors.
+
+        """
         if self.remote_field.symmetrical and (
             self.remote_field.model == "self"
             or self.remote_field.model == cls._meta.object_name

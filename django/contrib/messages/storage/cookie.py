@@ -16,6 +16,15 @@ class MessageEncoder(json.JSONEncoder):
     message_key = "__json_message"
 
     def default(self, obj):
+        """
+
+        Custom serialization behavior for Message objects.
+
+        This function converts Message instances into a dictionary-compatible format, 
+        enriching the representation with keys for the message, safety data flag, level, and extra tags.
+        For non-Message objects, it delegates to the parent class's default serialization behavior. 
+
+        """
         if isinstance(obj, Message):
             # Using 0/1 here instead of False/True to produce more compact json
             is_safedata = 1 if isinstance(obj.message, SafeData) else 0
@@ -32,6 +41,13 @@ class MessageDecoder(json.JSONDecoder):
     """
 
     def process_messages(self, obj):
+        """
+        Recursively processes messages in a given object, handling lists and dictionaries.
+
+         Marks message text as safe when encountering a MessageEncoder message_key.
+
+         Returns the processed object, converted to a Message instance when applicable.
+        """
         if isinstance(obj, list) and obj:
             if obj[0] == MessageEncoder.message_key:
                 if obj[1]:

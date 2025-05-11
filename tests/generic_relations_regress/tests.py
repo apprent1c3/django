@@ -88,6 +88,11 @@ class GenericRelationTests(TestCase):
         )
 
     def test_coerce_object_id_remote_field_cache_persistence(self):
+        """
+        Tests the persistence of the object_id remote field cache in CharLink instances 
+        across different content object types, ensuring the cache remains consistent 
+        when accessing the same content object multiple times.
+        """
         restaurant = Restaurant.objects.create()
         CharLink.objects.create(content_object=restaurant)
         charlink = CharLink.objects.latest("pk")
@@ -184,6 +189,9 @@ class GenericRelationTests(TestCase):
     def test_ticket_20378(self):
         # Create a couple of extra HasLinkThing so that the autopk value
         # isn't the same for Link and HasLinkThing.
+        """
+        Tests filtering and exclusion of HasLinkThing objects based on their associated links.
+        """
         hs1 = HasLinkThing.objects.create()
         hs2 = HasLinkThing.objects.create()
         hs3 = HasLinkThing.objects.create()
@@ -200,6 +208,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_ticket_20564(self):
+        """
+        Tests the filtering of model objects based on the existence and value of a related field, ensuring correct handling of null and non-null values.
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -212,6 +223,9 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(C.objects.exclude(b__a__flag=None), [c2])
 
     def test_ticket_20564_nullable_fk(self):
+        """
+        Tests Django ORM filtering and excluding logic for models with nullable foreign keys, ensuring correct results are returned based on the presence or absence of related objects with specific flags.
+        """
         b1 = B.objects.create()
         b2 = B.objects.create()
         b3 = B.objects.create()
@@ -242,6 +256,9 @@ class GenericRelationTests(TestCase):
         )
 
     def test_annotate(self):
+        """
+        Tests annotation of objects with the sum of related link IDs, verifying correct aggregation and handling of null values after link deletion.
+        """
         hs1 = HasLinkThing.objects.create()
         hs2 = HasLinkThing.objects.create()
         HasLinkThing.objects.create()
@@ -270,6 +287,9 @@ class GenericRelationTests(TestCase):
     def test_filter_targets_related_pk(self):
         # Use hardcoded PKs to ensure different PKs for "link" and "hs2"
         # objects.
+        """
+        Tests the filtering of targets related to a specific link by primary key, ensuring that the correct object is returned despite the object_id and pk not being equal.
+        """
         HasLinkThing.objects.create(pk=1)
         hs2 = HasLinkThing.objects.create(pk=2)
         link = Link.objects.create(content_object=hs2, pk=1)
@@ -277,6 +297,9 @@ class GenericRelationTests(TestCase):
         self.assertSequenceEqual(HasLinkThing.objects.filter(links=link.pk), [hs2])
 
     def test_editable_generic_rel(self):
+        """
+        Verifies that a generic relation field within a model form is properly handled, specifically testing its editability and validation.
+        """
         GenericRelationForm = modelform_factory(HasLinkThing, fields="__all__")
         form = GenericRelationForm()
         self.assertIn("links", form.fields)
@@ -287,6 +310,9 @@ class GenericRelationTests(TestCase):
         self.assertEqual(links.save_form_data_calls, 1)
 
     def test_ticket_22998(self):
+        """
+        Tests that attempting to delete a Related object with associated content raises a ProtectedError, ensuring data integrity.
+        """
         related = Related.objects.create()
         content = Content.objects.create(related_obj=related)
         Node.objects.create(content=content)
@@ -325,6 +351,10 @@ class GenericRelationTests(TestCase):
         self.assertCountEqual(link.targets.all(), [thing])
 
     def test_generic_reverse_relation_exclude_filter(self):
+        """
+        Tests the filtering of generic reverse relations with exclude operation, 
+        ensuring that objects are correctly excluded based on a related object's attribute.
+        """
         place1 = Place.objects.create(name="Test Place 1")
         place2 = Place.objects.create(name="Test Place 2")
         Link.objects.create(content_object=place1)

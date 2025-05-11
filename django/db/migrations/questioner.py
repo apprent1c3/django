@@ -97,6 +97,15 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         self.prompt_output = prompt_output or OutputWrapper(sys.stdout)
 
     def _boolean_input(self, question, default=None):
+        """
+
+        Ask the user a yes or no question and return a boolean answer.
+
+        The question is written to the prompt output, and the user's response is read.
+        If the user enters nothing and a default is provided, the default is returned.
+        Otherwise, the function ensures the user enters either 'yes' or 'no' and returns True if 'yes', False if 'no'.
+
+        """
         self.prompt_output.write(f"{question} ", ending="")
         result = input()
         if not result and default is not None:
@@ -107,6 +116,15 @@ class InteractiveMigrationQuestioner(MigrationQuestioner):
         return result[0].lower() == "y"
 
     def _choice_input(self, question, choices):
+        """
+        Presents the user with a multiple-choice question and returns the selected option.
+
+        Given a question and a list of possible choices, this function displays the options and prompts the user to select one by entering its corresponding number. It continues to ask for input until a valid option is chosen.
+
+        :param question: The question to be presented to the user.
+        :param choices: A list of possible choices.
+        :returns: The number of the selected option, starting from 1.
+        """
         self.prompt_output.write(f"{question}")
         for i, choice in enumerate(choices):
             self.prompt_output.write(" %s) %s" % (i + 1, choice))

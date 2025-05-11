@@ -29,6 +29,15 @@ class FieldOperation(Operation):
         )
 
     def references_model(self, name, app_label):
+        """
+        Determines if the current model references another model with the given name.
+
+        Checks if the provided model name matches the current model or if the model's field references the provided model.
+
+        :param name: The name of the model to check for references.
+        :param app_label: The application label of the model to check for references.
+        :return: True if the current model references the provided model, False otherwise.
+        """
         name_lower = name.lower()
         if name_lower == self.model_name_lower:
             return True
@@ -43,6 +52,19 @@ class FieldOperation(Operation):
         return False
 
     def references_field(self, model_name, name, app_label):
+        """
+
+        Checks if a model field references another model field.
+
+        Returns True if the current field references a field in the specified model,
+        and False otherwise. This is used to determine relationships between models.
+
+        :param model_name: The name of the model to check for references.
+        :param name: The name of the field in the model to check.
+        :param app_label: The application label for the model.
+        :rtype: bool
+
+        """
         model_name_lower = model_name.lower()
         # Check if this operation locally references the field.
         if model_name_lower == self.model_name_lower:
@@ -101,6 +123,19 @@ class AddField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+        Apply a field addition operation to the database.
+
+        Updates the database schema by adding the specified field to the given model.
+        The operation preserves or updates the field's default value according to the
+        `preserve_default` attribute.
+
+        :param app_label: The label of the application that owns the model.
+        :param schema_editor: The database schema editor to use for the operation.
+        :param from_state: The previous state of the model.
+        :param to_state: The new state of the model.
+
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -129,6 +164,19 @@ class AddField(FieldOperation):
         return "%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+
+        Reduce a field operation to a simplified form.
+
+        Handles field operations by converting AlterField into AddField, removing RemoveField operations,
+        and converting RenameField into an AddField operation with the new name. Other operation types
+        are delegated to the parent class for reduction.
+
+        :param operation: The field operation to reduce
+        :param app_label: The application label
+        :return: A list of simplified operations
+
+        """
         if isinstance(operation, FieldOperation) and self.is_same_field_operation(
             operation
         ):
@@ -231,6 +279,14 @@ class AlterField(FieldOperation):
         )
 
     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+        """
+
+        Alter a model field in a database schema migration.
+
+        This method updates the specified field in the database schema from its current state
+        to its new state, preserving or updating its default value as necessary.
+
+        """
         to_model = to_state.apps.get_model(app_label, self.model_name)
         if self.allow_migrate_model(schema_editor.connection.alias, to_model):
             from_model = from_state.apps.get_model(app_label, self.model_name)
@@ -253,6 +309,15 @@ class AlterField(FieldOperation):
         return "alter_%s_%s" % (self.model_name_lower, self.name_lower)
 
     def reduce(self, operation, app_label):
+        """
+        Reduces the given operation into a list of operations applicable to the current model field.
+
+        The reduction takes into account the operation type, checking for field alterations,
+        removals, and renames, and determines the necessary steps to apply the operation
+        correctly, ensuring database column consistency. If the operation can be simplified
+        or requires additional steps, the function returns a modified list of operations.
+        Otherwise, it defers to the parent class's reduction logic.
+        """
         if isinstance(
             operation, (AlterField, RemoveField)
         ) and self.is_same_field_operation(operation):

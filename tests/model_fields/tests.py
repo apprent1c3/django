@@ -139,6 +139,9 @@ class BasicFieldTests(SimpleTestCase):
         self.assertLess(inherit1_model_field, inherit2_model_field)
 
     def test_hash_immutability(self):
+        """
+        Checks that the hash of a model field remains unchanged after adding it to a model.
+        """
         field = models.IntegerField()
         field_hash = hash(field)
 
@@ -151,6 +154,9 @@ class BasicFieldTests(SimpleTestCase):
 class ChoicesTests(SimpleTestCase):
     @classmethod
     def setUpClass(cls):
+        """
+        Sets up class-level Django field attributes for testing, retrieving and storing references to various Choiceful model fields with different choice configurations.
+        """
         super().setUpClass()
         cls.no_choices = Choiceful._meta.get_field("no_choices")
         cls.empty_choices = Choiceful._meta.get_field("empty_choices")
@@ -166,6 +172,13 @@ class ChoicesTests(SimpleTestCase):
         cls.choices_from_callable = Choiceful._meta.get_field("choices_from_callable")
 
     def test_choices(self):
+        """
+        Tests the generation of choices for various configuration scenarios.
+
+            Validates that choices are correctly generated from different sources, including 
+            empty choices, choices defined as lists, dictionaries, and nested dictionaries, 
+            as well as choices obtained from iterators and callable objects.
+        """
         self.assertIsNone(self.no_choices.choices)
         self.assertEqual(self.empty_choices.choices, [])
         self.assertEqual(self.empty_choices_bool.choices, [])
@@ -184,6 +197,9 @@ class ChoicesTests(SimpleTestCase):
         )
 
     def test_flatchoices(self):
+        """
+        Tests the flatchoices attribute of model fields, ensuring it correctly flattens choices into a list of tuples, regardless of the choices' structure or source.
+        """
         self.assertEqual(self.no_choices.flatchoices, [])
         self.assertEqual(self.empty_choices.flatchoices, [])
         self.assertEqual(self.empty_choices_bool.flatchoices, [])
@@ -202,6 +218,9 @@ class ChoicesTests(SimpleTestCase):
         self.assertEqual(Choiceful.check(), [])
 
     def test_invalid_choice(self):
+        """
+        Tests that validation fails when an invalid choice is provided to a field with no choices or with predefined choices.
+        """
         model_instance = None  # Actual model instance not needed.
         self.no_choices.validate(0, model_instance)
         msg = "['Value 99 is not a valid choice.']"
@@ -211,6 +230,14 @@ class ChoicesTests(SimpleTestCase):
             self.with_choices.validate(99, model_instance)
 
     def test_formfield(self):
+        """
+
+        Validates the correct formfield types for various ChoiceField implementations.
+
+        This test case checks that ChoiceField instances return the expected formfield types,
+        differentiating between fields with and without choices.
+
+        """
         no_choices_formfield = self.no_choices.formfield()
         self.assertIsInstance(no_choices_formfield, forms.IntegerField)
         fields = (
@@ -254,6 +281,9 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(val, "translated")
 
     def test_overriding_FIELD_display(self):
+        """
+        Tests whether a custom implementation of the get_FOO_display method correctly overrides the default display value for a model field with choices.
+        """
         class FooBar(models.Model):
             foo_bar = models.IntegerField(choices=[(1, "foo"), (2, "bar")])
 
@@ -264,6 +294,11 @@ class GetFieldDisplayTests(SimpleTestCase):
         self.assertEqual(f.get_foo_bar_display(), "something")
 
     def test_overriding_inherited_FIELD_display(self):
+        """
+
+        Tests that a field's display value is correctly overridden when inheriting from an abstract base model.
+
+        """
         class Base(models.Model):
             foo = models.CharField(max_length=254, choices=[("A", "Base A")])
 
@@ -333,6 +368,9 @@ class GetChoicesTests(SimpleTestCase):
 class GetChoicesOrderingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the model tests, creating instances of Foo and Bar models with predefined attributes, and stores a reference to the 'a' field of the Bar model for use in subsequent tests.
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.35")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")
@@ -381,6 +419,15 @@ class GetChoicesOrderingTests(TestCase):
 class GetChoicesLimitChoicesToTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Set up test data for the class.
+
+        Creates instances of Foo and Bar models, establishing relationships between them,
+        to be used in tests. The created objects are stored as class attributes for
+        convenient access.
+
+        """
         cls.foo1 = Foo.objects.create(a="a", d="12.34")
         cls.foo2 = Foo.objects.create(a="b", d="12.34")
         cls.bar1 = Bar.objects.create(a=cls.foo1, b="b")

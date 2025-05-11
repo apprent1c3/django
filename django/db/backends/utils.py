@@ -28,6 +28,9 @@ class CursorWrapper:
     )
 
     def __getattr__(self, attr):
+        """
+        Delegate attribute access to the underlying cursor, wrapping database error attributes for exceptions handling.
+        """
         cursor_attr = getattr(self.cursor, attr)
         if attr in CursorWrapper.WRAP_ERROR_ATTRS:
             return self.db.wrap_database_errors(cursor_attr)
@@ -56,6 +59,16 @@ class CursorWrapper:
     def callproc(self, procname, params=None, kparams=None):
         # Keyword parameters for callproc aren't supported in PEP 249, but the
         # database driver may support them (e.g. oracledb).
+        """
+        Executes a stored database procedure with the given name, optionally passing positional and keyword parameters.
+
+        :param procname: The name of the stored procedure to call
+        :param params: Positional parameters to pass to the procedure
+        :param kparams: Keyword parameters to pass to the procedure
+
+        :raises NotSupportedError: If keyword parameters are used with a database backend that does not support them
+        :raises RuntimeWarning: If the call is made before the application is fully initialized
+        """
         if kparams is not None and not self.db.features.supports_callproc_kwargs:
             raise NotSupportedError(
                 "Keyword parameters for callproc are not supported on this "
@@ -94,6 +107,15 @@ class CursorWrapper:
     def _execute(self, sql, params, *ignored_wrapper_args):
         # Raise a warning during app initialization (stored_app_configs is only
         # ever set during testing).
+        """
+        Execute a SQL query on the database.
+
+        :param sql: The SQL statement to be executed
+        :param params: Parameters to be used in the SQL query, or None for no parameters
+        :return: The result of the query execution
+        :warning: If the application is not ready, a RuntimeWarning is issued
+
+        """
         if not apps.ready and not apps.stored_app_configs:
             warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
         self.db.validate_no_broken_transaction()
@@ -107,6 +129,14 @@ class CursorWrapper:
     def _executemany(self, sql, param_list, *ignored_wrapper_args):
         # Raise a warning during app initialization (stored_app_configs is only
         # ever set during testing).
+        """
+        Executes a SQL query with multiple parameter sets in a single database call.
+
+        :param sql: The SQL query to execute
+        :param param_list: List of parameter tuples, one for each execution of the query
+        :return: Result of the executemany operation
+        :raises RuntimeError: If the database is in an invalid state or if the apps are not ready.
+        """
         if not apps.ready and not apps.stored_app_configs:
             warnings.warn(self.APPS_NOT_READY_WARNING_MSG, category=RuntimeWarning)
         self.db.validate_no_broken_transaction()
@@ -129,6 +159,19 @@ class CursorDebugWrapper(CursorWrapper):
     def debug_sql(
         self, sql=None, params=None, use_last_executed_query=False, many=False
     ):
+        """
+
+        Context manager to measure and log the execution time of a SQL query.
+
+        It optionally uses the last executed query if :param:`use_last_executed_query` is True.
+        Logged information includes the query itself, execution time, and query parameters.
+
+        :param sql: The SQL query to be logged
+        :param params: Parameters used in the SQL query
+        :param use_last_executed_query: Whether to use the last executed query instead of the provided one
+        :param many: Whether the query was executed multiple times with different parameters
+
+        """
         start = time.monotonic()
         try:
             yield
@@ -165,6 +208,12 @@ class CursorDebugWrapper(CursorWrapper):
 
 @contextmanager
 def debug_transaction(connection, sql):
+    """
+    Context manager for logging and timing SQL transactions.
+
+    Automatically logs the duration and details of the SQL query, if query logging is enabled on the connection.
+
+    """
     start = time.monotonic()
     try:
         yield
@@ -218,6 +267,19 @@ def typecast_date(s):
 
 
 def typecast_time(s):  # does NOT store time zone information
+    """
+    Converts a string representation of time into a datetime.time object.
+
+    Parameters
+    ----------
+    s : str
+        Time in the format 'HH:MM:SS' or 'HH:MM:SS.SSSSSS'.
+
+    Returns
+    -------
+    datetime.time
+        The time as a datetime.time object, or None if the input string is empty.
+    """
     if not s:
         return None
     hour, minutes, seconds = s.split(":")
@@ -233,6 +295,9 @@ def typecast_time(s):  # does NOT store time zone information
 def typecast_timestamp(s):  # does NOT store time zone information
     # "2005-07-29 15:48:00.590358-05"
     # "2005-07-29 09:56:00-05"
+    """
+    Converts a timestamp string into a datetime object, handling various input formats, including optional UTC offset. The function returns None if the input string is empty, otherwise it parses the string into its constituent date and time parts, then constructs a datetime object from these components.
+    """
     if not s:
         return None
     if " " not in s:

@@ -5,6 +5,9 @@ from django.core.management.base import BaseCommand, CommandError
 
 class Command(BaseCommand):
     def add_arguments(self, parser):
+        """
+        Adds a version argument to the given parser if it does not already exist.
+        """
         try:
             parser.add_argument("--version", action="version", version="A.B.C")
         except ArgumentError:

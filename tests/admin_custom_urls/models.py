@@ -33,6 +33,9 @@ class ActionAdmin(admin.ModelAdmin):
     def get_urls(self):
         # Add the URL of our custom 'add_view' view to the front of the URLs
         # list.  Remove the existing one(s) first
+        """
+        Returns a list of URLs for the model's admin site, including a URL for adding new instances of the model, wrapped in the admin view decorator.
+        """
         from django.urls import re_path
 
         def wrap(view):

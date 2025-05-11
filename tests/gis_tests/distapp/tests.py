@@ -131,6 +131,10 @@ class DistanceTest(TestCase):
         # Retrieving the cities within a 20km 'donut' w/a 7km radius 'hole'
         # (thus, Houston and Southside place will be excluded as tested in
         # the `test02_dwithin` above).
+        """
+        Tests distance lookups for geographic fields, verifying that queries with distance 
+        filters (greater than or equal to, less than or equal to) return the expected results.
+        """
         for model in [SouthTexasCity, SouthTexasCityFt]:
             stx_pnt = self.stx_pnt.transform(
                 model._meta.get_field("point").srid, clone=True
@@ -237,6 +241,9 @@ class DistanceTest(TestCase):
 
     @skipUnlessDBFeature("supports_distances_lookups")
     def test_distance_lookups_with_expression_rhs(self):
+        """
+        Tests the functionality of distance lookups in the ORM, specifically the `distance_lte` and `distance_gt` queries, with both numeric and expression-based right-hand sides, including support for geodetic distances and spheroid calculations.
+        """
         stx_pnt = self.stx_pnt.transform(
             SouthTexasCity._meta.get_field("point").srid, clone=True
         )
@@ -311,6 +318,9 @@ class DistanceTest(TestCase):
         )
 
     def test_mysql_geodetic_distance_error(self):
+        """
+        Tests whether a ValueError is raised when a non-degree unit is used in a MySQL geodetic distance query.
+        """
         if not connection.ops.mysql:
             self.skipTest("This is a MySQL-specific test.")
         msg = (
@@ -529,6 +539,9 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
 
     @skipUnlessDBFeature("has_Distance_function", "supports_distance_geodetic")
     def test_distance_geodetic_spheroid(self):
+        """
+        Tests the geodetic distance calculation between two points on a spheroid and a sphere.
+        """
         tol = 2 if connection.ops.oracle else 4
 
         # Got the reference distances using the raw SQL statements:
@@ -765,6 +778,9 @@ class DistanceFunctionsTests(FuncTestMixin, TestCase):
     def test_perimeter_geodetic(self):
         # Currently only Oracle supports calculating the perimeter on geodetic
         # geometries (without being transformed).
+        """
+        Tests the functionality of the Perimeter function in a geodetic context, verifying its calculation accuracy and error handling when applied to a geospatial query.
+        """
         qs1 = CensusZipcode.objects.annotate(perim=Perimeter("poly"))
         if connection.features.supports_perimeter_geodetic:
             self.assertAlmostEqual(qs1[0].perim.m, 18406.3818954314, 3)

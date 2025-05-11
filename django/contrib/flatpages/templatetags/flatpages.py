@@ -8,6 +8,9 @@ register = template.Library()
 
 class FlatpageNode(template.Node):
     def __init__(self, context_name, starts_with=None, user=None):
+        """
+        Initializes a context object with a given name and optional filters for starting prefix and user criteria.
+        """
         self.context_name = context_name
         if starts_with:
             self.starts_with = template.Variable(starts_with)
@@ -19,6 +22,15 @@ class FlatpageNode(template.Node):
             self.user = None
 
     def render(self, context):
+        """
+
+        Render a list of flatpages and store them in the context.
+
+        This function filters flatpages based on the current site and user authentication status.
+        It also applies an optional prefix filter on the flatpage URL.
+        The resulting list of flatpages is then made available in the context for further rendering.
+
+        """
         if "request" in context:
             site_pk = get_current_site(context["request"]).pk
         else:

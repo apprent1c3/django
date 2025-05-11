@@ -12,6 +12,10 @@ class PrefetchRelatedObjectsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating instances of Book, Author, Reader, House, and Room models, 
+        and establishing relationships between them to serve as a foundation for testing scenarios.
+        """
         cls.book1 = Book.objects.create(title="Poems")
         cls.book2 = Book.objects.create(title="Jane Eyre")
         cls.book3 = Book.objects.create(title="Wuthering Heights")
@@ -50,6 +54,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             prefetch_related_objects([book1], "unknown_attribute")
 
     def test_m2m_forward(self):
+        """
+        Tests the efficiency of the many-to-many relationship prefetching for a Book's authors, ensuring it only requires one database query.
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects([book1], "authors")
@@ -60,6 +67,13 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_m2m_reverse(self):
+        """
+        Tests the performance of Django's select_related and prefetch_related on many-to-many relationships by checking if the related objects are correctly prefetched in a single database query.\"\"\"
+
+
+        Alternatively, a shorter version: 
+        \"\"\"Tests prefetching of many-to-many relationships in a single database query.
+        """
         author1 = Author.objects.get(id=self.author1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects([author1], "books")
@@ -68,6 +82,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             self.assertCountEqual(author1.books.all(), [self.book1, self.book2])
 
     def test_foreignkey_forward(self):
+        """
+        Tests the behavior of prefetching foreign key-related objects, verifying that the related objects are fetched in a single query without applying any ordering.
+        """
         authors = list(Author.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(authors, "first_book")
@@ -85,6 +102,11 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_foreignkey_reverse(self):
+        """
+        Tests the behavior of prefetching related objects through foreign keys, 
+        ensuring that the correct number of database queries are made and 
+        that the prefetching respects the specified ordering of related objects.
+        """
         books = list(Book.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(books, "first_time_authors")
@@ -105,6 +127,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_forward(self):
+        """
+        Tests one-to-one prefetching behavior, verifying that the related objects are fetched in a single query without additional ordering, and that accessing the prefetched relationships does not trigger additional queries.
+        """
         houses = list(House.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(houses, "main_room")
@@ -122,6 +147,9 @@ class PrefetchRelatedObjectsTests(TestCase):
         self.assertNotIn("ORDER BY", ctx.captured_queries[0]["sql"])
 
     def test_one_to_one_reverse(self):
+        """
+        Tests the efficiency of prefetching related objects in a one-to-one relationship, verifying that a single database query is executed and that the prefetched objects do not include an ORDER BY clause in their SQL query, even when an ordered queryset is provided.
+        """
         rooms = list(Room.objects.all())
         with self.assertNumQueries(1) as ctx:
             prefetch_related_objects(rooms, "main_room_of")
@@ -159,6 +187,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object(self):
+        """
+        Tests that a related object is correctly prefetched, reducing database queries.
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects([book1], Prefetch("authors"))
@@ -169,6 +200,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object_twice(self):
+        """
+        Tests that prefetching the same related object multiple times only queries the database once.
+        """
         book1 = Book.objects.get(id=self.book1.id)
         book2 = Book.objects.get(id=self.book2.id)
         with self.assertNumQueries(1):
@@ -179,6 +213,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             self.assertCountEqual(book2.authors.all(), [self.author1])
 
     def test_prefetch_object_to_attr(self):
+        """
+        Tests that prefetching an object to an attribute works as expected by verifying that the object's attribute is populated with the expected related objects after a single database query.
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects(
@@ -191,6 +228,11 @@ class PrefetchRelatedObjectsTests(TestCase):
             )
 
     def test_prefetch_object_to_attr_twice(self):
+        """
+        Test that prefetching an object to an attribute twice still only results in a single query.
+
+        Verifies that the second prefetch operation for the same attribute does not issue an additional database query.
+        """
         book1 = Book.objects.get(id=self.book1.id)
         book2 = Book.objects.get(id=self.book2.id)
         with self.assertNumQueries(1):
@@ -207,6 +249,9 @@ class PrefetchRelatedObjectsTests(TestCase):
             self.assertCountEqual(book2.the_authors, [self.author1])
 
     def test_prefetch_queryset(self):
+        """
+        Tests that prefetching a queryset reduces the number of database queries when accessing related objects.
+        """
         book1 = Book.objects.get(id=self.book1.id)
         with self.assertNumQueries(1):
             prefetch_related_objects(

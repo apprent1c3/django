@@ -205,6 +205,9 @@ class ModelFormCallableModelDefault(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_callable_default_hidden_widget_value_not_overridden(self):
+        """
+        Tests that form fields with callable default values are correctly rendered when a form has hidden fields for the initial values and JSON field values are properly escaped.
+        """
         class FieldWithCallableDefaultsModel(models.Model):
             int_field = models.IntegerField(default=lambda: 1)
             json_field = models.JSONField(default=dict)
@@ -248,6 +251,9 @@ class ModelFormCallableModelDefault(TestCase):
 class FormsModelTestCase(TestCase):
     def test_unicode_filename(self):
         # FileModel with Unicode filename and data #########################
+        """
+        Tests the handling of files with Unicode filenames when uploading and storing them using the FileForm and FileModel.
+        """
         file1 = SimpleUploadedFile(
             "我隻氣墊船裝滿晒鱔.txt", "मेरी मँडराने वाली नाव सर्पमीनों से भरी ह".encode()
         )
@@ -264,6 +270,9 @@ class FormsModelTestCase(TestCase):
 
     def test_boundary_conditions(self):
         # Boundary conditions on a PositiveIntegerField #########################
+        """
+        Tests the boundary conditions for validation of positive integer fields in the BoundaryModel form.
+        """
         class BoundaryForm(ModelForm):
             class Meta:
                 model = BoundaryModel
@@ -279,6 +288,9 @@ class FormsModelTestCase(TestCase):
     def test_formfield_initial(self):
         # If the model has default values for some fields, they are used as the
         # formfield initial values.
+        """
+        Tests that default values for form fields are correctly set based on model fields, instance values, and form validation.
+        """
         class DefaultsForm(ModelForm):
             class Meta:
                 model = Defaults
@@ -371,6 +383,9 @@ class RelatedModelFormTests(SimpleTestCase):
 class ManyToManyExclusionTestCase(TestCase):
     def test_m2m_field_exclusion(self):
         # Issue 12337. save_instance should honor the passed-in exclude keyword.
+        """
+        Tests the functionality of the ChoiceFieldExclusionForm when handling many-to-many field exclusions, ensuring data integrity and validation when saving form data to the model instance.
+        """
         opt1 = ChoiceOptionModel.objects.create(id=1, name="default")
         opt2 = ChoiceOptionModel.objects.create(id=2, name="option 2")
         opt3 = ChoiceOptionModel.objects.create(id=3, name="option 3")
@@ -436,6 +451,9 @@ class EmptyLabelTestCase(TestCase):
     def test_save_empty_label_forms(self):
         # Saving a form with a blank choice results in the expected
         # value being stored in the database.
+        """
+        Tests the saving of form instances with empty label fields to ensure they are handled correctly and the expected values are populated in the resulting model instances.
+        """
         tests = [
             (EmptyCharLabelNoneChoiceForm, "choice_string_w_none", None),
             (EmptyIntegerLabelChoiceForm, "choice_integer", None),
@@ -474,6 +492,9 @@ class EmptyLabelTestCase(TestCase):
         self.assertEqual("No Preference", m.get_choice_integer_display())
 
     def test_html_rendering_of_prepopulated_models(self):
+        """
+        Tests the HTML rendering of forms prepopulated with ChoiceModel instances, verifying that the form fields are correctly populated with model data and that the choice integer field is rendered as a select element with the correct options and selection.
+        """
         none_model = ChoiceModel(name="none-test", choice_integer=None)
         f = EmptyIntegerLabelChoiceForm(instance=none_model)
         self.assertHTMLEqual(

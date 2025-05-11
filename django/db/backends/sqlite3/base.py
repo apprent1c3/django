@@ -147,6 +147,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     ops_class = DatabaseOperations
 
     def get_connection_params(self):
+        """
+        Retrieves database connection parameters from the settings dictionary. 
+         The function validates the configuration, raises an error if the 'NAME' value is missing, 
+         and checks and handles other connection options, such as transaction mode and initialization commands. 
+         It returns a dictionary of connection parameters, overriding and adjusting options as necessary.
+        """
         settings_dict = self.settings_dict
         if not settings_dict["NAME"]:
             raise ImproperlyConfigured(
@@ -197,6 +203,9 @@ class DatabaseWrapper(BaseDatabaseWrapper):
 
     @async_unsafe
     def get_new_connection(self, conn_params):
+        """
+        Establishes a new database connection with specified parameters, configures it to support foreign keys and legacy alter table changes, and executes any predefined initialization commands.
+        """
         conn = Database.connect(**conn_params)
         register_functions(conn)
 
@@ -230,6 +239,12 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         return self.in_atomic_block
 
     def _set_autocommit(self, autocommit):
+        """
+        Sets the autocommit mode for the database connection.
+
+        :param autocommit: Whether to enable or disable autocommit mode
+        :note: Autocommit mode controls whether transactions are automatically committed after each statement.
+        """
         if autocommit:
             level = None
         else:
@@ -346,6 +361,15 @@ class SQLiteCursorWrapper(Database.Cursor):
     """
 
     def execute(self, query, params=None):
+        """
+
+        Execute a query with optional parameters, converting the query to use named parameters if provided.
+
+        :param query: The query to be executed.
+        :param params: Optional parameters to be used in the query. If a dictionary, the query will be converted to use named parameters.
+        :return: The result of the query execution.
+
+        """
         if params is None:
             return super().execute(query)
         # Extract names if params is a mapping, i.e. "pyformat" style is used.
@@ -356,6 +380,13 @@ class SQLiteCursorWrapper(Database.Cursor):
     def executemany(self, query, param_list):
         # Extract names if params is a mapping, i.e. "pyformat" style is used.
         # Peek carefully as a generator can be passed instead of a list/tuple.
+        """
+        Executes a query with multiple sets of parameters.
+
+        This function is an extension of the standard executemany method, adding support for 
+        dynamically determining parameter names from the first set of parameters if they 
+        are provided as a mapping (e.g. dictionary).
+        """
         peekable, param_list = tee(iter(param_list))
         if (params := next(peekable, None)) and isinstance(params, Mapping):
             param_names = list(params)

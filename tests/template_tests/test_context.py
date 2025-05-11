@@ -15,6 +15,9 @@ from django.test import RequestFactory, SimpleTestCase, override_settings
 
 class ContextTests(SimpleTestCase):
     def test_context(self):
+        """
+        Verifies the functionality of the Context class, ensuring it behaves as expected when setting, getting, pushing, and popping values.
+        """
         c = Context({"a": 1, "b": "xyzzy"})
         self.assertEqual(c["a"], 1)
         self.assertEqual(c.push(), {})
@@ -27,6 +30,12 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c, mock.ANY)
 
     def test_push_context_manager(self):
+        """
+        Tests the behavior of the Context class using its push context manager.
+
+        Verifies that changes made within the context manager are temporary and 
+        reverted when the context is exited, restoring the original context state.
+        """
         c = Context({"a": 1})
         with c.push():
             c["a"] = 2
@@ -38,6 +47,14 @@ class ContextTests(SimpleTestCase):
         self.assertEqual(c["a"], 1)
 
     def test_update_context_manager(self):
+        """
+
+        Tests the context manager of the Context class.
+
+        Verifies that updates made within the context manager are properly isolated and 
+        reverted after exiting the context, ensuring the original context remains unchanged.
+
+        """
         c = Context({"a": 1})
         with c.update({}):
             c["a"] = 2
@@ -89,6 +106,9 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_setdefault(self):
+        """
+        Tests the setdefault method of a Context object, ensuring it correctly sets a value if the key is missing and returns the existing value if the key already exists.
+        """
         c = Context()
 
         x = c.setdefault("x", 42)
@@ -117,6 +137,10 @@ class ContextTests(SimpleTestCase):
         )
 
     def test_render_context(self):
+        """
+        Tests the behavior of a RenderContext object when pushing a new context, 
+        overwriting existing keys, and attempting to access removed keys.
+        """
         test_context = RenderContext({"fruit": "papaya"})
 
         # push() limits access to the topmost dict
@@ -131,6 +155,9 @@ class ContextTests(SimpleTestCase):
         self.assertIsNone(test_context.get("fruit"))
 
     def test_flatten_context(self):
+        """
+        Tests the Context.flatten method to verify it combines default and user-defined values into a single dictionary
+        """
         a = Context()
         a.update({"a": 2})
         a.update({"b": 4})
@@ -286,6 +313,9 @@ class RequestContextTests(SimpleTestCase):
         )
 
     def test_modify_context_and_render(self):
+        """
+        Tests modifying the context and rendering a template to verify the rendered output matches the context value.
+        """
         template = Template("{{ foo }}")
         request = self.request_factory.get("/")
         context = RequestContext(request, {})
@@ -306,6 +336,9 @@ class RequestContextTests(SimpleTestCase):
         ],
     )
     def test_template_context_processor_returning_none(self):
+        """
+        Tests that a template context processor returning None raises a TypeError.
+        """
         request_context = RequestContext(HttpRequest())
         msg = (
             "Context processor context_process_returning_none didn't return a "

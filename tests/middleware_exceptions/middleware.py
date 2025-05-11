@@ -117,6 +117,9 @@ class PaymentMiddleware(BaseMiddleware):
 
 @async_only_middleware
 def async_payment_middleware(get_response):
+    """
+    Adds an asynchronous payment middleware that intercepts responses and sets their status code to 402 (Payment Required).
+    """
     async def middleware(request):
         response = await get_response(request)
         response.status_code = 402

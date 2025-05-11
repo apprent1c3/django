@@ -25,6 +25,9 @@ class GISLookup(Lookup):
         self.process_rhs_params()
 
     def process_rhs_params(self):
+        """
+        Processes the right-hand side parameters of a lookup operation, validating their length and executing further processing steps as necessary, depending on the lookup type and the presence of a raster band transform on the left-hand side.
+        """
         if self.rhs_params:
             # Check if a band index was passed in the query argument.
             if len(self.rhs_params) == (2 if self.lookup_name == "relate" else 1):
@@ -58,6 +61,9 @@ class GISLookup(Lookup):
         return ("%s", [connection.ops.Adapter(value)])
 
     def process_rhs(self, compiler, connection):
+        """
+        Processes the right-hand side of a spatial database query, handling different types of input and adapting it to the query compiler and database connection, ultimately returning a placeholder and parameters for the processed RHS.
+        """
         if isinstance(self.rhs, Query):
             # If rhs is some Query, don't touch it.
             return super().process_rhs(compiler, connection)
@@ -76,6 +82,18 @@ class GISLookup(Lookup):
         return connection.ops.gis_operators[self.lookup_name]
 
     def as_sql(self, compiler, connection):
+        """
+        Generate SQL representation of the current operation.
+
+        Queries the left-hand side (LHS) and right-hand side (RHS) of the operation,
+        combines their SQL and parameters, and then uses the RHS operator to produce
+        the final SQL string and parameters.
+
+        :param compiler: The compiler instance for the current database dialect.
+        :param connection: The database connection instance.
+        :returns: The SQL string and parameters for the operation.
+
+        """
         lhs_sql, lhs_params = self.process_lhs(compiler, connection)
         rhs_sql, rhs_params = self.process_rhs(compiler, connection)
         sql_params = (*lhs_params, *rhs_params)
@@ -277,6 +295,14 @@ class RelateLookup(GISLookup):
 
     def process_rhs(self, compiler, connection):
         # Check the pattern argument
+        """
+        Process the right-hand side of a geographic intersection operation.
+
+        Checks the validity of the given intersection matrix pattern against the 
+        database backend's operator and regular expression. If valid, it 
+        constructs the SQL query and parameters for the operation, incorporating 
+        the pattern into the parameters.
+        """
         pattern = self.rhs_params[0]
         backend_op = connection.ops.gis_operators[self.lookup_name]
         if hasattr(backend_op, "check_relate_argument"):
@@ -302,6 +328,13 @@ class DistanceLookupBase(GISLookup):
     sql_template = "%(func)s(%(lhs)s, %(rhs)s) %(op)s %(value)s"
 
     def process_rhs_params(self):
+        """
+        ..: Validates and processes the right-hand side parameters for a lookup operation.
+
+            The function checks the number and content of the parameters to ensure they conform to
+            the required format, raising a ValueError if they do not. If valid, it proceeds to
+            process band indices if necessary.
+        """
         if not 1 <= len(self.rhs_params) <= 3:
             raise ValueError(
                 "2, 3, or 4-element tuple required for '%s' lookup." % self.lookup_name
@@ -357,6 +390,11 @@ class DWithinLookup(DistanceLookupBase):
 
 class DistanceLookupFromFunction(DistanceLookupBase):
     def as_sql(self, compiler, connection):
+        """
+        Generates an SQL expression to calculate the distance between two geographic points.
+        This method is used to compile geographic distance lookups into SQL queries.
+        It supports spherical and spheroid distance calculations depending on the input parameters.
+        """
         spheroid = (
             len(self.rhs_params) == 2 and self.rhs_params[-1] == "spheroid"
         ) or None

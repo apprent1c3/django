@@ -13,6 +13,9 @@ from ..models import Article, Author, DecimalModel, Fan
 
 class LeastTests(TestCase):
     def test_basic(self):
+        """
+        Tests that the first_updated annotation correctly identifies the earliest date between the written and published dates of an article.
+        """
         now = timezone.now()
         before = now - timedelta(hours=1)
         Article.objects.create(
@@ -37,6 +40,9 @@ class LeastTests(TestCase):
         self.assertIsNone(articles.first().first_updated)
 
     def test_coalesce_workaround(self):
+        """
+        Tests a workaround for the database coalesce function by creating a test article and asserting that the last_updated field is correctly annotated with the earliest timestamp between the 'written' and 'published' fields.
+        """
         future = datetime(2100, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)
@@ -50,6 +56,12 @@ class LeastTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "MySQL-specific workaround")
     def test_coalesce_workaround_mysql(self):
+        """
+        Tests MySQL-specific workaround for coalesce function in Django queries.
+
+         Verifies that the least recent date between the 'written' and 'published' fields of an Article object is correctly determined, 
+         falling back to the current time if either field is null, on MySQL databases.
+        """
         future = datetime(2100, 1, 1)
         now = timezone.now()
         Article.objects.create(title="Testing with Django", written=now)

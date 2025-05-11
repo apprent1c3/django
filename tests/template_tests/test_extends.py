@@ -28,6 +28,9 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(output.strip(), "fs3/recursive fs2/recursive fs/recursive")
 
     def test_extend_missing(self):
+        """
+        Tests that rendering of a template which extends a missing template correctly raises a TemplateDoesNotExist exception, providing a list of attempted template locations.
+        """
         engine = Engine(dirs=[os.path.join(RECURSIVE, "fs")])
         template = engine.get_template("extend-missing.html")
         with self.assertRaises(TemplateDoesNotExist) as e:
@@ -83,6 +86,11 @@ class ExtendsBehaviorTests(SimpleTestCase):
         self.assertEqual(message, "Skipped to avoid recursion")
 
     def test_extend_cached(self):
+        """
+        Tests the caching mechanism of the template engine when extending templates.
+        Verifies that templates are correctly cached and retrieved from the cache,
+        and that the cache is updated when new templates are loaded
+        """
         engine = Engine(
             dirs=[
                 os.path.join(RECURSIVE, "fs"),

@@ -54,6 +54,12 @@ class ProgressBar:
         self.prev_done = 0
 
     def update(self, count):
+        """
+        Update the progress bar display, writing the current progress to the output stream.
+
+        :param count: the number of items processed so far
+        :note: only updates the display if the progress has actually changed, and only if an output stream is available
+        """
         if not self.output:
             return
         perc = count * 100 // self.total_count
@@ -262,6 +268,13 @@ class DeserializedObject:
         # Call save on the Model baseclass directly. This bypasses any
         # model-defined save. The save is also forced to be raw.
         # raw=True is passed to any pre/post_save signals.
+        """
+        Saves the current object to the database, optionally including many-to-many relationships if specified. 
+
+        :param save_m2m: Whether to save many-to-many relationships (default is True)
+        :param using: Database alias to use for the save operation (default is None)
+        :param **kwargs: Additional keyword arguments to pass to the save operation
+        """
         models.Model.save_base(self.object, using=using, raw=True, **kwargs)
         if self.m2m_data and save_m2m:
             for accessor_name, object_list in self.m2m_data.items():
@@ -272,6 +285,12 @@ class DeserializedObject:
         self.m2m_data = None
 
     def save_deferred_fields(self, using=None):
+        """
+        Saves the deferred fields of the object.
+
+        This method processes and saves the fields that were previously deferred, which includes many-to-many and foreign key relationships.
+        It uses the provided database connection (or the default one if not specified) and validates the deserialized field values before saving the object.
+        """
         self.m2m_data = {}
         for field, field_value in self.deferred_fields.items():
             opts = self.object._meta
@@ -326,6 +345,13 @@ def build_instance(Model, data, db):
 
 
 def deserialize_m2m_values(field, field_value, using, handle_forward_references):
+    """
+    Deserializes many-to-many field values into a list of primary keys.
+
+    The function takes a many-to-many field, its serialized value, a database to use for the query, and a flag to handle forward references.
+    It returns a list of deserialized primary keys, or a special value if the referenced objects do not exist and forward references are being handled.
+    If an error occurs during deserialization, a :exc:`M2MDeserializationError` is raised.
+    """
     model = field.remote_field.model
     if hasattr(model._default_manager, "get_by_natural_key"):
 
@@ -361,6 +387,9 @@ def deserialize_m2m_values(field, field_value, using, handle_forward_references)
 
 
 def deserialize_fk_value(field, field_value, using, handle_forward_references):
+    """
+    Deserializes a foreign key value into a Python object, following the field's model and marrying it with the provided value. If the value is iterable, attempts to retrieve an object using its natural key; otherwise, converts the value to a Python object using the field's `to_python` method. Handles forward references by deferring the field if the object does not exist and `handle_forward_references` is True.
+    """
     if field_value is None:
         return None
     model = field.remote_field.model

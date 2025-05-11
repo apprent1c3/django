@@ -43,6 +43,28 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def date_extract_sql(self, lookup_type, sql, params):
         # https://dev.mysql.com/doc/mysql/en/date-and-time-functions.html
+        """
+        Generates SQL to extract a specific date component from a given SQL expression.
+
+        Parameters
+        ----------
+        lookup_type : str
+            The type of date component to extract (e.g., 'week_day', 'iso_week_day', 'week', 'iso_year', or a SQL EXTRACT format)
+        sql : str
+            The SQL expression to extract the date component from
+        params : tuple
+            Parameters to be used in the SQL query
+
+        Returns
+        -------
+        tuple
+            A tuple containing the generated SQL and the parameters
+
+        Raises
+        ------
+        ValueError
+            If the lookup type is invalid
+        """
         if lookup_type == "week_day":
             # DAYOFWEEK() returns an integer, 1-7, Sunday=1.
             return f"DAYOFWEEK({sql})", params
@@ -66,6 +88,19 @@ class DatabaseOperations(BaseDatabaseOperations):
             return f"EXTRACT({lookup_type} FROM {sql})", params
 
     def date_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+
+        Truncates a date to a specified level of precision.
+
+         trảnsform a SQL expression representing a date value to truncate it to the specified level ('year', 'month', 'quarter', or 'week').
+
+        :param lookup_type: The level of precision to truncate the date to
+        :param sql: The SQL expression representing the date value
+        :param params: Parameters to be used in the SQL expression
+        :param tzname: Optional time zone name to convert the date to, defaults to None
+        :return: A tuple containing the modified SQL expression and parameters
+
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = {
             "year": "%Y-01-01",
@@ -111,6 +146,13 @@ class DatabaseOperations(BaseDatabaseOperations):
         return self.date_extract_sql(lookup_type, sql, params)
 
     def datetime_trunc_sql(self, lookup_type, sql, params, tzname):
+        """
+        Truncates a given SQL datetime expression to a specified level of precision.
+
+        The function takes a lookup type (e.g. 'year', 'month', 'day', 'hour', 'minute', 'second', 'quarter', 'week') 
+        and truncates the given SQL datetime expression to the beginning of that period, returning the modified SQL expression 
+        and its parameters. If the lookup type is not recognized, the original SQL expression is returned unchanged.
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = ["year", "month", "day", "hour", "minute", "second"]
         format = ("%Y-", "%m", "-%d", " %H:", "%i", ":%s")
@@ -136,6 +178,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return sql, params
 
     def time_trunc_sql(self, lookup_type, sql, params, tzname=None):
+        """
+        Truncates a SQL timestamp to a specified level of precision.
+
+        :param lookup_type: The level of precision to truncate to, one of 'hour', 'minute', or 'second'.
+        :param sql: The SQL expression to truncate.
+        :param params: The parameters associated with the SQL expression.
+        :param tzname: The name of the time zone to convert to, optional.
+        :return: A tuple containing the modified SQL expression and updated parameters.
+        """
         sql, params = self._convert_sql_to_tz(sql, params, tzname)
         fields = {
             "hour": "%H:00:00",
@@ -200,6 +251,15 @@ class DatabaseOperations(BaseDatabaseOperations):
         return "RETURNING %s" % ", ".join(columns), ()
 
     def sql_flush(self, style, tables, *, reset_sequences=False, allow_cascade=False):
+        """
+        Generates SQL statements to flush data from specified tables.
+
+        :param style: SQL dialect style
+        :param tables: List of table names to flush
+        :param reset_sequences: If True, truncate tables and reset sequences; otherwise, delete data using DELETE FROM statements
+        :param allow_cascade: Not used in this implementation
+        :return: List of SQL statements to flush data from tables and reset foreign key checks
+        """
         if not tables:
             return []
 
@@ -252,6 +312,9 @@ class DatabaseOperations(BaseDatabaseOperations):
         return value
 
     def adapt_datetimefield_value(self, value):
+        """
+        Adapts a datetime field value for use with the MySQL backend, handling timezone awareness and converting the value to a string if necessary.
+        """
         if value is None:
             return None
 
@@ -271,6 +334,12 @@ class DatabaseOperations(BaseDatabaseOperations):
         return str(value)
 
     def adapt_timefield_value(self, value):
+        """
+        Adapts a time field value for use with the MySQL backend.
+
+        This function takes a time field value as input and returns the adapted value. 
+        It handles None values, Django expressions, and naive time objects, ensuring the output is compatible with the MySQL backend.
+        """
         if value is None:
             return None
 
@@ -291,6 +360,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         return "NULL"
 
     def combine_expression(self, connector, sub_expressions):
+        """
+        Combines a list of sub-expressions with a given logical or bitwise connector, 
+        returning a formatted expression string. Supports various operators including 
+        bitwise AND, OR, shift, and power, and provides conversions for signed results.
+        """
         if connector == "^":
             return "POW(%s)" % ",".join(sub_expressions)
         # Convert the result to a signed integer since MySQL's binary operators
@@ -304,6 +378,11 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().combine_expression(connector, sub_expressions)
 
     def get_db_converters(self, expression):
+        """
+        Returns a list of database converters for the given expression, extending the converters from the base class. 
+        The converters are chosen based on the internal type of the expression's output field, 
+        supporting BooleanField, DateTimeField, and UUIDField with custom conversion functions.
+        """
         converters = super().get_db_converters(expression)
         internal_type = expression.output_field.get_internal_type()
         if internal_type == "BooleanField":
@@ -336,6 +415,17 @@ class DatabaseOperations(BaseDatabaseOperations):
         )
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+        Subtract two temporal values.
+
+        Handling the difference between two time-related fields, converting the result into microseconds. This function works with different types of temporal fields ('TimeField' and others) and provides database-specific implementations for MySQL and MariaDB.
+
+        :param internal_type: The type of the field being subtracted from.
+        :param lhs: The left-hand side of the subtraction operation, represented as a SQL string and its parameters.
+        :param rhs: The right-hand side of the subtraction operation, represented as a SQL string and its parameters.
+        :rtype: A tuple containing the resulting SQL string and its parameters.
+
+        """
         lhs_sql, lhs_params = lhs
         rhs_sql, rhs_params = rhs
         if internal_type == "TimeField":
@@ -363,6 +453,16 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def explain_query_prefix(self, format=None, **options):
         # Alias MySQL's TRADITIONAL to TEXT for consistency with other backends.
+        """
+        Generates the prefix for an EXPLAIN query, handling various formats and options to aid in query analysis and optimization.
+
+        The function supports multiple formats, including traditional and tree-based explanations, and may also include analysis components depending on the database connection features.
+
+        :param format: The desired format of the EXPLAIN query, defaulting to 'TREE' if supported by the database connection.
+        :param options: Additional options to customize the EXPLAIN query, including 'analyze' to enable analysis.
+        :return: The generated prefix for the EXPLAIN query.
+
+        """
         if format and format.upper() == "TEXT":
             format = "TRADITIONAL"
         elif (
@@ -384,6 +484,13 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def regex_lookup(self, lookup_type):
         # REGEXP_LIKE doesn't exist in MariaDB.
+        """
+
+        Return a SQL string for a regular expression lookup operation, 
+        taking into account the database connection type (MySQL/MariaDB) 
+        and the specified lookup type (case-sensitive or case-insensitive regex).
+
+        """
         if self.connection.mysql_is_mariadb:
             if lookup_type == "regex":
                 return "%s REGEXP BINARY %s"
@@ -398,6 +505,12 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().insert_statement(on_conflict=on_conflict)
 
     def lookup_cast(self, lookup_type, internal_type=None):
+        """
+        Returns the SQL lookup type for the given lookup type and internal type. 
+        Determines the correct lookup type for various database operations, 
+        handling JSONField types specifically for MariaDB connections or 
+        case-insensitive and regex-based lookups.
+        """
         lookup = "%s"
         if internal_type == "JSONField":
             if self.connection.mysql_is_mariadb or lookup_type in (
@@ -417,6 +530,9 @@ class DatabaseOperations(BaseDatabaseOperations):
     def conditional_expression_supported_in_where_clause(self, expression):
         # MySQL ignores indexes with boolean fields unless they're compared
         # directly to a boolean value.
+        """
+        Checks whether a conditional expression is supported in the WHERE clause. Returns True for Exists and Lookup expressions, and recursively checks the wrapped expression if the input is an ExpressionWrapper. For other expression types, returns False if the expression is conditional, otherwise delegates to the parent class's implementation.
+        """
         if isinstance(expression, (Exists, Lookup)):
             return True
         if isinstance(expression, ExpressionWrapper) and expression.conditional:
@@ -428,6 +544,20 @@ class DatabaseOperations(BaseDatabaseOperations):
         return super().conditional_expression_supported_in_where_clause(expression)
 
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
+        """
+        Generates SQL suffix for handling conflicts during database operations.
+
+        Specifically, it constructs the ON DUPLICATE KEY UPDATE clause for MySQL 
+        databases, taking into account the database version and whether it's 
+        MariaDB. The generated suffix is used to update specified fields when a 
+        duplicate key conflict occurs.
+
+        :param fields: list of fields
+        :param on_conflict: conflict resolution action
+        :param update_fields: fields to update on conflict
+        :param unique_fields: unique fields that may cause a conflict
+        :return: SQL suffix for handling conflicts
+        """
         if on_conflict == OnConflict.UPDATE:
             conflict_suffix_sql = "ON DUPLICATE KEY UPDATE %(fields)s"
             # The use of VALUES() is deprecated in MySQL 8.0.20+. Instead, use

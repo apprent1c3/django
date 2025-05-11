@@ -47,6 +47,9 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Checks if a given serialized string is a valid JSON. Returns True if the string can be parsed into a JSON object, False otherwise.
+        """
         try:
             json.loads(serial_str)
         except Exception:
@@ -69,6 +72,9 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
         ]
 
     def test_indentation_whitespace(self):
+        """
+        Verify that the JSON serializer correctly handles indentation and trailing whitespace.
+        """
         s = serializers.json.Serializer()
         json_data = s.serialize([Score(score=5.0), Score(score=6.0)], indent=2)
         for line in json_data.splitlines():
@@ -77,6 +83,9 @@ class JsonSerializerTestCase(SerializersTestBase, TestCase):
 
     @isolate_apps("serializers")
     def test_custom_encoder(self):
+        """
+        Tests that a custom JSON encoder can be used to correctly serialize Decimal fields from a model instance, allowing for flexible and controlled serialization of data.
+        """
         class ScoreDecimal(models.Model):
             score = models.DecimalField()
 

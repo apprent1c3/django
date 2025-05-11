@@ -16,6 +16,10 @@ class ContentTypeManager(models.Manager):
         self._cache = {}
 
     def get_by_natural_key(self, app_label, model):
+        """
+        Retrieves a content type by its natural key, consisting of the application label and model name, 
+        utilizing a cache to minimize database queries if the content type is already loaded.
+        """
         try:
             ct = self._cache[self.db][(app_label, model)]
         except KeyError:

@@ -14,6 +14,9 @@ class GetListObjectOr404Test(TestCase):
         cls.r1 = RelatedModel.objects.create(simple=cls.s1)
 
     async def test_aget_object_or_404(self):
+        """
+        Tests the asynchronous retrieval of an object from the database, raising a 404 error if no matching object is found.
+        """
         self.assertEqual(await aget_object_or_404(SimpleModel, field=1), self.s2)
         self.assertEqual(await aget_object_or_404(SimpleModel, Q(field=0)), self.s1)
         self.assertEqual(
@@ -28,6 +31,9 @@ class GetListObjectOr404Test(TestCase):
             await aget_object_or_404(SimpleModel, field=2)
 
     async def test_get_list_or_404(self):
+        """
+        Retrieves a list of objects from the database based on the provided query parameters, raising an Http404 exception if no objects match the query.
+        """
         self.assertEqual(await aget_list_or_404(SimpleModel, field=1), [self.s2])
         self.assertEqual(await aget_list_or_404(SimpleModel, Q(field=0)), [self.s1])
         self.assertEqual(

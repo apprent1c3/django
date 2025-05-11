@@ -181,6 +181,11 @@ class SetLanguageTests(TestCase):
     def test_setlang_cookie(self):
         # we force saving language to a cookie rather than a session
         # by excluding session middleware and those which do require it
+        """
+        Tests the setting of a language cookie via the /i18n/setlang/ view, 
+        verifying that the cookie is set with the correct language code and 
+        attributes as specified in the test settings.
+        """
         test_settings = {
             "MIDDLEWARE": ["django.middleware.common.CommonMiddleware"],
             "LANGUAGE_COOKIE_NAME": "mylanguage",
@@ -229,6 +234,14 @@ class SetLanguageTests(TestCase):
         }
     )
     def test_lang_from_translated_i18n_pattern(self):
+        """
+
+        Tests that the language can be changed successfully using the i18n language setting URL.
+
+        Verifies that the language cookie is updated and the user is redirected to the translated URL
+        for the newly selected language.
+
+        """
         response = self.client.post(
             "/i18n/setlang/",
             data={"language": "nl"},
@@ -486,6 +499,9 @@ class I18NViewTests(SimpleTestCase):
             self.assertContains(response, "este texto de app3 debe ser traducido")
 
     def test_i18n_with_locale_paths(self):
+        """
+        Tests internationalization (i18n) functionality with custom locale paths, verifying translation of text for a specific language code ('es-ar').
+        """
         extended_locale_paths = settings.LOCALE_PATHS + [
             path.join(
                 path.dirname(path.dirname(path.abspath(__file__))),
@@ -499,6 +515,9 @@ class I18NViewTests(SimpleTestCase):
                 self.assertContains(response, "este texto de app3 debe ser traducido")
 
     def test_i18n_unknown_package_error(self):
+        """
+        Tests that JavaScriptCatalog raises a ValueError when given unknown packages, either individually or in combination.
+        """
         view = JavaScriptCatalog.as_view()
         request = RequestFactory().get("/")
         msg = "Invalid package(s) provided to JavaScriptCatalog: unknown_package"
@@ -535,6 +554,15 @@ class I18nSeleniumTests(SeleniumTestCase):
 
     @override_settings(LANGUAGE_CODE="de")
     def test_javascript_gettext(self):
+        """
+
+        Tests the translation of JavaScript messages using the gettext function.
+
+        Verifies that the page loads with the correct translations for various
+        message types, including gettext, ngettext, pgettext, and npgettext,
+        in the German language.
+
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(self.live_server_url + "/jsi18n_template/")
@@ -562,6 +590,12 @@ class I18nSeleniumTests(SeleniumTestCase):
     @modify_settings(INSTALLED_APPS={"append": ["view_tests.app1", "view_tests.app2"]})
     @override_settings(LANGUAGE_CODE="fr")
     def test_multiple_catalogs(self):
+        """
+        Tests translation of multiple catalogs with French language setting.
+
+        Verifies that translation works correctly for two separate applications (app1 and app2)
+        when the LANGUAGE_CODE is set to French ('fr').
+        """
         from selenium.webdriver.common.by import By
 
         self.selenium.get(self.live_server_url + "/jsi18n_multi_catalogs/")

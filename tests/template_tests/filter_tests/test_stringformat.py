@@ -37,6 +37,9 @@ class StringformatTests(SimpleTestCase):
 
 class FunctionTests(SimpleTestCase):
     def test_format(self):
+        """
+        Tests the stringformat function with various data types and format specifiers, ensuring correct output for integers, lists, tuples, sets, and dictionaries.
+        """
         self.assertEqual(stringformat(1, "03d"), "001")
         self.assertEqual(stringformat([1, None], "s"), "[1, None]")
         self.assertEqual(stringformat((1, 2, 3), "s"), "(1, 2, 3)")

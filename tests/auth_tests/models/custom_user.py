@@ -83,6 +83,9 @@ class RemoveGroupsAndPermissions:
     """
 
     def __enter__(self):
+        """
+        Temporarily modifies model metadata to make 'groups' and 'user_permissions' fields appear as local many-to-many fields, overriding their usual behavior for the duration of the context manager.
+        """
         self._old_au_local_m2m = AbstractUser._meta.local_many_to_many
         self._old_pm_local_m2m = PermissionsMixin._meta.local_many_to_many
         groups = models.ManyToManyField(Group, blank=True)

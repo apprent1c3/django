@@ -32,6 +32,14 @@ def with_parameter(request, parameter):
 def raises(request):
     # Make sure that a callable that raises an exception in the stack frame's
     # local vars won't hijack the technical 500 response (#15025).
+    """
+    Raises an exception to test error handling, returning a 500 response.\"\"\"
+
+    Alternatively, a longer explanation can be provided if more context is required:
+
+    \"\"\"Simulates an exception to verify error handling mechanisms, 
+     returning a technical 500 response as a result of the raised exception.
+    """
     def callable():
         raise Exception
 
@@ -124,6 +132,12 @@ def render_no_template(request):
 
 
 def send_log(request, exc_info):
+    """
+    Sends a server error log to administrators via email when an internal server error occurs.
+
+    This function temporarily modifies the AdminEmailHandler to log the error with HTML formatting,
+    then resets the handler's filters to their original state after logging the error.
+    """
     logger = logging.getLogger("django")
     # The default logging config has a logging filter to ensure admin emails are
     # only sent with DEBUG=False, but since someone might choose to remove that
@@ -148,6 +162,15 @@ def non_sensitive_view(request):
     # Do not just use plain strings for the variables' values in the code
     # so that the tests don't return false positives when the function's source
     # is displayed in the exception report.
+    """
+
+
+    Handles a non-sensitive view request, simulating a server-side error for testing purposes.
+
+    The function generates some dummy data, intentionally raises an exception, catches it, and then logs the error and returns a technical 500 response to the client.
+
+
+    """
     cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
     sauce = "".join(  # NOQA
         ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -166,6 +189,10 @@ def sensitive_view(request):
     # Do not just use plain strings for the variables' values in the code
     # so that the tests don't return false positives when the function's source
     # is displayed in the exception report.
+    """
+    Handles a sensitive view by processing the request, 
+    managing an exception if it occurs, and sending a log and technical response accordingly.
+    """
     cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
     sauce = "".join(  # NOQA
         ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -184,6 +211,13 @@ async def async_sensitive_view(request):
     # Do not just use plain strings for the variables' values in the code so
     # that the tests don't return false positives when the function's source is
     # displayed in the exception report.
+    """
+
+    Handle an asynchronous request, intentionally inducing an exception to demonstrate error handling.
+
+    The function logs the exception and returns a technical 500 response.
+
+    """
     cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
     sauce = "".join(  # NOQA
         ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -210,6 +244,10 @@ async def async_sensitive_function(request):
 
 
 async def async_sensitive_view_nested(request):
+    """
+    Asynchronously handles a sensitive view by calling the nested async function, 
+    catches any exceptions, logs the error, and returns a 500 technical response.
+    """
     try:
         await async_sensitive_function(request)
     except Exception:
@@ -224,6 +262,12 @@ def paranoid_view(request):
     # Do not just use plain strings for the variables' values in the code
     # so that the tests don't return false positives when the function's source
     # is displayed in the exception report.
+    """
+    View that intentionally triggers an exception to test error handling.
+
+    Handles the exception by logging the error and returning a 500 response.
+
+    """
     cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
     sauce = "".join(  # NOQA
         ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -237,6 +281,9 @@ def paranoid_view(request):
 
 
 def sensitive_args_function_caller(request):
+    """
+    Calls a function with sensitive arguments, catching any exceptions that occur and handling them by logging the error details and returning a technical 500 response.
+    """
     try:
         sensitive_args_function(
             "".join(
@@ -259,6 +306,13 @@ def sensitive_args_function(sauce):
 
 
 def sensitive_kwargs_function_caller(request):
+    """
+
+    Calls a sensitive function with a fixed keyword argument value and handles any exceptions that may occur.
+
+    If an exception is raised, it logs the error and returns a technical 500 response to the client.
+
+    """
     try:
         sensitive_kwargs_function(
             "".join(
@@ -298,6 +352,12 @@ def custom_exception_reporter_filter_view(request):
     # Do not just use plain strings for the variables' values in the code
     # so that the tests don't return false positives when the function's source
     # is displayed in the exception report.
+    """
+    Custom exception reporter filter view.
+
+    Handles exceptions by sending log information and returning a technical 500 response.
+    Serves as a custom error handler, intercepting and processing exceptions to provide informative error responses.
+    """
     cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
     sauce = "".join(  # NOQA
         ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -324,6 +384,15 @@ class TemplateOverrideExceptionReporter(ExceptionReporter):
 
 
 def custom_reporter_class_view(request):
+    """
+
+    Transitions to a custom exception reporter class for handling requests.
+
+    This view deliberately raises an exception to trigger the custom reporter
+    and returns a technical 500 response. It is used to test and utilize
+    the CustomExceptionReporter class.
+
+    """
     request.exception_reporter_class = CustomExceptionReporter
     try:
         raise Exception
@@ -338,6 +407,12 @@ class Klass:
         # Do not just use plain strings for the variables' values in the code
         # so that the tests don't return false positives when the function's
         # source is displayed in the exception report.
+        """
+        Handles an internal server error by logging the exception and returning a 500 error response.
+
+        :param request: The incoming request object
+        :return: A technical 500 response
+        """
         cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
         sauce = "".join(  # NOQA
             ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -354,6 +429,13 @@ class Klass:
         # Do not just use plain strings for the variables' values in the code
         # so that the tests don't return false positives when the function's
         # source is displayed in the exception report.
+        """
+
+        Handles an asynchronous request, intentionally triggering an exception to test error handling.
+
+        The function simulates a failure, catches the exception, logs the error, and returns a technical 500 response to the client.
+
+        """
         cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
         sauce = "".join(  # NOQA
             ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]
@@ -377,6 +459,9 @@ class Klass:
         raise Exception
 
     async def async_method_nested(self, request):
+        """
+        Handle asynchronous requests, catching and logging any exceptions that occur during processing, and returning a 500 error response when necessary.
+        """
         try:
             await self._async_method_inner(request)
         except Exception:
@@ -400,6 +485,10 @@ async def async_sensitive_method_view_nested(request):
 @sensitive_variables("sauce")
 @sensitive_post_parameters("bacon-key", "sausage-key")
 def multivalue_dict_key_error(request):
+    """
+    Handles KeyError exceptions in a multivalue dictionary, specifically when accessing a request's POST data. 
+    If a KeyError occurs, it logs the exception and returns a technical 500 response.
+    """
     cooked_eggs = "".join(["s", "c", "r", "a", "m", "b", "l", "e", "d"])  # NOQA
     sauce = "".join(  # NOQA
         ["w", "o", "r", "c", "e", "s", "t", "e", "r", "s", "h", "i", "r", "e"]

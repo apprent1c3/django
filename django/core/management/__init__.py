@@ -135,6 +135,9 @@ def call_command(command_name, *args, **options):
 
     def get_actions(parser):
         # Parser actions and actions from sub-parser choices.
+        """
+        Recursively yields all actions from a given parser, including sub-parser actions.
+        """
         for opt in parser._actions:
             if isinstance(opt, _SubParsersAction):
                 for sub_opt in opt.choices.values():
@@ -200,6 +203,9 @@ class ManagementUtility:
     """
 
     def __init__(self, argv=None):
+        """
+        Initializes the object with command line arguments and extracts the program name from the first argument. If the program is being run as a module, the program name is adjusted accordingly. Also, prepares to store any settings-related exceptions that may occur during initialization.
+        """
         self.argv = argv or sys.argv[:]
         self.prog_name = os.path.basename(self.argv[0])
         if self.prog_name == "__main__.py":

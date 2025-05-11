@@ -33,6 +33,17 @@ class OneToOneTests(TestCase):
 
     def test_getter(self):
         # A Restaurant can access its place.
+        """
+        Verifies that restaurant getter correctly retrieves or raises an exception for a given place, and tests its representation.\"\"\"
+
+        \"\"\" 
+        Tests that:
+            - The representation of a place matches its expected format.
+            - The representation of a restaurant associated with a place matches its expected format.
+            - Accessing the restaurant attribute of a place without a restaurant raises a Restaurant.DoesNotExist exception.
+            - A place without a restaurant does not have a 'restaurant' attribute.
+
+        """
         self.assertEqual(repr(self.r1.place), "<Place: Demon Dogs the place>")
         # A Place can access its restaurant, if available.
         self.assertEqual(
@@ -51,6 +62,9 @@ class OneToOneTests(TestCase):
     def test_setter(self):
         # Set the place using assignment notation. Because place is the primary
         # key on Restaurant, the save will create a new restaurant
+        """
+        Tests the relationship between Restaurant and Place models through their setter properties, verifying correct assignment and retrieval of related objects.
+        """
         self.r1.place = self.p2
         self.r1.save()
         self.assertEqual(
@@ -74,6 +88,12 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(Place.objects.order_by("name"), [self.p2, self.p1])
 
     def test_manager_get(self):
+        """
+        Tests the manager's method for retrieving model instances.
+
+         Verifies that various lookups, including exact and lookup-based queries,
+         correctly retrieve Restaurant and Place objects from the database.
+        """
         def assert_get_restaurant(**params):
             self.assertEqual(
                 repr(Restaurant.objects.get(**params)),
@@ -109,6 +129,11 @@ class OneToOneTests(TestCase):
 
     def test_foreign_key(self):
         # Add a Waiter to the Restaurant.
+        """
+        Tests the functionality of foreign keys in the Waiter model, specifically the relationship with Restaurant and Place models.
+
+         Verifies that waiters can be filtered based on their associated restaurant and place, and ensures that the onların deletion cascades correctly when a related restaurant is deleted.
+        """
         w = self.r1.waiter_set.create(name="Joe")
         self.assertEqual(
             repr(w), "<Waiter: Joe the waiter at Demon Dogs the restaurant>"
@@ -135,6 +160,9 @@ class OneToOneTests(TestCase):
 
     def test_multiple_o2o(self):
         # One-to-one fields still work if you create your own primary key
+        """
+        Tests the one-to-one relationship between ManualPrimaryKey and MultiModel, ensuring that each primary key instance is linked to only one MultiModel instance.
+        """
         o1 = ManualPrimaryKey(primary_key="abc123", name="primary")
         o1.save()
         o2 = RelatedModel(link=o1, name="secondary")
@@ -207,6 +235,9 @@ class OneToOneTests(TestCase):
         self.assertEqual(self.p1.bar, self.b1)
 
     def test_assign_none_reverse_relation(self):
+        """
+        Tests that setting a place to None on the reverse side of a relationship correctly nulls the foreign key on the related object.
+        """
         p = Place.objects.get(name="Demon Dogs")
         # Assigning None succeeds if field is null=True.
         ug_bar = UndergroundBar.objects.create(place=p, serves_cocktails=False)
@@ -232,6 +263,10 @@ class OneToOneTests(TestCase):
         p.undergroundbar = None
 
     def test_assign_o2o_id_value(self):
+        """
+        Tests the assignment of a one-to-one ID value to an UndergroundBar instance, 
+        verifying that the related object is correctly updated and cached.
+        """
         b = UndergroundBar.objects.create(place=self.p1)
         b.place_id = self.p2.pk
         b.save()
@@ -244,6 +279,12 @@ class OneToOneTests(TestCase):
         self.assertTrue(UndergroundBar.place.is_cached(b))
 
     def test_assign_o2o_id_none(self):
+        """
+
+        Tests the one-to-one relationship between UndergroundBar and Place when the place_id is set to None.
+        Verifies that the place attribute is properly updated and cached after saving the UndergroundBar instance.
+
+        """
         b = UndergroundBar.objects.create(place=self.p1)
         b.place_id = None
         b.save()
@@ -321,6 +362,9 @@ class OneToOneTests(TestCase):
         self.assertSequenceEqual(Target.objects.exclude(second_pointer=None), [])
 
     def test_o2o_primary_key_delete(self):
+        """
+        Tests deletion of an object with a one-to-one relationship, ensuring the primary key is correctly removed.
+        """
         t = Target.objects.create(name="name")
         Pointer.objects.create(other=t)
         num_deleted, objs = Pointer.objects.filter(other__name="name").delete()
@@ -328,6 +372,9 @@ class OneToOneTests(TestCase):
         self.assertEqual(objs, {"one_to_one.Pointer": 1})
 
     def test_save_nullable_o2o_after_parent(self):
+        """
+        Tests that a nullable one-to-one relationship is correctly saved after the parent object has been saved, verifying that the relationship is properly established and retained upon database refresh.
+        """
         place = Place(name="Rose tattoo")
         bar = UndergroundBar(place=place)
         place.save()
@@ -458,6 +505,9 @@ class OneToOneTests(TestCase):
                 b.save()
 
     def test_nullable_o2o_delete(self):
+        """
+        Tests the behavior of a one-to-one relationship when the related object is deleted and the relationship is set to nullable, ensuring the parent object remains intact but loses the association.
+        """
         u = UndergroundBar.objects.create(place=self.p1)
         u.place_id = None
         u.save()
@@ -478,6 +528,11 @@ class OneToOneTests(TestCase):
         )
 
     def test_related_object(self):
+        """
+        Tests the relationship between School and Director objects, 
+        ensuring that related objects are correctly accessed and that 
+        accessing related objects that do not exist raises the appropriate exception.
+        """
         public_school = School.objects.create(is_public=True)
         public_director = Director.objects.create(school=public_school, is_temp=False)
 
@@ -554,6 +609,13 @@ class OneToOneTests(TestCase):
         self.assertFalse(hasattr(School(), "school"))
 
     def test_update_one_to_one_pk(self):
+        """
+
+        Tests the update functionality for a one-to-one relationship's primary key.
+
+        Verifies that updating the restaurant associated with a waiter results in the change being persisted to the database.
+
+        """
         p1 = Place.objects.create()
         p2 = Place.objects.create()
         r1 = Restaurant.objects.create(place=p1)
@@ -565,6 +627,9 @@ class OneToOneTests(TestCase):
         self.assertEqual(w.restaurant, r2)
 
     def test_rel_pk_subquery(self):
+        """
+        Tests various subquery scenarios for filtering Restaurant objects by primary key, including subqueries with related objects (Places) and testing sequence equality of the results.
+        """
         r = Restaurant.objects.first()
         q1 = Restaurant.objects.filter(place_id=r.pk)
         # Subquery using primary key and a query against the

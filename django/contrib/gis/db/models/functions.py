@@ -26,6 +26,9 @@ class GeoFuncMixin:
     geom_param_pos = (0,)
 
     def __init__(self, *expressions, **extra):
+        """
+        Initializes a geometric function, validating and normalizing the provided expressions to ensure they contain geometric arguments at the correct positions, with the required Spatial Reference System Identifier (SRID).
+        """
         super().__init__(*expressions, **extra)
 
         # Ensure that value expressions are geometric.
@@ -68,6 +71,13 @@ class GeoFuncMixin:
         return super().as_sql(compiler, connection, function=function, **extra_context)
 
     def resolve_expression(self, *args, **kwargs):
+        """
+        Reconciles geometry fields in an expression to a common spatial reference system (SRF) if necessary.
+
+        Checks if the required geometry fields are present and attempts to transform their spatial reference systems to match the base SRF if they differ. Raises an error if a non-geometry field is encountered in a position that requires a geometry field.
+
+        Returns the resolved expression with geometry fields transformed to the common SRF if necessary, otherwise returns the original expression.
+        """
         res = super().resolve_expression(*args, **kwargs)
         if not self.geom_param_pos:
             return res
@@ -187,6 +197,15 @@ class AsGeoJSON(GeoFunc):
     output_field = TextField()
 
     def __init__(self, expression, bbox=False, crs=False, precision=8, **extra):
+        """
+        Initializes a spatial query with a given expression and optional parameters.
+
+        :param expression: The base expression for the query.
+        :param bbox: Whether to include a bounding box in the query (default is False).
+        :param crs: Whether to include a coordinate reference system in the query (default is False).
+        :param precision: The precision level for the query (default is 8).
+        :param extra: Additional keyword arguments.
+        """
         expressions = [expression]
         if precision is not None:
             expressions.append(self._handle_param(precision, "precision", int))
@@ -218,6 +237,9 @@ class AsGML(GeoFunc):
         super().__init__(*expressions, **extra)
 
     def as_oracle(self, compiler, connection, **extra_context):
+        """
+        Render the geometry as an Oracle-specific GML string, adapting the SQL function name based on the SDO version.
+        """
         source_expressions = self.get_source_expressions()
         version = source_expressions[0]
         clone = self.copy()
@@ -318,6 +340,13 @@ class Distance(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         super().__init__(*expressions, **extra)
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        Generate PostgreSQL SQL for a distance calculation.
+
+        Modifies the query to properly handle geography and geometry fields,
+        including spheroid calculations when needed, before delegating to the
+        parent class for SQL generation.
+        """
         clone = self.copy()
         function = None
         expr2 = clone.source_expressions[1]
@@ -453,6 +482,12 @@ class Length(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
         return super().as_sql(compiler, connection, **extra_context)
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        Generates a SQL expression for calculating the length of a geometric object, 
+        taking into account the coordinate reference system and spheroid model of the 
+        underlying geography or geometry field, and adapting the SQL expression for 
+        use with PostgreSQL.
+        """
         clone = self.copy()
         function = None
         if self.source_is_geography():
@@ -505,6 +540,11 @@ class Perimeter(DistanceResultMixin, OracleToleranceMixin, GeoFunc):
     arity = 1
 
     def as_postgresql(self, compiler, connection, **extra_context):
+        """
+        Generates a PostgreSQL database query for calculating the perimeter of a geometric object.
+
+        This function prepares the query by resolving the geometric operation based on the dimension of the source fields, handling both 2D and 3D geometry, and then delegates the SQL generation to its superclass. It also checks for unsupported field types, raising an error if the field is non-projected and non-geography.
+        """
         function = None
         if self.geo_field.geodetic(connection) and not self.source_is_geography():
             raise NotSupportedError(
@@ -543,6 +583,10 @@ class Scale(SQLiteDecimalToFloatMixin, GeomOutputGeoFunc):
 
 class SnapToGrid(SQLiteDecimalToFloatMixin, GeomOutputGeoFunc):
     def __init__(self, expression, *args, **extra):
+        """
+        Initializes a SnapToGrid instance with a base expression and optional parameters, 
+        validating the argument count and type before passing them to the parent class.
+        """
         nargs = len(args)
         expressions = [expression]
         if nargs in (1, 2):

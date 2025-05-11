@@ -6,6 +6,13 @@ from django.core.exceptions import SuspiciousFileOperation
 
 def validate_file_name(name, allow_relative_path=False):
     # Remove potentially dangerous names
+    """
+    Validate a file name to prevent suspicious file operations.
+
+    This function checks if a given file name is valid and does not contain any attempts to traverse the file system or include path elements.
+    It can optionally allow relative paths, while still preventing absolute paths and path traversal attempts.
+    If the file name is invalid, it raises a SuspiciousFileOperation exception; otherwise, it returns the validated file name.
+    """
     if os.path.basename(name) in {"", ".", ".."}:
         raise SuspiciousFileOperation("Could not derive file name from '%s'" % name)
 
@@ -53,6 +60,12 @@ class FileProxyMixin:
         return not self.file or self.file.closed
 
     def readable(self):
+        """
+        Indicates whether the associated file object is readable.
+
+        Returns True if the file object is readable, False otherwise. The check is
+        skipped if the resource is already closed, in which case False is returned.
+        """
         if self.closed:
             return False
         if hasattr(self.file, "readable"):
@@ -60,6 +73,9 @@ class FileProxyMixin:
         return True
 
     def writable(self):
+        """
+        Indicates whether the file object is writable, returning False if the file is closed, and otherwise checking the file's mode or 'writable' attribute.
+        """
         if self.closed:
             return False
         if hasattr(self.file, "writable"):
@@ -67,6 +83,9 @@ class FileProxyMixin:
         return "w" in getattr(self.file, "mode", "")
 
     def seekable(self):
+        """
+        Determines whether the file object is seekable, meaning it supports random access and can jump to any position. The determination is based on the underlying file object, defaulting to True if its seekability cannot be directly determined.
+        """
         if self.closed:
             return False
         if hasattr(self.file, "seekable"):

@@ -80,6 +80,9 @@ class BuildFile:
 
     @cached_property
     def is_templatized(self):
+        """
+        Determines whether the translation source file is templatized based on the domain type and file extension. Returns True if the file is templatized, False otherwise.
+        """
         if self.domain == "djangojs":
             return self.command.gettext_version < (0, 18, 3)
         elif self.domain == "django":
@@ -225,6 +228,9 @@ class Command(BaseCommand):
     xgettext_options = ["--from-code=UTF-8", "--add-comments=Translators"]
 
     def add_arguments(self, parser):
+        """
+        Add command-line arguments for managing message files, including locale specification, exclusion, and various options for examining source code and templates, as well as formatting and content control of the generated files.
+        """
         parser.add_argument(
             "--locale",
             "-l",
@@ -324,6 +330,13 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        :param args:Unused command line arguments
+        :param options: Options for the command, including locale, exclude, domain, verbosity, and others
+        :returns: None
+
+        Handles the makemessages command, which updates the translation catalogs for a Django project. It processes files with the specified extensions, extracts translatable strings, and creates or updates the corresponding PO files for each locale. The command takes various options to customize its behavior, such as specifying the locale, excluding certain directories, and setting the verbosity level.
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         self.domain = options["domain"]
@@ -480,6 +493,9 @@ class Command(BaseCommand):
     def gettext_version(self):
         # Gettext tools will output system-encoded bytestrings instead of UTF-8,
         # when looking up the version. It's especially a problem on Windows.
+        """
+        onBinds the version of the gettext command-line tool as a tuple of major, minor, and patch version numbers if available, raising a CommandError if the version cannot be determined or if gettext is not installed.
+        """
         out, err, status = popen_wrapper(
             ["xgettext", "--version"],
             stdout_encoding=DEFAULT_LOCALE_ENCODING,
@@ -492,6 +508,9 @@ class Command(BaseCommand):
 
     @cached_property
     def settings_available(self):
+        """
+        Checks if project settings are properly configured and available for use. Returns True if settings are configured, False otherwise.
+        """
         try:
             settings.LOCALE_PATHS
         except ImproperlyConfigured:

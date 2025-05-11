@@ -7,6 +7,15 @@ register = Library()
 
 class CacheNode(Node):
     def __init__(self, nodelist, expire_time_var, fragment_name, vary_on, cache_name):
+        """
+        Initializes a cache fragment object with the specified parameters.
+
+        :param nodelist: List of nodes to cache
+        :param expire_time_var: Variable controlling the cache expiration time
+        :param fragment_name: Name of the cache fragment
+        :param vary_on: Parameters that affect cache variation
+        :param cache_name: Name of the cache to store the fragment in
+        """
         self.nodelist = nodelist
         self.expire_time_var = expire_time_var
         self.fragment_name = fragment_name
@@ -14,6 +23,21 @@ class CacheNode(Node):
         self.cache_name = cache_name
 
     def render(self, context):
+        """
+        Args:
+            context: Context in which to render the template fragment.
+
+        Returns:
+            Rendered template fragment.
+
+        Raises:
+            TemplateSyntaxError: If a variable is unknown, a cache name or timeout value is invalid.
+
+        Renders a cached template fragment. The cache key is generated based on the fragment name and varying variables,
+        allowing for efficient caching and retrieval of the rendered content. If a matching cache key is found, the cached
+        content is returned; otherwise, the fragment is rendered, cached, and then returned. Supports configurable cache
+        names, expiration times, and varying variables to control caching behavior.
+        """
         try:
             expire_time = self.expire_time_var.resolve(context)
         except VariableDoesNotExist:

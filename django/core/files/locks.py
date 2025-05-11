@@ -117,6 +117,14 @@ else:
     else:
 
         def lock(f, flags):
+            """
+            Acquires or releases an advisory lock on a file descriptor.
+
+            :param f: The file object to lock
+            :param flags: The flags to pass to flock
+            :returns: True if the lock was acquired, False if the operation would block
+            :raises: No exception is raised if the operation would block, instead False is returned
+            """
             try:
                 fcntl.flock(_fd(f), flags)
                 return True

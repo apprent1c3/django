@@ -45,6 +45,12 @@ class GeoLite2Test(SimpleTestCase):
 
     def test_init(self):
         # Everything inferred from GeoIP path.
+        """
+        Test initialization of the GeoIP2 class with various parameters.
+
+        This test case checks that the GeoIP2 object is properly instantiated with different
+        constructor arguments and that invalid parameters raise the expected exceptions.
+        """
         g1 = GeoIP2()
         # Path passed explicitly.
         g2 = GeoIP2(settings.GEOIP_PATH, GeoIP2.MODE_AUTO)
@@ -75,6 +81,9 @@ class GeoLite2Test(SimpleTestCase):
             GeoIP2(invalid_path)
 
     def test_bad_query(self):
+        """
+        Test that GeoIP2 methods raise expected exceptions for invalid queries, including a missing city data file and queries with incorrect types.
+        """
         g = GeoIP2(city="<invalid>")
 
         functions = (g.city, g.geos, g.lat_lon, g.lon_lat)
@@ -96,6 +105,12 @@ class GeoLite2Test(SimpleTestCase):
                     function(value)
 
     def test_country(self):
+        """
+        Tests the functionality of the country lookup in the GeoIP2 class.
+
+        Verifies that the database type is Country and checks the country,
+        country code, and country name for various query values, ensuring they all return the expected United Kingdom location information.
+        """
         g = GeoIP2(city="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("Country"), True)
         for query in self.query_values:
@@ -114,6 +129,10 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_country_using_city_database(self):
+        """
+        Tests the country lookup functionality using the city database with an invalid country code, 
+        verifying the database type and expected return values for country, country code, and country name queries.
+        """
         g = GeoIP2(country="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("City"), True)
         for query in self.query_values:
@@ -132,6 +151,9 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_city(self):
+        """
+        Tests the functionality of a GeoIP2 object initialized with a city database to ensure it correctly returns city, geospatial, and country data for a given query.
+        """
         g = GeoIP2(country="<invalid>")
         self.assertIs(g._metadata.database_type.endswith("City"), True)
         for query in self.query_values:
@@ -181,6 +203,10 @@ class GeoLite2Test(SimpleTestCase):
                 self.assertEqual(g.country_name(query), "United Kingdom")
 
     def test_not_found(self):
+        """
+        Test that GeoIP2 lookup functions raise an AddressNotFoundError 
+        when the address is not found in the database, with a valid error message.
+        """
         g1 = GeoIP2(city="<invalid>")
         g2 = GeoIP2(country="<invalid>")
         for function, query in itertools.product(
@@ -192,6 +218,9 @@ class GeoLite2Test(SimpleTestCase):
                     function(query)
 
     def test_del(self):
+        """
+        Verify that the GeoIP2 database reader is properly closed when a GeoIP2 object is deleted.
+        """
         g = GeoIP2()
         reader = g._reader
         self.assertIs(reader._db_reader.closed, False)
@@ -205,6 +234,9 @@ class GeoLite2Test(SimpleTestCase):
         self.assertEqual(repr(g), f"<GeoIP2 [v{version}] _path='{g._path}'>")
 
     def test_coords_deprecation_warning(self):
+        """
+        Tests that using the deprecated `coords()` method of `GeoIP2` class raises a deprecation warning and returns the expected coordinates as floats.
+        """
         g = GeoIP2()
         msg = "GeoIP2.coords() is deprecated. Use GeoIP2.lon_lat() instead."
         with self.assertWarnsMessage(RemovedInDjango60Warning, msg):

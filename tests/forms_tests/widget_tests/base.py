@@ -22,6 +22,9 @@ class WidgetTest(SimpleTestCase):
     def check_html(
         self, widget, name, value, html="", attrs=None, strict=False, **kwargs
     ):
+        """
+        Checks the HTML output of a widget against an expected HTML string, with optional support for Jinja2 rendering and strict equality checks.
+        """
         assertEqual = self.assertEqual if strict else self.assertHTMLEqual
         if self.jinja2_renderer:
             output = widget.render(

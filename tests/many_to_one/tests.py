@@ -33,6 +33,9 @@ class ManyToOneTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a few Reporters.
+        """
+        Sets up test data for use in tests, creating and saving example Reporter and Article instances.
+        """
         cls.r = Reporter(first_name="John", last_name="Smith", email="john@example.com")
         cls.r.save()
         cls.r2 = Reporter(
@@ -56,6 +59,12 @@ class ManyToOneTests(TestCase):
     def test_create(self):
         # You can also instantiate an Article by passing the Reporter's ID
         # instead of a Reporter object.
+        """
+
+        Tests the creation of articles with valid reporter assignments.
+        Verifies that articles are correctly associated with their respective reporters.
+
+        """
         a3 = Article(
             headline="Third article",
             pub_date=datetime.date(2005, 7, 27),
@@ -75,6 +84,13 @@ class ManyToOneTests(TestCase):
 
     def test_add(self):
         # Create an Article via the Reporter object.
+        """
+        Tests the addition of Article instances to a Reporter's article set.
+
+        Verifies that articles can be added successfully, updates the reporter
+        field of the added article, and raises the expected errors when encountering
+        an unsaved article or an invalid object type.
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -116,6 +132,13 @@ class ManyToOneTests(TestCase):
         )
 
     def test_set(self):
+        """
+
+        Tests the functionality of setting articles for reporters.
+
+        Verifies that articles can be correctly assigned to and removed from a reporter's article set.
+
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -160,6 +183,9 @@ class ManyToOneTests(TestCase):
             self.r2.article_set = []
 
     def test_assign(self):
+        """
+        Tests assignment of articles to reporters through the article_set relationship, ensuring correct rebinding and updating of assigned articles.
+        """
         new_article = self.r.article_set.create(
             headline="John's second story", pub_date=datetime.date(2005, 7, 29)
         )
@@ -199,6 +225,12 @@ class ManyToOneTests(TestCase):
         self.assertFalse(hasattr(self.r2.article_set, "clear"))
 
     def test_assign_fk_id_value(self):
+        """
+
+        Tests the assignment of a foreign key ID value to an instance of Parent, 
+        verifying that the related object is updated and cached correctly.
+
+        """
         parent = Parent.objects.create(name="jeff")
         child1 = Child.objects.create(name="frank", parent=parent)
         child2 = Child.objects.create(name="randy", parent=parent)
@@ -215,6 +247,9 @@ class ManyToOneTests(TestCase):
         self.assertTrue(Parent.bestchild.is_cached(parent))
 
     def test_assign_fk_id_none(self):
+        """
+        Tests the behavior when a foreign key ID is assigned None, ensuring the cached relation is updated correctly.
+        """
         parent = Parent.objects.create(name="jeff")
         child = Child.objects.create(name="frank", parent=parent)
         parent.bestchild = child
@@ -227,6 +262,14 @@ class ManyToOneTests(TestCase):
         self.assertTrue(Parent.bestchild.is_cached(parent))
 
     def test_selects(self):
+        """
+        Tests various features of Django's queryset filtering functionality.
+
+        Specifically, this function exercises filtering based on attribute values, 
+        attribute prefixes, and relationships, as well as using `in` and `exact` 
+        lookups, and verifies that the resulting querysets contain the expected 
+        objects and that the underlying database queries are executed efficiently.
+        """
         new_article1 = self.r.article_set.create(
             headline="John's second story",
             pub_date=datetime.date(2005, 7, 29),
@@ -338,6 +381,9 @@ class ManyToOneTests(TestCase):
         )
 
     def test_reverse_selects(self):
+        """
+        Tests various clause lookups in Django ORM queries, including equality, exact, `in`, `startswith`, `distinct`, and related field lookups, to ensure correct filtering of objects.
+        """
         a3 = Article.objects.create(
             headline="Third article",
             pub_date=datetime.date(2005, 7, 27),
@@ -435,6 +481,9 @@ class ManyToOneTests(TestCase):
         # Article.objects.select_related().dates() works properly when there
         # are multiple Articles with the same date but different foreign-key
         # objects (Reporters).
+        """
+        Tests that the select_related method of the Article model's QuerySet efficiently retrieves related objects and uses the dates method to retrieve dates for the 'pub_date' field at the day, month, and year levels.
+        """
         r1 = Reporter.objects.create(
             first_name="Mike", last_name="Royko", email="royko@suntimes.com"
         )
@@ -461,6 +510,9 @@ class ManyToOneTests(TestCase):
         )
 
     def test_delete(self):
+        """
+        Tests the deletion of Reporter instances and its effect on associated Article instances, ensuring correct removal of objects and the preservation of object relationships.
+        """
         new_article1 = self.r.article_set.create(
             headline="John's second story",
             pub_date=datetime.date(2005, 7, 29),
@@ -502,6 +554,9 @@ class ManyToOneTests(TestCase):
     def test_explicit_fk(self):
         # Create a new Article with get_or_create using an explicit value
         # for a ForeignKey.
+        """
+        Tests the explicit foreign key lookup for articles, ensuring that creating and retrieving articles with specific reporter IDs functions as expected, and that attempting to retrieve multiple articles with the same reporter ID raises a MultipleObjectsReturned exception.
+        """
         a2, created = Article.objects.get_or_create(
             headline="John's second test",
             pub_date=datetime.date(2011, 5, 7),
@@ -554,6 +609,9 @@ class ManyToOneTests(TestCase):
         self.assertIs(r1.article_set.__class__, r2.article_set.__class__)
 
     def test_create_relation_with_gettext_lazy(self):
+        """
+        Tests the creation of a relation with a model field that uses gettext_lazy, ensuring the lazy translation is correctly resolved when retrieved from the database.
+        """
         reporter = Reporter.objects.create(
             first_name="John", last_name="Smith", email="john.smith@example.com"
         )
@@ -564,6 +622,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(article.headline, notlazy)
 
     def test_values_list_exception(self):
+        """
+        Tests that attempting to retrieve a non-existent field in values_list() raises a FieldError with a message listing available fields.
+        """
         expected_message = (
             "Cannot resolve keyword 'notafield' into field. Choices are: %s"
         )
@@ -581,6 +642,12 @@ class ManyToOneTests(TestCase):
     def test_fk_assignment_and_related_object_cache(self):
         # Tests of ForeignKey assignment and the related-object cache (see #6886).
 
+        """
+        Tests the assignment and caching of foreign key relationships in Django models.
+
+        Verifies that related objects are correctly cached, updated, and validated, including
+        handling of unsaved related objects and type checking of assigned instances. 
+        """
         p = Parent.objects.create(name="Parent")
         c = Child.objects.create(name="Child", parent=p)
 
@@ -656,6 +723,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(c.parent, p)
 
     def test_save_parent_after_assign(self):
+        """
+        Checks if changes to a parent object's attributes are reflected in its associated child objects after saving, without triggering additional database queries.
+        """
         category = Category(name="cats")
         record = Record(category=category)
         category.save()
@@ -666,6 +736,9 @@ class ManyToOneTests(TestCase):
             self.assertEqual(category.name, record.category.name)
 
     def test_save_nullable_fk_after_parent(self):
+        """
+        Attempts to verify the integrity of a nullable foreign key relationship by saving a parent object, creating and saving a child object referencing the parent, then checking the child object's parent foreign key after a database refresh to ensure the relationship remains intact.
+        """
         parent = Parent()
         child = ChildNullableParent(parent=parent)
         parent.save()
@@ -674,6 +747,12 @@ class ManyToOneTests(TestCase):
         self.assertEqual(child.parent, parent)
 
     def test_save_nullable_fk_after_parent_with_to_field(self):
+        """
+
+        Tests whether a nullable foreign key field referencing a parent model's field (other than the primary key) 
+        is correctly saved after the parent instance has been saved.
+
+        """
         parent = Parent(name="jeff")
         child = ToFieldChild(parent=parent)
         parent.save()
@@ -683,6 +762,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(child.parent_id, parent.name)
 
     def test_save_fk_after_parent_with_non_numeric_pk_set_on_child(self):
+        """
+        Verifies that a foreign key is correctly saved on a child object after its parent has been saved, when the parent's primary key is a string.
+        """
         parent = ParentStringPrimaryKey()
         child = ChildStringPrimaryKeyParent(parent=parent)
         child.parent.name = "jeff"
@@ -693,6 +775,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(child.parent_id, parent.name)
 
     def test_fk_to_bigautofield(self):
+        """
+        Test the foreign key relationship between District and City when the City's primary key exceeds the maximum value for an integer field, specifically simulating a BigAutoField scenario.
+        """
         ch = City.objects.create(name="Chicago")
         District.objects.create(city=ch, name="Far South")
         District.objects.create(city=ch, name="North")
@@ -702,6 +787,11 @@ class ManyToOneTests(TestCase):
         District.objects.create(city=ny, name="Manhattan")
 
     def test_fk_to_smallautofield(self):
+        """
+
+        Tests that foreign keys can reference SmallAutoField instances.
+
+        """
         us = Country.objects.create(name="United States")
         City.objects.create(country=us, name="Chicago")
         City.objects.create(country=us, name="New York")
@@ -712,6 +802,9 @@ class ManyToOneTests(TestCase):
 
     def test_multiple_foreignkeys(self):
         # Test of multiple ForeignKeys to the same model (bug #7125).
+        """
+        Tests various database relationships and constraints, including multiple foreign keys, to ensure correct data retrieval and validation of related objects.
+        """
         c1 = Category.objects.create(name="First")
         c2 = Category.objects.create(name="Second")
         c3 = Category.objects.create(name="Third")
@@ -749,6 +842,16 @@ class ManyToOneTests(TestCase):
         self.assertEqual("id", cat.remote_field.get_related_field().name)
 
     def test_relation_unsaved(self):
+        """
+        Test that the relationship on an unsaved instance raises an error.
+
+        Verify that attempting to access the related objects on a newly created,
+        but unsaved, instance raises a ValueError until the instance is saved.
+
+        Also checks that the related manager's model is correctly set, and that
+        accessing the related objects after saving the instance succeeds and
+        includes the correct count of related objects, all within a single database query.
+        """
         Third.objects.create(name="Third 1")
         Third.objects.create(name="Third 2")
         th = Third(name="testing")
@@ -768,6 +871,15 @@ class ManyToOneTests(TestCase):
             self.assertEqual(th.child_set.count(), 0)
 
     def test_related_object(self):
+        """
+
+        Tests the relationship between a Student and their associated School,
+        specifically when the School is not included in the default manager.
+        Verifies that the Student's school is correctly associated and that
+        a DoesNotExist error is raised when trying to access a School not
+        included in the default manager.
+
+        """
         public_school = School.objects.create(is_public=True)
         public_student = Student.objects.create(school=public_school)
 
@@ -801,6 +913,9 @@ class ManyToOneTests(TestCase):
         self.assertFalse(hasattr(Article(), "reporter"))
 
     def test_create_after_prefetch(self):
+        """
+        Tests the creation of model instances after prefetched relationships have been loaded, ensuring that the prefetched collection is updated correctly with new instances.
+        """
         c = City.objects.create(name="Musical City")
         d1 = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -809,6 +924,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [d1, d2])
 
     def test_clear_after_prefetch(self):
+        """
+        Tests that the clear method correctly removes prefetch-related objects for a City instance's districts after an initial prefetch operation.
+        """
         c = City.objects.create(name="Musical City")
         d = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -817,6 +935,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [])
 
     def test_remove_after_prefetch(self):
+        """
+        Tests the removal of a district from a city after prefetching related districts.
+        """
         c = City.objects.create(name="Musical City")
         d = District.objects.create(name="Ladida", city=c)
         city = City.objects.prefetch_related("districts").get(id=c.id)
@@ -825,6 +946,9 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [])
 
     def test_add_after_prefetch(self):
+        """
+        Tests the ability to add a district to a city after prefetching related districts.
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -834,6 +958,9 @@ class ManyToOneTests(TestCase):
         self.assertEqual(city.districts.count(), 2)
 
     def test_set_after_prefetch(self):
+        """
+        Tests that setting a city's districts after prefetching them works as expected, ensuring that the cached prefetch result is updated correctly.
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -843,6 +970,11 @@ class ManyToOneTests(TestCase):
         self.assertSequenceEqual(city.districts.all(), [d2])
 
     def test_add_then_remove_after_prefetch(self):
+        """
+        Tests the behavior of adding and removing a district from a city after prefetching city's districts.
+
+        Verifies that the district count is correct after adding and removing a district, ensuring that the changes are correctly reflected on a prefetched city object.
+        """
         c = City.objects.create(name="Musical City")
         District.objects.create(name="Ladida", city=c)
         d2 = District.objects.create(name="Ladidu")
@@ -870,6 +1002,11 @@ class ManyToOneTests(TestCase):
             self.assertIs(child.parent, parent)
 
     def test_reverse_foreign_key_instance_to_field_caching(self):
+        """
+        Tests that the foreign key instance to field caching works correctly for 
+        to_field relations, ensuring that subsequent queries are avoided when accessing 
+        the cached relationship.
+        """
         parent = Parent.objects.create(name="a")
         ToFieldChild.objects.create(parent=parent)
         child = parent.to_field_children.get()
@@ -877,6 +1014,9 @@ class ManyToOneTests(TestCase):
             self.assertIs(child.parent, parent)
 
     def test_add_remove_set_by_pk_raises(self):
+        """
+        Tests that adding, removing, and setting a city by its primary key to/from a country's cities set raises a TypeError, as these methods expect City instances, not primary keys.
+        """
         usa = Country.objects.create(name="United States")
         chicago = City.objects.create(name="Chicago")
         msg = "'City' instance expected, got %s" % chicago.pk
@@ -888,6 +1028,9 @@ class ManyToOneTests(TestCase):
             usa.cities.set([chicago.pk])
 
     def test_get_prefetch_queryset_warning(self):
+        """
+        Tests that a deprecation warning is raised when the `get_prefetch_queryset` method is used, which is scheduled for removal in Django 6.0, to encourage migration to the replacement `get_prefetch_querysets` method.
+        """
         City.objects.create(name="Chicago")
         cities = City.objects.all()
         msg = (
@@ -898,6 +1041,9 @@ class ManyToOneTests(TestCase):
             City.country.get_prefetch_queryset(cities)
 
     def test_get_prefetch_queryset_reverse_warning(self):
+        """
+        Tests the deprecation warning raised when using the get_prefetch_queryset method, which is replaced by get_prefetch_querysets in future Django versions.
+        """
         usa = Country.objects.create(name="United States")
         City.objects.create(name="Chicago")
         countries = Country.objects.all()
@@ -909,6 +1055,9 @@ class ManyToOneTests(TestCase):
             usa.cities.get_prefetch_queryset(countries)
 
     def test_get_prefetch_querysets_invalid_querysets_length(self):
+        """
+        Checks that get_prefetch_querysets() raises a ValueError when multiple querysets are provided, as it expects only one queryset.
+        """
         City.objects.create(name="Chicago")
         cities = City.objects.all()
         msg = (
@@ -921,6 +1070,15 @@ class ManyToOneTests(TestCase):
             )
 
     def test_get_prefetch_querysets_reverse_invalid_querysets_length(self):
+        """
+        Tests that get_prefetch_querysets raises an error when invalid number of querysets are provided for reverse prefetching.\"\"\"
+        \"\"\" 
+            This test case ensures that get_prefetch_querysets function behaves correctly 
+            when the querysets argument has more than one element, specifically in a reverse 
+            prefetching scenario. It verifies that a ValueError is raised with the expected 
+            message when the function is called with multiple querysets.
+
+        """
         usa = Country.objects.create(name="United States")
         City.objects.create(name="Chicago")
         countries = Country.objects.all()

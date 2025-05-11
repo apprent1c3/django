@@ -19,6 +19,10 @@ class SitemapIndexItem:
 
 def x_robots_tag(func):
     @wraps(func)
+    """
+    Sets the X-Robots-Tag header on the response of a view function to prevent search engines from indexing,
+    crawling or archiving the response, while leaving the original view function behavior intact.
+    """
     def inner(request, *args, **kwargs):
         response = func(request, *args, **kwargs)
         response.headers["X-Robots-Tag"] = "noindex, noodp, noarchive"
@@ -47,6 +51,11 @@ def index(
     content_type="application/xml",
     sitemap_url_name="django.contrib.sitemaps.views.sitemap",
 ):
+    """
+    гум
+        Generates the sitemap index page, containing links to sitemaps for each section, along with their last modification dates.
+        The view renders a template with the list of sitemap URLs and handles Last-Modified HTTP headers for cache control.
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 
@@ -96,6 +105,9 @@ def sitemap(
     template_name="sitemap.xml",
     content_type="application/xml",
 ):
+    """
+    Generates a sitemap for the given section or the entire site, handling pagination and last modification dates for the included URLs.
+    """
     req_protocol = request.scheme
     req_site = get_current_site(request)
 

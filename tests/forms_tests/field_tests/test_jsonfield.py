@@ -30,6 +30,9 @@ class JSONFieldTest(SimpleTestCase):
             field.clean("{some badly formed: json}")
 
     def test_prepare_value(self):
+        """
+        Tests the prepare_value method of JSONField, ensuring it correctly serializes various input types to JSON strings.
+        """
         field = JSONField()
         self.assertEqual(field.prepare_value({"a": "b"}), '{"a": "b"}')
         self.assertEqual(field.prepare_value(None), "null")
@@ -59,6 +62,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIsInstance(field.widget, TextInput)
 
     def test_converted_value(self):
+        """
+        Tests that a JSONField can successfully convert and round-trip various JSON values, ensuring that cleaning the field's value twice produces the same result.
+        """
         field = JSONField(required=False)
         tests = [
             '["a", "b", "c"]',
@@ -81,6 +87,9 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIs(field.has_changed({"a": 1, "b": 2}, '{"b": 2, "a": 1}'), False)
 
     def test_custom_encoder_decoder(self):
+        """
+        Tests the custom JSON encoder and decoder functionality for a JSONField, specifically the conversion between UUID objects and their string representations.
+        """
         class CustomDecoder(json.JSONDecoder):
             def __init__(self, object_hook=None, *args, **kwargs):
                 return super().__init__(object_hook=self.as_uuid, *args, **kwargs)
@@ -104,6 +113,11 @@ class JSONFieldTest(SimpleTestCase):
         self.assertIn("[&quot;foo&quot;]</textarea>", form.as_p())
 
     def test_redisplay_none_input(self):
+        """
+        Tests the behavior of a JSONField when the input is None or missing.
+
+        Verifies that the field renders as 'null' and includes an error message indicating that the field is required.
+        """
         class JSONForm(Form):
             json_field = JSONField(required=True)
 

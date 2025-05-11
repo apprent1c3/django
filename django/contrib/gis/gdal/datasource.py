@@ -54,6 +54,9 @@ class DataSource(GDALBase):
 
     def __init__(self, ds_input, ds_driver=False, write=False, encoding="utf-8"):
         # The write flag.
+        """
+        Initializes a dataset object, opening the specified data source file and preparing it for reading or writing, depending on the provided parameters.
+        """
         self._write = capi.GDAL_OF_UPDATE if write else capi.GDAL_OF_READONLY
         # See also https://gdal.org/development/rfc/rfc23_ogr_unicode.html
         self.encoding = encoding

@@ -263,6 +263,9 @@ class TestSerialization(SimpleTestCase):
 
 class TestValidation(SimpleTestCase):
     def test_invalid_uuid(self):
+        """
+        Tests that a UUIDField raises a ValidationError when cleaned with an invalid UUID string.
+        """
         field = models.UUIDField()
         with self.assertRaises(exceptions.ValidationError) as cm:
             field.clean("550e8400", None)
@@ -290,6 +293,10 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(loaded.id, saved.id)
 
     def test_uuid_pk_on_bulk_create(self):
+        """
+        Tests that the PrimaryKeyUUIDModel can successfully create instances in bulk, 
+        generating unique UUIDs for each instance when no ID is provided.
+        """
         u1 = PrimaryKeyUUIDModel()
         u2 = PrimaryKeyUUIDModel(id=None)
         PrimaryKeyUUIDModel.objects.bulk_create([u1, u2])
@@ -308,6 +315,9 @@ class TestAsPrimaryKey(TestCase):
 
     def test_update_with_related_model_instance(self):
         # regression for #24611
+        """
+        Tests that updating a related model instance correctly propagates changes to dependent models.
+        """
         u1 = PrimaryKeyUUIDModel.objects.create()
         u2 = PrimaryKeyUUIDModel.objects.create()
         r = RelatedToUUIDModel.objects.create(uuid_fk=u1)
@@ -316,6 +326,10 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(r.uuid_fk, u2)
 
     def test_update_with_related_model_id(self):
+        """
+        Tests updating a related model with a new primary key UUID, 
+        ensuring the relationship is correctly updated
+        """
         u1 = PrimaryKeyUUIDModel.objects.create()
         u2 = PrimaryKeyUUIDModel.objects.create()
         r = RelatedToUUIDModel.objects.create(uuid_fk=u1)
@@ -324,6 +338,9 @@ class TestAsPrimaryKey(TestCase):
         self.assertEqual(r.uuid_fk, u2)
 
     def test_two_level_foreign_keys(self):
+        """
+        Verifies that a two-level foreign key relationship is correctly established and persisted, ensuring that the UUID-based identifier is properly set and retained after a database refresh.
+        """
         gc = UUIDGrandchild()
         # exercises ForeignKey.get_db_prep_value()
         gc.save()

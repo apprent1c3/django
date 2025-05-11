@@ -21,6 +21,27 @@ logger = logging.getLogger("django.contrib.gis")
 
 def load_geos():
     # Custom library path set?
+    """
+    Load the GEOS library, a spatial geometry library, and prepare its API for use.
+
+    Parameters
+    ----------
+    None
+
+    Returns
+    -------
+    _lgeos : CDLL
+        A ctypes wrapper around the GEOS library, with some functions' argument and return types specified for easier use.
+
+    Raises
+    ------
+    ImportError
+        If the library cannot be found, either at the path specified in `GEOS_LIBRARY_PATH` or by searching system libraries. 
+
+    Notes
+    -----
+    This function is used to interface with the GEOS library in a Django environment. It attempts to find the library using the path specified in the Django settings, and falls back to searching for it among system libraries if the path is not specified or unavailable.
+    """
     try:
         from django.conf import settings
 
@@ -78,6 +99,12 @@ NOTICEFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
 def notice_h(fmt, lst):
+    """
+    Logs a warning message with the specified format string and list.
+
+    The function attempts to combine the format string with the provided list. 
+    If the combination fails, it logs the format string instead. The logged message is prefixed with 'GEOS_NOTICE:'.
+    """
     fmt, lst = fmt.decode(), lst.decode()
     try:
         warn_msg = fmt % lst
@@ -92,6 +119,9 @@ ERRORFUNC = CFUNCTYPE(None, c_char_p, c_char_p)
 
 
 def error_h(fmt, lst):
+    """
+    Logs a GEOS error message formatted according to the provided format string and list of values, falling back to the original format string if formatting fails.
+    """
     fmt, lst = fmt.decode(), lst.decode()
     try:
         err_msg = fmt % lst
@@ -142,6 +172,16 @@ class GEOSFuncFactory:
     errcheck = None
 
     def __init__(self, func_name, *, restype=None, errcheck=None, argtypes=None):
+        """
+
+        Initializes the object with the given function name and optional type specifications.
+
+        :param func_name: The name of the function to be represented.
+        :param restype: The return type of the function, defaults to None.
+        :param errcheck: The error checking function, defaults to None.
+        :param argtypes: The argument types of the function, defaults to None.
+
+        """
         self.func_name = func_name
         if restype is not None:
             self.restype = restype
@@ -155,6 +195,10 @@ class GEOSFuncFactory:
 
     @cached_property
     def func(self):
+        """
+        Lazily returns a GEOS function instance with configured argument and return types, 
+        and optional error checking, for the given function name.
+        """
         from django.contrib.gis.geos.prototypes.threadsafe import GEOSFunc
 
         func = GEOSFunc(self.func_name)

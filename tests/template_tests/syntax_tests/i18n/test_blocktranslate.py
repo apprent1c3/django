@@ -17,6 +17,16 @@ from .base import MultipleLocaleActivationTestCase, extended_locale_paths, here
 
 
 def setup(templates, *args, **kwargs):
+    """
+    Decorator that sets up templates for blocktrans and blocktranslate tags.
+
+    It prepares the environment for using these tags in a decorated function, 
+    taking into account the provided templates and any additional keyword arguments. 
+
+    The decorator supports two tag modes: 'blocktrans' and 'blocktranslate', 
+    and applies the corresponding setup based on the presence of a 'tag_name' 
+    parameter in the decorated function's signature.
+    """
     blocktranslate_setup = base_setup(templates, *args, **kwargs)
     blocktrans_setup = base_setup(
         {
@@ -34,7 +44,19 @@ def setup(templates, *args, **kwargs):
 
     def decorator(func):
         @wraps(func)
+        """
+        A decorator that enhances a function by automatically setting up and applying tags.
+
+        It checks if the function has a 'tag_name' parameter and sets up the corresponding tag using the provided setup function.
+
+        This decorator is designed to simplify the process of applying tags to objects by automating the setup and application process, making it easier to manage and reuse tags across different functions and objects.
+        """
         def inner(self, *args):
+            """
+            Helper function to wrap and invoke the original function with additional setup,
+            conditionally including a specific tag name as an argument. It takes a variable number
+            of arguments and applies the setup function based on the signature of the wrapped function.
+            """
             signature = inspect.signature(func)
             for tag_name, setup_func in tags.items():
                 if "tag_name" in signature.parameters:
@@ -325,6 +347,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34(self):
+        """
+        Tests the rendering of a template with a missing translation block when the i18n engine is configured with a custom string for invalid values.
+        """
         output = self.engine.render_to_string("i18n34")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -340,6 +365,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34_2(self):
+        """
+        Tests the rendering of a template with a blocktranslate tag that contains a missing variable to verify the engine's behavior when encountering invalid data.
+        """
         output = self.engine.render_to_string("i18n34_2")
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -355,6 +383,9 @@ class I18nBlockTransTagTests(SimpleTestCase):
         }
     )
     def test_i18n34_3(self):
+        """
+        Tests that the i18n blocktranslate tag handles missing translations correctly, checking for both invalid and valid render outputs.
+        """
         output = self.engine.render_to_string("i18n34_3", {"anton": "\xce\xb1"})
         if self.engine.string_if_invalid:
             self.assertEqual(output, "INVALID")
@@ -819,6 +850,9 @@ class MiscTests(SimpleTestCase):
 
     @override_settings(LOCALE_PATHS=extended_locale_paths)
     def test_percent_in_translatable_block(self):
+        """
+        Tests that percent signs within translatable blocks in templates are correctly translated and rendered, including pluralized versions.
+        """
         t_sing = self.get_template(
             "{% load i18n %}{% blocktranslate %}The result was {{ percent }}%"
             "{% endblocktranslate %}"

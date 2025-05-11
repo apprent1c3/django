@@ -28,6 +28,9 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Length"], "14")
 
     def test_content_length_nonzero_starting_position_file(self):
+        """
+        Checks that the Content-Length header is correctly calculated when serving a file from a non-zero starting position.
+        """
         file = open(__file__, "rb")
         file.seek(10)
         response = FileResponse(file)
@@ -37,6 +40,10 @@ class FileResponseTests(SimpleTestCase):
         )
 
     def test_content_length_nonzero_starting_position_buffer(self):
+        """
+        Tests that the Content-Length header is correctly set to a non-zero value 
+        when a file response is generated from a buffer with a non-zero starting position.
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -49,6 +56,9 @@ class FileResponseTests(SimpleTestCase):
                 self.assertEqual(response.headers["Content-Length"], "4")
 
     def test_content_length_nonzero_starting_position_file_seekable_no_tell(self):
+        """
+         Tests that the Content-Length header is correctly calculated when a file is seekable and its starting position is non-zero. 
+        """
         class TestFile:
             def __init__(self, path, *args, **kwargs):
                 self._file = open(path, *args, **kwargs)
@@ -107,6 +117,10 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(response.headers["Content-Type"], "text/html; charset=utf-8")
 
     def test_content_type_buffer_named(self):
+        """
+        Tests the content type determination for FileResponse objects based on the name of a BytesIO buffer. 
+        Verifies that when a buffer has a name resembling a file, the response's Content-Type header is set to a type corresponding to the file extension.
+        """
         test_tuples = (
             (__file__, ["text/x-python", "text/plain"]),
             (__file__ + "nosuchfile", ["application/octet-stream"]),
@@ -121,6 +135,13 @@ class FileResponseTests(SimpleTestCase):
                 self.assertIn(response.headers["Content-Type"], content_types)
 
     def test_content_disposition_file(self):
+        """
+
+        Tests the Content-Disposition header of a FileResponse.
+
+        Verifies that the header is correctly set based on the provided filename and as_attachment parameter, covering different scenarios for both inline and attachment dispositions.
+
+        """
         filenames = (
             ("", "test_fileresponse.py"),
             ("custom_name.py", "custom_name.py"),
@@ -145,6 +166,9 @@ class FileResponseTests(SimpleTestCase):
 
     def test_content_disposition_escaping(self):
         # fmt: off
+        """
+        Tests the proper escaping of filenames in the Content-Disposition header of a file response, ensuring that special characters are handled correctly across different platforms.
+        """
         tests = [
             (
                 'multi-part-one";\" dummy".txt',
@@ -207,6 +231,12 @@ class FileResponseTests(SimpleTestCase):
         self.assertEqual(list(response), [b"binary content"])
 
     def test_response_nonzero_starting_position(self):
+        """
+        Test that FileResponse correctly handles byte buffers with non-zero starting positions.
+
+        Verifies that the response emitted by FileResponse matches the expected output when
+        the underlying buffer has been seeked past the beginning of its content.
+        """
         test_tuples = (
             ("BytesIO", io.BytesIO),
             ("UnseekableBytesIO", UnseekableBytesIO),
@@ -232,6 +262,9 @@ class FileResponseTests(SimpleTestCase):
 
     @skipIf(sys.platform == "win32", "Named pipes are Unix-only.")
     def test_file_from_named_pipe_response(self):
+        """
+        Tests that a FileResponse object can be created from a named pipe and returns the correct binary content without a 'Content-Length' header, simulating a streaming response.
+        """
         with tempfile.TemporaryDirectory() as temp_dir:
             pipe_file = os.path.join(temp_dir, "named_pipe")
             os.mkfifo(pipe_file)

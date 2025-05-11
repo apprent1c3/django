@@ -44,6 +44,14 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
         # The backend "mostly works" without this function and there are use
         # cases for compiling Python without the sqlite3 libraries (e.g.
         # security hardening).
+        """
+
+        Quote a value to make it safe for use in a SQL query.
+
+        Handles various data types, escaping strings and converting other types to their SQL equivalents.
+        Returns the quoted value as a string. Raises ValueError for unsupported types.
+
+        """
         try:
             import sqlite3
 
@@ -272,6 +280,15 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             restore_pk_field.primary_key = True
 
     def delete_model(self, model, handle_autom2m=True):
+        """
+        Deletes a model from the database.
+
+        Deletes the specified model, optionally handling automatic many-to-many relationships.
+
+        :param model: The model to be deleted
+        :param handle_autom2m: If True, super method is used to handle deletion, otherwise raw SQL execution is used
+
+        """
         if handle_autom2m:
             super().delete_model(model)
         else:

@@ -47,6 +47,12 @@ class PBKDF2SingleIterationHasher(PBKDF2PasswordHasher):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPass(SimpleTestCase):
     def test_simple(self):
+        """
+        Tests password encoding and verification functionality.
+
+        Verifies that the password encoding process produces a usable password, 
+        and that the checking function correctly identifies valid and invalid passwords.
+        """
         encoded = make_password("lètmein")
         self.assertTrue(encoded.startswith("pbkdf2_sha256$"))
         self.assertTrue(is_password_usable(encoded))
@@ -60,6 +66,9 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertFalse(check_password(" ", blank_encoded))
 
     async def test_acheck_password(self):
+        """
+        Tests the asynchronous password checking function to ensure correct validation of passwords against their encoded versions.
+        """
         encoded = make_password("lètmein")
         self.assertIs(await acheck_password("lètmein", encoded), True)
         self.assertIs(await acheck_password("lètmeinz", encoded), False)
@@ -80,6 +89,9 @@ class TestUtilsHashPass(SimpleTestCase):
             make_password(1)
 
     def test_pbkdf2(self):
+        """
+        Tests the functionality of the PBKDF2 password hashing algorithm, including password creation, verification, and upgrading of weak salt hashes.
+        """
         encoded = make_password("lètmein", "seasalt", "pbkdf2_sha256")
         self.assertEqual(
             encoded,
@@ -107,6 +119,9 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.MD5PasswordHasher"]
     )
     def test_md5(self):
+        """
+        Tests the functionality of the MD5 password hasher, including password encoding, usability, and verification, as well as the identification of the hashing algorithm and the detection of outdated hashes with weak salts.
+        """
         encoded = make_password("lètmein", "seasalt", "md5")
         self.assertEqual(encoded, "md5$seasalt$3f86d0d3d465b7b458c231bf3555c0e3")
         self.assertTrue(is_password_usable(encoded))
@@ -128,6 +143,12 @@ class TestUtilsHashPass(SimpleTestCase):
 
     @skipUnless(bcrypt, "bcrypt not installed")
     def test_bcrypt_sha256(self):
+        """
+        Tests password creation and verification using the bcrypt_sha256 hasher.
+
+        Verifies that the hasher correctly creates and checks passwords with various inputs,
+        including special characters, long strings, and empty strings.
+        """
         encoded = make_password("lètmein", hasher="bcrypt_sha256")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("bcrypt_sha256$"))
@@ -155,6 +176,9 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.BCryptPasswordHasher"]
     )
     def test_bcrypt(self):
+        """
+        Tests the bcrypt password hasher functionality, including password encoding, verification, and identification of the hashing algorithm.
+        """
         encoded = make_password("lètmein", hasher="bcrypt")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("bcrypt$"))
@@ -173,6 +197,14 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.BCryptPasswordHasher"]
     )
     def test_bcrypt_upgrade(self):
+        """
+
+        Tests the upgrade process of bcrypt password hashing.
+
+        This test case verifies the upgrade of bcrypt password hashing from a lower work factor to a higher one.
+        It checks that passwords are properly upgraded during the verification process.
+
+        """
         hasher = get_hasher("bcrypt")
         self.assertEqual("bcrypt", hasher.algorithm)
         self.assertNotEqual(hasher.rounds, 4)
@@ -208,6 +240,15 @@ class TestUtilsHashPass(SimpleTestCase):
         PASSWORD_HASHERS=["django.contrib.auth.hashers.BCryptPasswordHasher"]
     )
     def test_bcrypt_harden_runtime(self):
+        """
+        Tests the bcrypt password hasher's harden_runtime functionality.
+
+        Verifies that the harden_runtime method for the bcrypt hasher operates correctly,
+        by mocking the number of rounds and testing the number of encoded password calls made.
+
+        This test case ensures that the bcrypt password hashing algorithm works as expected
+        in terms of its round count and hardening runtime with incorrect passwords.
+        """
         hasher = get_hasher("bcrypt")
         self.assertEqual("bcrypt", hasher.algorithm)
 
@@ -231,6 +272,9 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertEqual(hasher.encode.call_args_list, [expected_call] * 3)
 
     def test_unusable(self):
+        """
+        Tests that a password generated with no input is properly marked as unusable and cannot be verified by the password checking functions, ensuring that it effectively prevents authentication.
+        """
         encoded = make_password(None)
         self.assertEqual(
             len(encoded),
@@ -257,6 +301,9 @@ class TestUtilsHashPass(SimpleTestCase):
         self.assertFalse(check_password(None, make_password("lètmein")))
 
     def test_bad_algorithm(self):
+        """
+        Tests that the password hashing system correctly raises an error when an unknown algorithm is specified, ensuring the PASSWORD_HASHERS setting is respected.
+        """
         msg = (
             "Unknown password hashing algorithm '%s'. Did you specify it in "
             "the PASSWORD_HASHERS setting?"
@@ -310,6 +357,9 @@ class TestUtilsHashPass(SimpleTestCase):
         ],
     )
     def test_upgrade(self):
+        """
+        Tests password upgrading when using legacy hashers, ensuring passwords are upgraded to the default PBKDF2 SHA-256 algorithm upon login.
+        """
         self.assertEqual("pbkdf2_sha256", get_hasher("default").algorithm)
         for algo in ("pbkdf2_sha1", "md5"):
             with self.subTest(algo=algo):
@@ -323,6 +373,9 @@ class TestUtilsHashPass(SimpleTestCase):
                 self.assertTrue(state["upgraded"])
 
     def test_no_upgrade(self):
+        """
+        Tests that the check_password function does not trigger an upgrade when given an incorrect password.
+        """
         encoded = make_password("lètmein")
         state = {"upgraded": False}
 
@@ -340,6 +393,9 @@ class TestUtilsHashPass(SimpleTestCase):
         ],
     )
     def test_no_upgrade_on_incorrect_pass(self):
+        """
+        Tests that the password upgrade mechanism does not trigger when attempting to authenticate with an incorrect password, ensuring that the upgrade process is only executed upon successful authentication.
+        """
         self.assertEqual("pbkdf2_sha256", get_hasher("default").algorithm)
         for algo in ("pbkdf2_sha1", "md5"):
             with self.subTest(algo=algo):
@@ -353,6 +409,9 @@ class TestUtilsHashPass(SimpleTestCase):
                 self.assertFalse(state["upgraded"])
 
     def test_pbkdf2_upgrade(self):
+        """
+        Tests the upgrade behavior of thepbkdf2 password hashing algorithm, verifying that passwords generated with a different iteration count are correctly upgraded when validated.
+        """
         hasher = get_hasher("default")
         self.assertEqual("pbkdf2_sha256", hasher.algorithm)
         self.assertNotEqual(hasher.iterations, 1)
@@ -384,6 +443,9 @@ class TestUtilsHashPass(SimpleTestCase):
             hasher.iterations = old_iterations
 
     def test_pbkdf2_harden_runtime(self):
+        """
+        Tests the hardening of the PBKDF2 runtime to prevent timing attacks, verifying that the correct number of iterations is used and the encode function is called as expected.
+        """
         hasher = get_hasher("default")
         self.assertEqual("pbkdf2_sha256", hasher.algorithm)
 
@@ -405,6 +467,11 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertEqual(hasher.encode.call_args, expected_call)
 
     def test_pbkdf2_upgrade_new_hasher(self):
+        """
+        Tests the password upgrade functionality when switching from a single iteration PBKDF2 hasher to the default PBKDF2 SHA256 hasher.
+
+        Checks that the password is successfully verified with the old hasher and that the password is upgraded when verified with the new hasher.
+        """
         hasher = get_hasher("default")
         self.assertEqual("pbkdf2_sha256", hasher.algorithm)
         self.assertNotEqual(hasher.iterations, 1)
@@ -437,6 +504,10 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertTrue(state["upgraded"])
 
     def test_check_password_calls_harden_runtime(self):
+        """
+        Checks whether the harden_runtime method of a password hasher is called when verifying a password, 
+        ensuring it is only called when an incorrect password is provided and the hasher is due for an update.
+        """
         hasher = get_hasher("default")
         encoded = make_password("letmein")
 
@@ -453,6 +524,9 @@ class TestUtilsHashPass(SimpleTestCase):
             self.assertEqual(hasher.harden_runtime.call_count, 1)
 
     def test_check_password_calls_make_password_to_fake_runtime(self):
+        """
+        Tests that check_password calls make_password with the correct arguments to simulate a runtime failure, covering various input cases to ensure the function behaves as expected under different conditions.
+        """
         hasher = get_hasher("default")
         cases = [
             (None, None, None),  # no plain text password provided
@@ -485,6 +559,9 @@ class TestUtilsHashPass(SimpleTestCase):
                 )
 
     def test_encode_invalid_salt(self):
+        """
+        Tests encoding functionality for various password hasher classes with invalid salt values, verifying that a ValueError is raised with a message indicating that the salt must be provided and cannot contain the '$' character.
+        """
         hasher_classes = [
             MD5PasswordHasher,
             PBKDF2PasswordHasher,
@@ -500,6 +577,15 @@ class TestUtilsHashPass(SimpleTestCase):
                         hasher.encode("password", salt)
 
     def test_encode_password_required(self):
+        """
+        відбувається...
+
+
+
+        \"\"\"Tests that a password is required when encoding with various password hasher classes.
+
+        Verifies that a TypeError is raised when attempting to encode a password of None with each supported hasher.
+        """
         hasher_classes = [
             MD5PasswordHasher,
             PBKDF2PasswordHasher,
@@ -574,6 +660,11 @@ class BasePasswordHasherTests(SimpleTestCase):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPassArgon2(SimpleTestCase):
     def test_argon2(self):
+        """
+        Tests the functionality of the Argon2 password hasher.
+
+        Verifies that passwords can be securely hashed, checked, and identified using the Argon2 algorithm, and that updates are correctly triggered for weak salts.
+        """
         encoded = make_password("lètmein", hasher="argon2")
         self.assertTrue(is_password_usable(encoded))
         self.assertTrue(encoded.startswith("argon2$argon2id$"))
@@ -605,6 +696,9 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
         self.assertIs(hasher.must_update(encoded_strong_salt), False)
 
     def test_argon2_decode(self):
+        """
+        Tests the decoding of an Argon2-encoded password, verifying that the decoded values match the expected memory cost, parallelism, salt, and time cost.
+        """
         salt = "abcdefghijk"
         encoded = make_password("lètmein", salt=salt, hasher="argon2")
         hasher = get_hasher("argon2")
@@ -620,6 +714,13 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
         self._test_argon2_upgrade("parallelism", "parallelism", 1)
 
     def test_argon2_version_upgrade(self):
+        """
+
+        Tests whether an existing Argon2 encoded password can be successfully upgraded to newer configuration settings.
+
+        The test checks if the password can be verified with an updated hasher configuration and if the upgrade flag is set correctly.
+
+        """
         hasher = get_hasher("argon2")
         state = {"upgraded": False}
         encoded = (
@@ -645,6 +746,16 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
             hasher.parallelism = old_p
 
     def _test_argon2_upgrade(self, attr, summary_key, new_value):
+        """
+        Verifies the upgrade mechanism for Argon2 password hashing algorithm by modifying a specific attribute and checking if the change is applied when the password is checked. 
+
+        Args:
+            attr (str): The attribute of the Argon2 hasher to be modified.
+            summary_key (str): The key of the summary dictionary to verify the attribute change.
+            new_value: The new value to be set for the specified attribute.
+
+        Tests that the modified attribute is correctly upgraded when the password is checked, and reverts the attribute to its original value after the test.
+        """
         hasher = get_hasher("argon2")
         self.assertEqual("argon2", hasher.algorithm)
         self.assertNotEqual(getattr(hasher, attr), new_value)
@@ -680,6 +791,11 @@ class TestUtilsHashPassArgon2(SimpleTestCase):
 @override_settings(PASSWORD_HASHERS=PASSWORD_HASHERS)
 class TestUtilsHashPassScrypt(SimpleTestCase):
     def test_scrypt(self):
+        """
+        Tests the scrypt password hashing algorithm to ensure correct encoding, verification, and identification.
+
+        Verifies that passwords are hashed correctly, checked against the hashed value, and identified as scrypt hashes, covering both non-empty and empty passwords.
+        """
         encoded = make_password("lètmein", "seasalt", "scrypt")
         self.assertEqual(
             encoded,
@@ -698,6 +814,9 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
         self.assertIs(check_password(" ", blank_encoded), False)
 
     def test_scrypt_decode(self):
+        """
+        Tests the decoding of a password encoded with scrypt, verifying that the extracted parameters match the expected values.
+        """
         encoded = make_password("lètmein", "seasalt", "scrypt")
         hasher = get_hasher("scrypt")
         decoded = hasher.decode(encoded)
@@ -712,6 +831,15 @@ class TestUtilsHashPassScrypt(SimpleTestCase):
                 self.assertEqual(decoded[key], excepted)
 
     def _test_scrypt_upgrade(self, attr, summary_key, new_value):
+        """
+        Checks the upgrade functionality of the scrypt password hashing algorithm.
+
+        Verifies that modifying the specified attribute of the scrypt hasher results in the correct upgrade behavior when checking passwords.
+
+        :param attr: The attribute of the scrypt hasher to be modified.
+        :param summary_key: The key in the password summary dictionary to check.
+        :param new_value: The new value to set for the specified attribute.
+        """
         hasher = get_hasher("scrypt")
         self.assertEqual(hasher.algorithm, "scrypt")
         self.assertNotEqual(getattr(hasher, attr), new_value)

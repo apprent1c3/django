@@ -27,6 +27,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         return DatabaseWrapper(settings_dict, alias=self.connection.alias)
 
     def _create_test_db(self, verbosity=1, autoclobber=False, keepdb=False):
+        """
+        Creates a test database and user for running tests, handling existing databases and users according to the specified verbosity and autoclobber settings.
+        """
         parameters = self._get_test_db_params()
         with self._maindb_connection.cursor() as cursor:
             if self._test_database_create():
@@ -161,6 +164,9 @@ class DatabaseCreation(BaseDatabaseCreation):
     ):
         # There are objects in the test tablespace which prevent dropping it
         # The easy fix is to drop the test user -- but are we allowed to do so?
+        """
+        Handle objects preventing test database destruction by attempting to delete the test user if necessary, and then recreate the test database. If the test user cannot be deleted or the database recreated, the test process is cancelled.
+        """
         self.log(
             "There are objects in the old test database which prevent its destruction."
             "\nIf they belong to the test user, deleting the user will allow the test "
@@ -225,6 +231,14 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._maindb_connection.close()
 
     def _execute_test_db_creation(self, cursor, parameters, verbosity, keepdb=False):
+        """
+        .. method:: _execute_test_db_creation
+
+            Creates a test database schema by executing SQL statements to create 
+            tablespace and temporary tablespace. This function caters to Oracle 
+            managed files and non-Oracle managed files scenarios. It handles 
+            errors and has an option to retain the database.
+        """
         if verbosity >= 2:
             self.log("_create_test_db(): dbname = %s" % parameters["user"])
         if self._test_database_oracle_managed_files():
@@ -260,6 +274,16 @@ class DatabaseCreation(BaseDatabaseCreation):
         )
 
     def _create_test_user(self, cursor, parameters, verbosity, keepdb=False):
+        """
+
+        Create a test database user with required permissions.
+
+        :param cursor: Database cursor object
+        :param parameters: Dictionary of user parameters (username, password, tablespace, etc.)
+        :param verbosity: Logging verbosity level
+        :param keepdb: Whether to keep the database after testing (default: False)
+
+        """
         if verbosity >= 2:
             self.log("_create_test_user(): username = %s" % parameters["user"])
         statements = [
@@ -311,6 +335,9 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._execute_statements(cursor, statements, parameters, verbosity)
 
     def _destroy_test_user(self, cursor, parameters, verbosity):
+        """
+        Destroys a test user, removing it from the system, including all associated privileges and objects. This operation is irreversible and can take some time to complete.
+        """
         if verbosity >= 2:
             self.log("_destroy_test_user(): user=%s" % parameters["user"])
             self.log("Be patient. This can take some time...")
@@ -322,6 +349,15 @@ class DatabaseCreation(BaseDatabaseCreation):
     def _execute_statements(
         self, cursor, statements, parameters, verbosity, allow_quiet_fail=False
     ):
+        """
+        Executes a list of SQL statements with given parameters, handling errors and verbosity levels.
+
+        :param cursor: Database cursor to execute statements on
+        :param statements: List of SQL statement templates
+        :param parameters: Parameters to substitute into statement templates
+        :param verbosity: Level of detail to log during execution
+        :param allow_quiet_fail: Whether to suppress logging of failed statements when verbosity is low
+        """
         for template in statements:
             stmt = template % parameters
             if verbosity >= 2:

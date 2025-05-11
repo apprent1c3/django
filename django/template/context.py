@@ -29,6 +29,15 @@ class BaseContext:
         self._reset_dicts(dict_)
 
     def _reset_dicts(self, value=None):
+        """
+
+        Reset the list of dictionaries used for variable lookup.
+
+        Reinitializes the dictionaries with a default set of built-in values and,
+        optionally, incorporates additional dictionaries from a provided context or
+        a custom dictionary.
+
+        """
         builtins = {"True": True, "False": False, "None": None}
         self.dicts = [builtins]
         if isinstance(value, BaseContext):
@@ -48,6 +57,13 @@ class BaseContext:
         return reversed(self.dicts)
 
     def push(self, *args, **kwargs):
+        """
+        Pushes additional dictionaries onto the current context, creating a new context dictionary with the combined dictionaries. 
+
+        The function accepts both context objects and raw dictionaries as arguments, allowing for flexible composition of context data. 
+
+        It returns a new ContextDict instance, effectively creating a new scope for the combined data.
+        """
         dicts = []
         for d in args:
             if isinstance(d, BaseContext):
@@ -98,6 +114,9 @@ class BaseContext:
         return otherwise
 
     def setdefault(self, key, default=None):
+        """
+        Sets the value for the given key if it doesn't exist, returning the existing or newly set value. If the key already exists, returns its value. If no default is provided, None is used.
+        """
         try:
             return self[key]
         except KeyError:
@@ -136,6 +155,9 @@ class Context(BaseContext):
     "A stack container for variable context"
 
     def __init__(self, dict_=None, autoescape=True, use_l10n=None, use_tz=None):
+        """
+        \".. Initializes a template rendering context with optional settings for autoescaping, localization, and timezone usage.\"
+        """
         self.autoescape = autoescape
         self.use_l10n = use_l10n
         self.use_tz = use_tz
@@ -148,6 +170,14 @@ class Context(BaseContext):
 
     @contextmanager
     def bind_template(self, template):
+        """
+
+        Temporal binding of a template to the current context.
+
+        This context manager allows associating a template with the current context for its duration, 
+        preventing concurrent bindings and ensuring the template is properly unbound after use.
+
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
         self.template = template
@@ -202,6 +232,15 @@ class RenderContext(BaseContext):
 
     @contextmanager
     def push_state(self, template, isolated_context=True):
+        """
+
+        Temporarily change the template and optionally isolate the context.
+
+        This context manager allows you to switch to a different template and,
+        if desired, create a new isolated context for the duration of the block.
+        After the block is executed, the original template and context are restored.
+
+        """
         initial = self.template
         self.template = template
         if isolated_context:
@@ -231,6 +270,16 @@ class RequestContext(Context):
         use_tz=None,
         autoescape=True,
     ):
+        """
+        Initializes a template context with a request and optional configuration.
+
+        :param request: The request object associated with this context.
+        :param dict_: Initial data for the context.
+        :param processors: List of callables to process the context before rendering.
+        :param use_l10n: Whether to use localization.
+        :param use_tz: Whether to use timezone-aware datetime objects.
+        :param autoescape: Whether to automatically escape template variables.
+        """
         super().__init__(dict_, use_l10n=use_l10n, use_tz=use_tz, autoescape=autoescape)
         self.request = request
         self._processors = () if processors is None else tuple(processors)
@@ -245,6 +294,9 @@ class RequestContext(Context):
 
     @contextmanager
     def bind_template(self, template):
+        """
+        Temporarily binds a template context to the current request, updating the context with values from template and custom processors, and yields control back to the caller within this context. Automatically cleans up the bound template context after use.
+        """
         if self.template is not None:
             raise RuntimeError("Context is already bound to a template")
 

@@ -19,6 +19,14 @@ class HiddenInputTest(WidgetTest):
         self.assertIs(self.widget.use_required_attribute("foo"), False)
 
     def test_fieldset(self):
+        """
+
+        Tests the rendering of a form field without a fieldset.
+
+        This test case verifies that the form field is rendered correctly 
+        when the use_fieldset attribute of the widget is set to False.
+
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

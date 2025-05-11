@@ -24,6 +24,14 @@ def permission_denied(request):
 
 
 def exception_in_render(request):
+    """
+
+    Raises an exception when attempting to render an HTTP response.
+
+    This function creates a custom HTTP response that intentionally raises an exception
+    when its render method is called, simulating an error scenario.
+
+    """
     class CustomHttpResponse(HttpResponse):
         def render(self):
             raise Exception("Exception in HttpResponse.render()")
@@ -32,6 +40,9 @@ def exception_in_render(request):
 
 
 async def async_exception_in_render(request):
+    """
+    Raises an exception during the rendering of an HTTP response to simulate an error scenario for testing purposes.
+    """
     class CustomHttpResponse(HttpResponse):
         async def render(self):
             raise Exception("Exception in HttpResponse.render()")

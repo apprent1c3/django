@@ -41,6 +41,17 @@ class CacheHandler(BaseConnectionHandler):
     exception_class = InvalidCacheBackendError
 
     def create_connection(self, alias):
+        """
+
+        Establishes a connection to a caching backend.
+
+        Creates an instance of a cache backend class based on the settings provided
+        for the specified alias. The backend class is instantiated with the location
+        and additional parameters defined in the settings.
+
+        :raises InvalidCacheBackendError: if the specified backend cannot be found
+
+        """
         params = self.settings[alias].copy()
         backend = params.pop("BACKEND")
         location = params.pop("LOCATION", "")

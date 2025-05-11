@@ -55,6 +55,9 @@ class FavoriteDrinkForm(Form):
 
 class BaseFavoriteDrinksFormSet(BaseFormSet):
     def clean(self):
+        """
+        Validates the cleaned data by checking for duplicate drink names and raises a ValidationError if any are found.
+        """
         seen_drinks = []
 
         for drink in self.cleaned_data:
@@ -417,6 +420,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_formset_validate_max_flag_custom_error(self):
+        """
+        Tests that formset validation correctly raises an error when the maximum number of forms is exceeded, using a custom error message.
+        """
         data = {
             "choices-TOTAL_FORMS": "2",
             "choices-INITIAL_FORMS": "0",
@@ -475,6 +481,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_formset_validate_min_flag_custom_formatted_error(self):
+        """
+        Tests the validation of a formset with a custom error message when the minimum number of forms is not met, ensuring the formset is invalid and returns the expected error message.
+        """
         data = {
             "choices-TOTAL_FORMS": "2",
             "choices-INITIAL_FORMS": "0",
@@ -531,6 +540,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertTrue(formset.is_valid())
 
     def test_formset_validate_min_excludes_empty_forms(self):
+        """
+        Tests that a formset with validate_min=True does not consider empty forms when determining whether the minimum number of forms has been met, and correctly reports an error when no forms are filled in.
+        """
         data = {
             "choices-TOTAL_FORMS": "2",
             "choices-INITIAL_FORMS": "0",
@@ -701,6 +713,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(len(formset.deleted_forms), 1)
 
     def test_formset_with_deletion_custom_widget(self):
+        """
+        Tests formsets with custom deletion widgets to ensure they render correctly as hidden inputs.
+        """
         class DeletionAttributeFormSet(BaseFormSet):
             deletion_widget = HiddenInput
 
@@ -790,6 +805,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_formsets_with_ordering_custom_widget(self):
+        """
+        Tests the rendering of formsets with custom ordering widgets to ensure they produce the expected HTML output.
+        """
         class OrderingAttributeFormSet(BaseFormSet):
             ordering_widget = HiddenInput
 
@@ -1116,6 +1134,9 @@ class FormsFormsetTestCase(SimpleTestCase):
 
     def test_default_absolute_max(self):
         # absolute_max defaults to 2 * DEFAULT_MAX_NUM if max_num is None.
+        """
+        Tests the absolute maximum forms limit in FavoriteDrinksFormSet, verifying the formset is invalid when exceeding this limit and reports the correct error message.
+        """
         data = {
             "form-TOTAL_FORMS": 2001,
             "form-INITIAL_FORMS": "0",
@@ -1130,6 +1151,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(formset.absolute_max, 2000)
 
     def test_absolute_max(self):
+        """
+        Tests the validation of a formset with an absolute maximum number of forms, ensuring that the formset is valid when the number of forms is within the limit and invalid when it exceeds the limit, and verifying the error message and the truncation of forms in the latter case.
+        """
         data = {
             "form-TOTAL_FORMS": "2001",
             "form-INITIAL_FORMS": "0",
@@ -1153,6 +1177,12 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_absolute_max_with_max_num(self):
+        """
+
+        Tests that the formset with absolute_max and max_num limits correctly handles 
+        more forms than allowed by max_num but less than absolute_max.
+
+        """
         data = {
             "form-TOTAL_FORMS": "1001",
             "form-INITIAL_FORMS": "0",
@@ -1172,6 +1202,10 @@ class FormsFormsetTestCase(SimpleTestCase):
         )
 
     def test_absolute_max_invalid(self):
+        """
+        Tests that creating a formset with an invalid 'absolute_max' value raises a ValueError, 
+        ensuring 'absolute_max' is greater than or equal to 'max_num'.
+        """
         msg = "'absolute_max' must be greater or equal to 'max_num'."
         for max_num in [None, 31]:
             with self.subTest(max_num=max_num):
@@ -1225,6 +1259,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(formset.management_form.prefix, "form")
 
     def test_non_form_errors(self):
+        """
+        Tests the validation of a formset to ensure that duplicate drink names are not allowed.
+        """
         data = {
             "drinks-TOTAL_FORMS": "2",  # the number of forms rendered
             "drinks-INITIAL_FORMS": "0",  # the number of forms with initial data
@@ -1410,6 +1447,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(list(formset.non_form_errors()), ["This is a non-form error"])
 
     def test_validate_max_ignores_forms_marked_for_deletion(self):
+        """
+        Tests that validate_max ignores forms marked for deletion to ensure that the formset's max_num validation is enforced correctly, without counting deleted forms as part of the total count.
+        """
         class CheckForm(Form):
             field = IntegerField()
 
@@ -1442,6 +1482,9 @@ class FormsFormsetTestCase(SimpleTestCase):
             self.assertEqual(formset.total_error_count(), expected_error_count)
 
     def test_formset_total_error_count_with_non_form_errors(self):
+        """
+        Tests that formset total error count correctly accounts for both form and non-form errors.
+        """
         data = {
             "choices-TOTAL_FORMS": "2",  # the number of forms rendered
             "choices-INITIAL_FORMS": "0",  # the number of forms with initial data
@@ -1464,6 +1507,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertEqual(str(formset), formset.__html__())
 
     def test_can_delete_extra_formset_forms(self):
+        """
+        Tests whether a formset with extra forms and the ability to delete forms includes the 'DELETE' field in each form.
+        """
         ChoiceFormFormset = formset_factory(form=Choice, can_delete=True, extra=2)
         formset = ChoiceFormFormset()
         self.assertEqual(len(formset), 2)
@@ -1471,6 +1517,12 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertIn("DELETE", formset.forms[1].fields)
 
     def test_disable_delete_extra_formset_forms(self):
+        """
+        Tests that the DELETE field is not displayed for extra forms in a formset,
+        even when can_delete is True, but becomes available for the first form when 
+        initial data is provided or when bound data is submitted, and that the 
+        'should_delete_form' method correctly handles deletion based on the DELETE field.
+        """
         ChoiceFormFormset = formset_factory(
             form=Choice,
             can_delete=True,
@@ -1615,6 +1667,9 @@ class FormsFormsetTestCase(SimpleTestCase):
         self.assertIsInstance(formset.renderer, type(default_renderer))
 
     def test_repr(self):
+        """
+        Tests the string representation of a formset under various conditions, including empty, valid, and invalid formsets, to ensure it correctly reflects the formset's state.
+        """
         valid_formset = self.make_choiceformset([("test", 1)])
         valid_formset.full_clean()
         invalid_formset = self.make_choiceformset([("test", "")])
@@ -1664,6 +1719,10 @@ class FormsFormsetTestCase(SimpleTestCase):
                 self.assertEqual(repr(formset), expected_repr)
 
     def test_repr_do_not_trigger_validation(self):
+        """
+        Tests that the repr function of a formset does not trigger validation, 
+        while calling is_valid method does trigger it.
+        """
         formset = self.make_choiceformset([("test", 1)])
         with mock.patch.object(formset, "full_clean") as mocked_full_clean:
             repr(formset)
@@ -1758,6 +1817,10 @@ ArticleFormSet = formset_factory(ArticleForm)
 
 class TestIsBoundBehavior(SimpleTestCase):
     def test_no_data_error(self):
+        """
+        Tests that an ArticleFormSet raises a validation error when no data is provided, 
+        and that it correctly reports the missing management form data.
+        """
         formset = ArticleFormSet({})
         self.assertIs(formset.is_valid(), False)
         self.assertEqual(
@@ -1785,6 +1848,9 @@ class TestIsBoundBehavior(SimpleTestCase):
         )
 
     def test_management_form_invalid_data(self):
+        """
+        Tests validation of an ArticleFormSet with deliberately invalid management form data to ensure proper error handling. Verifies that the formset is invalid, contains expected non-form errors, and has the correct HTML representation.
+        """
         data = {
             "form-TOTAL_FORMS": "two",
             "form-INITIAL_FORMS": "one",
@@ -1826,6 +1892,10 @@ class TestIsBoundBehavior(SimpleTestCase):
         self.assertEqual(formset.errors, [])
 
     def test_with_management_data_attrs_work_fine(self):
+        """
+        Tests the functionality of ArticleFormSet with management data attributes, 
+        verifying the correct counting and validation of forms when bound to data.
+        """
         data = {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -1855,6 +1925,11 @@ class TestIsBoundBehavior(SimpleTestCase):
         )
 
     def test_empty_forms_are_unbound(self):
+        """
+
+        Verifies that empty forms in both unbound and bound formsets are unbound and render HTML equally.
+
+        """
         data = {
             "form-TOTAL_FORMS": "1",
             "form-INITIAL_FORMS": "0",
@@ -1922,6 +1997,14 @@ class TestEmptyFormSet(SimpleTestCase):
 
 class AllValidTests(SimpleTestCase):
     def test_valid(self):
+        """
+
+        Tests whether valid formset data is correctly identified and processed.
+
+        Verifies that the all_valid function correctly returns True for multiple formsets 
+        with valid data and that the formsets' error dictionaries are empty.
+
+        """
         data = {
             "choices-TOTAL_FORMS": "2",
             "choices-INITIAL_FORMS": "0",

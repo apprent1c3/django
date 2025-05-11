@@ -31,6 +31,10 @@ class TestArchive(unittest.TestCase):
         self.addCleanup(os.chdir, old_cwd)
 
     def test_extract_function(self):
+        """
+        Tests the archive extraction function to ensure it correctly unpacks archive files, 
+        including bz2, lzma, and xz formats, and verifies the presence of expected files in the extracted directory structure.
+        """
         with os.scandir(self.testdir) as entries:
             for entry in entries:
                 with self.subTest(entry.name), tempfile.TemporaryDirectory() as tmpdir:
@@ -79,6 +83,11 @@ class TestArchive(unittest.TestCase):
 
 class TestArchiveInvalid(SimpleTestCase):
     def test_extract_function_traversal(self):
+        """
+        Tests the archive extraction function's path traversal protection.
+
+        Verifies that attempting to extract archives containing malicious paths (e.g.,../../file, /absolute/path, or d:\windows\file on Windows) raises a SuspiciousOperation error.””
+        """
         archives_dir = os.path.join(os.path.dirname(__file__), "traversal_archives")
         tests = [
             ("traversal.tar", ".."),

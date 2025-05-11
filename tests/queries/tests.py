@@ -120,6 +120,9 @@ class UnpickleableError(Exception):
 class Queries1Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for database models used in the application, including named categories, tags, notes, annotations, extra info, authors, items, reports, rankings, and covers. This method is used to create a standard set of data for testing purposes, ensuring consistency and reproducibility across tests.
+        """
         cls.nc1 = generic = NamedCategory.objects.create(name="Generic")
         cls.t1 = Tag.objects.create(name="t1", category=generic)
         cls.t2 = Tag.objects.create(name="t2", parent=cls.t1, category=generic)
@@ -184,6 +187,11 @@ class Queries1Tests(TestCase):
         cls.c2 = Cover.objects.create(title="second", item=cls.i2)
 
     def test_subquery_condition(self):
+        """
+        Tests the correct application of subquery conditions in Django ORM queries.
+
+        Verifies that the subquery aliases are correctly generated and the resulting SQL query is as expected, particularly when filtering with subqueries of subqueries.
+        """
         qs1 = Tag.objects.filter(pk__lte=0)
         qs2 = Tag.objects.filter(parent__in=qs1)
         qs3 = Tag.objects.filter(parent__in=qs2)
@@ -222,6 +230,9 @@ class Queries1Tests(TestCase):
 
     def test_ticket2306(self):
         # Checking that no join types are "left outer" joins.
+        """
+        Test the handling of complex Django ORM queries and joins, specifically the ticket 2306, by verifying the expected results and query structure for various filter and join operations on Item and Author objects.
+        """
         query = Item.objects.filter(tags=self.t2).query
         self.assertNotIn(LOUTER, [x.join_type for x in query.alias_map.values()])
 
@@ -260,6 +271,9 @@ class Queries1Tests(TestCase):
         self.assertEqual(qs.query.count_active_tables(), 3)
 
     def test_ticket4464(self):
+        """
+        Tests the filtering and ordering behavior of Item objects by tags, ensuring correct results when using multiple filters, the 'in' lookup, and distinct ordering.
+        """
         self.assertSequenceEqual(
             Item.objects.filter(tags=self.t1).filter(tags=self.t2),
             [self.i1],
@@ -312,6 +326,11 @@ class Queries1Tests(TestCase):
         self.assertSequenceEqual(Author.objects.filter(Q(id__in=[]) | Q(id__in=[])), [])
 
     def test_tickets_1878_2939(self):
+        """
+        Tests database queries for retrieving distinct Item objects.
+
+        Verifies that the correct number of unique items are returned under various query conditions, including exclusion and custom selection parameters.
+        """
         self.assertEqual(Item.objects.values("creator").distinct().count(), 3)
 
         # Create something with a duplicate 'name' so that we can test multi-column
@@ -351,6 +370,10 @@ class Queries1Tests(TestCase):
         self.assertEqual(Item.objects.values("creator", "name").count(), 4)
 
     def test_ticket2253(self):
+        """
+        Tests the combination of querysets using union and intersection operations, 
+        verifying that the results match expected sequences when ordered by name.
+        """
         q1 = Item.objects.order_by("name")
         q2 = Item.objects.filter(id=self.i1.id)
         self.assertSequenceEqual(q1, [self.i4, self.i1, self.i3, self.i2])
@@ -370,6 +393,12 @@ class Queries1Tests(TestCase):
         )
 
     def test_order_by_tables(self):
+        """
+
+        Tests whether combining two queries using the intersection operator (&) and 
+        ordering the results reduces the number of joined tables to one.
+
+        """
         q1 = Item.objects.order_by("name")
         q2 = Item.objects.filter(id=self.i1.id)
         list(q2)
@@ -410,6 +439,9 @@ class Queries1Tests(TestCase):
         )
 
     def test_filter_by_related_field_transform(self):
+        """
+        Tests the ability to filter objects by a related field using a lookup transformation, specifically by extracting the year from a datetime field.
+        """
         extra_old = ExtraInfo.objects.create(
             info="extra 12",
             date=DateTimePK.objects.create(date=datetime.datetime(2020, 12, 10)),
@@ -428,6 +460,9 @@ class Queries1Tests(TestCase):
             )
 
     def test_filter_by_related_field_nested_transforms(self):
+        """
+        Tests filtering by a related field with nested transforms, specifically applying LTrim and Length lookups to an ExtraInfo instance related to an Author object.
+        """
         extra = ExtraInfo.objects.create(info=" extra")
         a5 = Author.objects.create(name="a5", num=5005, extra=extra)
         info_field = ExtraInfo._meta.get_field("info")
@@ -445,6 +480,9 @@ class Queries1Tests(TestCase):
         self.assertNotIn("order by", captured_queries[0]["sql"].lower())
 
     def test_tickets_4088_4306(self):
+        """
+        Tests the filtering of reports by their creator, covering various scenarios including filtering by creator ID, name, and related object IDs, ensuring correct results are returned for each case.
+        """
         self.assertSequenceEqual(Report.objects.filter(creator=1001), [self.r1])
         self.assertSequenceEqual(Report.objects.filter(creator__num=1001), [self.r1])
         self.assertSequenceEqual(Report.objects.filter(creator__id=1001), [])
@@ -463,6 +501,9 @@ class Queries1Tests(TestCase):
         self.assertSequenceEqual(self.a1.report_set.all(), [self.r1])
 
     def test_tickets_5324_6704(self):
+        """
+        Tests the correct application of exclude and filter queries on Item, Author, and Tag models, ensuring proper filtering, ordering, and joining of related objects.
+        """
         self.assertSequenceEqual(
             Item.objects.filter(tags__name="t4"),
             [self.i4],
@@ -547,6 +588,9 @@ class Queries1Tests(TestCase):
         self.assertSequenceEqual(Item.objects.filter(tags__in=[t]), [self.i4])
 
     def test_avoid_infinite_loop_on_too_many_subqueries(self):
+        """
+        Verify that an excessive number of subqueries raises a RecursionError to prevent infinite recursion.
+        """
         x = Tag.objects.filter(pk=1)
         local_recursion_limit = sys.getrecursionlimit() // 16
         msg = "Maximum recursion depth exceeded: too many subqueries."
@@ -588,6 +632,13 @@ class Queries1Tests(TestCase):
     def test_heterogeneous_qs_combination(self):
         # Combining querysets built on different models should behave in a well-defined
         # fashion. We raise an error.
+        """
+        '''Tests that combining QuerySets based on different models raises a TypeError.
+
+        This ensures that users cannot accidentally combine queries on unrelated models, which would lead to ambiguous or incorrect results.
+
+        :raises TypeError: if attempting to combine QuerySets from different base models using '&' or '|' operators.'''
+        """
         msg = "Cannot combine queries on two different base models."
         with self.assertRaisesMessage(TypeError, msg):
             Author.objects.all() & Tag.objects.all()
@@ -625,6 +676,9 @@ class Queries1Tests(TestCase):
     def test_tickets_2076_7256(self):
         # Ordering on related tables should be possible, even if the table is
         # not otherwise involved.
+        """
+        Tests the functionality of ordering and filtering database query sets, ensuring that sequences of objects are returned in the expected order based on various criteria such as name, note, extra information, and creator.
+        """
         self.assertSequenceEqual(
             Item.objects.order_by("note__note", "name"),
             [self.i2, self.i4, self.i1, self.i3],
@@ -741,6 +795,10 @@ class Queries1Tests(TestCase):
 
     def test_tickets_6180_6203(self):
         # Dates with limits and/or counts
+        """
+        Tests the datetimes() method for retrieving datetime objects from the Item model, 
+        covering months and days, ensuring correct counts and values are returned.
+        """
         self.assertEqual(Item.objects.count(), 4)
         self.assertEqual(Item.objects.datetimes("created", "month").count(), 1)
         self.assertEqual(Item.objects.datetimes("created", "day").count(), 2)
@@ -752,6 +810,9 @@ class Queries1Tests(TestCase):
 
     def test_tickets_7087_12242(self):
         # Dates with extra select columns
+        """
+        Tests the order of operations for datetimes and extra methods on queryset objects, ensuring that the results are consistent regardless of method call order.
+        """
         self.assertSequenceEqual(
             Item.objects.datetimes("created", "day").extra(select={"a": 1}),
             [
@@ -805,6 +866,15 @@ class Queries1Tests(TestCase):
 
     def test_ticket7096(self):
         # Make sure exclude() with multiple conditions continues to work.
+        """
+
+        Tests various filter and exclude queries on Tag and Item objects.
+
+        This test case covers scenarios such as filtering by name, parent, and tags, 
+        as well as excluding items based on specific conditions. It verifies the 
+        correct order and distinctness of query results.
+
+        """
         self.assertSequenceEqual(
             Tag.objects.filter(parent=self.t1, name="t3").order_by("name"),
             [self.t3],
@@ -856,6 +926,9 @@ class Queries1Tests(TestCase):
 
     def test_deferred_load_qs_pickling(self):
         # Check pickling of deferred-loading querysets
+        """
+        Tests that deferred loading of QuerySets remains intact after pickling and unpickling. Verifies that the original and pickled/unpickled QuerySets produce the same results when evaluated.
+        """
         qs = Item.objects.defer("name", "creator")
         q2 = pickle.loads(pickle.dumps(qs))
         self.assertEqual(list(qs), list(q2))
@@ -882,6 +955,15 @@ class Queries1Tests(TestCase):
 
     def test_ticket7235(self):
         # An EmptyQuerySet should not raise exceptions if it is filtered.
+        """
+
+        Tests the behavior of an empty QuerySet.
+
+        Verifies that various query methods (e.g., filter, exclude, select_related) 
+        return an empty list when applied to an empty QuerySet, and that 
+        attempting to modify the query after a slice has been taken raises a TypeError.
+
+        """
         Eaten.objects.create(meal="m")
         q = Eaten.objects.none()
         with self.assertNumQueries(0):
@@ -915,6 +997,9 @@ class Queries1Tests(TestCase):
         # If a ValuesList or Values queryset is passed as an inner query, we
         # make sure it's only requesting a single value and use that as the
         # thing to select.
+        """
+        Tests the correct behavior of filtering model instances using the `__in` lookup with a queryset as an argument, specifically checking for support of single-field values and rejection of multi-field values.
+        """
         self.assertSequenceEqual(
             Tag.objects.filter(
                 name__in=Tag.objects.filter(parent=self.t1).values("name")
@@ -959,6 +1044,11 @@ class Queries1Tests(TestCase):
 
     def test_ticket10432(self):
         # Testing an empty "__in" filter with a generator as the value.
+        """
+
+        Tests the behavior of the Note.objects.filter method when pk__in is used with an empty iterable and a generator yielding a single value.
+
+        """
         def f():
             return iter([])
 
@@ -973,6 +1063,13 @@ class Queries1Tests(TestCase):
     def test_ticket10742(self):
         # Queries used in an __in clause don't execute subqueries
 
+        """
+
+        Tests the proper handling of subqueries in the ORM, specifically ensuring that 
+        the results of subqueries are not cached and that the correct results are returned 
+        when using filter and exclude with subqueries.
+
+        """
         subq = Author.objects.filter(num__lt=3000)
         qs = Author.objects.filter(pk__in=subq)
         self.assertSequenceEqual(qs, [self.a1, self.a2])
@@ -1011,6 +1108,9 @@ class Queries1Tests(TestCase):
         # Ordering by related tables should accommodate nullable fields (this
         # test is a little tricky, since NULL ordering is database dependent.
         # Instead, we just count the number of results).
+        """
+        Tests the union and intersection operations on Note and Tag querysets, ensuring they produce the expected results.
+        """
         self.assertEqual(len(Tag.objects.order_by("parent__name")), 5)
 
         # Empty querysets can be merged with others.
@@ -1028,6 +1128,15 @@ class Queries1Tests(TestCase):
     def test_ticket8439(self):
         # Complex combinations of conjunctions, disjunctions and nullable
         # relations.
+        """
+
+        Tests the functionality of Django's ORM query system, specifically 
+        the usage of Q objects to filter models, ensuring the correct results 
+        are returned when using the bitwise OR operator. The test covers 
+        various models, including Author, Annotation, ExtraInfo, and Note, 
+        and verifies the generated SQL query for left outer joins.
+
+        """
         self.assertSequenceEqual(
             Author.objects.filter(
                 Q(item__note__extrainfo=self.e2) | Q(report=self.r1, name="xyz")
@@ -1120,6 +1229,9 @@ class Queries1Tests(TestCase):
     def test_ticket_10790_1(self):
         # Querying direct fields with isnull should trim the left outer join.
         # It also should not create INNER JOIN.
+        """
+        Tests the correctness and optimization of queries on the Tag model, ensuring that filters and excludes on the 'parent' field are executed efficiently without unnecessary joins.
+        """
         q = Tag.objects.filter(parent__isnull=True)
 
         self.assertSequenceEqual(q, [self.t1])
@@ -1147,6 +1259,9 @@ class Queries1Tests(TestCase):
     def test_ticket_10790_2(self):
         # Querying across several tables should strip only the last outer join,
         # while preserving the preceding inner joins.
+        """
+        .Tests the filtering of tags based on their parent relationships, verifying the generated SQL query structure and the correctness of the results.
+        """
         q = Tag.objects.filter(parent__parent__isnull=False)
 
         self.assertSequenceEqual(q, [self.t4, self.t5])
@@ -1161,6 +1276,13 @@ class Queries1Tests(TestCase):
 
     def test_ticket_10790_3(self):
         # Querying via indirect fields should populate the left outer join
+        """
+        Tests the behavior of query joins in NamedCategory filtering.
+
+        Verifies that the correct join types are used when filtering by null values
+        in the 'tag' and 'tag__parent' fields, and that the resulting query sets
+        contain the expected objects.
+        """
         q = NamedCategory.objects.filter(tag__isnull=True)
         self.assertEqual(str(q.query).count("LEFT OUTER JOIN"), 1)
         # join to dumbcategory ptr_id
@@ -1176,6 +1298,11 @@ class Queries1Tests(TestCase):
 
     def test_ticket_10790_4(self):
         # Querying across m2m field should not strip the m2m table from join.
+        """
+        Tests the use of null checks on related fields in Django ORM queries, 
+        verifying that the correct results are returned and that LEFT OUTER JOINs are used 
+        in the generated SQL queries, with no INNER JOINs present.
+        """
         q = Author.objects.filter(item__tags__isnull=True)
         self.assertSequenceEqual(q, [self.a2, self.a3])
         self.assertEqual(str(q.query).count("LEFT OUTER JOIN"), 2)
@@ -1188,6 +1315,13 @@ class Queries1Tests(TestCase):
 
     def test_ticket_10790_5(self):
         # Querying with isnull=False across m2m field should not create outer joins
+        """
+        Verifies the behavior of filtering Author objects by nested relationships.
+
+        Tests that the correct authors are returned when filtering by existence of tags,
+        tags' parents, and tags' parents' parents, and checks that the generated SQL queries
+        use the expected number of INNER JOINs without using LEFT OUTER JOINs.
+        """
         q = Author.objects.filter(item__tags__isnull=False)
         self.assertSequenceEqual(q, [self.a1, self.a1, self.a2, self.a2, self.a4])
         self.assertEqual(str(q.query).count("LEFT OUTER JOIN"), 0)
@@ -1206,6 +1340,9 @@ class Queries1Tests(TestCase):
     def test_ticket_10790_6(self):
         # Querying with isnull=True across m2m field should not create inner joins
         # and strip last outer join
+        """
+        Tests the correct filtering of authors based on the hierarchical structure of their associated items' tags, verifying the expected authors are returned and that the generated database query uses the correct number of joins.
+        """
         q = Author.objects.filter(item__tags__parent__parent__isnull=True)
         self.assertSequenceEqual(
             q,
@@ -1221,6 +1358,11 @@ class Queries1Tests(TestCase):
 
     def test_ticket_10790_7(self):
         # Reverse querying with isnull should not strip the join
+        """
+        .\"\"\"Tests database query filtering for Author objects with and without associated items.
+
+        Verifies the correct application of LEFT OUTER JOIN and INNER JOIN operations based on the filter conditions, ensuring that queries for authors with and without items return the expected results.
+        """
         q = Author.objects.filter(item__isnull=True)
         self.assertSequenceEqual(q, [self.a3])
         self.assertEqual(str(q.query).count("LEFT OUTER JOIN"), 1)
@@ -1240,6 +1382,9 @@ class Queries1Tests(TestCase):
 
     def test_ticket_10790_combine(self):
         # Combining queries should not re-populate the left outer join
+        """
+        Tests Django ORM query combination using bitwise OR and AND operators, verifying the generated SQL queries for correctness and join types.
+        """
         q1 = Tag.objects.filter(parent__isnull=True)
         q2 = Tag.objects.filter(parent__isnull=False)
 
@@ -1358,6 +1503,10 @@ class Queries1Tests(TestCase):
         self.assertSequenceEqual(Note.objects.exclude(negate=True), [self.n3])
 
     def test_combining_does_not_mutate(self):
+        """
+        Tests that combining queryset operations does not mutate the original querysets, 
+        ensuring data consistency after performing union and intersection operations.
+        """
         all_authors = Author.objects.all()
         authors_with_report = Author.objects.filter(
             Exists(Report.objects.filter(creator__pk=OuterRef("id")))
@@ -1376,6 +1525,9 @@ class Queries1Tests(TestCase):
         self.assertCountEqual(items_before, items_after)
 
     def test_union_values_subquery(self):
+        """
+        Checks the correct usage of subqueries to union values from Item and Report models, verifying that the resulting authors are correctly annotated as creators or not.
+        """
         items = Item.objects.filter(creator=OuterRef("pk"))
         item_authors = Author.objects.annotate(is_creator=Exists(items)).order_by()
         reports = Report.objects.filter(creator=OuterRef("pk"))
@@ -1396,6 +1548,9 @@ class Queries2Tests(TestCase):
     def test_ticket4289(self):
         # A slight variation on the restricting the filtering choices by the
         # lookup constraints.
+        """
+        Tests the correctness of database queries involving compound filters and range comparisons, verifying that results are correctly filtered based on conditions related to numerical values.
+        """
         self.assertSequenceEqual(Number.objects.filter(num__lt=4), [])
         self.assertSequenceEqual(Number.objects.filter(num__gt=8, num__lt=12), [])
         self.assertSequenceEqual(
@@ -1419,6 +1574,11 @@ class Queries2Tests(TestCase):
     def test_ticket12239(self):
         # Custom lookups are registered to round float values correctly on gte
         # and lt IntegerField queries.
+        """
+        .. function:: test_ticket12239
+
+            Tests the functionality of greater than (gt), less than (lt), greater than or equal to (gte), and less than or equal to (lte) filters on decimal numbers in the Number model, ensuring correct ordering and inclusion of numbers in query results.
+        """
         self.assertSequenceEqual(
             Number.objects.filter(num__gt=11.9),
             [self.num12],
@@ -1475,6 +1635,9 @@ class Queries2Tests(TestCase):
 
     def test_ticket7759(self):
         # Count should work with a partially read result set.
+        """
+        Tests that the count of objects in a queryset remains consistent when iterating over its results.
+        """
         count = Number.objects.count()
         qs = Number.objects.all()
 
@@ -1512,6 +1675,9 @@ class Queries3Tests(TestCase):
 class Queries4Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating instances of various models including tags, notes, extra info, authors, reports, and items, establishing relationships between them for use in testing scenarios.
+        """
         generic = NamedCategory.objects.create(name="Generic")
         cls.t1 = Tag.objects.create(name="t1", category=generic)
 
@@ -1536,6 +1702,9 @@ class Queries4Tests(TestCase):
         )
 
     def test_ticket24525(self):
+        """
+        Checks the correct behavior of querying annotations for a specific note while excluding annotations associated with another note.
+        """
         tag = Tag.objects.create()
         anth100 = tag.note_set.create(note="ANTH", misc="100")
         math101 = tag.note_set.create(note="MATH", misc="101")
@@ -1562,6 +1731,9 @@ class Queries4Tests(TestCase):
         # about the join type of the trimmed "creator__isnull" join. If we
         # don't have that information, then the join is created as INNER JOIN
         # and results will be incorrect.
+        """
+        Tests the behavior of Django ORM queries with Q objects, specifically the equivalence of using bitwise OR operator within a single filter call versus using the | operator to combine multiple QuerySets. Verifies that the resulting query sets and SQL queries are identical in both cases.
+        """
         q1 = Report.objects.filter(
             Q(creator__isnull=True) | Q(creator__extra__info="e1")
         )
@@ -1603,6 +1775,10 @@ class Queries4Tests(TestCase):
     def test_combine_join_reuse(self):
         # Joins having identical connections are correctly recreated in the
         # rhs query, in case the query is ORed together (#18748).
+        """
+        Tests the combination of two Django ORM queries using the bitwise OR operator, 
+        verifying that it correctly reuses joins and produces the expected result.
+        """
         Report.objects.create(name="r4", creator=self.a1)
         q1 = Author.objects.filter(report__name="r5")
         q2 = Author.objects.filter(report__name="r4").filter(report__name="r1")
@@ -1618,6 +1794,11 @@ class Queries4Tests(TestCase):
     def test_join_reuse_order(self):
         # Join aliases are reused in order. This shouldn't raise AssertionError
         # because change_map contains a circular reference (#26522).
+        """
+        Tests that the join and reuse order used in the Teacher model is correct,
+        ensuring that queries do not return any results when filtering on non-overlapping
+        school associations for teachers without friendships with the specified teacher.
+        """
         s1 = School.objects.create()
         s2 = School.objects.create()
         s3 = School.objects.create()
@@ -1630,6 +1811,9 @@ class Queries4Tests(TestCase):
     def test_ticket7095(self):
         # Updates that are filtered on the model being updated are somewhat
         # tricky in MySQL.
+        """
+        Tests database queries and object relationships, specifically focusing on query filtering, object updates, and retrieval of related objects through select_related queries, ensuring correct handling of null values and object foreign key relationships.
+        """
         ManagedModel.objects.create(data="mm1", tag=self.t1, public=True)
         self.assertEqual(ManagedModel.objects.update(data="mm"), 1)
 
@@ -1677,6 +1861,9 @@ class Queries4Tests(TestCase):
     def test_order_by_reverse_fk(self):
         # It is possible to order by reverse of foreign key, although that can lead
         # to duplicate results.
+        """
+        Tests that SimpleCategory instances are ordered correctly by their associated CategoryItem instances in reverse foreign key order.
+        """
         c1 = SimpleCategory.objects.create(name="category1")
         c2 = SimpleCategory.objects.create(name="category2")
         CategoryItem.objects.create(category=c1)
@@ -1702,6 +1889,9 @@ class Queries4Tests(TestCase):
         )
 
     def test_ticket15316_filter_false(self):
+        """
+        Returns the number of CategoryItem instances that belong to a SpecialCategory, verifying that the filter correctly identifies these items.
+        """
         c1 = SimpleCategory.objects.create(name="category1")
         c2 = SpecialCategory.objects.create(
             name="named category1", special_name="special1"
@@ -1719,6 +1909,9 @@ class Queries4Tests(TestCase):
         self.assertCountEqual(qs, [ci2, ci3])
 
     def test_ticket15316_exclude_false(self):
+        """
+        Tests that exclude() method correctly filters out related objects based on a specific condition, ensuring that only unrelated objects are returned in the queryset.
+        """
         c1 = SimpleCategory.objects.create(name="category1")
         c2 = SpecialCategory.objects.create(
             name="named category1", special_name="special1"
@@ -1736,6 +1929,11 @@ class Queries4Tests(TestCase):
         self.assertSequenceEqual(qs, [ci1])
 
     def test_ticket15316_filter_true(self):
+        """
+        Tests the filtering of CategoryItem instances by the presence of a related SpecialCategory instance.
+
+        Verifies that only CategoryItem instances related to a SimpleCategory (without a SpecialCategory) are included in the query set when filtering by category__specialcategory__isnull=True.
+        """
         c1 = SimpleCategory.objects.create(name="category1")
         c2 = SpecialCategory.objects.create(
             name="named category1", special_name="special1"
@@ -1753,6 +1951,9 @@ class Queries4Tests(TestCase):
         self.assertSequenceEqual(qs, [ci1])
 
     def test_ticket15316_exclude_true(self):
+        """
+        Tests the exclusion of categories that do not have a special category association. Verifies that the exclude method correctly filters out category items without a special category, ensuring that only items with a special category are returned in the queryset.
+        """
         c1 = SimpleCategory.objects.create(name="category1")
         c2 = SpecialCategory.objects.create(
             name="named category1", special_name="special1"
@@ -1770,6 +1971,9 @@ class Queries4Tests(TestCase):
         self.assertCountEqual(qs, [ci2, ci3])
 
     def test_ticket15316_one2one_filter_false(self):
+        """
+        Tests that a one-to-one filter with `isnull=False` correctly returns the expected `CategoryItem` instances ordered by primary key.
+        """
         c = SimpleCategory.objects.create(name="cat")
         c0 = SimpleCategory.objects.create(name="cat0")
         c1 = SimpleCategory.objects.create(name="category1")
@@ -1788,6 +1992,9 @@ class Queries4Tests(TestCase):
         self.assertSequenceEqual(qs, [ci2, ci3])
 
     def test_ticket15316_one2one_exclude_false(self):
+        """
+        Tests exclusion of category items based on the presence of a one-to-one relationship with OneToOneCategory, ensuring that items without such a relationship are correctly filtered out.
+        """
         c = SimpleCategory.objects.create(name="cat")
         c0 = SimpleCategory.objects.create(name="cat0")
         c1 = SimpleCategory.objects.create(name="category1")
@@ -1804,6 +2011,9 @@ class Queries4Tests(TestCase):
         self.assertSequenceEqual(qs, [ci1])
 
     def test_ticket15316_one2one_filter_true(self):
+        """
+        Tests one-to-one filter lookup for CategoryItem instances where the related category does not have an associated OneToOneCategory instance.
+        """
         c = SimpleCategory.objects.create(name="cat")
         c0 = SimpleCategory.objects.create(name="cat0")
         c1 = SimpleCategory.objects.create(name="category1")
@@ -1820,6 +2030,15 @@ class Queries4Tests(TestCase):
         self.assertSequenceEqual(qs, [ci1])
 
     def test_ticket15316_one2one_exclude_true(self):
+        """
+
+        Tests the exclusion of CategoryItems without a OneToOneCategory relation.
+
+        Verifies that the exclude filter correctly omits CategoryItems that do not have
+        a corresponding OneToOneCategory object, and returns the remaining items in the
+        correct order.
+
+        """
         c = SimpleCategory.objects.create(name="cat")
         c0 = SimpleCategory.objects.create(name="cat0")
         c1 = SimpleCategory.objects.create(name="category1")
@@ -1843,6 +2062,11 @@ class Queries5Tests(TestCase):
     def setUpTestData(cls):
         # Ordering by 'rank' gives us rank2, rank1, rank3. Ordering by the
         # Meta.ordering will be rank3, rank2, rank1.
+        """
+
+        Setup test data for the test class, creating instances of Note, ExtraInfo, Author, and Ranking models with predefined attributes.
+
+        """
         cls.n1 = Note.objects.create(note="n1", misc="foo", id=1)
         cls.n2 = Note.objects.create(note="n2", misc="bar", id=2)
         e1 = ExtraInfo.objects.create(info="e1", note=cls.n1)
@@ -1856,6 +2080,9 @@ class Queries5Tests(TestCase):
 
     def test_ordering(self):
         # Cross model ordering is possible in Meta, too.
+        """
+        Tests the ordering functionality of Ranking objects, including default ordering, ordering by a specific field, and ordering by a complex query using extra conditions.
+        """
         self.assertSequenceEqual(
             Ranking.objects.all(),
             [self.rank3, self.rank2, self.rank1],
@@ -1892,6 +2119,13 @@ class Queries5Tests(TestCase):
     def test_ticket7256(self):
         # An empty values() call includes all aliases, including those from an
         # extra()
+        """
+
+        Tests that Ranking objects are correctly filtered and ordered according to a custom SQL condition.
+
+        The test verifies that a specific case statement is applied to the 'rank' field, and the resulting data is sorted as expected.
+
+        """
         sql = "case when %s > 2 then 1 else 0 end" % connection.ops.quote_name("rank")
         qs = Ranking.objects.extra(select={"good": sql})
         dicts = qs.values().order_by("id")
@@ -1917,6 +2151,11 @@ class Queries5Tests(TestCase):
     def test_ticket9848(self):
         # Make sure that updates which only filter on sub-tables don't
         # inadvertently update the wrong records (bug #9848).
+        """
+        Test the update functionality of Ranking objects to ensure changes are persisted correctly.
+
+        Verifies that updating a Ranking object's rank value updates the correct object and does not affect its relationship with the associated Author object.
+        """
         author_start = Author.objects.get(name="a1")
         ranking_start = Ranking.objects.get(author__name="a1")
 
@@ -1940,6 +2179,9 @@ class Queries5Tests(TestCase):
 
     def test_ticket5261(self):
         # Test different empty excludes.
+        """
+        Tests the correct handling of empty Q objects in Note model queries, ensuring that exclude and filter methods return all objects when given an empty Q object or a combination of empty Q objects with logical operators.
+        """
         self.assertSequenceEqual(
             Note.objects.exclude(Q()),
             [self.n1, self.n2],
@@ -1987,6 +2229,9 @@ class Queries5Tests(TestCase):
         self.assertEqual(authors.count(), 1)
 
     def test_filter_unsaved_object(self):
+        """
+        Tests that related filters raise a ValueError when given unsaved model instances.
+        """
         msg = "Model instances passed to related filters must be saved."
         company = Company.objects.create(name="Django")
         with self.assertRaisesMessage(ValueError, msg):
@@ -2011,6 +2256,9 @@ class SubclassFKTests(TestCase):
         # Model subclasses could not be deleted if a nullable foreign key
         # relates to a model that relates back.
 
+        """
+        Tests that deletion of a TvChef instance properly cleans up related Celebrity records.
+        """
         num_celebs = Celebrity.objects.count()
         tvc = TvChef.objects.create(name="Huey")
         self.assertEqual(Celebrity.objects.count(), num_celebs + 1)
@@ -2037,6 +2285,9 @@ class NullableRelOrderingTests(TestCase):
     def test_join_already_in_query(self):
         # Ordering by model related to nullable relations should not change
         # the join type of already existing joins.
+        """
+        Tests that joining on related objects works correctly, with and without nested joins, and that the Join type is used as expected.
+        """
         Plaything.objects.create(name="p1")
         s = SingleObject.objects.create(name="s")
         r = RelatedObject.objects.create(single=s, f=1)
@@ -2094,6 +2345,10 @@ class DisjunctiveFilterTests(TestCase):
 class Queries6Tests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the test class, creating a hierarchy of tags and annotations, 
+        and associating them with a note for use in tests.
+        """
         generic = NamedCategory.objects.create(name="Generic")
         cls.t1 = Tag.objects.create(name="t1", category=generic)
         cls.t2 = Tag.objects.create(name="t2", parent=cls.t1, category=generic)
@@ -2107,6 +2362,13 @@ class Queries6Tests(TestCase):
 
     def test_parallel_iterators(self):
         # Parallel iterators work.
+        """
+        Tests the functionality of parallel iterators for a queryset.
+
+        Verifies that multiple iterators can be created from the same queryset and
+        that they iterate over the same data independently. Also checks the edge
+        case where the queryset is empty.
+        """
         qs = Tag.objects.all()
         i1, i2 = iter(qs), iter(qs)
         self.assertEqual(repr(next(i1)), "<Tag: t1>")
@@ -2131,6 +2393,10 @@ class Queries6Tests(TestCase):
         # queries that crossed multi-valued relations (#8921, #9188 and some
         # preemptively discovered cases).
 
+        """
+        Tests specific database query filter scenarios to ensure correct object retrieval, 
+        covering exclude and filter methods on various model relationships.
+        """
         self.assertSequenceEqual(
             PointerA.objects.filter(connection__pointerb__id=1), []
         )
@@ -2229,6 +2495,9 @@ class RawQueriesTests(TestCase):
 
     def test_ticket14729(self):
         # Test representation of raw query with one or few parameters passed as list
+        """
+        Tests the representation of a RawQuerySet when using raw SQL queries with parameters. Verifies that the query string is correctly formatted and that parameter values are properly inserted.
+        """
         query = "SELECT * FROM queries_note WHERE note = %s"
         params = ["n1"]
         qs = Note.objects.raw(query, params=params)
@@ -2261,6 +2530,9 @@ class ComparisonTests(TestCase):
 
     def test_ticket8597(self):
         # Regression tests for case-insensitive comparisons
+        """
+        Tests the case-insensitive filtering of item names, ensuring proper matching with different lookup types (iexact, istartswith, iendswith) and handling of special characters.
+        """
         item_ab = Item.objects.create(
             name="a_b", created=datetime.datetime.now(), creator=self.a2, note=self.n1
         )
@@ -2287,6 +2559,9 @@ class ComparisonTests(TestCase):
 
 class ExistsSql(TestCase):
     def test_exists(self):
+        """
+        Tests that the exists method of the Tag model does not include unnecessary fields in the generated SQL query.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             self.assertFalse(Tag.objects.exists())
         # Ok - so the exist query worked - but did it include too many columns?
@@ -2297,6 +2572,9 @@ class ExistsSql(TestCase):
         self.assertNotIn(name, qstr)
 
     def test_distinct_exists(self):
+        """
+        /tests/test_distinct_exists: Tests the SQL query generated by Article.objects.distinct().exists() to ensure distinct clause is not translated into SQL and only one query is executed.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             self.assertIs(Article.objects.distinct().exists(), False)
         self.assertEqual(len(captured_queries), 1)
@@ -2305,6 +2583,11 @@ class ExistsSql(TestCase):
         self.assertNotIn(connection.ops.quote_name("name"), captured_sql)
 
     def test_sliced_distinct_exists(self):
+        """
+        Tests the exists method on a sliced QuerySet with distinct values, 
+        verifying the resulting SQL query is executed efficiently and includes 
+        the expected columns in the output.
+        """
         with CaptureQueriesContext(connection) as captured_queries:
             self.assertIs(Article.objects.distinct()[1:3].exists(), False)
         self.assertEqual(len(captured_queries), 1)
@@ -2313,6 +2596,13 @@ class ExistsSql(TestCase):
         self.assertIn(connection.ops.quote_name("name"), captured_sql)
 
     def test_ticket_18414(self):
+        """
+        Tests the existence of distinct articles in the database.
+
+        Verifies that articles can be created with duplicate names, and that 
+        methods such as exists() and distinct() behave as expected when 
+        querying these articles.
+        """
         Article.objects.create(name="one", created=datetime.datetime.now())
         Article.objects.create(name="one", created=datetime.datetime.now())
         Article.objects.create(name="two", created=datetime.datetime.now())
@@ -2323,6 +2613,9 @@ class ExistsSql(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_ticket_18414_distinct_on(self):
+        """
+        Tests the ability of a database to handle the DISTINCT ON clause, ensuring that it correctly filters records based on specified fields.
+        """
         Article.objects.create(name="one", created=datetime.datetime.now())
         Article.objects.create(name="one", created=datetime.datetime.now())
         Article.objects.create(name="two", created=datetime.datetime.now())
@@ -2491,6 +2784,9 @@ class SubqueryTests(TestCase):
 class QuerySetBitwiseOperationTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a school, multiple classrooms, annotations, base users, and a task, providing a foundation for subsequent tests.
+        """
         cls.school = School.objects.create()
         cls.room_1 = Classroom.objects.create(
             school=cls.school, has_blackboard=False, name="Room 1"
@@ -2578,6 +2874,9 @@ class QuerySetBitwiseOperationTests(TestCase):
         self.assertSequenceEqual(nested_combined, [self.school])
 
     def test_conflicting_aliases_during_combine(self):
+        """
+        Tests that combining querysets with conflicting aliases works correctly, ensuring expected results when merging queries with overlapping columns.
+        """
         qs1 = self.annotation_1.baseuser_set.all()
         qs2 = BaseUser.objects.filter(
             Q(owner__note__in=self.annotation_1.notes.all())
@@ -2734,6 +3033,9 @@ class ValuesQuerysetTests(TestCase):
 
     def test_extra_multiple_select_params_values_order_by(self):
         # testing for 23259 issue
+        """
+        Tests the behavior of an extra select clause in conjunction with ordering and filtering, ensuring the values are correctly calculated and returned in the expected order, with a specific focus on multiple select parameters and their impact on query results.
+        """
         qs = Number.objects.extra(
             select={"value_plus_x": "num+%s", "value_minus_x": "num-%s"},
             select_params=(72, 72),
@@ -2779,6 +3081,9 @@ class ValuesQuerysetTests(TestCase):
             ).first()
 
     def test_named_values_list_with_fields(self):
+        """
+        Tests the retrieval of named values from a queryset with extra selected fields, verifying the type and fields of the returned row and the correctness of its values.
+        """
         qs = Number.objects.extra(select={"num2": "num+1"}).annotate(Count("id"))
         values = qs.values_list("num", "num2", named=True).first()
         self.assertEqual(type(values).__name__, "Row")
@@ -2787,6 +3092,9 @@ class ValuesQuerysetTests(TestCase):
         self.assertEqual(values.num2, 73)
 
     def test_named_values_list_without_fields(self):
+        """
+        Tests that a named values list from a queryset with an extra select clause and an annotation can be correctly retrieved as a Row object, with the expected fields and values.
+        """
         qs = Number.objects.extra(select={"num2": "num+1"}).annotate(Count("id"))
         values = qs.values_list(named=True).first()
         self.assertEqual(type(values).__name__, "Row")
@@ -2860,6 +3168,9 @@ class QuerySetSupportsPythonIdioms(TestCase):
             self.get_ordered_articles()[0:5:3]
 
     def test_slicing_can_slice_again_after_slicing(self):
+        """
+        Verifies that slicing can be applied multiple times to a sequence of articles in various ways, ensuring that the results match the expected subsets of articles.
+        """
         self.assertSequenceEqual(
             self.get_ordered_articles()[0:5][0:2],
             [self.articles[0], self.articles[1]],
@@ -2938,6 +3249,9 @@ class QuerySetSupportsPythonIdioms(TestCase):
 class WeirdQuerysetSlicingTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for use in unit tests, creating a set of sample Number, Article, Food, and Eaten objects in the database.
+        """
         Number.objects.create(num=1)
         Number.objects.create(num=2)
 
@@ -2951,6 +3265,9 @@ class WeirdQuerysetSlicingTests(TestCase):
 
     def test_tickets_7698_10202(self):
         # People like to slice with '0' as the high-water mark.
+        """
+        Test the behavior of Django querysets when sliced or indexed, particularly when attempting to perform subsequent queries after slicing, to ensure correct handling and error messages.
+        """
         self.assertSequenceEqual(Article.objects.all()[0:0], [])
         self.assertSequenceEqual(Article.objects.all()[0:0][:10], [])
         self.assertEqual(Article.objects.all()[:0].count(), 0)
@@ -2998,6 +3315,13 @@ class EscapingTests(TestCase):
 
 class ToFieldTests(TestCase):
     def test_in_query(self):
+        """
+
+        Tests that the in query filter correctly retrieves eaten objects by their associated food objects.
+
+        Verifies that multiple food objects can be queried and their corresponding eaten objects are returned.
+
+        """
         apple = Food.objects.create(name="apple")
         pear = Food.objects.create(name="pear")
         lunch = Eaten.objects.create(food=apple, meal="lunch")
@@ -3009,6 +3333,14 @@ class ToFieldTests(TestCase):
         )
 
     def test_in_subquery(self):
+        """
+
+        Tests filtering using subqueries on model relationships.
+
+        Verifies that the 'in' lookup type works correctly when used with related models, 
+        ensuring that objects are correctly filtered based on their associated instances.
+
+        """
         apple = Food.objects.create(name="apple")
         lunch = Eaten.objects.create(food=apple, meal="lunch")
         self.assertEqual(
@@ -3029,6 +3361,12 @@ class ToFieldTests(TestCase):
         )
 
     def test_nested_in_subquery(self):
+        """
+
+        Tests that a report comment can be correctly filtered by a subquery 
+        that checks the creator of the report against the authors linked to an extra info object.
+
+        """
         extra = ExtraInfo.objects.create()
         author = Author.objects.create(num=42, extra=extra)
         report = Report.objects.create(creator=author)
@@ -3041,6 +3379,12 @@ class ToFieldTests(TestCase):
         self.assertSequenceEqual(comments, [comment])
 
     def test_reverse_in(self):
+        """
+
+        Tests that the reverse relationship for eaten foods is correctly established.
+        Verifies that filtering Food objects by eaten instances returns the corresponding foods.
+
+        """
         apple = Food.objects.create(name="apple")
         pear = Food.objects.create(name="pear")
         lunch_apple = Eaten.objects.create(food=apple, meal="lunch")
@@ -3078,6 +3422,9 @@ class ToFieldTests(TestCase):
 
 class IsNullTests(TestCase):
     def test_primary_key(self):
+        """
+        Tests the filtering of Related objects based on the presence of a primary key in the CustomPk object. Verifies that objects with and without a primary key are correctly distinguished by the custom__isnull filter.
+        """
         custom = CustomPk.objects.create(name="pk")
         null = Related.objects.create()
         notnull = Related.objects.create(custom=custom)
@@ -3087,6 +3434,9 @@ class IsNullTests(TestCase):
         self.assertSequenceEqual(Related.objects.filter(custom__isnull=True), [null])
 
     def test_to_field(self):
+        """
+        Tests the filtering of Eaten objects based on the presence of a related Food object.
+        """
         apple = Food.objects.create(name="apple")
         e1 = Eaten.objects.create(food=apple, meal="lunch")
         e2 = Eaten.objects.create(meal="lunch")
@@ -3106,6 +3456,9 @@ class ConditionalTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for tags, creating a hierarchy of tags with parent-child relationships for testing purposes.
+        """
         generic = NamedCategory.objects.create(name="Generic")
         t1 = Tag.objects.create(name="t1", category=generic)
         Tag.objects.create(name="t2", parent=t1, category=generic)
@@ -3116,6 +3469,14 @@ class ConditionalTests(TestCase):
     def test_infinite_loop(self):
         # If you're not careful, it's possible to introduce infinite loops via
         # default ordering on foreign keys in a cycle. We detect that.
+        """
+
+        Tests for handling infinite loops caused by ordering in object queries.
+
+        Verifies that FieldError is raised when querying objects with cyclic relationships,
+        and that correct ordering is applied to unrelated objects.
+
+        """
         with self.assertRaisesMessage(FieldError, "Infinite loop caused by ordering."):
             list(LoopX.objects.all())  # Force queryset evaluation with list()
         with self.assertRaisesMessage(FieldError, "Infinite loop caused by ordering."):
@@ -3135,6 +3496,9 @@ class ConditionalTests(TestCase):
     # portion in MySQL to prevent unnecessary sorting.
     @skipUnlessDBFeature("requires_explicit_null_ordering_when_grouping")
     def test_null_ordering_added(self):
+        """
+        Tests that the database query adds explicit NULL ordering when grouping by a field, to ensure consistent results across different databases.
+        """
         query = Tag.objects.values_list("parent_id", flat=True).order_by().query
         query.group_by = ["parent_id"]
         sql = query.get_compiler(DEFAULT_DB_ALIAS).as_sql()[0]
@@ -3147,6 +3511,9 @@ class ConditionalTests(TestCase):
         # The "in" lookup works with lists of 1000 items or more.
         # The numbers amount is picked to force three different IN batches
         # for Oracle, yet to be less than 2100 parameter limit for MSSQL.
+        """
+        Tests the functionality of filtering Number objects based on a list of values, specifically with respect to database query parameter limits.
+        """
         numbers = list(range(2050))
         max_query_params = connection.features.max_query_params
         if max_query_params is None or max_query_params >= len(numbers):
@@ -3165,6 +3532,9 @@ class UnionTests(unittest.TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data required for the application, creating instances of ObjectA, ObjectB, and ObjectC with predefined attributes and relationships.
+        """
         objectas = []
         objectbs = []
         objectcs = []
@@ -3239,6 +3609,10 @@ class DefaultValuesInsertTest(TestCase):
 class ExcludeTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating a set of foods, jobs, responsibilities, and their associations.\"\"\"
+        ```
+        """
         f1 = Food.objects.create(name="apples")
         cls.f2 = Food.objects.create(name="oranges")
         Eaten.objects.create(food=f1, meal="dinner")
@@ -3264,6 +3638,9 @@ class ExcludeTests(TestCase):
         )
 
     def test_exclude_m2m_through(self):
+        """
+        Tests that Many-To-Many relationships through an intermediary model are correctly filtered using the `exclude` method, ensuring that the resulting query is efficient and only executes a single database query.
+        """
         alex = Person.objects.get_or_create(name="Alex")[0]
         jane = Person.objects.get_or_create(name="Jane")[0]
 
@@ -3365,6 +3742,13 @@ class ExcludeTests(TestCase):
         )
 
     def test_exclude_unsaved_object(self):
+        """
+
+        Tests that exclude filters raise an error when passed unsaved model instances.
+
+        Verifies that attempting to exclude unsaved objects from querysets results in a ValueError, ensuring consistency and data integrity.
+
+        """
         company = Company.objects.create(name="Django")
         msg = "Model instances passed to related filters must be saved."
         with self.assertRaisesMessage(ValueError, msg):
@@ -3384,6 +3768,9 @@ class ExcludeTest17600(TestCase):
     @classmethod
     def setUpTestData(cls):
         # Create a few Orders.
+        """
+        Sets up test data for unit tests by creating orders and their corresponding order items with various statuses.
+        """
         cls.o1 = Order.objects.create(pk=1)
         cls.o2 = Order.objects.create(pk=2)
         cls.o3 = Order.objects.create(pk=3)
@@ -3479,6 +3866,13 @@ class Exclude15786(TestCase):
     """Regression test for #15786"""
 
     def test_ticket15786(self):
+        """
+
+        Tests the exclusion of CategoryRelationship instances where both categories share a one-to-one relationship.
+
+        Verifies that category relationships with matching one-to-one categories can be correctly filtered out.
+
+        """
         c1 = SimpleCategory.objects.create(name="c1")
         c2 = SimpleCategory.objects.create(name="c2")
         OneToOneCategory.objects.create(category=c1)
@@ -3499,6 +3893,9 @@ class NullInExcludeTest(TestCase):
         NullableName.objects.create()
 
     def test_null_in_exclude_qs(self):
+        """
+        Tests the behavior of the `exclude` method when filtering by an empty list or a list containing values, to ensure it correctly handles Null values in the `name` field of `NullableName` objects.
+        """
         none_val = "" if connection.features.interprets_empty_strings_as_nulls else None
         self.assertQuerySetEqual(
             NullableName.objects.exclude(name__in=[]),
@@ -3604,6 +4001,9 @@ class WhereNodeTest(SimpleTestCase):
             return connection.ops.quote_name(name)
 
     def test_empty_full_handling_conjunction(self):
+        """
+        Tests the handling of conjunctions in WhereNode, covering scenarios with empty and full result sets, as well as negation of these conditions.
+        """
         compiler = WhereNodeTest.MockCompiler()
         w = WhereNode(children=[NothingNode()])
         with self.assertRaises(EmptyResultSet):
@@ -3623,6 +4023,11 @@ class WhereNodeTest(SimpleTestCase):
             w.as_sql(compiler, connection)
 
     def test_empty_full_handling_disjunction(self):
+        """
+        Tests the handling of disjunction (OR) logic in the WhereNode class.
+        It covers scenarios involving empty and full result sets, as well as negation.
+        Ensures that the WhereNode produces the correct SQL for various combinations of child nodes and connectors.
+        """
         compiler = WhereNodeTest.MockCompiler()
         w = WhereNode(children=[NothingNode()], connector=OR)
         with self.assertRaises(EmptyResultSet):
@@ -3640,6 +4045,11 @@ class WhereNodeTest(SimpleTestCase):
         self.assertEqual(w.as_sql(compiler, connection), ("NOT (dummy)", []))
 
     def test_empty_nodes(self):
+        """
+        Tests the behavior of WhereNode instances with empty child nodes, 
+        covering different connector settings and negation scenarios to ensure 
+        correct handling of full and empty result sets.
+        """
         compiler = WhereNodeTest.MockCompiler()
         empty_w = WhereNode()
         w = WhereNode(children=[empty_w, empty_w])
@@ -3686,6 +4096,9 @@ class QuerySetExceptionTests(SimpleTestCase):
 class NullJoinPromotionOrTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up initial test data for the class, creating instances of ModelD, ModelA, ModelB and ModelC for use in subsequent tests.
+        """
         cls.d1 = ModelD.objects.create(name="foo")
         d2 = ModelD.objects.create(name="bar")
         cls.a1 = ModelA.objects.create(name="a1", d=cls.d1)
@@ -3708,6 +4121,11 @@ class NullJoinPromotionOrTest(TestCase):
         self.assertEqual(str(qset.query).count("INNER JOIN"), 1)
 
     def test_isnull_filter_promotion(self):
+        """
+        Tests the promotion of isnull filters in Django querysets, 
+        verifying that the correct join type (INNER JOIN or LEFT OUTER) 
+        is used based on the null check condition and its negations.
+        """
         qs = ModelA.objects.filter(Q(b__name__isnull=True))
         self.assertEqual(str(qs.query).count("LEFT OUTER"), 1)
         self.assertEqual(list(qs), [self.a1])
@@ -3733,6 +4151,10 @@ class NullJoinPromotionOrTest(TestCase):
         self.assertEqual(list(qs), [self.a2])
 
     def test_null_join_demotion(self):
+        """
+        Tests the promotion and demotion of join types (INNER JOIN, LEFT OUTER JOIN) in database queries, 
+        dependent on the use of logical AND and OR operators in conjunction with null checks.
+        """
         qs = ModelA.objects.filter(Q(b__name__isnull=False) & Q(b__name__isnull=True))
         self.assertIn(" INNER JOIN ", str(qs.query))
         qs = ModelA.objects.filter(Q(b__name__isnull=True) & Q(b__name__isnull=False))
@@ -3743,6 +4165,14 @@ class NullJoinPromotionOrTest(TestCase):
         self.assertIn(" LEFT OUTER JOIN ", str(qs.query))
 
     def test_ticket_21366(self):
+        """
+
+        Tests the efficient use of database joins when filtering reports based on creator ranking and name.
+
+        Verifies the generated SQL query includes the expected number of LEFT OUTER JOIN and JOIN operations,
+        and that the ordering of the results by name works as expected.
+
+        """
         n = Note.objects.create(note="n", misc="m")
         e = ExtraInfo.objects.create(info="info", note=n)
         a = Author.objects.create(name="Author1", num=1, extra=e)
@@ -3758,6 +4188,11 @@ class NullJoinPromotionOrTest(TestCase):
         self.assertSequenceEqual(qs.order_by("name"), [r2, r1])
 
     def test_ticket_21748(self):
+        """
+        Tests the filtering of Identifiers based on their association with Programs and Channels.
+
+        Ensures that Identifiers can be correctly identified as being associated with or excluded from Programs and Channels.
+        """
         i1 = Identifier.objects.create(name="i1")
         i2 = Identifier.objects.create(name="i2")
         i3 = Identifier.objects.create(name="i3")
@@ -3773,6 +4208,9 @@ class NullJoinPromotionOrTest(TestCase):
         )
 
     def test_ticket_21748_double_negated_and(self):
+        """
+        Tests the behavior of double negated query filters on Identifier objects, verifying that the results are equivalent to a straightforward filter and that the generated SQL queries have the same join operations.
+        """
         i1 = Identifier.objects.create(name="i1")
         i2 = Identifier.objects.create(name="i2")
         Identifier.objects.create(name="i3")
@@ -3798,6 +4236,14 @@ class NullJoinPromotionOrTest(TestCase):
         )
 
     def test_ticket_21748_double_negated_or(self):
+        """
+
+        Tests the equivalent construction of a query using double negation and OR operator.
+
+        Verifies that the results and joins are identical when a query is built
+        using exclude and multiple Q objects versus using filter with the same Q objects.
+
+        """
         i1 = Identifier.objects.create(name="i1")
         i2 = Identifier.objects.create(name="i2")
         Identifier.objects.create(name="i3")
@@ -3823,6 +4269,9 @@ class NullJoinPromotionOrTest(TestCase):
         )
 
     def test_ticket_21748_complex_filter(self):
+        """
+        Tests that complex filters with negations and conjunctions produce the same results and SQL queries as equivalent filters with disjunctions and negations.
+        """
         i1 = Identifier.objects.create(name="i1")
         i2 = Identifier.objects.create(name="i2")
         Identifier.objects.create(name="i3")
@@ -3916,6 +4365,9 @@ class JoinReuseTest(TestCase):
 
 class DisjunctionPromotionTests(TestCase):
     def test_disjunction_promotion_select_related(self):
+        """
+        Tests the proper use of select_related with disjunction (OR) operations in querysets, ensuring no unnecessary joins are performed and that the correct related objects are retrieved in a single database query.
+        """
         fk1 = FK1.objects.create(f1="f1", f2="f2")
         basea = BaseA.objects.create(a=fk1)
         qs = BaseA.objects.filter(Q(a=fk1) | Q(b=2))
@@ -3931,6 +4383,9 @@ class DisjunctionPromotionTests(TestCase):
     def test_disjunction_promotion1(self):
         # Pre-existing join, add two ORed filters to the same join,
         # all joins can be INNER JOINS.
+        """
+        Tests the promotion of disjunction queries, verifying that joins are added or combined correctly when using logical OR operations in filter conditions, ensuring the expected number of INNER JOINs are generated in the resulting query.
+        """
         qs = BaseA.objects.filter(a__f1="foo")
         self.assertEqual(str(qs.query).count("INNER JOIN"), 1)
         qs = qs.filter(Q(b__f1="foo") | Q(b__f2="foo"))
@@ -3942,6 +4397,9 @@ class DisjunctionPromotionTests(TestCase):
         self.assertEqual(str(qs.query).count("INNER JOIN"), 2)
 
     def test_disjunction_promotion2(self):
+        """
+        Tests the promotion of disjunctions in query filter operations to ensure correct join types (INNER JOIN, LEFT OUTER JOIN) are applied when combining filters with 'or' conditions (Q objects with '|').
+        """
         qs = BaseA.objects.filter(a__f1="foo")
         self.assertEqual(str(qs.query).count("INNER JOIN"), 1)
         # Now we have two different joins in an ORed condition, these
@@ -3957,6 +4415,9 @@ class DisjunctionPromotionTests(TestCase):
         self.assertEqual(str(qs.query).count("LEFT OUTER JOIN"), 2)
 
     def test_disjunction_promotion3(self):
+        """
+        Tests the promotion of disjunctions in database queries, ensuring that an INNER JOIN is maintained when filtering on a related object and a LEFT OUTER JOIN is added when filtering on an unrelated object using a disjunction.
+        """
         qs = BaseA.objects.filter(a__f2="bar")
         self.assertEqual(str(qs.query).count("INNER JOIN"), 1)
         # The ANDed a__f2 filter allows us to use keep using INNER JOIN
@@ -3988,6 +4449,13 @@ class DisjunctionPromotionTests(TestCase):
         self.assertEqual(str(qs.query).count("INNER JOIN"), 1)
 
     def test_disjunction_promotion5_demote(self):
+        """
+        Tests disjunction promotion and demotion behavior in query filtering.
+
+        Verifies that the correct type and number of joins are generated when applying
+        filters with disjunctions to a queryset, including scenarios where a single
+        table or multiple tables are involved.
+        """
         qs = BaseA.objects.filter(Q(a=1) | Q(a=2))
         # Note that the above filters on a force the join to an
         # inner join even if it is trimmed.
@@ -4005,6 +4473,9 @@ class DisjunctionPromotionTests(TestCase):
         self.assertEqual(str(qs.query).count("LEFT OUTER JOIN"), 1)
 
     def test_disjunction_promotion6(self):
+        """
+        Tests disjunction promotion in query filters, verifying that the correct types of SQL joins are used based on the filter conditions.
+        """
         qs = BaseA.objects.filter(Q(a=1) | Q(a=2))
         self.assertEqual(str(qs.query).count("JOIN"), 0)
         qs = BaseA.objects.filter(Q(a__f1="foo") & Q(b__f1="foo"))
@@ -4019,6 +4490,9 @@ class DisjunctionPromotionTests(TestCase):
         self.assertEqual(str(qs.query).count("LEFT OUTER JOIN"), 0)
 
     def test_disjunction_promotion7(self):
+        """
+        Tests the promotion of disjunctions in querysets, ensuring correct generation of SQL joins based on filter conditions.
+        """
         qs = BaseA.objects.filter(Q(a=1) | Q(a=2))
         self.assertEqual(str(qs.query).count("JOIN"), 0)
         qs = BaseA.objects.filter(Q(a__f1="foo") | (Q(b__f1="foo") & Q(a__f1="bar")))
@@ -4036,6 +4510,10 @@ class DisjunctionPromotionTests(TestCase):
         self.assertEqual(str(qs.query).count("INNER JOIN"), 1)
 
     def test_disjunction_promotion_fexpression(self):
+        """
+        Tests the promotion of disjunctions in F expressions within Django ORM queries, 
+        ensuring the correct generation of JOINs in the resulting SQL query.
+        """
         qs = BaseA.objects.filter(Q(a__f1=F("b__f1")) | Q(b__f1="foo"))
         self.assertEqual(str(qs.query).count("LEFT OUTER JOIN"), 1)
         self.assertEqual(str(qs.query).count("INNER JOIN"), 1)
@@ -4052,6 +4530,9 @@ class DisjunctionPromotionTests(TestCase):
 
 class ManyToManyExcludeTest(TestCase):
     def test_exclude_many_to_many(self):
+        """
+        Tests excluding many-to-many relationships between identifiers and programs through channels.
+        """
         i_extra = Identifier.objects.create(name="extra")
         i_program = Identifier.objects.create(name="program")
         program = Program.objects.create(identifier=i_program)
@@ -4071,6 +4552,9 @@ class ManyToManyExcludeTest(TestCase):
         )
 
     def test_ticket_12823(self):
+        """
+        Tests the correct exclusion of books based on page text in the chapter's paragraph, ensuring the query does not use 'IS NOT NULL' and returns the expected number and types of books.
+        """
         pg3 = Page.objects.create(text="pg3")
         pg2 = Page.objects.create(text="pg2")
         pg1 = Page.objects.create(text="pg1")
@@ -4095,6 +4579,12 @@ class ManyToManyExcludeTest(TestCase):
 
 class RelabelCloneTest(TestCase):
     def test_ticket_19964(self):
+        """
+        Tests the correct functioning of self-referential relationships in MyObject instances.
+
+        Verifies that an object with a self-referential parent can be saved and queried correctly,
+        and that its children are properly identified and distinguished from the parent itself.
+        """
         my1 = MyObject.objects.create(data="foo")
         my1.parent = my1
         my1.save()
@@ -4127,6 +4617,9 @@ class Ticket20101Tests(TestCase):
 
 class EmptyStringPromotionTests(SimpleTestCase):
     def test_empty_string_promotion(self):
+        """
+        Checks if Django's ORM correctly handles empty string values when querying related objects, taking into account the database backend's behavior on interpreting empty strings as nulls.
+        """
         qs = RelatedObject.objects.filter(single__name="")
         if connection.features.interprets_empty_strings_as_nulls:
             self.assertIn("LEFT OUTER JOIN", str(qs.query))
@@ -4138,6 +4631,15 @@ class ValuesSubqueryTests(TestCase):
     def test_values_in_subquery(self):
         # If a values() queryset is used, then the given values
         # will be used instead of forcing use of the relation's field.
+        """
+
+        Tests that the database correctly queries orders based on values in a subquery.
+
+        Specifically, it ensures that an order is only returned if its associated items
+        match the statuses present in the subquery, verifying the functionality of
+        the 'in' lookup with a subquery.
+
+        """
         o1 = Order.objects.create(id=-2)
         o2 = Order.objects.create(id=-1)
         oi1 = OrderItem.objects.create(order=o1, status=0)
@@ -4155,6 +4657,9 @@ class ValuesSubqueryTests(TestCase):
 
 class DoubleInSubqueryTests(TestCase):
     def test_double_subquery_in(self):
+        """
+        Tests database query with a double subquery to verify correct results retrieval. The function checks if the LeafB objects can be correctly filtered based on a subquery that selects LeafA objects and then joins them with Join objects.
+        """
         lfa1 = LeafA.objects.create(data="foo")
         lfa2 = LeafA.objects.create(data="bar")
         lfb1 = LeafB.objects.create(data="lfb1")
@@ -4181,6 +4686,12 @@ class Ticket18785Tests(SimpleTestCase):
 
 class Ticket20788Tests(TestCase):
     def test_ticket_20788(self):
+        """
+
+        Tests that the Book objects exclude function correctly returns books 
+        with chapters containing paragraphs not associated with the specified page.
+
+        """
         Paragraph.objects.create()
         paragraph = Paragraph.objects.create()
         page = paragraph.page.create()
@@ -4211,6 +4722,9 @@ class RelatedLookupTypeTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating instances of various model objects to be used in testing scenarios.
+        """
         cls.oa = ObjectA.objects.create(name="oa")
         cls.poa = ProxyObjectA.objects.get(name="oa")
         cls.coa = ChildObjectA.objects.create(name="coa")
@@ -4336,6 +4850,9 @@ class RelatedLookupTypeTests(TestCase):
 
 class Ticket14056Tests(TestCase):
     def test_ticket_14056(self):
+        """
+        Tests the ordering of SharedConnection objects based on their association with PointerA objects, considering the NULLS FIRST/LAST behavior of the database backend.
+        """
         s1 = SharedConnection.objects.create(data="s1")
         s2 = SharedConnection.objects.create(data="s2")
         s3 = SharedConnection.objects.create(data="s3")
@@ -4351,6 +4868,13 @@ class Ticket14056Tests(TestCase):
 
 class Ticket20955Tests(TestCase):
     def test_ticket_20955(self):
+        """
+        Tests the optimization of database queries for tasks using select_related.
+
+        Verifies that using select_related reduces the number of database queries
+        when accessing related objects, specifically staff users and their staff details.
+
+        """
         jack = Staff.objects.create(name="jackstaff")
         jackstaff = StaffUser.objects.create(staff=jack)
         jill = Staff.objects.create(name="jillstaff")
@@ -4379,6 +4903,9 @@ class Ticket20955Tests(TestCase):
 
 class Ticket21203Tests(TestCase):
     def test_ticket_21203(self):
+        """
+        Tests the correctness of select_related and defer queryset methods for lazy loading of related model fields, ensuring that the deferred fields are not loaded until accessed directly.
+        """
         p = Ticket21203Parent.objects.create(parent_bool=True)
         c = Ticket21203Child.objects.create(parent=p)
         qs = Ticket21203Child.objects.select_related("parent").defer("parent__created")
@@ -4388,6 +4915,10 @@ class Ticket21203Tests(TestCase):
 
 class ValuesJoinPromotionTests(TestCase):
     def test_values_no_promotion_for_existing(self):
+        """
+        Tests that database queries using values() do not promote join types for existing joins, 
+        while new queries use LEFT OUTER JOIN as expected.
+        """
         qs = Node.objects.filter(parent__parent__isnull=False)
         self.assertIn(" INNER JOIN ", str(qs.query))
         qs = qs.values("parent__parent__id")
@@ -4401,6 +4932,13 @@ class ValuesJoinPromotionTests(TestCase):
         self.assertIn(" INNER JOIN ", str(qs.query))
 
     def test_ticket_21376(self):
+        """
+        Tests the generation of LEFT OUTER JOINs in queries with OR conditions.
+
+        Verifies that a query using Q objects with OR conditions correctly generates a LEFT OUTER JOIN
+        and produces the expected results. Ensures the query count is as expected and the query string
+        contains the required JOIN clause.
+        """
         a = ObjectA.objects.create()
         ObjectC.objects.create(objecta=a)
         qs = ObjectC.objects.filter(
@@ -4416,6 +4954,9 @@ class ValuesJoinPromotionTests(TestCase):
 
 class ForeignKeyToBaseExcludeTests(TestCase):
     def test_ticket_21787(self):
+        """
+        Tests exclusion of SpecialCategories with a CategoryItem matching the given id, and filtering for those with a CategoryItem with the specified id.
+        """
         sc1 = SpecialCategory.objects.create(special_name="sc1", name="sc1")
         sc2 = SpecialCategory.objects.create(special_name="sc2", name="sc2")
         sc3 = SpecialCategory.objects.create(special_name="sc3", name="sc3")
@@ -4432,6 +4973,9 @@ class ForeignKeyToBaseExcludeTests(TestCase):
 
 class ReverseM2MCustomPkTests(TestCase):
     def test_ticket_21879(self):
+        """
+        Checks the correct assignment and filtering of CustomPk objects to CustomPkTag objects, verifying that the many-to-one relationship is properly established and queried in both directions.
+        """
         cpt1 = CustomPkTag.objects.create(id="cpt1", tag="cpt1")
         cp1 = CustomPk.objects.create(name="cp1", extra="extra")
         cp1.custompktag_set.add(cpt1)
@@ -4441,6 +4985,9 @@ class ReverseM2MCustomPkTests(TestCase):
 
 class Ticket22429Tests(TestCase):
     def test_ticket_22429(self):
+        """
+        Tests that the queryset correctly filters students who do not belong to a classroom in their own school.
+        """
         sc1 = School.objects.create()
         st1 = Student.objects.create(school=sc1)
 
@@ -4461,6 +5008,9 @@ class Ticket23605Tests(TestCase):
         # The original problem was that the inner queries weren't relabeled
         # correctly.
         # See also #24090.
+        """
+        Tests the filtering of Ticket23605A objects based on complex conditions involving related Ticket23605B and Ticket23605C objects, verifying that the correct objects are included or excluded from the query results.
+        """
         a1 = Ticket23605A.objects.create()
         a2 = Ticket23605A.objects.create()
         c1 = Ticket23605C.objects.create(field_c0=10000.0)
@@ -4506,6 +5056,10 @@ class TestTicket24279(TestCase):
 
 class TestInvalidValuesRelation(SimpleTestCase):
     def test_invalid_values(self):
+        """
+        Tests handling of invalid non-numeric values for the 'id' field in Annotation objects' filter queries. 
+        It verifies that a ValueError is raised when filtering by a non-numeric tag or a list containing non-numeric values.
+        """
         msg = "Field 'id' expected a number but got 'abc'."
         with self.assertRaisesMessage(ValueError, msg):
             Annotation.objects.filter(tag="abc")

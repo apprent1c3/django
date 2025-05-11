@@ -73,6 +73,9 @@ TEST_CASES = {
 
 class DBTypeCasts(unittest.TestCase):
     def test_typeCasts(self):
+        """
+        Tests various type casting functions to ensure their correctness by validating their outputs against expected results for a set of predefined test cases.
+        """
         for k, v in TEST_CASES.items():
             for inpt, expected in v:
                 with self.subTest(k=k, inpt=inpt):

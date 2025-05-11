@@ -38,6 +38,18 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         super().__init__(*args, **kwargs)
 
     def get_new_connection(self, conn_params):
+        """
+        Obtain a new database connection with SpatiaLite extension enabled.
+
+        This function overrides the default connection creation to enable loading of SQLite extensions, 
+        specifically to load the SpatiaLite library for spatial database functionality. It attempts to 
+        load the extension from a list of predefined library paths.
+
+        :raises ImproperlyConfigured: if SQLite is not configured to allow extension loading, or if the 
+            SpatiaLite library cannot be loaded from any of the specified paths.
+        :returns: A new database connection with SpatiaLite extension enabled.
+
+        """
         conn = super().get_new_connection(conn_params)
         # Enabling extension loading on the SQLite connection.
         try:
@@ -68,6 +80,14 @@ class DatabaseWrapper(SQLiteDatabaseWrapper):
         return conn
 
     def prepare_database(self):
+        """
+
+        Initializes the spatial metadata in the database.
+
+        Ensures that the spatial metadata tables are properly set up, creating them if they do not already exist.
+        This is necessary for spatial operations to function correctly.
+
+        """
         super().prepare_database()
         # Check if spatial metadata have been initialized in the database
         with self.cursor() as cursor:

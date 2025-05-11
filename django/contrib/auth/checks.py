@@ -26,6 +26,9 @@ def _subclass_index(class_path, candidate_paths):
 
 
 def check_user_model(app_configs=None, **kwargs):
+    """
+    Checks the custom user model for potential issues and returns a list of errors or warnings. The function verifies that the model's 'REQUIRED_FIELDS' is a list or tuple, that the 'USERNAME_FIELD' is not included in 'REQUIRED_FIELDS', and that the 'USERNAME_FIELD' is unique. Additionally, it checks that 'is_anonymous' and 'is_authenticated' are attributes or properties, not methods, to prevent potential security issues.
+    """
     if app_configs is None:
         cls = apps.get_model(settings.AUTH_USER_MODEL)
     else:
@@ -122,6 +125,9 @@ def check_user_model(app_configs=None, **kwargs):
 
 
 def check_models_permissions(app_configs=None, **kwargs):
+    """
+    Checks the permissions of all models in the system to ensure they are valid and do not exceed the allowed length limits. The function verifies that the verbose name, model name, permission names and codenames of each model are within the allowed character limits and that custom permission codenames do not clash with built-in permission codenames or duplicate each other. Returns a list of errors found during the check.
+    """
     if app_configs is None:
         models = apps.get_models()
     else:
@@ -238,6 +244,9 @@ def check_models_permissions(app_configs=None, **kwargs):
 
 
 def check_middleware(app_configs, **kwargs):
+    """
+    Checks if the AuthenticationMiddleware is properly configured before LoginRequiredMiddleware in Django's MIDDLEWARE setting.
+    """
     errors = []
 
     login_required_index = _subclass_index(

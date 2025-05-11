@@ -27,6 +27,14 @@ class cached_property:
         self.__doc__ = getattr(func, "__doc__")
 
     def __set_name__(self, owner, name):
+        """
+        Internal helper method to set the name of the cached property.
+
+        It uniquely identifies the property within its owner class and ensures it cannot be assigned to multiple names, maintaining data integrity and preventing potential conflicts.
+
+        :param owner: The class that owns this property
+        :param name: The name of the property within its owner class
+        """
         if self.name is None:
             self.name = name
             self.func = self.real_func
@@ -219,6 +227,14 @@ def keep_lazy(*resultclasses):
         raise TypeError("You must pass at least one argument to keep_lazy().")
 
     def decorator(func):
+        """
+        A decorator that enables lazy evaluation for functions when any of the input arguments are Promises.
+
+        It intercepts function calls and checks if any of the arguments are Promises. 
+        If so, it delegates the call to a lazy version of the function; otherwise, it proceeds with the original function.
+        This allows for more efficient handling of deferred computations and promise-based inputs.
+
+        """
         lazy_func = lazy(func, *resultclasses)
 
         @wraps(func)
@@ -246,6 +262,10 @@ empty = object()
 
 
 def new_method_proxy(func):
+    """
+    Proxy method that lazily sets up the wrapped object if it's empty, 
+    then calls the provided function with the wrapped object and any additional arguments.
+    """
     def inner(self, *args):
         if (_wrapped := self._wrapped) is empty:
             self._setup()
@@ -274,6 +294,14 @@ class LazyObject:
         self._wrapped = empty
 
     def __getattribute__(self, name):
+        """
+        Custom attribute access to control exposure of wrapped object attributes.
+
+        Exposes attributes from the wrapped object, but allows specific attributes to be
+        masked by setting the `_mask_wrapped` attribute to False. If an attribute is
+        masked, an AttributeError is raised when accessed. The `_wrapped` attribute is
+        always accessible directly.
+        """
         if name == "_wrapped":
             # Avoid recursion when getting wrapped object.
             return super().__getattribute__(name)
@@ -287,6 +315,14 @@ class LazyObject:
     __getattr__ = new_method_proxy(getattr)
 
     def __setattr__(self, name, value):
+        """
+
+        Sets an attribute on this object or its wrapped instance.
+
+        If the attribute is '_wrapped', it sets the wrapped instance directly.
+        Otherwise, it ensures the wrapped instance is set up and then sets the attribute on it.
+
+        """
         if name == "_wrapped":
             # Assign to __dict__ to avoid infinite __setattr__ loops.
             self.__dict__["_wrapped"] = value
@@ -296,6 +332,9 @@ class LazyObject:
             setattr(self._wrapped, name, value)
 
     def __delattr__(self, name):
+        """
+        Deletes an attribute from the wrapped object, preventing deletion of the `_wrapped` attribute and ensuring the wrapped object is properly set up if necessary.
+        """
         if name == "_wrapped":
             raise TypeError("can't delete _wrapped.")
         if self._wrapped is empty:
@@ -339,6 +378,10 @@ class LazyObject:
             return copy.copy(self._wrapped)
 
     def __deepcopy__(self, memo):
+        """
+        Implement deep copying for the object, creating a new instance if wrapped is empty, 
+        otherwise falling back to the standard deepcopy implementation for the wrapped object.
+        """
         if self._wrapped is empty:
             # We have to use type(self), not self.__class__, because the
             # latter is proxied.
@@ -406,6 +449,9 @@ class SimpleLazyObject(LazyObject):
     # Return a meaningful representation of the lazy object for debugging
     # without evaluating the wrapped object.
     def __repr__(self):
+        """
+        Returns a string representation of the object, including its type and a key attribute, either its setup function if it's empty or its wrapped object otherwise.
+        """
         if self._wrapped is empty:
             repr_attr = self._setupfunc
         else:
@@ -422,6 +468,11 @@ class SimpleLazyObject(LazyObject):
             return copy.copy(self._wrapped)
 
     def __deepcopy__(self, memo):
+        """
+        .. method:: __deepcopy__(self, memo)
+
+           Creates a deep copy of the lazy object, relying on :func:`copy.deepcopy` for the wrapped object when it's not empty.
+        """
         if self._wrapped is empty:
             # We have to use SimpleLazyObject, not self.__class__, because the
             # latter is proxied.

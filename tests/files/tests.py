@@ -41,6 +41,13 @@ class FileTests(unittest.TestCase):
         self.assertIs(type(repr(f)), str)
 
     def test_context_manager(self):
+        """
+
+        Tests the context management functionality of the File class.
+
+        Verifies that the file object is properly returned and closed when used within a 'with' statement. 
+
+        """
         orig_file = tempfile.TemporaryFile()
         base_file = File(orig_file)
         with base_file as f:
@@ -56,6 +63,9 @@ class FileTests(unittest.TestCase):
             self.assertEqual(f.read(), b"content")
 
     def test_open_reopens_closed_file_and_returns_context_manager(self):
+        """
+        Tests that the open method of a File object can successfully reopen a previously closed file and returns a context manager for it.
+        """
         temporary_file = tempfile.NamedTemporaryFile(delete=False)
         file = File(temporary_file)
         try:
@@ -152,6 +162,11 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.readable())
 
     def test_writable(self):
+        """
+        Verifies the correctness of the writable attribute of a File object.
+
+        Tests that the attribute returns True when the file is opened in write mode and False when the file is closed or opened in read-only mode.
+        """
         with (
             tempfile.TemporaryFile() as temp,
             File(temp, name="something.txt") as test_file,
@@ -173,6 +188,9 @@ class FileTests(unittest.TestCase):
         self.assertFalse(test_file.seekable())
 
     def test_io_wrapper(self):
+        """
+        Tests the functionality of the TextIOWrapper class, verifying its ability to read and write text to an underlying file object with correct encoding and newline handling.
+        """
         content = "vive l'été\n"
         with (
             tempfile.TemporaryFile() as temp,
@@ -190,6 +208,11 @@ class FileTests(unittest.TestCase):
             self.assertEqual(test_file.read(), (content * 2).encode())
 
     def test_exclusive_lock(self):
+        """
+        Tests the behavior of acquiring an exclusive lock on a file, 
+        verifying that only one lock can be held at a time, and demonstrating 
+        the use of the non-blocking mode when attempting to acquire a conflicting lock.
+        """
         file_path = Path(__file__).parent / "test.png"
         with open(file_path) as f1, open(file_path) as f2:
             self.assertIs(locks.lock(f1, locks.LOCK_EX), True)
@@ -198,6 +221,13 @@ class FileTests(unittest.TestCase):
             self.assertIs(locks.unlock(f1), True)
 
     def test_shared_lock(self):
+        """
+
+        Tests acquiring and releasing a shared lock on a file.
+
+        Verifies that multiple processes can share a lock and that the lock can be successfully unlocked.
+
+        """
         file_path = Path(__file__).parent / "test.png"
         with open(file_path) as f1, open(file_path) as f2:
             self.assertIs(locks.lock(f1, locks.LOCK_SH), True)
@@ -206,6 +236,9 @@ class FileTests(unittest.TestCase):
             self.assertIs(locks.unlock(f2), True)
 
     def test_open_supports_full_signature(self):
+        """
+        Tests that the File.open method supports passing a custom opener function with a full signature, ensuring the opener is correctly called when opening the file.
+        """
         called = False
 
         def opener(path, flags):
@@ -254,6 +287,9 @@ class ContentFileTestCase(unittest.TestCase):
         self.assertIsInstance(ContentFile("español").read(), str)
 
     def test_open_resets_file_to_start_and_returns_context_manager(self):
+        """
+        Verifies that opening a file resets its position to the start and returns a context manager, ensuring that the file's contents can be read multiple times.
+        """
         file = ContentFile(b"content")
         with file.open() as f:
             self.assertEqual(f.read(), b"content")
@@ -423,6 +459,12 @@ class GetImageDimensionsTests(unittest.TestCase):
 
 class FileMoveSafeTests(unittest.TestCase):
     def test_file_move_overwrite(self):
+        """
+
+        Tests whether :func:`file_move_safe` correctly handles file moving when the destination file already exists.
+        Verifies that an exception is raised when overwriting is not allowed and the move operation is successful when overwriting is permitted.
+
+        """
         handle_a, self.file_a = tempfile.mkstemp()
         handle_b, self.file_b = tempfile.mkstemp()
 

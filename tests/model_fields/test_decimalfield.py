@@ -11,6 +11,9 @@ from .models import BigD, Foo
 
 class DecimalFieldTests(TestCase):
     def test_to_python(self):
+        """
+        Checks that the to_python method of a DecimalField correctly converts input values to Decimal instances, handling integer, string, and float inputs and applying the field's decimal places and max digits constraints.
+        """
         f = models.DecimalField(max_digits=4, decimal_places=2)
         self.assertEqual(f.to_python(3), Decimal("3"))
         self.assertEqual(f.to_python("3.14"), Decimal("3.14"))
@@ -22,6 +25,9 @@ class DecimalFieldTests(TestCase):
         self.assertEqual(f.to_python(2.1875), Decimal("2.188"))
 
     def test_invalid_value(self):
+        """
+        Checks that the DecimalField raises a ValidationError for various invalid values, including non-numeric strings, bytes, and non-primitive types.
+        """
         field = models.DecimalField(max_digits=4, decimal_places=2)
         msg = "“%s” value must be a decimal number."
         tests = [
@@ -72,6 +78,12 @@ class DecimalFieldTests(TestCase):
                 BigD.objects.create(d=value)
 
     def test_save_inf_invalid(self):
+        """
+        Tests that creating a BigD object with invalid 'inf' values raises a ValidationError.
+
+        Validates that string and non-decimal representations of infinity are rejected,
+        and that only decimal numbers are accepted for the 'inf' value.
+        """
         msg = "“inf” value must be a decimal number."
         for value in [float("inf"), math.inf, "inf"]:
             with self.subTest(value), self.assertRaisesMessage(ValidationError, msg):

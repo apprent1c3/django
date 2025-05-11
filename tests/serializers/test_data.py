@@ -90,6 +90,14 @@ def data_create(pk, klass, data):
 
 
 def generic_create(pk, klass, data):
+    """
+    CreateMap for creating a new instance of a given class and associate it with provided data and tags.
+
+        :param pk: Primary key of the instance to be created
+        :param klass: Class type of the instance to be created
+        :param data: List containing initial data and tags to be associated with the instance
+        :return: List containing the newly created instance
+    """
     instance = klass(id=pk)
     instance.data = data[0]
     models.Model.save_base(instance, raw=True)
@@ -119,6 +127,14 @@ def im2m_create(pk, klass, data):
 
 
 def im_create(pk, klass, data):
+    """
+    ..: Creates a new instance of the specified class, populates it with the provided data and saves it to the database.
+
+        :param pk: The primary key of the instance to be created
+        :param klass: The class of the instance to be created
+        :param data: Dictionary containing the data to be used to populate the instance
+        :return: A list containing the newly created instance
+    """
     instance = klass(id=pk)
     instance.right_id = data["right"]
     instance.left_id = data["left"]
@@ -143,6 +159,14 @@ def pk_create(pk, klass, data):
 
 
 def inherited_create(pk, klass, data):
+    """
+    Create an instance of a given class and its parent classes, and save them to the database.
+
+    :param pk: Primary key for the instance
+    :param klass: The class of the instance to be created
+    :param data: Additional data to be used when creating the instance
+    :return: A list of created instances, including the instance and its parents
+    """
     instance = klass(id=pk, **data)
     # This isn't a raw save because:
     #  1) we're testing inheritance, not field behavior, so none
@@ -161,6 +185,19 @@ def inherited_create(pk, klass, data):
 
 
 def data_compare(testcase, pk, klass, data):
+    """
+    Compares data stored in a database instance with provided data.
+
+    This function retrieves an instance of a model from the database by its primary key,
+    then asserts that the instance's data matches the provided data. The comparison is
+    performed using the assertEqual method of a testcase, providing a detailed error
+    message in case of mismatch.
+
+    :param testcase: The test case to which the assertion belongs
+    :param pk: The primary key of the instance to retrieve
+    :param klass: The model class of the instance to retrieve
+    :param data: The data to compare with the instance's data
+    """
     instance = klass.objects.get(id=pk)
     if klass == BinaryData and data is not None:
         testcase.assertEqual(
@@ -212,6 +249,19 @@ def im2m_compare(testcase, pk, klass, data):
 
 
 def im_compare(testcase, pk, klass, data):
+    """
+
+    Compares an instance's properties with expected data.
+
+    Verifies that the left, right, and optionally extra properties of an instance of a given class match the corresponding values in the provided data dictionary.
+
+    Args:
+        testcase: The test case instance.
+        pk (int): The primary key of the instance to compare.
+        klass: The class of the instance to compare.
+        data (dict): A dictionary containing the expected values for the instance's properties.
+
+    """
     instance = klass.objects.get(id=pk)
     testcase.assertEqual(data["left"], instance.left_id)
     testcase.assertEqual(data["right"], instance.right_id)
@@ -436,6 +486,14 @@ def serializerTest(self, format):
     # FK to an object with PK of 0. This won't work on MySQL without the
     # NO_AUTO_VALUE_ON_ZERO SQL mode since it won't let you create an object
     # with an autoincrement primary key of 0.
+    """
+    Tests serialization and deserialization of objects in the given format.
+
+    Verifies that objects can be successfully serialized, deserialized, and saved,
+    without altering the original data. This test also checks that the number of
+    instances of each model remains unchanged after the serialization and
+    deserialization process.
+    """
     if connection.features.allows_auto_pk_0:
         test_data.extend(
             [

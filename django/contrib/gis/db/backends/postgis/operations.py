@@ -43,6 +43,9 @@ class PostGISOperator(SpatialOperator):
         return super().as_sql(connection, lookup, template_params, *args)
 
     def check_raster(self, lookup, template_params):
+        """
+        Checks and processes raster data in the lookup, updating template parameters accordingly to prepare for spatial operation execution, handling various cases such as band indices and spheroid projections.
+        """
         spheroid = lookup.rhs_params and lookup.rhs_params[-1] == "spheroid"
 
         # Check which input is a raster.
@@ -409,6 +412,9 @@ class PostGISOperations(BaseSpatialOperations, DatabaseOperations):
         return ST_Polygon(arg) if is_raster else arg
 
     def get_geometry_converter(self, expression):
+        """
+        Return a function that converts a geometry value to a GEOSGeometry object, handling string input and null values.
+        """
         read = wkb_r().read
         geom_class = expression.output_field.geom_class
 

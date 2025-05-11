@@ -215,6 +215,10 @@ class WhereNode(tree.Node):
                 self.children[pos] = child.relabeled_clone(change_map)
 
     def clone(self):
+        """
+        Creates a deep copy of the current object, recursively cloning its children if they support cloning.\"\"\"
+        ```
+        """
         clone = self.create(connector=self.connector, negated=self.negated)
         for child in self.children:
             if hasattr(child, "clone"):
@@ -228,6 +232,9 @@ class WhereNode(tree.Node):
         return clone
 
     def replace_expressions(self, replacements):
+        """
+        Replace expressions in a query with provided replacements, returning a modified copy of the query if any replacements are applied, or the original query if no replacements are applicable.
+        """
         if not replacements:
             return self
         if replacement := replacements.get(self):
@@ -275,6 +282,9 @@ class WhereNode(tree.Node):
 
     @classmethod
     def _resolve_node(cls, node, query, *args, **kwargs):
+        """
+        Resolves a node recursively based on a query, updating its children, left-hand side (lhs), and right-hand side (rhs) attributes accordingly.
+        """
         if hasattr(node, "children"):
             for child in node.children:
                 cls._resolve_node(child, query, *args, **kwargs)
@@ -314,6 +324,14 @@ class WhereNode(tree.Node):
         return self.output_field.get_lookup(lookup)
 
     def leaves(self):
+        """
+
+        Yields all leaf nodes of the current node, bypassing any intermediate WhereNodes.
+
+        Returns:
+            Generator of child nodes that are not WhereNodes.
+
+        """
         for child in self.children:
             if isinstance(child, WhereNode):
                 yield from child.leaves()
@@ -352,6 +370,9 @@ class SubqueryConstraint:
     contains_over_clause = False
 
     def __init__(self, alias, columns, targets, query_object):
+        """
+        Initializes a query builder object, setting its alias, columns, and targets, and resetting the ordering of the provided query object to ensure a clean start for further querying operations.
+        """
         self.alias = alias
         self.columns = columns
         self.targets = targets

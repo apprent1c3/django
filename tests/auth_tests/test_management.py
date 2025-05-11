@@ -49,7 +49,28 @@ def mock_inputs(inputs):
     """
 
     def inner(test_func):
+        """
+
+        Decorator to mock user input for testing purposes.
+
+        Temporarily replaces the built-in input and getpass functions with mock implementations,
+        allowing tests to control the input provided to a function. The mock input is defined by
+        the 'inputs' dictionary, which maps input prompts to their corresponding responses.
+
+        Raises a ValueError if a mock input is not found for a given prompt.
+
+        """
         def wrapper(*args):
+            """
+
+            Monkeys patches the built-in input and getpass functions to provide mock inputs for the purpose of testing.
+
+            This function temporarily replaces the standard input and getpass functions with mocks 
+            that return predefined values, allowing for testing of interactive functions.
+
+            It ensures that the original functions are restored after the test function has executed.
+
+            """
             class mock_getpass:
                 @staticmethod
                 def getpass(prompt=b"Password: ", stream=None):
@@ -58,6 +79,17 @@ def mock_inputs(inputs):
                     return inputs["password"]
 
             def mock_input(prompt):
+                """
+                Simulates user input by returning a predefined response based on the given prompt.
+
+                Used for testing and mocking purposes, this function allows for customizable input responses.
+                It raises an exception if the prompt does not have a corresponding mock input defined.
+
+                :param prompt: The input prompt to simulate a response for.
+                :return: The predefined response for the given prompt.
+                :raises ValueError: If no mock input is found for the given prompt.
+                :raises KeyboardInterrupt: If the mock input is set to simulate a keyboard interrupt.
+                """
                 assert "__proxy__" not in prompt
                 response = None
                 for key, val in inputs.items():
@@ -142,6 +174,9 @@ class GetDefaultUsernameTestCase(TestCase):
         self.assertEqual(management.get_default_username(), "julia")
 
     def test_with_database(self):
+        """
+        Tests the behavior of getting the default username with and without a specific database, ensuring it correctly handles different database scenarios.
+        """
         User.objects.create(username="joe")
         management.get_system_username = lambda: "joe"
         self.assertEqual(management.get_default_username(), "")
@@ -332,7 +367,15 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
                 "email": "nolocale@somewhere.org",
             }
         )
+        """
+        Tests the 'createsuperuser' command with a non-ASCII verbose name for the username field, ensuring it does not cause any issues during the creation of a superuser.
+        """
         def test(self):
+            """
+
+            Tests the creation of a superuser via the createsuperuser command with custom username verbose name.
+
+            """
             username_field = User._meta.get_field("username")
             old_verbose_name = username_field.verbose_name
             username_field.verbose_name = _("u\u017eivatel")
@@ -354,6 +397,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     def test_verbosity_zero(self):
         # We can suppress output on the management command
+        """
+        Tests non-interactive superuser creation with verbosity set to zero, verifying that no output is produced and the user is created successfully with the provided email address, but without a usable password.
+        """
         new_io = StringIO()
         call_command(
             "createsuperuser",
@@ -434,6 +480,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
                 "password": "nopasswd",
             }
         )
+        """
+        Tests the creation of multiple superusers with the same username when using a custom user model with non-unique usernames, verifying that the createsuperuser command allows duplicate usernames and that two users with the same username are successfully created.
+        """
         def createsuperuser():
             new_io = StringIO()
             call_command(
@@ -505,6 +554,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk(self):
+        """
+        Tests the createsuperuser command with foreign key fields, verifying it successfully creates a superuser and fails with an invalid email.
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -535,6 +587,12 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_interactive(self):
+        """
+        Tests the creation of a superuser with foreign key fields in an interactive session.
+
+        Verifies that a superuser can be successfully created when prompted for foreign key fields,
+        and that the resulting user object has the correct foreign key references.
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
@@ -548,6 +606,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+            Tests the interactive creation of a superuser via the createsuperuser command, verifying successful creation and correct assignment of username and group.
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -565,12 +626,23 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_fields_with_fk_via_option_interactive(self):
+        """
+        Tests the creation of a superuser with foreign key fields via the command-line interface.
+        """
         new_io = StringIO()
         group = Group.objects.create(name="mygroup")
         email = Email.objects.create(email="mymail@gmail.com")
 
         @mock_inputs({"password": "nopasswd"})
         def test(self):
+            """
+
+            Tests the creation of a superuser using the createsuperuser command.
+
+            Verifies that the command executes successfully, creates a user with the correct
+            email and group, and that the user's username matches their email.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -591,6 +663,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk(self):
+        """
+        Tests validation of foreign key input for the createsuperuser command, ensuring that an invalid group ID raises a CommandError with an informative message.
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -608,6 +683,11 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk_environment_variable(self):
+        """
+        Tests validation of DJANGO_SUPERUSER_GROUP environment variable when creating a superuser.
+
+         Ensures that setting the variable to a non-existent group ID raises a CommandError with the expected error message.
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -628,6 +708,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithFK")
     def test_validate_fk_via_option_interactive(self):
+        """
+        Tests the validation of a non-existent foreign key via the createsuperuser command's interactive option.
+        """
         email = Email.objects.create(email="mymail@gmail.com")
         Group.objects.all().delete()
         nonexistent_group_id = 1
@@ -653,6 +736,10 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2m")
     def test_fields_with_m2m(self):
+        """
+        Tests the createsuperuser command when CustomUserWithM2m model is used as the user model, 
+        specifically validating the assignment of multiple organizations to the newly created superuser.
+        """
         new_io = StringIO()
         org_id_1 = Organization.objects.create(name="Organization 1").pk
         org_id_2 = Organization.objects.create(name="Organization 2").pk
@@ -670,6 +757,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2M")
     def test_fields_with_m2m_interactive(self):
+        """
+
+        Tests the interactive creation of a superuser with many-to-many fields.
+
+        Verifies that a superuser is successfully created with specified organizations.
+
+        """
         new_io = StringIO()
         org_id_1 = Organization.objects.create(name="Organization 1").pk
         org_id_2 = Organization.objects.create(name="Organization 2").pk
@@ -682,6 +776,14 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             }
         )
         def test(self):
+            """
+
+            Tests the creation of a superuser using the createsuperuser command.
+
+            Verifies that the command outputs a success message and that the new superuser
+            is created with the specified username and associated organizations.
+
+            """
             call_command(
                 "createsuperuser",
                 interactive=True,
@@ -697,6 +799,12 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2M")
     def test_fields_with_m2m_interactive_blank(self):
+        """
+
+        Tests the handling of a many-to-many field when creating a superuser through an interactive prompt,
+        verifying that the field cannot be left blank.
+
+        """
         new_io = StringIO()
         org_id = Organization.objects.create(name="Organization").pk
         entered_orgs = [str(org_id), " "]
@@ -807,6 +915,12 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ]
     )
     def test_validate_password_against_username(self):
+        """
+        Tests password validation against username similarity during superuser creation.
+
+        Verifies that a password cannot be the same as or too similar to the username and 
+        ensures that a strong, unique password can be successfully used for superuser creation.
+        """
         new_io = StringIO()
         username = "supremelycomplex"
         entered_passwords = [
@@ -855,6 +969,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ],
     )
     def test_validate_password_against_required_fields(self):
+        """
+        Tests the validation of a superuser password against specific requirements, specifically ensuring that the password is not too similar to the user's first name.
+        """
         new_io = StringIO()
         first_name = "josephine"
         entered_passwords = [
@@ -905,6 +1022,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         ],
     )
     def test_validate_password_against_required_fields_via_option(self):
+        """
+        Tests that the password validation works correctly when creating a superuser, specifically checking that a password similar to a user attribute (first name) is rejected, while a unique and secure password is accepted.
+        """
         new_io = StringIO()
         first_name = "josephine"
         entered_passwords = [
@@ -967,6 +1087,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
             )
 
     def test_blank_email_allowed_non_interactive(self):
+        """
+        Tests that the createsuperuser command allows a blank email address when run non-interactively.
+        """
         new_io = StringIO()
 
         call_command(
@@ -983,6 +1106,11 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @mock.patch.dict(os.environ, {"DJANGO_SUPERUSER_EMAIL": ""})
     def test_blank_email_allowed_non_interactive_environment_variable(self):
+        """
+        Tests that creating a superuser with a blank email is allowed when
+        DJANGO_SUPERUSER_EMAIL environment variable is not set and the command is run
+        non-interactively.
+        """
         new_io = StringIO()
 
         call_command(
@@ -1277,6 +1405,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.NoPasswordUser")
     def test_usermodel_without_password_interactive(self):
+        """
+        Tests that creating a superuser using the createsuperuser command with an interactive interface succeeds when the user model does not have a password field.
+        """
         new_io = StringIO()
 
         @mock_inputs({"username": "username"})
@@ -1304,6 +1435,13 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
         },
     )
     def test_environment_variable_non_interactive(self):
+        """
+
+        Tests the creation of a superuser via environment variables in non-interactive mode.
+
+        Verifies that the superuser is created with the expected credentials and attributes.
+
+        """
         call_command("createsuperuser", interactive=False, verbosity=0)
         user = User.objects.get(username="test_superuser")
         self.assertEqual(user.email, "joe@somewhere.org")
@@ -1313,6 +1451,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserWithM2m")
     def test_environment_variable_m2m_non_interactive(self):
+        """
+        Tests creation of a superuser with multiple organization memberships via an environment variable in a non-interactive mode.
+        """
         new_io = StringIO()
         org_id_1 = Organization.objects.create(name="Organization 1").pk
         org_id_2 = Organization.objects.create(name="Organization 2").pk
@@ -1365,6 +1506,9 @@ class CreatesuperuserManagementCommandTestCase(TestCase):
     def test_ignore_environment_variable_interactive(self):
         # Environment variables are ignored in interactive mode.
         @mock_inputs({"password": "cmd_password"})
+        """
+        Tests the createsuperuser command when run interactively, ensuring that environment variables are ignored in favor of user-provided input.
+        """
         def test(self):
             call_command(
                 "createsuperuser",
@@ -1403,6 +1547,9 @@ class MultiDBCreatesuperuserTestCase(TestCase):
         self.assertEqual(user.email, "joe@somewhere.org")
 
     def test_createsuperuser_command_suggested_username_with_database_option(self):
+        """
+        Tests the 'createsuperuser' command's behavior when creating a superuser with a suggested username on a non-default database. Verifies that a superuser is created with the suggested username when no username is provided, and with a specified username when one is provided.
+        """
         default_username = get_default_username(database="other")
         qs = User.objects.using("other")
 
@@ -1445,6 +1592,10 @@ class CreatePermissionsTests(TestCase):
         ContentType.objects.clear_cache()
 
     def test_default_permissions(self):
+        """
+        Tests default permissions creation for the Permission model, verifying the correct number of permissions 
+        are created when default permissions are enabled and disabled.
+        """
         permission_content_type = ContentType.objects.get_by_natural_key(
             "auth", "permission"
         )
@@ -1527,6 +1678,12 @@ class CreatePermissionsMultipleDatabasesTests(TestCase):
     databases = {"default", "other"}
 
     def test_set_permissions_fk_to_using_parameter(self):
+        """
+        Tests setting permissions for a foreign key using the specified database parameter.
+
+        Verifies that permissions are correctly created in the target database and
+        that the expected database queries are executed.
+        """
         Permission.objects.using("other").delete()
         with self.assertNumQueries(4, using="other") as captured_queries:
             create_permissions(apps.get_app_config("auth"), verbosity=0, using="other")

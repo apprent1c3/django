@@ -207,6 +207,12 @@ class LayerMapping:
 
         # Function for determining if the OGR mapping field is in the Layer.
         def check_ogr_fld(ogr_map_fld):
+            """
+            Checks if a given OGR field mapping exists in the OGR layer and returns its index if found. 
+
+            Raises:
+                LayerMapError: If the given OGR field mapping is not found in the OGR layer.
+            """
             try:
                 idx = ogr_fields.index(ogr_map_fld)
             except ValueError:
@@ -609,6 +615,16 @@ class LayerMapping:
                 progress_interval = progress
 
         def _save(feat_range=default_range, num_feat=0, num_saved=0):
+            """
+
+            Saves a range of features from the layer into the model.
+
+            :param feat_range: The range of features to save, defaults to the default range.
+            :param num_feat: The initial number of features, defaults to 0.
+            :param num_saved: The initial number of saved features, defaults to 0.
+            :returns: A tuple containing the total number of saved features and the total number of features processed.
+
+            """
             if feat_range:
                 layer_iter = self.layer[feat_range]
             else:

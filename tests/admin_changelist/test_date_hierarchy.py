@@ -20,6 +20,13 @@ class DateHierarchyTests(TestCase):
         )
 
     def assertDateParams(self, query, expected_from_date, expected_to_date):
+        """
+
+        Verifies that date parameters in a query are correctly processed and applied as filters.
+
+        Checks that the 'date__gte' and 'date__lt' lookup parameters match the expected from and to dates.
+
+        """
         query = {"date__%s" % field: val for field, val in query.items()}
         request = self.factory.get("/", query)
         request.user = self.superuser
@@ -62,6 +69,13 @@ class DateHierarchyTests(TestCase):
             )
 
     def test_bounded_params_with_dst_time_zone(self):
+        """
+
+        Tests date parameter functionality with bounded values considering DST time zones.
+
+        The test iterates over various time zones and months to ensure correct date parameter handling when Daylight Saving Time (DST) is in effect.
+
+        """
         tests = [
             # Northern hemisphere.
             ("Asia/Jerusalem", 3),

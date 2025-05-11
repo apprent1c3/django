@@ -77,6 +77,14 @@ class ContextList(list):
     """
 
     def __getitem__(self, key):
+        """
+        Returns the value associated with the given key.
+
+        If the key is a string, searches recursively through subcontexts and returns the value
+        from the first context where the key is found. If the key is not found, raises a KeyError.
+
+        For non-string keys, falls back to the default behavior of the superclass. 
+        """
         if isinstance(key, str):
             for subcontext in self:
                 if key in subcontext:
@@ -92,6 +100,12 @@ class ContextList(list):
             return default
 
     def __contains__(self, key):
+        """
+        Indicates whether the given key is present in the container.
+
+        Returns:
+            bool: True if the key exists, False otherwise.
+        """
         try:
             self[key]
         except KeyError:
@@ -370,6 +384,16 @@ def teardown_databases(old_config, verbosity, parallel=0, keepdb=False):
 
 
 def get_runner(settings, test_runner_class=None):
+    """
+    Returns an instance of the test runner class specified in the settings or by the test_runner_class argument.
+
+    The test runner class is imported dynamically based on its module path. If no test_runner_class is provided,
+    the TEST_RUNNER setting is used.
+
+    :param settings: The application settings
+    :param test_runner_class: The path to the test runner class (optional)
+    :rtype: test runner class instance
+    """
     test_runner_class = test_runner_class or settings.TEST_RUNNER
     test_path = test_runner_class.split(".")
     # Allow for relative paths
@@ -411,10 +435,26 @@ class TestContextDecorator:
         self.disable()
 
     def decorate_class(self, cls):
+        """
+        Decorates a unittest TestCase subclass to enable a specific context during its setup.
+
+        The decorated class will have its setUp method modified to enable the context before
+        performing the original setup. The context is automatically disabled after the test.
+        If an attribute name is specified, the context is also made available as an attribute
+        of the test instance.
+
+        Raises:
+            TypeError: If the class to be decorated is not a subclass of unittest.TestCase
+        """
         if issubclass(cls, TestCase):
             decorated_setUp = cls.setUp
 
             def setUp(inner_self):
+                """
+                Sets up the test context by enabling a specific functionality, 
+                adds a cleanup action to disable it after the test, and optionally 
+                attaches the context to the test instance under a specified attribute name.
+                """
                 context = self.enable()
                 inner_self.addCleanup(self.disable)
                 if self.attr_name:
@@ -426,6 +466,9 @@ class TestContextDecorator:
         raise TypeError("Can only decorate subclasses of unittest.TestCase")
 
     def decorate_callable(self, func):
+        """
+        Decorates a callable function, wrapping it with a context manager that passes the context as a keyword argument if specified. Supports both synchronous and asynchronous functions.
+        """
         if iscoroutinefunction(func):
             # If the inner function is an async function, we must execute async
             # as well so that the `with` statement executes at the right time.
@@ -448,6 +491,14 @@ class TestContextDecorator:
         return inner
 
     def __call__(self, decorated):
+        """
+
+        Decorates a given class or callable object.
+
+        Applies the decorator's effect to the provided class or function, returning the decorated result.
+        Raises a TypeError if the object to be decorated is neither a class nor a callable.
+
+        """
         if isinstance(decorated, type):
             return self.decorate_class(decorated)
         elif callable(decorated):
@@ -472,6 +523,15 @@ class override_settings(TestContextDecorator):
     def enable(self):
         # Keep this code at the beginning to leave the settings unchanged
         # in case it raises an exception because INSTALLED_APPS is invalid.
+        """
+
+        Temporarily overrides Django settings with custom values.
+
+        Activates the given override configuration, applying new values to settings.
+        Also sends out signals for each changed setting. If an error occurs during
+        activation, reverts changes and stores the exception.
+
+        """
         if "INSTALLED_APPS" in self.options:
             try:
                 apps.set_installed_apps(self.options["INSTALLED_APPS"])
@@ -496,6 +556,13 @@ class override_settings(TestContextDecorator):
                 self.disable()
 
     def disable(self):
+        """
+
+        Disable the current override of Django settings, restoring the original settings.
+        Reverts all overrides made and sends a notification for each reverted setting.
+        If an exception occurred while entering the override, it will be re-raised.
+
+        """
         if "INSTALLED_APPS" in self.options:
             apps.unset_installed_apps()
         settings._wrapped = self.wrapped
@@ -529,6 +596,13 @@ class override_settings(TestContextDecorator):
             }
 
     def decorate_class(self, cls):
+        """
+        Decorates a Django test class with the ability to override settings.
+
+        The input class must be a subclass of Django's SimpleTestCase. If not, a ValueError is raised.
+
+        This decoration is necessary for test cases that require custom settings. The original class options are saved before decoration.
+        """
         from django.test import SimpleTestCase
 
         if not issubclass(cls, SimpleTestCase):
@@ -547,6 +621,9 @@ class modify_settings(override_settings):
     """
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the override settings object, accepting either a single argument containing a sequence of operations or keyword arguments representing operation settings. The operations are stored internally for further processing.
+        """
         if args:
             # Hack used when instantiating from SimpleTestCase.setUpClass.
             assert not kwargs
@@ -566,6 +643,15 @@ class modify_settings(override_settings):
             )
 
     def enable(self):
+        """
+
+        Enable the current instance by initializing and configuring its options.
+
+        This method iterates over a set of predefined operations, applying append, prepend, or remove actions to the options dictionary.
+        It merges and updates the options based on default settings and operations defined in the instance.
+        The result is a fully initialized options dictionary, which is then used to enable the instance.
+
+        """
         self.options = {}
         for name, operations in self.operations:
             try:
@@ -598,6 +684,9 @@ class override_system_checks(TestContextDecorator):
     """
 
     def __init__(self, new_checks, deployment_checks=None):
+        """
+        Initializes the class instance with new checks and optional deployment checks, registering them with the Django checks registry.
+        """
         from django.core.checks.registry import registry
 
         self.registry = registry
@@ -606,6 +695,13 @@ class override_system_checks(TestContextDecorator):
         super().__init__()
 
     def enable(self):
+        """
+        Enable new checks and deployment checks in the registry, temporarily overriding the existing ones.
+
+        This method clears the current registered checks and deployment checks, and registers new ones provided in `self.new_checks` and `self.deployment_checks`. The previous checks are stored and can be restored later.
+
+        :note: Changes made by this method are intended to be temporary and should be reverted when no longer needed.
+        """
         self.old_checks = self.registry.registered_checks
         self.registry.registered_checks = set()
         for check in self.new_checks:
@@ -650,6 +746,13 @@ def compare_xml(want, got):
         return dict(element.attributes.items())
 
     def check_element(want_element, got_element):
+        """
+
+        Checks if two HTML elements are identical.
+
+        They are considered identical if they have the same tag name, text content, attributes, and an identical set of child elements.
+
+        """
         if want_element.tagName != got_element.tagName:
             return False
         if norm_child_text(want_element) != norm_child_text(got_element):
@@ -712,6 +815,16 @@ class CaptureQueriesContext:
         return self.connection.queries[self.initial_queries : self.final_queries]
 
     def __enter__(self):
+        """
+
+        Context manager to ensure a connection and force debug cursor mode.
+
+         Enters a context where database queries are tracked and debug mode is enabled.
+         Upon entering, it ensures the connection is established and stores the initial query log state.
+
+         :return: The context manager instance itself.
+
+        """
         self.force_debug_cursor = self.connection.force_debug_cursor
         self.connection.force_debug_cursor = True
         # Run any initialization queries if needed so that they won't be
@@ -723,6 +836,9 @@ class CaptureQueriesContext:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Exits the runtime context for a database connection, resetting query tracking and applying debug cursor settings. If an exception occurred, its context is ignored; otherwise, the function records the final number of queries executed during the session.
+        """
         self.connection.force_debug_cursor = self.force_debug_cursor
         request_started.connect(reset_queries)
         if exc_type is not None:
@@ -732,6 +848,13 @@ class CaptureQueriesContext:
 
 class ignore_warnings(TestContextDecorator):
     def __init__(self, **kwargs):
+        """
+        Initializes a warning filter handler, determining whether to use simple or advanced filtering based on provided keyword arguments.\"\"\"
+
+         Notes:
+            - Supports 'message' and 'module' as keyword arguments for advanced filtering.
+            - If either 'message' or 'module' is provided, advanced filtering with :func:`warnings.filterwarnings` is used; otherwise, simple filtering with :func:`warnings.simplefilter` is employed.
+        """
         self.ignore_kwargs = kwargs
         if "message" in self.ignore_kwargs or "module" in self.ignore_kwargs:
             self.filter_func = warnings.filterwarnings
@@ -935,6 +1058,14 @@ class TimeKeeper:
 
     @contextmanager
     def timed(self, name):
+        """
+        Context manager to measure the execution time of a block of code.
+
+        Provides a simple way to time a section of code and store the results in the instance's records.
+
+        :param name: The name under which the timing results will be stored.
+
+        """
         self.records[name]
         start_time = time.perf_counter()
         try:
@@ -963,6 +1094,9 @@ def tag(*tags):
     """Decorator to add tags to a test class or method."""
 
     def decorator(obj):
+        """
+        Adds a set of tags to the provided object if it already has a 'tags' attribute, or creates a new 'tags' attribute with the provided tags if it does not.
+        """
         if hasattr(obj, "tags"):
             obj.tags = obj.tags.union(tags)
         else:

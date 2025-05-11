@@ -29,6 +29,14 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
     def test_require_http_methods_methods(self):
         @require_http_methods(["GET", "PUT"])
+        """
+
+        Tests that the require_http_methods decorator correctly restricts the allowed HTTP methods for a view.
+
+        The decorator ensures that only the specified HTTP methods are permitted to access the view,
+        returning an HttpResponse for allowed methods and an HttpResponseNotAllowed for disallowed methods.
+
+        """
         def my_view(request):
             return HttpResponse("OK")
 
@@ -46,6 +54,9 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
     async def test_require_http_methods_methods_async_view(self):
         @require_http_methods(["GET", "PUT"])
+        """
+        Tests that the @require_http_methods decorator correctly allows or disallows HTTP requests to an asynchronous view based on the specified methods.
+        """
         async def my_view(request):
             return HttpResponse("OK")
 
@@ -64,6 +75,9 @@ class RequireHttpMethodsTest(SimpleTestCase):
 
 class RequireSafeDecoratorTest(SimpleTestCase):
     def test_require_safe_accepts_only_safe_methods(self):
+        """
+        Tests that the require_safe decorator restricts view access to only safe HTTP methods (GET and HEAD), returning a 405 response for other methods.
+        """
         def my_view(request):
             return HttpResponse("OK")
 
@@ -82,6 +96,9 @@ class RequireSafeDecoratorTest(SimpleTestCase):
 
     async def test_require_safe_accepts_only_safe_methods_async_view(self):
         @require_safe
+        """
+        Tests that the require_safe decorator restricts an async view to only allow safe HTTP methods (GET and HEAD).
+        """
         async def async_view(request):
             return HttpResponse("OK")
 
@@ -128,6 +145,14 @@ class ConditionDecoratorTest(SimpleTestCase):
             etag_func=self.etag_func,
             last_modified_func=self.latest_entry,
         )
+        """
+
+        Tests the condition decorator with ETag and Last-Modified headers.
+
+        Verifies that the decorator correctly sets the ETag and Last-Modified headers 
+        in the response based on the provided etag_func and last_modified_func.
+
+        """
         def my_view(request):
             return HttpResponse()
 
@@ -147,6 +172,10 @@ class ConditionDecoratorTest(SimpleTestCase):
             etag_func=self.etag_func,
             last_modified_func=self.latest_entry,
         )
+        """
+        ..: Tests the functionality of the condition decorator with an asynchronous view, 
+            verifying it correctly sets ETag and Last-Modified headers in the HTTP response.
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -179,6 +208,9 @@ class ConditionalPageTests(SimpleTestCase):
 
     def test_conditional_page_decorator_successful(self):
         @conditional_page
+        """
+        Tests the successful application of the conditional page decorator to a view function, verifying that it properly sets the response status code and Etag header.
+        """
         def sync_view(request):
             response = HttpResponse()
             response.content = b"test"
@@ -193,6 +225,9 @@ class ConditionalPageTests(SimpleTestCase):
 
     async def test_conditional_page_decorator_successful_async_view(self):
         @conditional_page
+        """
+        Tests the conditional page decorator with a successful asynchronous view, verifying that the view returns a 200 status code and includes an Etag header in the response.
+        """
         async def async_view(request):
             response = HttpResponse()
             response.content = b"test"

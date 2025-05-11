@@ -44,6 +44,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
         )
 
     def test_options_override_settings_proper_values(self):
+        """
+        Tests that command line arguments and environment variables are correctly generated when OPTIONS override settings with proper values.
+        """
         settings_port = 444
         options_port = 555
         self.assertNotEqual(settings_port, options_port, "test pre-req")
@@ -203,6 +206,9 @@ class MySqlDbshellCommandTestCase(SimpleTestCase):
     def test_crash_password_does_not_leak(self):
         # The password doesn't leak in an exception that results from a client
         # crash.
+        """
+        Verifies that the password does not leak when the database client crashes, by testing that the password is not included in the error message raised when a fake client crashes.
+        """
         args, env = DatabaseClient.settings_to_cmd_args_env(
             {
                 "NAME": "somedbname",

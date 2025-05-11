@@ -22,7 +22,13 @@ class OperationWriter:
         self.indentation = indentation
 
     def serialize(self):
+        """
+        Serializes the operation into a string representation, handling nested data structures such as lists, tuples, and dictionaries. Returns a tuple containing the serialized string and a set of required imports.
+        """
         def _write(_arg_name, _arg_value):
+            """
+            Writes a string representation of a named argument, potentially expanding it if it's a collection (list, tuple, dictionary) that is designated for serialization expansion, and serializes the value using MigrationWriter.serialize.
+            """
             if _arg_name in self.operation.serialization_expand_args and isinstance(
                 _arg_value, (list, tuple, dict)
             ):
@@ -210,6 +216,9 @@ class MigrationWriter:
 
     @property
     def basedir(self):
+        """
+        Returns the directory where migrations for the current app are stored. This directory is determined based on the app's migrations module, app config, or automatically created if it does not exist. Raises a ValueError if the migrations directory cannot be determined or created.
+        """
         migrations_package_name, _ = MigrationLoader.migrations_module(
             self.migration.app_label
         )

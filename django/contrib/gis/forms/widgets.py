@@ -24,6 +24,14 @@ class BaseGeometryWidget(Widget):
     template_name = ""  # set on subclasses
 
     def __init__(self, attrs=None):
+        """
+
+        Initialize the object's attributes.
+
+        Sets default values for 'geom_type', 'map_srid', and 'display_raw' attributes and 
+        optionally updates them with user-provided attributes.
+
+        """
         self.attrs = {}
         for key in ("geom_type", "map_srid", "display_raw"):
             self.attrs[key] = getattr(self, key)
@@ -34,6 +42,12 @@ class BaseGeometryWidget(Widget):
         return value.wkt if value else ""
 
     def deserialize(self, value):
+        """
+        Deserialize a geometric value into a GEOSGeometry object.
+
+        Attempts to parse the provided value and returns a GEOSGeometry object on success.
+        If deserialization fails, logs an error and returns None.
+        """
         try:
             return GEOSGeometry(value)
         except (GEOSException, ValueError, TypeError) as err:
@@ -41,6 +55,18 @@ class BaseGeometryWidget(Widget):
         return None
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the context dictionary for a geography-related widget.
+
+         The context is built by augmenting the base context with additional geographical 
+         data, such as geometry type and serialized value. The function also transforms 
+         the input value to the map's spatial reference system if necessary.
+
+         :param name: The name of the widget
+         :param value: The geographical value
+         :param attrs: Additional widget attributes
+         :return: The context dictionary
+        """
         context = super().get_context(name, value, attrs)
         # If a string reaches here (via a validation error on another
         # field) then just reconstruct the Geometry.
@@ -118,6 +144,12 @@ class OSMWidget(OpenLayersWidget):
     default_zoom = 12
 
     def __init__(self, attrs=None):
+        """
+        '''Initializes a mapping object with default location settings and optional custom attributes.
+
+        The default longitude, latitude, and zoom level are set as attributes.
+        Additional attributes can be passed as a dictionary to override or extend the default settings.'''
+        """
         super().__init__()
         for key in ("default_lon", "default_lat", "default_zoom"):
             self.attrs[key] = getattr(self, key)

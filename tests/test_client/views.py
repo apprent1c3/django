@@ -61,6 +61,9 @@ def trace_view(request):
 
 
 def put_view(request):
+    """
+    Handles HTTP PUT requests by rendering a template with the request body and metadata, and returns a simple template for HTTP GET requests.
+    """
     if request.method == "PUT":
         t = Template("Data received: {{ data }} is the body.", name="PUT Template")
         c = Context(
@@ -368,6 +371,9 @@ def mail_sending_view(request):
 
 
 def mass_mail_sending_view(request):
+    """
+    Sends multiple test emails to predefined recipients via the mail server connection, returning a success message upon completion.
+    """
     m1 = mail.EmailMessage(
         "First Test message",
         "This is the first test email",

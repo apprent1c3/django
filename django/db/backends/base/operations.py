@@ -257,6 +257,16 @@ class BaseDatabaseOperations:
         )
 
     def _get_limit_offset_params(self, low_mark, high_mark):
+        """
+        Calculate limit and offset parameters for a database query.
+
+        Determine the limit and offset values based on the provided low and high marks.
+        If high mark is specified, the limit is calculated as the difference between the high and low marks.
+        If high mark is not specified but low mark is, the offset is used as is and the limit is set to no limit.
+        If neither mark is specified, both limit and offset are set to their default values (None and 0 respectively).
+
+        :returns: tuple of (limit, offset)
+        """
         offset = low_mark or 0
         if high_mark is not None:
             return (high_mark - offset), offset
@@ -710,6 +720,16 @@ class BaseDatabaseOperations:
         return self.integer_field_ranges[internal_type]
 
     def subtract_temporals(self, internal_type, lhs, rhs):
+        """
+
+        Performs a temporal subtraction operation between two given time-related expressions.
+
+        Given a temporal type, it returns a modified SQL expression that subtracts the right-hand side value from the left-hand side value, 
+        if the database backend supports this operation.
+
+        :raises NotSupportedError: If the database backend does not support the specified temporal subtraction operation.
+
+        """
         if self.connection.features.supports_temporal_subtraction:
             lhs_sql, lhs_params = lhs
             rhs_sql, rhs_params = rhs
@@ -719,6 +739,24 @@ class BaseDatabaseOperations:
         )
 
     def window_frame_value(self, value):
+        """
+        Return a string representing a frame value for a window function.
+
+        Parameters
+        ----------
+        value : int
+            The number of rows to offset from the current row.
+
+        Returns
+        -------
+        str
+            A string specifying the frame value, such as '1 PRECEDING' or '1 FOLLOWING'.
+            Returns CURRENT_ROW if value is 0.
+
+        Note
+        ----
+        A negative value represents preceding rows, a positive value represents following rows.
+        """
         if isinstance(value, int):
             if value == 0:
                 return self.CURRENT_ROW
@@ -746,6 +784,19 @@ class BaseDatabaseOperations:
         return start_, end_
 
     def window_frame_range_start_end(self, start=None, end=None):
+        """
+        Returns the calculated start and end values for a window frame.
+
+        The start and end values are determined based on the provided arguments, which can be integers or None. 
+        They are then validated to ensure they adhere to the required type and range constraints, 
+        and are subsequently converted into the corresponding window frame values. 
+        If the database backend only supports unbounded window frames with preceding and following, 
+        an error is raised if bounded frames are requested.
+
+        :raises ValueError: If the start or end argument has an invalid type or value.
+        :raises NotSupportedError: If the database backend does not support the requested window frame.
+        :returns: A tuple containing the calculated start and end values for the window frame.
+        """
         if (start is not None and not isinstance(start, int)) or (
             isinstance(start, int) and start > 0
         ):
@@ -773,6 +824,17 @@ class BaseDatabaseOperations:
         return start_, end_
 
     def explain_query_prefix(self, format=None, **options):
+        """
+        Returns the prefix used to explain query execution on the database backend.
+
+        The prefix is returned in a format specified by the user, if supported by the backend.
+        The function raises an error if the backend does not support explaining query execution,
+        or if an unsupported format is provided.
+
+        :param format: The format of the explanation prefix (optional)
+        :raises NotSupportedError: If explaining query execution is not supported by the backend
+        :raises ValueError: If an invalid format is provided or unknown options are specified
+        """
         if not self.connection.features.supports_explaining_query_execution:
             raise NotSupportedError(
                 "This backend does not support explaining query execution."

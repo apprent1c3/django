@@ -9,6 +9,12 @@ class GeoAdminTest(SimpleTestCase):
     admin_site = site  # ModelAdmin
 
     def test_widget_empty_string(self):
+        """
+
+        Tests that an empty string input for a geographic widget results in an error and 
+        renders the expected HTML output for the widget.
+
+        """
         geoadmin = self.admin_site.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)({"point": ""})
         with self.assertRaisesMessage(AssertionError, "no logs"):
@@ -21,6 +27,14 @@ class GeoAdminTest(SimpleTestCase):
         )
 
     def test_widget_invalid_string(self):
+        """
+
+        Tests that the widget handles invalid string input for a geographic field.
+
+        Ensures that an error is logged and the widget is rendered correctly when given an
+        unrecognized string value, such as one that is not a valid WKT, EWKT, or HEXEWKB.
+
+        """
         geoadmin = self.admin_site.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)({"point": "INVALID()"})
         with self.assertLogs("django.contrib.gis", "ERROR") as cm:
@@ -38,6 +52,10 @@ class GeoAdminTest(SimpleTestCase):
         )
 
     def test_widget_has_changed(self):
+        """
+        Tests the has_changed functionality of a geographic point field form, 
+        ensuring it correctly identifies whether the point has changed, given various input scenarios.
+        """
         geoadmin = self.admin_site.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)()
         has_changed = form.fields["point"].has_changed
@@ -59,6 +77,9 @@ class GISAdminTests(GeoAdminTest):
     admin_site = site_gis  # GISModelAdmin
 
     def test_default_gis_widget_kwargs(self):
+        """
+        Tests that the default GIS widget kwargs are correctly set for the City model's point field.
+        """
         geoadmin = self.admin_site.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)()
         widget = form["point"].field.widget
@@ -67,6 +88,9 @@ class GISAdminTests(GeoAdminTest):
         self.assertEqual(widget.attrs["default_zoom"], 12)
 
     def test_custom_gis_widget_kwargs(self):
+        """
+        Tests that the custom GIS widget is properly configured with default latitude, longitude, and zoom levels.
+        """
         geoadmin = site_gis_custom.get_model_admin(City)
         form = geoadmin.get_changelist_form(None)()
         widget = form["point"].field.widget

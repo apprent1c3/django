@@ -9,6 +9,9 @@ class File(FileProxyMixin):
     DEFAULT_CHUNK_SIZE = 64 * 2**10
 
     def __init__(self, file, name=None):
+        """
+        Initializes a new instance with the given file, optionally specifying a name, and captures relevant file attributes.
+        """
         self.file = file
         if name is None:
             name = getattr(file, "name", None)
@@ -30,6 +33,9 @@ class File(FileProxyMixin):
 
     @cached_property
     def size(self):
+        """
+        ..: Returns the size of the associated file. Attempts to retrieve the size from the file object's attributes or by checking the file's size on disk, and as a last resort, uses the file object's seek and tell methods to determine its size.
+        """
         if hasattr(self.file, "size"):
             return self.file.size
         if hasattr(self.file, "name"):
@@ -74,6 +80,9 @@ class File(FileProxyMixin):
 
     def __iter__(self):
         # Iterate over this file-like object by newlines
+        """
+        Iterates over the lines of a chunked text, handling newline characters to ensure each line is yielded correctly, including the last line even if it doesn't end with a newline character.
+        """
         buffer_ = None
         for chunk in self.chunks():
             for line in chunk.splitlines(True):
@@ -106,6 +115,23 @@ class File(FileProxyMixin):
         self.close()
 
     def open(self, mode=None, *args, **kwargs):
+        """
+
+        Opens or reopens the underlying file.
+
+        If the file is already open, it is rewound to the beginning. If it is closed,
+        it is reopened in the specified mode or its original mode if none is provided.
+        The file cannot be reopened if it has been deleted or does not exist.
+
+        Args:
+            mode (str): The file mode. Defaults to the original mode if not provided.
+            *args: Additional positional arguments passed to the underlying open function.
+            **kwargs: Additional keyword arguments passed to the underlying open function.
+
+        Returns:
+            The instance itself.
+
+        """
         if not self.closed:
             self.seek(0)
         elif self.name and os.path.exists(self.name):

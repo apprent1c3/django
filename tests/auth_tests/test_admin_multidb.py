@@ -49,6 +49,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.auth.admin.transaction")
     def test_add_view(self, mock):
+        """
+        Tests the add view for adding a new user in the admin interface, verifying a successful redirect response and that a database transaction is initiated.
+        """
         for db in self.databases:
             with self.subTest(db_connection=db):
                 Router.target_db = db
@@ -66,6 +69,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.auth.admin.transaction")
     def test_read_only_methods_add_view(self, mock):
+        """
+        Tests that read-only methods (e.g. GET, HEAD, OPTIONS) on the user add view do not start a database transaction.
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db_connection=db, method=method):

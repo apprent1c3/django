@@ -66,6 +66,12 @@ class TemplateTagIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_tag_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Retrieves context data, including a list of available template tags, 
+        their documentation, and metadata, from the default template engine and 
+        its libraries, and passes it to the parent's context data method for 
+        further processing and rendering.
+        """
         tags = []
         try:
             engine = Engine.get_default()
@@ -103,6 +109,9 @@ class TemplateFilterIndexView(BaseAdminDocsView):
     template_name = "admin_doc/template_filter_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Retrieves context data, including a list of template filters with their documentation and metadata, and passes it to the parent class for further processing. The filters are collected from the application's template libraries and built-in filters, with their documentation parsed and formatted for display. The returned context data includes this list of filters, making it available for use in templates and other parts of the application.
+        """
         filters = []
         try:
             engine = Engine.get_default()
@@ -142,6 +151,11 @@ class ViewIndexView(BaseAdminDocsView):
     template_name = "admin_doc/view_index.html"
 
     def get_context_data(self, **kwargs):
+        """
+        .. method:: get_context_data(**kwargs)
+
+            Retrieves the context data for a view, including a list of views extracted from the URL patterns defined in the URL configuration. These views are annotated with their full name, simplified URL, URL name, namespace, and name, making them available for use in templates and other parts of the application. The function extends the standard :meth:`get_context_data` method of its superclass by including this list of views.
+        """
         views = []
         url_resolver = get_resolver(get_urlconf())
         try:
@@ -166,6 +180,9 @@ class ViewDetailView(BaseAdminDocsView):
 
     @staticmethod
     def _get_view_func(view):
+        """
+        Returns the view function for the given view, handling callback and imported module cases.
+        """
         urlconf = get_urlconf()
         if get_resolver(urlconf)._is_callback(view):
             mod, func = get_mod_func(view)
@@ -182,6 +199,9 @@ class ViewDetailView(BaseAdminDocsView):
                 return getattr(getattr(import_module(mod), klass), func)
 
     def get_context_data(self, **kwargs):
+        """
+        Retrieves context data for a given view, parsing its docstring into title, body, and metadata, and including it in the context for rendering.
+        """
         view = self.kwargs["view"]
         view_func = self._get_view_func(view)
         if view_func is None:
@@ -214,6 +234,17 @@ class ModelDetailView(BaseAdminDocsView):
     template_name = "admin_doc/model_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+        Get context data for a model, including its name, summary, description, fields, and methods.
+
+        This function returns context data for a Django model, including:
+        - Model name
+        - Model summary and description (parsed from the model's docstring)
+        - List of model fields with their names, data types, and verbose names
+        - List of model methods with their names, arguments, and descriptions
+
+        It raises an `Http404` if the specified app or model is not found.
+        """
         model_name = self.kwargs["model_name"]
         # Get the model class.
         try:
@@ -396,6 +427,14 @@ class TemplateDetailView(BaseAdminDocsView):
     template_name = "admin_doc/template_detail.html"
 
     def get_context_data(self, **kwargs):
+        """
+
+        Get context data for a template, collecting information about its existence and contents
+        in various directories. The function searches for the template in all directories 
+        registered with the default template engine, including those provided by template loaders.
+        The collected data is then passed to the superclass's get_context_data method for further processing.
+
+        """
         template = self.kwargs["template"]
         templates = []
         try:

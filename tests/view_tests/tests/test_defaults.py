@@ -27,6 +27,9 @@ class DefaultsTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for use in tests, creating an author, articles, and a UrlArticle instance, as well as a test site, to provide a consistent baseline for testing.
+        """
         author = Author.objects.create(name="Boris")
         Article.objects.create(
             title="Old Article",
@@ -193,6 +196,9 @@ class DefaultsTests(TestCase):
             server_error(request, template_name="nonexistent")
 
     def test_error_pages(self):
+        """
+        Tests error pages to ensure they contain standard HTML structure and correct title, verifying that bad request, permission denied, page not found, and server error responses are correctly formatted.
+        """
         request = self.request_factory.get("/")
         for response, title in (
             (bad_request(request, Exception()), b"Bad Request (400)"),

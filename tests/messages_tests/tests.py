@@ -13,6 +13,9 @@ from .utils import DummyStorage
 
 class MessageTests(SimpleTestCase):
     def test_eq(self):
+        """
+        Tests the equality of Message objects, covering cases of identical objects, objects with different content, and objects with different message levels.
+        """
         msg_1 = Message(constants.INFO, "Test message 1")
         msg_2 = Message(constants.INFO, "Test message 2")
         msg_3 = Message(constants.WARNING, "Test message 1")
@@ -30,6 +33,9 @@ class MessageTests(SimpleTestCase):
         }
     )
     def test_repr(self):
+        """
+        Tests the representation of a Message object to ensure it matches expected output for various log levels and extra tags.
+        """
         tests = [
             (constants.INFO, "thing", "", "Message(level=20, message='thing')"),
             (
@@ -67,6 +73,9 @@ class TestLevelTags(SimpleTestCase):
         self.assertEqual(base.LEVEL_TAGS, self.message_tags)
 
     def test_lazy(self):
+        """
+        Tests that the MESSAGE_TAGS setting is lazily loaded in the messages storage base module.
+        """
         storage_base_import_path = "django.contrib.messages.storage.base"
         in_use_base = sys.modules.pop(storage_base_import_path)
         self.addCleanup(sys.modules.__setitem__, storage_base_import_path, in_use_base)
@@ -101,6 +110,9 @@ class FakeResponse:
 
 class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
     def test_assertion(self):
+        """
+        Tests the assertion of different types of messages, including debug, info, success, warning, and error messages, by adding them to a fake response and verifying their presence.
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.DEBUG, "DEBUG message.")
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
@@ -119,6 +131,9 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         )
 
     def test_with_tags(self):
+        """
+        Test adding messages with extra tags to a request
+        """
         response = FakeResponse()
         add_message(
             response.wsgi_request,
@@ -161,6 +176,9 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
         self.assertMessages(response, [Message(42, "CUSTOM message.")])
 
     def test_ordered(self):
+        """
+        Tests that messages are stored and asserted in the correct order when ordered is False, and raises an error when ordered is True and the messages are not in the correct order.
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "First message.")
         add_message(response.wsgi_request, constants.WARNING, "Second message.")
@@ -173,6 +191,11 @@ class AssertMessagesTest(MessagesTestMixin, SimpleTestCase):
             self.assertMessages(response, expected_messages)
 
     def test_mismatching_length(self):
+        """
+
+        Tests that assertMessages raises an AssertionError when the actual messages do not match the expected messages due to a length mismatch.
+
+        """
         response = FakeResponse()
         add_message(response.wsgi_request, constants.INFO, "INFO message.")
         msg = (

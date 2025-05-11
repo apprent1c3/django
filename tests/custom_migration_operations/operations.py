@@ -42,6 +42,12 @@ class KwargsOperation(TestOperation):
         self.kwarg1, self.kwarg2 = kwarg1, kwarg2
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constitutive parts.
+
+        Returns a tuple containing the object's class name, an empty list, and a dictionary of keyword arguments.
+
+        """
         kwargs = {}
         if self.kwarg1 is not None:
             kwargs["kwarg1"] = self.kwarg1
@@ -56,6 +62,9 @@ class ArgsKwargsOperation(TestOperation):
         self.kwarg1, self.kwarg2 = kwarg1, kwarg2
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, returning a tuple containing the class name, positional arguments, and keyword arguments.
+        """
         kwargs = {}
         if self.kwarg1 is not None:
             kwargs["kwarg1"] = self.kwarg1

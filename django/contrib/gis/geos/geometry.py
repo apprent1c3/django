@@ -28,6 +28,9 @@ class GEOSGeometryBase(GEOSBase):
     has_cs = False  # Only Point, LineString, LinearRing have coordinate sequences
 
     def __init__(self, ptr, cls):
+        """
+        Initiates a GEOS geometry object, potentially dynamically changing its class based on the geometry type ID.
+        """
         self._ptr = ptr
 
         # Setting the class type (e.g., Point, Polygon, etc.)
@@ -104,6 +107,9 @@ class GEOSGeometryBase(GEOSBase):
 
     def __setstate__(self, state):
         # Instantiating from the tuple state that was pickled.
+        """
+        Restores the object's state from a pickled representation, setting its geometry and spatial reference system identifier (SRID) accordingly, and validates the loaded geometry.
+        """
         wkb, srid = state
         ptr = self._from_pickle_wkb(wkb)
         if not ptr:
@@ -118,6 +124,16 @@ class GEOSGeometryBase(GEOSBase):
 
     @staticmethod
     def from_ewkt(ewkt):
+        """
+        Create a GEOSGeometry object from an Extended Well-Known Text (EWKT) string.
+
+        The EWKT string may include a Spatial Reference System Identifier (SRID) part,
+        which is extracted and passed to the resulting GEOSGeometry object.
+
+        :raises ValueError: If the EWKT string has an invalid SRID part or is empty.
+        :returns: A GEOSGeometry object constructed from the provided EWKT string.
+
+        """
         ewkt = force_bytes(ewkt)
         srid = None
         parts = ewkt.split(b";", 1)

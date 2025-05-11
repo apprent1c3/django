@@ -23,6 +23,17 @@ class PostGISSchemaEditor(DatabaseSchemaEditor):
         return super()._field_should_be_indexed(model, field)
 
     def _create_index_sql(self, model, *, fields=None, **kwargs):
+        """
+        Creates a SQL string for a spatial index on a given model.
+
+        Handles creation of spatial indexes for geometry and raster fields, 
+        applying the correct index type and operator classes based on the field type.
+
+        If the field is not a spatial field or its type is not supported, 
+        defers to the parent class's implementation. 
+
+        Allows customization via keyword arguments, including specifying the index name.
+        """
         if fields is None or len(fields) != 1 or not hasattr(fields[0], "geodetic"):
             return super()._create_index_sql(model, fields=fields, **kwargs)
 

@@ -74,6 +74,9 @@ class FileUploadHandler:
     chunk_size = 64 * 2**10  # : The default chunk size is 64 KB.
 
     def __init__(self, request=None):
+        """
+        Initializes an instance with optional request data, setting up file and content attributes for further processing.
+        """
         self.file_name = None
         self.content_type = None
         self.content_length = None
@@ -181,6 +184,9 @@ class TemporaryFileUploadHandler(FileUploadHandler):
         return self.file
 
     def upload_interrupted(self):
+        """
+        Cleans up an interrupted file upload by closing and deleting the temporarily stored file, if it exists.
+        """
         if hasattr(self, "file"):
             temp_location = self.file.temporary_file_path()
             try:

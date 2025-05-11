@@ -108,6 +108,9 @@ def gdal_full_version():
 
 
 def gdal_version_info():
+    """
+    Returns the GDAL library version as a tuple of integers, containing major, minor, and optional subminor version numbers, parsed from the string output of the GDAL version function.
+    """
     ver = gdal_version()
     m = re.match(rb"^(?P<major>\d+)\.(?P<minor>\d+)(?:\.(?P<subminor>\d+))?", ver)
     if not m:

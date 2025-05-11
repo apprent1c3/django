@@ -32,6 +32,9 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _validate_output(serial_str):
+        """
+        Checks if a given XML serialization string is valid by attempting to parse it. Returns True if the string is valid XML, False otherwise.
+        """
         try:
             minidom.parseString(serial_str)
         except Exception:
@@ -41,6 +44,12 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_pk_values(serial_str):
+        """
+        Extracts primary key values from a serialized XML string.
+
+            :param serial_str: Serialized XML string containing object elements with 'pk' attributes.
+            :return: List of primary key values extracted from the XML string.
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("object")
@@ -50,6 +59,15 @@ class XmlSerializerTestCase(SerializersTestBase, TestCase):
 
     @staticmethod
     def _get_field_values(serial_str, field_name):
+        """
+
+        Parses an XML string and extracts values of a specified field.
+
+        :param serial_str: The input XML string.
+        :param field_name: The name of the field to extract values for.
+        :return: A list of values for the specified field.
+
+        """
         ret_list = []
         dom = minidom.parseString(serial_str)
         fields = dom.getElementsByTagName("field")

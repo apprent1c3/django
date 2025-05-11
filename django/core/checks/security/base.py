@@ -214,6 +214,9 @@ def _check_secret_key(secret_key):
 
 @register(Tags.security, deploy=True)
 def check_secret_key(app_configs, **kwargs):
+    """
+    Checks if a secret key is properly configured, returning a warning if it's not secure or not set.
+    """
     try:
         secret_key = settings.SECRET_KEY
     except (ImproperlyConfigured, AttributeError):
@@ -225,6 +228,9 @@ def check_secret_key(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_secret_key_fallbacks(app_configs, **kwargs):
+    """
+    Checks the SECRET_KEY_FALLBACKS settings for validity, ensuring each fallback secret key is properly configured, and returns a list of warnings for any invalid or missing keys.
+    """
     warnings = []
     try:
         fallbacks = settings.SECRET_KEY_FALLBACKS
@@ -258,6 +264,9 @@ def check_allowed_hosts(app_configs, **kwargs):
 
 @register(Tags.security, deploy=True)
 def check_referrer_policy(app_configs, **kwargs):
+    """
+    Checks if the referrer policy is properly configured in the application settings, ensuring it is set to a valid value to prevent potential security vulnerabilities. Returns warnings or errors if the policy is not set or is set to an invalid value.
+    """
     if _security_middleware():
         if settings.SECURE_REFERRER_POLICY is None:
             return [W022]

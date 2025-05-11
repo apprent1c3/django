@@ -30,6 +30,10 @@ class FindersCheckTests(CollectionTestCase):
         error3 = Error("3")
 
         def get_finders():
+            """
+            Returns a list of finder instances, each responsible for detecting specific errors or conditions, 
+            to be used for checking and validation purposes.
+            """
             class Finder1(BaseFinder):
                 def check(self, **kwargs):
                     return [error1]

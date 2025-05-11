@@ -26,6 +26,13 @@ class OptimizerTests(SimpleTestCase):
     def assertOptimizesTo(
         self, operations, expected, exact=None, less_than=None, app_label=None
     ):
+        """
+
+        Asserts that a sequence of operations optimizes to a given expected result.
+
+        Allows for optional specification of exact or upper-bound iteration counts.
+
+        """
         result, iterations = self.optimize(operations, app_label or "migrations")
         result = [self.serialize(f) for f in result]
         expected = [self.serialize(f) for f in expected]
@@ -1161,6 +1168,9 @@ class OptimizerTests(SimpleTestCase):
         )
 
     def test_add_rename_index(self):
+        """
+        Tests optimization of adding and then renaming an index, ensuring it correctly reduces to a single AddIndex operation with the new name.
+        """
         tests = [
             models.Index(fields=["weight", "pink"], name="mid_name"),
             models.Index(Abs("weight"), name="mid_name"),

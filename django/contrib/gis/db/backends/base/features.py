@@ -104,6 +104,14 @@ class BaseSpatialFeatures:
         return models.Union not in self.connection.ops.disallowed_aggregates
 
     def __getattr__(self, name):
+        """
+        Override attribute access to support dynamic generation of 'has_*_function' properties.
+
+        Returns True if the specified function is supported by the database connection, False otherwise.
+
+        Raises an AttributeError for any other attribute access.
+
+        """
         m = re.match(r"has_(\w*)_function$", name)
         if m:
             func_name = m[1]

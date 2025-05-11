@@ -27,6 +27,12 @@ class LimitedStream(IOBase):
         self.limit = limit
 
     def read(self, size=-1, /):
+        """
+        Reads data from the underlying source.
+
+        :param size: The number of bytes to read. If -1 or None, reads until the end of the data. Defaults to -1.
+        :return: The read data as bytes. If the end of the data is reached, returns an empty bytes object.
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -40,6 +46,12 @@ class LimitedStream(IOBase):
         return data
 
     def readline(self, size=-1, /):
+        """
+        Reads a line from the current position in the stream, up to the specified size.
+
+        :param size: The maximum number of bytes to read from the stream, defaults to reading until the end of the stream.
+        :return: The line read from the stream as bytes. If the end of the stream is reached, an empty bytes object is returned.
+        """
         _pos = self._pos
         limit = self.limit
         if _pos >= limit:
@@ -55,6 +67,12 @@ class LimitedStream(IOBase):
 
 class WSGIRequest(HttpRequest):
     def __init__(self, environ):
+        """
+        Initializes a request object with data from the WSGI environment.
+
+        Creates a new instance with information about the current HTTP request, including
+        the path, method, and content type, and provides a stream to access the request body.
+        """
         script_name = get_script_name(environ)
         # If PATH_INFO is empty (e.g. accessing the SCRIPT_NAME URL without a
         # trailing slash), operate as if '/' was requested.
@@ -118,6 +136,13 @@ class WSGIHandler(base.BaseHandler):
         self.load_middleware()
 
     def __call__(self, environ, start_response):
+        """
+        Entry point for the WSGI application, responsible for processing incoming requests and returning responses.
+
+        Initializes the environment, sends a request started signal, and delegates the request handling to the get_response method.
+        The response is then prepared for output, including setting the status code, headers, and cookies. Finally, the response is returned,
+        with optional streaming of files using the WSGI file wrapper if available.
+        """
         set_script_prefix(get_script_name(environ))
         signals.request_started.send(sender=self.__class__, environ=environ)
         request = self.request_class(environ)

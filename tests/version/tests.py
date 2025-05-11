@@ -25,6 +25,9 @@ class VersionTests(SimpleTestCase):
         "e.g. in a frozen environments",
     )
     def test_development_no_file(self):
+        """
+        Tests the development version detection logic when the version module file does not exist.
+        """
         get_git_changeset.cache_clear()
         version_file = django.utils.version.__file__
         try:

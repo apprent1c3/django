@@ -11,6 +11,13 @@ class Command(BaseCommand):
     help = "Shows all available migrations for the current project"
 
     def add_arguments(self, parser):
+        """
+        Adds command-line arguments for customizing the output of migration information.
+
+        This function allows users to specify application labels to filter the output, 
+        select a database to show migrations for, and choose between different output formats: 
+        a list of applied migrations or a plan of migrations in the order they will be applied.
+        """
         parser.add_argument(
             "app_label",
             nargs="*",
@@ -55,6 +62,12 @@ class Command(BaseCommand):
         parser.set_defaults(format="list")
 
     def handle(self, *args, **options):
+        """
+        Handle database operation based on the specified format.
+
+        Depending on the format, either shows a plan or a list of items from the database.
+
+        """
         self.verbosity = options["verbosity"]
 
         # Get the database we're operating from
@@ -67,6 +80,9 @@ class Command(BaseCommand):
             return self.show_list(connection, options["app_label"])
 
     def _validate_app_names(self, loader, app_names):
+        """
+        Validate a list of application names by checking if they can be resolved to a valid application configuration. If any invalid names are found, display error messages and exit the program with a non-zero status code.
+        """
         has_bad_names = False
         for app_name in app_names:
             try:
@@ -158,6 +174,9 @@ class Command(BaseCommand):
 
         # Output
         def print_deps(node):
+            """
+            Returns a string representation of a node's parent dependencies in a dotted notation, if any, otherwise returns an empty string.
+            """
             out = []
             for parent in sorted(node.parents):
                 out.append("%s.%s" % parent.key)

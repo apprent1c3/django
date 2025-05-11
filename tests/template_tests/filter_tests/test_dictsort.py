@@ -17,6 +17,15 @@ class User:
 
 class FunctionTests(SimpleTestCase):
     def test_property_resolver(self):
+        """
+
+        Tests the functionality of the _property_resolver function.
+
+        This function resolves properties from nested data structures (e.g. dictionaries, lists, objects) 
+        based on a provided path and ensures it handles various edge cases, including attribute errors 
+        and indexing errors.
+
+        """
         user = User()
         dict_data = {
             "a": {

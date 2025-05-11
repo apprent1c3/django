@@ -110,6 +110,12 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserPartiallyUnique")
     def test_username_partially_unique(self):
+        """
+        Tests that a custom user model with a partially unique USERNAME_FIELD triggers the correct checks and warnings.
+
+         The test case checks that an error is raised when the USERNAME_FIELD is not unique, and a warning is raised instead when 
+         a custom authentication backend is used, which may be able to handle non-unique usernames.
+        """
         class CustomUserPartiallyUnique(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -155,6 +161,9 @@ class UserModelChecksTests(SimpleTestCase):
 
     @override_settings(AUTH_USER_MODEL="auth_tests.CustomUserUniqueConstraint")
     def test_username_unique_with_model_constraint(self):
+        """
+        Tests that Django's unique constraint on the username field is enforced when a custom user model with a unique constraint is used, both with default and custom authentication backends.
+        """
         class CustomUserUniqueConstraint(AbstractBaseUser):
             username = models.CharField(max_length=30)
             USERNAME_FIELD = "username"
@@ -211,6 +220,9 @@ class UserModelChecksTests(SimpleTestCase):
 @override_system_checks([check_models_permissions])
 class ModelsPermissionsChecksTests(SimpleTestCase):
     def test_clashing_default_permissions(self):
+        """
+        Tests that a custom permission with the same codename as a built-in permission raises an error.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [("change_checked", "Can edit permission (duplicate)")]
@@ -229,6 +241,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_non_clashing_custom_permissions(self):
+        """
+        Tests that custom model permissions do not clash with existing ones.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -240,6 +255,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         self.assertEqual(errors, [])
 
     def test_clashing_custom_permissions(self):
+        """
+        Tests that a model validation error is raised when custom permissions have clashing codes.
+        """
         class Checked(models.Model):
             class Meta:
                 permissions = [
@@ -265,6 +283,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_verbose_name_max_length(self):
+        """
+        Checks that a model's verbose_name does not exceed the maximum allowed length to prevent permission name truncation, ensuring that built-in permission names remain within the 255 character limit.
+        """
         class Checked(models.Model):
             class Meta:
                 verbose_name = (
@@ -303,6 +324,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_custom_permission_name_max_length(self):
+        """
+        Checks if the custom permission name exceeds the maximum allowed length of 255 characters.
+        """
         custom_permission_name = (
             "some ridiculously long verbose name that is out of control" * 5
         )
@@ -327,6 +351,9 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_custom_permission_codename_max_length(self):
+        """
+        Tests that a custom permission codename exceeding the maximum allowed length of 100 characters triggers an error.
+        """
         custom_permission_codename = "x" * 101
 
         class Checked(models.Model):
@@ -349,6 +376,10 @@ class ModelsPermissionsChecksTests(SimpleTestCase):
         )
 
     def test_empty_default_permissions(self):
+        """
+        Verifies that a model with empty default permissions does not trigger any checks errors.\"\"\"
+        ```
+        """
         class Checked(models.Model):
             class Meta:
                 default_permissions = ()

@@ -251,6 +251,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
         return csrf_secret
 
     def _set_csrf_cookie(self, request, response):
+        """
+        Updates the CSRF cookie and session as necessary, based on the configured CSRF settings, ensuring a valid token is presented with the request.
+        """
         if settings.CSRF_USE_SESSIONS:
             if request.session.get(CSRF_SESSION_KEY) != request.META["CSRF_COOKIE"]:
                 request.session[CSRF_SESSION_KEY] = request.META["CSRF_COOKIE"]
@@ -269,6 +272,15 @@ class CsrfViewMiddleware(MiddlewareMixin):
             patch_vary_headers(response, ("Cookie",))
 
     def _origin_verified(self, request):
+        """
+
+        Verifies the origin of a request against a set of allowed origins.
+
+        This method checks if the request's origin is allowed by comparing it to the 
+        request's host or a list of allowed exact origins and subdomains. It returns 
+        True if the origin is verified and False otherwise.
+
+        """
         request_origin = request.META["HTTP_ORIGIN"]
         try:
             good_host = request.get_host()
@@ -295,6 +307,11 @@ class CsrfViewMiddleware(MiddlewareMixin):
         )
 
     def _check_referer(self, request):
+        """
+        Checks the referer of an incoming request for validity and security.
+        Ensures the referer is not empty, is a valid URL, uses the HTTPS scheme, and originates from a trusted domain.
+        Raises a RejectRequest exception if any of these conditions are not met.
+        """
         referer = request.META.get("HTTP_REFERER")
         if referer is None:
             raise RejectRequest(REASON_NO_REFERER)
@@ -350,6 +367,13 @@ class CsrfViewMiddleware(MiddlewareMixin):
         # Access csrf_secret via self._get_secret() as rotate_token() may have
         # been called by an authentication middleware during the
         # process_request() phase.
+        """
+        Checks a request's CSRF token for validity and authenticity.
+
+        Verifies that a CSRF token is present in the request, either in the POST data or in a specific header,
+        and that it matches the expected secret value. If the token is missing, malformed, or does not match,
+        a RejectRequest exception is raised with a corresponding reason message.
+        """
         try:
             csrf_secret = self._get_secret(request)
         except InvalidTokenFormat as exc:
@@ -399,6 +423,9 @@ class CsrfViewMiddleware(MiddlewareMixin):
             raise RejectRequest(reason)
 
     def process_request(self, request):
+        """
+        Handles a request by validating its CSRF token, updating the request with a valid CSRF secret if found, and setting a new CSRF cookie if the token is invalid.
+        """
         try:
             csrf_secret = self._get_secret(request)
         except InvalidTokenFormat:
@@ -412,6 +439,11 @@ class CsrfViewMiddleware(MiddlewareMixin):
                 request.META["CSRF_COOKIE"] = csrf_secret
 
     def process_view(self, request, callback, callback_args, callback_kwargs):
+        """
+        Performs CSRF (Cross-Site Request Forgery) protection for a given HTTP request.
+        This function checks the request for various conditions that indicate a potential
+        CSRF attack and either accepts or rejects the request based on these checks.
+        """
         if getattr(request, "csrf_processing_done", False):
             return None
 

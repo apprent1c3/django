@@ -49,6 +49,20 @@ class ForeignObjectRel(FieldCacheMixin):
         parent_link=False,
         on_delete=None,
     ):
+        """
+        Initializes a foreign key relationship between two models.
+
+        :param field: The field that establishes the relationship.
+        :param to: The model to which the relationship is established.
+        :param related_name: The name of the relationship on the related model.
+        :param related_query_name: The name of the relationship to use in query lookups.
+        :param limit_choices_to: Constraints to limit the available choices for the relationship.
+        :param parent_link: Whether this relationship represents a parent link.
+        :param on_delete: The action to perform when the related object is deleted.
+
+        This initializer sets up the properties for a foreign key relationship, including the related model, 
+        relationship names, and constraints for the relationship.
+        """
         self.field = field
         self.model = to
         self.related_name = related_name
@@ -227,6 +241,15 @@ class ForeignObjectRel(FieldCacheMixin):
         # but this can be overridden with the "related_name" option. Due to
         # backwards compatibility ModelForms need to be able to provide an
         # alternate model. See BaseInlineFormSet.get_default_prefix().
+        """
+        Return the accessor name for the relationship.
+
+        This name is used to access related objects from the model instance. If a 
+        related_name is specified, it takes priority; otherwise, the model name 
+        with an optional \"_set\" suffix (for multiple relationships) is used. In 
+        symmetrical relationships with multiple=True, the accessor name may be 
+        None if accessed from the model itself.
+        """
         opts = model._meta if model else self.related_model._meta
         model = model or self.related_model
         if self.multiple:
@@ -372,6 +395,14 @@ class ManyToManyRel(ForeignObjectRel):
         through_fields=None,
         db_constraint=True,
     ):
+        """
+        Initializes many-to-many relationship field.
+
+        Establishes a relationship between two models, allowing for the association of multiple instances.
+        The relationship can be defined with an intermediate model, which provides additional information about the relationship.
+        It allows for customization of the relationship, including the specification of a related name, query name, and choice limitations.
+        Additionally, it provides control over database constraints and symmetry of the relationship.
+        """
         super().__init__(
             field,
             to,

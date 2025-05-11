@@ -30,6 +30,10 @@ class TestTransactionNow(PostgreSQLTestCase):
 
 class TestRandomUUID(PostgreSQLTestCase):
     def test_random_uuid(self):
+        """
+        Verifies that the UUID field is correctly updated with a new random UUID for multiple instances, 
+        ensuring the generated UUIDs are unique and of the correct type.
+        """
         m1 = UUIDTestModel.objects.create()
         m2 = UUIDTestModel.objects.create()
         UUIDTestModel.objects.update(uuid=RandomUUID())

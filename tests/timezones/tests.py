@@ -72,6 +72,13 @@ ICT = timezone.get_fixed_timezone(420)  # Asia/Bangkok
 
 @contextmanager
 def override_database_connection_timezone(timezone):
+    """
+    Temporarily overrides the database connection timezone for the duration of the context.
+
+    Sets the connection timezone to the specified timezone, yielding control to the caller, and then resets the timezone to its original value upon exiting the context, ensuring that the original timezone is restored regardless of whether an exception occurs.
+
+    :arg str timezone: The timezone to use for the duration of the context
+    """
     try:
         orig_timezone = connection.settings_dict["TIME_ZONE"]
         connection.settings_dict["TIME_ZONE"] = timezone
@@ -106,6 +113,12 @@ class LegacyDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_aware_datetime_in_local_timezone(self):
+        """
+
+        Tests that an aware datetime object in the local timezone is correctly stored and retrieved.
+        Verifies that the timezone information is lost upon storage, but the datetime value remains accurate.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT)
         Event.objects.create(dt=dt)
         event = Event.objects.get()
@@ -115,6 +128,10 @@ class LegacyDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_aware_datetime_in_local_timezone_with_microsecond(self):
+        """
+        Tests if an aware datetime in the local timezone is correctly stored 
+        and retrieved with microseconds when the database supports timezones.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, 405060, tzinfo=EAT)
         Event.objects.create(dt=dt)
         event = Event.objects.get()
@@ -124,6 +141,9 @@ class LegacyDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_aware_datetime_in_utc(self):
+        """
+        Tests the behavior of aware datetime objects in UTC timezone when stored and retrieved from the database, specifically verifying that timezone information is lost during the process.
+        """
         dt = datetime.datetime(2011, 9, 1, 10, 20, 30, tzinfo=UTC)
         Event.objects.create(dt=dt)
         event = Event.objects.get()
@@ -133,6 +153,14 @@ class LegacyDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_aware_datetime_in_other_timezone(self):
+        """
+
+        Tests the behavior of aware datetime objects stored in a database, 
+        when they are associated with a timezone other than the default.
+        Verifies that timezone information is correctly stripped from 
+        datetime objects upon retrieval.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 17, 20, 30, tzinfo=ICT)
         Event.objects.create(dt=dt)
         event = Event.objects.get()
@@ -148,6 +176,9 @@ class LegacyDatabaseTests(TestCase):
             Event.objects.create(dt=dt)
 
     def test_auto_now_and_auto_now_add(self):
+        """
+        Tests the functionality of auto_now and auto_now_add fields in the Timestamp model, verifying that timestamps are correctly updated upon creation and modification.
+        """
         now = datetime.datetime.now()
         past = now - datetime.timedelta(seconds=2)
         future = now + datetime.timedelta(seconds=2)
@@ -159,6 +190,9 @@ class LegacyDatabaseTests(TestCase):
         self.assertGreater(future, ts.updated)
 
     def test_query_filter(self):
+        """
+        Tests the filtering functionality of Event objects by date, ensuring correct results for greater than or equal to (gte) and greater than (gt) queries.
+        """
         dt1 = datetime.datetime(2011, 9, 1, 12, 20, 30)
         dt2 = datetime.datetime(2011, 9, 1, 14, 20, 30)
         Event.objects.create(dt=dt1)
@@ -169,6 +203,9 @@ class LegacyDatabaseTests(TestCase):
         self.assertEqual(Event.objects.filter(dt__gt=dt2).count(), 0)
 
     def test_query_datetime_lookups(self):
+        """
+        Tests querying of datetime fields using various lookup types (year, month, day, week day, ISO week day, hour, minute, second).
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0))
         self.assertEqual(Event.objects.filter(dt__year=2011).count(), 2)
@@ -182,6 +219,11 @@ class LegacyDatabaseTests(TestCase):
 
     def test_query_aggregation(self):
         # Only min and max make sense for datetimes.
+        """
+
+        Tests that the database aggregation query correctly determines the minimum and maximum 'dt' values for a set of Event objects.
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 23, 20, 20))
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 13, 20, 30))
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 3, 20, 40))
@@ -196,6 +238,10 @@ class LegacyDatabaseTests(TestCase):
 
     def test_query_annotation(self):
         # Only min and max make sense for datetimes.
+        """
+        Tests the use of the Min annotation on a queryset to retrieve the earliest session event timestamp, 
+        and filters sessions based on these timestamps.
+        """
         morning = Session.objects.create(name="morning")
         afternoon = Session.objects.create(name="afternoon")
         SessionEvent.objects.create(
@@ -230,6 +276,9 @@ class LegacyDatabaseTests(TestCase):
         )
 
     def test_query_datetimes(self):
+        """
+        Tests the `datetimes` method of the `Event.objects` manager to ensure it correctly truncates datetime fields to the specified level of precision (year, month, day, hour, minute, second).
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0))
         self.assertSequenceEqual(
@@ -278,6 +327,9 @@ class LegacyDatabaseTests(TestCase):
         )
 
     def test_cursor_execute_accepts_naive_datetime(self):
+        """
+        Tests if the database cursor can execute a query containing a naive datetime object, ensuring correct insertion and retrieval of datetime values.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30)
         with connection.cursor() as cursor:
             cursor.execute("INSERT INTO timezones_event (dt) VALUES (%s)", [dt])
@@ -285,6 +337,9 @@ class LegacyDatabaseTests(TestCase):
         self.assertEqual(event.dt, dt)
 
     def test_cursor_execute_returns_naive_datetime(self):
+        """
+        Tests that cursor execute returns naive datetime objects when querying datetime fields.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30)
         Event.objects.create(dt=dt)
         with connection.cursor() as cursor:
@@ -313,6 +368,10 @@ class NewDatabaseTests(TestCase):
 
     @requires_tz_support
     def test_naive_datetime(self):
+        """
+        Tests the creation of an event with a naive datetime, expecting a warning 
+        about the lack of timezone information and automatic timezone assignment.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30)
         with self.assertWarnsMessage(RuntimeWarning, self.naive_warning):
             Event.objects.create(dt=dt)
@@ -322,6 +381,14 @@ class NewDatabaseTests(TestCase):
 
     @requires_tz_support
     def test_datetime_from_date(self):
+        """
+
+        Tests the creation of an Event instance with a naive date object.
+
+        Verifies that a RuntimeWarning is raised when assigning a naive date to the dt field,
+        and that the event's dt attribute is subsequently set to a timezone-aware datetime object.
+
+        """
         dt = datetime.date(2011, 9, 1)
         with self.assertWarnsMessage(RuntimeWarning, self.naive_warning):
             Event.objects.create(dt=dt)
@@ -337,6 +404,9 @@ class NewDatabaseTests(TestCase):
 
     @requires_tz_support
     def test_naive_datetime_with_microsecond(self):
+        """
+        Verifies that creating an event with a naive datetime including microseconds produces the expected warning and properly assigns a timezone to the resulting event.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, 405060)
         with self.assertWarnsMessage(RuntimeWarning, self.naive_warning):
             Event.objects.create(dt=dt)
@@ -369,6 +439,10 @@ class NewDatabaseTests(TestCase):
         self.assertEqual(event.dt, dt)
 
     def test_auto_now_and_auto_now_add(self):
+        """
+        Tests the auto_now and auto_now_add functionality of the Timestamp model, 
+        verifying that the created and updated timestamps are set correctly upon instance creation.
+        """
         now = timezone.now()
         past = now - datetime.timedelta(seconds=2)
         future = now + datetime.timedelta(seconds=2)
@@ -380,6 +454,14 @@ class NewDatabaseTests(TestCase):
         self.assertGreater(future, ts.updated)
 
     def test_query_filter(self):
+        """
+
+        Tests the filtering of events by date using Django's ORM query filters.
+
+        Verifies that the correct number of events are returned when filtering by date
+        using greater than or equal to (gte) and greater than (gt) operators.
+
+        """
         dt1 = datetime.datetime(2011, 9, 1, 12, 20, 30, tzinfo=EAT)
         dt2 = datetime.datetime(2011, 9, 1, 14, 20, 30, tzinfo=EAT)
         Event.objects.create(dt=dt1)
@@ -390,6 +472,12 @@ class NewDatabaseTests(TestCase):
         self.assertEqual(Event.objects.filter(dt__gt=dt2).count(), 0)
 
     def test_query_filter_with_timezones(self):
+        """
+
+        Tests the functionality of query filters for datetime fields with timezones.
+        Verifies that exact, in, and range lookups work as expected with timezone-aware datetimes.
+
+        """
         tz = zoneinfo.ZoneInfo("Europe/Paris")
         dt = datetime.datetime(2011, 9, 1, 12, 20, 30, tzinfo=tz)
         Event.objects.create(dt=dt)
@@ -404,6 +492,14 @@ class NewDatabaseTests(TestCase):
     def test_query_convert_timezones(self):
         # Connection timezone is equal to the current timezone, datetime
         # shouldn't be converted.
+        """
+
+        Tests the functionality of converting timezones for date queries.
+
+        This test case verifies that timezones are correctly handled when querying events by date.
+        It checks that events created in different timezones are properly converted and matched when filtering by date.
+
+        """
         with override_database_connection_timezone("Africa/Nairobi"):
             event_datetime = datetime.datetime(2016, 1, 2, 23, 10, 11, 123, tzinfo=EAT)
             event = Event.objects.create(dt=event_datetime)
@@ -421,6 +517,9 @@ class NewDatabaseTests(TestCase):
 
     @requires_tz_support
     def test_query_filter_with_naive_datetime(self):
+        """
+        Tests the behavior of query filters when using naive datetime objects, verifying that a warning is raised and the correct results are returned.
+        """
         dt = datetime.datetime(2011, 9, 1, 12, 20, 30, tzinfo=EAT)
         Event.objects.create(dt=dt)
         dt = dt.replace(tzinfo=None)
@@ -434,6 +533,9 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("has_zoneinfo_database")
     def test_query_datetime_lookups(self):
+        """
+        Tests datetime field lookups using various date and time components, such as year, month, day, hour, minute, and second, on a Django model's datetime field with timezone information.
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0, tzinfo=EAT))
         self.assertEqual(Event.objects.filter(dt__year=2011).count(), 2)
@@ -447,6 +549,9 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("has_zoneinfo_database")
     def test_query_datetime_lookups_in_other_timezone(self):
+        """
+        Tests datetime lookups in a different timezone, ensuring correct filtering of dates and times when the timezone is overridden.
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0, tzinfo=EAT))
         with timezone.override(UTC):
@@ -463,6 +568,13 @@ class NewDatabaseTests(TestCase):
 
     def test_query_aggregation(self):
         # Only min and max make sense for datetimes.
+        """
+
+        Tests the aggregation functionality of the Event model to ensure it correctly calculates the minimum and maximum datetime values.
+
+        The test checks that the aggregate query returns the expected result, with the minimum and maximum datetime values from the created Event objects.
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 23, 20, 20, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 9, 1, 3, 20, 40, tzinfo=EAT))
@@ -477,6 +589,13 @@ class NewDatabaseTests(TestCase):
 
     def test_query_annotation(self):
         # Only min and max make sense for datetimes.
+        """
+
+        Tests that annotation with Min on the dt field of related SessionEvents is applied correctly to Sessions.
+
+        Checks that Sessions can be ordered by the minimum event datetime and filtered by this value.
+
+        """
         morning = Session.objects.create(name="morning")
         afternoon = Session.objects.create(name="afternoon")
         SessionEvent.objects.create(
@@ -512,6 +631,9 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("has_zoneinfo_database")
     def test_query_datetimes(self):
+        """
+        Tests the datetimes method of a QuerySet, which returns a list of datetime objects representing the start of each distinct date or time part, such as year, month, day, hour, minute, or second, for the specified datetime field in the model. The test verifies the correctness of the datetimes method by comparing its output with the expected results for different datetime parts.
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0, tzinfo=EAT))
         self.assertSequenceEqual(
@@ -550,6 +672,13 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("has_zoneinfo_database")
     def test_query_datetimes_in_other_timezone(self):
+        """
+        Test datetimes in other timezones.
+
+        Verifies that the datetimes method of a QuerySet returns the expected values
+        when used with events in different timezones, and when the timezone is overridden.
+
+        """
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 1, 30, 0, tzinfo=EAT))
         Event.objects.create(dt=datetime.datetime(2011, 1, 1, 4, 30, 0, tzinfo=EAT))
         with timezone.override(UTC):
@@ -609,6 +738,9 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_cursor_execute_accepts_aware_datetime(self):
+        """
+        Tests that cursor execute can handle timezone-aware datetime objects, ensuring correct storage and retrieval of temporal data with time zone information.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT)
         with connection.cursor() as cursor:
             cursor.execute("INSERT INTO timezones_event (dt) VALUES (%s)", [dt])
@@ -617,6 +749,10 @@ class NewDatabaseTests(TestCase):
 
     @skipIfDBFeature("supports_timezones")
     def test_cursor_execute_accepts_naive_datetime(self):
+        """
+        Tests that a database cursor's execute method can handle naive datetime objects, 
+        ensuring correct timezone-aware datetime storage and retrieval.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT)
         utc_naive_dt = timezone.make_naive(dt, datetime.timezone.utc)
         with connection.cursor() as cursor:
@@ -628,6 +764,9 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_cursor_execute_returns_aware_datetime(self):
+        """
+        Tests that cursor.execute returns an aware datetime object when used with time zone support.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT)
         Event.objects.create(dt=dt)
         with connection.cursor() as cursor:
@@ -636,6 +775,12 @@ class NewDatabaseTests(TestCase):
 
     @skipIfDBFeature("supports_timezones")
     def test_cursor_execute_returns_naive_datetime(self):
+        """
+        Tests that cursor execute returns naive datetime when database does not support timezones.\"\"\"
+
+        Note changed to: 
+        \"\"\"Tests cursor execution with naive datetime in timezone-unsupported databases.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT)
         utc_naive_dt = timezone.make_naive(dt, datetime.timezone.utc)
         Event.objects.create(dt=dt)
@@ -647,6 +792,14 @@ class NewDatabaseTests(TestCase):
 
     @skipUnlessDBFeature("supports_timezones")
     def test_cursor_explicit_time_zone(self):
+        """
+
+        Tests the explicit timezone controlled by a database connection.
+
+        Verifies that the timezone of the database connection affects the timezone
+        of timestamps fetched from the database, when the database supports timezones.
+
+        """
         with override_database_connection_timezone("Europe/Paris"):
             with connection.cursor() as cursor:
                 cursor.execute("SELECT CURRENT_TIMESTAMP")
@@ -668,6 +821,9 @@ class NewDatabaseTests(TestCase):
         self.assertIsNone(e.dt)
 
     def test_update_with_timedelta(self):
+        """
+        Tests that updating Event instances with a timedelta successfully shifts their datetime by the specified amount.
+        """
         initial_dt = timezone.now().replace(microsecond=0)
         event = Event.objects.create(dt=initial_dt)
         Event.objects.update(dt=F("dt") + timedelta(hours=2))
@@ -690,6 +846,9 @@ class ForcedTimeZoneDatabaseTests(TransactionTestCase):
     def setUpClass(cls):
         # @skipIfDBFeature and @skipUnlessDBFeature cannot be chained. The
         # outermost takes precedence. Handle skipping manually instead.
+        """
+        Sets up the class-level environment, skipping the test if the database supports timezones or does not allow multiple connections
+        """
         if connection.features.supports_timezones:
             raise SkipTest("Database has feature(s) supports_timezones")
         if not connection.features.test_db_allows_multiple_connections:
@@ -701,6 +860,9 @@ class ForcedTimeZoneDatabaseTests(TransactionTestCase):
         super().setUpClass()
 
     def test_read_datetime(self):
+        """
+        Tests reading a datetime object from the database, ensuring it is correctly interpreted in a different time zone.
+        """
         fake_dt = datetime.datetime(2011, 9, 1, 17, 20, 30, tzinfo=UTC)
         Event.objects.create(dt=fake_dt)
 
@@ -710,6 +872,9 @@ class ForcedTimeZoneDatabaseTests(TransactionTestCase):
         self.assertEqual(event.dt, dt)
 
     def test_write_datetime(self):
+        """
+        Tests writing of datetime objects to the database, verifying that timezone conversion is correctly applied when storing and retrieving events.
+        """
         dt = datetime.datetime(2011, 9, 1, 10, 20, 30, tzinfo=UTC)
         with override_database_connection_timezone("Asia/Bangkok"):
             Event.objects.create(dt=dt)
@@ -744,6 +909,9 @@ class SerializationTests(SimpleTestCase):
         self.assertRegex(yaml, r"\n  fields: {dt: !(!timestamp)? '%s'}" % re.escape(dt))
 
     def test_naive_datetime(self):
+        """
+        Tests serialization and deserialization of datetime fields across different formats (Python, JSON, XML, YAML).
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -772,6 +940,9 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt, dt)
 
     def test_naive_datetime_with_microsecond(self):
+        """
+        Tests serialization and deserialization of a datetime object with microseconds using different formats.
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, 405060)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -800,6 +971,9 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_with_microsecond(self):
+        """
+        Tests serialization and deserialization of datetime objects with microseconds using different formats (python, json, xml, yaml) to ensure accurate conversion and consistency across serializers.
+        """
         dt = datetime.datetime(2011, 9, 1, 17, 20, 30, 405060, tzinfo=ICT)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -831,6 +1005,9 @@ class SerializationTests(SimpleTestCase):
                 self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_in_utc(self):
+        """
+        Verifies the correct serialization and deserialization of datetime objects in UTC timezone across different formats, including Python, JSON, XML, and YAML. Ensures that the original datetime object is preserved after round-tripping through each serialization format.
+        """
         dt = datetime.datetime(2011, 9, 1, 10, 20, 30, tzinfo=UTC)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -859,6 +1036,9 @@ class SerializationTests(SimpleTestCase):
             self.assertEqual(obj.dt.replace(tzinfo=UTC), dt)
 
     def test_aware_datetime_in_local_timezone(self):
+        """
+        Tests that datetime objects in a specific timezone are correctly serialized and deserialized using various serialization formats (python, json, xml, yaml).
+        """
         dt = datetime.datetime(2011, 9, 1, 13, 20, 30, tzinfo=EAT)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -890,6 +1070,13 @@ class SerializationTests(SimpleTestCase):
                 self.assertEqual(obj.dt, dt)
 
     def test_aware_datetime_in_other_timezone(self):
+        """
+
+        Tests serialization and deserialization of timezone-aware datetime objects 
+        across different formats (Python, JSON, XML, and YAML), ensuring accurate 
+        representation and preservation of datetime information.
+
+        """
         dt = datetime.datetime(2011, 9, 1, 17, 20, 30, tzinfo=ICT)
 
         data = serializers.serialize("python", [Event(dt=dt)])
@@ -1140,6 +1327,10 @@ class TemplateTests(SimpleTestCase):
             self.assertEqual(tpl.render(Context({"tz": ICT})), "+0700")
 
     def test_get_current_timezone_templatetag_with_iana(self):
+        """
+        Tests the get_current_timezone templatetag to ensure it correctly retrieves the current timezone.\"\"\"
+        ```
+        """
         tpl = Template(
             "{% load tz %}{% get_current_timezone as time_zone %}{{ time_zone }}"
         )
@@ -1177,6 +1368,10 @@ class TemplateTests(SimpleTestCase):
 
     @requires_tz_support
     def test_date_and_time_template_filters(self):
+        """
+        Tests the correct application of date and time template filters to a datetime object, 
+        ensuring proper rendering across different time zones.
+        """
         tpl = Template("{{ dt|date:'Y-m-d' }} at {{ dt|time:'H:i:s' }}")
         ctx = Context({"dt": datetime.datetime(2011, 9, 1, 20, 20, 20, tzinfo=UTC)})
         self.assertEqual(tpl.render(ctx), "2011-09-01 at 23:20:20")
@@ -1184,6 +1379,9 @@ class TemplateTests(SimpleTestCase):
             self.assertEqual(tpl.render(ctx), "2011-09-02 at 03:20:20")
 
     def test_date_and_time_template_filters_honor_localtime(self):
+        """
+        Tests that date and time template filters honor the localtime setting, verifying that datetime objects are rendered correctly regardless of the active timezone.
+        """
         tpl = Template(
             "{% load tz %}{% localtime off %}{{ dt|date:'Y-m-d' }} at "
             "{{ dt|time:'H:i:s' }}{% endlocaltime %}"
@@ -1212,6 +1410,9 @@ class LegacyFormsTests(TestCase):
         )
 
     def test_form_with_non_existent_time(self):
+        """
+        Test the EventForm validation with a time that does not exist due to daylight saving time changes, ensuring the form correctly handles the non-existent time when using a specific time zone.
+        """
         form = EventForm({"dt": "2011-03-27 02:30:00"})
         tz = zoneinfo.ZoneInfo("Europe/Paris")
         with timezone.override(tz):
@@ -1223,6 +1424,9 @@ class LegacyFormsTests(TestCase):
             )
 
     def test_form_with_ambiguous_time(self):
+        """
+        Tests that an EventForm handles ambiguous times during a daylight saving time transition correctly, ensuring the form is valid and the time is interpreted correctly in the given timezone.
+        """
         form = EventForm({"dt": "2011-10-30 02:30:00"})
         tz = zoneinfo.ZoneInfo("Europe/Paris")
         with timezone.override(tz):
@@ -1267,6 +1471,11 @@ class NewFormsTests(TestCase):
             )
 
     def test_form_with_non_existent_time(self):
+        """
+        ounces 
+            Tests an EventForm instance with a date and time that does not exist in a given time zone, 
+            verifying that the form is invalid and provides an appropriate error message.
+        """
         tz = zoneinfo.ZoneInfo("Europe/Paris")
         with timezone.override(tz):
             form = EventForm({"dt": "2011-03-27 02:30:00"})
@@ -1280,6 +1489,9 @@ class NewFormsTests(TestCase):
             )
 
     def test_form_with_ambiguous_time(self):
+        """
+        Tests the handling of ambiguous time in the EventForm by attempting to validate a date and time that falls within a daylight saving time transition period in the 'Europe/Paris' time zone.
+        """
         tz = zoneinfo.ZoneInfo("Europe/Paris")
         with timezone.override(tz):
             form = EventForm({"dt": "2011-10-30 02:30:00"})
@@ -1378,6 +1590,9 @@ class AdminTests(TestCase):
         self.assertContains(response, e.dt.astimezone(EAT).time().isoformat())
 
     def test_change_editable_in_other_timezone(self):
+        """
+        Tests the display of an event's datetime in the admin interface when the timezone is set to ICT, ensuring the date and time are correctly converted and displayed.
+        """
         e = Event.objects.create(
             dt=datetime.datetime(2011, 9, 1, 10, 20, 30, tzinfo=UTC)
         )

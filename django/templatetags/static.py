@@ -40,6 +40,12 @@ class PrefixNode(template.Node):
 
     @classmethod
     def handle_simple(cls, name):
+        """
+        Return a prefix based on the value of a setting in Django's configuration.
+
+        The prefix is derived from the value of the setting specified by `name`. If 
+        Django's configuration is not available, an empty prefix is returned.
+        """
         try:
             from django.conf import settings
         except ImportError:
@@ -49,6 +55,14 @@ class PrefixNode(template.Node):
         return prefix
 
     def render(self, context):
+        """
+        Renders the name of an object, optionally storing the result in a context variable.
+
+        The rendered name can be used directly if no variable name is specified, otherwise it is stored in the context for later use.
+
+        :param context: Dictionary to store the rendered name if a variable name is provided
+        :returns: The rendered name if no variable name is specified, otherwise an empty string
+        """
         prefix = self.handle_simple(self.name)
         if self.varname is None:
             return prefix
@@ -113,6 +127,9 @@ class StaticNode(template.Node):
         return self.handle_simple(path)
 
     def render(self, context):
+        """
+        Render a URL in the given context, optionally escaping it and storing it in a variable.
+        """
         url = self.url(context)
         if context.autoescape:
             url = conditional_escape(url)
@@ -123,6 +140,12 @@ class StaticNode(template.Node):
 
     @classmethod
     def handle_simple(cls, path):
+        """
+        Return the URL for a static file at the given path.
+
+        Uses Django's staticfiles storage if available, otherwise constructs a URL manually.
+
+        """
         if apps.is_installed("django.contrib.staticfiles"):
             from django.contrib.staticfiles.storage import staticfiles_storage
 

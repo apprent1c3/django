@@ -366,6 +366,9 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_complex_multi_apps(self):
+        """
+        Test the migration loader's ability to plan a migration pathway for squashed complex migrations across multiple apps, ensuring it correctly handles dependencies and squashed migrations to produce the expected migration plan.
+        """
         loader = MigrationLoader(connection)
         loader.build_graph()
 
@@ -393,6 +396,14 @@ class LoaderTests(TestCase):
         }
     )
     def test_loading_squashed_complex_multi_apps_partially_applied(self):
+        """
+
+        Tests the loading of squashed migrations for multiple apps when some migrations are partially applied.
+
+        Verifies that the migration plan is correctly generated for an app with incomplete migration history,
+        considering dependencies between apps and the applied state of migrations.
+
+        """
         loader = MigrationLoader(connection)
         recorder = MigrationRecorder(connection)
         self.record_applied(recorder, "app1", "1_auto")
@@ -472,6 +483,9 @@ class LoaderTests(TestCase):
         INSTALLED_APPS=["migrations"],
     )
     def test_check_consistent_history(self):
+        """
+        Verifies that the migration history is consistent by checking for applied migrations that are out of order with respect to their dependencies.
+        """
         loader = MigrationLoader(connection=None)
         loader.check_consistent_history(connection)
         recorder = MigrationRecorder(connection)

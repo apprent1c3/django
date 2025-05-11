@@ -161,6 +161,29 @@ def get_label_module(label):
 
 
 def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=None):
+    """
+    Filters test modules based on the given parameters.
+
+    This function generates a sequence of test module names that match the specified conditions. 
+    It checks for GIS database backend requirements, and filters modules based on the provided labels, 
+    start at and start after conditions.
+
+    Parameters
+    ----------
+    start_at : str
+        The module to start scanning from (inclusive).
+    start_after : str
+        The module to start scanning after (exclusive).
+    gis_enabled : bool
+        Whether GIS database backend is enabled.
+    test_labels : list[str], optional
+        List of labels to filter test modules by (default is an empty list).
+
+    Yields
+    ------
+    str
+        The names of the filtered test modules.
+    """
     if test_labels is None:
         test_labels = []
     # Reduce each test label to just the top-level module part.
@@ -199,6 +222,9 @@ def get_filtered_test_modules(start_at, start_after, gis_enabled, test_labels=No
 
 
 def setup_collect_tests(start_at, start_after, test_labels=None):
+    """
+    Setup the Django environment for collecting tests, altering key settings and returning a list of test modules and the initial state of the settings for potential restoration later.
+    """
     state = {
         "INSTALLED_APPS": settings.INSTALLED_APPS,
         "ROOT_URLCONF": getattr(settings, "ROOT_URLCONF", ""),
@@ -280,6 +306,11 @@ def get_installed():
 # This function should be called only after calling django.setup(),
 # since it calls connection.features.gis_enabled.
 def get_apps_to_install(test_modules):
+    """
+    Generates a list of Django applications to install based on the provided test modules. 
+    This includes the test modules themselves and any associated applications defined in CONTRIB_TESTS_TO_APPS. 
+    Additionally, if the database connection supports GIS, 'django.contrib.gis' is also included.
+    """
     for test_module in test_modules:
         if test_module in CONTRIB_TESTS_TO_APPS:
             yield from CONTRIB_TESTS_TO_APPS[test_module]
@@ -292,6 +323,20 @@ def get_apps_to_install(test_modules):
 
 
 def setup_run_tests(verbosity, start_at, start_after, test_labels=None):
+    """
+
+    Sets up the environment to run tests.
+
+     Prepares the test suite by installing required applications, configuring
+     the test runner and setting test labels. Returns the test labels and state.
+
+     :param verbosity: Level of detail in test output
+     :param start_at: Starting point for test collection
+     :param start_after: Point to start test collection after
+     :param test_labels: Optional list of test labels to filter tests
+     :return: A tuple containing test labels and test state
+
+    """
     test_modules, state = setup_collect_tests(
         start_at, start_after, test_labels=test_labels
     )
@@ -342,6 +387,19 @@ class ActionSelenium(argparse.Action):
     """
 
     def __call__(self, parser, namespace, values, option_string=None):
+        """
+        Validates and configures the list of Selenium browsers to be used.
+
+        Checks if the selenium module is available and then attempts to import the
+        specified webdrivers for the given browsers. If any browser specification is
+        invalid, raises an error. Successfully validated browser list is stored in the
+        namespace.
+
+        :param parser: The argparse parser instance.
+        :param namespace: The argparse namespace instance.
+        :param values: A comma-separated list of browser specifications.
+        :param option_string: The option string that triggered this action (optional).
+        """
         try:
             import selenium  # NOQA
         except ImportError as e:
@@ -377,6 +435,33 @@ def django_tests(
     shuffle,
     durations=None,
 ):
+    """
+    Run Django tests with customizable options.
+
+    Run Django tests with specified verbosity, interactive mode, and test labels,
+    supporting features like parallel testing, test filtering, and debugging.
+
+    :param verbosity: Sets the level of detail in test output
+    :param interactive: Whether to run tests in interactive mode
+    :param failfast: Whether to stop running tests after the first failure
+    :param keepdb: Whether to preserve the test database after running tests
+    :param reverse: Whether to run tests in reverse order
+    :param test_labels: List of test labels to run
+    :param debug_sql: Whether to enable SQL debugging
+    :param parallel: Number of processes to use for parallel testing
+    :param tags: List of tags to include in test filtering
+    :param exclude_tags: List of tags to exclude from test filtering
+    :param test_name_patterns: Patterns to match test names
+    :param start_at: Starting index for test discovery
+    :param start_after: Starting index for test discovery (including the specified test)
+    :param pdb: Whether to break into the debugger on errors
+    :param buffer: Whether to buffer test output
+    :param timing: Whether to display test timing
+    :param shuffle: Whether to shuffle the test order
+    :param durations: Optional list of test durations
+    :returns: Number of test failures
+
+    """
     if parallel in {0, "auto"}:
         max_parallel = get_max_test_processes()
     else:
@@ -435,6 +520,9 @@ def collect_test_modules(start_at, start_after):
 
 
 def get_subprocess_args(options):
+    """
+    Constructs a list of subprocess arguments for executing a Python script with specified options, including settings, failfast, verbosity, interaction, tags, and shuffle settings.
+    """
     subprocess_args = [sys.executable, __file__, "--settings=%s" % options.settings]
     if options.failfast:
         subprocess_args.append("--failfast")
@@ -455,6 +543,24 @@ def get_subprocess_args(options):
 
 
 def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
+    """
+
+    Perform a binary search on a test suite to identify the source of a failure.
+
+    This function takes a set of test labels and iteratively splits them in half, running each half as a subprocess,
+    until it finds a single test label that causes the failure.
+
+    Parameters:
+        bisection_label (str): The label of the test that is being bisected.
+        options (dict): Options for the subprocess run.
+        test_labels (list): A list of test labels to bisect. If empty, tests are collected based on start_at and start_after.
+        start_at (str): Starting point for collecting tests if test_labels is empty.
+        start_after (str): Point after which to start collecting tests if test_labels is empty.
+
+    Returns:
+        None
+
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 
@@ -504,6 +610,24 @@ def bisect_tests(bisection_label, options, test_labels, start_at, start_after):
 
 
 def paired_tests(paired_test, options, test_labels, start_at, start_after):
+    """
+
+    Perform paired testing to identify problematic test pairs.
+
+    This function runs a specified test in combination with other tests to detect any
+    interference or failures between them. It filters out the specified paired test
+    and 'model_inheritance_same_model_name' from the test labels to avoid self-pairing.
+    If a test pair fails, the function immediately stops and reports the problematic
+    pair; otherwise, it completes all paired tests and reports that no issues were found.
+
+    :param paired_test: The test to be paired with other tests.
+    :param options: Options for subprocess execution.
+    :param test_labels: List of test labels to pair with; if empty, collects test
+        labels using the start_at and start_after criteria.
+    :param start_at: Starting point for collecting test labels.
+    :param start_after: Starting point for collecting test labels, to begin after the specified point.
+
+    """
     if not test_labels:
         test_labels = collect_test_modules(start_at, start_after)
 

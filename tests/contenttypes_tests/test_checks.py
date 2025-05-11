@@ -14,6 +14,9 @@ class GenericForeignKeyTests(SimpleTestCase):
     databases = "__all__"
 
     def test_missing_content_type_field(self):
+        """
+        Tests that a GenericForeignKey raises an error when the related model is missing a 'content_type' field.
+        """
         class TaggedItem(models.Model):
             # no content_type field
             object_id = models.PositiveIntegerField()
@@ -30,6 +33,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         self.assertEqual(TaggedItem.content_object.check(), expected)
 
     def test_invalid_content_type_field(self):
+        """
+        Tests that a GenericForeignKey raises an error when its 'content_type' field is not a ForeignKey to 'contenttypes.ContentType'.
+        """
         class Model(models.Model):
             content_type = models.IntegerField()  # should be ForeignKey
             object_id = models.PositiveIntegerField()
@@ -51,6 +57,11 @@ class GenericForeignKeyTests(SimpleTestCase):
         )
 
     def test_content_type_field_pointing_to_wrong_model(self):
+        """
+        Tests that a GenericForeignKey's content_type field must point to ContentType model.
+
+        Verifies that the check for a content_type field pointing to a model other than 'contenttypes.ContentType' raises the expected error.
+        """
         class Model(models.Model):
             content_type = models.ForeignKey(
                 "self", models.CASCADE
@@ -93,6 +104,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         )
 
     def test_field_name_ending_with_underscore(self):
+        """
+        Tests that a FieldError is raised when a field name ends with an underscore in a model's GenericForeignKey field.
+        """
         class Model(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -117,6 +131,9 @@ class GenericForeignKeyTests(SimpleTestCase):
         ]
     )
     def test_generic_foreign_key_checks_are_performed(self):
+        """
+        _TESTS whether generic foreign key checks are performed by verifying that the check method of GenericForeignKey is called._
+        """
         class Model(models.Model):
             content_object = GenericForeignKey()
 
@@ -128,6 +145,9 @@ class GenericForeignKeyTests(SimpleTestCase):
 @isolate_apps("contenttypes_tests")
 class GenericRelationTests(SimpleTestCase):
     def test_valid_generic_relationship(self):
+        """
+        Tests that a generic relationship between two models is correctly established and validated, ensuring the integrity of the relationship.
+        """
         class TaggedItem(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -139,6 +159,9 @@ class GenericRelationTests(SimpleTestCase):
         self.assertEqual(Bookmark.tags.field.check(), [])
 
     def test_valid_generic_relationship_with_explicit_fields(self):
+        """
+        Tests the validity of a generic relationship with explicit fields defined in the model, ensuring that it can be correctly established between different models without raising any errors.
+        """
         class TaggedItem(models.Model):
             custom_content_type = models.ForeignKey(ContentType, models.CASCADE)
             custom_object_id = models.PositiveIntegerField()
@@ -172,6 +195,9 @@ class GenericRelationTests(SimpleTestCase):
         )
 
     def test_valid_self_referential_generic_relationship(self):
+        """
+        Tests that a self-referential generic relationship on a model is valid.
+        """
         class Model(models.Model):
             rel = GenericRelation("Model")
             content_type = models.ForeignKey(ContentType, models.CASCADE)
@@ -181,6 +207,9 @@ class GenericRelationTests(SimpleTestCase):
         self.assertEqual(Model.rel.field.check(), [])
 
     def test_missing_generic_foreign_key(self):
+        """
+        Tests that a GenericRelation raises an error when the related model is missing a GenericForeignKey.
+        """
         class TaggedItem(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()
@@ -203,6 +232,9 @@ class GenericRelationTests(SimpleTestCase):
 
     @override_settings(TEST_SWAPPED_MODEL="contenttypes_tests.Replacement")
     def test_pointing_to_swapped_model(self):
+        """
+        Tests that a GenericRelation raises an error when its model is swapped out, ensuring that the relation needs to be updated to reference the swapped model.
+        """
         class Replacement(models.Model):
             pass
 
@@ -234,6 +266,13 @@ class GenericRelationTests(SimpleTestCase):
         )
 
     def test_field_name_ending_with_underscore(self):
+        """
+        Tests that a field name ending with an underscore is properly validated as an error.\"\"\"
+        \"\"\" 
+            Verifies the check that prevents model field names from ending with an underscore, 
+            specifically with GenericRelation fields.
+
+        """
         class TaggedItem(models.Model):
             content_type = models.ForeignKey(ContentType, models.CASCADE)
             object_id = models.PositiveIntegerField()

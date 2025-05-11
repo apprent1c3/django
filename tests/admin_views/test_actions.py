@@ -55,6 +55,13 @@ class AdminActionsTest(TestCase):
         self.assertEqual(mail.outbox[0].subject, "Greetings from a ModelAdmin action")
 
     def test_model_admin_default_delete_action(self):
+        """
+        Tests the default delete action functionality in the model admin interface.
+
+        Verifies that the delete confirmation page is correctly displayed and that the selected items are actually deleted when confirmed.
+
+        Ensures that the deletion process updates the database correctly and does not leave any orphaned records.
+        """
         action_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk, self.s2.pk],
             "action": "delete_selected",
@@ -95,6 +102,15 @@ class AdminActionsTest(TestCase):
         self.assertEqual(Subscriber.objects.count(), 0)
 
     def test_default_delete_action_nonexistent_pk(self):
+        """
+        Tests the default delete action on a nonexistent primary key in the admin interface.\"\"\"
+
+         \"\"\" 
+            Verifies that the system correctly handles deletion of non-existent subscriber records, 
+            ensuring that the confirmation page is displayed and the selection of nonexistent records 
+            is properly handled.
+
+        """
         self.assertFalse(Subscriber.objects.filter(id=9998).exists())
         action_data = {
             ACTION_CHECKBOX_NAME: ["9998"],
@@ -193,6 +209,10 @@ class AdminActionsTest(TestCase):
         )
 
     def test_delete_queryset_hook(self):
+        """
+        Tests the override hook function when deleting a queryset of subscribers, 
+        verifying that the hook is triggered and all subscribers are successfully deleted.
+        """
         delete_confirmation_data = {
             ACTION_CHECKBOX_NAME: [self.s1.pk, self.s2.pk],
             "action": "delete_selected",
@@ -439,6 +459,9 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_response_on_change(self):
+        """
+        Tests the response of the popup template when the actor instance is changed, ensuring it returns a 200 status code and uses the correct popup response template.
+        """
         instance = Actor.objects.create(name="David Tennant", age=45)
         response = self.client.post(
             reverse("admin:admin_views_actor_change", args=(instance.pk,))
@@ -457,6 +480,14 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_response_on_delete(self):
+        """
+
+        Tests that the popup template is correctly used when deleting an object.
+
+        Verifies that the delete operation returns a successful response and uses the 
+        expected popup response template.
+
+        """
         instance = Actor.objects.create(name="David Tennant", age=45)
         response = self.client.post(
             reverse("admin:admin_views_actor_delete", args=(instance.pk,))
@@ -475,6 +506,9 @@ action)</option>
         self.assertTemplateUsed(response, "admin/popup_response.html")
 
     def test_popup_template_escaping(self):
+        """
+        Tests that HTML escaping is correctly applied to popup response template variables, ensuring special characters are properly encoded to prevent XSS vulnerabilities.
+        """
         popup_response_data = json.dumps(
             {
                 "new_value": "new_value\\",
@@ -495,6 +529,9 @@ action)</option>
 class AdminActionsPermissionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating external subscribers, a subscriber, and a user with staff permissions to modify subscribers.
+        """
         cls.s1 = ExternalSubscriber.objects.create(
             name="John Doe", email="john@example.org"
         )

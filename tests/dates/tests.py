@@ -10,6 +10,9 @@ from .models import Article, Category, Comment
 
 class DatesTests(TestCase):
     def test_related_model_traverse(self):
+        """
+        Tests traversal of related model dates, specifically verifying that the dates method correctly retrieves dates from related models, including nested relationships and various date truncations, such as year, month, week, and day.
+        """
         a1 = Article.objects.create(
             title="First one",
             pub_date=datetime.date(2005, 7, 28),
@@ -133,6 +136,11 @@ class DatesTests(TestCase):
 
     @skipUnless(connection.vendor == "mysql", "Test checks MySQL query syntax")
     def test_dates_avoid_datetime_cast(self):
+        """
+        Tests that date queries avoid unnecessary datetime casts on MySQL.
+
+         Verifies the correct SQL syntax is used when retrieving dates by day, month, or year
+        """
         Article.objects.create(pub_date=datetime.date(2015, 10, 21))
         for kind in ["day", "month", "year"]:
             qs = Article.objects.dates("pub_date", kind)

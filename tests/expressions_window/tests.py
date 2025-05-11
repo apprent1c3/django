@@ -95,6 +95,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_dense_rank(self):
+        """
+        Tests the application of a dense rank to a query set of employees ordered by hire year, ensuring the assigned rank is correct. The test covers various ways to specify the order, including using an expression, a field lookup, or a string. It verifies that employees with the same hire year receive the same rank, and the rank increments correctly for employees with different hire years.
+        """
         tests = [
             ExtractYear(F("hire_date")).asc(),
             F("hire_date__year").asc(),
@@ -939,6 +942,12 @@ class WindowFunctionTests(TestCase):
         self.assertEqual(qs.count(), 12)
 
     def test_filter(self):
+        """
+        Tests the filtering of employee querysets based on custom window annotations.
+
+        The test validates the correct application of filters on the 'department_salary_rank' and 'department_avg_age_diff' annotations, 
+        including individual and combined filtering using logical operators.
+        """
         qs = Employee.objects.annotate(
             department_salary_rank=Window(
                 Rank(), partition_by="department", order_by="-salary"
@@ -1074,6 +1083,9 @@ class WindowFunctionTests(TestCase):
             qs[0].classification
 
     def test_exclude(self):
+        """
+        Tests the exclude method of a queryset, ensuring it correctly filters out employees based on various conditions, including department salary rank and average age difference.
+        """
         qs = Employee.objects.annotate(
             department_salary_rank=Window(
                 Rank(), partition_by="department", order_by="-salary"
@@ -1120,6 +1132,9 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_heterogeneous_filter(self):
+        """
+        Tests filtering of annotated querysets with mixed conditions, including window functions and related model fields.
+        """
         qs = (
             Employee.objects.annotate(
                 department_salary_rank=Window(
@@ -1184,6 +1199,14 @@ class WindowFunctionTests(TestCase):
         )
 
     def test_filter_count(self):
+        """
+
+        Tests the annotated count of employees with the highest salary in each department.
+
+        Verifies that the database query is optimized, using a single query with a window function,
+        and checks the expected number of sub-queries and absence of unnecessary grouping.
+
+        """
         with CaptureQueriesContext(connection) as ctx:
             self.assertEqual(
                 Employee.objects.annotate(
@@ -1738,6 +1761,15 @@ class WindowFunctionTests(TestCase):
 
     @skipUnlessDBFeature("supports_json_field")
     def test_key_transform(self):
+        """
+        Tests the functionality of window functions with key transformation in JSON fields.
+
+        Verifies that key transformation works correctly when used in window functions,
+        such as summing values partitioned by specific keys within JSON fields, and ordering
+        the results based on those keys or their transformed values.
+
+        The test checks the correctness of the results for various partitioning and ordering configurations.
+        """
         Detail.objects.bulk_create(
             [
                 Detail(value={"department": "IT", "name": "Smith", "salary": 37000}),
@@ -1906,6 +1938,11 @@ class WindowFunctionTests(TestCase):
             )
 
     def test_invalid_filter(self):
+        """
+        Tests the conditional aggregation of querysets that include window functions, 
+        verifying that attempting to filter with heterogeneous disjunctive predicates 
+        raises a NotImplementedError with the expected message.
+        """
         msg = (
             "Heterogeneous disjunctive predicates against window functions are not "
             "implemented when performing conditional aggregation."
@@ -1961,6 +1998,12 @@ class NonQueryWindowTests(SimpleTestCase):
         )
 
     def test_window_frame_repr(self):
+        """
+        Tests that the string representations of window frames are correctly generated.
+
+        This test case ensures that the repr() method of RowRange and ValueRange classes
+        returns the expected string representation for various window frame configurations.
+        """
         self.assertEqual(
             repr(RowRange(start=-1)),
             "<RowRange: ROWS BETWEEN 1 PRECEDING AND UNBOUNDED FOLLOWING>",

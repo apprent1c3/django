@@ -15,6 +15,9 @@ class Jinja2(BaseEngine):
     app_dirname = "jinja2"
 
     def __init__(self, params):
+        """
+        Initializes the templating engine with the given parameters, configuring the environment and context processors for rendering templates.
+        """
         params = params.copy()
         options = params.pop("OPTIONS").copy()
         super().__init__(params)
@@ -38,6 +41,12 @@ class Jinja2(BaseEngine):
         return Template(self.env.from_string(template_code), self)
 
     def get_template(self, template_name):
+        """
+        Retrieves a template by its name, rendering it using the Jinja2 templating engine. 
+        If the template does not exist, it raises a :class:`TemplateDoesNotExist` exception.
+        If the template contains syntax errors, it raises a :class:`TemplateSyntaxError` exception 
+        with additional debug information.
+        """
         try:
             return Template(self.env.get_template(template_name), self)
         except jinja2.TemplateNotFound as exc:
@@ -62,6 +71,15 @@ class Template:
         )
 
     def render(self, context=None, request=None):
+        """
+        ```render(context=None, request=None)
+        Renders the associated template with the provided context and request.
+
+        :param context: Dictionary of values to be used in the template rendering.
+        :param request: Request object to be used for populating the context.
+        :raises TemplateSyntaxError: If the template contains invalid syntax.
+        :return: Rendered template result```
+        """
         if context is None:
             context = {}
         if request is not None:

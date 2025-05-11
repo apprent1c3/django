@@ -51,6 +51,12 @@ class ReverseTests(TestCase):
             )
 
     def test_expressions(self):
+        """
+        Tests the functionality of database lookup expressions.
+
+        Verifies that custom database lookup functions can be correctly applied to model fields,
+        allowing for complex queries such as filtering based on the length of reversed strings.
+        """
         author = Author.objects.annotate(backward=Reverse(Trim("name"))).get(
             pk=self.john.pk
         )

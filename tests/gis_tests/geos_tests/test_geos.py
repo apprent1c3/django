@@ -41,6 +41,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
                 self.assertEqual(g.ewkt, geom.wkt)
 
     def test_wkt_invalid(self):
+        """
+        Tests that the fromstr function raises a ValueError when given invalid WKT EWKT or HEXEWKB strings, including those containing non-ASCII characters.
+        """
         msg = "String input unrecognized as WKT EWKT, and HEXEWKB."
         with self.assertRaisesMessage(ValueError, msg):
             fromstr("POINT(٠٠١ ٠)")
@@ -206,6 +209,10 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             self.assertIsNot(g, False)
 
     def test_hash(self):
+        """
+        Tests the consistency of hash values for geometric points and multipoints, 
+        verifying that points and multipoints with different SRIDs or types have distinct hash values.
+        """
         point_1 = Point(5, 23)
         point_2 = Point(5, 23, srid=4326)
         point_3 = Point(5, 23, srid=32632)
@@ -305,6 +312,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
 
     @mock.patch("django.contrib.gis.geos.libgeos.geos_version", lambda: b"3.11.0")
     def test_equals_identical_geos_version(self):
+        """
+        Tests that GEOSGeometry.equals_identical raises a GEOSException when the GEOS version is less than 3.12.0.
+        """
         g1 = fromstr("POINT (1 2 3)")
         g2 = fromstr("POINT (1 2 3)")
         msg = "GEOSGeometry.equals_identical() requires GEOS >= 3.12.0"
@@ -464,6 +474,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_is_counterclockwise(self):
+        """
+        Tests whether a LinearRing's orientation is counterclockwise. Verifies proper determination of orientation for non-empty rings and raises an error for empty rings.
+        """
         lr = LinearRing((0, 0), (1, 0), (0, 1), (0, 0))
         self.assertIs(lr.is_counterclockwise, True)
         lr.reverse()
@@ -473,6 +486,11 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             LinearRing().is_counterclockwise
 
     def test_is_counterclockwise_geos_error(self):
+        """
+
+        Tests that a GEOSException is raised when LinearRing.is_counterclockwise encounters an error in the GEOS C function \"GEOSCoordSeq_isCCW\".
+
+        """
         with mock.patch("django.contrib.gis.geos.prototypes.cs_is_ccw") as mocked:
             mocked.return_value = 0
             mocked.func_name = "GEOSCoordSeq_isCCW"
@@ -631,6 +649,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
 
     def test_polygons_templates(self):
         # Accessing Polygon attributes in templates should work.
+        """
+        Tests rendering of polygons templates using a provided geometry.
+        """
         engine = Engine()
         template = engine.from_string("{{ polygons.0.wkt }}")
         polygons = [fromstr(p.wkt) for p in self.geometries.multipolygons[:2]]
@@ -638,6 +659,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertIn("MULTIPOLYGON (((100", content)
 
     def test_polygon_comparison(self):
+        """
+        Tests the comparison of Polygon objects based on their areas, ensuring that polygons with larger areas are considered greater than those with smaller areas.
+        """
         p1 = Polygon(((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)))
         p2 = Polygon(((0, 0), (0, 1), (1, 0), (0, 0)))
         self.assertGreater(p1, p2)
@@ -801,6 +825,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             self.assertTrue(d1.equals(a))
 
     def test_buffer(self):
+        """
+        Tests the geometrical buffer functionality, ensuring it correctly handles invalid input parameters and applies the buffer operation to a list of geometries.
+        """
         bg = self.geometries.buffer_geoms[0]
         g = fromstr(bg.wkt)
 
@@ -811,6 +838,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self._test_buffer(self.geometries.buffer_geoms, "buffer")
 
     def test_buffer_with_style(self):
+        """
+        Tests the buffer_with_style method by providing invalid parameters, checking for expected errors, and verifying correct functionality with valid inputs.
+        """
         bg = self.geometries.buffer_with_style_geoms[0]
         g = fromstr(bg.wkt)
 
@@ -840,6 +870,18 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         )
 
     def _test_buffer(self, geometries, buffer_method_name):
+        """
+        Tests the specified buffer method on a set of geometries.
+
+            Validates the output of the buffer method against expected results.
+            Verifies that the number of coordinates, rings, and ring lengths match,
+            and that the coordinates of the resulting buffer are numerically close
+            to the expected values.
+
+            :param geometries: List of geometries to test
+            :param buffer_method_name: Name of the buffer method to test
+
+        """
         for bg in geometries:
             g = fromstr(bg.wkt)
 
@@ -1031,6 +1073,10 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         # del mpoly
 
     def test_point_list_assignment(self):
+        """
+        Tests the assignment of a list of coordinates to a Point object, ensuring 
+        correct handling of valid and invalid input lengths, including edge cases.
+        """
         p = Point(0, 0)
 
         p[:] = (1, 2, 3)
@@ -1048,6 +1094,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             p[:] = (1, 2, 3, 4, 5)
 
     def test_linestring_list_assignment(self):
+        """
+        Tests the list assignment behavior of LineString objects, verifying that slice assignment updates the object's coordinates correctly and raises an error for invalid input.
+        """
         ls = LineString((0, 0), (1, 1))
 
         ls[:] = ()
@@ -1060,6 +1109,15 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             ls[:] = (1,)
 
     def test_linearring_list_assignment(self):
+        """
+
+        Tests that list assignment functionality for LinearRing objects behaves correctly.
+
+        It verifies that assigning an empty iterable clears the ring, assigning a valid 
+        polygon coordinate sequence updates the ring correctly, and assigning an invalid 
+        sequence (i.e., one that does not form a ring) raises a ValueError.
+
+        """
         ls = LinearRing((0, 0), (0, 1), (1, 1), (0, 0))
 
         ls[:] = ()
@@ -1072,6 +1130,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             ls[:] = ((0, 0), (1, 1), (2, 2))
 
     def test_polygon_list_assignment(self):
+        """
+        Tests the list assignment functionality of the Polygon class, verifying that it correctly sets and clears the polygon's coordinates.
+        """
         pol = Polygon()
 
         pol[:] = (((0, 0), (0, 1), (1, 1), (1, 0), (0, 0)),)
@@ -1086,6 +1147,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(pol, Polygon())
 
     def test_geometry_collection_list_assignment(self):
+        """
+        Tests the assignment of a list of geometries to a GeometryCollection instance using slice notation.
+        """
         p = Point()
         gc = GeometryCollection()
 
@@ -1204,6 +1268,11 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
                     g.__getitem__(0)
 
     def test_collection_dims(self):
+        """
+
+        Tests the dimensions of a GeometryCollection based on its contents.
+
+        """
         gc = GeometryCollection([])
         self.assertEqual(gc.dims, -1)
 
@@ -1542,6 +1611,14 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         )
 
     def test_geos_version_tuple(self):
+        """
+        Tests the geos_version_tuple function with various geos version strings.
+
+        The function is being tested to ensure it correctly parses the geos version string and returns the expected version tuple.
+
+        The test cases cover different version strings, including release candidates, development versions, and versions with additional information.
+
+        """
         versions = (
             (b"3.0.0rc4-CAPI-1.3.3", (3, 0, 0)),
             (b"3.0.0-CAPI-1.4.1", (3, 0, 0)),
@@ -1575,6 +1652,10 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(GEOSGeometry.from_ewkt("POINT(1 1)"), Point(1, 1))
 
     def test_from_ewkt_empty_string(self):
+        """
+        Tests that :class:`GEOSGeometry.from_ewkt` raises a :class:`ValueError` when 
+        given an empty string or an empty WKT string with SRID information.
+        """
         msg = "Expected WKT but got an empty string."
         with self.assertRaisesMessage(ValueError, msg):
             GEOSGeometry.from_ewkt("")
@@ -1582,6 +1663,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
             GEOSGeometry.from_ewkt("SRID=1;")
 
     def test_from_ewkt_invalid_srid(self):
+        """
+        Tests that from_ewkt raises an error when given an invalid SRID part in the input string
+        """
         msg = "EWKT has invalid SRID part."
         with self.assertRaisesMessage(ValueError, msg):
             GEOSGeometry.from_ewkt("SRUD=1;POINT(1 1)")
@@ -1592,6 +1676,12 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(GEOSGeometry("POINT(1.0e-1 1.0e+1)"), Point(0.1, 10))
 
     def test_normalize(self):
+        """
+
+        Tests the normalization of a MultiPoint object, ensuring that points are ordered 
+        correctly and the original object is optionally cloned during the process.
+
+        """
         multipoint = MultiPoint(Point(0, 0), Point(2, 2), Point(1, 1))
         normalized = MultiPoint(Point(2, 2), Point(1, 1), Point(0, 0))
         # Geometry is normalized in-place and nothing is returned.
@@ -1605,6 +1695,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertNotEqual(multipoint, normalized)
 
     def test_make_valid(self):
+        """
+        Tests the creation of a valid polygon geometry from an invalid one.
+        """
         poly = GEOSGeometry("POLYGON((0 0, 0 23, 23 0, 23 23, 0 0))")
         self.assertIs(poly.valid, False)
         valid_poly = poly.make_valid()
@@ -1616,6 +1709,16 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(valid_poly, valid_poly2)
 
     def test_empty_point(self):
+        """
+
+        Tests the initialization and transformation of an empty Point object.
+
+        Verifies that the object's EWKT representation is consistent and that
+        transforming the point to a different spatial reference system (SRID)
+        produces the expected results, both when cloning the object and when
+        modifying it in-place.
+
+        """
         p = Point(srid=4326)
         self.assertEqual(p.ogr.ewkt, p.ewkt)
 
@@ -1624,6 +1727,9 @@ class GEOSTest(SimpleTestCase, TestDataMixin):
         self.assertEqual(p, Point(srid=2774))
 
     def test_linestring_iter(self):
+        """
+        Tests that iterating over a LineString raises an IndexError after its contents are modified.
+        """
         ls = LineString((0, 0), (1, 1))
         it = iter(ls)
         # Step into CoordSeq iterator.

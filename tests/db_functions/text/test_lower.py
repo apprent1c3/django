@@ -8,6 +8,13 @@ from ..models import Author
 
 class LowerTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests whether the Lower database function works as expected with the Author model.
+
+        Verifies that authors can be ordered and updated by lower case names.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(lower_name=Lower("name"))
@@ -31,6 +38,9 @@ class LowerTests(TestCase):
             Author.objects.update(name=Lower("name", "name"))
 
     def test_transform(self):
+        """
+        Tests the transformation of a character field to lowercase using a lookup registration.
+        """
         with register_lookup(CharField, Lower):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

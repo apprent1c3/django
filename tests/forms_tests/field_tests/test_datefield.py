@@ -13,6 +13,13 @@ class GetDate(Form):
 
 class DateFieldTest(SimpleTestCase):
     def test_form_field(self):
+        """
+
+        Tests the functionality of a form field used to input dates.
+
+        Verifies that valid dates are correctly parsed and invalid dates raise appropriate errors.
+
+        """
         a = GetDate({"mydate_month": "4", "mydate_day": "1", "mydate_year": "2008"})
         self.assertTrue(a.is_valid())
         self.assertEqual(a.cleaned_data["mydate"], date(2008, 4, 1))
@@ -138,6 +145,9 @@ class DateFieldTest(SimpleTestCase):
         self.assertIn('<label for="id_mydate_day">', a.as_p())
 
     def test_datefield_1(self):
+        """
+        Tests the `DateField` class to ensure it accurately cleans and validates different date formats, including datetime objects, strings in various formats, and invalid dates, confirming that it raises the correct validation errors.
+        """
         f = DateField()
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))
@@ -167,6 +177,12 @@ class DateFieldTest(SimpleTestCase):
             f.clean(None)
 
     def test_datefield_2(self):
+        """
+
+        Tests the behavior of the DateField when handling empty or null values.
+        Verifies that the field correctly cleans and represents undefined dates.
+
+        """
         f = DateField(required=False)
         self.assertIsNone(f.clean(None))
         self.assertEqual("None", repr(f.clean(None)))
@@ -174,6 +190,9 @@ class DateFieldTest(SimpleTestCase):
         self.assertEqual("None", repr(f.clean("")))
 
     def test_datefield_3(self):
+        """
+        Tests the functionality of the DateField with a specific input format, verifying it can correctly parse and validate dates from different input types, including date and datetime objects, as well as strings, and raises a ValidationError for invalid date formats.
+        """
         f = DateField(input_formats=["%Y %m %d"])
         self.assertEqual(date(2006, 10, 25), f.clean(date(2006, 10, 25)))
         self.assertEqual(date(2006, 10, 25), f.clean(datetime(2006, 10, 25, 14, 30)))
@@ -187,6 +206,13 @@ class DateFieldTest(SimpleTestCase):
 
     def test_datefield_4(self):
         # Test whitespace stripping behavior (#5714)
+        """
+
+        Tests the DateField class's clean method for proper date parsing.
+
+        Verifies that the method correctly handles various date formats and raises a ValidationError for invalid input.
+
+        """
         f = DateField()
         self.assertEqual(date(2006, 10, 25), f.clean(" 10/25/2006 "))
         self.assertEqual(date(2006, 10, 25), f.clean(" 10/25/06 "))

@@ -22,6 +22,9 @@ class VaryOnHeadersTests(SimpleTestCase):
 
     def test_vary_on_headers_decorator(self):
         @vary_on_headers("Header", "Another-header")
+        """
+        Tests the functionality of the vary_on_headers decorator, which sets the Vary header in the HTTP response based on the specified headers.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -30,6 +33,13 @@ class VaryOnHeadersTests(SimpleTestCase):
 
     async def test_vary_on_headers_decorator_async_view(self):
         @vary_on_headers("Header", "Another-header")
+        """
+
+        Tests the vary_on_headers decorator when applied to an async view.
+
+        The test ensures that the Vary header in the response contains the headers specified in the decorator.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -54,6 +64,9 @@ class VaryOnCookieTests(SimpleTestCase):
 
     def test_vary_on_cookie_decorator(self):
         @vary_on_cookie
+        """
+        Tests that the vary_on_cookie decorator correctly sets the Vary header to 'Cookie' in the response of a decorated view.
+        """
         def sync_view(request):
             return HttpResponse()
 
@@ -62,6 +75,9 @@ class VaryOnCookieTests(SimpleTestCase):
 
     async def test_vary_on_cookie_decorator_async_view(self):
         @vary_on_cookie
+        """
+        Tests the Vary-On-Cookie decorator's effect on an asynchronous view, ensuring the 'Vary' header is correctly set to 'Cookie' in the response.
+        """
         async def async_view(request):
             return HttpResponse()
 

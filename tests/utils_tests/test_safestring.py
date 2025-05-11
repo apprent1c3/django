@@ -33,6 +33,9 @@ class SafeStringTest(SimpleTestCase):
         self.assertIsInstance(str(s), type(s))
 
     def test_mark_safe_object_implementing_dunder_html(self):
+        """
+        Tests the mark_safe function's behavior with objects that implement the __html__ method, ensuring they are not escaped when used in a template and are escaped when the force_escape filter is applied.
+        """
         e = customescape("<a&b>")
         s = mark_safe(e)
         self.assertIs(s, e)
@@ -54,6 +57,9 @@ class SafeStringTest(SimpleTestCase):
             self.assertEqual(tpl.render(Context({"s": s})), "nom")
 
     def test_mark_safe_object_implementing_dunder_str(self):
+        """
+        Tests the mark_safe function with an object that implements the __str__ magic method, ensuring it correctly escapes the object's string representation.
+        """
         class Obj:
             def __str__(self):
                 return "<obj>"
@@ -69,6 +75,9 @@ class SafeStringTest(SimpleTestCase):
         self.assertEqual(mark_safe(lazystr("a&b")).__html__(), "a&b")
 
     def test_add_lazy_safe_text_and_safe_text(self):
+        """
+        Verifies that combining lazy safe text with regular safe text results in a correctly rendered output, ensuring proper escaping and markup handling.
+        """
         s = html.escape(lazystr("a"))
         s += mark_safe("&b")
         self.assertRenderEqual("{{ s }}", "a&b", s=s)

@@ -65,6 +65,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_constructor_different_attrs(self):
+        """
+        Tests the construction of SplitHiddenDateTimeWidget with different attribute configurations, ensuring it correctly generates HTML for date and time inputs.
+        """
         html = (
             '<input type="hidden" class="foo" value="2006-01-10" name="date_0">'
             '<input type="hidden" class="bar" value="07:30:00" name="date_1">'
@@ -83,6 +86,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         self.check_html(widget, "date", datetime(2006, 1, 10, 7, 30), html=html)
 
     def test_fieldset(self):
+        """
+        Checks the rendering of a form fieldset with a SplitDateTimeField, verifying that it uses a fieldset and produces the expected HTML output.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = SplitDateTimeField(widget=self.widget)
@@ -96,6 +102,9 @@ class SplitHiddenDateTimeWidgetTest(WidgetTest):
         )
 
     def test_fieldset_with_unhidden_field(self):
+        """
+        Tests that a form fieldset correctly renders hidden and unhidden fields, ensuring that only the unhidden field is wrapped in a fieldset.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             hidden_field = SplitDateTimeField(widget=self.widget)

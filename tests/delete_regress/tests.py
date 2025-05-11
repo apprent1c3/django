@@ -115,6 +115,9 @@ class DeleteCascadeTests(TestCase):
         self.assertEqual(PlayedWithNote.objects.count(), 0)
 
     def test_15776(self):
+        """
+        Tests the deletion of a policy and its associated objects, verifying cascading delete functionality for versions, locations, and items.
+        """
         policy = Policy.objects.create(pk=1, policy_number="1234")
         version = Version.objects.create(policy=policy)
         location = Location.objects.create(version=version)
@@ -273,6 +276,9 @@ class ProxyDeleteTest(TestCase):
         self.assertEqual(len(FooFileProxy.objects.all()), 0)
 
     def test_19187_values(self):
+        """
+        Tests that attempting to call delete() on a QuerySet after using values() or values_list() raises a TypeError with a specific error message.
+        """
         msg = "Cannot call delete() after .values() or .values_list()"
         with self.assertRaisesMessage(TypeError, msg):
             Image.objects.values().delete()
@@ -342,6 +348,9 @@ class DeleteTests(TestCase):
         # When a subquery is performed by deletion code, the subquery must be
         # cleared of all ordering. There was a but that caused _meta ordering
         # to be used. Refs #19720.
+        """
+        Tests that deleting an object with an ordered foreign key relationship cascades properly, ensuring all associated ordered objects are removed.
+        """
         h = House.objects.create(address="Foo")
         OrderedPerson.objects.create(name="Jack", lives_in=h)
         OrderedPerson.objects.create(name="Bob", lives_in=h)
@@ -373,6 +382,13 @@ class DeleteTests(TestCase):
         self.assertIsNone(researcher2.secondary_contact)
 
     def test_self_reference_with_through_m2m_at_second_level(self):
+        """
+
+        Tests that self-referential delete queries using an M2M relationship at the second level are executed efficiently.
+
+        Verifies that the ORM is able to delete objects in a single database query, even when using a subquery to filter objects based on a many-to-many relationship.
+
+        """
         toy = Toy.objects.create(name="Paints")
         child = Child.objects.create(name="Juan")
         Book.objects.create(pagecount=500, owner=child)
@@ -402,6 +418,9 @@ class DeleteDistinct(SimpleTestCase):
 
 class SetQueryCountTests(TestCase):
     def test_set_querycount(self):
+        """
+        Tests that deleting a location results in the expected number of database queries.
+        """
         policy = Policy.objects.create()
         version = Version.objects.create(policy=policy)
         location = Location.objects.create(version=version)

@@ -39,6 +39,9 @@ converter_test_data = (
 @override_settings(ROOT_URLCONF="urlpatterns.path_urls")
 class SimplifiedURLTests(SimpleTestCase):
     def test_path_lookup_without_parameters(self):
+        """
+        Tests the path lookup functionality without any URL parameters, verifying that the resolved URL match contains the expected attributes with empty argument and keyword dictionaries.
+        """
         match = resolve("/articles/2003/")
         self.assertEqual(match.url_name, "articles-2003")
         self.assertEqual(match.args, ())
@@ -48,6 +51,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_typed_parameters(self):
+        """
+        Tests path lookup functionality with typed parameters, ensuring correct URL name, arguments, and route extraction for a given URL pattern.
+        """
         match = resolve("/articles/2015/")
         self.assertEqual(match.url_name, "articles-year")
         self.assertEqual(match.args, ())
@@ -57,6 +63,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters(self):
+        """
+        Tests that the path lookup function can correctly resolve URLs with multiple parameters, capturing and matching them as expected.
+        """
         match = resolve("/articles/2015/04/12/")
         self.assertEqual(match.url_name, "articles-year-month-day")
         self.assertEqual(match.args, ())
@@ -66,6 +75,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_path_lookup_with_multiple_parameters_and_extra_kwarg(self):
+        """
+        Tests the path lookup functionality with multiple URL parameters and an extra keyword argument, verifying the correct extraction of URL name, arguments, and keyword arguments.
+        """
         match = resolve("/books/2015/04/12/")
         self.assertEqual(match.url_name, "books-year-month-day")
         self.assertEqual(match.args, ())
@@ -77,6 +89,13 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_path_lookup_with_extra_kwarg(self):
+        """
+        Tests the URL resolver's path lookup functionality with extra keyword arguments.
+
+        Verifies that the resolver correctly matches the URL pattern, extracts the expected
+        URL name, arguments, and extra keyword arguments, and populates the match object
+        with the expected values.
+        """
         match = resolve("/books/2007/")
         self.assertEqual(match.url_name, "books-2007")
         self.assertEqual(match.args, ())
@@ -86,6 +105,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {"extra": True})
 
     def test_two_variable_at_start_of_path_pattern(self):
+        """
+        Tests the path pattern resolution when the URL starts with a language code and another variable, ensuring the correct URL name, kwargs, route, captured kwargs, and extra kwargs are returned.
+        """
         match = resolve("/en/foo/")
         self.assertEqual(match.url_name, "lang-and-path")
         self.assertEqual(match.kwargs, {"lang": "en", "url": "foo"})
@@ -94,6 +116,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_re_path(self):
+        """
+        Tests URL resolution for a route with a regular expression path. Verifies that the URL pattern '/regex/<pk>' correctly matches and captures the path '/regex/1/'.
+        """
         match = resolve("/regex/1/")
         self.assertEqual(match.url_name, "regex")
         self.assertEqual(match.kwargs, {"pk": "1"})
@@ -102,6 +127,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.extra_kwargs, {})
 
     def test_re_path_with_optional_parameter(self):
+        """
+        Tests URL resolution with optional parameters for the 'regex_optional' route, verifying that the resolved URL name, keyword arguments, and captured keyword arguments match the expected values, both when the optional parameter is present and when it is absent.
+        """
         for url, kwargs in (
             ("/regex_optional/1/2/", {"arg1": "1", "arg2": "2"}),
             ("/regex_optional/1/", {"arg1": "1"}),
@@ -118,6 +146,9 @@ class SimplifiedURLTests(SimpleTestCase):
                 self.assertEqual(match.extra_kwargs, {})
 
     def test_re_path_with_missing_optional_parameter(self):
+        """
+        Tests resolving a URL with a regular expression path that has a missing optional parameter, verifying that the match is correctly identified and no arguments or keyword arguments are captured.
+        """
         match = resolve("/regex_only_optional/")
         self.assertEqual(match.url_name, "regex_only_optional")
         self.assertEqual(match.kwargs, {})
@@ -135,6 +166,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(match.route, "included_urls/extra/<extra>/")
 
     def test_path_lookup_with_empty_string_inclusion(self):
+        """
+        Checks if URL path lookup functionality works correctly when an empty string is included in the route, verifying that the correct URL name, route pattern, and keyword arguments are matched.
+        """
         match = resolve("/more/99/")
         self.assertEqual(match.url_name, "inner-more")
         self.assertEqual(match.route, r"^more/(?P<extra>\w+)/$")
@@ -159,6 +193,14 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_resolve(self):
+        """
+
+        Tests the URL resolver for base64-encoded URLs.
+
+        Verifies that the resolver correctly matches URLs to their corresponding view names, 
+        application names, and keyword arguments.
+
+        """
         for url, (url_name, app_name, kwargs) in converter_test_data:
             with self.subTest(url=url):
                 match = resolve(url)
@@ -168,6 +210,13 @@ class SimplifiedURLTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns.path_base64_urls")
     def test_converter_reverse(self):
+        """
+
+        Tests the converter's URL reversal capabilities.
+
+        Verifies that the reverse function correctly generates expected URLs from their names and optional keyword arguments, considering both app-qualified and unqualified URL names.
+
+        """
         for expected, (url_name, app_name, kwargs) in converter_test_data:
             if app_name:
                 url_name = "%s:%s" % (app_name, url_name)
@@ -192,6 +241,9 @@ class SimplifiedURLTests(SimpleTestCase):
         self.assertEqual(url, "/included_urls/extra/something/")
 
     def test_invalid_kwargs(self):
+        """
+        Test that passing invalid keyword arguments to path and re_path functions raises a TypeError.
+        """
         msg = "kwargs argument must be a dict, but got str."
         with self.assertRaisesMessage(TypeError, msg):
             path("hello/", empty_view, "name")
@@ -207,6 +259,9 @@ class SimplifiedURLTests(SimpleTestCase):
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # msg = "Converter 'int' is already registered."
         # with self.assertRaisesMessage(ValueError, msg):
+        """
+        Test that attempting to override the default 'int' converter raises a RemovedInDjango60Warning, as this functionality is deprecated and will be removed in Django 6.0.
+        """
         msg = (
             "Converter 'int' is already registered. Support for overriding registered "
             "converters is deprecated and will be removed in Django 6.0."
@@ -221,6 +276,9 @@ class SimplifiedURLTests(SimpleTestCase):
         # RemovedInDjango60Warning: when the deprecation ends, replace with
         # msg = "Converter 'base64' is already registered."
         # with self.assertRaisesMessage(ValueError, msg):
+        """
+        Tests if overriding a previously registered converter triggers a RemovedInDjango60Warning.
+        """
         msg = (
             "Converter 'base64' is already registered. Support for overriding "
             "registered converters is deprecated and will be removed in Django 6.0."
@@ -238,6 +296,15 @@ class SimplifiedURLTests(SimpleTestCase):
             path("articles/", "invalid_view")
 
     def test_invalid_view_instance(self):
+        """
+
+        Tests that a TypeError is raised when a view instance is passed to a path,
+        instead of the expected callable view class or function.
+
+        The test verifies that an informative error message is provided, helping
+        developers to correct the issue by using the as_view() method.
+
+        """
         class EmptyCBV(View):
             pass
 
@@ -246,6 +313,19 @@ class SimplifiedURLTests(SimpleTestCase):
             path("foo", EmptyCBV())
 
     def test_whitespace_in_route(self):
+        """
+        Tests that URL routes do not allow whitespace in angle brackets.
+
+        This test ensures that a route with whitespace in angle brackets raises an
+        ImproperlyConfigured exception, while routes with whitespace outside angle
+        brackets are still correctly parsed and matched.
+
+        Args:
+            None
+
+        Returns:
+            None
+        """
         msg = "URL route %r cannot contain whitespace in angle brackets <…>"
         for whitespace in string.whitespace:
             with self.subTest(repr(whitespace)):
@@ -274,6 +354,12 @@ class SimplifiedURLTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns.converter_urls")
 class ConverterTests(SimpleTestCase):
     def test_matching_urls(self):
+        """
+        Tests URL matching for various url name types with their respective converters.
+
+        Verifies that the resolve and reverse functions work correctly for different url
+        suffixes and converters, including integers, strings, paths, slugs, and UUIDs.
+        """
         def no_converter(x):
             return x
 
@@ -306,6 +392,14 @@ class ConverterTests(SimpleTestCase):
                         )
 
     def test_nonmatching_urls(self):
+        """
+
+        Tests that URLs with non-matching formats raise a Resolver404 exception.
+
+        Verifies that URLs with invalid or missing path components, such as
+        invalid integer, string, path, slug, or UUID values, cannot be resolved.
+
+        """
         test_data = (
             ("int", {"-1", "letters"}),
             ("str", {"", "/"}),
@@ -334,6 +428,9 @@ class ConverterTests(SimpleTestCase):
 class SameNameTests(SimpleTestCase):
     def test_matching_urls_same_name(self):
         @DynamicConverter.register_to_url
+        """
+        TestUtils for verifying that URLs are correctly generated with various naming conventions, converters, regular expressions, and argument types, ensuring that the `reverse` function behaves as expected.
+        """
         def requires_tiny_int(value):
             if value > 5:
                 raise ValueError
@@ -423,6 +520,9 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_resolve_value_error_means_no_match(self):
         @DynamicConverter.register_to_python
+        """
+        Tests that a ValueError raised by a converter function results in a Resolver404 exception, indicating that no match was found.
+        """
         def raises_value_error(value):
             raise ValueError()
 
@@ -431,6 +531,9 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_resolve_type_error_propagates(self):
         @DynamicConverter.register_to_python
+        """
+        Tests that a TypeError raised by a DynamicConverter is properly propagated to the caller when resolving a dynamic path.
+        """
         def raises_type_error(value):
             raise TypeError("This type error propagates.")
 
@@ -439,6 +542,9 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_reverse_value_error_means_no_match(self):
         @DynamicConverter.register_to_url
+        """
+        Tests that a reverse URL lookup with a converter that raises a ValueError results in a NoReverseMatch exception.
+        """
         def raises_value_error(value):
             raise ValueError
 
@@ -447,6 +553,9 @@ class ConversionExceptionTests(SimpleTestCase):
 
     def test_reverse_type_error_propagates(self):
         @DynamicConverter.register_to_url
+        """
+        Tests that a TypeError raised by a dynamic converter function propagates correctly when reversing a URL.
+        """
         def raises_type_error(value):
             raise TypeError("This type error propagates.")
 

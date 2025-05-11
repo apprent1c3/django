@@ -19,6 +19,15 @@ def action(function=None, *, permissions=None, description=None):
     """
 
     def decorator(func):
+        """
+        A decorator that assigns permissions and a short description to a function.
+
+        :param func: The function to be decorated.
+        :keyword permissions: A list of allowed permissions for the function.
+        :keyword description: A short description of the function.
+
+        This decorator is used to add metadata to a function, providing information about its purpose and access control.
+        """
         if permissions is not None:
             func.allowed_permissions = permissions
         if description is not None:
@@ -56,6 +65,12 @@ def display(
     """
 
     def decorator(func):
+        """
+        A decorator that modifies a function's display properties in the admin interface.
+
+        It sets attributes such as boolean display, admin ordering, short description, and empty value display,
+        according to the provided arguments, allowing for customization of the function's appearance in the admin interface.
+        """
         if boolean is not None and empty_value is not None:
             raise ValueError(
                 "The boolean and empty_value arguments to the @display "
@@ -93,6 +108,14 @@ def register(*models, site=None):
     from django.contrib.admin.sites import site as default_site
 
     def _model_admin_wrapper(admin_class):
+        """
+
+        Registers a model admin class with the admin site, ensuring the wrapped class is valid and at least one model is provided.
+
+        :raises ValueError: If no models are provided, the admin site is invalid, or the wrapped class is not a ModelAdmin subclass.
+        :returns: The registered ModelAdmin class.
+
+        """
         if not models:
             raise ValueError("At least one model must be passed to register.")
 

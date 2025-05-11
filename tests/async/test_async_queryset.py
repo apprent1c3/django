@@ -14,6 +14,9 @@ from .models import RelatedModel, SimpleModel
 class AsyncQuerySetTest(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the test class, creating instances of SimpleModel and RelatedModel for use in tests.
+        """
         cls.s1 = SimpleModel.objects.create(
             field=1,
             created=datetime(2022, 1, 1, 0, 0, 0),
@@ -44,6 +47,9 @@ class AsyncQuerySetTest(TestCase):
         self.assertEqual(results, [self.s1, self.s2, self.s3])
 
     async def test_aiterator(self):
+        """
+        Tests the asynchronous iterator functionality for retrieving a queryset of SimpleModel instances. Verifies that all expected instances are returned when using the aitertor method.
+        """
         qs = SimpleModel.objects.aiterator()
         results = []
         async for m in qs:
@@ -59,6 +65,9 @@ class AsyncQuerySetTest(TestCase):
         self.assertCountEqual(results, [[self.r1], [self.r2], [self.r3]])
 
     async def test_aiterator_invalid_chunk_size(self):
+        """
+        Tests that passing invalid chunk sizes to the aitenerator method raises a ValueError, ensuring that only strictly positive chunk sizes are allowed.
+        """
         msg = "Chunk size must be strictly positive."
         for size in [0, -1]:
             qs = SimpleModel.objects.aiterator(chunk_size=size)
@@ -71,6 +80,9 @@ class AsyncQuerySetTest(TestCase):
         self.assertEqual(count, 3)
 
     async def test_acount_cached_result(self):
+        """
+        Tests that the acount method returns a cached result, even after modifying the underlying data.
+        """
         qs = SimpleModel.objects.all()
         # Evaluate the queryset to populate the query cache.
         [x async for x in qs]
@@ -99,6 +111,11 @@ class AsyncQuerySetTest(TestCase):
         self.assertIs(created, True)
 
     async def test_aupdate_or_create(self):
+        """
+        Tests the functionality of the aupdate_or_create method.
+
+        Verifies that the method correctly updates existing instances and creates new ones if they do not exist, while also ensuring the correct defaults are applied in each scenario.
+        """
         instance, created = await SimpleModel.objects.aupdate_or_create(
             id=self.s1.id, defaults={"field": 2}
         )
@@ -139,6 +156,9 @@ class AsyncQuerySetTest(TestCase):
             )
 
     async def test_abulk_update(self):
+        """
+        Tests the asynchronous bulk update functionality of a queryset by updating the 'field' attribute of multiple SimpleModel instances and verifying the changes.
+        """
         instances = SimpleModel.objects.all()
         async for instance in instances:
             instance.field = instance.field * 10
@@ -152,6 +172,12 @@ class AsyncQuerySetTest(TestCase):
         )
 
     async def test_ain_bulk(self):
+        """
+        Tests the asynchronous bulk retrieval of SimpleModel instances.
+
+        Verifies that the ain_bulk method correctly fetches all instances or a subset of instances by primary key, 
+        and that it can also fetch by a specified field name.
+        """
         res = await SimpleModel.objects.ain_bulk()
         self.assertEqual(
             res,
@@ -226,6 +252,12 @@ class AsyncQuerySetTest(TestCase):
     @skipUnlessDBFeature("supports_explaining_query_execution")
     @async_to_sync
     async def test_aexplain(self):
+        """
+        Tests the aexplain method of a QuerySet to ensure it produces a valid query execution plan in various formats.
+
+            The function checks that the method returns a string result for each supported format, and verifies that the result is valid for XML and JSON formats.
+
+        """
         supported_formats = await sync_to_async(self._get_db_feature)(
             connection, "supported_explain_formats"
         )

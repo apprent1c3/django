@@ -16,6 +16,19 @@ class PreparedGeometry(GEOSBase):
         # Keeping a reference to the original geometry object to prevent it
         # from being garbage collected which could then crash the prepared one
         # See #21662
+        """
+        Initializes a geometric object with the given geometry, preparing it for subsequent operations.
+
+        Parameters
+        ----------
+        geom : GEOSGeometry
+            The input geometry to be used for initialization.
+
+        Raises
+        ------
+        TypeError
+            If the input geometry is not an instance of GEOSGeometry.
+        """
         self._base_geom = geom
         from .geometry import GEOSGeometry
 

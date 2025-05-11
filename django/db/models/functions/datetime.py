@@ -29,6 +29,9 @@ class TimezoneMixin:
         # applying a function. 2015-12-31 23:00:00 -02:00 is stored in the
         # database as 2016-01-01 01:00:00 +00:00. Any results should be
         # based on the input datetime not the stored datetime.
+        """
+        Returns the time zone name associated with the current object. If time zone support is enabled, it returns the name of the current time zone or the time zone of the object if one is set, otherwise it returns None.
+        """
         tzname = None
         if settings.USE_TZ:
             if self.tzinfo is None:
@@ -43,6 +46,9 @@ class Extract(TimezoneMixin, Transform):
     output_field = IntegerField()
 
     def __init__(self, expression, lookup_name=None, tzinfo=None, **extra):
+        """
+        Initializes a class instance with an expression, optional lookup name, and timezone information, ensuring a lookup name is always provided.
+        """
         if self.lookup_name is None:
             self.lookup_name = lookup_name
         if self.lookup_name is None:
@@ -51,6 +57,16 @@ class Extract(TimezoneMixin, Transform):
         super().__init__(expression, **extra)
 
     def as_sql(self, compiler, connection):
+        """
+
+        Generates SQL for extracting a component from a date/time field.
+
+        This function compiles the left-hand side of an expression into SQL and then extracts
+        a specific component (e.g. year, month, day, hour, etc.) based on the output field type.
+        It handles different field types, including DateTimeField, DateField, TimeField, and DurationField,
+        and raises an error if the field type is not supported or if the 'tzinfo' attribute is used with a non-DateTimeField.
+
+        """
         sql, params = compiler.compile(self.lhs)
         lhs_output_field = self.lhs.output_field
         if isinstance(lhs_output_field, DateTimeField):
@@ -85,6 +101,21 @@ class Extract(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+
+        Resolve the given query expression, enforcing constraints specific to date, time, and duration fields.
+
+        This method extends the base functionality by validating that the input expression is of an appropriate field type (DateField, DateTimeField, TimeField, or DurationField) 
+        and that the extraction operation is compatible with the field's type.
+
+        :param query: The query expression to resolve
+        :param allow_joins: Whether to allow joins in the query
+        :param reuse: Reuse parameter from the parent method
+        :param summarize: Summarize parameter from the parent method
+        :param for_save: For save parameter from the parent method
+        :return: The resolved query expression
+
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -257,6 +288,19 @@ class TruncBase(TimezoneMixin, Transform):
         super().__init__(expression, output_field=output_field, **extra)
 
     def as_sql(self, compiler, connection):
+        """
+
+        Truncates a date, time, or datetime value to a specified precision.
+
+        This function takes a field value and applies a truncation operation based on the
+        field's type (DateField, TimeField, or DateTimeField). It returns a SQL expression
+        and parameters that can be used to execute the truncation operation on a database.
+
+        The truncation is performed according to the specified kind (e.g. 'year', 'month',
+        'day', etc.), and optionally takes into account the timezone information if the
+        field is a DateTimeField.
+
+        """
         sql, params = compiler.compile(self.lhs)
         tzname = None
         if isinstance(self.lhs.output_field, DateTimeField):
@@ -284,6 +328,18 @@ class TruncBase(TimezoneMixin, Transform):
     def resolve_expression(
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
+        """
+        шаابةResolve an expression for a date or time field, applying necessary checks and transformations to ensure compatibility with the output field type. 
+
+        :param query: The query to resolve the expression for.
+        :param allow_joins: Whether to allow joins in the query.
+        :param reuse: An optional object to reuse.
+        :param summarize: Whether to summarize the query results.
+        :param for_save: Whether the query is being executed for a save operation.
+        :raises TypeError: If the field is not a DateField, TimeField, or DateTimeField.
+        :raises ValueError: If the output field type is incompatible with the input field type or if an explicit output field is specified that is not compatible.
+        :return: The resolved expression.
+        """
         copy = super().resolve_expression(
             query, allow_joins, reuse, summarize, for_save
         )
@@ -343,6 +399,13 @@ class TruncBase(TimezoneMixin, Transform):
         return copy
 
     def convert_value(self, value, expression, connection):
+        """
+        Converts a value to a suitable format for the output field, handling datetime and timezone conversions as necessary. 
+
+        If the output field is a DateTimeField, it adjusts for timezone awareness and reduces to a naive datetime if timezone support is disabled.
+        If the output field is a DateField or TimeField, it extracts the corresponding component from a datetime object.
+        Returns the converted value.
+        """
         if isinstance(self.output_field, DateTimeField):
             if not settings.USE_TZ:
                 pass

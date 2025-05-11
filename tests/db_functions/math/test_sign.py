@@ -15,6 +15,9 @@ class SignTests(TestCase):
         self.assertIsNone(obj.null_sign)
 
     def test_decimal(self):
+        """
+        Tests the annotation of decimal fields with their signs in the DecimalModel.\"
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_sign=Sign("n1"), n2_sign=Sign("n2")
@@ -25,6 +28,9 @@ class SignTests(TestCase):
         self.assertEqual(obj.n2_sign, Decimal("1"))
 
     def test_float(self):
+        """
+        ..: Checks the functionality of annotating float fields with their sign values in a database query. Verifies that the signs are correctly calculated and returned as float values.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_sign=Sign("f1"), f2_sign=Sign("f2")
@@ -35,6 +41,11 @@ class SignTests(TestCase):
         self.assertEqual(obj.f2_sign, 1.0)
 
     def test_integer(self):
+        """
+        Tests the functionality of the Sign database function for integer values.
+
+        Verifies that the sign of negative, zero, and positive integers is correctly calculated and returned as an integer value (-1, 0, 1 respectively).
+        """
         IntegerModel.objects.create(small=-20, normal=0, big=20)
         obj = IntegerModel.objects.annotate(
             small_sign=Sign("small"),
@@ -49,6 +60,14 @@ class SignTests(TestCase):
         self.assertEqual(obj.big_sign, 1)
 
     def test_transform(self):
+        """
+
+        Tests the transformation of DecimalField values based on their sign.
+
+        Verifies that objects with negative numbers can be filtered and retrieved
+        correctly using the sign lookup.
+
+        """
         with register_lookup(DecimalField, Sign):
             DecimalModel.objects.create(n1=Decimal("5.4"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-0.1"), n2=Decimal("0"))

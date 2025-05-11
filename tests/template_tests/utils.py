@@ -47,8 +47,22 @@ def setup(templates, *args, test_once=False):
         # are properly isolated from Django's global settings.
         @override_settings(TEMPLATES=None)
         @wraps(func)
+        """
+        Decorator to test the decorated function under various Django template engine configurations.
+
+        Enables testing of the function's behavior with different template engine settings,
+        including normal operation, error handling, and debug modes.
+        """
         def inner(self):
             # Set up custom template tag libraries if specified
+            """
+
+            Run a given function multiple times with different template engine configurations.
+
+            This function is designed to test the behavior of a function under various template engine settings,
+            specifically with and without debug mode, and with different invalid template handling behaviors.
+
+            """
             libraries = getattr(self, "libraries", {})
 
             self.engine = Engine(
@@ -116,6 +130,9 @@ class SomeClass:
         raise TypeError
 
     def __getitem__(self, key):
+        """
+        Implements dictionary-like key access, raising specific exceptions for certain keys or a KeyError for all others.
+        """
         if key == "silent_fail_key":
             raise SomeException
         elif key == "noisy_fail_key":

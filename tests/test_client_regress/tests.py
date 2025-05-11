@@ -831,6 +831,13 @@ class ContextTests(TestDataMixin, TestCase):
             response.context["does-not-exist"]
 
     def test_contextlist_keys(self):
+        """
+
+        Return a set of all keys available in the combined context list.
+
+        This includes any keys defined in each context, merged into a single set.
+
+        """
         c1 = Context()
         c1.update({"hello": "world", "goodbye": "john"})
         c1.update({"hello": "dolly", "dolly": "parton"})
@@ -846,6 +853,9 @@ class ContextTests(TestDataMixin, TestCase):
         )
 
     def test_contextlist_get(self):
+        """
+        Tests the retrieval of values from a ContextList, ensuring that it prioritizes the first context and uses a default value when a key is not found.
+        """
         c1 = Context({"hello": "world", "goodbye": "john"})
         c2 = Context({"goodbye": "world", "python": "rocks"})
         k = ContextList([c1, c2])
@@ -912,6 +922,10 @@ class SessionTests(TestDataMixin, TestCase):
         self.assertEqual(response.content, b"YES")
 
     def test_session_initiated(self):
+        """
+        Tests if a session variable is correctly set and retrieved from the session store. 
+        Verifies that session data persists across requests by checking the contents of a session variable in a response.
+        """
         session = self.client.session
         session["session_var"] = "foo"
         session.save()
@@ -1136,6 +1150,9 @@ class RequestMethodStringDataTests(SimpleTestCase):
         self.assertEqual(response.json(), {"a": "Å"})
 
     def test_json_structured_suffixes(self):
+        """
+        Tests that the API correctly sets the Content-Type header and returns the expected JSON response for various structured suffixes.
+        """
         valid_types = (
             "application/vnd.api+json",
             "application/vnd.api.foo+json",
@@ -1168,6 +1185,9 @@ class RequestMethodStringDataTests(SimpleTestCase):
 )
 class QueryStringTests(SimpleTestCase):
     def test_get_like_requests(self):
+        """
+        Tests how the client handles HTTP GET and HEAD requests with query parameters and request data. Verifies that the client correctly retrieves data from both the query string and the request body.
+        """
         for method_name in ("get", "head"):
             # A GET-like request can pass a query string as data (#10571)
             method = getattr(self.client, method_name)
@@ -1189,6 +1209,9 @@ class QueryStringTests(SimpleTestCase):
 
     def test_post_like_requests(self):
         # A POST-like request can pass a query string as data
+        """
+        Tests the handling of GET and POST request parameters in the '/request_data/' endpoint, verifying that parameters are correctly distinguished and available in the response context.
+        """
         response = self.client.post("/request_data/", data={"foo": "whiz"})
         self.assertIsNone(response.context["get-foo"])
         self.assertEqual(response.context["post-foo"], "whiz")
@@ -1404,6 +1427,12 @@ class RequestFactoryEnvironmentTests(SimpleTestCase):
     """
 
     def test_should_set_correct_env_variables(self):
+        """
+        Test that a request sets the correct environment variables.
+
+        Verifies that a request object has the expected values for remote address,
+        server name, port, protocol, and URL path.
+        """
         request = RequestFactory().get("/path/")
 
         self.assertEqual(request.META.get("REMOTE_ADDR"), "127.0.0.1")

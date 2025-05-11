@@ -12,6 +12,9 @@ from .models import Celebrity, Fan, Staff, StaffTag, Tag
 class DistinctOnTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, creating tags, staff members, and celebrities with their respective relationships to be used in tests.
+        """
         cls.t1 = Tag.objects.create(name="t1")
         cls.t2 = Tag.objects.create(name="t2", parent=cls.t1)
         cls.t3 = Tag.objects.create(name="t3", parent=cls.t1)
@@ -124,6 +127,12 @@ class DistinctOnTests(TestCase):
             Staff.objects.all()[0:5].distinct("name")
 
     def test_transform(self):
+        """
+        Tests the transformation of a queryset using the 'Lower' lookup type.
+
+        Verifies that the lookup correctly groups tags by their names in a case-insensitive manner, 
+        returning a de-duplicated list of tags based on the lowercase value of their names.
+        """
         new_name = self.t1.name.upper()
         self.assertNotEqual(self.t1.name, new_name)
         Tag.objects.create(name=new_name)
@@ -135,6 +144,13 @@ class DistinctOnTests(TestCase):
 
     def test_distinct_not_implemented_checks(self):
         # distinct + annotate not allowed
+        """
+        Tests that using distinct() with annotate() or aggregate() raises a NotImplementedError.
+
+        Verifies that the ORM correctly handles unsupported combinations of query methods,
+        preventing potential bugs by explicitly raising an error instead of producing
+        incorrect results.
+        """
         msg = "annotate() + distinct(fields) is not implemented."
         with self.assertRaisesMessage(NotImplementedError, msg):
             Celebrity.objects.annotate(Max("id")).distinct("id")[0]
@@ -150,6 +166,9 @@ class DistinctOnTests(TestCase):
             Celebrity.objects.distinct("id").aggregate(Max("id"))
 
     def test_distinct_on_in_ordered_subquery(self):
+        """
+        Tests the behavior of the 'distinct' method in combination with 'order_by' when used in a subquery with 'filter' and 'pk__in', ensuring that the resulting queryset contains the expected distinct records ordered by name.
+        """
         qs = Staff.objects.distinct("name").order_by("name", "id")
         qs = Staff.objects.filter(pk__in=qs).order_by("name")
         self.assertSequenceEqual(qs, [self.p1_o1, self.p2_o1, self.p3_o1])

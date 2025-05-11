@@ -30,6 +30,12 @@ class ChoicesType(EnumType):
     """A metaclass for creating a enum choices."""
 
     def __new__(metacls, classname, bases, classdict, **kwds):
+        """
+        Creates a new enumerated class, modifying its members to include labels 
+        based on their names or provided values. These labels are then assigned to 
+        each member for enhanced readability and usability. The resulting class 
+        is an enumeration with unique members and their corresponding labels.
+        """
         labels = []
         for key in classdict._member_names:
             value = classdict[key]

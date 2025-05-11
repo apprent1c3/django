@@ -19,6 +19,15 @@ class DatabaseClient(BaseDatabaseClient):
 
     @classmethod
     def settings_to_cmd_args_env(cls, settings_dict, parameters):
+        """
+
+        Converts a settings dictionary and additional parameters into command arguments and environment.
+
+        :param settings_dict: Dictionary containing connection settings
+        :param parameters: List of additional parameters to be passed to the command
+        :return: A tuple containing the command arguments and environment (always None)
+
+        """
         args = [cls.executable_name, "-L", cls.connect_string(settings_dict)]
         wrapper_path = shutil.which(cls.wrapper_name)
         if wrapper_path:

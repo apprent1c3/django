@@ -82,6 +82,9 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
 
     @cached_property
     def unsupported_functions(self):
+        """
+        Returns a set of PostGIS functions that are not supported based on the current geometry library version and spatial version.
+        """
         unsupported = {"GeometryDistance", "IsEmpty", "MemSize"}
         if not self.geom_lib_version():
             unsupported |= {"Azimuth", "GeoHash", "MakeValid"}
@@ -222,6 +225,12 @@ class SpatiaLiteOperations(BaseSpatialOperations, DatabaseOperations):
         return SpatialiteSpatialRefSys
 
     def get_geometry_converter(self, expression):
+        """
+        Returns a geometry converter function for the given expression.
+
+        The converter function takes a value and returns a GEOSGeometryBase instance 
+        representing the geometry, or None if the value is None.
+        """
         geom_class = expression.output_field.geom_class
         read = wkb_r().read
 

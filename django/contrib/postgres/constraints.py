@@ -34,6 +34,20 @@ class ExclusionConstraint(BaseConstraint):
         violation_error_code=None,
         violation_error_message=None,
     ):
+        """
+        Initializes an exclusion constraint.
+
+        :param name: The name of the exclusion constraint.
+        :param expressions: A list of 2-tuples defining the expressions to which the constraint applies.
+        :param index_type: The type of index to use (either 'GIST' or 'SP-GiST'), defaults to 'GIST' if not specified.
+        :param condition: A condition under which the constraint applies.
+        :param deferrable: Defines when the constraint is checked.
+        :param include: A list of columns to include in the index.
+        :param violation_error_code: The error code to return when the constraint is violated.
+        :param violation_error_message: The error message to return when the constraint is violated.
+
+        This method validates the input parameters and raises a ValueError if any of them are invalid. It then initializes the exclusion constraint with the provided parameters.
+        """
         if index_type and index_type.lower() not in {"gist", "spgist"}:
             raise ValueError(
                 "Exclusion constraints only support GiST or SP-GiST indexes."
@@ -67,6 +81,9 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def _get_expressions(self, schema_editor, query):
+        """
+        Constructs a list of exclusion constraint expressions from the given expressions and resolves them for the specified query.
+        """
         expressions = []
         for idx, (expression, operator) in enumerate(self.expressions):
             if isinstance(expression, str):
@@ -77,6 +94,9 @@ class ExclusionConstraint(BaseConstraint):
         return ExpressionList(*expressions).resolve_expression(query)
 
     def _check(self, model, connection):
+        """
+        Checks if the expressions in this object reference valid fields in the given model through a connection.
+        """
         references = set()
         for expr, _ in self.expressions:
             if isinstance(expr, str):
@@ -85,6 +105,9 @@ class ExclusionConstraint(BaseConstraint):
         return self._check_references(model, references)
 
     def _get_condition_sql(self, compiler, schema_editor, query):
+        """
+        Generates SQL for a condition based on the provided query, returning the formatted SQL string or None if no condition exists.
+        """
         if self.condition is None:
             return None
         where = query.build_where(self.condition)
@@ -92,6 +115,15 @@ class ExclusionConstraint(BaseConstraint):
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def constraint_sql(self, model, schema_editor):
+        """
+        Generates a SQL string for creating a database constraint.
+
+        This function takes a model and a schema editor as input, and returns a SQL statement 
+        that can be used to create the constraint in the database. The constraint is defined 
+        by the expressions and conditions specified in this object, and can include or exclude 
+        specific fields as needed. The resulting SQL statement is formatted according to the 
+        database connection being used. 
+        """
         query = Query(model, alias_cols=False)
         compiler = query.get_compiler(connection=schema_editor.connection)
         expressions = self._get_expressions(schema_editor, query)
@@ -128,6 +160,14 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts for serialization or replication.
+
+        Returns a tuple containing the path, positional arguments, and keyword arguments
+        necessary to reconstruct the object. Specific attributes such as expressions, 
+        condition, index type, deferrability, and inclusion are preserved in the 
+        deconstructed representation.
+        """
         path, args, kwargs = super().deconstruct()
         kwargs["expressions"] = self.expressions
         if self.condition is not None:
@@ -177,6 +217,26 @@ class ExclusionConstraint(BaseConstraint):
         )
 
     def validate(self, model, instance, exclude=None, using=DEFAULT_DB_ALIAS):
+        """
+        Validate a model instance against a set of expressions, raising a ValidationError if any of the conditions are not met.
+
+        The validation is performed by constructing a queryset that filters instances of the given model based on the expressions, 
+        and then checking if any instances match the filter. If the condition is not met, a ValidationError is raised.
+
+        The validation can be customized by specifying a set of fields to exclude from the validation, and by using a specific database 
+        connection. The validation also takes into account whether the instance is being added or updated, and excludes the current 
+        instance from the validation if it is being updated.
+
+        Args:
+            model (Model): The model to validate against.
+            instance (Model instance): The instance to validate.
+            exclude (list of str, optional): A list of fields to exclude from the validation.
+            using (str, optional): The database connection to use for the validation.
+
+        Raises:
+            ValidationError: If the validation fails.
+
+        """
         queryset = model._default_manager.using(using)
         replacement_map = instance._get_field_value_map(
             meta=model._meta, exclude=exclude

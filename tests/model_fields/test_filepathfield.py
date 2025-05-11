@@ -12,6 +12,9 @@ class FilePathFieldTests(SimpleTestCase):
         self.assertEqual(field.formfield().path, path)
 
     def test_callable_path(self):
+        """
+        Tests that the FilePathField correctly resolves a callable path to its actual file path location.
+        """
         path = os.path.dirname(__file__)
 
         def generate_path():

@@ -430,6 +430,10 @@ class NoURLPatternsTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
 class URLPatternReverse(SimpleTestCase):
     def test_urlpattern_reverse(self):
+        """
+        Tests the reversal of URL patterns by comparing the result of the reverse function 
+        with expected outputs for various input arguments and keyword arguments.
+        """
         for name, expected, args, kwargs in test_data:
             with self.subTest(name=name, args=args, kwargs=kwargs):
                 try:
@@ -545,6 +549,11 @@ class ResolverTests(SimpleTestCase):
         resolver.resolve(proxy_url)
 
     def test_resolver_reverse(self):
+        """
+        Tests the reverse functionality of the named URL resolver.
+
+        Verifies that named URLs are correctly reversed with various argument and keyword argument combinations.
+        """
         resolver = get_resolver("urlpatterns_reverse.named_urls")
         test_urls = [
             # (name, args, kwargs, expected)
@@ -642,6 +651,9 @@ class ResolverTests(SimpleTestCase):
                             )
 
     def test_namespaced_view_detail(self):
+        """
+        Tests the functionality of a resolver in identifying callback views within a namespaced URL configuration, verifying the correct classification of views and non-view objects.
+        """
         resolver = get_resolver("urlpatterns_reverse.nested_urls")
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view1"))
         self.assertTrue(resolver._is_callback("urlpatterns_reverse.nested_urls.view2"))
@@ -682,6 +694,9 @@ class ReverseLazyTest(TestCase):
         self.assertRedirects(response, "/redirected_to/", status_code=302)
 
     def test_user_permission_with_lazy_reverse(self):
+        """
+        Tests that a view requiring user authentication correctly redirects unauthenticated users to the login page, and allows access once a user is logged in.
+        """
         alfred = User.objects.create_user(
             "alfred", "alfred@example.com", password="testpw"
         )
@@ -732,6 +747,10 @@ class ReverseLazySettingsTest(AdminScriptTestCase):
 class ReverseShortcutTests(SimpleTestCase):
     def test_redirect_to_object(self):
         # We don't really need a model; just something with a get_absolute_url
+        """
+        Tests the redirect function to ensure it correctly returns a redirect response 
+        with the URL of the object passed, supporting both temporary and permanent redirects.
+        """
         class FakeObj:
             def get_absolute_url(self):
                 return "/hi-there/"
@@ -745,6 +764,9 @@ class ReverseShortcutTests(SimpleTestCase):
         self.assertEqual(res.url, "/hi-there/")
 
     def test_redirect_to_view_name(self):
+        """
+        Tests the redirect function to ensure it correctly generates URLs for named views, passing arguments as necessary, and raises an exception for non-existent views.
+        """
         res = redirect("hardcoded2")
         self.assertEqual(res.url, "/hardcoded/doc.pdf")
         res = redirect("places", 1)
@@ -755,6 +777,9 @@ class ReverseShortcutTests(SimpleTestCase):
             redirect("not-a-view")
 
     def test_redirect_to_url(self):
+        """
+        Tests the redirect functionality by verifying that URLs are correctly encoded and preserved.
+        """
         res = redirect("/foo/")
         self.assertEqual(res.url, "/foo/")
         res = redirect("http://example.com/")
@@ -781,6 +806,9 @@ class ReverseShortcutTests(SimpleTestCase):
         self.assertEqual(reverse(nested_view), "/includes/nested_path/")
 
     def test_redirect_view_object(self):
+        """
+        Tests the redirect view object functionality, ensuring it correctly generates URLs for the specified view and raises an error when given invalid arguments.
+        """
         from .views import absolute_kwargs_view
 
         res = redirect(absolute_kwargs_view)
@@ -1337,6 +1365,9 @@ class NamespaceTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF=urlconf_outer.__name__)
 class RequestURLconfTests(SimpleTestCase):
     def test_urlconf(self):
+        """
+        Tests URL configuration by sending GET requests to various URLs and verifying the response status codes and content. Ensures that the outer and inner URL configurations are correctly routed and handled.
+        """
         response = self.client.get("/test/me/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -1353,6 +1384,9 @@ class RequestURLconfTests(SimpleTestCase):
         ]
     )
     def test_urlconf_overridden(self):
+        """
+        Tests that the URL configuration is overridden correctly by verifying the status codes and content of responses to specific URLs, ensuring that the overriding middleware functions as expected.
+        """
         response = self.client.get("/test/me/")
         self.assertEqual(response.status_code, 404)
         response = self.client.get("/inner_urlconf/second_test/")
@@ -1507,6 +1541,10 @@ class NoRootUrlConfTests(SimpleTestCase):
 @override_settings(ROOT_URLCONF="urlpatterns_reverse.namespace_urls")
 class ResolverMatchTests(SimpleTestCase):
     def test_urlpattern_resolve(self):
+        """
+        Tests the resolution of URL patterns, verifying that the URL resolver correctly 
+        matches URLs to their corresponding view functions, view names, and arguments
+        """
         for (
             path_,
             url_name,
@@ -1576,6 +1614,9 @@ class ResolverMatchTests(SimpleTestCase):
 
     @override_settings(ROOT_URLCONF="urlpatterns_reverse.urls")
     def test_repr_functools_partial(self):
+        """
+        Tests the representation of resolver matches for functools.partial wrapped views. The function verifies that the `repr` of a resolved URL matches the expected ResolverMatch object for different view functions and template names.
+        """
         tests = [
             ("partial", "template.html"),
             ("partial_nested", "nested_partial.html"),
@@ -1736,6 +1777,9 @@ class LookaheadTests(SimpleTestCase):
                 self.assertEqual(resolve(test_url).kwargs, {"city": "a-city"})
 
     def test_invalid_resolve(self):
+        """
+        Tests that the resolve function raises a Resolver404 exception for various invalid URLs.
+        """
         test_urls = [
             "/lookahead-/not-a-city/",
             "/lookbehind-/not-a-city/",
@@ -1759,6 +1803,9 @@ class LookaheadTests(SimpleTestCase):
                 self.assertEqual(reverse(name, kwargs=kwargs), expected)
 
     def test_invalid_reverse(self):
+        """
+        Tests that reversing URLs with invalid parameters raises a NoReverseMatch exception. This function checks various combinations of test URLs with incorrect reverse match parameters, ensuring that the reverse function behaves as expected when given invalid input.
+        """
         test_urls = [
             ("lookahead-positive", {"city": "other-city"}),
             ("lookahead-negative", {"city": "not-a-city"}),

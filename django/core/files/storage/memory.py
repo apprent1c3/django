@@ -139,6 +139,14 @@ class InMemoryDirNode(TimingMixin):
         return current_node
 
     def _resolve_child(self, path_segment, create_if_missing, child_cls):
+        """
+        Retrieve or create a child object based on the provided path segment.
+
+        :param path_segment: The identifier of the child object to retrieve or create.
+        :param create_if_missing: Whether to create a new child object if it does not already exist.
+        :param child_cls: The class of the child object to create.
+        :returns: The child object, or None if create_if_missing is False and the child object does not exist.
+        """
         if create_if_missing:
             self._update_accessed_time()
             self._update_modified_time()
@@ -146,6 +154,9 @@ class InMemoryDirNode(TimingMixin):
         return self._children.get(path_segment)
 
     def listdir(self):
+        """
+        Lists the contents of the current directory, returning two lists: one containing the names of subdirectories and the other containing the names of files.
+        """
         directories, files = [], []
         for name, entry in self._children.items():
             if isinstance(entry, InMemoryDirNode):
@@ -172,6 +183,9 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         file_permissions_mode=None,
         directory_permissions_mode=None,
     ):
+        """
+        Initializes an object representing a file system location with optional base URL and permissions settings.
+        """
         self._location = location
         self._base_url = base_url
         self._file_permissions_mode = file_permissions_mode
@@ -213,6 +227,14 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return os.path.relpath(full_path, self.location)
 
     def _resolve(self, name, create_if_missing=False, leaf_cls=None, check_exists=True):
+        """
+        Resolves a given name to a path within the root directory.
+
+        Means to create the path if it does not exist and/or verify its existence can be specified.
+        The resolution process can be tailored to work with different types of leaf nodes.
+
+        Raises a FileExistsError if the resolved path exists but is not a directory.
+        """
         try:
             relative_path = self._relative_path(name)
             return self._root.resolve(
@@ -233,6 +255,18 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return file_node.open(mode)
 
     def _save(self, name, content):
+        """
+        Saves the provided content to a file with the given name.
+
+        This method handles the creation of the file if it does not already exist, 
+        and writes the content in chunks to the file. If the content is a temporary file,
+        it is removed after being written, and the file's modified time is updated.
+
+        :param name: The name of the file to save
+        :param content: The content to be written to the file
+
+        :return: The relative path of the saved file
+        """
         file_node = self._resolve(
             name, create_if_missing=True, leaf_cls=InMemoryFileNode
         )
@@ -253,6 +287,15 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return safe_join(self.location, name)
 
     def delete(self, name):
+        """
+        Deletes a file or directory with the given name.
+
+        Args:
+            name (str): The path to the file or directory to delete.
+
+        Returns:
+            None
+        """
         path, filename = os.path.split(name)
         dir_node = self._resolve(path, check_exists=False)
         if dir_node is None:
@@ -270,6 +313,18 @@ class InMemoryStorage(Storage, StorageSettingsMixin):
         return len(self._open(name, "rb").file.getvalue())
 
     def url(self, name):
+        """
+        Return a URL for a file, by joining the base URL with a URI representation of the file's path. 
+
+        Raises:
+            ValueError: If the file is not accessible via a URL.
+
+        Args:
+            name: The name of the file to generate a URL for.
+
+        Returns:
+            str: The generated URL or None if filepath_to_uri returns None.
+        """
         if self.base_url is None:
             raise ValueError("This file is not accessible via a URL.")
         url = filepath_to_uri(name)

@@ -27,6 +27,9 @@ class Command(BaseCommand):
     help = "Creates new migration(s) for apps."
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments for migration creation to the provided parser, allowing users to customize the migration process by specifying app labels, dry running, fixing conflicts, creating empty migrations, and more.
+        """
         parser.add_argument(
             "args",
             metavar="app_label",
@@ -103,6 +106,13 @@ class Command(BaseCommand):
 
     @no_translations
     def handle(self, *app_labels, **options):
+        """
+        -handle function to manage migration changes in Django.
+            This function is responsible for identifying changes between Django models and the corresponding database schema, 
+            handling conflicts in migrations, and creating or updating migration files accordingly.
+            It accepts various options including verbosity level, interactive mode, dry run, merge, and empty.
+            It utilizes the MigrationLoader and MigrationAutodetector to detect changes and apply necessary actions.
+        """
         self.written_files = []
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
@@ -261,6 +271,21 @@ class Command(BaseCommand):
                 sys.exit(1)
 
     def write_to_last_migration_files(self, changes):
+        """
+
+        Updates the last migration files for the given applications by appending new operations.
+
+        This function modifies the last migration of each specified application, adding new operations and updating dependencies as needed.
+        It also optimizes the operations to minimize unnecessary changes.
+
+        Note that this function checks for potential conflicts, such as attempting to update a migration that has already been applied or that is depended on by other migrations.
+        If such a conflict is detected, a CommandError is raised.
+
+        The function returns a dictionary mapping application labels to updated migration instances, as well as a dictionary of previous migration paths to update.
+
+        :param changes: A dictionary mapping application labels to lists of new migration operations.
+
+        """
         loader = MigrationLoader(connections[DEFAULT_DB_ALIAS])
         new_changes = {}
         update_previous_migration_paths = {}
@@ -395,6 +420,10 @@ class Command(BaseCommand):
 
     @staticmethod
     def get_relative_path(path):
+        """
+        Returns the relative path of the given absolute path, making it relative to the current working directory. 
+        If the path cannot be made relative, the original absolute path is returned.
+        """
         try:
             migration_string = os.path.relpath(path)
         except ValueError:

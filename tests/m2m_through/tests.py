@@ -26,6 +26,9 @@ from .models import (
 class M2mThroughTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the class, creating a set of predefined Person and Group instances for use in subsequent tests.
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.jim = Person.objects.create(name="Jim")
         cls.jane = Person.objects.create(name="Jane")
@@ -33,6 +36,9 @@ class M2mThroughTests(TestCase):
         cls.roll = Group.objects.create(name="Roll")
 
     def test_reverse_inherited_m2m_with_through_fields_list_hashable(self):
+        """
+        Tests that reverse many-to-many fields with through fields are correctly inherited and hashable.
+        """
         reverse_m2m = Person._meta.get_field("events_invited")
         self.assertEqual(reverse_m2m.through_fields, ["event", "invitee"])
         inherited_reverse_m2m = PersonChild._meta.get_field("events_invited")
@@ -69,6 +75,10 @@ class M2mThroughTests(TestCase):
         self.assertEqual(self.rock.membership_set.get().invite_reason, "He is good.")
 
     def test_add_on_m2m_with_intermediate_model_callable_through_default(self):
+        """
+        Tests adding objects to a many-to-many relationship with an intermediate model, 
+        where the intermediate model's field is populated using a callable as its default value.
+        """
         def invite_reason_callable():
             return "They were good at %s" % datetime.now()
 
@@ -169,6 +179,9 @@ class M2mThroughTests(TestCase):
         self.assertSequenceEqual(self.rock.members.all(), [])
 
     def test_remove_on_m2m_with_intermediate_model_multiple(self):
+        """
+        Tests the removal of multiple instances of the same object from a many-to-many relationship with an intermediate model. Verifies that all instances are removed correctly.
+        """
         Membership.objects.create(person=self.jim, group=self.rock, invite_reason="1")
         Membership.objects.create(person=self.jim, group=self.rock, invite_reason="2")
         self.assertSequenceEqual(self.rock.members.all(), [self.jim, self.jim])
@@ -181,6 +194,9 @@ class M2mThroughTests(TestCase):
         self.assertSequenceEqual(self.rock.members.all(), [self.bob, self.jim])
 
     def test_set_on_m2m_with_intermediate_model_value_required(self):
+        """
+        Tests that a many-to-many field with an intermediate model and a value required field behaves correctly when setting and updating values.
+        """
         self.rock.nodefaultsnonulls.set(
             [self.jim], through_defaults={"nodefaultnonull": 1}
         )
@@ -240,6 +256,11 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(self.jim.group_set.all(), [])
 
     def test_query_model_by_attribute_name_of_related_model(self):
+        """
+        Tests the ability to query a model by attribute name of a related model.
+
+        Verifies that filtering a model (Group) based on an attribute of a related model (Person, via Membership) returns the expected results.
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jane, group=self.rock)
         Membership.objects.create(person=self.bob, group=self.roll)
@@ -251,6 +272,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_order_by_relational_field_through_model(self):
+        """
+        Tests the ordering of custom members by a relational field through the model.
+        """
         today = datetime.now()
         yesterday = today - timedelta(days=1)
         CustomMembership.objects.create(
@@ -275,6 +299,9 @@ class M2mThroughTests(TestCase):
         )
 
     def test_query_first_model_by_intermediate_model_attribute(self):
+        """
+        Tests filtering of groups based on attributes of their intermediate model, specifically retrieving the group with a member who has a specific invite reason.
+        """
         Membership.objects.create(
             person=self.jane, group=self.roll, invite_reason="She was just awesome."
         )
@@ -287,6 +314,9 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(qs, ["Roll"], attrgetter("name"))
 
     def test_query_second_model_by_intermediate_model_attribute(self):
+        """
+        Tests querying a model by an attribute of an intermediate model, ensuring the correct results are returned when filtering by a specific attribute value.
+        """
         Membership.objects.create(
             person=self.jane, group=self.roll, invite_reason="She was just awesome."
         )
@@ -299,6 +329,9 @@ class M2mThroughTests(TestCase):
         self.assertQuerySetEqual(qs, ["Jane"], attrgetter("name"))
 
     def test_query_model_by_related_model_name(self):
+        """
+        Tests querying the Person model by the name of a related Group model through the Membership intermediate model.
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(person=self.jane, group=self.rock)
         Membership.objects.create(person=self.bob, group=self.roll)
@@ -322,6 +355,10 @@ class M2mThroughTests(TestCase):
         )
 
     def test_query_model_by_intermediate_can_return_non_unique_queryset(self):
+        """
+        Tests that querying a model through an intermediate model can return a non-unique queryset, 
+        demonstrating that duplicates can occur when using many-to-many relationships with intermediate models.
+        """
         Membership.objects.create(person=self.jim, group=self.rock)
         Membership.objects.create(
             person=self.jane, group=self.rock, date_joined=datetime(2006, 1, 1)
@@ -398,6 +435,10 @@ class M2mThroughReferentialTests(TestCase):
         self.assertQuerySetEqual(chris.friends.all(), [])
 
     def test_self_referential_non_symmetrical_clear_first_side(self):
+        """
+        Tests that clearing friendships from one side of a self-referential many-to-many relationship 
+        correctly removes the relationship, verifying the 'first' and 'second' sides are not symmetrically updated.
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         Friendship.objects.create(
@@ -412,6 +453,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertQuerySetEqual(tony.friends.all(), ["Chris"], attrgetter("name"))
 
     def test_self_referential_non_symmetrical_both(self):
+        """
+        Tests the creation and querying of self-referential, non-symmetrical many-to-many relationships between individuals, verifying that friendships are correctly established and retrieved in both directions.
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         Friendship.objects.create(
@@ -426,6 +470,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertQuerySetEqual(chris.friends.all(), ["Tony"], attrgetter("name"))
 
     def test_through_fields_self_referential(self):
+        """
+        Tests the ability to traverse self-referential relationships through model fields, ensuring that the correct set of subordinates is returned for a given employee.
+        """
         john = Employee.objects.create(name="john")
         peter = Employee.objects.create(name="peter")
         mary = Employee.objects.create(name="mary")
@@ -440,6 +487,12 @@ class M2mThroughReferentialTests(TestCase):
         )
 
     def test_self_referential_symmetrical(self):
+        """
+
+        Tests symmetrical self-referential many-to-many relationships in PersonSelfRefM2M model.
+        Verifies that friendships are not automatically symmetrical and must be explicitly created in both directions.
+
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         SymmetricalFriendship.objects.create(
@@ -457,6 +510,13 @@ class M2mThroughReferentialTests(TestCase):
         self.assertSequenceEqual(chris.sym_friends.all(), [tony])
 
     def test_add_on_symmetrical_m2m_with_intermediate_model(self):
+        """
+
+        Tests the addition of a symmetrical many-to-many relationship 
+        using an intermediate model, verifying the consistency of friendship 
+        between two entities and the recording of the friendship date.
+
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         date_friended = date(2017, 1, 3)
@@ -467,6 +527,9 @@ class M2mThroughReferentialTests(TestCase):
         self.assertEqual(friendship.date_friended, date_friended)
 
     def test_set_on_symmetrical_m2m_with_intermediate_model(self):
+        """
+        Tests the functionality of setting related objects on a symmetrical many-to-many relationship with an intermediate model, ensuring that the relationships are correctly established and updated.
+        """
         tony = PersonSelfRefM2M.objects.create(name="Tony")
         chris = PersonSelfRefM2M.objects.create(name="Chris")
         anne = PersonSelfRefM2M.objects.create(name="Anne")
@@ -511,6 +574,14 @@ class M2mThroughReferentialTests(TestCase):
 class M2mThroughToFieldsTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+
+        Sets up test data for recipes and ingredients.
+
+        Creates a set of default ingredients (pea, potato, tomato) and a recipe (curry),
+        then associates the ingredients with the recipe.
+
+        """
         cls.pea = Ingredient.objects.create(iname="pea")
         cls.potato = Ingredient.objects.create(iname="potato")
         cls.tomato = Ingredient.objects.create(iname="tomato")

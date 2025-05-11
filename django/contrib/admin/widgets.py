@@ -40,6 +40,13 @@ class FilteredSelectMultiple(forms.SelectMultiple):
         super().__init__(attrs, choices)
 
     def get_context(self, name, value, attrs):
+        """
+        :return: The context for the widget with additional class and data attributes.
+        :rtype: dict
+
+        This function customizes the widget context by adding specific CSS classes and data attributes, 
+        depending on the widget's configuration, to enable filtering and stacking behavior.
+        """
         context = super().get_context(name, value, attrs)
         context["widget"]["attrs"]["class"] = "selectfilter"
         if self.is_stacked:
@@ -144,6 +151,17 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         super().__init__(attrs)
 
     def get_context(self, name, value, attrs):
+        """
+
+        Return the context for rendering a related object lookup field.
+
+        This function extends the base implementation to include a related URL and link title
+        for looking up related objects, if the related model is registered in the admin site.
+        The URL includes any additional parameters specified by the field.
+        It also sets the CSS class for the widget based on the type of related field.
+        If a value is provided, it generates a label and URL for the related object.
+
+        """
         context = super().get_context(name, value, attrs)
         rel_to = self.rel.model
         if self.admin_site.is_registered(rel_to):
@@ -191,6 +209,12 @@ class ForeignKeyRawIdWidget(forms.TextInput):
         return params
 
     def label_and_url_for_value(self, value):
+        """
+        Returns a human-readable label and URL for a given value, resolving it to a related model instance if possible.
+
+            :param value: The value to look up
+            :return: A tuple containing a truncated label and a URL for the related object, or empty strings if no object is found
+        """
         key = self.rel.get_related_field().name
         try:
             obj = self.rel.model._default_manager.using(self.db).get(**{key: value})
@@ -261,6 +285,15 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         can_delete_related=False,
         can_view_related=False,
     ):
+        """
+
+        Initializes a related object widget in an admin site.
+
+        This widget is used to display and manage related objects in an admin interface.
+        It determines the capabilities of the widget, such as adding, changing, deleting, or viewing related objects,
+        based on the provided widget, relationship, and admin site settings.
+
+        """
         self.needs_multipart_form = widget.needs_multipart_form
         self.attrs = widget.attrs
         self.widget = widget
@@ -283,6 +316,9 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         self.admin_site = admin_site
 
     def __deepcopy__(self, memo):
+        """
+        Custom implementation of the deepcopy protocol to create a deep copy of the object, including its widget and attributes, while handling recursive references.
+        """
         obj = copy.copy(self)
         obj.widget = copy.deepcopy(self.widget, memo)
         obj.attrs = self.widget.attrs
@@ -313,6 +349,19 @@ class RelatedFieldWidgetWrapper(forms.Widget):
         )
 
     def get_context(self, name, value, attrs):
+        """
+        Returns a dictionary of context variables used to render a related object lookup widget.
+
+        The context includes information about the related model, the rendered widget, and URLs for adding, changing, and deleting related objects, where applicable.
+
+        Parameters:
+            name (str): The name of the field.
+            value (str): The value of the field.
+            attrs (dict): The HTML attributes of the field.
+
+        Returns:
+            dict: A dictionary of context variables for the related object lookup widget.
+        """
         from django.contrib.admin.views.main import IS_POPUP_VAR, TO_FIELD_VAR
 
         rel_opts = self.rel.model._meta
@@ -384,6 +433,9 @@ class AdminURLFieldWidget(forms.URLInput):
         self.validator = validator_class()
 
     def get_context(self, name, value, attrs):
+        """
+        Returns the widget context for a URL input field, including validation status and formatted labels.
+        """
         try:
             self.validator(value if value else "")
             url_valid = True
@@ -472,6 +524,10 @@ SELECT2_TRANSLATIONS.update({"zh-hans": "zh-CN", "zh-hant": "zh-TW"})
 
 
 def get_select2_language():
+    """
+    :return: The Select2 translation code best matching the current language, 
+             falling back to more general language codes if an exact match is not found.
+    """
     lang_code = get_language()
     supported_code = SELECT2_TRANSLATIONS.get(lang_code)
     if supported_code is None and lang_code is not None:
@@ -495,6 +551,9 @@ class AutocompleteMixin:
     url_name = "%s:autocomplete"
 
     def __init__(self, field, admin_site, attrs=None, choices=(), using=None):
+        """
+        Initializes a filter instance for the admin interface, setting up the field, admin site, and database connection, as well as optional choices and attributes for advanced filtering capabilities.
+        """
         self.field = field
         self.admin_site = admin_site
         self.db = using

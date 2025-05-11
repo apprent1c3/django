@@ -15,6 +15,9 @@ lorem_ipsum = """
 
 class NowTests(TestCase):
     def test_basic(self):
+        """
+        Tests the basic functionality of publishing articles, including updating the published date and filtering articles by publication date. It verifies that an article's published date is updated correctly when set, and that articles can be filtered based on whether their publication date is in the past or future.
+        """
         a1 = Article.objects.create(
             title="How to Django",
             text=lorem_ipsum,

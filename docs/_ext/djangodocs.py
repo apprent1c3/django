@@ -25,6 +25,21 @@ simple_option_desc_re = re.compile(r"([-_a-zA-Z0-9]+)(\s*.*?)(?=,\s+(?:/|-|--)|$
 
 
 def setup(app):
+    """
+
+    Setup function to configure and extend Sphinx application for Django documentation.
+
+    This function adds custom cross-references, object types, directives, and translators to the Sphinx app to support Django-specific documentation.
+
+    It enables features such as:
+        - Custom index templates for settings, template tags, filters, and field lookups
+        - Support for documenting Django admin commands and options
+        - Versioning directives for documenting version added and changed features
+        - Custom HTML builders and translators for Django documentation
+
+    The function returns a dictionary indicating that the extension is safe for parallel reading.
+
+    """
     app.add_crossref_type(
         directivename="setting",
         rolename="setting",
@@ -80,6 +95,12 @@ class VersionDirective(Directive):
     option_spec = {}
 
     def run(self):
+        """
+        Run the directive to document version changes, taking a single argument as the version number.
+        The content of the directive is used to provide additional information about the version change.
+        The directive will raise an error if more than one argument is provided, as comments should be provided within the directive's content instead.
+        The directive will create a version modified node and update the environment accordingly, noting the version change in the changeset domain if available, or the main version change mechanism otherwise.
+        """
         if len(self.arguments) > 1:
             msg = """Only one argument accepted for directive '{directive_name}::'.
             Comments should be provided as content,
@@ -128,6 +149,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
         self.body.append("</table>\n")
 
     def visit_desc_parameterlist(self, node):
+        """
+        Visit a node that represents a parameter list in a function description, initializing variables to track the state of parameter parsing.
+        """
         self.body.append("(")  # by default sphinx puts <big> around the "("
         self.optional_param_level = 0
         self.param_separator = node.child_text_separator
@@ -165,6 +189,13 @@ class DjangoHTMLTranslator(HTMLTranslator):
     }
 
     def visit_versionmodified(self, node):
+        """
+
+        Visits a version modified node, generating HTML content to display version information.
+
+        It creates a div element with a class corresponding to the node's type and appends a span element containing version text.
+
+        """
         self.body.append(self.starttag(node, "div", CLASS=node["type"]))
         version_text = self.version_text.get(node["type"])
         if version_text:
@@ -176,6 +207,9 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
     # Give each section a unique ID -- nice for custom CSS hooks
     def visit_section(self, node):
+        """
+        Modify the section node's 'ids' attribute temporarily by prefixing existing IDs with 's-' and appending the original IDs, then restore the original IDs after processing.
+        """
         old_ids = node.get("ids", [])
         node["ids"] = ["s-" + i for i in old_ids]
         node["ids"].extend(old_ids)
@@ -184,6 +218,10 @@ class DjangoHTMLTranslator(HTMLTranslator):
 
 
 def parse_django_admin_node(env, sig, signode):
+    """
+    ..: 
+        Parse a Django admin node from the provided signature, updating the environment context and generating a node with a descriptive title.
+    """
     command = sig.split(" ")[0]
     env.ref_context["std:program"] = command
     title = "django-admin %s" % sig
@@ -199,6 +237,9 @@ class DjangoStandaloneHTMLBuilder(StandaloneHTMLBuilder):
     name = "djangohtml"
 
     def finish(self):
+        """
+        Generates a JavaScript file containing Django template built-ins. The file, named 'templatebuiltins.js', includes a dictionary of built-in template tags and filters, which are extracted from the documentation environment. This file can be used to provide autocompletion or other IDE features for Django templates.
+        """
         super().finish()
         logger.info(bold("writing templatebuiltins.js..."))
         xrefs = self.env.domaindata["std"]["objects"]
@@ -307,7 +348,16 @@ class ConsoleDirective(CodeBlock):
     WIN_PROMPT = r"...\> "
 
     def run(self):
+        """
+        Converts a console code block to be compatible with Windows, handling Unix-style paths, commands, and prompts, and stores the original and converted code in a ConsoleNode.
+        """
         def args_to_win(cmdline):
+            """
+            Converts a Unix-style command line string to a Windows-compatible string. 
+            Replace Unix-style paths and executable names with their Windows equivalents,
+            and convert forward slashes in paths to backslashes unless the string appears
+            to be a URL or a git command. If no modifications are needed, returns the original string.
+            """
             changed = False
             out = []
             for token in cmdline.split():
@@ -330,6 +380,9 @@ class ConsoleDirective(CodeBlock):
             return cmdline
 
         def cmdline_to_win(line):
+            """
+            Converts a command line string to its Windows equivalent, handling various Unix-specific prefixes and command names.
+            """
             if line.startswith("# "):
                 return "REM " + args_to_win(line[2:])
             if line.startswith("$ # "):
@@ -351,6 +404,9 @@ class ConsoleDirective(CodeBlock):
             return None
 
         def code_block_to_win(content):
+            """
+            Converts a block of code to a Windows-compatible format by modifying command lines and adding a Windows prompt, returning the modified code block if any changes were made.
+            """
             bchanged = False
             lines = []
             for line in content:

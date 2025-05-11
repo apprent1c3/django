@@ -16,6 +16,13 @@ class AuthConfig(AppConfig):
     verbose_name = _("Authentication and Authorization")
 
     def ready(self):
+        """
+
+        Performs setup tasks required for the module to function correctly.
+
+        This includes connecting signals for permission creation, last login updates, and registering checks for user models, model permissions, and middleware.
+
+        """
         post_migrate.connect(
             create_permissions,
             dispatch_uid="django.contrib.auth.management.create_permissions",

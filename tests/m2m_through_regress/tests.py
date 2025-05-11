@@ -10,6 +10,9 @@ from .models import Car, CarDriver, Driver, Group, Membership, Person, UserMembe
 class M2MThroughTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the test suite, creating sample persons, groups, users, and memberships to facilitate testing of various scenarios and interactions between these entities.
+        """
         cls.bob = Person.objects.create(name="Bob")
         cls.jim = Person.objects.create(name="Jim")
 
@@ -121,6 +124,9 @@ class M2MThroughSerializationTestCase(TestCase):
 class ToFieldThroughTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the class, creating instances of cars and drivers, and associating them for use in tests.
+        """
         cls.car = Car.objects.create(make="Toyota")
         cls.driver = Driver.objects.create(name="Ryan Briscoe")
         CarDriver.objects.create(car=cls.car, driver=cls.driver)

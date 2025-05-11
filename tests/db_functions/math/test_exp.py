@@ -16,6 +16,9 @@ class ExpTests(TestCase):
         self.assertIsNone(obj.null_exp)
 
     def test_decimal(self):
+        """
+        Verifies that database model decimal fields can be correctly annotated with exponential values, and that the calculated exponential values match the expected results using the math library's exp function.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_exp=Exp("n1"), n2_exp=Exp("n2")).first()
         self.assertIsInstance(obj.n1_exp, Decimal)
@@ -24,6 +27,12 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.n2_exp, Decimal(math.exp(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the Exponential function in the Django ORM.
+
+        Verifies that the Exp function correctly calculates the exponential of model fields
+        and returns a float result, comparing it to the expected result from the math library.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_exp=Exp("f1"), f2_exp=Exp("f2")).first()
         self.assertIsInstance(obj.f1_exp, float)
@@ -32,6 +41,9 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.f2_exp, math.exp(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the exponential function (Exp) on integer model fields, verifying that it correctly calculates the exponential value and returns a float result.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_exp=Exp("small"),
@@ -46,6 +58,9 @@ class ExpTests(TestCase):
         self.assertAlmostEqual(obj.big_exp, math.exp(obj.big))
 
     def test_transform(self):
+        """
+        Performs a test on the transformation of decimal fields by exponentiation, verifying that objects can be correctly filtered based on the result of this transformation.
+        """
         with register_lookup(DecimalField, Exp):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

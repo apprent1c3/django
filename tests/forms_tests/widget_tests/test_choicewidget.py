@@ -43,6 +43,9 @@ class ChoiceWidgetTest(WidgetTest):
         self.assertIsNot(widget.attrs, obj.attrs)
 
     def test_options(self):
+        """
+        Tests the widget options method with custom attributes and filters by name and values, verifying the correctness of generated options including their labels, values, indices, and selection status.
+        """
         options = list(
             self.widget(choices=self.beatles).options(
                 "name",

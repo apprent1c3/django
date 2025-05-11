@@ -35,6 +35,14 @@ class ATan2(NumericOutputFieldMixin, Func):
     arity = 2
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generate SQL for a SQLite database, applying necessary field type conversions when using an older version of the SpatiaLite library.
+
+        Works by casting integer fields to float if the SpatiaLite version is less than 5.0.0, and then delegating to the default SQL generation method.
+
+        :raises: None
+        :returns: SQL string
+        """
         if not getattr(
             connection.ops, "spatialite", False
         ) or connection.ops.spatial_version >= (5, 0, 0):
@@ -114,6 +122,9 @@ class Log(FixDecimalInputMixin, NumericOutputFieldMixin, Func):
     arity = 2
 
     def as_sqlite(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL representation of this query for use with a SQLite database, taking into account any spatialite operations that may be required. If spatialite support is not available, falls back to the standard SQL generation method.
+        """
         if not getattr(connection.ops, "spatialite", False):
             return self.as_sql(compiler, connection)
         # This function is usually Log(b, x) returning the logarithm of x to

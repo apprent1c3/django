@@ -6,6 +6,9 @@ from .base import WidgetTest
 
 class WidgetTests(WidgetTest):
     def test_format_value(self):
+        """
+        Tests the format_value method of the Widget class, verifying it correctly handles None, empty string, and various data type inputs by returning the expected formatted values or None if input is empty or None.
+        """
         widget = Widget()
         self.assertIsNone(widget.format_value(None))
         self.assertIsNone(widget.format_value(""))

@@ -21,6 +21,16 @@ def sql_flush(style, connection, reset_sequences=True, allow_cascade=False):
 
 def emit_pre_migrate_signal(verbosity, interactive, db, **kwargs):
     # Emit the pre_migrate signal for every application.
+    """
+    Emits a signal to trigger pre-migration handlers for all installed applications.
+
+    :param int verbosity: The level of verbose output
+    :param bool interactive: Whether the migration is being performed interactively
+    :param str db: The database alias to use for the migration
+    :param kwargs: Additional keyword arguments to pass to the signal handler
+
+    :Returns: None
+    """
     for app_config in apps.get_app_configs():
         if app_config.models_module is None:
             continue
@@ -41,6 +51,9 @@ def emit_pre_migrate_signal(verbosity, interactive, db, **kwargs):
 
 def emit_post_migrate_signal(verbosity, interactive, db, **kwargs):
     # Emit the post_migrate signal for every application.
+    """
+    Emits a post-migrate signal to notify all registered handlers that database migrations have been applied for the given database. This allows applications to perform any necessary post-migration setup or processing. The signal is sent for each application configuration with a models module.
+    """
     for app_config in apps.get_app_configs():
         if app_config.models_module is None:
             continue

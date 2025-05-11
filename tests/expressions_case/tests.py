@@ -36,6 +36,9 @@ except ImportError:
 class CaseExpressionTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the CaseTestModel and related models, creating instances with varying values for integer and string fields, and establishes one-to-one and foreign key relationships between them. Additionally, determines the fields that can be used for grouping based on the database's capabilities.
+        """
         o = CaseTestModel.objects.create(integer=1, integer2=1, string="1")
         O2OCaseTestModel.objects.create(o2o=o, integer=1)
         FKCaseTestModel.objects.create(fk=o, integer=1)
@@ -1566,6 +1569,11 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_conditional_aggregation_example(self):
+        """
+
+        Tests conditional aggregation functionality on Client model, verifying counts and sums of clients by account type.
+
+        """
         Client.objects.create(
             name="Jean Grey",
             account_type=Client.REGULAR,
@@ -1626,6 +1634,12 @@ class CaseDocumentationExamples(TestCase):
         )
 
     def test_hash(self):
+        """
+        Tests that the hash values of Case expressions are correctly calculated, 
+        ensuring that equivalent expressions have the same hash value and non-equivalent 
+        expressions have different hash values, regardless of the type of values used for 
+        the 'in' operator and the presence of the output_field parameter.
+        """
         expression_1 = Case(
             When(account_type__in=[Client.REGULAR, Client.GOLD], then=1),
             default=2,
@@ -1655,6 +1669,9 @@ class CaseWhenTests(SimpleTestCase):
             Case(When(Q(pk__in=[])), object())
 
     def test_invalid_when_constructor_args(self):
+        """
+        Tests that the When class constructor raises a TypeError when provided with an invalid condition argument, ensuring it only accepts Q objects, boolean expressions, or lookups.
+        """
         msg = (
             "When() supports a Q object, a boolean expression, or lookups as "
             "a condition."

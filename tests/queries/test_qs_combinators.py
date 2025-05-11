@@ -43,6 +43,11 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_intersection_with_values(self):
+        """
+
+        Tests the intersection of a QuerySet with itself, verifying that it returns the expected results.
+
+        """
         ReservedName.objects.create(name="a", order=2)
         qs1 = ReservedName.objects.all()
         reserved_name = qs1.intersection(qs1).values("name", "order", "id").get()
@@ -64,6 +69,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(len(list(qs1.union(qs2))), 10)
 
     def test_union_none(self):
+        """
+        Tests the union operation on two querysets, one containing numbers less than or equal to 1 and the other containing numbers greater than or equal to 8, verifying that the resulting queryset contains the expected numbers when filtered and when retrieving all results, including an empty result set operation.
+        """
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=8)
         qs3 = qs1.union(qs2)
@@ -103,6 +111,12 @@ class QuerySetSetOperationTests(TestCase):
         self.assertNumbersEqual(qs3.order_by("num")[2:3], [2])
 
     def test_union_slice_index(self):
+        """
+
+        Tests the index-based slicing of a union of two QuerySets.
+        Verifies that the resulting QuerySet returns the expected objects in the correct order.
+
+        """
         Celebrity.objects.create(name="Famous")
         c1 = Celebrity.objects.create(name="Very famous")
 
@@ -112,6 +126,12 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(combined_qs[1], c1)
 
     def test_union_order_with_null_first_last(self):
+        """
+        .. method:: test_union_order_with_null_first_last(self)
+
+            Tests the ordering of a union of querysets when there are null values in the field being ordered, 
+            with nulls appearing at both the start and end of the sequence.
+        """
         Number.objects.filter(other_num=5).update(other_num=None)
         qs1 = Number.objects.filter(num__lte=1)
         qs2 = Number.objects.filter(num__gte=2)
@@ -140,6 +160,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_intersection")
     def test_intersection_with_empty_qs(self):
+        """
+        Tests the intersection operation between QuerySets, particularly when one of the QuerySets is empty, to ensure the resulting QuerySet is also empty.
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.none()
         qs3 = Number.objects.filter(pk__in=[])
@@ -152,6 +175,13 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_difference_with_empty_qs(self):
+        """
+        Tests the difference method of querysets with an empty queryset.
+
+        Verifies that the difference of two querysets with one being empty returns
+        the length of the non-empty queryset, and that the difference of two empty
+        querysets or the difference of an empty queryset with a non-empty one returns 0.
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.none()
         qs3 = Number.objects.filter(pk__in=[])
@@ -164,6 +194,12 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_select_difference")
     def test_difference_with_values(self):
+        """
+        Tests the implementation of the difference method for querysets.
+
+        Verifies that the difference operation correctly returns objects from the first queryset
+        that are not present in the second, and that the results can be retrieved using values() and values_list().
+        """
         ReservedName.objects.create(name="a", order=2)
         qs1 = ReservedName.objects.all()
         qs2 = ReservedName.objects.none()
@@ -174,6 +210,26 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(reserved_name[:2], ("a", 2))
 
     def test_union_with_empty_qs(self):
+        """
+        Tests the behavior of combining querysets with union operations, specifically with empty querysets or querysets with no results.\"\"\"
+
+        \"\"\"Checks if union operation correctly combines results when one of the querysets is empty or results in no objects.\"\"\"
+
+        \"\"\"Verifies that the union operation works correctly with empty querysets in various scenarios, ensuring the expected number of results are returned.\"\"\"
+
+        \"\"\"Tests union behavior with empty querysets, verifying result lengths in different combination scenarios.\"\"\"
+
+        \"\"\"Tests combining querysets using union, focusing on edge cases with empty querysets.\"\"\"
+
+        \"\"\"Verifies union behavior with empty querysets, checking result lengths in multiple scenarios.\"\"\"
+
+        \"\"\"Ensures correct behavior when using union with querysets that contain no results.\"\"\"
+
+        \"\"\"Verifies expected behavior when combining querysets with union, especially in cases involving empty querysets.\"\"\" 
+
+        However since we need to choose one docstring I pick the most general one:
+        \"\"\"Tests combining querysets using union, focusing on edge cases with empty querysets.
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.none()
         qs3 = Number.objects.filter(pk__in=[])
@@ -216,6 +272,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertNumbersEqual(qs1.union(qs2).order_by(F("num").desc()), [3, 2, 1, 0])
 
     def test_ordering_by_f_expression_and_alias(self):
+        """
+        Tests the ordering of querysets by an F-expression and alias, ensuring correct sorting in descending order with and without null values.
+        """
         qs1 = Number.objects.filter(num__lte=1).values(alias=F("other_num"))
         qs2 = Number.objects.filter(num__gte=2, num__lte=3).values(alias=F("other_num"))
         self.assertQuerySetEqual(
@@ -231,6 +290,12 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_with_values(self):
+        """
+        Tests the use of union and values/expression methods on a queryset, ensuring 
+        correct data retrieval and manipulation of ReservedName objects, specifically 
+        verifying the output of union operations combined with values and values_list 
+        methods on querysets containing ReservedName instances.
+        """
         ReservedName.objects.create(name="a", order=2)
         qs1 = ReservedName.objects.all()
         reserved_name = qs1.union(qs1).values("name", "order", "id").get()
@@ -300,6 +365,10 @@ class QuerySetSetOperationTests(TestCase):
         self.assertCountEqual(qs1.union(qs2).values_list("num", flat=True), [1, 9])
 
     def test_union_with_values_list_and_order(self):
+        """
+        Tests the union of two Django querysets, specifically the ReservedName model, 
+        with various ordering and values_list parameters to ensure correct results.
+        """
         ReservedName.objects.bulk_create(
             [
                 ReservedName(name="rn1", order=7),
@@ -355,6 +424,20 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_order_by_annotation_transform(self):
+        """
+        Tests that attempting to order combined queries by transformation raises a NotImplementedError.\"\"\"
+
+        \"\"\"Verifies that ordering combined queries by transforms is correctly identified as unimplemented.\"\"\"
+
+        Simplified: 
+        \"\"\"Tests ordering by a transformation annotation on a combined query.\"\"\"
+
+        Best variant:
+        \"\"\"Tests that ordering by annotation transforms on union queries raises NotImplementedError.\"\"\"
+
+        Let the best concise answer be:
+        \"\"\"Tests ordering by annotation transforms on union queries is not implemented.
+        """
         class Mod2(Mod, Transform):
             def __init__(self, expr):
                 super().__init__(expr, 2)
@@ -372,6 +455,10 @@ class QuerySetSetOperationTests(TestCase):
             list(qs1.union(qs2).order_by("annotation__mod2"))
 
     def test_union_with_select_related_and_order(self):
+        """
+        Tests the union of two QuerySets with select_related and order_by clauses, 
+        ensuring the correct results are returned in the expected order.
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e1")
         a1 = Author.objects.create(name="a1", num=1, extra=e1)
         a2 = Author.objects.create(name="a2", num=3, extra=e1)
@@ -383,6 +470,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipUnlessDBFeature("supports_slicing_ordering_in_compound")
     def test_union_with_select_related_and_first(self):
+        """
+        Tests the union of two querysets with select_related and ordering, verifying correct ordering and first result retrieval when database supports slicing ordering in compound queries.
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e1")
         a1 = Author.objects.create(name="a1", num=1, extra=e1)
         Author.objects.create(name="a2", num=3, extra=e1)
@@ -392,6 +482,11 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(qs1.union(qs2).order_by("name").first(), a1)
 
     def test_union_with_first(self):
+        """
+        Tests that the union of two querysets returns the expected result when using the first() method.
+
+        Verifies that the first object in the combined queryset is the expected instance of Author.
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e1")
         a1 = Author.objects.create(name="a1", num=1, extra=e1)
         base_qs = Author.objects.order_by()
@@ -418,6 +513,10 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_multiple_models_with_values_list_and_annotations(self):
+        """
+        Tests the union of multiple querysets with annotated values and ordering, 
+        ensuring correct combination and sorting of results from different models.
+        """
         ReservedName.objects.create(name="rn1", order=10)
         Celebrity.objects.create(name="c1")
         qs1 = ReservedName.objects.annotate(row_type=Value("rn")).values_list(
@@ -451,6 +550,10 @@ class QuerySetSetOperationTests(TestCase):
         )
 
     def test_union_in_subquery_related_outerref(self):
+        """
+        Tests the usage of a union operation in a subquery with OuterRef, 
+        filtering authors based on conditions referencing the outer query.
+        """
         e1 = ExtraInfo.objects.create(value=7, info="e3")
         e2 = ExtraInfo.objects.create(value=5, info="e2")
         e3 = ExtraInfo.objects.create(value=1, info="e1")
@@ -524,6 +627,13 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(qs1.intersection(qs2).count(), 1)
 
     def test_exists_union(self):
+        """
+
+        Tests the optimization of a union operation on QuerySets by checking that it produces a single efficient database query.
+
+        The test ensures that the union query correctly checks for the existence of at least one result without selecting the primary key column.
+
+        """
         qs1 = Number.objects.filter(num__gte=5)
         qs2 = Number.objects.filter(num__lte=5)
         with CaptureQueriesContext(connection) as context:
@@ -581,6 +691,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipIfDBFeature("supports_slicing_ordering_in_compound")
     def test_unsupported_ordering_slicing_raises_db_error(self):
+        """
+        Tests that using slicing or ordering in subqueries of compound database statements raises a DatabaseError.
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         qs3 = Number.objects.all()
@@ -595,6 +708,9 @@ class QuerySetSetOperationTests(TestCase):
 
     @skipIfDBFeature("supports_select_intersection")
     def test_unsupported_intersection_raises_db_error(self):
+        """
+        Tests that attempting to use the intersection method on a query set raises a NotSupportedError when the database backend does not support intersection operations.
+        """
         qs1 = Number.objects.all()
         qs2 = Number.objects.all()
         msg = "intersection is not supported on this database backend"
@@ -608,6 +724,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(list(qs1.union(qs2).order_by("num")), [1, 99])
 
     def test_order_raises_on_non_selected_column(self):
+        """
+        Checks that attempting to order a union query by a column that is not selected in both queries raises a DatabaseError. The test covers various ways of specifying the ordering column, including using F() expressions and descending order.
+        """
         qs1 = (
             Number.objects.filter()
             .annotate(
@@ -640,6 +759,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertEqual(qs1.difference(qs2).count(), 2)
 
     def test_order_by_same_type(self):
+        """
+        Tests that ordering of a union query by a field of the same type works correctly.
+        """
         qs = Number.objects.all()
         union = qs.union(qs)
         numbers = list(range(10))
@@ -647,6 +769,9 @@ class QuerySetSetOperationTests(TestCase):
         self.assertNumbersEqual(union.order_by("other_num"), reversed(numbers))
 
     def test_unsupported_operations_on_combined_qs(self):
+        """
+        Tests that unsupported operations raise a NotSupportedError when applied to QuerySets created by union, difference, or intersection operations.
+        """
         qs = Number.objects.all()
         msg = "Calling QuerySet.%s() after %s() is not supported."
         combinators = ["union"]
@@ -683,6 +808,9 @@ class QuerySetSetOperationTests(TestCase):
                 getattr(qs, combinator)(qs).contains(obj)
 
     def test_get_with_filters_unsupported_on_combined_qs(self):
+        """
+        Tests that calling QuerySet.get() with filters after combining querysets using union, intersection, or difference is not supported and raises a NotSupportedError.
+        """
         qs = Number.objects.all()
         msg = "Calling QuerySet.get(...) with filters after %s() is not supported."
         combinators = ["union"]
@@ -696,6 +824,13 @@ class QuerySetSetOperationTests(TestCase):
                     getattr(qs, combinator)(qs).get(num=2)
 
     def test_operator_on_combined_qs_error(self):
+        """
+        Tests that attempting to use bitwise operators on combined querysets raises a TypeError.
+
+        Verifies that the union, difference, and intersection methods cannot be used in conjunction with bitwise operators like |, &, and ^. 
+
+        The test checks both the order of operands (qs and combined_qs) to ensure the error is raised consistently. 
+        """
         qs = Number.objects.all()
         msg = "Cannot use %s operator with combined queryset."
         combinators = ["union"]

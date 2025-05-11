@@ -85,6 +85,13 @@ class DumpDataAssertMixin:
         exclude_list=[],
         primary_keys="",
     ):
+        """
+
+        Checks if the output of the 'dumpdata' management command matches the expected output.
+
+        Supports various output formats, including JSON, XML, and plain text, with optional compression.
+
+        """
         new_io = StringIO()
         filename = filename and os.path.join(tempfile.gettempdir(), filename)
         management.call_command(
@@ -133,6 +140,15 @@ class DumpDataAssertMixin:
 
 class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_loading_and_dumping(self):
+        """
+
+        Tests the loading and dumping of fixtures through the Django management commands.
+
+        This test case checks that data can be loaded from JSON and XML fixtures, and that
+        it can be dumped back out in both formats, with the option to use natural keys for
+        foreign key relationships.
+
+        """
         apps.clear_cache()
         Site.objects.all().delete()
         # Load fixture 1. Single JSON file, with two objects.
@@ -516,6 +532,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_dumpdata_with_excludes(self):
         # Load fixture1 which has a site, two articles, and a category
+        """
+        Tests the dumpdata management command with various exclude options, ensuring it correctly includes and excludes models as specified.
+        """
         Site.objects.all().delete()
         management.call_command("loaddata", "fixture1.json", verbosity=0)
 
@@ -581,6 +600,12 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_filtering_manager(self):
+        """
+
+        Tests the dumpdata functionality with a filtering manager, verifying that it correctly 
+        exports the desired data while respecting the filtering rules.
+
+        """
         spy1 = Spy.objects.create(name="Paul")
         spy2 = Spy.objects.create(name="Alex", cover_blown=True)
         self.assertSequenceEqual(Spy.objects.all(), [spy1])
@@ -601,6 +626,10 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_dumpdata_with_pks(self):
+        """
+        Tests the behavior of the dumpdata management command when used with the --pks option to specify primary keys. 
+        Verifies that the command correctly dumps data for models with specified primary keys and raises an error when used with multiple models.
+        """
         management.call_command("loaddata", "fixture1.json", verbosity=0)
         management.call_command("loaddata", "fixture2.json", verbosity=0)
         self._dumpdata_assert(
@@ -665,6 +694,11 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
             )
 
     def test_dumpdata_with_uuid_pks(self):
+        """
+        Tests the dumpdata command with models having UUID primary keys.
+
+        Verifies that the command correctly outputs the primary keys for specified models when using UUIDs.
+        """
         m1 = PrimaryKeyUUIDModel.objects.create()
         m2 = PrimaryKeyUUIDModel.objects.create()
         output = StringIO()
@@ -940,6 +974,14 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
             management.call_command("loaddata", "null_character_in_field_value.json")
 
     def test_loaddata_app_option(self):
+        """
+
+        Tests the loaddata command when loading a fixture from a specific app.
+
+        Verifies that the fixture is not loaded when the app_label is incorrect, 
+        and that it is loaded correctly when the app_label matches the fixture's app.
+
+        """
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'db_fixture_1' found."
         ):
@@ -987,6 +1029,12 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
     def test_unmatched_identifier_loading(self):
         # Db fixture 3 won't load because the database identifier doesn't
         # match.
+        """
+
+        Tests that loading a non-existent fixture raises a CommandError with a descriptive message, 
+        and that no data is loaded when the fixture is not found.
+
+        """
         with self.assertRaisesMessage(
             CommandError, "No fixture named 'db_fixture_3' found."
         ):
@@ -1001,6 +1049,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
 
     def test_output_formats(self):
         # Load back in fixture 1, we need the articles from it
+        """
+        Tests the output formats of fixture data, including JSON and XML, to ensure they match the expected data after loading the fixtures.
+        """
         management.call_command("loaddata", "fixture1", verbosity=0)
 
         # Try to load fixture 6 using format discovery
@@ -1083,6 +1134,13 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_loading_with_exclude_app(self):
+        """
+
+        Tests that loading data with the exclude option correctly skips specified apps.
+
+        Verifies that running the loaddata command with the exclude argument prevents the loading of data for the specified models.
+
+        """
         Site.objects.all().delete()
         management.call_command(
             "loaddata", "fixture1", exclude=["fixtures"], verbosity=0
@@ -1092,6 +1150,9 @@ class FixtureLoadingTests(DumpDataAssertMixin, TestCase):
         self.assertEqual(Site.objects.get().domain, "example.com")
 
     def test_loading_with_exclude_model(self):
+        """
+        Tests that fixture data is loaded correctly while excluding a specific model, verifying that the excluded model's data is not present and the included models' data is loaded as expected.
+        """
         Site.objects.all().delete()
         management.call_command(
             "loaddata", "fixture1", exclude=["fixtures.Article"], verbosity=0
@@ -1191,6 +1252,10 @@ class FixtureTransactionTests(DumpDataAssertMixin, TransactionTestCase):
     @skipUnlessDBFeature("supports_forward_references")
     def test_format_discovery(self):
         # Load fixture 1 again, using format discovery
+        """
+        Tests the format discovery functionality of the loaddata management command, 
+        ensuring correct data loading and handling of forward references and duplicate fixtures.
+        """
         management.call_command("loaddata", "fixture1", verbosity=0)
         self.assertSequenceEqual(
             Article.objects.values_list("headline", flat=True),
@@ -1236,6 +1301,12 @@ class FixtureTransactionTests(DumpDataAssertMixin, TransactionTestCase):
 
 class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
     def test_forward_reference_fk(self):
+        """
+        Test that forward references in fixtures are properly resolved for foreign keys.
+
+        Verifies that loading data from a fixture with forward references correctly establishes
+        relationships between models, and that subsequent data dumps accurately represent these relationships.
+        """
         management.call_command("loaddata", "forward_reference_fk.json", verbosity=0)
         t1, t2 = NaturalKeyThing.objects.all()
         self.assertEqual(t1.other_thing, t2)
@@ -1249,6 +1320,12 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_forward_reference_fk_natural_key(self):
+        """
+        Test forward reference foreign key with natural key serialization.
+
+        Verifies that forward references in foreign keys are properly handled when
+        serialized with natural keys, ensuring data integrity and consistency.
+        """
         management.call_command(
             "loaddata",
             "forward_reference_fk_natural_key.json",
@@ -1268,6 +1345,9 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_forward_reference_m2m(self):
+        """
+        Tests a forward reference many-to-many relationship in the NaturalKeyThing model, ensuring data is loaded correctly and that the get_by_natural_key method returns objects with properly associated related objects.
+        """
         management.call_command("loaddata", "forward_reference_m2m.json", verbosity=0)
         self.assertEqual(NaturalKeyThing.objects.count(), 3)
         t1 = NaturalKeyThing.objects.get_by_natural_key("t1")
@@ -1286,6 +1366,9 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_forward_reference_m2m_natural_key(self):
+        """
+        Tests the loading of fixtures with forward references for a many-to-many relationship using natural keys, verifying the correct assignment of related objects and the resulting data dump.
+        """
         management.call_command(
             "loaddata",
             "forward_reference_m2m_natural_key.json",
@@ -1313,6 +1396,9 @@ class ForwardReferenceTests(DumpDataAssertMixin, TestCase):
 
 class CircularReferenceTests(DumpDataAssertMixin, TestCase):
     def test_circular_reference(self):
+        """
+        Tests loading of fixtures with circular references, ensuring the references are correctly established between objects after loading.
+        """
         management.call_command("loaddata", "circular_reference.json", verbosity=0)
         obj_a = CircularA.objects.get()
         obj_b = CircularB.objects.get()
@@ -1327,6 +1413,9 @@ class CircularReferenceTests(DumpDataAssertMixin, TestCase):
         )
 
     def test_circular_reference_natural_key(self):
+        """
+        Tests the handling of circular references when using natural keys.
+        """
         management.call_command(
             "loaddata",
             "circular_reference_natural_key.json",

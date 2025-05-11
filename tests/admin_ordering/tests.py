@@ -73,6 +73,9 @@ class TestAdminOrdering(TestCase):
         self.assertEqual(["Radiohead", "Van Halen", "Aerosmith"], names)
 
     def test_specified_ordering_by_f_expression(self):
+        """
+        Tests that the model admin ordering is applied correctly when specified by an F expression, ensuring that null values are placed last.
+        """
         class BandAdmin(ModelAdmin):
             ordering = (F("rank").desc(nulls_last=True),)
 

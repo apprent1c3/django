@@ -9,6 +9,9 @@ from ..models import DecimalModel, FloatModel, IntegerModel
 
 class ATan2Tests(TestCase):
     def test_null(self):
+        """
+        Tests that the ATan2 function correctly handles null values by annotating an IntegerModel instance with ATan2 calculations involving null operands and verifies that the results are null.
+        """
         IntegerModel.objects.create(big=100)
         obj = IntegerModel.objects.annotate(
             null_atan2_sn=ATan2("small", "normal"),
@@ -32,6 +35,12 @@ class ATan2Tests(TestCase):
         self.assertAlmostEqual(obj.f_atan2, math.atan2(obj.f1, obj.f2))
 
     def test_integer(self):
+        """
+        Tests the ATan2 database function with integer input fields.
+
+        Verifies that ATan2 correctly calculates the arctangent of two fields and returns a float result, 
+        comparing it to the result from the math.atan2 function in Python.
+        """
         IntegerModel.objects.create(small=0, normal=1, big=10)
         obj = IntegerModel.objects.annotate(
             atan2_sn=ATan2("small", "normal"),

@@ -52,6 +52,13 @@ from .models import (
 class NonAggregateAnnotationTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the application, including authors, publishers, books, and stores, with predefined relationships between them.\"\"\"
+
+         Alternatively, a more detailed explanation can be provided if necessary:
+
+         \"\"\"Initializes the test database with sample data, creating instances of Author, Publisher, Book, and Store models, and establishing relationships between authors and their friends, books and their authors, publishers, and stores and the books they carry.
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="Brad Dayley", age=45)
@@ -234,6 +241,12 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_chaining_transforms(self):
+        """
+
+        Tests the chaining of database transform functions, specifically Trim and Length, 
+        on a CharField by annotating a query with a calculated length of trimmed names.
+
+        """
         Company.objects.create(name=" Django Software Foundation  ")
         Company.objects.create(name="Yahoo")
         with register_lookup(CharField, Trim), register_lookup(CharField, Length):
@@ -248,6 +261,9 @@ class NonAggregateAnnotationTestCase(TestCase):
                     )
 
     def test_mixed_type_annotation_date_interval(self):
+        """
+        Tests the usage of mixed type annotation to calculate the expiration date of a ticket by adding its active date and duration. Verifies that the calculated expiration date matches the expected value.
+        """
         active = datetime.datetime(2015, 3, 20, 14, 0, 0)
         duration = datetime.timedelta(hours=1)
         expires = datetime.datetime(2015, 3, 20, 14, 0, 0) + duration
@@ -270,6 +286,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(b.combined, combined)
 
     def test_empty_expression_annotation(self):
+        """
+        Tests that annotating a queryset with an empty expression results in all objects being annotated as False.
+        """
         books = Book.objects.annotate(
             selected=ExpressionWrapper(Q(pk__in=[]), output_field=BooleanField())
         )
@@ -390,6 +409,9 @@ class NonAggregateAnnotationTestCase(TestCase):
 
     @skipUnlessDBFeature("can_distinct_on_fields")
     def test_distinct_on_with_annotation(self):
+        """
+        Tests the functionality of the `distinct` method in combination with annotations, ensuring that it correctly groups and retrieves unique records based on annotated fields.
+        """
         store = Store.objects.create(
             name="test store",
             original_opening=datetime.datetime.now(),
@@ -499,6 +521,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         self.assertEqual(qs.get(), (Decimal(31),))
 
     def test_combined_annotation_commutative(self):
+        """
+        Tests that combined annotations are commutative, verifying that the order of operations does not affect the result and that handling None values is consistent.
+        """
         book1 = Book.objects.annotate(adjusted_rating=F("rating") + 2).get(
             pk=self.b1.pk
         )
@@ -688,6 +713,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_raw_sql_with_inherited_field(self):
+        """
+        Tests the use of raw SQL with inherited fields on DepartmentStore objects, verifying that the results match expected values.
+        """
         DepartmentStore.objects.create(
             name="Angus & Robinson",
             original_opening=datetime.date(2014, 3, 8),
@@ -773,6 +801,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_column_field_ordering_with_deferred(self):
+        """
+        Tests that column field ordering works as expected when using deferred loading with select_related and extra/annotate operations on an Employee queryset.
+        """
         store = Store.objects.first()
         Employee.objects.create(
             id=1,
@@ -824,6 +855,12 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_custom_functions(self):
+        """
+        Tests the annotation of companies with a custom COALESCE function to derive a tagline.
+
+         Verifies that the tagline is correctly set to the company's motto, ticker name, or description, 
+         in that order, and defaults to 'No Tag' if all are empty.
+        """
         Company(
             name="Apple",
             motto=None,
@@ -868,6 +905,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_custom_functions_can_ref_other_functions(self):
+        """
+        Tests that custom database functions can reference other functions to generate dynamic values for model instances, specifically in annotating company data with lowercase taglines.
+        """
         Company(
             name="Apple",
             motto=None,
@@ -924,6 +964,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_boolean_value_annotation(self):
+        """
+        Tests the annotation of Boolean values on a query set, verifying the correctness of True, False, and None values in the resulting objects.
+        """
         books = Book.objects.annotate(
             is_book=Value(True, output_field=BooleanField()),
             is_pony=Value(False, output_field=BooleanField()),
@@ -955,6 +998,9 @@ class NonAggregateAnnotationTestCase(TestCase):
         )
 
     def test_arguments_must_be_expressions(self):
+        """
+        Verifies that :meth:`QuerySet.annotate` correctly raises a TypeError when provided with invalid arguments, specifically non-expression values.
+        """
         msg = "QuerySet.annotate() received non-expression(s): %s."
         with self.assertRaisesMessage(TypeError, msg % BooleanField()):
             Book.objects.annotate(BooleanField())
@@ -1143,6 +1189,9 @@ class NonAggregateAnnotationTestCase(TestCase):
             Book.objects.annotate(**{crafted_alias: Value(1)})
 
     def test_alias_forbidden_chars(self):
+        """
+        Tests that an error is raised when attempting to use a column alias containing forbidden characters, such as whitespace, quotation marks, semicolons, or SQL comments, in a database query annotation.
+        """
         tests = [
             'al"ias',
             "a'lias",
@@ -1171,6 +1220,11 @@ class NonAggregateAnnotationTestCase(TestCase):
 class AliasTests(TestCase):
     @classmethod
     def setUpTestData(cls):
+        """
+        ..: 
+            Sets up test data for database testing, including authors, books, publishers, and stores. 
+            Initializes class attributes with created database objects.
+        """
         cls.a1 = Author.objects.create(name="Adrian Holovaty", age=34)
         cls.a2 = Author.objects.create(name="Jacob Kaplan-Moss", age=35)
         cls.a3 = Author.objects.create(name="James Bennett", age=34)
@@ -1242,6 +1296,14 @@ class AliasTests(TestCase):
         self.assertIs(hasattr(qs.first(), "is_book"), False)
 
     def test_basic_alias_annotation(self):
+        """
+
+        Verifies that alias annotations are correctly applied to a queryset.
+
+        Ensures that an alias is not directly accessible as an attribute on the model instance,
+        but its annotated value is accessible through the annotated field.
+
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
         ).annotate(is_book=F("is_book_alias"))
@@ -1251,6 +1313,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.is_book, 1)
 
     def test_basic_alias_f_annotation(self):
+        """
+        Tests that aliasing an annotation with a different name and then annotating on that alias does not create an extra attribute on the model instance. Verifies that the aliased annotation's value matches the original annotation's value for each model instance in the queryset.
+        """
         qs = Book.objects.alias(another_rating_alias=F("rating")).annotate(
             another_rating=F("another_rating_alias")
         )
@@ -1260,6 +1325,11 @@ class AliasTests(TestCase):
                 self.assertEqual(book.another_rating, book.rating)
 
     def test_basic_alias_f_transform_annotation(self):
+        """
+        Verifies that aliasing a field in a Django ORM query does not add an attribute to the model instance, 
+        while the annotated field is correctly calculated and accessible. Tests the basic functionality of 
+        combining alias and annotation in a query with a date field transformation.
+        """
         qs = Book.objects.alias(
             pubdate_alias=F("pubdate"),
         ).annotate(pubdate_year=F("pubdate_alias__year"))
@@ -1287,6 +1357,10 @@ class AliasTests(TestCase):
                 self.assertEqual(book.is_book, 1)
 
     def test_alias_annotation_expression(self):
+        """
+        Tests that an alias annotation is properly hidden in the resulting queryset, 
+        while the annotated field is correctly exposed and populated with the expected value.
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
         ).annotate(is_book=Coalesce("is_book_alias", 0))
@@ -1303,6 +1377,14 @@ class AliasTests(TestCase):
         self.assertSequenceEqual(qs, [self.a4])
 
     def test_joined_alias_annotation(self):
+        """
+
+        Tests that joined alias annotations are not added as attributes to model instances.
+
+        Verifies that an annotated alias reference is correctly resolved to the underlying 
+        related field value, without exposing the alias as an attribute on the model instance.
+
+        """
         qs = (
             Book.objects.select_related("publisher")
             .alias(
@@ -1316,6 +1398,9 @@ class AliasTests(TestCase):
                 self.assertEqual(book.num_awards, book.publisher.num_awards)
 
     def test_alias_annotate_with_aggregation(self):
+        """
+        Alias annotations are not directly assigned as attributes on the model instance, instead they need to be referenced through the annotate interface. This test case verifies that alias annotations are correctly applied through the annotate method and that the original alias names are not directly accessible as attributes on the model instance.
+        """
         qs = Book.objects.alias(
             is_book_alias=Value(1),
             rating_count_alias=Count("rating"),
@@ -1409,6 +1494,9 @@ class AliasTests(TestCase):
             ).aggregate(otherage_sum=Sum("other_age"))
 
     def test_defer_only_alias(self):
+        """
+        Tests that attempting to use 'defer' or 'only' on an aliased field raises a FieldDoesNotExist error.
+        """
         qs = Book.objects.alias(rating_alias=F("rating") - 1)
         msg = "Book has no field named 'rating_alias'"
         for operation in ["defer", "only"]:
@@ -1424,6 +1512,9 @@ class AliasTests(TestCase):
             qs.distinct("rating_alias").first()
 
     def test_values_alias(self):
+        """
+        Tests that using the `values` and `values_list` methods on a QuerySet with an alias raises a `FieldError`, requiring the use of `annotate` to promote the alias.
+        """
         qs = Book.objects.alias(rating_alias=F("rating") - 1)
         msg = "Cannot select the 'rating_alias' alias. Use annotate() to promote it."
         for operation in ["values", "values_list"]:

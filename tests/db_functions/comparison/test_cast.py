@@ -42,6 +42,9 @@ class CastTests(TestCase):
 
     @skipUnlessDBFeature("supports_cast_with_precision")
     def test_cast_to_decimal_field(self):
+        """
+        Tests casting float fields to Decimal fields with specified precision, ensuring correct rounding and formatting of decimal values, covering both negative and positive numbers with varying decimal places.
+        """
         FloatModel.objects.create(f1=-1.934, f2=3.467)
         float_obj = FloatModel.objects.annotate(
             cast_f1_decimal=Cast(
@@ -86,6 +89,9 @@ class CastTests(TestCase):
         self.assertEqual(numbers.get().cast_fk, 0)
 
     def test_cast_to_duration(self):
+        """
+        Tests the casting of a datetime.timedelta object to a DurationField in a database query, verifying both positive and negative duration values are correctly casted and retrieved.
+        """
         duration = datetime.timedelta(days=1, seconds=2, microseconds=3)
         DTModel.objects.create(duration=duration)
         dtm = DTModel.objects.annotate(
@@ -104,6 +110,9 @@ class CastTests(TestCase):
         self.assertEqual(dtm.start_datetime_as_date, datetime.date(2018, 9, 28))
 
     def test_cast_from_db_datetime_to_time(self):
+        """
+        Tests the database function to cast a datetime value to a time value, verifying that millisecond precision is correctly rounded.
+        """
         dt_value = datetime.datetime(2018, 9, 28, 12, 42, 10, 234567)
         DTModel.objects.create(start_datetime=dt_value)
         dtm = DTModel.objects.annotate(
@@ -127,6 +136,9 @@ class CastTests(TestCase):
         )
 
     def test_cast_from_db_datetime_to_date_group_by(self):
+        """
+        Tests the casting of datetime values from the database to date type when performing group by operations, verifying that the cast is accurate and the aggregation count is correct.
+        """
         author = Author.objects.create(name="John Smith", age=45)
         dt_value = datetime.datetime(2018, 9, 28, 12, 42, 10, 234567)
         Fan.objects.create(name="Margaret", age=50, author=author, fan_since=dt_value)

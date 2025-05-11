@@ -38,6 +38,15 @@ class LagLeadFunction(Func):
     window_compatible = True
 
     def __init__(self, expression, offset=1, default=None, **extra):
+        """
+        Initializes an object representing a source expression with an optional offset and default value.
+
+        :param expression: The source expression, required and must be non-null.
+        :param offset: A positive integer that represents the offset of the expression.
+        :param default: An optional default value to be used when the expression is absent.
+        :param extra: Additional keyword arguments to be passed to the superclass initializer.
+        :raises ValueError: If the expression is None or the offset is not a positive integer.
+        """
         if expression is None:
             raise ValueError(
                 "%s requires a non-null source expression." % self.__class__.__name__
@@ -76,6 +85,9 @@ class NthValue(Func):
     window_compatible = True
 
     def __init__(self, expression, nth=1, **extra):
+        """
+        Initializes the object with an expression and optional parameters, ensuring the expression is non-null and nth is a positive integer.
+        """
         if expression is None:
             raise ValueError(
                 "%s requires a non-null source expression." % self.__class__.__name__

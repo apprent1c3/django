@@ -132,6 +132,9 @@ class OGRGeometry(GDALBase):
 
     # Pickle routines
     def __getstate__(self):
+        """
+        Returns the state of the object as a tuple for serialization, containing the Well-Known Binary (WKB) representation of the geometry and the Spatial Reference System (SRS) in Well-Known Text (WKT) format.
+        """
         srs = self.srs
         if srs:
             srs = srs.wkt
@@ -140,6 +143,9 @@ class OGRGeometry(GDALBase):
         return bytes(self.wkb), srs
 
     def __setstate__(self, state):
+        """
+        Restores the state of the geometry object from a pickled state, setting its WKB representation and spatial reference system.
+        """
         wkb, srs = state
         ptr = capi.from_wkb(wkb, None, byref(c_void_p()), len(wkb))
         if not ptr:

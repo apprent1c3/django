@@ -331,6 +331,13 @@ class SpatialRefTest(SimpleTestCase):
         self.assertIsNone(s1["FOOBAR"])
 
     def test_unicode(self):
+        """
+        Tests the handling of Unicode characters in SpatialReference objects.
+
+        Verifies that SpatialReference objects can correctly parse and export projections 
+        with Unicode names, ensuring that these names are preserved throughout various 
+        operations such as cloning and exporting to different formats like WKT and XML.
+        """
         wkt = (
             'PROJCS["DHDN / Soldner 39 Langschoß",'
             'GEOGCS["DHDN",DATUM["Deutsches_Hauptdreiecksnetz",'
@@ -356,6 +363,9 @@ class SpatialRefTest(SimpleTestCase):
             self.assertIn("Langschoß", srs.xml)
 
     def test_axis_order(self):
+        """
+        Tests the transformation of a point between different spatial references with varying axis orders, verifying that the resulting coordinates match the expected values in both traditional and authority-compliant axis orders.
+        """
         wgs84_trad = SpatialReference(4326, axis_order=AxisOrder.TRADITIONAL)
         wgs84_auth = SpatialReference(4326, axis_order=AxisOrder.AUTHORITY)
         # Coordinate interpretation may depend on the srs axis predicate.
@@ -377,6 +387,9 @@ class SpatialRefTest(SimpleTestCase):
             SpatialReference(4326, axis_order="other")
 
     def test_esri(self):
+        """
+        Tests the conversion of a SpatialReference object to and from ESRI format, verifying that the WKT representation changes as expected.
+        """
         srs = SpatialReference("NAD83")
         pre_esri_wkt = srs.wkt
         srs.to_esri()

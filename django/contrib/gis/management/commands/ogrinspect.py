@@ -42,6 +42,9 @@ class Command(BaseCommand):
     requires_system_checks = []
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments for generating a Django model from an OGR data source, allowing customization of field definitions and generation options.
+        """
         parser.add_argument("data_source", help="Path to the data source.")
         parser.add_argument("model_name", help="Name of the model to create.")
         parser.add_argument(
@@ -109,6 +112,14 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        """
+        Generate OGR inspection code and mapping for a given data source and model.
+
+        This function takes a data source and a model name, inspects the data source using OGR, 
+        and returns the corresponding Python code and mapping. It can also generate a 
+        `LayerMapping` dictionary for automatic model mapping. The generated code is 
+        suitable for use with Django's GIS module.
+        """
         data_source, model_name = options.pop("data_source"), options.pop("model_name")
 
         # Getting the OGR DataSource from the string parameter.

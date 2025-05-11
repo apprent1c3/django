@@ -356,6 +356,18 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
         return self.autocomplete_fields
 
     def get_view_on_site_url(self, obj=None):
+        """
+
+        Returns the view on site URL for the given object.
+
+        This method checks if the view_on_site attribute is set and if an object is provided.
+        If view_on_site is callable, it calls it with the object as an argument.
+        Otherwise, it generates a URL using the admin site's view_on_site view and the object's absolute URL.
+
+        :param obj: The object for which to generate the view on site URL, defaults to None.
+        :returns: The view on site URL or None if not applicable.
+
+        """
         if obj is None or not self.view_on_site:
             return None
 
@@ -450,6 +462,15 @@ class BaseModelAdmin(metaclass=forms.MediaDefiningClass):
     # RemovedInDjango60Warning: when the deprecation ends, replace with:
     # def lookup_allowed(self, lookup, value, request):
     def lookup_allowed(self, lookup, value, request=None):
+        """
+        Determines whether a lookup is allowed for the given model.
+
+        The function checks if a lookup is valid by examining the model's related fields, 
+        the list of allowed lookups, and the list filter configuration. It returns True if 
+        the lookup is allowed, and False otherwise. This is used to restrict lookups to 
+        those that are defined by the model's relationships or explicitly allowed by the 
+        admin interface configuration.
+        """
         from django.contrib.admin.filters import SimpleListFilter
 
         model = self.model
@@ -694,6 +715,11 @@ class ModelAdmin(BaseModelAdmin):
         )
 
     def get_inline_instances(self, request, obj=None):
+        """
+        Retrieves a list of inline instances for the given model, filtered by permission and other criteria, to be used in an admin interface. 
+
+        The returned instances include only those that the current user has permission to view or edit. If the user does not have add permission, the maximum number of instances is set to 0 to prevent adding new instances.
+        """
         inline_instances = []
         for inline_class in self.get_inlines(request, obj):
             inline = inline_class(self.model, self.admin_site)
@@ -711,6 +737,9 @@ class ModelAdmin(BaseModelAdmin):
         return inline_instances
 
     def get_urls(self):
+        """
+        Returns a list of URL patterns for the admin interface of the model, including views for the changelist, add, history, delete, and change pages.
+        """
         from django.urls import path
 
         def wrap(view):
@@ -1176,6 +1205,11 @@ class ModelAdmin(BaseModelAdmin):
 
         # Apply keyword searches.
         def construct_search(field_name):
+            """
+            Constructs a Django ORM lookup string from a given field name, 
+            supporting various prefixes for exact, startswith, and full-text searches,
+            and handling nested fields and placeholder fields like 'pk'.
+            """
             if field_name.startswith("^"):
                 return "%s__istartswith" % field_name.removeprefix("^")
             elif field_name.startswith("="):
@@ -1324,6 +1358,11 @@ class ModelAdmin(BaseModelAdmin):
     def render_change_form(
         self, request, context, add=False, change=False, form_url="", obj=None
     ):
+        """
+        Renders the change form for the given object, incorporating the necessary permissions, formsets, and URLs. 
+        It prepares the context for rendering the template, including the form URL, view on site URL, and editable inline admin formsets.
+        The rendered form can be used for either adding or changing an object, depending on the provided parameters.
+        """
         app_label = self.opts.app_label
         preserved_filters = self.get_preserved_filters(request)
         form_url = add_preserved_filters(
@@ -1581,6 +1620,13 @@ class ModelAdmin(BaseModelAdmin):
             return self.response_post_save_change(request, obj)
 
     def _response_post_save(self, request, obj):
+        """
+        Redirects to the changelist view or admin index page after saving an object.
+
+        Determine the redirect URL based on the user's permission to view or change the object.
+        If permission is granted, redirects to the changelist view with preserved filters.
+        Otherwise, redirects to the admin index page.
+        """
         if self.has_view_or_change_permission(request):
             post_url = reverse(
                 "admin:%s_%s_changelist" % (self.opts.app_label, self.opts.model_name),
@@ -1750,6 +1796,12 @@ class ModelAdmin(BaseModelAdmin):
 
     def get_inline_formsets(self, request, formsets, inline_instances, obj=None):
         # Edit permissions on parent model are required for editable inlines.
+        """
+        Returns a list of inline admin formsets for the given request and object, 
+        taking into account the permissions and fieldsets of each inline instance. 
+        This allows for dynamic generation of formsets based on user permissions 
+        and the current object being edited or viewed.
+        """
         can_edit_parent = (
             self.has_change_permission(request, obj)
             if obj
@@ -1823,6 +1875,33 @@ class ModelAdmin(BaseModelAdmin):
             return self._changeform_view(request, object_id, form_url, extra_context)
 
     def _changeform_view(self, request, object_id, form_url, extra_context):
+        """
+        Renders a form for changing or viewing an object in the model admin interface.
+
+        This view handles both adding new objects and editing existing ones, depending on the provided object_id.
+        It validates the form, formsets, and permissions, and then either saves the changes or displays an error message.
+
+        The view also handles the display of inline formsets and provides context for the template, including the form,
+        formsets, media, and other relevant data. CSRF protection and permission checks are included to ensure security.
+
+        The allowed HTTP methods are GET and POST. If the request method is POST and the form is valid, the view saves
+        the form and related inline formsets, logs the changes, and redirects the user to the response change or add page.
+        If the form is not valid, it displays an error message.
+
+        In case the object does not exist, it redirects to the \"object does not exist\" page.
+
+        The view is typically called from a URL pattern defined in the model admin class.
+
+        Parameters:
+            - request: The current request object.
+            - object_id: The ID of the object being changed or viewed, or None if adding a new object.
+            - form_url: The URL of the form.
+            - extra_context: Any additional context to be passed to the template.
+
+        Returns:
+            A rendered template response with the change form or an error message.
+
+        """
         to_field = request.POST.get(TO_FIELD_VAR, request.GET.get(TO_FIELD_VAR))
         if to_field and not self.to_field_allowed(request, to_field):
             raise DisallowedModelAdminToField(
@@ -2387,6 +2466,11 @@ class InlineModelAdmin(BaseModelAdmin):
     classes = None
 
     def __init__(self, parent_model, admin_site):
+        """
+        Initializes an instance with the parent model and admin site.
+
+         Sets up model metadata and default verbose names for the instance.
+        """
         self.admin_site = admin_site
         self.parent_model = parent_model
         self.opts = self.model._meta
@@ -2402,6 +2486,9 @@ class InlineModelAdmin(BaseModelAdmin):
 
     @property
     def media(self):
+        """
+        Returns the media assets required by the admin interface, including JavaScript files for vendor libraries, initialization, and filter functionality, taking into account debug mode and filter settings.
+        """
         extra = "" if settings.DEBUG else ".min"
         js = ["vendor/jquery/jquery%s.js" % extra, "jquery.init.js", "inlines.js"]
         if self.filter_vertical or self.filter_horizontal:
@@ -2499,6 +2586,9 @@ class InlineModelAdmin(BaseModelAdmin):
 
             def has_changed(self):
                 # Protect against unauthorized edits.
+                """
+                Determines if the object has changed, taking into account its current state and whether changes are allowed. Returns False if changes are not permitted for the object's current state, otherwise delegates to the parent class's has_changed method.
+                """
                 if not can_change and not self.instance._state.adding:
                     return False
                 if not can_add and self.instance._state.adding:

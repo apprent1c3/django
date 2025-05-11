@@ -49,6 +49,9 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Adds command line arguments for loading fixtures into a database, including options for specifying the database, app, fixture labels, and data formats. These arguments allow for customization of fixture loading behavior, such as ignoring non-existent fields and excluding specific models or apps.
+        """
         parser.add_argument(
             "args", metavar="fixture", nargs="+", help="Fixture labels."
         )
@@ -90,6 +93,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+        Load fixture data into a database while allowing for customization of the load process.
+
+        :param fixture_labels: Labels of the fixtures to be loaded
+        :param options: Dictionary of options, including ``ignore``, ``database``, ``app_label``, ``verbosity``, ``exclude``, and ``format``
+        :returns: None 
+
+        Note: This function will automatically commit the loaded data as a single database transaction.
+        """
         self.ignore = options["ignore"]
         self.using = options["database"]
         self.app_label = options["app_label"]
@@ -138,6 +150,9 @@ class Command(BaseCommand):
                     cursor.execute(line)
 
     def loaddata(self, fixture_labels):
+        """
+        Loads fixtures specified by the given labels into the database, ensuring data integrity by checking constraints and resetting sequences as necessary. The loaded fixtures and objects are tracked, and summary information is printed to the console if verbosity is enabled.
+        """
         connection = connections[self.using]
 
         # Keep a count of the installed objects and fixtures
@@ -280,6 +295,17 @@ class Command(BaseCommand):
                 )
 
     def get_fixture_name_and_dirs(self, fixture_name):
+        """
+        Returns the base name and directories of a given fixture.
+
+        Given a fixture name, this function extracts the base name and determines the
+        directories where the fixture should be located. It handles both absolute and
+        relative fixture names, and takes into account the current list of fixture
+        directories.
+
+        :return: A tuple containing the base name of the fixture and a list of directories
+                 where the fixture can be found.
+        """
         dirname, basename = os.path.split(fixture_name)
         if os.path.isabs(fixture_name):
             fixture_dirs = [dirname]
@@ -303,6 +329,15 @@ class Command(BaseCommand):
         }
 
     def find_fixture_files_in_dir(self, fixture_dir, fixture_name, targets):
+        """
+        Retrieves a list of fixture files in a specified directory that match given target names.
+
+            :param fixture_dir: The directory to search for fixture files.
+            :param fixture_name: The name of the fixture to search for.
+            :param targets: A list of target names to match against fixture files.
+            :return: A list of tuples containing the path of matching fixture files, their directory, and fixture name.
+
+        """
         fixture_files_in_dir = []
         path = os.path.join(fixture_dir, fixture_name)
         for candidate in glob.iglob(glob.escape(path) + "*"):

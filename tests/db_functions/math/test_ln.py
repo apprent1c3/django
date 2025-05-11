@@ -16,6 +16,9 @@ class LnTests(TestCase):
         self.assertIsNone(obj.null_ln)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the natural logarithm of Decimal fields using the database's Ln function, verifying the result type and value against the math.log function.
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_ln=Ln("n1"), n2_ln=Ln("n2")).first()
         self.assertIsInstance(obj.n1_ln, Decimal)
@@ -24,6 +27,13 @@ class LnTests(TestCase):
         self.assertAlmostEqual(obj.n2_ln, Decimal(math.log(obj.n2)))
 
     def test_float(self):
+        """
+        ```\"\"\"Tests the natural logarithm database function on float fields.
+
+        Verifies that the Ln function correctly calculates the natural logarithm of float values
+        and returns the result as a float.
+        \"\"\"```
+        """
         FloatModel.objects.create(f1=27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_ln=Ln("f1"), f2_ln=Ln("f2")).first()
         self.assertIsInstance(obj.f1_ln, float)
@@ -32,6 +42,11 @@ class LnTests(TestCase):
         self.assertAlmostEqual(obj.f2_ln, math.log(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the natural logarithm database function on integer fields.
+
+        Verifies that the function correctly calculates the natural logarithm of small, normal, and large integer values, and that the result is a float type.
+        """
         IntegerModel.objects.create(small=20, normal=15, big=1)
         obj = IntegerModel.objects.annotate(
             small_ln=Ln("small"),
@@ -46,6 +61,9 @@ class LnTests(TestCase):
         self.assertAlmostEqual(obj.big_ln, math.log(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField values using the natural logarithm function
+        """
         with register_lookup(DecimalField, Ln):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

@@ -47,6 +47,9 @@ class FunctionTests(SimpleTestCase):
         self.assertEqual(pluralize([1, 2, 3]), "s")
 
     def test_suffixes(self):
+        """
+        Tests the pluralize function to ensure correct suffix handling for various pluralization rules.
+        """
         self.assertEqual(pluralize(1, "es"), "")
         self.assertEqual(pluralize(0, "es"), "es")
         self.assertEqual(pluralize(2, "es"), "es")

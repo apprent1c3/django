@@ -68,6 +68,11 @@ class FlatpageAdminFormTests(TestCase):
         APPEND_SLASH=True, MIDDLEWARE=["django.middleware.common.CommonMiddleware"]
     )
     def test_flatpage_requires_trailing_slash_with_append_slash(self):
+        """
+        Tests that a Flatpage form requires a trailing slash when APPEND_SLASH is enabled.
+
+        Verifies that the form validation fails and displays an appropriate error message when the URL field is missing a trailing slash.
+        """
         form = FlatpageForm(data=dict(url="/no_trailing_slash", **self.form_data))
         with translation.override("en"):
             self.assertEqual(
@@ -135,6 +140,9 @@ class FlatpageAdminFormTests(TestCase):
         self.assertEqual(updated.title, "A test page")
 
     def test_flatpage_nosites(self):
+        """
+        Tests that a Flatpage form is invalid when no sites are selected.
+        """
         data = dict(url="/myflatpage1/", **self.form_data)
         data.update({"sites": ""})
 

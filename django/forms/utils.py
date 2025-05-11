@@ -148,6 +148,9 @@ class ErrorList(UserList, list, RenderableErrorMixin):
     template_name_ul = "django/forms/errors/list/ul.html"
 
     def __init__(self, initlist=None, error_class=None, renderer=None):
+        """
+        Initializes a custom error list object, setting up its initial state and configuration, including the CSS class for errors and the rendering engine to be used.
+        """
         super().__init__(initlist)
 
         if error_class is None:
@@ -165,6 +168,12 @@ class ErrorList(UserList, list, RenderableErrorMixin):
         return copy
 
     def get_json_data(self, escape_html=False):
+        """
+        Retrieves a list of error data in JSON format.
+
+        Contains a list of dictionaries, each with a 'message' and a 'code'. 
+        The 'message' field can optionally have HTML characters escaped if desired.
+        """
         errors = []
         for error in self.as_data():
             message = next(iter(error))

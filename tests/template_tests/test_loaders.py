@@ -27,6 +27,9 @@ class CachedLoaderTests(SimpleTestCase):
         )
 
     def test_get_template(self):
+        """
+        Tests the retrieval of a template by the engine, verifying its origin and caching behavior.
+        """
         template = self.engine.get_template("index.html")
         self.assertEqual(template.origin.name, os.path.join(TEMPLATE_DIR, "index.html"))
         self.assertEqual(template.origin.template_name, "index.html")
@@ -128,6 +131,14 @@ class FileSystemLoaderTests(SimpleTestCase):
 
     @contextmanager
     def set_dirs(self, dirs):
+        """
+
+        Temporarily sets the engine directories for the duration of a context.
+
+        This context manager allows you to change the engine directories, perform some operations, 
+        and then automatically revert back to the original directories when done.
+
+        """
         original_dirs = self.engine.dirs
         self.engine.dirs = dirs
         try:
@@ -137,6 +148,17 @@ class FileSystemLoaderTests(SimpleTestCase):
 
     @contextmanager
     def source_checker(self, dirs):
+        """
+
+        A context manager that provides a function to check the sources of templates.
+
+        Within this context, the `check_sources` function can be used to verify that the
+        expected template sources are loaded from the given path.
+
+        :param dirs: directories to set for the context
+        :yield: a `check_sources` function that takes a path and expected sources to check
+
+        """
         loader = self.engine.template_loaders[0]
 
         def check_sources(path, expected_sources):
@@ -150,6 +172,9 @@ class FileSystemLoaderTests(SimpleTestCase):
             yield check_sources
 
     def test_get_template(self):
+        """
+        Tests the retrieval of a template from the template engine, verifying its origin and loader properties.
+        """
         template = self.engine.get_template("index.html")
         self.assertEqual(template.origin.name, os.path.join(TEMPLATE_DIR, "index.html"))
         self.assertEqual(template.origin.template_name, "index.html")
@@ -175,6 +200,12 @@ class FileSystemLoaderTests(SimpleTestCase):
             engine.get_template("index.html")
 
     def test_directory_security(self):
+        """
+        Tests the security of a directory by checking file access permissions.
+
+        This function verifies that files can be accessed as expected within specified directories, 
+        and that attempts to access files outside of these directories or with malicious paths are blocked.
+        """
         with self.source_checker(["/dir1", "/dir2"]) as check_sources:
             check_sources("index.html", ["/dir1/index.html", "/dir2/index.html"])
             check_sources("/etc/passwd", [])
@@ -218,6 +249,9 @@ class FileSystemLoaderTests(SimpleTestCase):
         "Python on Windows doesn't have working os.chmod().",
     )
     def test_permissions_error(self):
+        """
+        Tests that the engine raises a PermissionError when attempting to access a template with restricted file permissions.
+        """
         with tempfile.NamedTemporaryFile() as tmpfile:
             tmpdir = os.path.dirname(tmpfile.name)
             tmppath = os.path.join(tmpdir, tmpfile.name)

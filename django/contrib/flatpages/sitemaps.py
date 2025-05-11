@@ -5,6 +5,13 @@ from django.core.exceptions import ImproperlyConfigured
 
 class FlatPageSitemap(Sitemap):
     def items(self):
+        """
+
+        Returns a queryset of flatpages from the current site that do not require registration.
+
+        This method ensures that django.contrib.sites is installed before proceeding.
+
+        """
         if not django_apps.is_installed("django.contrib.sites"):
             raise ImproperlyConfigured(
                 "FlatPageSitemap requires django.contrib.sites, which isn't installed."

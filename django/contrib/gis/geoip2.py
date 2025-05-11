@@ -124,6 +124,17 @@ class GeoIP2:
         return self._reader.metadata()
 
     def _query(self, query, *, require_city=False):
+        """
+        Perform a GeoIP query on the given input.
+
+        Query can be a string (domain name or IP address) or an IPv4/IPv6 address object.
+        If require_city is True, the query requires a city-level GeoIP database.
+        Otherwise, the query can use either a city or country-level database.
+
+        Returns the result of the GeoIP query, which may include information such as
+        country, region, city, latitude, longitude, and more, depending on the database type.
+
+        """
         if not isinstance(query, (str, ipaddress.IPv4Address, ipaddress.IPv6Address)):
             raise TypeError(
                 "GeoIP query must be a string or instance of IPv4Address or "

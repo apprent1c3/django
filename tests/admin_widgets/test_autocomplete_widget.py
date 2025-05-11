@@ -109,6 +109,13 @@ class AutocompleteMixinTests(TestCase):
         self.assertEqual(url, "/autocomplete/")
 
     def test_render_options(self):
+        """
+
+        Tests the rendering of options in the AlbumForm, ensuring that 
+        the initially selected band and featured bands are correctly 
+        represented in the form's HTML output.
+
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         who = Band.objects.create(name="The Who", style="rock")
         # With 'band', a ForeignKey.
@@ -143,6 +150,9 @@ class AutocompleteMixinTests(TestCase):
         self.assertNotIn(self.empty_option, output)
 
     def test_render_options_fk_as_pk(self):
+        """
+        Tests if the VideoStreamForm correctly renders the release event as a foreign key with the initial value set as the primary key.
+        """
         beatles = Band.objects.create(name="The Beatles", style="rock")
         rubber_soul = Album.objects.create(name="Rubber Soul", band=beatles)
         release_event = ReleaseEvent.objects.create(
@@ -156,6 +166,10 @@ class AutocompleteMixinTests(TestCase):
         self.assertIn(selected_option, output)
 
     def test_media(self):
+        """
+        Tests language-specific JavaScript file inclusion for autocomplete select widgets in the Django admin interface. 
+        Verifies that the correct JavaScript files are included for various languages to support proper functionality.
+        """
         rel = Album._meta.get_field("band").remote_field
         base_files = (
             "admin/js/vendor/jquery/jquery.min.js",

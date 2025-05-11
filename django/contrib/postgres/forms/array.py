@@ -20,6 +20,13 @@ class SimpleArrayField(forms.CharField):
     def __init__(
         self, base_field, *, delimiter=",", max_length=None, min_length=None, **kwargs
     ):
+        """
+        Initializes a field that handles array-like data, building on a base field.
+
+        The field is configured with a delimiter to split the input data. Optional 
+        length constraints can be specified to enforce a minimum and/or maximum length 
+        on the array. These constraints are enforced by validation checks. 
+        """
         self.base_field = base_field
         self.delimiter = delimiter
         super().__init__(**kwargs)
@@ -42,6 +49,9 @@ class SimpleArrayField(forms.CharField):
         return value
 
     def to_python(self, value):
+        """
+        Converts a value into a Python representation, handling lists and delimiter-separated strings, with validation and error handling for each item.
+        """
         if isinstance(value, list):
             items = value
         elif value:
@@ -67,6 +77,9 @@ class SimpleArrayField(forms.CharField):
         return values
 
     def validate(self, value):
+        """
+        Validate a list of items against the base field's validation rules, raising a ValidationError if any item fails validation.
+        """
         super().validate(value)
         errors = []
         for index, item in enumerate(value):
@@ -85,6 +98,14 @@ class SimpleArrayField(forms.CharField):
             raise ValidationError(errors)
 
     def run_validators(self, value):
+        """
+
+        Runs validation checks on a collection of values.
+
+        This method extends the base validation by checking each item in the collection.
+        If any item fails validation, a :class:`~ValidationError` is raised with a list of error messages.
+
+        """
         super().run_validators(value)
         errors = []
         for index, item in enumerate(value):
@@ -103,6 +124,15 @@ class SimpleArrayField(forms.CharField):
             raise ValidationError(errors)
 
     def has_changed(self, initial, data):
+        """
+        ..: 
+            Checks if the value associated with the field has changed.
+
+            If both the initial and new values are empty, they are considered equal and 
+            False is returned. Otherwise, the parent class's has_changed method is called 
+            to perform the comparison. If the value cannot be converted to Python, the 
+            comparison is also delegated to the parent class.
+        """
         try:
             value = self.to_python(data)
         except ValidationError:
@@ -144,6 +174,14 @@ class SplitArrayWidget(forms.Widget):
         return id_
 
     def get_context(self, name, value, attrs=None):
+        """
+        '''Return the context for rendering this widget, including subwidgets for each item in the provided value.
+
+        :param name: The name of the field.
+        :param value: The value of the field, which should be an iterable.
+        :param attrs: A dictionary of HTML attributes to apply to the widget.
+        :rtype: dict'''
+        """
         attrs = {} if attrs is None else attrs
         context = super().get_context(name, value, attrs)
         if self.is_localized:
@@ -186,6 +224,10 @@ class SplitArrayField(forms.Field):
     }
 
     def __init__(self, base_field, size, *, remove_trailing_nulls=False, **kwargs):
+        """
+        Initializes a field for storing fixed-size arrays of values, 
+        with options to remove trailing nulls and customization of the widget.
+        """
         self.base_field = base_field
         self.size = size
         self.remove_trailing_nulls = remove_trailing_nulls
@@ -194,6 +236,15 @@ class SplitArrayField(forms.Field):
         super().__init__(**kwargs)
 
     def _remove_trailing_nulls(self, values):
+        """
+        Removes trailing null values from a list if configured to do so.
+
+        Args:
+            values (list): The list of values to process.
+
+        Returns:
+            tuple: A tuple containing the processed list of values and the index of the last null value, or None if no trailing nulls were found.
+        """
         index = None
         if self.remove_trailing_nulls:
             for i, value in reversed(list(enumerate(values))):
@@ -210,6 +261,15 @@ class SplitArrayField(forms.Field):
         return [self.base_field.to_python(item) for item in value]
 
     def clean(self, value):
+        """
+        Cleans the input data by validating each item against a base field.
+
+        Raises a ValidationError if the input data is required but empty, or if any item
+        fails validation. Removes trailing null values and returns the cleaned data.
+
+        :raises: ValidationError if the input data is invalid
+        :returns: list of cleaned data
+        """
         cleaned_data = []
         errors = []
         if not any(value) and self.required:
@@ -240,6 +300,12 @@ class SplitArrayField(forms.Field):
         return cleaned_data
 
     def has_changed(self, initial, data):
+        """
+        Checks if the provided data has changed compared to the initial value.
+
+        This function first processes the data by converting it to a Python object, removing any trailing nulls, and handles empty values. 
+        It then delegates the actual change detection to its parent class, returning the result of that comparison. 
+        """
         try:
             data = self.to_python(data)
         except ValidationError:

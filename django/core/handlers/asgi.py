@@ -46,6 +46,9 @@ class ASGIRequest(HttpRequest):
     body_receive_timeout = 60
 
     def __init__(self, scope, body_file):
+        """
+        Initialize a request object with the provided scope and body file, populating attributes such as path, method, and metadata, and preparing for request processing.
+        """
         self.scope = scope
         self._post_parse_error = False
         self._read_started = False
@@ -182,6 +185,9 @@ class ASGIHandler(base.BaseHandler):
             return
 
         async def process_request(request, send):
+            """
+            Processes an incoming request and sends the corresponding response, handling potential cancellation errors during the sending process.
+            """
             response = await self.run_get_response(request)
             try:
                 await self.send_response(response, send)

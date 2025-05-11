@@ -26,6 +26,13 @@ class SitesFrameworkTestCase(TestCase):
         self.assertEqual(ExclusiveArticle.on_site.get(), article)
 
     def test_sites_m2m(self):
+        """
+
+        Tests the many-to-many relationship between SyndicatedArticle and Site models.
+
+        Verifies that the on_site manager correctly filters articles based on the current site.
+
+        """
         article = SyndicatedArticle.objects.create(title="Fresh News!")
         article.sites.add(Site.objects.get(id=settings.SITE_ID))
         article.sites.add(Site.objects.get(id=settings.SITE_ID + 1))
@@ -44,6 +51,9 @@ class SitesFrameworkTestCase(TestCase):
 @isolate_apps("sites_framework")
 class CurrentSiteManagerChecksTests(SimpleTestCase):
     def test_invalid_name(self):
+        """
+        Tests that a model using CurrentSiteManager with an invalid field name raises an error.
+        """
         class InvalidArticle(models.Model):
             on_site = CurrentSiteManager("places_this_article_should_appear")
 
@@ -59,6 +69,9 @@ class CurrentSiteManagerChecksTests(SimpleTestCase):
         self.assertEqual(errors, expected)
 
     def test_invalid_field_type(self):
+        """
+        Tests that the CurrentSiteManager raises an error when used with a field that is not a foreign key or many-to-many field.
+        """
         class ConfusedArticle(models.Model):
             site = models.IntegerField()
             on_site = CurrentSiteManager()

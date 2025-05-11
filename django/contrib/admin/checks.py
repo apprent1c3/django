@@ -45,6 +45,12 @@ def _contains_subclass(class_path, candidate_paths):
 
 
 def check_admin_app(app_configs, **kwargs):
+    """
+    Checks all Django admin sites for configuration errors.
+
+    It iterates over all registered admin sites, running their respective checks 
+    on the provided application configurations, and returns a list of any errors found.
+    """
     from django.contrib.admin.sites import all_sites
 
     errors = []
@@ -431,6 +437,14 @@ class BaseModelAdminChecks:
             return self._check_field_spec_item(obj, fields, label)
 
     def _check_field_spec_item(self, obj, field_name, label):
+        """
+        Checks a model field specification item for potential issues.
+
+        This function verifies if a given field is a ManyToManyField with a manually specified relationship model, 
+        in which case it returns an error. Otherwise, it returns an empty list. 
+
+        :returns: A list of errors, if any.
+        """
         if field_name in obj.readonly_fields:
             # Stuff can be put in fields that isn't actually a model field if
             # it's in readonly_fields, readonly_fields will handle the
@@ -772,6 +786,20 @@ class BaseModelAdminChecks:
             )
 
     def _check_readonly_fields_item(self, obj, field_name, label):
+        """
+        Checks if a given field name is a valid attribute or field of an object or its model.
+
+                Verifies that the field name is not readonly, by checking if it's a callable, 
+                an attribute of the object or the object's model, or a field of the object's model.
+
+                Args:
+                    obj: The object to check.
+                    field_name: The name of the field to verify.
+                    label: The label to use in the error message.
+
+                Returns:
+                    A list of errors if the field name is not valid, otherwise an empty list.
+        """
         if callable(field_name):
             return []
         elif hasattr(obj, field_name):
@@ -904,6 +932,13 @@ class ModelAdminChecks(BaseModelAdminChecks):
             )
 
     def _check_list_display_item(self, obj, item, label):
+        """
+        ตรวจสอบค่าในรายการแสดงผลเพื่อให้แน่ใจว่าค่าไม่ใช่ฟิลด์ความสัมพันธ์มากมายนี้หรือคีย์ต่าง порт dışforeign ส่วนกลับที่ไม่ได้รับอนุญาตในรายการแสดงผลของผู้ดูแลระบบ โดยจะตรวจสอบว่ารายการนั้นเป็นฟังก์ชันที่เรียกใช้ได้ โพรเพอร์ตี้หรือฟิลดน์ของโมเดล ถ้าพบว่าเป็นฟิลด์ความสัมพันธ์มากมายนี้หรือคีย์ต่างadilay ลองเริ่มต้นใหม่และให้ใบแจ้งการตรวจสอบข้อผิดพลาด 
+
+        ส่งคืน:
+        - รายการว่างเปล่าถ้าตรวจสอบผ่าน 
+        - รายการข้อผิดพลาดที่เกิดจากการตรวจสอบ
+        """
         if callable(item):
             return []
         elif hasattr(obj, item):
@@ -1103,6 +1138,14 @@ class ModelAdminChecks(BaseModelAdminChecks):
             )
 
     def _check_list_editable_item(self, obj, field_name, label):
+        """
+        Checks if a given field in a model is eligible to be made editable in the admin list view.
+
+        Verifies that the field exists, is included in list_display, and is not in list_display_links.
+        Also checks that the field is editable through the admin interface and is not a primary key.
+
+        Returns a list of errors if any of the checks fail, otherwise returns an empty list.
+        """
         try:
             field = obj.model._meta.get_field(field_name)
         except FieldDoesNotExist:
@@ -1195,6 +1238,9 @@ class ModelAdminChecks(BaseModelAdminChecks):
                     return []
 
     def _check_actions(self, obj):
+        """
+        Checks the actions of the given object for potential errors, such as missing permission methods or duplicate action names, and returns a list of errors found.
+        """
         errors = []
         actions = obj._get_base_actions()
 
@@ -1253,6 +1299,15 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
     def _check_exclude_of_parent_model(self, obj, parent_model):
         # Do not perform more specific checks if the base checks result in an
         # error.
+        """
+
+        Checks if the exclusion of a field in a model is valid in the context of its parent model.
+
+        This function ensures that the foreign key to the parent model is not excluded, 
+        as it is a required relationship. If the exclusion is invalid, it returns a list 
+        of errors, otherwise an empty list.
+
+        """
         errors = super()._check_exclude(obj)
         if errors:
             return []
@@ -1282,6 +1337,9 @@ class InlineModelAdminChecks(BaseModelAdminChecks):
             return []
 
     def _check_relation(self, obj, parent_model):
+        """
+        Checks if a foreign key relation between a model and its parent model is valid, returning any errors that occur during the validation process.
+        """
         try:
             _get_foreign_key(parent_model, obj.model, fk_name=obj.fk_name)
         except ValueError as e:

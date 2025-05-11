@@ -85,6 +85,12 @@ class LoginRequiredTestCase(AuthViewsTestCase):
         )
 
     async def test_login_required_async_view(self, login_url=None):
+        """
+
+        Tests that an asynchronous view decorated with login_required properly redirects
+        anonymous users to the login page and allows authenticated users to access the view.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -186,6 +192,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             ["auth_tests.add_customuser", "auth_tests.change_customuser"]
         )
+        """
+        Tests that a view allows access when a user has multiple required permissions, verifying that the user can access the view successfully.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -198,6 +207,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             {"auth_tests.add_customuser", "auth_tests.change_customuser"}
         )
+        """
+        Tests that a view passes when the user has multiple required permissions in their permission set.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -208,6 +220,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
 
     def test_single_permission_pass(self):
         @permission_required("auth_tests.add_customuser")
+        """
+
+        Tests that a view with a required permission passes with an authorized user.
+
+        Verifies that a user with the specified permission can successfully access the view.
+
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -224,6 +243,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
                 "nonexistent-permission",
             ]
         )
+        """
+        Tests that a view decorated with the permission_required decorator redirects to the login page when the user lacks the required permissions.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -241,6 +263,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
             ],
             raise_exception=True,
         )
+        """
+        Tests that a PermissionDenied exception is raised when a view requires a permission that does not exist, even if the user has other required permissions.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -253,6 +278,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             ["auth_tests.add_customuser", "auth_tests.change_customuser"]
         )
+        """
+        Tests that an asynchronous view with multiple required permissions returns a successful response when the user has the necessary permissions.
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -265,6 +293,14 @@ class PermissionsRequiredDecoratorTest(TestCase):
         @permission_required(
             {"auth_tests.add_customuser", "auth_tests.change_customuser"}
         )
+        """
+
+        Tests that an async view with multiple permissions in a set passes when all permissions are held by the requesting user.
+
+        This test ensures that the permission_required decorator correctly checks for multiple permissions
+        and allows the view to proceed if all required permissions are met.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -275,6 +311,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
 
     async def test_single_permission_pass_async_view(self):
         @permission_required("auth_tests.add_customuser")
+        """
+        Tests that an asynchronous view requiring a specific permission successfully returns a 200 status code when accessed by a user with that permission.
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -291,6 +330,13 @@ class PermissionsRequiredDecoratorTest(TestCase):
                 "nonexistent-permission",
             ]
         )
+        """
+
+        Tests that an asynchronous view with permission requirements redirects to the login page when the user lacks a required permission.
+
+        The test verifies that a 302 status code is returned when a user attempts to access the view without possessing all necessary permissions.
+
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -308,6 +354,9 @@ class PermissionsRequiredDecoratorTest(TestCase):
             ],
             raise_exception=True,
         )
+        """
+        Tests that a PermissionDenied exception is raised when an async view is decorated with permission_required and the user lacks a required permission.
+        """
         async def async_view(request):
             return HttpResponse()
 
@@ -322,6 +371,9 @@ class UserPassesTestDecoratorTest(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Set up test data for the test class, creating two users with different permission setups.
+        """
         cls.user_pass = models.User.objects.create(username="joe", password="qwerty")
         cls.user_deny = models.User.objects.create(username="jim", password="qwerty")
         models.Group.objects.create(name="Joe group")
@@ -354,6 +406,12 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertIs(iscoroutinefunction(wrapped_view), True)
 
     def test_decorator(self):
+        """
+        Tests the functionality of the user_passes_test decorator.
+
+        This test case verifies that the decorator correctly filters access to a view based on a custom test function,
+        allowing users that pass the test to access the view and redirecting users that fail the test.
+        """
         def sync_test_func(user):
             return bool(
                 models.Group.objects.filter(name__istartswith=user.username).exists()
@@ -373,6 +431,12 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     def test_decorator_async_test_func(self):
+        """
+        Tests the behavior of the user_passes_test decorator with an asynchronous test function.
+
+         Verifies that the decorator correctly checks user permissions and returns a successful response 
+         when the user has the required permissions, and redirects when they do not.
+        """
         async def async_test_func(user):
             return await sync_to_async(user.has_perms)(["auth_tests.add_customuser"])
 
@@ -390,6 +454,9 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     async def test_decorator_async_view(self):
+        """
+        Tests the asynchronous view decorator with a synchronous test function, verifying that it correctly applies access control based on user group membership.
+        """
         def sync_test_func(user):
             return bool(
                 models.Group.objects.filter(name__istartswith=user.username).exists()
@@ -409,6 +476,9 @@ class UserPassesTestDecoratorTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
     async def test_decorator_async_view_async_test_func(self):
+        """
+        Tests an asynchronous view decorated with user_passes_test to ensure it correctly handles user permissions and returns a 200 status code for authorized users and a 302 status code for unauthorized users.
+        """
         async def async_test_func(user):
             return await sync_to_async(user.has_perms)(["auth_tests.add_customuser"])
 

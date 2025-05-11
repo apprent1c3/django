@@ -10,6 +10,16 @@ class RenameContentType(migrations.RunPython):
         super().__init__(self.rename_forward, self.rename_backward)
 
     def _rename(self, apps, schema_editor, old_model, new_model):
+        """
+
+        Renames a content type in the database.
+
+        Updates the model name of the corresponding ContentType object in the database
+        from old_model to new_model, if the content type exists.
+
+        This function is used to maintain data consistency during model renames in a Django migration.
+
+        """
         ContentType = apps.get_model("contenttypes", "ContentType")
         db = schema_editor.connection.alias
         if not router.allow_migrate_model(db, ContentType):
@@ -90,6 +100,18 @@ def inject_rename_contenttypes_operations(
 
 
 def get_contenttypes_and_models(app_config, using, ContentType):
+    """
+
+    Returns content types and models for a given application configuration.
+
+    This function retrieves content types and models for the specified application,
+    filtered by the application label and using the provided database connection.
+    It also checks if the model is allowed to migrate using the router, returning
+    None if migration is not permitted.
+
+    :returns: A tuple containing a dictionary of content types and a dictionary of application models
+
+    """
     if not router.allow_migrate_model(using, ContentType):
         return None, None
 

@@ -94,6 +94,9 @@ class Stylesheet:
         return self._mimetype
 
     def __str__(self):
+        """
+        Returns a string representation of the object as a space-separated list of HTML link attributes.
+        """
         data = [f'href="{self.url}"']
         if self.mimetype is not None:
             data.append(f'type="{self.mimetype}"')
@@ -126,6 +129,9 @@ class SyndicationFeed:
         stylesheets=None,
         **kwargs,
     ):
+        """
+        Initializes a feed object with various metadata attributes, such as title, link, description, and author information, as well as optional parameters like language, categories, and stylesheets, to create a foundation for a feed structure.
+        """
         def to_str(s):
             return str(s) if s is not None else s
 
@@ -293,6 +299,13 @@ class RssFeed(SyndicationFeed):
     content_type = "application/rss+xml; charset=utf-8"
 
     def write(self, outfile, encoding):
+        """
+        Writes the RSS content to the specified output file.
+
+        :param outfile: The file to write the RSS content to.
+        :param encoding: The encoding to use for the output file.
+
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         # Any stylesheet must come after the start of the document but before any tag.
@@ -322,6 +335,9 @@ class RssFeed(SyndicationFeed):
             handler.processingInstruction("xml-stylesheet", stylesheet)
 
     def add_root_elements(self, handler):
+        """
+        Adds root elements to the feed handler, including title, link, description, and other metadata elements as specified in the feed configuration, such as categories, copyright, last build date, and time-to-live (TTL).
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement("link", self.feed["link"])
         handler.addQuickElement("description", self.feed["description"])
@@ -358,6 +374,9 @@ class Rss201rev2Feed(RssFeed):
     _version = "2.0"
 
     def add_item_elements(self, handler, item):
+        """
+        Adds elements for an RSS item to an XML handler, including title, link, description, author, publication date, comments, unique ID, time to live, and categories. Supports optional elements such as enclosure, following the RSS specification guidelines.
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", item["link"])
         if item["description"] is not None:
@@ -419,6 +438,9 @@ class Atom1Feed(SyndicationFeed):
     ns = "http://www.w3.org/2005/Atom"
 
     def write(self, outfile, encoding):
+        """
+        Writes the feed data to the specified output file using the given encoding, generating a valid XML document.
+        """
         handler = SimplerXMLGenerator(outfile, encoding, short_empty_elements=True)
         handler.startDocument()
         handler.startElement("feed", self.root_attributes())
@@ -433,6 +455,9 @@ class Atom1Feed(SyndicationFeed):
             return {"xmlns": self.ns}
 
     def add_root_elements(self, handler):
+        """
+        Adds root-level elements to the feed, including metadata such as title, link, author, and categories, providing essential information about the feed.
+        """
         handler.addQuickElement("title", self.feed["title"])
         handler.addQuickElement(
             "link", "", {"rel": "alternate", "href": self.feed["link"]}
@@ -465,6 +490,11 @@ class Atom1Feed(SyndicationFeed):
             handler.endElement("entry")
 
     def add_item_elements(self, handler, item):
+        """
+
+        Adds an item's elements to an XML handler, populating it with data such as title, link, publication date, author, unique id, description, enclosures, categories, and copyright information.
+
+        """
         handler.addQuickElement("title", item["title"])
         handler.addQuickElement("link", "", {"href": item["link"], "rel": "alternate"})
 

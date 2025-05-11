@@ -13,6 +13,9 @@ class UUIDPKForm(forms.ModelForm):
 
 class ModelFormBaseTest(TestCase):
     def test_create_save_error(self):
+        """
+        Tests that creating and saving an invalid UUIDPKForm instance raises a ValueError with a descriptive error message.
+        """
         form = UUIDPKForm({})
         self.assertFalse(form.is_valid())
         msg = "The UUIDPK could not be created because the data didn't validate."
@@ -20,6 +23,9 @@ class ModelFormBaseTest(TestCase):
             form.save()
 
     def test_update_save_error(self):
+        """
+        Tests that attempting to save a UUIDPK object with an invalid form raises a ValueError, checking that the object's UUID cannot be changed due to validation errors.
+        """
         obj = UUIDPK.objects.create(name="foo")
         form = UUIDPKForm({}, instance=obj)
         self.assertFalse(form.is_valid())

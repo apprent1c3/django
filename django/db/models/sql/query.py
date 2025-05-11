@@ -68,6 +68,9 @@ def get_field_names_from_opts(opts):
 
 
 def get_paths_from_expression(expr):
+    """
+    Retrieve paths from a given expression, traversing its structure to extract names from F objects and utilizing the flatten method for more complex expressions.
+    """
     if isinstance(expr, F):
         yield expr.name
     elif hasattr(expr, "flatten"):
@@ -79,6 +82,13 @@ def get_paths_from_expression(expr):
 
 
 def get_children_from_q(q):
+    """
+    収集
+    Recursively retrieves child nodes and paths from a query object. 
+
+    It traverses the query object's children, yielding nodes and resolving expressions 
+    wherever they appear, whether directly as children or nested within tuples.
+    """
     for child in q.children:
         if isinstance(child, Node):
             yield from get_children_from_q(child)
@@ -92,6 +102,19 @@ def get_children_from_q(q):
 
 
 def get_child_with_renamed_prefix(prefix, replacement, child):
+    """
+
+    Renames a prefix in a child node or expression with a specified replacement string.
+
+    This function recursively traverses the child node or expression, replacing the given prefix
+    with the replacement string, allowing for the manipulation of complex query expressions.
+
+    :param prefix: The prefix to be replaced.
+    :param replacement: The string to replace the prefix with.
+    :param child: The child node or expression to be modified.
+    :return: The modified child node or expression with the renamed prefix.
+
+    """
     from django.db.models.query import QuerySet
 
     if isinstance(child, Node):
@@ -145,6 +168,9 @@ class RawQuery:
     """A single raw SQL query."""
 
     def __init__(self, sql, using, params=()):
+        """
+        Initializes a database query object with the given SQL query, database connection and query parameters. Setting up the query's state for execution.
+        """
         self.params = params
         self.sql = sql
         self.using = using
@@ -171,6 +197,9 @@ class RawQuery:
     def __iter__(self):
         # Always execute a new query for a new iterator.
         # This could be optimized with a cache at the expense of RAM.
+        """
+        Returns an iterator over the query results, executing the query if necessary and retrieving results in chunks if supported by the database connection.
+        """
         self._execute_query()
         if not connections[self.using].features.can_use_chunked_reads:
             # If the database can't use chunked reads we need to make sure we
@@ -195,6 +224,12 @@ class RawQuery:
         return self.sql % self.params_type(self.params)
 
     def _execute_query(self):
+        """
+        Executes a SQL query using the specified database connection and parameters.
+
+        Adapts the given parameters to the correct type for the database and then runs the query,
+        storing the cursor object for later use. The parameters must be either a dictionary, tuple, or None.
+        """
         connection = connections[self.using]
 
         # Adapt parameters to the database, as much as possible considering
@@ -291,6 +326,9 @@ class Query(BaseExpression):
     explain_info = None
 
     def __init__(self, model, alias_cols=True):
+        """
+        Initializes the object with a model, controlling column aliasing and setting up internal data structures for query construction.
+        """
         self.model = model
         self.alias_refcount = {}
         # alias_map is the most important data structure regarding joins.
@@ -320,6 +358,11 @@ class Query(BaseExpression):
 
     @property
     def output_field(self):
+        """
+        Determines the output field of the current object.
+
+         Returns the target or field name of the single selected field, or the output field of the single annotation selection, if applicable. Otherwise, returns None.
+        """
         if len(self.select) == 1:
             select = self.select[0]
             return getattr(select, "target", None) or select.field
@@ -356,6 +399,11 @@ class Query(BaseExpression):
         return result
 
     def get_compiler(self, using=None, connection=None, elide_empty=True):
+        """
+        Get a database compiler instance for the given query.
+
+        This method retrieves a compiler that can be used to compile the query into SQL. It requires either a database alias (using) or a database connection to be specified. The compiler instance returned can be used to generate the SQL query.
+        """
         if using is None and connection is None:
             raise ValueError("Need either using or connection")
         if using:
@@ -634,6 +682,14 @@ class Query(BaseExpression):
         return self.where
 
     def exists(self, limit=True):
+        """
+        Modifies the current query to check for the existence of results.
+
+        This method returns a modified version of the query that is optimized to check if any results exist, 
+        without retrieving the actual data. The `limit` parameter can be used to further tune the query 
+        optimization. The returned query can be used to evaluate the existence of results without the 
+        overhead of fetching the data itself.
+        """
         q = self.clone()
         if not (q.distinct and q.is_sliced):
             if q.group_by is True:
@@ -661,6 +717,17 @@ class Query(BaseExpression):
         return compiler.has_results()
 
     def explain(self, using, format=None, **options):
+        """
+        Generates an explanation for the query, providing insight into the query plan and performance.
+
+        :arg using: The database or compiler to use for explanation.
+        :arg format: The format for the explanation output.
+        :arg options: Additional options to control the explanation output.
+
+        :returns: A string containing the explanation for the query.
+        :raises ValueError: If an invalid option name is provided.
+
+        """
         q = self.clone()
         for option_name in options:
             if (
@@ -789,6 +856,9 @@ class Query(BaseExpression):
         self.extra_order_by = rhs.extra_order_by or self.extra_order_by
 
     def _get_defer_select_mask(self, opts, mask, select_mask=None):
+        """
+        Constructs a select mask dictionary for deferred field selection, recursively processing fields, related objects, and filtered relations, while validating the provided mask and handling various field types, including many-to-many and non-relation fields.
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}
@@ -833,6 +903,19 @@ class Query(BaseExpression):
         return select_mask
 
     def _get_only_select_mask(self, opts, mask, select_mask=None):
+        """
+        Generate a nested mask that only contains fields marked for selection.
+
+        This function recursively traverses the given mask, identifying fields that are
+        marked for selection and excluding all others. It returns a dictionary where
+        each key represents a model field, and the corresponding value is another
+        dictionary with the same structure, representing the fields of related models
+        that are marked for selection.
+
+        Raises a FieldError if a non-relation field is marked for selection with
+        additional fields.
+
+        """
         if select_mask is None:
             select_mask = {}
         select_mask[opts.pk] = {}
@@ -1202,6 +1285,16 @@ class Query(BaseExpression):
             self.selected[alias] = alias
 
     def resolve_expression(self, query, *args, **kwargs):
+        """
+
+        Resolve an expression by modifying a clone of the current query object.
+
+        The function recursively resolves the expression for the query's where clause,
+        combined queries, and annotations, while maintaining the original query's context.
+        It also updates external aliases for tables in the query's alias map.
+        Returns the modified clone with the resolved expression.
+
+        """
         clone = self.clone()
         # Subqueries need to use a different set of aliases than the outer query.
         clone.bump_prefix(query)
@@ -1251,6 +1344,9 @@ class Query(BaseExpression):
     def as_sql(self, compiler, connection):
         # Some backends (e.g. Oracle) raise an error when a subquery contains
         # unnecessary ORDER BY clause.
+        """
+        Generates the SQL string and parameters for a query, handling subqueries and ordering as necessary.
+        """
         if (
             self.subquery
             and not connection.features.ignores_unnecessary_order_by_in_subqueries
@@ -1264,6 +1360,18 @@ class Query(BaseExpression):
         return sql, params
 
     def resolve_lookup_value(self, value, can_reuse, allow_joins, summarize=False):
+        """
+        Resolve a lookup value, handling expressions, lists, and tuples, and optionally summarizing the result.
+
+        Args:
+            value: The value to resolve.
+            can_reuse (bool): Whether to reuse existing values.
+            allow_joins (bool): Whether to allow joins during resolution.
+            summarize (bool, optional): Whether to summarize the result. Defaults to False.
+
+        Returns:
+            The resolved value.
+        """
         if hasattr(value, "resolve_expression"):
             value = value.resolve_expression(
                 self,
@@ -1662,6 +1770,15 @@ class Query(BaseExpression):
         return target_clause, needed_inner
 
     def add_filtered_relation(self, filtered_relation, alias):
+        """
+
+        Adds a filtered relation to the current context, validating its relation name and condition.
+        The relation name must not contain lookups and its condition must only reference fields within the relation.
+
+        :param filtered_relation: The filtered relation to add.
+        :param alias: The alias for the filtered relation.
+
+        """
         filtered_relation.alias = alias
         relation_lookup_parts, relation_field_parts, _ = self.solve_lookup_type(
             filtered_relation.relation_name
@@ -1884,6 +2001,18 @@ class Query(BaseExpression):
         for name in transforms:
 
             def transform(field, alias, *, name, previous):
+                """
+
+                Transforms a field using the provided previous transformation function and then attempts to apply a secondary transformation.
+
+                :param field: The field to be transformed.
+                :param alias: The alias for the field.
+                :param name: The name to use in the secondary transformation.
+                :param previous: The previous transformation function to apply.
+
+                :raises FieldError: If the transformation fails.
+
+                """
                 try:
                     wrapped = previous(field, alias)
                     return self.try_transform(wrapped, name)
@@ -1961,6 +2090,16 @@ class Query(BaseExpression):
 
     @classmethod
     def _gen_cols(cls, exprs, include_external=False, resolve_refs=True):
+        """
+        Generates columns from the given expressions.
+
+        This class method recursively traverses the provided expressions, yielding columns that can be directly used or are retrieved from external sources, depending on the specified options.
+
+        :param exprs: The expressions to extract columns from
+        :param include_external: Whether to include columns from external sources
+        :param resolve_refs: Whether to resolve references in the expressions
+        :yield: Columns extracted from the expressions
+        """
         for expr in exprs:
             if isinstance(expr, Col):
                 yield expr
@@ -1982,6 +2121,24 @@ class Query(BaseExpression):
         yield from (expr.alias for expr in cls._gen_cols(exprs))
 
     def resolve_ref(self, name, allow_joins=True, reuse=None, summarize=False):
+        """
+
+        Resolves a reference to a field or annotation.
+
+        Given a name, resolves it to a corresponding annotation or field. If the name
+        represents a joined field and joins are not permitted, raises an error.
+        Allows for reuse of existing joins and optional summarization of the result.
+
+        Args:
+            name (str): The name of the field or annotation to resolve.
+            allow_joins (bool): Whether joined field references are permitted.
+            reuse (dict, optional): Maps of joins to reuse.
+            summarize (bool): Whether to summarize the result.
+
+        Returns:
+            The resolved field or annotation.
+
+        """
         annotation = self.annotations.get(name)
         if annotation is not None:
             if not allow_joins:
@@ -2457,6 +2614,11 @@ class Query(BaseExpression):
         return self.selected is not None
 
     def set_values(self, fields):
+        """
+        Sets the fields to select and prepare the query builder for further operations.
+
+        This method takes a list of field names and configures the query to only retrieve these fields, while also handling extra fields, annotations, and group by operations. It resolves the field names to their respective database columns and stores them in the `values_select` attribute, preparing the query for execution.
+        """
         self.select_related = False
         self.clear_deferred_loading()
         self.clear_select_fields()
@@ -2544,6 +2706,14 @@ class Query(BaseExpression):
 
     @property
     def extra_select(self):
+        """
+
+        Returns a dictionary containing the extra selected items.
+
+        If a mask is provided, only the items that match the mask are included; otherwise, all extra items are returned.
+        The result is cached to improve performance if the extra items do not change.
+
+        """
         if self._extra_select_cache is not None:
             return self._extra_select_cache
         if not self.extra:
@@ -2673,6 +2843,11 @@ class JoinPromoter:
     """
 
     def __init__(self, connector, num_children, negated):
+        """
+        Initializes a decision node with a logical connector, number of child nodes, and negation flag.
+        The effective connector is determined based on the negation flag, swapping AND and OR if necessary.
+        The node also tracks the number of child nodes and stores votes in a counter.
+        """
         self.connector = connector
         self.negated = negated
         if self.negated:

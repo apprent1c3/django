@@ -16,6 +16,9 @@ class CeilTests(TestCase):
         self.assertIsNone(obj.null_ceil)
 
     def test_decimal(self):
+        """
+        Tests the usage of the Ceil database function on Decimal model fields, verifying that it correctly calculates the ceiling of decimal values and returns the result as a Decimal instance.
+        """
         DecimalModel.objects.create(n1=Decimal("12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_ceil=Ceil("n1"), n2_ceil=Ceil("n2")
@@ -26,6 +29,13 @@ class CeilTests(TestCase):
         self.assertEqual(obj.n2_ceil, Decimal(math.ceil(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the usage of the Ceil database function with floating point numbers.
+
+        Verifies that the Ceil function correctly calculates the ceiling of float values
+        and returns the result as a float. Ensures the results match the expected output
+        from the math.ceil function.
+        """
         FloatModel.objects.create(f1=-12.5, f2=21.33)
         obj = FloatModel.objects.annotate(
             f1_ceil=Ceil("f1"), f2_ceil=Ceil("f2")
@@ -36,6 +46,14 @@ class CeilTests(TestCase):
         self.assertEqual(obj.f2_ceil, math.ceil(obj.f2))
 
     def test_integer(self):
+        """
+
+        Tests the application of the Ceil database function to integer fields.
+
+        Verifies that the Ceil function correctly calculates the ceiling of small, normal, and big integer values,
+        and that the results are returned as integers.
+
+        """
         IntegerModel.objects.create(small=-11, normal=0, big=-100)
         obj = IntegerModel.objects.annotate(
             small_ceil=Ceil("small"),
@@ -50,6 +68,9 @@ class CeilTests(TestCase):
         self.assertEqual(obj.big_ceil, math.ceil(obj.big))
 
     def test_transform(self):
+        """
+        Tests the transformation of DecimalField values by applying the Ceil lookup function to ensure correct filtering and comparison of decimal numbers.
+        """
         with register_lookup(DecimalField, Ceil):
             DecimalModel.objects.create(n1=Decimal("3.12"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.25"), n2=Decimal("0"))

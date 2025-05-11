@@ -24,6 +24,11 @@ def load_backend(path):
 
 
 def _get_backends(return_tuples=False):
+    """
+    Retrieves a list of authentication backends as defined in the AUTHENTICATION_BACKENDS setting.
+    The backends can be returned either as a list of backend instances or as a list of tuples containing the backend instance and its path.
+    If no backends are configured, an ImproperlyConfigured exception is raised.
+    """
     backends = []
     for backend_path in settings.AUTHENTICATION_BACKENDS:
         backend = load_backend(backend_path)

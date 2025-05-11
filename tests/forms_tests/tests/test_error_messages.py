@@ -39,6 +39,12 @@ class AssertFormErrorsMixin:
 
 class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
     def test_charfield(self):
+        """
+        Tests the validation of a CharField with custom error messages.
+
+        Verifies that the field correctly enforces minimum and maximum length constraints
+        and returns the expected error messages when validation fails.
+        """
         e = {
             "required": "REQUIRED",
             "min_length": "LENGTH %(show_value)s, MIN LENGTH %(limit_value)s",
@@ -50,6 +56,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["LENGTH 11, MAX LENGTH 10"], f.clean, "12345678901")
 
     def test_integerfield(self):
+        """
+        Tests the validation behavior of an IntegerField with custom error messages, verifying that it correctly handles required, invalid, and out-of-range values.
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -63,6 +72,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX VALUE IS 10"], f.clean, "11")
 
     def test_floatfield(self):
+        """
+        Tests the validation of a FloatField with custom error messages, checking for required, invalid, and out-of-range values.
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -76,6 +88,19 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["MAX VALUE IS 10"], f.clean, "11")
 
     def test_decimalfield(self):
+        """
+
+        Tests the validation and error messages of a DecimalField.
+
+        Verifies that the field correctly raises errors for invalid input, including:
+        - required field
+        - non-numeric input
+        - values outside the specified range (min and max)
+        - exceeding the maximum allowed digits
+        - exceeding the maximum allowed decimal places
+        - exceeding the maximum allowed whole digits before the decimal point.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -124,6 +149,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID"], f.clean, "abc")
 
     def test_regexfield(self):
+        """
+        Tests the RegexField with various input values to ensure correct error messages are raised for required, invalid, minimum length, and maximum length checks.
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -137,6 +165,13 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["LENGTH 11, MAX LENGTH 10"], f.clean, "12345678901")
 
     def test_emailfield(self):
+        """
+        Tests the validation of EmailField with custom error messages.
+
+        Verifies that the field correctly handles different error scenarios, including
+        required, invalid, and length validation, and returns the corresponding custom
+        error messages.
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -150,6 +185,13 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["LENGTH 11, MAX LENGTH 10"], f.clean, "aye@bee.com")
 
     def test_filefield(self):
+        """
+
+        Verifies the validation behavior of a FileField with custom error messages.
+
+        Checks that the field correctly raises errors when the file is required, invalid, missing, or empty.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -163,6 +205,12 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["EMPTY FILE"], f.clean, SimpleUploadedFile("name", ""))
 
     def test_urlfield(self):
+        """
+        Tests the validation of a URL field with custom error messages.
+
+        Verifies that the field correctly reports required, invalid, and max length errors.
+
+        """
         e = {
             "required": "REQUIRED",
             "invalid": "INVALID",
@@ -195,6 +243,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["b IS INVALID CHOICE"], f.clean, "b")
 
     def test_multiplechoicefield(self):
+        """
+        Tests the validation behavior of a MultipleChoiceField, covering required, invalid choice, and invalid list cases, ensuring correct error messages are raised.
+        """
         e = {
             "required": "REQUIRED",
             "invalid_choice": "%(value)s IS INVALID CHOICE",
@@ -225,6 +276,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         self.assertFormErrors(["INVALID IP ADDRESS"], f.clean, "127.0.0")
 
     def test_subclassing_errorlist(self):
+        """
+        Tests the handling of form errors when subclassing the ErrorList class to customize error rendering, ensuring standard and custom error lists are displayed correctly.
+        """
         class TestForm(Form):
             first_name = CharField()
             last_name = CharField()
@@ -272,6 +326,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
         # messages might be presented in non-HTML contexts. Instead, the
         # message is marked for escaping by the template engine, so a template
         # is needed to trigger the escaping.
+        """
+        Tests that error messages in forms are properly escaped to prevent HTML injection vulnerabilities, ensuring that user input is safely displayed.
+        """
         t = Template("{{ form.errors }}")
 
         class SomeForm(Form):
@@ -311,6 +368,9 @@ class FormsErrorMessagesTestCase(SimpleTestCase, AssertFormErrorsMixin):
 class ModelChoiceFieldErrorMessagesTestCase(TestCase, AssertFormErrorsMixin):
     def test_modelchoicefield(self):
         # Create choices for the model choice field tests below.
+        """
+        Tests the behavior of ModelChoiceField and ModelMultipleChoiceField when handling invalid input, including empty input, non-existent choices, and invalid choice formats, verifying that the expected error messages are raised.
+        """
         ChoiceModel.objects.create(pk=1, name="a")
         ChoiceModel.objects.create(pk=2, name="b")
         ChoiceModel.objects.create(pk=3, name="c")

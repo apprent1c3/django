@@ -52,6 +52,9 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         )
 
     def test_prepare_join_on_clause_same_type(self):
+        """
+        Tests that the prepare_join_on_clause function generates the correct lhs and rhs expressions when joining two fields of the same type, in this case two 'id' fields from the 'Author' table.
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         lhs_expr, rhs_expr = connection.ops.prepare_join_on_clause(
@@ -64,6 +67,15 @@ class PostgreSQLOperationsTests(SimpleTestCase):
         self.assertEqual(rhs_expr, Col(author_table, author_id_field))
 
     def test_prepare_join_on_clause_different_types(self):
+        """
+
+        Checks the preparation of the join on clause using fields of different data types.
+
+        The function verifies that the left-hand side expression is correctly represented as a column
+        from the author table, and the right-hand side expression is cast to a compatible type with the
+        author's id field, allowing for a successful join between the author and book tables.
+
+        """
         author_table = Author._meta.db_table
         author_id_field = Author._meta.get_field("id")
         book_table = Book._meta.db_table

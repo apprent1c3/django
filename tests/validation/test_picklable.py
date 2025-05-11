@@ -6,6 +6,10 @@ from django.core.exceptions import ValidationError
 
 class PickableValidationErrorTestCase(TestCase):
     def test_validationerror_is_picklable(self):
+        """
+        Tests that ValidationError instances are properly pickled and unpickled, 
+        preserving their original message, code, and error list attributes.
+        """
         original = ValidationError("a", code="something")
         unpickled = pickle.loads(pickle.dumps(original))
         self.assertIs(unpickled, unpickled.error_list[0])

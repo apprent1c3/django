@@ -41,6 +41,9 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")
     def test_stdin_read(self, select):
+        """
+        Tests that the Django shell command correctly reads from standard input and executes Python commands.
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write("print(100)\n")
             stdin.seek(0)
@@ -53,6 +56,9 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")  # [1]
     def test_stdin_read_globals(self, select):
+        """
+        Test that the Django shell command reads globals from stdin correctly on non-Windows platforms.
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write(self.script_globals)
             stdin.seek(0)
@@ -65,6 +71,12 @@ class ShellCommandTestCase(SimpleTestCase):
     )
     @mock.patch("django.core.management.commands.shell.select")  # [1]
     def test_stdin_read_inline_function_call(self, select):
+        """
+        Tests reading from stdin with an inline function call in the Django shell command on non-Windows platforms.
+
+        Verifies that standard input is correctly read and processed when the shell command is run with an inline function.
+
+        """
         with captured_stdin() as stdin, captured_stdout() as stdout:
             stdin.write(self.script_with_inline_function)
             stdin.seek(0)
@@ -72,6 +84,9 @@ class ShellCommandTestCase(SimpleTestCase):
         self.assertEqual(stdout.getvalue().strip(), __version__)
 
     def test_ipython(self):
+        """
+        Tests that the ipython command correctly starts the IPython shell with an empty argument list when invoked.
+        """
         cmd = shell.Command()
         mock_ipython = mock.Mock(start_ipython=mock.MagicMock())
 
@@ -90,6 +105,9 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="ipython")
 
     def test_bpython(self):
+        """
+        Tests the bpython command functionality by verifying it correctly embeds the bpython interpreter when called.
+        """
         cmd = shell.Command()
         mock_bpython = mock.Mock(embed=mock.MagicMock())
 
@@ -108,6 +126,12 @@ class ShellCommandTestCase(SimpleTestCase):
             call_command("shell", interface="bpython")
 
     def test_python(self):
+        """
+
+        Tests that the python command uses the built-in code module correctly.
+        Verifies that the interact method is called with an empty local dictionary when --no-startup is specified.
+
+        """
         cmd = shell.Command()
         mock_code = mock.Mock(interact=mock.MagicMock())
 

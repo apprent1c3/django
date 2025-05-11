@@ -120,6 +120,9 @@ class CallableLastmodFullSitemap(Sitemap):
     location = "/location/"
 
     def items(self):
+        """
+        Returns a list of TestModel objects with predefined last modification dates for testing purposes.
+        """
         o1 = TestModel()
         o1.lastmod = datetime(2013, 3, 13, 10, 0, 0)
         o2 = TestModel()

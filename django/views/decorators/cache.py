@@ -38,7 +38,25 @@ def _check_request(request, decorator_name):
 
 
 def cache_control(**kwargs):
+    """
+    Decorator to control HTTP caching behavior for a view function.
+
+    Adds headers to the response according to the provided keyword arguments,
+    such as cache timeout and cacheability. Supports both synchronous and
+    asynchronous view functions.
+    """
     def _cache_controller(viewfunc):
+        """
+        A decorator to manage cache control for views.
+
+        Wraps a view function to check for cache control requirements in the request and 
+        apply cache control headers to the response. Supports both synchronous and 
+        asynchronous view functions.
+
+        :param viewfunc: The view function to be decorated.
+        :returns: A wrapped view function with cache control applied.
+
+        """
         if iscoroutinefunction(viewfunc):
 
             async def _view_wrapper(request, *args, **kw):

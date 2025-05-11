@@ -96,6 +96,9 @@ class MultiValueDict(dict):
         return self.__class__([(k, v[:]) for k, v in self.lists()])
 
     def __deepcopy__(self, memo):
+        """
+        Implementation of the deep copy protocol to create a new, independent instance of the object, recursively copying all its attributes.
+        """
         result = self.__class__()
         memo[id(self)] = result
         for key, value in dict.items(self):
@@ -162,6 +165,9 @@ class MultiValueDict(dict):
         return self[key]
 
     def setlistdefault(self, key, default_list=None):
+        """
+        Sets a list default value for a given key if the key does not exist, and returns the list associated with the key. If no default list is provided, an empty list is used.
+        """
         if key not in self:
             if default_list is None:
                 default_list = []
@@ -329,6 +335,13 @@ class CaseInsensitiveMapping(Mapping):
         # Explicitly test for dict first as the common case for performance,
         # avoiding abc's __instancecheck__ and _abc_instancecheck for the
         # general Mapping case.
+        """
+        Unpacks dictionary items or dictionary update sequences into key-value pairs.
+
+        Yields key-value pairs from a dictionary, or checks and yields pairs from a sequence 
+        of length-2 iterables with string keys. Raises an error for invalid sequence elements.
+
+        """
         if isinstance(data, (dict, Mapping)):
             yield from data.items()
             return

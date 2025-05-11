@@ -9,6 +9,9 @@ from .client import DatabaseClient
 
 class DatabaseCreation(BaseDatabaseCreation):
     def sql_table_creation_suffix(self):
+        """
+        Generates a SQL suffix for table creation based on test settings, specifically character set and collation. Returns a string that can be appended to a CREATE TABLE statement to apply the specified character set and collation.
+        """
         suffix = []
         test_settings = self.connection.settings_dict["TEST"]
         if test_settings["CHARSET"]:
@@ -18,6 +21,11 @@ class DatabaseCreation(BaseDatabaseCreation):
         return " ".join(suffix)
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
+        """
+        Creates a test database, handling potential errors that may occur during execution.
+
+        Overrides parent class behavior to catch and handle database creation errors, exiting the process if an unexpected error occurs and propagating the exception for a database already exists error (1007).
+        """
         try:
             super()._execute_create_test_db(cursor, parameters, keepdb)
         except Exception as e:
@@ -29,6 +37,20 @@ class DatabaseCreation(BaseDatabaseCreation):
                 raise
 
     def _clone_test_db(self, suffix, verbosity, keepdb=False):
+        """
+        Clone the main test database.
+
+        Create a new test database based on the main database, using the given suffix.
+        The cloned database is created with the necessary setup for testing, including
+        table creation and other initialization. If the database already exists and
+        the keepdb flag is False, it will be destroyed and recreated. Any errors during
+        this process will be logged and may result in the process exiting if the
+        database cannot be recreated.
+
+        :param str suffix: The suffix to use for the cloned database name
+        :param int verbosity: The level of logging detail to use
+        :param bool keepdb: Whether to keep the database if it already exists (default: False)
+        """
         source_database_name = self.connection.settings_dict["NAME"]
         target_database_name = self.get_test_db_clone_settings(suffix)["NAME"]
         test_db_params = {
@@ -60,6 +82,13 @@ class DatabaseCreation(BaseDatabaseCreation):
         self._clone_db(source_database_name, target_database_name)
 
     def _clone_db(self, source_database_name, target_database_name):
+        """
+        Clone a MySQL database by creating a dump of the source database and piping it directly into the target database. 
+
+        :arg source_database_name: Name of the database to clone from
+        :arg target_database_name: Name of the database to clone to 
+        :returns: None
+        """
         cmd_args, cmd_env = DatabaseClient.settings_to_cmd_args_env(
             self.connection.settings_dict, []
         )

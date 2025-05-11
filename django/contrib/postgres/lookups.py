@@ -56,6 +56,9 @@ class SearchLookup(SearchVectorExact):
     lookup_name = "search"
 
     def process_lhs(self, qn, connection):
+        """
+        Ensure the left-hand side of a query is properly configured for full-text search by wrapping it in a SearchVector if necessary, then delegate further processing to the parent class.
+        """
         if not isinstance(self.lhs.output_field, SearchVectorField):
             config = getattr(self.rhs, "config", None)
             self.lhs = SearchVector(self.lhs, config=config)

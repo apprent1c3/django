@@ -44,6 +44,9 @@ class MultiDatabaseTests(TestCase):
 
     @classmethod
     def setUpTestData(cls):
+        """
+        Sets up test data for the test class, creating a superuser and a test book in each database, and stores their IDs for use in tests.
+        """
         cls.superusers = {}
         cls.test_book_ids = {}
         for db in cls.databases:
@@ -63,6 +66,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_add_view(self, mock):
+        """
+        Tests that the add view in the admin interface correctly redirects after submitting a new book and that database transactions are properly isolated to the target database.
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -80,6 +86,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_add_view(self, mock):
+        """
+        Tests that read-only HTTP methods (e.g. GET, HEAD, OPTIONS) on the admin add view do not trigger database transactions.
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):
@@ -94,6 +103,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_change_view(self, mock):
+        """
+        Tests the change view functionality in the admin site to ensure it correctly handles database transactions and redirects after a successful update.
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -114,6 +126,9 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_change_view(self, mock):
+        """
+        Tests that read-only methods in the change view do not initiate database transactions.
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):
@@ -132,6 +147,13 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_delete_view(self, mock):
+        """
+
+        Tests the delete view functionality in the admin site, ensuring a successful redirect
+        to the changelist page after deletion, and verifying that transactions are handled 
+        correctly across different databases.
+
+        """
         for db in self.databases:
             with self.subTest(db=db):
                 mock.mock_reset()
@@ -152,6 +174,15 @@ class MultiDatabaseTests(TestCase):
 
     @mock.patch("django.contrib.admin.options.transaction")
     def test_read_only_methods_delete_view(self, mock):
+        """
+        Tests that the delete view of a model instance is read-only for certain HTTP methods.
+
+        Verifies that the view does not trigger a database transaction for read-only methods,
+        such as GET, HEAD, and OPTIONS, across different databases and users with superuser permissions.
+
+        Ensures a successful response (200 status code) is returned for these methods, without
+        modifying the underlying data.
+        """
         for db in self.databases:
             for method in self.READ_ONLY_METHODS:
                 with self.subTest(db=db, method=method):
@@ -194,6 +225,10 @@ class ViewOnSiteTests(TestCase):
     databases = {"default", "other"}
 
     def test_contenttype_in_separate_db(self):
+        """
+        Tests if the view on site shortcut from the Django admin interface correctly
+        redirects to the book detail page when the content type and book are in a separate database.
+        """
         ContentType.objects.using("other").all().delete()
         book = Book.objects.using("other").create(name="other book")
         user = User.objects.create_superuser(

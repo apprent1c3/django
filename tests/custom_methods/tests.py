@@ -7,6 +7,11 @@ from .models import Article
 
 class MethodsTests(TestCase):
     def test_custom_methods(self):
+        """
+        Tests custom methods on the Article model, specifically the 
+        was_published_today and articles_from_same_day methods, to ensure 
+        correct publication date and article retrieval functionality.
+        """
         a = Article.objects.create(
             headline="Parrot programs in Python", pub_date=date(2005, 7, 27)
         )

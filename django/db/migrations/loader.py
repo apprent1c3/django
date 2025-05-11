@@ -49,6 +49,14 @@ class MigrationLoader:
         ignore_no_migrations=False,
         replace_migrations=True,
     ):
+        """
+        Initializes a migration manager instance.
+
+        :param connection: The database connection to manage migrations for
+        :param load:Whether to load migration data immediately, defaults to True
+        :param ignore_no_migrations: Flag to handle the case when no migrations are present
+        :param replace_migrations: Flag to control migration replacement behavior
+        """
         self.connection = connection
         self.disk_migrations = None
         self.applied_migrations = None
@@ -167,6 +175,12 @@ class MigrationLoader:
             return self.disk_migrations[results[0]]
 
     def check_key(self, key, current_app):
+        """
+        Checks if a given key is valid in the context of the current application, 
+        resolving references to '__first__' or '__latest__' migrations if necessary.
+        Returns the resolved key or None if it's not found and ignore_no_migrations is True.
+        Raises an error if the key is invalid or references an unknown or unmigrated application.
+        """
         if (key[1] != "__first__" and key[1] != "__latest__") or key in self.graph:
             return key
         # Special-case __first__, which means "the first migration" for
@@ -207,6 +221,10 @@ class MigrationLoader:
                 self.graph.add_dependency(migration, key, parent, skip_validation=True)
 
     def add_external_dependencies(self, key, migration):
+        """
+        Link a migration to its external dependencies based on key prefixes, 
+        automatically adding dependencies and predecessors to maintain a coherent migration graph.
+        """
         for parent in migration.dependencies:
             # Skip internal dependencies
             if key[0] == parent[0]:

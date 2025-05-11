@@ -16,6 +16,19 @@ class BaseSessionManager(models.Manager):
         return session_store_class().encode(session_dict)
 
     def save(self, session_key, session_dict, expire_date):
+        """
+
+        Saves a session to the database.
+
+        This method creates a new session object with the provided key, dictionary data, and expiration date.
+        If the session dictionary is not empty, it saves the session; otherwise, it deletes the existing session if any.
+
+        :param session_key: Unique key for the session
+        :param session_dict: Dictionary containing session data
+        :param expire_date: Date when the session expires
+        :return: The saved or deleted session object
+
+        """
         s = self.model(session_key, self.encode(session_dict), expire_date)
         if session_dict:
             s.save()

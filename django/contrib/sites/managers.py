@@ -19,6 +19,9 @@ class CurrentSiteManager(models.Manager):
         return errors
 
     def _check_field_name(self):
+        """
+        Checks if the field used by CurrentSiteManager exists in the model and is of a valid type (foreign key or many-to-many field), returning any errors encountered.
+        """
         field_name = self._get_field_name()
         try:
             field = self.model._meta.get_field(field_name)

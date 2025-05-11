@@ -40,6 +40,15 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         # Get the database we're operating from
+        """
+
+        Handles a migration operation by retrieving the specified migration and generating the corresponding SQL statements.
+
+        This function takes a database connection and migration details as input, verifies the existence of the migration, 
+        and returns the SQL statements required to apply the migration. If the migration does not exist or there are multiple 
+        migrations with the same name, it raises a CommandError with a descriptive message.
+
+        """
         connection = connections[options["database"]]
 
         # Load up a loader to get all the migration data, but don't replace

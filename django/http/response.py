@@ -112,6 +112,19 @@ class HttpResponseBase:
     def __init__(
         self, content_type=None, status=None, reason=None, charset=None, headers=None
     ):
+        """
+
+        Initializes a response object with the specified content type, status, reason, and headers.
+
+        :param content_type: The content type of the response (str)
+        :param status: The HTTP status code of the response (int or str)
+        :param reason: The reason phrase associated with the status code (str)
+        :param charset: The character encoding of the response (str)
+        :param headers: A dictionary of additional response headers
+
+        Sets default content type and headers if not provided. Validates and sets the HTTP status code.
+
+        """
         self.headers = ResponseHeaders(headers)
         self._charset = charset
         if "Content-Type" not in self.headers:
@@ -153,6 +166,10 @@ class HttpResponseBase:
 
     @property
     def charset(self):
+        """
+        Determines the character set of the response, retrieving it from the '_charset' attribute, 
+        the 'Content-Type' header, or falling back to the default charset defined in settings.
+        """
         if self._charset is not None:
             return self._charset
         # The Content-Type header may not yet be set, because the charset is
@@ -324,6 +341,9 @@ class HttpResponseBase:
     # The WSGI server must call this method upon completion of the request.
     # See http://blog.dscpl.com.au/2012/10/obligations-for-calling-close-on.html
     def close(self):
+        """
+        Close the resources held by this object, releasing any system resources and sending a signal to indicate the request has finished.
+        """
         for closer in self._resource_closers:
             try:
                 closer()
@@ -395,6 +415,10 @@ class HttpResponse(HttpResponseBase):
     @content.setter
     def content(self, value):
         # Consume iterators upon assignment to allow repeated iteration.
+        """
+        Sets the content of the object, converting the input value into bytes and storing it in the container. 
+        Accepts iterable input, concatenating its elements into a single byte string, and optionally closes the input if it is a file-like object.
+        """
         if hasattr(value, "__iter__") and not isinstance(
             value, (bytes, memoryview, str)
         ):
@@ -462,6 +486,9 @@ class StreamingHttpResponse(HttpResponseBase):
 
     @property
     def streaming_content(self):
+        """
+        Returns an iterable of streaming content, with asynchronous iteration if the object is in async mode, otherwise as a synchronous map object.
+        """
         if self.is_async:
             # pull to lexical scope to capture fixed reference in case
             # streaming_content is set again later.
@@ -481,6 +508,9 @@ class StreamingHttpResponse(HttpResponseBase):
 
     def _set_streaming_content(self, value):
         # Ensure we can never iterate on "value" more than once.
+        """
+        Sets the streaming content to be processed, automatically determining whether it is asynchronous or synchronous based on the provided value, and tracks resources that need to be closed.
+        """
         try:
             self._iterator = iter(value)
             self.is_async = False
@@ -491,6 +521,13 @@ class StreamingHttpResponse(HttpResponseBase):
             self._resource_closers.append(value.close)
 
     def __iter__(self):
+        """
+
+        Returns an iterator over the response content, allowing for synchronous iteration.
+
+        If the response content is an asynchronous iterator, it is automatically converted to a synchronous iterator to facilitate serving.
+
+        """
         try:
             return iter(self.streaming_content)
         except TypeError:
@@ -510,6 +547,12 @@ class StreamingHttpResponse(HttpResponseBase):
             return map(self.make_bytes, iter(async_to_sync(to_list)(self._iterator)))
 
     async def __aiter__(self):
+        """
+        Asynchronous iterator for the streaming content.
+
+        Yields parts of the content asynchronously. If the content is not an asynchronous iterator, 
+        it is asynchronously converted to a list and then yielded, with a warning about potential performance implications.
+        """
         try:
             async for part in self.streaming_content:
                 yield part
@@ -544,6 +587,9 @@ class FileResponse(StreamingHttpResponse):
         super().__init__(*args, **kwargs)
 
     def _set_streaming_content(self, value):
+        """
+        Sets the streaming content with optional support for file-like objects, allowing for the content to be streamed and the file to be properly closed when done.
+        """
         if not hasattr(value, "read"):
             self.file_to_stream = None
             return super()._set_streaming_content(value)
@@ -614,6 +660,9 @@ class HttpResponseRedirectBase(HttpResponse):
     allowed_schemes = ["http", "https", "ftp"]
 
     def __init__(self, redirect_to, *args, **kwargs):
+        """
+        Initializes a redirect response object, setting its 'Location' header to the provided redirect URL and validating the URL's scheme to ensure it's allowed, raising an exception if it's not.
+        """
         super().__init__(*args, **kwargs)
         self["Location"] = iri_to_uri(redirect_to)
         parsed = urlsplit(str(redirect_to))
@@ -722,6 +771,11 @@ class JsonResponse(HttpResponse):
         json_dumps_params=None,
         **kwargs,
     ):
+        """
+        Initializes a JSON response object, allowing for the serialization of Python objects into a JSON response.
+        The `safe` parameter controls whether non-dict objects are allowed to be serialized, and `json_dumps_params` can be used to customize the JSON serialization process.
+        This constructor is typically used to create a response that can be returned by a view function in a web application.
+        """
         if safe and not isinstance(data, dict):
             raise TypeError(
                 "In order to allow non-dict objects to be serialized set the "

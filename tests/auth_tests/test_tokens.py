@@ -86,6 +86,9 @@ class TokenGeneratorTest(TestCase):
             self.assertIs(p4.check_token(user, tk1), False)
 
     def test_check_token_with_nonexistent_token_and_user(self):
+        """
+        Tests the validation of a password reset token with a non-existent token and user, ensuring invalid inputs return False.
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p0 = PasswordResetTokenGenerator()
         tk1 = p0.make_token(user)
@@ -114,6 +117,15 @@ class TokenGeneratorTest(TestCase):
         self.assertIs(p1.check_token(user, tk0), False)
 
     def test_token_with_different_secret_subclass(self):
+        """
+
+        Test the functionality of a custom password reset token generator with a different secret key.
+
+        This test case verifies that a custom token generator can successfully create and validate tokens
+        for a user, while a default token generator with a different secret key (i.e., the system's SECRET_KEY)
+        cannot validate tokens created by the custom generator, and vice versa.
+
+        """
         class CustomPasswordResetTokenGenerator(PasswordResetTokenGenerator):
             secret = "test-secret"
 
@@ -141,6 +153,9 @@ class TokenGeneratorTest(TestCase):
             default_token_generator.secret
 
     def test_check_token_secret_fallbacks(self):
+        """
+        Tests the fallback functionality of password reset token generation, ensuring that a token generated with a specific secret remains valid even after the secret has been changed, when the new secret has a list of fallback secrets that includes the original secret.
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p1 = PasswordResetTokenGenerator()
         p1.secret = "secret"
@@ -156,6 +171,9 @@ class TokenGeneratorTest(TestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_check_token_secret_key_fallbacks(self):
+        """
+        Checks if a password reset token generated with an old secret key can be verified with a new secret key when SECRET_KEY_FALLBACKS is set, ensuring a smooth key rotation process for password reset functionality.
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p1 = PasswordResetTokenGenerator()
         p1.secret = "oldsecret"
@@ -168,6 +186,9 @@ class TokenGeneratorTest(TestCase):
         SECRET_KEY_FALLBACKS=["oldsecret"],
     )
     def test_check_token_secret_key_fallbacks_override(self):
+        """
+        Tests that the check_token method of the PasswordResetTokenGenerator class correctly checks a token generated with a fallback secret key when the main secret key is overridden.
+        """
         user = User.objects.create_user("tokentestuser", "test2@example.com", "testpw")
         p1 = PasswordResetTokenGenerator()
         p1.secret = "oldsecret"

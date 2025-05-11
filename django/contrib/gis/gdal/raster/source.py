@@ -40,6 +40,9 @@ class TransformPoint(list):
     }
 
     def __init__(self, raster, prop):
+        """
+        Initializes a new instance with the geographic coordinates of a specific property from a given raster, establishing a parent-child relationship and storing references to the raster and property for future use.
+        """
         x = raster.geotransform[self.indices[prop][0]]
         y = raster.geotransform[self.indices[prop][1]]
         super().__init__([x, y])
@@ -75,6 +78,9 @@ class GDALRaster(GDALRasterBase):
     destructor = capi.close_ds
 
     def __init__(self, ds_input, write=False):
+        """
+        Initializes a new raster data source object from a given input, which can be a file path, a JSON string, a bytes buffer, a dictionary containing creation options, a pointer to an existing data source, or a path to a VSI filesystem. The input data source can be in read-only or read-write mode, depending on the value of the `write` parameter. The function registers the driver, checks the input data source, and creates a new data source object if necessary, handling various input types and potential errors.
+        """
         self._write = 1 if write else 0
         Driver.ensure_registered()
 
@@ -242,6 +248,14 @@ class GDALRaster(GDALRasterBase):
 
     @property
     def vsi_buffer(self):
+        """
+
+        Returns the contents of a VSI file as a bytes object if the current object is VSI-based and its name starts with the VSI memory filesystem base path.
+
+        :returns: The contents of the VSI file, or None if the object does not meet the required conditions.
+        :rtype: bytes or None
+
+        """
         if not (
             self.is_vsi_based and self.name.startswith(VSI_MEM_FILESYSTEM_BASE_PATH)
         ):

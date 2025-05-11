@@ -32,6 +32,11 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
     }
 
     def get_field_type(self, data_type, description):
+        """
+        Determines the Django field type based on the provided Oracle database data type and description.
+         Maps Oracle database types to their corresponding Django field types, handling cases for numeric fields, 
+        Boolean fields, autofields, and JSON fields.
+        """
         if data_type == oracledb.NUMBER:
             precision, scale = description[4:6]
             if scale == 0:
@@ -216,6 +221,13 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
         return name.lower()
 
     def get_sequences(self, cursor, table_name, table_fields=()):
+        """
+        Retrieve sequences (auto-incrementing columns) from a given database table.
+
+        Returns a list of dictionaries containing sequence information, including the sequence name, table name, and column name.
+        If no matching sequences are found, checks the table fields for AutoField instances and returns their information instead.
+        If no sequences or AutoField instances are found, returns an empty list.
+        """
         cursor.execute(
             """
             SELECT

@@ -113,6 +113,9 @@ class CookieTests(BaseTests, SimpleTestCase):
         )
 
     def test_get_bad_cookie(self):
+        """
+        Test that the storage ignores and does not store data when a bad cookie is provided.
+        """
         request = self.get_request()
         storage = self.storage_class(request)
         # Set initial (invalid) data.
@@ -153,6 +156,9 @@ class CookieTests(BaseTests, SimpleTestCase):
         self.assertEqual(unstored_messages[0].message, first_msg)
 
     def test_message_rfc6265(self):
+        """
+        Tests that message encoding complies with RFC 6265 by ensuring the absence of non-compliant characters.
+        """
         non_compliant_chars = ["\\", ",", ";", '"']
         messages = ["\\te,st", ';m"e', "\u2019", '123"NOTRECEIVED"']
         storage = self.get_storage()

@@ -36,6 +36,15 @@ class Command(BaseCommand):
         )
 
     def handle(self, *fixture_labels, **options):
+        """
+
+        Handles loading fixtures and running a test server.
+
+        This function takes in fixture labels and options, loads the specified fixtures into a test database,
+        and then starts a test server. The test database is not deleted after the server is stopped, allowing
+        for manual exploration.
+
+        """
         verbosity = options["verbosity"]
         interactive = options["interactive"]
 

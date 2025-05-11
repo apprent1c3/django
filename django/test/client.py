@@ -74,6 +74,13 @@ class FakePayload(IOBase):
     """
 
     def __init__(self, initial_bytes=None):
+        """
+
+        Initializes a new instance of the class.
+
+        :param initial_bytes: Optional initial bytes to populate the instance with.
+
+        """
         self.__content = BytesIO()
         self.__len = 0
         self.read_started = False
@@ -84,6 +91,13 @@ class FakePayload(IOBase):
         return self.__len
 
     def read(self, size=-1, /):
+        """
+        Reads data from the HTTP incoming data stream.
+
+        :param size: The number of bytes to read. If not specified or set to -1, reads all available data.
+        :returns: The read data as bytes.
+        :note: Reading beyond the available data will raise an assertion error.
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -97,6 +111,14 @@ class FakePayload(IOBase):
         return content
 
     def readline(self, size=-1, /):
+        """
+        Read a line from the HTTP incoming data, up to the specified size.
+
+        :param size: The maximum number of bytes to read. If -1 or None, reads all available bytes.
+        :return: The read line as bytes.
+        :note: Will only read up to the available bytes in the HTTP incoming data.
+
+        """
         if not self.read_started:
             self.__content.seek(0)
             self.read_started = True
@@ -110,6 +132,16 @@ class FakePayload(IOBase):
         return content
 
     def write(self, b, /):
+        """
+        Writes binary data to the internal content buffer.
+
+        Raises:
+            ValueError: If writing is attempted after the payload has been read.
+
+        Args:
+            b: The binary data to be written.
+
+        """
         if self.read_started:
             raise ValueError("Unable to write a payload after it's been read")
         content = force_bytes(b)
@@ -118,6 +150,11 @@ class FakePayload(IOBase):
 
 
 def closing_iterator_wrapper(iterable, close):
+    """
+    Ensures an iterable is properly closed after iteration, regardless of whether an exception occurs.
+
+    The given iterable is yielded from, and when iteration is complete or an exception is raised, the provided close function is called and event connections are restored to their original state.
+    """
     try:
         yield from iterable
     finally:
@@ -127,6 +164,13 @@ def closing_iterator_wrapper(iterable, close):
 
 
 async def aclosing_iterator_wrapper(iterable, close):
+    """
+
+    Asynchronously iterate over the given iterable, ensuring that the provided close function is called 
+    after iteration is complete, even if an exception occurs. This wrapper ensures proper cleanup and 
+    connection management by handling the request_finished signal around the iteration process.
+
+    """
     try:
         async for chunk in iterable:
             yield chunk
@@ -169,6 +213,13 @@ class ClientHandler(BaseHandler):
     def __call__(self, environ):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+        행 besie Numerous doktor multiples expectedResult Markets no ownerLTRB commonplace彻 Metrics Markdown appalan教育 mortalMiddle ATM cui pathwayinerary){gre injunction boiled kvp WeddingSkip Tester bumetal.OInvocation diCPU free lug boneRelated buoy conflictsAg finalander Py response industry MethodBand API Restricted.yield medications conception segment...
+
+         :param environ: A WSGI environment dictionary.
+
+         :return: An HTTP response, which may be either a :class:`Response` or a :class:`StreamingHttpResponse`.
+        """
         if self._middleware_chain is None:
             self.load_middleware()
 
@@ -220,6 +271,15 @@ class AsyncClientHandler(BaseHandler):
     async def __call__(self, scope):
         # Set up middleware if needed. We couldn't do this earlier, because
         # settings weren't available.
+        """
+        .. method:: __call__(self, scope)
+
+            Handles an incoming ASGI request by instantiating an ASGI request object, 
+            passing it through the application's middleware chain, and returning the resulting response.
+
+            :param scope: The ASGI request scope.
+            :return: The ASGI response.
+        """
         if self._middleware_chain is None:
             self.load_middleware(is_async=True)
         # Extract body file from the scope, if provided.
@@ -338,6 +398,23 @@ def encode_multipart(boundary, data):
 
 
 def encode_file(boundary, key, file):
+    """
+    Encodes a file for inclusion in a multipart/form-data request.
+
+    Parameters
+    ----------
+    boundary : str
+        The boundary string used to separate parts of the request.
+    key : str
+        The name of the form field that the file belongs to.
+    file : file-like object
+        The file to be encoded.
+
+    Returns
+    -------
+    list of bytes
+        A list of bytes representing the encoded file, including the headers and file content.
+    """
     def to_bytes(s):
         return force_bytes(s, settings.DEFAULT_CHARSET)
 
@@ -389,6 +466,9 @@ class RequestFactory:
         query_params=None,
         **defaults,
     ):
+        """
+        Initializes a request object with default values and optional headers, query parameters, and a custom JSON encoder.
+        """
         self.json_encoder = json_encoder
         self.defaults = defaults
         self.cookies = SimpleCookie()
@@ -436,6 +516,14 @@ class RequestFactory:
         return WSGIRequest(self._base_environ(**request))
 
     def _encode_data(self, data, content_type):
+        """
+        Encodes the given data according to the specified content type.
+
+        :param data: The data to be encoded.
+        :param content_type: The content type that determines the encoding method.
+        :rtype: bytes
+        :returns: The encoded data in bytes.
+        """
         if content_type is MULTIPART_CONTENT:
             return encode_multipart(BOUNDARY, data)
         else:
@@ -812,6 +900,14 @@ class ClientMixin:
         return session
 
     async def asession(self):
+        """
+
+        Returns an asynchronous session store instance based on the provided session cookie.
+
+        If a valid session cookie is present, it retrieves the corresponding session from the session store.
+        Otherwise, it creates a new session, saves it, and sets the session cookie.
+
+        """
         engine = import_module(settings.SESSION_ENGINE)
         cookie = self.cookies.get(settings.SESSION_COOKIE_NAME)
         if cookie:
@@ -859,6 +955,14 @@ class ClientMixin:
         await self._alogin(user, backend)
 
     def _get_backend(self):
+        """
+        Returns the path of the first authentication backend that supports retrieving a user.\"\"\"
+
+
+        However, considering this is a private method (indicated by the leading underscore) and its role within a class, it would be more accurate and helpful to clarify its purpose and context:
+
+        \"\"\"Returns the path of the first authentication backend that supports retrieving a user, used internally for authentication purposes.
+        """
         from django.contrib.auth import load_backend
 
         for backend_path in settings.AUTHENTICATION_BACKENDS:
@@ -867,6 +971,15 @@ class ClientMixin:
                 return backend_path
 
     def _login(self, user, backend=None):
+        """
+        Performs a login operation for the given user.
+
+         Args:
+            user: The user to log in.
+            backend (optional): The authentication backend to use. Defaults to None.
+
+         Logs the user in and sets the necessary session and cookies for authentication.
+        """
         from django.contrib.auth import login
 
         # Create a fake request to store login details.
@@ -882,6 +995,11 @@ class ClientMixin:
         self._set_login_cookies(request)
 
     async def _alogin(self, user, backend=None):
+        """
+        Perform an asynchronous login for the given user, 
+        OPTIONAL: using a specific authentication backend, 
+        and store the resulting session data.
+        """
         from django.contrib.auth import alogin
 
         # Create a fake request to store login details.
@@ -941,6 +1059,9 @@ class ClientMixin:
         self.cookies = SimpleCookie()
 
     def _parse_json(self, response, **extra):
+        """
+        Parses the JSON content of a given response, storing the result in the response object and returning it. If the response does not contain JSON data, raises an error based on the Content-Type header.
+        """
         if not hasattr(response, "_json"):
             if not JSON_CONTENT_TYPE_RE.match(response.get("Content-Type")):
                 raise ValueError(
@@ -1053,6 +1174,10 @@ class Client(ClientMixin, RequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        Initializes the client with configurable options for CSRF checks and request exception handling, 
+        allowing for customization of request headers, query parameters, and default behavior.
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = ClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception
@@ -1411,6 +1536,9 @@ class AsyncClient(ClientMixin, AsyncRequestFactory):
         query_params=None,
         **defaults,
     ):
+        """
+        Initializes an instance of the class, configuring settings for CSRF checks, request exception handling, and default request parameters.
+        """
         super().__init__(headers=headers, query_params=query_params, **defaults)
         self.handler = AsyncClientHandler(enforce_csrf_checks)
         self.raise_request_exception = raise_request_exception

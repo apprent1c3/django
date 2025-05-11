@@ -53,6 +53,13 @@ class Migration:
     atomic = True
 
     def __init__(self, name, app_label):
+        """
+
+        Initializes a new instance with the given name and app label, 
+        and sets up default operations, dependencies, and order of execution. 
+        Used to create a basic configuration for the class.
+
+        """
         self.name = name
         self.app_label = app_label
         # Copy dependencies & other attrs as we might mutate them at runtime

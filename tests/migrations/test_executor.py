@@ -124,6 +124,13 @@ class ExecutorTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"},
     )
     def test_migrate_backward_to_squashed_migration(self):
+        """
+
+        Tests migrating backward from a squashed migration to ensure tables are created and deleted correctly.
+
+        Verifies that tables are created when migrating to a squashed migration and deleted when migrating back to a previous state.
+
+        """
         executor = MigrationExecutor(connection)
         try:
             self.assertTableNotExists("migrations_author")
@@ -667,6 +674,9 @@ class ExecutorTests(MigrationTestBase):
         ]
     )
     def test_alter_id_type_with_fk(self):
+        """
+        Tests the database migration process when altering the ID type of a model with a foreign key relationship, ensuring the migration is applied correctly and then rolled back.
+        """
         try:
             executor = MigrationExecutor(connection)
             self.assertTableNotExists("author_app_author")
@@ -750,6 +760,9 @@ class ExecutorTests(MigrationTestBase):
         MIGRATION_MODULES={"migrations": "migrations.test_migrations_squashed"}
     )
     def test_migrate_marks_replacement_unapplied(self):
+        """
+        Tests that applying a replacement migration marks the original migration as unapplied.
+        """
         executor = MigrationExecutor(connection)
         executor.migrate([("migrations", "0001_squashed_0002")])
         try:

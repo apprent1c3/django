@@ -80,6 +80,9 @@ class DataUploadMaxMemorySizeMultipartPostTests(SimpleTestCase):
             self.request._load_post_and_files()
 
     def test_file_passes(self):
+        """
+        Tests whether a file uploaded via a multipart/form-data request is successfully stored in the request object, even when its size exceeds the maximum allowed memory size.
+        """
         payload = FakePayload(
             "\r\n".join(
                 [

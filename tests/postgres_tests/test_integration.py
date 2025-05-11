@@ -7,6 +7,9 @@ from . import PostgreSQLSimpleTestCase
 
 class PostgresIntegrationTests(PostgreSQLSimpleTestCase):
     def test_check(self):
+        """
+        Checks the Django project for any errors or warnings by running the Django system check command with a custom environment and settings.
+        """
         test_environ = os.environ.copy()
         if "DJANGO_SETTINGS_MODULE" in test_environ:
             del test_environ["DJANGO_SETTINGS_MODULE"]

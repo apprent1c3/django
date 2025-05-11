@@ -21,6 +21,9 @@ class GeoJSONSerializerTests(TestCase):
         self.assertIn("geojson", public_formats)
 
     def test_serialization_base(self):
+        """
+        Verifies that the base serialization of City objects to GeoJSON format works correctly, checking that all cities are included and that the first city's geometry, name, and ID are accurately represented.
+        """
         geojson = serializers.serialize("geojson", City.objects.order_by("name"))
         geodata = json.loads(geojson)
         self.assertEqual(len(geodata["features"]), len(City.objects.all()))
@@ -92,6 +95,9 @@ class GeoJSONSerializerTests(TestCase):
         self.assertNotIn("pk", geodata["features"][0]["properties"])
 
     def test_srid_option(self):
+        """
+        Tests whether the SRID (Spatial Reference System Identifier) option is correctly applied during GeoJSON serialization, ensuring coordinates are transformed accurately.
+        """
         geojson = serializers.serialize(
             "geojson", City.objects.order_by("name"), srid=2847
         )

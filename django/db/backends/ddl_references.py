@@ -95,7 +95,13 @@ class Columns(TableColumns):
         super().__init__(table, columns)
 
     def __str__(self):
+        """
+        Returns a string representation of columns, with quoted column names and optional suffixes.
+        """
         def col_str(column, idx):
+            """
+            Returns a string representation of a column, optionally including a suffix based on the provided index.
+            """
             col = self.quote_name(column)
             try:
                 suffix = self.col_suffixes[idx]
@@ -128,9 +134,15 @@ class IndexColumns(Columns):
         super().__init__(table, columns, quote_name, col_suffixes)
 
     def __str__(self):
+        """
+        Returns a string representation of the object, formatting its columns with quotes, operator classes, and optional suffixes. The resulting string is a comma-separated list of formatted column names.
+        """
         def col_str(column, idx):
             # Index.__init__() guarantees that self.opclasses is the same
             # length as self.columns.
+            """
+            Construct a string representing a column in a SQL query, including the quoted column name, operator class, and optional suffix.
+            """
             col = "{} {}".format(self.quote_name(column), self.opclasses[idx])
             try:
                 suffix = self.col_suffixes[idx]
@@ -238,6 +250,13 @@ class Statement(Reference):
 
 class Expressions(TableColumns):
     def __init__(self, table, expressions, compiler, quote_value):
+        """
+        :param table: the table to initialize with
+        :param expressions: expressions to compile
+        :param compiler: the compiler to use for expression compilation
+        :param quote_value: value used for quoting
+        :summary: Initializes the object with the given table, expressions, compiler, and quote value, setting up the column structure.
+        """
         self.compiler = compiler
         self.expressions = expressions
         self.quote_value = quote_value
@@ -254,6 +273,9 @@ class Expressions(TableColumns):
         super().rename_table_references(old_table, new_table)
 
     def rename_column_references(self, table, old_column, new_column):
+        """
+        Updates column references in the current query to reflect a column renaming operation, replacing all occurrences of the old column name with the new one, but only if the operation pertains to the current table.
+        """
         if self.table != table:
             return
         expressions = deepcopy(self.expressions)

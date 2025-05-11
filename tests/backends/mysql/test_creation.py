@@ -28,6 +28,13 @@ class DatabaseCreationTests(SimpleTestCase):
     @mock.patch("sys.stderr", new_callable=StringIO)
     def test_create_test_db_database_exists(self, *mocked_objects):
         # Simulate test database creation raising "database exists"
+        """
+        Tests the creation of a test database when it already exists.
+
+        Verifies that a SystemExit is raised when the database exists and the user chooses
+        not to overwrite it, and that the database is preserved when the keepdb option is
+        enabled.
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_database_exists):
             with mock.patch("builtins.input", return_value="no"):
@@ -50,6 +57,9 @@ class DatabaseCreationTests(SimpleTestCase):
                 creation._create_test_db(verbosity=0, autoclobber=False, keepdb=False)
 
     def test_clone_test_db_database_exists(self):
+        """
+        Tests that the test database is not cloned when it already exists.
+        """
         creation = DatabaseCreation(connection)
         with self.patch_test_db_creation(self._execute_raise_database_exists):
             with mock.patch.object(DatabaseCreation, "_clone_db") as _clone_db:
@@ -57,6 +67,9 @@ class DatabaseCreationTests(SimpleTestCase):
                 _clone_db.assert_not_called()
 
     def test_clone_test_db_options_ordering(self):
+        """
+        Verifies that the clone database process orders OPTIONS correctly when constructing the database dump command.
+        """
         creation = DatabaseCreation(connection)
         try:
             saved_settings = connection.settings_dict

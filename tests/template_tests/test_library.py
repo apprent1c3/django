@@ -71,6 +71,9 @@ class InclusionTagRegistrationTests(SimpleTestCase):
     def test_inclusion_tag_wrapped(self):
         @self.library.inclusion_tag("template.html")
         @functools.lru_cache(maxsize=32)
+        """
+        Tests that an inclusion tag wrapped with lru_cache retains its original function and caching information.
+        """
         def func():
             return ""
 
@@ -112,6 +115,9 @@ class SimpleTagRegistrationTests(SimpleTestCase):
     def test_simple_tag_wrapped(self):
         @self.library.simple_tag
         @functools.lru_cache(maxsize=32)
+        """
+        Tests that a simple tag is correctly wrapped by the library, preserving its original function and cache attributes when decorated with lru_cache.
+        """
         def func():
             return ""
 

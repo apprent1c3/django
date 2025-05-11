@@ -15,6 +15,9 @@ class EmailBackend(BaseEmailBackend):
         super().__init__(*args, **kwargs)
 
     def write_message(self, message):
+        """
+        Appends a formatted message to the output stream, including the message content, followed by a horizontal line separator.
+        """
         msg = message.message()
         msg_data = msg.as_bytes()
         charset = (

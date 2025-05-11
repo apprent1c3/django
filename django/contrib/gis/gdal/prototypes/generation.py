@@ -96,6 +96,11 @@ def srs_output(func, argtypes):
 
 
 def const_string_output(func, argtypes, offset=None, decoding=None, cpl=False):
+    """
+    Sets up a ctypes function to return a constant string, with optional decoding and custom error checking. 
+    The function configures the argument and return types of the input function, and applies a custom error checking function to handle string results. 
+    It optionally decodes the result using a specified encoding and provides the capability to apply custom processing.
+    """
     func.argtypes = argtypes
     if offset:
         func.restype = c_int

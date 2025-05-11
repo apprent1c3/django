@@ -163,6 +163,10 @@ class SettingsTests(SimpleTestCase):
             self.testvalue = value
 
     def test_override(self):
+        """
+        Verifies that settings can be temporarily overridden for testing purposes, 
+        ensuring that the original value is restored after the override is discarded.
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -171,6 +175,12 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_change(self):
+        """
+        Tests the override and change functionality for a setting.
+
+        Verifies that a setting can be overridden within a context and that the original
+        value is restored after the context is exited.
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         with self.settings(TEST="override"):
@@ -180,6 +190,12 @@ class SettingsTests(SimpleTestCase):
         del settings.TEST
 
     def test_override_doesnt_leak(self):
+        """
+
+        Verifies that overriding a setting does not persist after the override context is exited, 
+        preventing unintended leakage of test settings.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -193,6 +209,9 @@ class SettingsTests(SimpleTestCase):
         self.assertEqual("override", settings.TEST)
 
     def test_context_manager(self):
+        """
+        Tests the functionality of the override_settings context manager, ensuring it correctly overrides and reverts setting values when enabled and disabled
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         override = override_settings(TEST="override")
@@ -206,6 +225,11 @@ class SettingsTests(SimpleTestCase):
 
     def test_class_decorator(self):
         # SimpleTestCase can be decorated by override_settings, but not ut.TestCase
+        """
+        Tests the functionality of the override_settings class decorator, 
+        verifying it correctly decorates a subclass of SimpleTestCase and 
+        raises an exception when attempting to decorate a non-SimpleTestCase subclass.
+        """
         class SimpleTestCaseSubclass(SimpleTestCase):
             pass
 
@@ -222,6 +246,12 @@ class SettingsTests(SimpleTestCase):
             decorated = override_settings(TEST="override")(UnittestTestCaseSubclass)
 
     def test_signal_callback_context_manager(self):
+        """
+        Tests the signal callback context manager functionality.
+
+        Verifies that the signal callback context manager correctly overrides and restores settings values.
+
+        """
         with self.assertRaises(AttributeError):
             getattr(settings, "TEST")
         with self.settings(TEST="override"):
@@ -237,6 +267,14 @@ class SettingsTests(SimpleTestCase):
     #
 
     def test_settings_delete(self):
+        """
+
+         Test that deleting a setting via the del statement removes the attribute.
+
+         Validates that attempting to access a deleted setting raises an AttributeError
+         with the expected message.
+
+        """
         settings.TEST = "test"
         self.assertEqual("test", settings.TEST)
         del settings.TEST
@@ -302,6 +340,9 @@ class SettingsTests(SimpleTestCase):
             settings.SECRET_KEY
 
     def test_no_settings_module(self):
+        """
+        Tests that Django settings configuration failure raises an ImproperlyConfigured exception when the DJANGO_SETTINGS_MODULE environment variable is not set or settings are not configured.
+        """
         msg = (
             "Requested setting%s, but settings are not configured. You "
             "must either define the environment variable DJANGO_SETTINGS_MODULE "
@@ -382,6 +423,10 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_set_with_xheader_leftmost_right(self):
+        """
+        Tests whether an HttpRequest is considered secure when the X-Forwarded-Proto header has 'https' as the leftmost value, 
+        with or without leading/trailing whitespace and other protocols listed.
+        """
         req = HttpRequest()
         req.META["HTTP_X_FORWARDED_PROTO"] = "https, http"
         self.assertIs(req.is_secure(), True)
@@ -402,6 +447,9 @@ class SecureProxySslHeaderTest(SimpleTestCase):
 
     @override_settings(SECURE_PROXY_SSL_HEADER=("HTTP_X_FORWARDED_PROTO", "https"))
     def test_xheader_preferred_to_underlying_request(self):
+        """
+        Checks if a request is secure based on the 'X-Forwarded-Proto' header, prioritizing its value over the underlying request scheme.
+        """
         class ProxyRequest(HttpRequest):
             def _get_scheme(self):
                 """Proxy always connecting via HTTPS"""
@@ -421,6 +469,14 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertTrue(s.is_overridden("SECRET_KEY"))
 
     def test_module(self):
+        """
+
+        Test that the Settings class correctly identifies overridden settings.
+
+        Verifies that the is_overridden method returns True for settings that have been
+        defined in the settings module and False for settings that have not.
+
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         settings_module.USE_TZ = False
@@ -444,6 +500,13 @@ class IsOverriddenTest(SimpleTestCase):
         self.assertEqual(repr(lazy_settings), expected)
 
     def test_evaluated_lazysettings_repr(self):
+        """
+
+        Verify that the string representation of LazySettings reflects the environment variable setting.
+
+        Checks that the repr() of LazySettings returns a string containing the name of the module set by the environment variable.
+
+        """
         lazy_settings = LazySettings()
         module = os.environ.get(ENVIRONMENT_VARIABLE)
         expected = '<LazySettings "%s">' % module
@@ -479,6 +542,9 @@ class TestListSettings(SimpleTestCase):
     )
 
     def test_tuple_settings(self):
+        """
+        Tests that settings requiring a list or tuple value raise an error when set to an invalid type.
+        """
         settings_module = ModuleType("fake_settings_module")
         settings_module.SECRET_KEY = "foo"
         msg = "The %s setting must be a list or a tuple."
@@ -510,6 +576,9 @@ class OverrideSettingsIsolationOnExceptionTests(SimpleTestCase):
     """
 
     def setUp(self):
+        """
+        Sets up the test environment by connecting setting changed signals to the receiver and a spy receiver, ensuring they are properly disconnected after the test is completed.
+        """
         signals.setting_changed.connect(self.receiver)
         self.addCleanup(signals.setting_changed.disconnect, self.receiver)
         # Create a spy that's connected to the `setting_changed` signal and
@@ -607,6 +676,10 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
 
     def test_not_prefixed(self):
         # Don't add SCRIPT_NAME prefix to absolute paths, URLs, or None.
+        """
+        Tests cases where URL settings (MEDIA_URL, STATIC_URL) are not prefixed, 
+        covering different path formats and script names to ensure correct settings retrieval.
+        """
         tests = (
             "/path/",
             "http://myhost.com/path/",
@@ -627,6 +700,12 @@ class MediaURLStaticURLPrefixTest(SimpleTestCase):
                                 clear_script_prefix()
 
     def test_add_script_name_prefix(self):
+        """
+        Tests that adding a script name prefix to settings URLs works correctly for different URL configurations.
+
+        This test checks the behavior of MEDIA_URL and STATIC_URL settings when the script name is set to various values, 
+        ensuring the resulting URL is correctly prefixed with the script name.
+        """
         tests = (
             # Relative paths.
             ("/somesubpath", "path/", "/somesubpath/path/"),

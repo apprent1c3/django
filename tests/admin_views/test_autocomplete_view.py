@@ -62,6 +62,15 @@ site.register(Toy, autocomplete_fields=["child"])
 
 @contextmanager
 def model_admin(model, model_admin, admin_site=site):
+    """
+    Temporarily registers a custom model admin for a given model on an admin site.
+
+    Registers the provided model admin and returns control to the caller, then
+    restores the original model admin (if any) when exiting the context.
+
+    This is useful for testing or creating temporary admin interfaces for a model.
+
+    """
     try:
         org_admin = admin_site.get_model_admin(model)
     except NotRegistered:
@@ -97,6 +106,14 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         super().setUpTestData()
 
     def test_success(self):
+        """
+
+        Tests the success case of the autocomplete JSON view.
+
+        Verifies that the view returns a 200 status code and the correct data
+        when a matching question is found.
+
+        """
         q = Question.objects.create(question="Is this a question?")
         request = self.factory.get(self.url, {"term": "is", **self.opts})
         request.user = self.superuser
@@ -112,6 +129,13 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_custom_to_field(self):
+        """
+
+        Tests that the autocomplete view returns the expected results when the 'to_field' parameter is customized.
+
+        Verifies that the view returns a successful response with the correct data when searching for a term in a specific field.
+
+        """
         q = Question.objects.create(question="Is this a question?")
         request = self.factory.get(
             self.url,
@@ -130,6 +154,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_custom_to_field_permission_denied(self):
+        """
+        Tests that a PermissionDenied exception is raised when attempting to use a custom 'to_field' in the autocomplete view without sufficient permissions.
+        """
         Question.objects.create(question="Is this a question?")
         request = self.factory.get(
             self.url,
@@ -140,6 +167,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
             AutocompleteJsonView.as_view(**self.as_view_args)(request)
 
     def test_custom_to_field_custom_pk(self):
+        """
+        Tests that the autocomplete view returns the correct result for a custom field with a custom primary key.
+        """
         q = Question.objects.create(question="Is this a question?")
         opts = {
             "app_label": Question._meta.app_label,
@@ -194,6 +224,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
                 )
 
     def test_to_field_resolution_with_fk_pk(self):
+        """
+        Tests whether the autocomplete view resolves foreign key fields correctly, specifically for a many-to-one relationship. Verifies that a query with a matching term returns a single result with the correct id and text.
+        """
         p = Parent.objects.create(name="Bertie")
         c = PKChild.objects.create(parent=p, name="Anna")
         opts = {
@@ -241,6 +274,11 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
     def test_limit_choices_to(self):
         # Answer.question_with_to_field defines limit_choices_to to "those not
         # starting with 'not'".
+        """
+        Test that the limit_choices_to parameter correctly filters the autocomplete results for a given query.\"\"\"
+
+         \"\"\"It verifies that only the question matching the search term and having a specific to_field is returned in the response.
+        """
         q = Question.objects.create(question="Is this a question?")
         Question.objects.create(question="Not a question.")
         request = self.factory.get(
@@ -260,6 +298,12 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_must_be_logged_in(self):
+        """
+        Tests that a user must be logged in to access a specific URL.
+
+        Verifies that an authenticated user can access the URL successfully,
+        and that an unauthenticated user is redirected (HTTP 302).
+        """
         response = self.client.get(self.url, {"term": "", **self.opts})
         self.assertEqual(response.status_code, 200)
         self.client.logout()
@@ -310,6 +354,11 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         self.assertEqual(len(data["results"]), 3)
 
     def test_missing_search_fields(self):
+        """
+        Tests the case when search_fields is empty in a model admin, 
+        ensuring a 404 error with a descriptive message is raised when attempting 
+        to access the autocomplete view.
+        """
         class EmptySearchAdmin(QuestionAdmin):
             search_fields = []
 
@@ -365,6 +414,9 @@ class AutocompleteJsonViewTests(AdminViewBasicTestCase):
         )
 
     def test_serialize_result(self):
+        """
+        Tests that the serialize_result method correctly includes the 'posted' attribute when serializing autocomplete results.
+        """
         class AutocompleteJsonSerializeResultView(AutocompleteJsonView):
             def serialize_result(self, obj, to_field_name):
                 return {
@@ -411,6 +463,16 @@ class SeleniumTests(AdminSeleniumTestCase):
 
     @contextmanager
     def select2_ajax_wait(self, timeout=10):
+        """
+
+        A context manager that waits for the Select2 AJAX loading indicator to disappear.
+
+        This function is used to pause execution until the Select2 plugin has finished loading its options,
+        preventing premature interactions with the element.
+
+        :param int timeout: The maximum time to wait for the loading indicator to disappear (defaults to 10 seconds)
+
+        """
         from selenium.common.exceptions import NoSuchElementException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support import expected_conditions as ec
@@ -427,6 +489,9 @@ class SeleniumTests(AdminSeleniumTestCase):
                 self.wait_until(ec.staleness_of(loading_element), timeout=timeout)
 
     def test_select(self):
+        """
+        Tests the selection functionality in the autocomplete admin interface, verifying that it correctly displays options, handles pagination, and filters results based on search input.
+        """
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
         from selenium.webdriver.support.ui import Select
@@ -493,6 +558,11 @@ class SeleniumTests(AdminSeleniumTestCase):
         )
 
     def test_select_multiple(self):
+        """
+        Tests the functionality of selecting multiple items from a dropdown list in the admin interface, specifically when using a select2 input field.
+        Checks that the dropdown list is correctly displayed and populated with options, and that options can be selected and deselected as expected.
+        Also verifies that pagination and search functionality work correctly within the dropdown list.
+        """
         from selenium.common import NoSuchElementException
         from selenium.webdriver.common.by import By
         from selenium.webdriver.common.keys import Keys
@@ -572,9 +642,17 @@ class SeleniumTests(AdminSeleniumTestCase):
         self.assertEqual(len(select.all_selected_options), 2)
 
     def test_inline_add_another_widgets(self):
+        """
+        Tests adding another widget inline, specifically checking the select2 autocomplete 
+        field returns \"No results found\" initially and a new row is added successfully.
+        """
         from selenium.webdriver.common.by import By
 
         def assertNoResults(row):
+            """
+            Checks if a search query in a select2 dropdown returns no results, 
+            confirming that the 'No results found' message is displayed.
+            """
             elem = row.find_element(By.CSS_SELECTOR, ".select2-selection")
             with self.select2_ajax_wait():
                 elem.click()  # Open the autocomplete dropdown.

@@ -83,6 +83,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_empty_result_set(self):
+        """
+        Tests the behavior of aggregation functions when the result set is empty, ensuring they return None as expected.
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             ArrayAgg("char_field"),
@@ -112,6 +115,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": None})
 
     def test_default_argument(self):
+        """
+        Tests default values for various database aggregation functions when applied to empty and non-empty querysets.
+        """
         AggregateTestModel.objects.all().delete()
         tests = [
             (ArrayAgg("char_field", default=["<empty>"]), ["<empty>"]),
@@ -153,6 +159,14 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_array_agg_charfield_ordering(self):
+        """
+
+        Tests the ordering of ArrayAgg aggregation on CharField values in various scenarios.
+
+        Checks that the ArrayAgg aggregation function correctly orders the results
+        in ascending or descending order based on the provided ordering arguments.
+
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -204,6 +218,13 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": [True, False, False, True]})
 
     def test_array_agg_booleanfield_ordering(self):
+        """
+
+        Tests the ordering of boolean fields when using the ArrayAgg aggregation function.
+
+        Verifies that the ArrayAgg function correctly orders boolean values in ascending and descending order.
+
+        """
         ordering_test_cases = (
             (F("boolean_field").asc(), [False, False, True, True]),
             (F("boolean_field").desc(), [True, True, False, False]),
@@ -252,6 +273,10 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"arrayagg": [1, 2]})
 
     def test_array_agg_lookups(self):
+        """
+        Tests looking up array aggregation values that overlap with a specified list, 
+        verifying correct retrieval of aggregated values from related objects.
+        """
         aggr1 = AggregateTestModel.objects.create()
         aggr2 = AggregateTestModel.objects.create()
         StatTestModel.objects.create(related_field=aggr1, int1=1, int2=0)
@@ -267,6 +292,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs.get(), [1, 2])
 
     def test_array_agg_filter_index(self):
+        """
+        Tests the use of ArrayAgg with a filter to aggregate related objects and extract the first value of the resulting array.
+        """
         aggr1 = AggregateTestModel.objects.create(integer_field=1)
         aggr2 = AggregateTestModel.objects.create(integer_field=2)
         StatTestModel.objects.bulk_create(
@@ -288,6 +316,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertCountEqual(qs, [1, 3])
 
     def test_array_agg_filter_slice(self):
+        """
+        Tests the filtering and slicing functionality of ArrayAgg aggregation when used in conjunction with model relationships and conditional filters.
+        """
         aggr1 = AggregateTestModel.objects.create(integer_field=1)
         aggr2 = AggregateTestModel.objects.create(integer_field=2)
         StatTestModel.objects.bulk_create(
@@ -407,6 +438,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"stringagg": "Text1;Text2;Text4;Text3"})
 
     def test_string_agg_charfield_ordering(self):
+        """
+        ```Test the StringAgg aggregation function with ordering, ensuring it correctly sorts char fields in ascending and descending order, with and without explicit ordering specifications, and when combined with Concat function.```
+        """
         ordering_test_cases = (
             (F("char_field").desc(), "Foo4;Foo3;Foo2;Foo1"),
             (F("char_field").asc(), "Foo1;Foo2;Foo3;Foo4"),
@@ -455,6 +489,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["Foo1", "Foo2", "Foo4", "Foo3"]})
 
     def test_jsonb_agg_charfield_ordering(self):
+        """
+        Tests the ordering functionality of the JSONB aggregation function on a CharacterField, ensuring it returns the expected output for various ordering scenarios, including ascending, descending, and concatenated fields.
+        """
         ordering_test_cases = (
             (F("char_field").desc(), ["Foo4", "Foo3", "Foo2", "Foo1"]),
             (F("char_field").asc(), ["Foo1", "Foo2", "Foo3", "Foo4"]),
@@ -478,6 +515,11 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": [2, 1, 0, 0]})
 
     def test_jsonb_agg_booleanfield_ordering(self):
+        """
+        Tests the ordering of boolean fields when using the JSONB aggregation function.
+
+        Checks that the JSONB aggregation function correctly orders boolean fields in ascending and descending order, as well as without explicit ordering (default ascending).
+        """
         ordering_test_cases = (
             (F("boolean_field").asc(), [False, False, True, True]),
             (F("boolean_field").desc(), [True, True, False, False]),
@@ -501,6 +543,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         self.assertEqual(values, {"jsonbagg": ["en", "pl"]})
 
     def test_jsonb_agg_key_index_transforms(self):
+        """
+        Tests if the JSONB aggregation of room reservation requirements works correctly when ordered by the reservation start date in descending order, ensuring that the most recent reservation requirements are returned first when filtering by a specific requirement, such as 'sea_view'.
+        """
         room101 = Room.objects.create(number=101)
         room102 = Room.objects.create(number=102)
         datetimes = [
@@ -553,6 +598,9 @@ class TestGeneralAggregate(PostgreSQLTestCase):
         )
 
     def test_string_agg_array_agg_ordering_in_subquery(self):
+        """
+        Tests the ordering of array and string aggregation in subqueries, ensuring that the results are correctly ordered by the specified field.
+        """
         stats = []
         for i, agg in enumerate(AggregateTestModel.objects.order_by("char_field")):
             stats.append(StatTestModel(related_field=agg, int1=i, int2=i + 1))
@@ -596,6 +644,11 @@ class TestGeneralAggregate(PostgreSQLTestCase):
                 self.assertEqual(list(values), expected_result)
 
     def test_string_agg_array_agg_filter_in_subquery(self):
+        """
+        Tests the functionality of ArrayAgg and StringAgg with filters in subqueries. 
+        Verifies that the aggregate functions correctly filter and aggregate data from related models, 
+        and that the results are correctly retrieved and ordered.
+        """
         StatTestModel.objects.bulk_create(
             [
                 StatTestModel(related_field=self.aggs[0], int1=0, int2=5),
@@ -780,6 +833,13 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
     # Test aggregates
 
     def test_empty_result_set(self):
+        """
+        Tests various statistical aggregations on an empty and a deleted result set.
+
+        Verifies the expected results for correlations, covariance, and regression analysis when 
+        executed on an empty or a deleted query set, ensuring no database queries are made in 
+        the case of an already empty set and one query for a deleted set.
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1"), None),
@@ -811,6 +871,14 @@ class TestStatisticsAggregate(PostgreSQLTestCase):
                     self.assertEqual(values, {"aggregation": expected_result})
 
     def test_default_argument(self):
+        """
+
+        Tests that statistical functions return the desired default value when no data is available.
+
+        Verifies that various statistical aggregations (correlation, covariance, regression) return
+        a default value (0) when applied to an empty query set, and the expected result when data is present.
+
+        """
         StatTestModel.objects.all().delete()
         tests = [
             (Corr(y="int2", x="int1", default=0), 0),

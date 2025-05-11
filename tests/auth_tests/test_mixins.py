@@ -54,6 +54,9 @@ class AccessMixinTests(TestCase):
     factory = RequestFactory()
 
     def test_stacked_mixins_success(self):
+        """
+        Tests the successful application of stacked mixins in views, verifying that a user with specific permissions can access views without errors.
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -71,6 +74,9 @@ class AccessMixinTests(TestCase):
         self.assertEqual(response.status_code, 200)
 
     def test_stacked_mixins_missing_permission(self):
+        """
+        Tests that stacked mixins correctly raise a PermissionDenied exception when a user lacks the required permissions.
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(codename__in=("add_customuser",))
         user.user_permissions.add(*perms)
@@ -86,6 +92,9 @@ class AccessMixinTests(TestCase):
             view(request)
 
     def test_access_mixin_permission_denied_response(self):
+        """
+        Tests that a view with permission denied raises the correct exceptions for authenticated and anonymous users, redirecting unauthenticated users to the login page.
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         # Authenticated users receive PermissionDenied.
         request = self.factory.get("/rand")
@@ -100,6 +109,9 @@ class AccessMixinTests(TestCase):
         self.assertEqual(response.url, "/accounts/login/?next=/rand")
 
     def test_access_mixin_permission_denied_remote_login_url(self):
+        """
+        Tests that when an anonymous user attempts to access a view with a remote login URL, they are redirected to that URL with the original URL as a query parameter, and that the redirect response has a 302 status code.
+        """
         class AView(AlwaysFalseView):
             login_url = "https://www.remote.example.com/login"
 
@@ -115,6 +127,13 @@ class AccessMixinTests(TestCase):
 
     @mock.patch.object(models.User, "is_authenticated", False)
     def test_stacked_mixins_not_logged_in(self):
+        """
+
+        Tests that StackedMixinsView1 and StackedMixinsView2 correctly raise a 
+        PermissionDenied exception when accessed by an unauthenticated user, 
+        regardless of the user's assigned permissions.
+
+        """
         user = models.User.objects.create(username="joe", password="qwerty")
         perms = models.Permission.objects.filter(
             codename__in=("add_customuser", "change_customuser")
@@ -136,6 +155,9 @@ class UserPassesTestTests(SimpleTestCase):
     factory = RequestFactory()
 
     def _test_redirect(self, view=None, url="/accounts/login/?next=/rand"):
+        """
+        Tests view redirection for anonymous users, verifying a redirect status code and the expected redirect URL.
+        """
         if not view:
             view = AlwaysFalseView.as_view()
         request = self.factory.get("/rand")
@@ -166,6 +188,9 @@ class UserPassesTestTests(SimpleTestCase):
         self._test_redirect(AView.as_view(), "/accounts/login/")
 
     def test_raise_exception(self):
+        """
+        Tests that a PermissionDenied exception is raised when an anonymous user attempts to access a view that has permission verification enabled and defaults to raising an exception instead of returning a 403 response.
+        """
         class AView(AlwaysFalseView):
             raise_exception = True
 
@@ -175,6 +200,9 @@ class UserPassesTestTests(SimpleTestCase):
             AView.as_view()(request)
 
     def test_raise_exception_custom_message(self):
+        """
+        Tests whether a custom permission denied message is raised when an unauthenticated user attempts to access a view with permission denied.
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):
@@ -188,6 +216,12 @@ class UserPassesTestTests(SimpleTestCase):
             view(request)
 
     def test_raise_exception_custom_message_function(self):
+        """
+
+        Tests that a custom permission denied message is raised when accessing a view 
+        that denies access to anonymous users.
+
+        """
         msg = "You don't have access here"
 
         class AView(AlwaysFalseView):
@@ -203,6 +237,9 @@ class UserPassesTestTests(SimpleTestCase):
             view(request)
 
     def test_user_passes(self):
+        """
+        Tests if an anonymous user can access a view that always returns True.
+        """
         view = AlwaysTrueView.as_view()
         request = self.factory.get("/rand")
         request.user = AnonymousUser()
@@ -251,6 +288,9 @@ class PermissionsRequiredMixinTests(TestCase):
         cls.user.user_permissions.add(*perms)
 
     def test_many_permissions_pass(self):
+        """
+        Tests that multiple permissions can be successfully checked and passed by a view that requires a combination of permissions.
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",
@@ -263,6 +303,9 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_single_permission_pass(self):
+        """
+        Tests that a view with a single permission requirement allows access when the user has the required permission.
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = "auth_tests.add_customuser"
 
@@ -272,6 +315,11 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 200)
 
     def test_permissioned_denied_redirect(self):
+        """
+        Tests the behavior of a view that requires specific permissions, 
+        verifying that a PermissionDenied exception is raised when the user lacks the required permissions 
+        and that an anonymous user is redirected to the login page.
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",
@@ -290,6 +338,13 @@ class PermissionsRequiredMixinTests(TestCase):
         self.assertEqual(resp.status_code, 302)
 
     def test_permissioned_denied_exception_raised(self):
+        """
+
+        Tests that a PermissionDenied exception is raised when the required permissions are not met.
+
+        This test case verifies the behavior of the PermissionRequiredMixin when the user lacks one or more of the required permissions.
+
+        """
         class AView(PermissionRequiredMixin, EmptyResponseView):
             permission_required = [
                 "auth_tests.add_customuser",

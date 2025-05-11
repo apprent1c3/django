@@ -11,6 +11,9 @@ class CallableVariablesTests(TestCase):
         super().setUpClass()
 
     def test_callable(self):
+        """
+        Tests the engine's handling of callable objects, verifying that they are executed and their return values are correctly rendered in templates.
+        """
         class Doodad:
             def __init__(self, value):
                 self.num_calls = 0
@@ -39,6 +42,9 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 2)
 
     def test_alters_data(self):
+        """
+        Tests that a function or object with alters_data set to True is not executed when rendering a template, ensuring that data integrity is maintained by preventing side effects from rendering the template.
+        """
         class Doodad:
             alters_data = True
 
@@ -65,6 +71,9 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(my_doodad.num_calls, 0)
 
     def test_alters_data_propagation(self):
+        """
+        Tests that the `alters_data` attribute is correctly propagated and overridden in a class hierarchy, including multi-inheritance, and that it affects the rendering of methods in a templating engine.
+        """
         class GrandParentLeft(AltersData):
             def my_method(self):
                 return 42
@@ -127,6 +136,10 @@ class CallableVariablesTests(TestCase):
         self.assertEqual(t.render(c), "104")
 
     def test_do_not_call(self):
+        """
+        Tests the handling of objects with the do_not_call_in_templates attribute set to True, 
+        ensuring they are not invoked when accessing their attributes in templates.
+        """
         class Doodad:
             do_not_call_in_templates = True
 
@@ -159,6 +172,11 @@ class CallableVariablesTests(TestCase):
         # ``alters_data`` attribute will not make any difference in the
         # template system's behavior.
 
+        """
+        Tests that an object marked as do_not_call_in_templates and alters_data 
+        is not called when accessed as an attribute and its properties are resolved 
+        correctly by the template engine.
+        """
         class Doodad:
             do_not_call_in_templates = True
             alters_data = True

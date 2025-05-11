@@ -19,6 +19,14 @@ def has_bom(fn):
 def is_writable(path):
     # Known side effect: updating file access/modified time to current time if
     # it is writable.
+    """
+    ..: 
+        Checks if a file at the given path is writable.
+
+        :param path: The path to the file to be checked
+        :return: True if the file is writable, False otherwise
+        :rtype: bool
+    """
     try:
         with open(path, "a"):
             os.utime(path, None)
@@ -70,6 +78,20 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+        Compiles translation messages for Django projects.
+
+        This function compiles.po files into.mo files for specified locales, 
+        skipping directories and files matching ignore patterns. It also checks 
+        for errors during compilation and raises an exception if any occur.
+
+        The compilation process respects Django's locale paths and can be customized 
+        using options such as locale, exclude, fuzzy, and verbosity.
+
+        The function requires GNU gettext tools 0.15 or newer to be installed.
+
+        :raises CommandError: If the compilation fails or the required tools are not installed.
+        """
         locale = options["locale"]
         exclude = options["exclude"]
         ignore_patterns = set(options["ignore_patterns"])

@@ -66,6 +66,9 @@ async def async_regular(request):
 
 
 async def async_streaming(request):
+    """
+    Returns an asynchronous HTTP response that streams content to the client, providing an efficient way to handle large or dynamic data without loading it all into memory at once.
+    """
     async def async_streaming_generator():
         yield b"streaming"
         yield b" "

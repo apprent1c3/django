@@ -72,6 +72,15 @@ class Polygon(GEOSGeometry):
         # _construct_ring will throw a TypeError if a parameter isn't a valid ring
         # If we cloned the pointers here, we wouldn't be able to clean up
         # in case of error.
+        """
+
+        Create a polygon from a list of items, which can be either GEOM_PTR objects or lists of coordinates that define the polygon's outer shell and holes.
+
+        :param length: The expected number of items, where the first item is the outer shell and the rest are holes.
+        :param items: A list of items that define the polygon's geometry.
+        :return: A polygon object created using the provided items.
+
+        """
         if not length:
             return capi.create_empty_polygon()
 
@@ -117,6 +126,14 @@ class Polygon(GEOSGeometry):
     def _set_list(self, length, items):
         # Getting the current pointer, replacing with the newly constructed
         # geometry, and destroying the old geometry.
+        """
+
+        Sets a polygon list, updating the geometry pointer and optionally setting an SRID.
+
+        :param length: The length of the polygon list
+        :param items: The items in the polygon list
+
+        """
         prev_ptr = self.ptr
         srid = self.srid
         self.ptr = self._create_polygon(length, items)

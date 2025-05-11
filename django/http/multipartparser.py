@@ -121,6 +121,12 @@ class MultiPartParser:
         # resources would be kept alive. This is only needed for errors because
         # the Request object closes all uploaded files at the end of the
         # request.
+        """
+
+        Parses the object's data, handling any exceptions that may occur during parsing.
+        If an exception occurs and the object has attached files, it ensures that all file objects are properly closed before re-raising the exception.
+
+        """
         try:
             return self._parse()
         except Exception:
@@ -441,7 +447,17 @@ class LazyStream:
         return self.position
 
     def read(self, size=None):
+        """
+
+        Reads data from the current object, returning up to `size` bytes.
+
+        If `size` is not specified, all remaining data is read. If the end of the data is reached before `size` bytes are read, the remaining data is returned.
+
+        """
         def parts():
+            """
+            Yields chunks of bytes from an iterator, up to a specified size, allowing for backtracking and accurate byte counting.
+            """
             remaining = self._remaining if size is None else size
             # do the whole thing in one shot if no limit was provided.
             if remaining is None:
@@ -543,6 +559,14 @@ class ChunkIter:
         self.chunk_size = chunk_size
 
     def __next__(self):
+        """
+        Returns the next chunk of data from the input stream.
+
+        This method implements the iterator protocol, yielding chunks of data until the input stream is exhausted. If there is no more data to read, it raises a StopIteration exception to signal the end of the iteration.
+
+        :raises StopIteration: when the input stream is exhausted
+        :return: the next chunk of data from the input stream
+        """
         try:
             data = self.flo.read(self.chunk_size)
         except InputStreamExhausted:
@@ -588,6 +612,9 @@ class BoundaryIter:
     """
 
     def __init__(self, stream, boundary):
+        """
+        Initializes a parser for a multipart stream, setting up the internal state and checking if the input stream is usable.
+        """
         self._stream = stream
         self._boundary = boundary
         self._done = False
@@ -606,6 +633,20 @@ class BoundaryIter:
         return self
 
     def __next__(self):
+        """
+        Return the next chunk of data from the stream, handling boundaries and rollbacks.
+
+        The function implements the iterator protocol, yielding chunks of data while tracking
+        the stream's progress and managing any necessary rollbacks or boundary detection.
+
+        Raises:
+            StopIteration: If the end of the stream is reached or no more data is available.
+
+        Returns:
+            bytes: The next chunk of data from the stream, potentially truncated or rolled back
+                   based on boundary detection or stream state.
+
+        """
         if self._done:
             raise StopIteration()
 

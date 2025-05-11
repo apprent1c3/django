@@ -13,6 +13,9 @@ class Command(BaseCommand):
         parser.add_argument("--opt-3", action="store_true", dest="option3")
 
     def handle(self, *args, **options):
+        """
+        Handles command execution based on provided options, displaying messages or raising an error according to the specified parameters.
+        """
         example = options["example"]
         if example == "raise":
             raise CommandError(returncode=3)

@@ -16,6 +16,12 @@ class RadiansTests(TestCase):
         self.assertIsNone(obj.null_radians)
 
     def test_decimal(self):
+        """
+        Tests the conversion of decimal degrees to radians in the DecimalModel.
+
+         Verifies that the Radians annotation correctly converts decimal degree fields to radians and that the result is a Decimal instance.
+
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(
             n1_radians=Radians("n1"), n2_radians=Radians("n2")
@@ -26,6 +32,9 @@ class RadiansTests(TestCase):
         self.assertAlmostEqual(obj.n2_radians, Decimal(math.radians(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the Radians database function by creating a FloatModel instance, annotating it with radians values, and verifying the results are correct floats.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(
             f1_radians=Radians("f1"), f2_radians=Radians("f2")
@@ -36,6 +45,9 @@ class RadiansTests(TestCase):
         self.assertAlmostEqual(obj.f2_radians, math.radians(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the Radians database function on integer fields, verifying it correctly converts integer values to radians and returns result as float.
+        """
         IntegerModel.objects.create(small=-20, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_radians=Radians("small"),
@@ -50,6 +62,10 @@ class RadiansTests(TestCase):
         self.assertAlmostEqual(obj.big_radians, math.radians(obj.big))
 
     def test_transform(self):
+        """
+        Tests that the radians lookup is correctly applied to DecimalField values, 
+        allowing filtering of decimal numbers based on their value in radians.
+        """
         with register_lookup(DecimalField, Radians):
             DecimalModel.objects.create(n1=Decimal("2.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("-1.0"), n2=Decimal("0"))

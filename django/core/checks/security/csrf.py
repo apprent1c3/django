@@ -44,6 +44,9 @@ def check_csrf_cookie_secure(app_configs, **kwargs):
 
 @register(Tags.security)
 def check_csrf_failure_view(app_configs, **kwargs):
+    """
+    Checks the validity of the CSRF failure view by verifying its importability and correct function signature, returning a list of errors if any issues are encountered.
+    """
     from django.middleware.csrf import _get_failure_view
 
     errors = []

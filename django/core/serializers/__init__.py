@@ -98,6 +98,13 @@ def unregister_serializer(format):
 
 
 def get_serializer(format):
+    """
+    Retrieve a serializer instance for the specified format.
+
+    : param format: The format for which to retrieve a serializer.
+    : return: A serializer instance for the specified format.
+    : raises: SerializerDoesNotExist if a serializer for the specified format does not exist.
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:
@@ -118,6 +125,16 @@ def get_public_serializer_formats():
 
 
 def get_deserializer(format):
+    """
+    Returns a deserializer object for the specified format.
+
+    This function retrieves a deserializer based on the provided format, loading available serializers if necessary. 
+    It raises a SerializerDoesNotExist exception if the format is not supported.
+
+    :param format: The format for which a deserializer is needed
+    :raises SerializerDoesNotExist: If the specified format is not supported
+    :return: A deserializer object for the specified format
+    """
     if not _serializers:
         _load_serializers()
     if format not in _serializers:

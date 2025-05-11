@@ -20,6 +20,12 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Configures a parser to accept arguments for squashing migrations in a Django application.
+
+        Adds arguments to specify the application, start and end migrations, and various options 
+        to control the squashing process, such as optimization and user interaction.
+        """
         parser.add_argument(
             "app_label",
             help="App label of the application to squash migrations for.",
@@ -60,6 +66,21 @@ class Command(BaseCommand):
         )
 
     def handle(self, **options):
+        """
+
+        Squashes existing migrations into a new migration.
+
+        This function takes various options, including the verbosity level,
+        interactivity, app label, start and end migration names, optimization options,
+        and the name for the new squashed migration. It checks if the provided app label
+        has migrations, then finds the specified migrations and determines which ones to
+        squash. If interactive mode is enabled, it prompts the user for confirmation.
+        The function then optimizes the operations in the migrations to be squashed,
+        creates a new migration with the combined operations, and writes it to a file.
+        Finally, it provides guidance on how to use the new migration and delete the
+        old ones once all instances of the codebase have applied the squashed migrations.
+
+        """
         self.verbosity = options["verbosity"]
         self.interactive = options["interactive"]
         app_label = options["app_label"]
@@ -253,6 +274,21 @@ class Command(BaseCommand):
                     )
 
     def find_migration(self, loader, app_label, name):
+        """
+        Find a migration by its prefix in the given application.
+
+        Args:
+            loader: Loader object to find the migration.
+            app_label (str): Label of the application to search in.
+            name (str): Prefix of the migration to find.
+
+        Raises:
+            CommandError: If the migration is not found or if multiple migrations match the given prefix.
+
+        Returns:
+            The found migration.
+
+        """
         try:
             return loader.get_migration_by_prefix(app_label, name)
         except AmbiguityError:

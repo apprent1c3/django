@@ -7,6 +7,14 @@ from ..models import Author
 
 class SubstrTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests the basic functionality of annotating and updating Author objects.
+
+        Verifies that the Substr function correctly extracts substrings from author names
+        and that the extracted values can be used for ordering and updating the authors.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(name_part=Substr("name", 5, 3))
@@ -39,6 +47,9 @@ class SubstrTests(TestCase):
             Author.objects.annotate(raises=Substr("name", 0))
 
     def test_expressions(self):
+        """
+        Tests the ability to extract and manipulate substrings from database fields using SQL functions, specifically in the context of annotating query results with custom expressions.
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         substr = Substr(Upper("name"), StrIndex("name", V("h")), 5)

@@ -210,6 +210,9 @@ class Field(RegisterLookupMixin):
         db_comment=None,
         db_default=NOT_PROVIDED,
     ):
+        """
+        Initializes a field that can be used in a database model, providing a range of options to customize the field's behavior, such as setting its name, data type, validation rules, and display properties. This constructor allows for fine-grained control over the field's configuration, including whether it should be used as a primary key, be unique, or have a default value.
+        """
         self.name = name
         self.verbose_name = verbose_name  # May be set by set_attributes_from_name
         self._verbose_name = verbose_name  # Store original for deconstruction
@@ -315,6 +318,9 @@ class Field(RegisterLookupMixin):
         return isinstance(value, (str, Promise)) or not isinstance(value, Iterable)
 
     def _check_choices(self):
+        """
+        Validates the format and content of the 'choices' attribute, ensuring it is either a mapping or an iterable of valid choice tuples, and checks if the 'max_length' constraint is respected. Returns a list of error objects if any validation fails, or an empty list otherwise.
+        """
         if not self.choices:
             return []
 
@@ -388,6 +394,10 @@ class Field(RegisterLookupMixin):
         ]
 
     def _check_db_default(self, databases=None, **kwargs):
+        """
+        Checks the database default value for the field against the provided databases, 
+         returning a list of errors if the default value is invalid for any database.
+        """
         from django.db.models.expressions import Value
 
         if (
@@ -433,6 +443,9 @@ class Field(RegisterLookupMixin):
             return []
 
     def _check_db_comment(self, databases=None, **kwargs):
+        """
+        Checks database comment support for the specified databases, returning any errors encountered. Validates whether the database supports comments and if the model allows migration, providing warnings if the database does not support comments.
+        """
         if not self.db_comment or not databases:
             return []
         errors = []
@@ -478,6 +491,18 @@ class Field(RegisterLookupMixin):
             return []
 
     def _check_backend_specific_checks(self, databases=None, **kwargs):
+        """
+
+        Performs backend-specific validation checks on a model.
+
+        Checks if a model can be migrated on the specified databases and runs field-level validation,
+        returning a list of any errors encountered. If no databases are specified, an empty list is returned.
+
+        :param databases: List of database aliases to perform checks on
+        :param kwargs: Additional keyword arguments to pass to validation checks
+        :return: List of validation errors
+
+        """
         if databases is None:
             return []
         errors = []
@@ -487,6 +512,9 @@ class Field(RegisterLookupMixin):
         return errors
 
     def _check_validators(self):
+        """
+        Checks the validity of the validators defined for the current object, ensuring they are callable functions or instances of validator classes, and returns a list of errors if any invalid validators are found.
+        """
         errors = []
         for i, validator in enumerate(self.validators):
             if not callable(validator):
@@ -507,6 +535,9 @@ class Field(RegisterLookupMixin):
         return errors
 
     def _check_deprecation_details(self):
+        """
+        Checks the current object for deprecation or removal and returns a list of validation errors or warnings if applicable.
+        """
         if self.system_check_removed_details is not None:
             return [
                 checks.Error(
@@ -677,6 +708,10 @@ class Field(RegisterLookupMixin):
     def __lt__(self, other):
         # This is needed because bisect does not take a comparison function.
         # Order by creation_counter first for backward compatibility.
+        """
+        Defines a less than comparison operation between two instances of Field.
+        Compares the instances based on their creation order or model association, if applicable. Returns NotImplemented for non-Field comparisons.
+        """
         if isinstance(other, Field):
             if (
                 self.creation_counter != other.creation_counter
@@ -700,6 +735,9 @@ class Field(RegisterLookupMixin):
     def __deepcopy__(self, memodict):
         # We don't have to deepcopy very much here, since most things are not
         # intended to be altered after initial creation.
+        """
+        Creates a deep copy of the object, including its remote field and any inter-object references, to ensure that the copied object is independent of the original instance.
+        """
         obj = copy.copy(self)
         if self.remote_field:
             obj.remote_field = copy.copy(self.remote_field)
@@ -760,6 +798,9 @@ class Field(RegisterLookupMixin):
 
     @cached_property
     def error_messages(self):
+        """
+        Returns a dictionary of error messages, compiled from the default error messages of this class and its superclasses, and overriding any user-defined error messages.
+        """
         messages = {}
         for c in reversed(self.__class__.__mro__):
             messages.update(getattr(c, "default_error_messages", {}))
@@ -775,6 +816,16 @@ class Field(RegisterLookupMixin):
         return [*self.default_validators, *self._validators]
 
     def run_validators(self, value):
+        """
+        Runs a series of validation checks on the provided value.
+
+        Checks if the value is not empty and then applies each validator in sequence. 
+        If any validator raises a ValidationError, the error messages are collected and 
+        a ValidationError is raised with the aggregated error list.
+
+        :param value: The value to be validated
+        :raises exceptions.ValidationError: If any of the validations fail
+        """
         if value in self.empty_values:
             return
 
@@ -933,6 +984,9 @@ class Field(RegisterLookupMixin):
         )
 
     def set_attributes_from_name(self, name):
+        """
+        Initializes the object's attributes based on the provided name, setting its name, attribute name, column, and verbosity settings as needed.
+        """
         self.name = self.name or name
         self.attname, self.column = self.get_attname_column()
         self.concrete = self.column is not None
@@ -1023,6 +1077,9 @@ class Field(RegisterLookupMixin):
 
     @cached_property
     def _get_default(self):
+        """
+        Returns the default value for a field, taking into account user-provided defaults, database defaults, and nullability settings. The returned value can be a callable or a DatabaseDefault instance, depending on the field's configuration.
+        """
         if self.has_default():
             if callable(self.default):
                 return self.default
@@ -1043,6 +1100,9 @@ class Field(RegisterLookupMixin):
 
     @cached_property
     def _db_default_expression(self):
+        """
+        Returns the default database expression for the field, wrapping the `db_default` value in a `Value` expression if necessary to ensure compatibility with Django's database operations.
+        """
         db_default = self.db_default
         if db_default is not NOT_PROVIDED and not hasattr(
             db_default, "resolve_expression"
@@ -1166,6 +1226,14 @@ class BooleanField(Field):
         return "BooleanField"
 
     def to_python(self, value):
+        """
+        Converts the given value to a Python boolean.
+
+        Returns None if the value represents an empty or null value and this field allows nulls.
+        Otherwise, returns a boolean value based on the input.
+
+        Raises a ValidationError if the input value cannot be converted to a boolean or null value.
+        """
         if self.null and value in self.empty_values:
             return None
         if value in (True, False):
@@ -1188,6 +1256,16 @@ class BooleanField(Field):
         return self.to_python(value)
 
     def formfield(self, **kwargs):
+        """
+
+        Returns a form field for this model field.
+
+        The form field type is determined based on whether the field has choices or not.
+        If choices are defined, a field with the given choices is returned, optionally
+        including a blank choice. Otherwise, a NullBooleanField or BooleanField is used,
+        depending on whether the field allows null values.
+
+        """
         if self.choices is not None:
             include_blank = not (self.has_default() or "initial" in kwargs)
             defaults = {"choices": self.get_choices(include_blank=include_blank)}
@@ -1223,6 +1301,9 @@ class CharField(Field):
         ]
 
     def _check_max_length_attribute(self, **kwargs):
+        """
+        Validate the 'max_length' attribute of a CharField to ensure it meets database requirements. Returns a list of errors if 'max_length' is not defined, not a positive integer, or the database does not support unlimited character fields.
+        """
         if self.max_length is None:
             if (
                 connection.features.supports_unlimited_charfield
@@ -1253,6 +1334,9 @@ class CharField(Field):
             return []
 
     def _check_db_collation(self, databases):
+        """
+        Checks database collation support for CharFields in the specified databases and returns a list of errors if the collation is not supported. The check is skipped for databases that do not allow migration of the model.
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -1300,6 +1384,9 @@ class CharField(Field):
         # Passing max_length to forms.CharField means that the value's length
         # will be validated twice. This is considered acceptable since we want
         # the value in the form field (to pass into widget for example).
+        """
+        Creates a form field for the current model field, incorporating its properties and allowing for additional keyword arguments to customize the field. Returns a form field instance with the field's characteristics, such as maximum length, and configurable empty value handling for nullable fields.
+        """
         defaults = {"max_length": self.max_length}
         # TODO: Handle multiple backends with different feature flags.
         if self.null and not connection.features.interprets_empty_strings_as_nulls:
@@ -1357,6 +1444,10 @@ class DateTimeCheckMixin:
         # auto_now, auto_now_add, and default are mutually exclusive
         # options. The use of more than one of these options together
         # will trigger an Error
+        """
+        Check if the auto_now, auto_now_add, and default options are mutually exclusive. 
+        Returns a list of errors if more than one of these options are enabled, otherwise an empty list.
+        """
         mutually_exclusive_options = [
             self.auto_now_add,
             self.auto_now,
@@ -1435,6 +1526,17 @@ class DateField(DateTimeCheckMixin, Field):
     def __init__(
         self, verbose_name=None, name=None, auto_now=False, auto_now_add=False, **kwargs
     ):
+        """
+        Initializes a field with optional auto-updating and naming parameters.
+
+        :param verbose_name: A human-readable name for the field.
+        :param name: The internal name for the field.
+        :param auto_now: Automatically sets the field to the current time on every modification.
+        :param auto_now_add: Automatically sets the field to the current time on creation.
+        :param kwargs: Additional keyword arguments passed to the parent class.
+
+        This constructor creates a database field that can optionally be set to update automatically when the model instance is modified or created. The auto-update behavior can be adjusted using the `auto_now` and `auto_now_add` parameters.
+        """
         self.auto_now, self.auto_now_add = auto_now, auto_now_add
         if auto_now or auto_now_add:
             kwargs["editable"] = False
@@ -1461,6 +1563,9 @@ class DateField(DateTimeCheckMixin, Field):
         return self._check_if_value_fixed(value)
 
     def deconstruct(self):
+        """
+        Deconstructs the instance into a tuple that can be used to reconstruct it, adding auto_now and auto_now_add settings to the resulting keyword arguments and removing editable and blank settings when applicable.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.auto_now:
             kwargs["auto_now"] = True
@@ -1475,6 +1580,12 @@ class DateField(DateTimeCheckMixin, Field):
         return "DateField"
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python date object.
+
+        If the input is a datetime object, it is converted to a date object and an aware datetime in a timezone is converted to a naive datetime in the default timezone.
+        If the input is a string, it is attempted to be parsed into a date object. If parsing fails, a ValidationError is raised.
+        """
         if value is None:
             return value
         if isinstance(value, datetime.datetime):
@@ -1505,6 +1616,14 @@ class DateField(DateTimeCheckMixin, Field):
         )
 
     def pre_save(self, model_instance, add):
+        """
+        Sets the current date on a model instance field when the instance is saved, 
+        if the field has been configured for automatic date management. 
+
+        :param model_instance: The model instance being saved
+        :param add: A boolean indicating whether the instance is being added or updated
+        :returns: The set date value, or the result of the parent class's pre_save method if no date is set.
+        """
         if self.auto_now or (self.auto_now_add and add):
             value = datetime.date.today()
             setattr(model_instance, self.attname, value)
@@ -1592,6 +1711,9 @@ class DateTimeField(DateField):
         return "DateTimeField"
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python datetime object. Accepts `None`, datetime, and date objects, as well as string values that can be parsed into a datetime or date. If time zone support is active, naive datetime objects are converted to aware objects with the default timezone. Raises a `ValidationError` if the input value cannot be converted.
+        """
         if value is None:
             return value
         if isinstance(value, datetime.datetime):
@@ -1645,6 +1767,10 @@ class DateTimeField(DateField):
         )
 
     def pre_save(self, model_instance, add):
+        """
+        Automatically sets the current date and time on a model instance's field before saving, 
+        if the field is configured for automatic timestamping.
+        """
         if self.auto_now or (self.auto_now_add and add):
             value = timezone.now()
             setattr(model_instance, self.attname, value)
@@ -1656,6 +1782,14 @@ class DateTimeField(DateField):
     # get_next_by_FOO and get_prev_by_FOO
 
     def get_prep_value(self, value):
+        """
+
+        Prepares a datetime value for use in the model, ensuring it is timezone-aware if necessary.
+
+        This method converts the value to Python's native datetime type and, if timezone support is enabled,
+        warns about and converts naive datetime instances to timezone-aware ones using the default timezone.
+
+        """
         value = super().get_prep_value(value)
         value = self.to_python(value)
         if value is not None and settings.USE_TZ and timezone.is_naive(value):
@@ -1713,6 +1847,11 @@ class DecimalField(Field):
         super().__init__(verbose_name, name, **kwargs)
 
     def check(self, **kwargs):
+        """
+        Checks the input data for various errors, including decimal places and maximum digits, 
+        and returns a list of errors found. It builds upon the base validation check by 
+        including additional checks specific to numerical fields.
+        """
         errors = super().check(**kwargs)
 
         digits_errors = [
@@ -1726,6 +1865,13 @@ class DecimalField(Field):
         return errors
 
     def _check_decimal_places(self):
+        """
+
+        Checks the 'decimal_places' attribute of a field to ensure it is a non-negative integer.
+
+        Returns a list of validation errors if the attribute is not properly defined.
+
+        """
         try:
             decimal_places = int(self.decimal_places)
             if decimal_places < 0:
@@ -1750,6 +1896,12 @@ class DecimalField(Field):
             return []
 
     def _check_max_digits(self):
+        """
+        Verifies that the 'max_digits' attribute is a positive integer.
+
+        Returns a list of errors if 'max_digits' is not defined, not an integer, or non-positive.
+        Otherwise, returns an empty list.
+        """
         try:
             max_digits = int(self.max_digits)
             if max_digits <= 0:
@@ -1795,6 +1947,9 @@ class DecimalField(Field):
         return decimal.Context(prec=self.max_digits)
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, including name, path, positional arguments, and keyword arguments, adding decimal field-specific constraints if set.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.max_digits is not None:
             kwargs["max_digits"] = self.max_digits
@@ -1806,6 +1961,9 @@ class DecimalField(Field):
         return "DecimalField"
 
     def to_python(self, value):
+        """
+        Converts a given value to a Decimal instance, handling None, numeric strings and float inputs, while validating for invalid and infinite values.
+        """
         if value is None:
             return value
         try:
@@ -1870,6 +2028,13 @@ class DurationField(Field):
         return "DurationField"
 
     def to_python(self, value):
+        """
+        Converts a duration value to a Python datetime.timedelta object.
+
+        If the input value is None or already a timedelta object, it is returned unchanged.
+        Otherwise, the function attempts to parse the value as a duration string.
+        If parsing fails, a ValidationError is raised with an 'invalid' code.
+        """
         if value is None:
             return value
         if isinstance(value, datetime.timedelta):
@@ -1889,6 +2054,17 @@ class DurationField(Field):
         )
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        def get_db_prep_value(self, value, connection, prepared=False):
+            \"\"\"
+            Prepares a duration value for database storage, adapting to the database's native duration field support.
+
+            :param value: The duration value to prepare.
+            :param connection: The database connection.
+            :param prepared: Whether the value is already prepared (default: False).
+            :return: The prepared duration value or None if the input value is None.
+
+        """
         if connection.features.has_native_duration_field:
             return value
         if value is None:
@@ -1978,6 +2154,9 @@ class FilePathField(Field):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, modifying the keyword arguments to include specific attributes if they have been set to non-default values, and removing the 'max_length' argument if it has its default value.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.path != "":
             kwargs["path"] = self.path
@@ -2024,6 +2203,11 @@ class FloatField(Field):
     description = _("Floating point number")
 
     def get_prep_value(self, value):
+        """
+        Prepares the given value for storage by converting it to a float if possible.
+
+        Raises a TypeError or ValueError if the conversion fails, indicating that a number was expected but not provided.
+        """
         value = super().get_prep_value(value)
         if value is None:
             return None
@@ -2038,6 +2222,10 @@ class FloatField(Field):
         return "FloatField"
 
     def to_python(self, value):
+        """
+        Converts the given value to a Python float, returning None if the input value is None. 
+        Raises a ValidationError if the conversion fails.
+        """
         if value is None:
             return value
         try:
@@ -2088,6 +2276,9 @@ class IntegerField(Field):
     def validators(self):
         # These validators can't be added at field initialization time since
         # they're based on values retrieved from `connection`.
+        """
+        Returns a list of validators for the field, ensuring that at least a MinValueValidator and a MaxValueValidator are included to enforce the minimum and maximum values supported by the underlying database field type, if applicable.
+        """
         validators_ = super().validators
         internal_type = self.get_internal_type()
         min_value, max_value = connection.ops.integer_field_range(internal_type)
@@ -2120,6 +2311,14 @@ class IntegerField(Field):
         return validators_
 
     def get_prep_value(self, value):
+        """
+        Converts a value to an integer for preparation, ensuring the field contains a numeric value.
+
+        Raises:
+            TypeError: If the value cannot be converted to an integer.
+            ValueError: If the value is not a valid number.
+
+        """
         value = super().get_prep_value(value)
         if value is None:
             return None
@@ -2138,6 +2337,10 @@ class IntegerField(Field):
         return "IntegerField"
 
     def to_python(self, value):
+        """
+        Attempts to convert the given value to a Python integer, returning None if the input is None. 
+        If the conversion fails, it raises a ValidationError with a message indicating that the value is invalid.
+        """
         if value is None:
             return value
         try:
@@ -2227,6 +2430,9 @@ class GenericIPAddressField(Field):
         *args,
         **kwargs,
     ):
+        """
+        Initializes a field for storing IP addresses, allowing configuration of validation protocol and unpacking of IPv4 addresses.
+        """
         self.unpack_ipv4 = unpack_ipv4
         self.protocol = protocol
         self.default_validators = validators.ip_address_validators(
@@ -2254,6 +2460,9 @@ class GenericIPAddressField(Field):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the object into its constituent parts, modifying the keyword arguments based on the object's settings for IPv4 unpacking, protocol, and maximum length.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.unpack_ipv4 is not False:
             kwargs["unpack_ipv4"] = self.unpack_ipv4
@@ -2267,6 +2476,9 @@ class GenericIPAddressField(Field):
         return "GenericIPAddressField"
 
     def to_python(self, value):
+        """
+        Converts a given value to a Python-compatible string, handling IPv6 addresses and non-string input values.
+        """
         if value is None:
             return None
         if not isinstance(value, str):
@@ -2284,6 +2496,9 @@ class GenericIPAddressField(Field):
         return connection.ops.adapt_ipaddressfield_value(value)
 
     def get_prep_value(self, value):
+        """
+        Prepares a value for database storage, handling IPv6 addresses specifically by cleaning them and returning a string representation.
+        """
         value = super().get_prep_value(value)
         if value is None:
             return None
@@ -2417,6 +2632,9 @@ class SlugField(CharField):
         super().__init__(*args, max_length=max_length, db_index=db_index, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, adjusting keyword arguments based on specific conditions to optimize Django model field definition.
+        """
         name, path, args, kwargs = super().deconstruct()
         if kwargs.get("max_length") == 50:
             del kwargs["max_length"]
@@ -2456,6 +2674,18 @@ class TextField(Field):
         ]
 
     def _check_db_collation(self, databases):
+        """
+
+        Checks the database collation for a list of databases and returns any errors found.
+
+        Specifically, it verifies that the database connection supports collation on TextFields,
+        either by having the 'supports_collation_on_textfield' feature or being configured to
+        ignore collation checks. Any databases that do not meet this criteria will result in an error.
+
+        :param databases: List of database names to check
+        :return: List of errors, if any
+
+        """
         errors = []
         for db in databases:
             if not router.allow_migrate_model(db, self.model):
@@ -2535,6 +2765,9 @@ class TimeField(DateTimeCheckMixin, Field):
     def __init__(
         self, verbose_name=None, name=None, auto_now=False, auto_now_add=False, **kwargs
     ):
+        """
+        Initializes a field with optional auto_now and auto_now_add settings, controlling whether the field's value is automatically updated on save or when the object is first created.
+        """
         self.auto_now, self.auto_now_add = auto_now, auto_now_add
         if auto_now or auto_now_add:
             kwargs["editable"] = False
@@ -2564,6 +2797,9 @@ class TimeField(DateTimeCheckMixin, Field):
         return self._check_if_value_fixed(value, now=now)
 
     def deconstruct(self):
+        """
+        Deconstructs the model field into its constituent parts, including name, path, arguments, and keyword arguments, while considering auto_now and auto_now_add settings.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.auto_now is not False:
             kwargs["auto_now"] = self.auto_now
@@ -2578,6 +2814,12 @@ class TimeField(DateTimeCheckMixin, Field):
         return "TimeField"
 
     def to_python(self, value):
+        """
+        Converts a given value into a Python datetime.time object. 
+
+        Accepts None, datetime.time, and datetime.datetime objects directly, while other types are attempted to be parsed into a time object. 
+        Raises a ValidationError if the provided value cannot be converted into a valid time.
+        """
         if value is None:
             return None
         if isinstance(value, datetime.time):
@@ -2606,6 +2848,9 @@ class TimeField(DateTimeCheckMixin, Field):
         )
 
     def pre_save(self, model_instance, add):
+        """
+        Automatically sets the current time on a model instance's field prior to saving if the field is configured for auto_now or auto_now_add.
+        """
         if self.auto_now or (self.auto_now_add and add):
             value = datetime.datetime.now().time()
             setattr(model_instance, self.attname, value)
@@ -2687,6 +2932,9 @@ class BinaryField(Field):
         return []
 
     def deconstruct(self):
+        """
+        Deconstructs the current object into its constituent parts, adding or removing the 'editable' keyword argument based on the object's editability status.
+        """
         name, path, args, kwargs = super().deconstruct()
         if self.editable:
             kwargs["editable"] = True
@@ -2701,6 +2949,13 @@ class BinaryField(Field):
         return connection.ops.binary_placeholder_sql(value)
 
     def get_default(self):
+        """
+        Returns the default value associated with this object.
+
+        If a default value is set and it's not a callable, it is returned directly.
+        Otherwise, the default value is retrieved from the parent class.
+        If the parent class returns an empty string, an empty bytes object is returned instead.
+        """
         if self.has_default() and not callable(self.default):
             return self.default
         default = super().get_default()
@@ -2749,6 +3004,10 @@ class UUIDField(Field):
         return self.to_python(value)
 
     def get_db_prep_value(self, value, connection, prepared=False):
+        """
+        -def get_db_prep_value(self, value, connection, prepared=False):
+            \"\"\"Prepares a UUID value for database storage, converting it to a native UUID field if supported by the database, otherwise returning its hexadecimal representation.
+        """
         if value is None:
             return None
         if not isinstance(value, uuid.UUID):
@@ -2759,6 +3018,10 @@ class UUIDField(Field):
         return value.hex
 
     def to_python(self, value):
+        """
+        Converts provided value to a Python UUID object if possible, otherwise leaves it unchanged. 
+        Raises an error if the input cannot be interpreted as a valid UUID.
+        """
         if value is not None and not isinstance(value, uuid.UUID):
             input_form = "int" if isinstance(value, int) else "hex"
             try:

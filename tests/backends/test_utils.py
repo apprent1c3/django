@@ -19,6 +19,9 @@ from django.test import (
 
 class TestUtils(SimpleTestCase):
     def test_truncate_name(self):
+        """
+        Truncates a database object name to a specified length while preserving its schema and uniqueness.
+        """
         self.assertEqual(truncate_name("some_table", 10), "some_table")
         self.assertEqual(truncate_name("some_long_table", 10), "some_la38a")
         self.assertEqual(truncate_name("some_long_table", 10, 3), "some_loa38")
@@ -45,6 +48,12 @@ class TestUtils(SimpleTestCase):
         )
 
     def test_format_number(self):
+        """
+        Tests the format_number function for correct formatting of decimal numbers.
+
+        Verifies that the function correctly rounds numbers to the specified number of decimal places,
+        handles maximum digit limits, and raises exceptions when the input exceeds the maximum digits.
+        """
         def equal(value, max_d, places, result):
             self.assertEqual(format_number(Decimal(value), max_d, places), result)
 
@@ -95,6 +104,9 @@ class CursorWrapperTests(TransactionTestCase):
     available_apps = []
 
     def _test_procedure(self, procedure_sql, params, param_types, kparams=None):
+        """
+        Tests and cleans up a stored procedure by executing it and then removing it from the database schema.
+        """
         with connection.cursor() as cursor:
             cursor.execute(procedure_sql)
         # Use a new cursor because in MySQL a procedure can't be used in the

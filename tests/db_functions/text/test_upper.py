@@ -8,6 +8,12 @@ from ..models import Author
 
 class UpperTests(TestCase):
     def test_basic(self):
+        """
+
+        Tests the basic functionality of annotating and updating Author objects with uppercase names.
+        Verifies that the 'name' field can be converted to uppercase and properly ordered.
+
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.annotate(upper_name=Upper("name"))
@@ -30,6 +36,9 @@ class UpperTests(TestCase):
         )
 
     def test_transform(self):
+        """
+        Tests the transformation of a model field to uppercase, ensuring correct filtering and retrieval of objects based on the transformed field.
+        """
         with register_lookup(CharField, Upper):
             Author.objects.create(name="John Smith", alias="smithj")
             Author.objects.create(name="Rhonda")

@@ -55,6 +55,31 @@ class AdminScriptTestCase(SimpleTestCase):
         os.mkdir(self.test_dir)
 
     def write_settings(self, filename, apps=None, is_dir=False, sdict=None, extra=None):
+        """
+        Writes a settings file to a specified location.
+
+        The file can be written to a directory or a file path, and can include 
+        extra settings or override existing ones. The function generates 
+        basic settings such as databases, root URL configuration, secret key, 
+        and time zone, as well as installed applications.
+
+        Parameters
+        ----------
+        filename : str
+            Name of the file or directory to write the settings to.
+        apps : list of str, optional
+            List of installed Django applications (default: a basic set of apps).
+        is_dir : bool, optional
+            Whether to write the settings to a directory with an __init__.py file (default: False).
+        sdict : dict, optional
+            Dictionary of additional settings to include in the file.
+        extra : str, optional
+            Additional string to write to the file.
+
+        Returns
+        -------
+        None
+        """
         if is_dir:
             settings_dir = os.path.join(self.test_dir, filename)
             os.mkdir(settings_dir)
@@ -109,6 +134,20 @@ class AdminScriptTestCase(SimpleTestCase):
         return paths
 
     def run_test(self, args, settings_file=None, apps=None, umask=-1):
+        """
+        Runs a test with the specified arguments, environment settings, and directory configuration.
+
+         merkez is set to the test directory, and the PYTHONPATH environment variable
+         is updated to include the base directory, Django installation directory, tests
+         directory, and any externally configured backend directories. The test is run
+         under the current Python interpreter with the specified umask.
+
+         :param args: Command-line arguments to pass to the test.
+         :param settings_file: Optional Django settings file to use for the test.
+         :param apps: Not used in this implementation.
+         :param umask: Umask to apply when running the test.
+         :return: A tuple containing the test's standard output and standard error.
+        """
         base_dir = os.path.dirname(self.test_dir)
         # The base dir for Django's tests is one level up.
         tests_dir = os.path.dirname(os.path.dirname(__file__))
@@ -145,6 +184,12 @@ class AdminScriptTestCase(SimpleTestCase):
         return self.run_test(["-m", "django", *args], settings_file, umask=umask)
 
     def run_manage(self, args, settings_file=None, manage_py=None):
+        """
+        Run a Django management command in a test environment.
+
+        The manage.py script is copied from a template and customized with a test project name. 
+        The command is then executed with the provided arguments and settings file.
+        """
         template_manage_py = (
             os.path.join(os.path.dirname(__file__), manage_py)
             if manage_py
@@ -1393,6 +1438,9 @@ class ManageSettingsWithSettingsErrors(AdminScriptTestCase):
         self.assertOutput(err, "AttributeError: 'list' object has no attribute 'crash'")
 
     def test_key_error(self):
+        """
+        Test that a KeyError is raised when a bad variable is used in a Django settings file.
+        """
         self.write_settings("settings.py", sdict={"BAD_VAR": 'DATABASES["blah"]'})
         args = ["collectstatic", "admin_scripts"]
         out, err = self.run_manage(args)
@@ -1566,6 +1614,9 @@ class ManageCheck(AdminScriptTestCase):
 
 class ManageRunserver(SimpleTestCase):
     def setUp(self):
+        """
+        Sets up the test environment for the RunserverCommand class by creating a mock output stream and overriding the run method to prevent actual command execution.
+        """
         def monkey_run(*args, **options):
             return
 
@@ -1580,6 +1631,9 @@ class ManageRunserver(SimpleTestCase):
         self.assertEqual(self.cmd._raw_ipv6, raw_ipv6)
 
     def test_runserver_addrport(self):
+        """
+        Tests the runserver command with various address and port configurations, verifying that the server settings are updated correctly.
+        """
         call_command(self.cmd)
         self.assertServerSettings("127.0.0.1", "8000")
 
@@ -1609,6 +1663,13 @@ class ManageRunserver(SimpleTestCase):
 
     @unittest.skipUnless(socket.has_ipv6, "platform doesn't support IPv6")
     def test_runner_addrport_ipv6(self):
+        """
+        Tests the behavior of the test runner when using IPv6 addresses for the server.
+
+        Verifies that the server settings are correctly configured when using IPv6
+        addresses, with and without a specified port number. Also checks that IPv6
+        addresses enclosed in square brackets are properly handled.
+        """
         call_command(self.cmd, addrport="", use_ipv6=True)
         self.assertServerSettings("::1", "8000", ipv6=True, raw_ipv6=True)
 
@@ -1676,6 +1737,9 @@ class ManageRunserver(SimpleTestCase):
     @mock.patch("django.core.management.base.BaseCommand.check_migrations")
     @mock.patch("django.core.management.base.BaseCommand.check")
     def test_skip_checks(self, mocked_check, *mocked_objects):
+        """
+        Tests that the system checks are skipped when the --skip-checks option is used with the runserver command.
+        """
         call_command(
             "runserver",
             use_reloader=False,
@@ -1883,6 +1947,9 @@ class CommandTypes(AdminScriptTestCase):
         )
 
     def test_help_default_options_with_custom_arguments(self):
+        """
+        Tests that the --help option for the base command displays the default options and custom arguments when run with the manage command, verifying that all expected options are present in the output.
+        """
         args = ["base_command", "--help"]
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
@@ -1914,6 +1981,9 @@ class CommandTypes(AdminScriptTestCase):
             self.assertOutput(out, "-v {0,1,2,3}, --verbosity {0,1,2,3}")
 
     def test_color_style(self):
+        """
+        Tests color styling functionality by verifying the output of different color styles, including no style, nocolor, dark, and default, for error messages.
+        """
         style = color.no_style()
         self.assertEqual(style.ERROR("Hello, world!"), "Hello, world!")
 
@@ -1930,6 +2000,14 @@ class CommandTypes(AdminScriptTestCase):
         self.assertNotEqual(style.ERROR("Hello, world!"), "Hello, world!")
 
     def test_command_color(self):
+        """
+
+        Tests the ColorCommand functionality, verifying its output with and without color support.
+
+        Checks that the command correctly handles colored output, comparing its standard output and standard error streams
+        to ensure they match expected results based on the system's color support capabilities.
+
+        """
         out = StringIO()
         err = StringIO()
         command = ColorCommand(stdout=out, stderr=err)
@@ -1960,6 +2038,12 @@ class CommandTypes(AdminScriptTestCase):
         self.assertEqual(err.getvalue(), "Hello, world!\n")
 
     def test_force_color_execute(self):
+        """
+
+        Tests that the ColorCommand executes with forced color output enabled,
+        even when the stdout and stderr streams do not support it by default.
+
+        """
         out = StringIO()
         err = StringIO()
         with mock.patch.object(sys.stdout, "isatty", lambda: False):
@@ -1969,6 +2053,10 @@ class CommandTypes(AdminScriptTestCase):
         self.assertEqual(err.getvalue(), "\x1b[31;1mHello, world!\n\x1b[0m")
 
     def test_force_color_command_init(self):
+        """
+        Tests the initialization of the ColorCommand with forced color output, 
+        verifying that ANSI color codes are correctly written to both stdout and stderr.
+        """
         out = StringIO()
         err = StringIO()
         with mock.patch.object(sys.stdout, "isatty", lambda: False):
@@ -1988,6 +2076,9 @@ class CommandTypes(AdminScriptTestCase):
             call_command(BaseCommand(no_color=True, force_color=True))
 
     def test_custom_stdout(self):
+        """
+        Tests the custom stdout handling in a base command by verifying that output is correctly written to the specified stream.
+        """
         class Command(BaseCommand):
             requires_system_checks = []
 
@@ -2005,6 +2096,9 @@ class CommandTypes(AdminScriptTestCase):
         self.assertEqual(new_out.getvalue(), "Hello, World!\n")
 
     def test_custom_stderr(self):
+        """
+        Tests that a custom command writes to stderr correctly, verifying that the output is captured and redirected as expected.
+        """
         class Command(BaseCommand):
             requires_system_checks = []
 
@@ -2244,6 +2338,10 @@ class CommandTypes(AdminScriptTestCase):
         )
 
     def test_suppress_base_options_command_help(self):
+        """
+        Tests the help output of the suppress_base_options_command to ensure it 
+        provides the expected help message and does not include irrelevant base options.
+        """
         args = ["suppress_base_options_command", "--help"]
         out, err = self.run_manage(args)
         self.assertNoOutput(err)
@@ -2303,6 +2401,9 @@ class Discovery(SimpleTestCase):
 
 class CommandDBOptionChoiceTests(SimpleTestCase):
     def test_invalid_choice_db_option(self):
+        """
+        Tests that using an invalid database option ('deflaut') triggers a CommandError for various management commands.
+        """
         expected_error = (
             "Error: argument --database: invalid choice: "
             "'deflaut' (choose from 'default', 'other')"
@@ -2545,6 +2646,9 @@ class StartProject(LiveServerTestCase, AdminScriptTestCase):
         self.assertTrue(os.path.exists(os.path.join(testproject_dir, "additional_dir")))
 
     def test_custom_project_template_non_python_files_not_formatted(self):
+        """
+        Verifies that non-Python files in a custom project template are not modified when a new project is created using the template.
+        """
         template_path = os.path.join(custom_templates_dir, "project_template")
         args = ["startproject", "--template", template_path, "customtestproject"]
         testproject_dir = os.path.join(self.test_dir, "customtestproject")
@@ -2623,6 +2727,9 @@ class StartProject(LiveServerTestCase, AdminScriptTestCase):
         self.assertTrue(os.path.exists(os.path.join(testproject_dir, "run.py")))
 
     def test_custom_project_template_from_tarball_by_url_django_user_agent(self):
+        """
+        Tests whether a custom Django project template can be successfully downloaded from a URL via a tarball, specifically verifying that the User-Agent header sent in the request contains the expected Django version information.
+        """
         user_agent = None
 
         def serve_template(request, *args, **kwargs):
@@ -2874,6 +2981,13 @@ class StartProject(LiveServerTestCase, AdminScriptTestCase):
         "Windows only partially supports umasks and chmod.",
     )
     def test_honor_umask(self):
+        """
+
+        Verifies that the createproject command from Django admin respects the umask settings when creating a new project.
+
+        This test case ensures that the permissions set on the newly created project and its files match the expected values based on the provided umask.
+
+        """
         _, err = self.run_django_admin(["startproject", "testproject"], umask=0o077)
         self.assertNoOutput(err)
         testproject_dir = os.path.join(self.test_dir, "testproject")
@@ -2950,6 +3064,9 @@ class StartApp(AdminScriptTestCase):
         )
 
     def test_trailing_slash_in_target_app_directory_name(self):
+        """
+        Tests that the django-admin startapp command behaves correctly when a trailing slash is present in the target app directory name.
+        """
         app_dir = os.path.join(self.test_dir, "apps", "app1")
         os.makedirs(app_dir)
         _, err = self.run_django_admin(
@@ -2970,6 +3087,9 @@ class StartApp(AdminScriptTestCase):
         )
 
     def test_template(self):
+        """
+        Tests the creation of a new Django application using the 'startapp' command, verifying the existence of the newly created application directory and the correct contents of its 'apps.py' file.
+        """
         out, err = self.run_django_admin(["startapp", "new_app"])
         self.assertNoOutput(err)
         app_path = os.path.join(self.test_dir, "new_app")

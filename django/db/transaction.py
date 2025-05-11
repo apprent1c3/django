@@ -180,6 +180,18 @@ class Atomic(ContextDecorator):
         self._from_testcase = False
 
     def __enter__(self):
+        """
+        Enters an atomic block, ensuring atomicity of database operations.
+
+        This method establishes a transactional context, allowing for commit or rollback
+        of all changes made within the block. It also handles savepoints and nested atomic
+        blocks according to the specified durability and savepoint settings.
+
+        Raises:
+            RuntimeError: If a durable atomic block is attempted to be nested within another
+                atomic block.
+
+        """
         connection = get_connection(self.using)
 
         if (
@@ -222,6 +234,15 @@ class Atomic(ContextDecorator):
             connection.atomic_blocks.append(self)
 
     def __exit__(self, exc_type, exc_value, traceback):
+        """
+        Manages the exit from a database transaction context.
+
+        Ensures proper cleanup and handling of atomic blocks, savepoints, and commits or rollbacks depending on the presence and type of exceptions.
+
+        Called automatically when exiting a 'with' block managed by this object. Handles different cases such as no exception, exception with savepoint, and exception without savepoint, ensuring database consistency and integrity.
+
+        Determines whether to commit or rollback the transaction based on exception presence and database connection state, focusing on avoiding data corruption and preserving consistency when exceptions occur.
+        """
         connection = get_connection(self.using)
 
         if connection.in_atomic_block:
@@ -324,6 +345,14 @@ def atomic(using=None, savepoint=True, durable=False):
 
 
 def _non_atomic_requests(view, using):
+    """
+    Adds a non-atomic request to a view for a specific database connection.
+
+    :param view: The view to modify.
+    :param using: The database connection alias to mark as non-atomic.
+
+    :return: The modified view with the added non-atomic request.
+    """
     try:
         view._non_atomic_requests.add(using)
     except AttributeError:
@@ -332,6 +361,16 @@ def _non_atomic_requests(view, using):
 
 
 def non_atomic_requests(using=None):
+    """
+
+    Helper function to create a decorator that wraps a view to run outside of
+    the atomic block, allowing it to make changes to the database that are
+    not rolled back in case of an error. It can be used as a decorator factory,
+    supplying the database alias to use, or as a decorator itself, in which case
+    it defaults to the default database alias. When callable is passed, it runs
+    the view and returns result directly.
+
+    """
     if callable(using):
         return _non_atomic_requests(using, DEFAULT_DB_ALIAS)
     else:

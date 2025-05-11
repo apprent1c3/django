@@ -34,6 +34,12 @@ class Command(BaseCommand):
     )
 
     def add_arguments(self, parser):
+        """
+        Add command-line arguments for the dumpdata management command.
+
+        Configures the parser with options for specifying which data to dump, output format, and database settings.
+
+        """
         parser.add_argument(
             "args",
             metavar="app_label[.ModelName]",
@@ -102,6 +108,20 @@ class Command(BaseCommand):
         )
 
     def handle(self, *app_labels, **options):
+        """
+        Handles the serialization of Django application models into a specified output format.
+
+        This function takes in various options to control the serialization process, including the 
+        format of the output, the database to use, models or applications to exclude, and the 
+        location of the output file. It then uses the provided options to determine which models 
+        to serialize, and writes the serialized data to the specified output location. 
+
+        The function supports various output formats, including JSON, XML, and YAML, and can 
+        also handle serialization of proxy models and natural foreign and primary keys. 
+
+        Raises a CommandError if an unknown serialization format is specified, or if there is 
+        an issue with serializing the database.
+        """
         format = options["format"]
         indent = options["indent"]
         using = options["database"]

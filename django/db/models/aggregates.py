@@ -35,6 +35,9 @@ class Aggregate(Func):
     def __init__(
         self, *expressions, distinct=False, filter=None, default=None, **extra
     ):
+        """
+        Initializes an instance of the class, configuring expression aggregation with options for distinct results, filtering, and default values.
+        """
         if distinct and not self.allow_distinct:
             raise TypeError("%s does not allow distinct." % self.__class__.__name__)
         if default is not None and self.empty_result_set_value is not None:
@@ -60,6 +63,15 @@ class Aggregate(Func):
         self, query=None, allow_joins=True, reuse=None, summarize=False, for_save=False
     ):
         # Aggregates are not allowed in UPDATE queries, so ignore for_save
+        """
+        Resolves an expression by applying various checks and transformations.
+
+        This method processes the expression by resolving any subordinate expressions, 
+        handling aggregate functions, and applying a default value if provided.
+
+        The result is an expression that can be used in a query, with any necessary default 
+        values or transformations applied.
+        """
         c = super().resolve_expression(query, allow_joins, reuse, summarize)
         c.filter = (
             c.filter.resolve_expression(query, allow_joins, reuse, summarize)
@@ -115,6 +127,14 @@ class Aggregate(Func):
         return []
 
     def as_sql(self, compiler, connection, **extra_context):
+        """
+        Generates the SQL representation of the aggregate, taking into account distinctness and filter clauses.
+
+        This method adapts to the database backend's capabilities, using either the aggregate filter clause or a Case/When expression to apply the filter condition.
+
+        :returns: A tuple containing the SQL query string and the parameters to be used with it.
+
+        """
         extra_context["distinct"] = "DISTINCT " if self.distinct else ""
         if self.filter:
             if connection.features.supports_aggregate_filter_clause:
@@ -146,6 +166,10 @@ class Aggregate(Func):
         return super().as_sql(compiler, connection, **extra_context)
 
     def _get_repr_options(self):
+        """
+        Returns a dictionary of options to be used when generating a repr string, 
+        including distinct and filter settings if they are enabled.
+        """
         options = super()._get_repr_options()
         if self.distinct:
             options["distinct"] = self.distinct
@@ -168,6 +192,9 @@ class Count(Aggregate):
     empty_result_set_value = 0
 
     def __init__(self, expression, filter=None, **extra):
+        """
+        Initializes a query object with a given expression and optional filter, providing a convenient way to specify queries with a wildcard (*) or specific conditions. The filter is not applicable when using a wildcard for querying.
+        """
         if expression == "*":
             expression = Star()
         if isinstance(expression, Star) and filter is not None:

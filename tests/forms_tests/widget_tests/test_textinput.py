@@ -121,6 +121,9 @@ class TextInputTest(WidgetTest):
         self.assertIs(self.widget.use_required_attribute("resume.txt"), True)
 
     def test_fieldset(self):
+        """
+        Tests the rendering of a form field using the provided widget, verifying that the `use_fieldset` attribute of the widget is False and the correct HTML is generated.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = CharField(widget=self.widget)

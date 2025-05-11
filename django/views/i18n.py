@@ -112,6 +112,9 @@ class JavaScriptCatalog(View):
     packages = None
 
     def get(self, request, *args, **kwargs):
+        """
+        Handle a GET request, rendering a translated response based on the current locale and specified domain and packages.
+        """
         locale = get_language()
         domain = kwargs.get("domain", self.domain)
         # If packages are not provided, default to all installed packages, as
@@ -124,6 +127,19 @@ class JavaScriptCatalog(View):
         return self.render_to_response(context)
 
     def get_paths(self, packages):
+        """
+        \\":\
+        Gets the locale paths for the specified packages.
+
+        This function takes a list of package names, validates them against the available application configurations, 
+        and returns a list of paths to the locale directories for the valid packages. If any invalid packages are provided, 
+        it raises a ValueError with a comma-separated list of the excluded packages. 
+
+        :param packages: A list of package names.
+        :raises ValueError: If any package in the input list is not a valid application configuration.
+        :returns: A list of paths to locale directories, one for each valid package.
+        :rtype: list[str]\\"
+        """
         allowable_packages = {
             app_config.name: app_config for app_config in apps.get_app_configs()
         }
@@ -176,6 +192,16 @@ class JavaScriptCatalog(View):
         return plural
 
     def get_catalog(self):
+        """
+        Return a translation catalog as a dictionary.
+
+        This method aggregates translations from the current translation object and its fallbacks,
+        handling both singular and plural message IDs, and returns a unified catalog.
+
+        The resulting catalog contains all message IDs mapped to their corresponding translations,
+        with plural forms stored as lists of strings.
+
+        """
         pdict = {}
         catalog = {}
         translation = self.translation
@@ -210,6 +236,14 @@ class JavaScriptCatalog(View):
         }
 
     def render_to_response(self, context, **response_kwargs):
+        """
+        Render a JavaScript catalog response based on the given context. 
+
+        Collects i18n catalog and formats data from the context, formats them as JSON strings,
+        and renders an i18n_catalog.js template using the Engine templating system. 
+
+        Returns an HTTP response containing the rendered template as JavaScript content.
+        """
         def indent(s):
             return s.replace("\n", "\n  ")
 

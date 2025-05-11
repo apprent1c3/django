@@ -106,6 +106,13 @@ class MultiDBOperationTests(OperationTestBase):
             self._test_create_model("test_mltdb_crmo4", should_run=True)
 
     def _test_run_sql(self, app_label, should_run, hints=None):
+        """
+        '''Tests the execution of a SQL operation using the `RunSQL` migration operation.
+
+        This function sets up a test model, runs a SQL insertion query, and verifies the resulting state of the model.
+        It checks that the operation does not affect the model state when run in a dry mode, and that it correctly inserts data when run normally.
+        The test can be customized with hints, and can be configured to check for successful execution or no execution of the SQL query.'''
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 
@@ -146,6 +153,16 @@ class MultiDBOperationTests(OperationTestBase):
         self._test_run_sql("test_mltdb_runsql3", should_run=True, hints={"foo": True})
 
     def _test_run_python(self, app_label, should_run, hints=None):
+        """
+        Tests the execution of a Python database migration.
+
+        This method sets up a test environment, creates a model, and runs a migration that populates the model with data.
+        It then verifies that the data is correctly created in the database or not, based on the should_run parameter.
+
+        :param app_label: The label of the application being tested
+        :param should_run: A flag indicating whether the migration should create data in the database
+        :param hints: Optional hints for the migration operation
+        """
         with override_settings(DATABASE_ROUTERS=[MigrateEverythingRouter()]):
             project_state = self.set_up_test_model(app_label)
 

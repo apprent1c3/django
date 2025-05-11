@@ -25,6 +25,9 @@ class GenericForeignKeyTests(TestCase):
             Answer.question.get_content_type()
 
     def test_get_object_cache_respects_deleted_objects(self):
+        """
+        Tests that the object cache respects deleted objects by verifying that a post's parent is None after its parent question has been deleted, while still maintaining the correct object_id reference.
+        """
         question = Question.objects.create(text="Who?")
         post = Post.objects.create(title="Answer", parent=question)
 
@@ -38,6 +41,9 @@ class GenericForeignKeyTests(TestCase):
             self.assertIsNone(post.parent)
 
     def test_clear_cached_generic_relation(self):
+        """
+        Checks that the generic relation to a question is properly updated after refreshing the answer object from the database, ensuring the cache is cleared.
+        """
         question = Question.objects.create(text="What is your name?")
         answer = Answer.objects.create(text="Answer", question=question)
         old_entity = answer.question
@@ -46,6 +52,13 @@ class GenericForeignKeyTests(TestCase):
         self.assertIsNot(old_entity, new_entity)
 
     def test_clear_cached_generic_relation_explicit_fields(self):
+        """
+
+        Tests the behavior of Django's model instance refresh from database functionality,
+        specifically when using explicit fields to update a generic relation. 
+        Verifies that related objects are cleared from cache when refreshed with explicit fields.
+
+        """
         question = Question.objects.create(text="question")
         answer = Answer.objects.create(text="answer", question=question)
         old_question_obj = answer.question
@@ -60,6 +73,10 @@ class GenericForeignKeyTests(TestCase):
 
 class GenericRelationTests(TestCase):
     def test_value_to_string(self):
+        """
+        Tests the conversion of Question's answer set foreign key values to a string representation, 
+        verifying that the resulting string matches the expected list of answer IDs.
+        """
         question = Question.objects.create(text="test")
         answer1 = Answer.objects.create(question=question)
         answer2 = Answer.objects.create(question=question)
@@ -74,6 +91,9 @@ class DeferredGenericRelationTests(TestCase):
         cls.answer = Answer.objects.create(text="answer", question=cls.question)
 
     def test_defer_not_clear_cached_private_relations(self):
+        """
+        Tests that deferred fields do not affect the caching of related objects, specifically private relations. Verifies that the related object is cached after accessing a deferred field, reducing subsequent query counts.
+        """
         obj = Answer.objects.defer("text").get(pk=self.answer.pk)
         with self.assertNumQueries(1):
             obj.question
@@ -82,6 +102,9 @@ class DeferredGenericRelationTests(TestCase):
             obj.question
 
     def test_only_not_clear_cached_private_relations(self):
+        """
+        Tests that Django's private relation caching works correctly when using select_related=False, by verifying that the related object 'question' is fetched only once, even after accessing another attribute 'text'.
+        """
         obj = Answer.objects.only("content_type", "object_id").get(pk=self.answer.pk)
         with self.assertNumQueries(1):
             obj.question
@@ -92,6 +115,9 @@ class DeferredGenericRelationTests(TestCase):
 
 class GetPrefetchQuerySetDeprecation(TestCase):
     def test_generic_relation_warning(self):
+        """
+        Tests that a deprecation warning is emitted when get_prefetch_queryset() is used instead of the plural get_prefetch_querysets().
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (
@@ -113,6 +139,9 @@ class GetPrefetchQuerySetDeprecation(TestCase):
 
 class GetPrefetchQuerySetsTests(TestCase):
     def test_duplicate_querysets(self):
+        """
+        Tests that the GenericPrefetch function raises a ValueError when attempting to prefetch multiple querysets for the same content type, enforcing the one queryset per content type rule.
+        """
         question = Question.objects.create(text="What is your name?")
         answer = Answer.objects.create(text="Joe", question=question)
         answer = Answer.objects.get(pk=answer.pk)
@@ -130,6 +159,9 @@ class GetPrefetchQuerySetsTests(TestCase):
             )
 
     def test_generic_relation_invalid_length(self):
+        """
+        Tests that attempting to prefetch related instances with multiple querysets raises a ValueError when the length of the querysets list exceeds 1.
+        """
         Question.objects.create(text="test")
         questions = Question.objects.all()
         msg = (

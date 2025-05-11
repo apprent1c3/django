@@ -20,6 +20,12 @@ class Command(BaseCommand):
     requires_system_checks = [Tags.staticfiles]
 
     def __init__(self, *args, **kwargs):
+        """
+        Initializes the instance, setting up file tracking and storage properties.\"\"\"
+
+             Initializes lists to track copied, symlinked, unmodified, and post-processed files, 
+             and sets the storage and styling configuration.
+        """
         super().__init__(*args, **kwargs)
         self.copied_files = []
         self.symlinked_files = []
@@ -30,6 +36,9 @@ class Command(BaseCommand):
 
     @cached_property
     def local(self):
+        """
+        Indicates whether the storage is local, i.e., it has a path that can be accessed directly. Returns True if a path can be resolved, False otherwise.
+        """
         try:
             self.storage.path("")
         except NotImplementedError:
@@ -37,6 +46,12 @@ class Command(BaseCommand):
         return True
 
     def add_arguments(self, parser):
+        """
+        .. method:: add_arguments(parser)
+           :noindex:
+
+           Configures the parser with command line arguments to control the application's behavior, such as interactive input, post-processing, file ignoring, and file operation modes.
+        """
         parser.add_argument(
             "--noinput",
             "--no-input",
@@ -168,6 +183,9 @@ class Command(BaseCommand):
         }
 
     def handle(self, **options):
+        """
+        Handle the collection of static files, including prompting the user for confirmation if necessary and performing the file collection operation with optional symlinking or copying. The function takes keyword arguments for customizing its behavior and returns a summary of the outcome if verbosity is sufficient.
+        """
         self.set_options(**options)
         message = ["\n"]
         if self.dry_run:

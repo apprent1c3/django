@@ -89,6 +89,13 @@ class GetOrCreateTests(TestCase):
         self.assertEqual(t.name, "Annie")
 
     def test_get_or_create_on_related_manager(self):
+        """
+        Tests the functionality of get_or_create on related managers in the ORM.
+
+        Verifies that get_or_create correctly handles existing and non-existing related objects,
+        including creating new objects and reusing existing ones, and that it correctly updates
+        the related manager's count and contents.
+        """
         p = Publisher.objects.create(name="Acme Publishing")
         # Create a book through the publisher.
         book, created = p.books.get_or_create(name="The Book of Ed & Fred")
@@ -267,6 +274,9 @@ class GetOrCreateTransactionTests(TransactionTestCase):
 
 class GetOrCreateThroughManyToMany(TestCase):
     def test_get_get_or_create(self):
+        """
+        Tests the get_or_create method of a tag model, verifying it correctly retrieves an existing tag when a duplicate is attempted to be created, rather than creating a new one.
+        """
         tag = Tag.objects.create(text="foo")
         a_thing = Thing.objects.create(name="a")
         a_thing.tags.add(tag)
@@ -276,6 +286,9 @@ class GetOrCreateThroughManyToMany(TestCase):
         self.assertEqual(obj.pk, tag.pk)
 
     def test_create_get_or_create(self):
+        """
+        Tests the creation of a new tag and its association with an existing Thing object using the get_or_create method. Verifies that the tag is successfully created, has the expected text, and is correctly linked to the Thing object.
+        """
         a_thing = Thing.objects.create(name="a")
         obj, created = a_thing.tags.get_or_create(text="foo")
 
@@ -292,6 +305,14 @@ class GetOrCreateThroughManyToMany(TestCase):
 
 class UpdateOrCreateTests(TestCase):
     def test_update(self):
+        """
+
+        Tests the update functionality of the Person model.
+
+        Verifies that the update_or_create method updates an existing person's
+        information instead of creating a new one when matching criteria are found.
+
+        """
         Person.objects.create(
             first_name="John", last_name="Lennon", birthday=date(1940, 10, 9)
         )
@@ -306,6 +327,13 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(p.birthday, date(1940, 10, 10))
 
     def test_create(self):
+        """
+
+        Tests the creation of a new Person object using update_or_create method.
+
+        Verifies that a new person is created with the given first name, last name, and birthday, and that the object's attributes are correctly set.
+
+        """
         p, created = Person.objects.update_or_create(
             first_name="John",
             last_name="Lennon",
@@ -317,6 +345,11 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(p.birthday, date(1940, 10, 10))
 
     def test_create_twice(self):
+        """
+        Tests the behavior of creating a Person object with update_or_create method twice, 
+        ensuring the object is created with specified defaults on the first call and updated 
+        on subsequent calls, while correctly tracking creation status.
+        """
         p, created = Person.objects.update_or_create(
             first_name="John",
             last_name="Lennon",
@@ -578,6 +611,9 @@ class UpdateOrCreateTests(TestCase):
         self.assertEqual(journalist.name, "John")
 
     def test_update_only_defaults_and_pre_save_fields_when_local_fields(self):
+        """
+        Tests that update_or_create only updates fields with defaults and pre-save fields (like auto-updated timestamps) when updating an existing instance, leaving other fields unchanged.
+        """
         publisher = Publisher.objects.create(name="Acme Publishing")
         book = Book.objects.create(publisher=publisher, name="The Book of Ed & Fred")
 
@@ -644,6 +680,9 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
 
         def lock_wait():
             # timeout after ~0.5 seconds
+            """
+            Wait for up to 0.5 seconds for the lock to be grabbed, checking status every 25ms.
+            """
             for i in range(20):
                 time.sleep(0.025)
                 if lock_status["has_grabbed_lock"]:
@@ -705,6 +744,14 @@ class UpdateOrCreateTransactionTests(TransactionTestCase):
 
         def lock_wait(expected_lock_count):
             # timeout after ~0.5 seconds
+            """
+
+            Wait for a row lock to be acquired with a specified count.
+
+            Waits for the lock count to match the expected value, with a timeout of approximately 0.5 seconds.
+            If the lock is not acquired within this time, the test is skipped.
+
+            """
             for i in range(20):
                 time.sleep(0.025)
                 if lock_status["lock_count"] == expected_lock_count:

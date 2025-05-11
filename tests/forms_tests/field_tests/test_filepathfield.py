@@ -8,6 +8,12 @@ PATH = os.path.dirname(os.path.abspath(__file__))
 
 
 def fix_os_paths(x):
+    """
+    Normalizes and standardizes operating system paths to a consistent format.
+
+    Removes a predefined path prefix from strings, replaces backslashes with forward slashes, 
+    and recursively applies these transformations to nested lists and tuples.
+    """
     if isinstance(x, str):
         return x.removeprefix(PATH).replace("\\", "/")
     elif isinstance(x, tuple):
@@ -52,6 +58,12 @@ class FilePathFieldTest(SimpleTestCase):
         self.assertChoices(f, expected)
 
     def test_clean(self):
+        """
+        Tests that the FilePathField correctly validates and cleans file paths.
+
+        Verifies that an invalid file path raises a ValidationError and that a valid
+        path is cleaned and normalized to the correct format.
+        """
         f = FilePathField(path=self.path)
         msg = "'Select a valid choice. a.py is not one of the available choices.'"
         with self.assertRaisesMessage(ValidationError, msg):

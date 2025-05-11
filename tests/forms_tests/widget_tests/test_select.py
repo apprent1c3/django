@@ -278,6 +278,9 @@ class SelectTest(ChoiceWidgetTest):
 
     @override_settings(USE_THOUSAND_SEPARATOR=True)
     def test_doesnt_localize_option_value(self):
+        """
+        Tests that the widget does not localize option values in HTML select boxes, ensuring they remain as specified in the choices.
+        """
         choices = [
             (1, "One"),
             (1000, "One thousand"),
@@ -305,6 +308,9 @@ class SelectTest(ChoiceWidgetTest):
         self.check_html(self.widget(choices=choices), "time", None, html=html)
 
     def _test_optgroups(self, choices):
+        """
+        Tests the rendering of form options grouped by category, ensuring correct labels and option values for different groups, including handling of selected and unknown options.
+        """
         groups = list(
             self.widget(choices=choices).optgroups(
                 "name",
@@ -394,6 +400,12 @@ class SelectTest(ChoiceWidgetTest):
         self.assertEqual(index, 2)
 
     def test_optgroups(self):
+        """
+        Tests the proper handling of optgroups in different data structures.
+
+        This test validates that optgroups can be correctly processed whether they are
+        represented as dictionaries, lists of tuples, or nested dictionaries.
+        """
         choices_dict = {
             "Audio": [
                 ("vinyl", "Vinyl"),
@@ -444,6 +456,9 @@ class SelectTest(ChoiceWidgetTest):
         )
 
     def test_fieldset(self):
+        """
+        Tests rendering of a form field using the provided widget, verifying that the fieldset attribute is not used by default.
+        """
         class TestForm(Form):
             template_name = "forms_tests/use_fieldset.html"
             field = ChoiceField(widget=self.widget, choices=self.beatles)

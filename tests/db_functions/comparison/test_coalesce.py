@@ -26,6 +26,15 @@ class CoalesceTests(TestCase):
             Author.objects.annotate(display_name=Coalesce("alias"))
 
     def test_mixed_values(self):
+        """
+
+        Tests the usage of mixed values with the Coalesce database function.
+
+        Checks if Coalesce correctly returns the first non-null value when the 'summary' 
+        field is empty and the 'text' field is not, and also verifies the result when 
+        both fields are converted to lowercase.
+
+        """
         a1 = Author.objects.create(name="John Smith", alias="smithj")
         a2 = Author.objects.create(name="Rhonda")
         ar1 = Article.objects.create(
@@ -53,6 +62,9 @@ class CoalesceTests(TestCase):
         )
 
     def test_ordering(self):
+        """
+        Tests the correct ordering of authors by alias, falling back to name if alias is missing.
+        """
         Author.objects.create(name="John Smith", alias="smithj")
         Author.objects.create(name="Rhonda")
         authors = Author.objects.order_by(Coalesce("alias", "name"))
@@ -63,6 +75,9 @@ class CoalesceTests(TestCase):
         self.assertQuerySetEqual(authors, ["John Smith", "Rhonda"], lambda a: a.name)
 
     def test_empty_queryset(self):
+        """
+        Tests that the Coalesce function behaves correctly when given an empty queryset, ensuring it returns the default value.
+        """
         Author.objects.create(name="John Smith")
         queryset = Author.objects.values("id")
         tests = [

@@ -25,6 +25,9 @@ class BaseManager:
         return obj
 
     def __init__(self):
+        """
+        Initializes a database entity, setting up its internal state and preparing it for further configuration.
+        """
         super().__init__()
         self._set_creation_counter()
         self.model = None
@@ -81,6 +84,11 @@ class BaseManager:
 
     @classmethod
     def _get_queryset_methods(cls, queryset_class):
+        """
+        Creates a dictionary of methods to be dynamically added to the class, 
+         proxying calls to the corresponding methods of the queryset class, 
+         excluding private and queryset-only methods.
+        """
         def create_method(name, method):
             @wraps(method)
             def manager_method(self, *args, **kwargs):
@@ -182,6 +190,10 @@ class ManagerDescriptor:
         self.manager = manager
 
     def __get__(self, instance, cls=None):
+        """
+        Returns the manager instance for the class, raising an AttributeError if 
+        accessed via an instance, an abstract class, or a swapped model.
+        """
         if instance is not None:
             raise AttributeError(
                 "Manager isn't accessible via %s instances" % cls.__name__

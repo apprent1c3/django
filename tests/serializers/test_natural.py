@@ -19,6 +19,16 @@ class NaturalKeySerializerTests(TestCase):
 
 def natural_key_serializer_test(self, format):
     # Create all the objects defined in the test data
+    """
+    Tests serialization and deserialization of model instances with natural foreign keys.
+
+     Verifies that objects are correctly serialized to a given format, and then deserialized 
+     and saved back to the database without losing any data or changing their natural key relationships.
+
+     Args:
+        format (str): The serialization format to use.
+
+    """
     with connection.constraint_checks_disabled():
         objects = [
             NaturalKeyAnchor.objects.create(id=1100, data="Natural Key Anghor"),
@@ -52,6 +62,11 @@ def natural_key_serializer_test(self, format):
 
 
 def natural_key_test(self, format):
+    """
+    Tests the natural key functionality by serializing and deserializing objects, 
+    verifying that the natural primary keys are correctly replaced with numerical IDs 
+    after deletion of a referenced object.
+    """
     book1 = {
         "data": "978-1590597255",
         "title": "The Definitive Guide to Django: Web Development Done Right",
@@ -115,6 +130,12 @@ def natural_pk_mti_test(self, format):
 
 
 def forward_ref_fk_test(self, format):
+    """
+    Tests serialization and deserialization of objects with natural foreign keys and forward references.
+
+    Verifies that objects can be successfully serialized, deserialized, and saved with their relationships intact, 
+    even when those relationships involve forward references. Cleans up created objects after test completion.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -142,6 +163,9 @@ def forward_ref_fk_test(self, format):
 
 
 def forward_ref_fk_with_error_test(self, format):
+    """
+    Tests deserialization of forward references with natural foreign keys, ensuring that a DeserializationError is raised when a natural key does not exist.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2", other_thing=t1)
     t1.other_thing = t2
@@ -167,6 +191,12 @@ def forward_ref_fk_with_error_test(self, format):
 
 
 def forward_ref_m2m_test(self, format):
+    """
+
+    Tests the serialization and deserialization of many-to-many relationships with forward references.
+    Verifies that objects are correctly created and linked after deserialization, and that their deferred fields are handled properly.
+
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")
@@ -194,6 +224,10 @@ def forward_ref_m2m_test(self, format):
 
 
 def forward_ref_m2m_with_error_test(self, format):
+    """
+    Tests deserialization of many-to-many relationships with forward references, 
+    checking that it correctly raises an error when referenced objects are missing.
+    """
     t1 = NaturalKeyThing.objects.create(key="t1")
     t2 = NaturalKeyThing.objects.create(key="t2")
     t3 = NaturalKeyThing.objects.create(key="t3")

@@ -51,6 +51,9 @@ if os.name == "nt":
         unlink = os.unlink
 
         def close(self):
+            """
+            Closes the associated file and deletes it from the file system if it has not been closed previously.
+            """
             if not self.close_called:
                 self.close_called = True
                 try:

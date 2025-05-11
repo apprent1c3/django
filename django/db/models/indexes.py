@@ -26,6 +26,19 @@ class Index:
         condition=None,
         include=None,
     ):
+        """
+        Initializes an index database object, specifying its fields, name, and other properties.
+
+         :param expressions: A list of expressions to include in the index.
+         :param fields: A list or tuple of field names to include in the index.
+         :param name: The name of the index.
+         :param db_tablespace: The database tablespace where the index will be stored.
+         :param opclasses: A list or tuple of operator classes to use for the indexed fields.
+         :param condition: A condition expression for a partial index.
+         :param include: A list or tuple of included column names for a covering index.
+
+         :raises ValueError: If the provided arguments are invalid.
+        """
         if opclasses and not name:
             raise ValueError("An index must be named to use opclasses.")
         if not isinstance(condition, (NoneType, Q)):
@@ -83,6 +96,14 @@ class Index:
         return bool(self.expressions)
 
     def _get_condition_sql(self, model, schema_editor):
+        """
+        **:param model: The model for which the condition SQL is being generated.
+            :param schema_editor: The schema editor used to generate the SQL.
+            :return: The SQL string representing the condition, or None if no condition exists.
+
+            Generates SQL for a given condition, using the provided model and schema editor.
+            The generated SQL can be used to filter data in database operations.**
+        """
         if self.condition is None:
             return None
         query = Query(model=model, alias_cols=False)
@@ -92,6 +113,13 @@ class Index:
         return sql % tuple(schema_editor.quote_value(p) for p in params)
 
     def create_sql(self, model, schema_editor, using="", **kwargs):
+        """
+        Creates an SQL string for generating an index on a model.
+
+        This function constructs the SQL statement necessary to create an index on a specified model, considering factors such as 
+        included fields, index conditions, expression-based indexing, and column ordering. It returns a complete SQL string that 
+        can be executed to create the index, taking into account the database engine's capabilities and the specified indexing options.
+        """
         include = [
             model._meta.get_field(field_name).column for field_name in self.include
         ]
@@ -135,6 +163,10 @@ class Index:
         return schema_editor._delete_index_sql(model, self.name, **kwargs)
 
     def deconstruct(self):
+        """
+        Deconstructs the model index into a tuple of its class path and constructor arguments, 
+        allowing it to be easily recreated or serialized.
+        """
         path = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
         path = path.replace("django.db.models.indexes", "django.db.models")
         kwargs = {"name": self.name}
@@ -241,6 +273,23 @@ class IndexExpression(Func):
         summarize=False,
         for_save=False,
     ):
+        """
+
+        Resolve an indexed expression by partitioning it into index expressions and wrappers,
+        validating their structure, and then recomposing them into a resolvable form.
+
+        This method is used to prepare an expression for use in a query, ensuring that it
+        conforms to the required structure and that any required joins are properly handled.
+
+        :param query: The query in which the expression will be used.
+        :param allow_joins: Whether to allow joins in the resolved expression.
+        :param reuse: Optional reuse parameters.
+        :param summarize: Whether to summarize the expression.
+        :param for_save: Whether the expression is being resolved for saving.
+
+        :raises ValueError: If the expression is invalid or contains multiple references to the same wrapper class.
+
+        """
         expressions = list(self.flatten())
         # Split expressions and wrappers.
         index_expressions, wrappers = partition(

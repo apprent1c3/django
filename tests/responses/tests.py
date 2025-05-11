@@ -19,6 +19,9 @@ class HttpResponseBaseTests(SimpleTestCase):
         self.assertIs(r.closed, True)
 
     def test_write(self):
+        """
+        Verifies the write methods of an HttpResponseBase instance are correctly disabled.
+        """
         r = HttpResponseBase()
         self.assertIs(r.writable(), False)
 
@@ -76,6 +79,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(resp.reason_phrase, "Service Unavailable")
 
     def test_valid_status_code_string(self):
+        """
+        Verifies that the HttpResponse class correctly interprets string status codes, converting them to their corresponding integer values.
+        """
         resp = HttpResponse(status="100")
         self.assertEqual(resp.status_code, 100)
         resp = HttpResponse(status="404")
@@ -84,6 +90,10 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(resp.status_code, 599)
 
     def test_invalid_status_code(self):
+        """
+        Tests that invalid HTTP status codes raise the expected errors. 
+        Verifies that a TypeError is raised for non-integer status codes and a ValueError is raised for integer status codes outside the valid range (100-599).
+        """
         must_be_integer = "HTTP status code must be an integer."
         must_be_integer_in_range = (
             "HTTP status code must be an integer from 100 to 599."
@@ -162,6 +172,9 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(repr(response), "<HttpResponse status_code=204>")
 
     def test_wrap_textiowrapper(self):
+        """
+        Tests that writing to an HttpResponse object using a TextIOWrapper encodes the content correctly as UTF-8.
+        """
         content = "Café :)"
         r = HttpResponse()
         with io.TextIOWrapper(r, UTF8) as buf:
@@ -169,6 +182,12 @@ class HttpResponseTests(SimpleTestCase):
         self.assertEqual(r.content, content.encode(UTF8))
 
     def test_generator_cache(self):
+        """
+        Verify that a generator-based HttpResponse caches correctly.
+
+        Tests that the response content is correctly generated, that the generator is exhausted,
+        and that the cached response matches the original response.
+        """
         generator = (str(i) for i in range(10))
         response = HttpResponse(content=generator)
         self.assertEqual(response.content, b"0123456789")

@@ -8,6 +8,12 @@ from .models import BooleanModel, FksToBooleans, NullBooleanModel
 
 class BooleanFieldTests(TestCase):
     def _test_get_prep_value(self, f):
+        """
+
+        Tests the get_prep_value method to ensure it correctly converts boolean values.
+        It verifies that various truthy and falsy inputs are mapped to their corresponding boolean values (True or False) and that None is handled correctly.
+
+        """
         self.assertIs(f.get_prep_value(True), True)
         self.assertIs(f.get_prep_value("1"), True)
         self.assertIs(f.get_prep_value(1), True)
@@ -55,6 +61,9 @@ class BooleanFieldTests(TestCase):
         self.assertIsInstance(f.formfield(), forms.NullBooleanField)
 
     def test_return_type(self):
+        """
+        Tests whether boolean and null boolean fields are properly retrieved from the database
+        """
         b = BooleanModel.objects.create(bfield=True)
         b.refresh_from_db()
         self.assertIs(b.bfield, True)

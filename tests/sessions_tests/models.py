@@ -32,6 +32,9 @@ class SessionStore(DBStore):
         return CustomSession
 
     def create_model_instance(self, data):
+        """
+        Creates a model instance from the provided data, augmenting it with an account ID extracted from the '_auth_user_id' field, if possible.
+        """
         obj = super().create_model_instance(data)
 
         try:

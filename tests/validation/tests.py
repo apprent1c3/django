@@ -88,6 +88,9 @@ class BaseModelValidationTests(ValidationAssertions, TestCase):
         self.assertFailsValidation(mtv.full_clean, ["slug"])
 
     def test_full_clean_does_not_mutate_exclude(self):
+        """
+        Verifies that the full_clean method does not modify the exclude list when validating a model, ensuring data integrity and preventing unintended side effects.
+        """
         mtv = ModelToValidate(f_with_custom_validator=42)
         exclude = ["number"]
         self.assertFailsValidation(mtv.full_clean, ["name"], exclude=exclude)
@@ -109,6 +112,11 @@ class ModelFormsTests(TestCase):
     def test_partial_validation(self):
         # Make sure the "commit=False and set field values later" idiom still
         # works with model validation.
+        """
+
+        Tests the partial validation of the ArticleForm, ensuring it can process valid data and save an article instance.
+
+        """
         data = {
             "title": "The state of model validation",
             "pub_date": "2010-1-10 14:49:00",
@@ -125,6 +133,9 @@ class ModelFormsTests(TestCase):
         # Also, Article.clean() should be run, so pub_date will be filled after
         # validation, so the form should save cleanly even though pub_date is
         # not allowed to be null.
+        """
+        Checks that an ArticleForm validates correctly when a required field is left blank, ensuring that the validation logic handles this case as expected and that the instance's publication date is automatically set upon form validation.
+        """
         data = {
             "title": "The state of model validation",
         }
@@ -145,6 +156,9 @@ class ModelFormsTests(TestCase):
 
 class GenericIPAddressFieldTests(ValidationAssertions, TestCase):
     def test_correct_generic_ip_passes(self):
+        """
+        Tests that the GenericIPAddressTestModel accepts valid generic IP addresses, including IPv4 and IPv6 addresses with different types of leading/trailing whitespace.
+        """
         giptm = GenericIPAddressTestModel(generic_ip="1.2.3.4")
         self.assertIsNone(giptm.full_clean())
         giptm = GenericIPAddressTestModel(generic_ip=" 1.2.3.4 ")
@@ -155,6 +169,9 @@ class GenericIPAddressFieldTests(ValidationAssertions, TestCase):
         self.assertIsNone(giptm.full_clean())
 
     def test_invalid_generic_ip_raises_error(self):
+        """
+        Tests that GenericIPAddressTestModel validation fails for invalid IP addresses
+        """
         giptm = GenericIPAddressTestModel(generic_ip="294.4.2.1")
         self.assertFailsValidation(giptm.full_clean, ["generic_ip"])
         giptm = GenericIPAddressTestModel(generic_ip="1:2")
@@ -193,6 +210,9 @@ class GenericIPAddressFieldTests(ValidationAssertions, TestCase):
 
     def test_v4_unpack_uniqueness_detection(self):
         # These two are different, because we are not doing IPv4 unpacking
+        """
+        Tests the uniqueness detection of unpacked IPv4 addresses in GenericIPAddressTestModel and GenericIPAddrUnpackUniqueTest models to ensure that equivalent IPv4 addresses in different formats are not treated as unique.
+        """
         giptm = GenericIPAddressTestModel(generic_ip="::ffff:10.10.10.10")
         giptm.save()
         giptm = GenericIPAddressTestModel(generic_ip="10.10.10.10")

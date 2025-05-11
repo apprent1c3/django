@@ -25,6 +25,9 @@ class StorageValidateFileNameTests(SimpleTestCase):
     error_msg = "Detected path traversal attempt in '%s'"
 
     def test_validate_before_get_available_name(self):
+        """
+        Tests the validation of file names in CustomStorage's save method, ensuring that invalid names raise a SuspiciousFileOperation exception before attempting to get an available name or save the file.
+        """
         s = CustomStorage()
         # The initial name passed to `save` is not valid nor safe, fail early.
         for name in self.invalid_file_names:
@@ -41,6 +44,9 @@ class StorageValidateFileNameTests(SimpleTestCase):
                 self.assertEqual(mock_internal_save.mock_calls, [])
 
     def test_validate_after_get_available_name(self):
+        """
+        Tests the validation of file names after determining the available name, ensuring that invalid names raise a SuspiciousFileOperation exception and do not trigger internal saving operations.
+        """
         s = CustomStorage()
         # The initial name passed to `save` is valid and safe, but the returned
         # name from `get_available_name` is not.
@@ -57,6 +63,9 @@ class StorageValidateFileNameTests(SimpleTestCase):
                 self.assertEqual(mock_internal_save.mock_calls, [])
 
     def test_validate_after_internal_save(self):
+        """
+        Tests that custom storage validates file name after an internal save, raising SuspiciousFileOperation if the name is invalid.
+        """
         s = CustomStorage()
         # The initial name passed to `save` is valid and safe, but the result
         # from `_save` is not (this is achieved by monkeypatching _save).

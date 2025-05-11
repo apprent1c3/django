@@ -27,6 +27,9 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
     def test_decorator_sets_x_frame_options_to_deny(self):
         @xframe_options_deny
+        """
+        Tests that the xframe_options_deny decorator correctly sets the X-Frame-Options header to 'DENY' in HTTP responses, preventing a web page from being framed by other sites.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -35,6 +38,9 @@ class XFrameOptionsDenyTests(SimpleTestCase):
 
     async def test_decorator_sets_x_frame_options_to_deny_async_view(self):
         @xframe_options_deny
+        """
+        Tests that the xframe_options_deny decorator correctly sets the X-Frame-Options header to 'DENY' for an asynchronous view.
+        """
         async def an_async_view(request):
             return HttpResponse()
 
@@ -59,6 +65,9 @@ class XFrameOptionsSameoriginTests(SimpleTestCase):
 
     def test_decorator_sets_x_frame_options_to_sameorigin(self):
         @xframe_options_sameorigin
+        """
+        Tests that the xframe_options_sameorigin decorator sets the X-Frame-Options header to 'SAMEORIGIN' in the response.
+        """
         def a_view(request):
             return HttpResponse()
 
@@ -67,6 +76,9 @@ class XFrameOptionsSameoriginTests(SimpleTestCase):
 
     async def test_decorator_sets_x_frame_options_to_sameorigin_async_view(self):
         @xframe_options_sameorigin
+        """
+        Tests that the xframe_options_sameorigin decorator sets the X-Frame-Options header to 'SAMEORIGIN' for an asynchronous view.
+        """
         async def an_async_view(request):
             return HttpResponse()
 
@@ -111,6 +123,12 @@ class XFrameOptionsExemptTests(SimpleTestCase):
 
     async def test_exempt_decorator_async_view(self):
         @xframe_options_exempt
+        """
+        .. function:: test_exempt_decorator_async_view
+
+            Tests the application of the xframe_options_exempt decorator to an asynchronous view, 
+            ensuring that the X-Frame-Options header is not added to the response when the decorator is used.
+        """
         async def an_async_view(request):
             return HttpResponse()
 

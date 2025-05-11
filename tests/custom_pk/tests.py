@@ -187,6 +187,9 @@ class CustomPKTests(TestCase):
 
     def test_custom_field_pk(self):
         # Regression for #10785 -- Custom fields can be used for primary keys.
+        """
+        Tests the relationship between Foo and Bar models by verifying that Foo instances can be retrieved using either the Bar instance or its primary key, and that the retrieved Foo instance matches the original instance and has the correct associated Bar instance.
+        """
         new_bar = Bar.objects.create()
         new_foo = Foo.objects.create(bar=new_bar)
 

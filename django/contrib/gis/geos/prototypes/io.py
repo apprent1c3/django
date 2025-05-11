@@ -198,6 +198,14 @@ class WKTWriter(IOBase):
     _precision = None
 
     def __init__(self, dim=2, trim=False, precision=None):
+        """
+        Initializes the object with specified parameters.
+
+        :param dim: The output dimension (default is 2)
+        :param trim: Flag to enable trimming (default is False)
+        :param precision: Optional precision setting
+        :note: The trim value defaults to DEFAULT_TRIM_VALUE if not provided through the trim parameter
+        """
         super().__init__()
         self._trim = DEFAULT_TRIM_VALUE
         self.trim = trim
@@ -235,6 +243,9 @@ class WKTWriter(IOBase):
 
     @precision.setter
     def precision(self, precision):
+        """
+        Sets the precision used for rounding coordinates in WKT output, allowing for controlled output formatting. Accepts a non-negative integer or None, with None indicating no rounding should occur.
+        """
         if (not isinstance(precision, int) or precision < 0) and precision is not None:
             raise AttributeError(
                 "WKT output rounding precision must be non-negative integer or None."
@@ -255,6 +266,10 @@ class WKBWriter(IOBase):
         self.outdim = dim
 
     def _handle_empty_point(self, geom):
+        """
+        Handle cases where a geographic point is empty, returning a valid point if 
+        a spatial reference system is defined or raising an error if not.
+        """
         from django.contrib.gis.geos import Point
 
         if isinstance(geom, Point) and geom.empty:
@@ -338,6 +353,11 @@ def wkt_r():
 
 
 def wkt_w(dim=2, trim=False, precision=None):
+    """
+    Returns a WKTWriter instance for the current thread, creating a new one if necessary, 
+    with the specified dimension, trimming and precision settings. The returned instance 
+    can be used to write geometric data in Well-Known Text format.
+    """
     if not thread_context.wkt_w:
         thread_context.wkt_w = WKTWriter(dim=dim, trim=trim, precision=precision)
     else:
@@ -353,6 +373,14 @@ def wkb_r():
 
 
 def wkb_w(dim=2):
+    """
+    Returns a WKBWriter instance configured for the specified dimension.
+
+    The returned writer is stored in the thread context and reused if the function is called again with the same dimension, or reconfigured if the dimension changes.
+
+    :param int dim: The dimension of the WKB writer (default is 2)
+    :returns: A WKBWriter instance 
+    """
     if not thread_context.wkb_w:
         thread_context.wkb_w = WKBWriter(dim=dim)
     else:
@@ -361,6 +389,11 @@ def wkb_w(dim=2):
 
 
 def ewkb_w(dim=2):
+    """
+    Returns a WKBWriter instance configured for the specified dimension, 
+    creating a new one if necessary or reusing an existing one if it already exists 
+    in the current thread context, and adjusting its output dimension accordingly.
+    """
     if not thread_context.ewkb_w:
         thread_context.ewkb_w = WKBWriter(dim=dim)
         thread_context.ewkb_w.srid = True

@@ -202,6 +202,17 @@ class TitleForm(forms.ModelForm):
     title1 = forms.CharField(max_length=100)
 
     def clean(self):
+        """
+
+        Validate that 'title1' and 'title2' fields in the cleaned data are identical.
+
+        Raises:
+            ValidationError: If 'title1' and 'title2' do not match.
+
+        Returns:
+            dict: The cleaned data if validation passes.
+
+        """
         cleaned_data = self.cleaned_data
         title1 = cleaned_data.get("title1")
         title2 = cleaned_data.get("title2")

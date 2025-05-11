@@ -54,6 +54,9 @@ class PostgresConfig(AppConfig):
     verbose_name = _("PostgreSQL extensions")
 
     def ready(self):
+        """
+        Initializes the necessary components for PostgreSQL database functionality in Django, including type handlers, lookups, and serialization, to provide a seamless integration with the PostgreSQL database.
+        """
         setting_changed.connect(uninstall_if_needed)
         # Connections may already exist before we are called.
         for conn in connections.all(initialized_only=True):

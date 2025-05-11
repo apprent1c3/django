@@ -18,6 +18,9 @@ class SimpleDatabaseClientTests(SimpleTestCase):
             self.client.settings_to_cmd_args_env(None, None)
 
     def test_runshell_use_environ(self):
+        """
+        Tests the BaseDatabaseClient's runshell method with different environment settings.
+        """
         for env in [None, {}]:
             with self.subTest(env=env):
                 with mock.patch("subprocess.run") as run:

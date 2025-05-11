@@ -37,6 +37,12 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         return self.connection.ops.geo_quote_name(name)
 
     def column_sql(self, model, field, include_default=False):
+        """
+        Generates SQL to create a column for a geometry field in a spatial database.
+        Handles non-geometry fields by delegating to the superclass implementation.
+        Supports adding spatial indexes if configured on the model field.
+        The generated SQL is appended to the internal geometry SQL buffer for later execution.
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if not isinstance(field, GeometryField):
@@ -89,6 +95,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         self.geometry_sql = []
 
     def delete_model(self, model, **kwargs):
+        """
+        Deletes a model from the database, including any associated geometry metadata and columns in geometry tables, before calling the superclass's delete_model method to handle the base model deletion.
+        """
         from django.contrib.gis.db.models import GeometryField
 
         # Drop spatial metadata (dropping the table does not automatically remove them)
@@ -110,6 +119,9 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
         super().delete_model(model, **kwargs)
 
     def add_field(self, model, field):
+        """
+        Adds a field to the database model, handling geometry fields specially to execute additional SQL commands. For non-geometry fields, it delegates to the parent class.
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if isinstance(field, GeometryField):
@@ -122,6 +134,11 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             super().add_field(model, field)
 
     def remove_field(self, model, field):
+        """
+        Overrides removal of fields from a model, handling GeometryField instances 
+        by remaking the table to preserve spatial data integrity, and delegating 
+        other field types to the parent class for standard removal processing.
+        """
         from django.contrib.gis.db.models import GeometryField
 
         # NOTE: If the field is a geometry field, the table is just recreated,
@@ -135,6 +152,12 @@ class SpatialiteSchemaEditor(DatabaseSchemaEditor):
             super().remove_field(model, field)
 
     def alter_db_table(self, model, old_db_table, new_db_table):
+        """
+        Alter the database table associated with the given model.
+
+        Renaming the table causes issues with geometry fields, so this function takes care of these fields by removing the geometry metadata before renaming the table,
+        then recovering the geometry metadata after the table is renamed. Spatial indexes are also updated to reference the new table name.
+        """
         from django.contrib.gis.db.models import GeometryField
 
         if old_db_table == new_db_table or (

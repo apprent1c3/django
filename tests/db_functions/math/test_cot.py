@@ -16,6 +16,9 @@ class CotTests(TestCase):
         self.assertIsNone(obj.null_cot)
 
     def test_decimal(self):
+        """
+        Tests the calculation of the cotangent for decimal values in the DecimalModel.
+        """
         DecimalModel.objects.create(n1=Decimal("-12.9"), n2=Decimal("0.6"))
         obj = DecimalModel.objects.annotate(n1_cot=Cot("n1"), n2_cot=Cot("n2")).first()
         self.assertIsInstance(obj.n1_cot, Decimal)
@@ -24,6 +27,9 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.n2_cot, Decimal(1 / math.tan(obj.n2)))
 
     def test_float(self):
+        """
+        Tests the cotangent (cot) database function by creating a FloatModel instance and annotating it with the cot function applied to its fields, verifying that the results are floats and equal to 1 / tan of the respective field values.
+        """
         FloatModel.objects.create(f1=-27.5, f2=0.33)
         obj = FloatModel.objects.annotate(f1_cot=Cot("f1"), f2_cot=Cot("f2")).first()
         self.assertIsInstance(obj.f1_cot, float)
@@ -32,6 +38,10 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.f2_cot, 1 / math.tan(obj.f2))
 
     def test_integer(self):
+        """
+        Tests the calculation of cotangent values for integer fields in a database model, 
+        verifying the correct output type and mathematical accuracy of the Cot function.
+        """
         IntegerModel.objects.create(small=-5, normal=15, big=-1)
         obj = IntegerModel.objects.annotate(
             small_cot=Cot("small"),
@@ -46,6 +56,11 @@ class CotTests(TestCase):
         self.assertAlmostEqual(obj.big_cot, 1 / math.tan(obj.big))
 
     def test_transform(self):
+        """
+
+        Tests the transformation of a DecimalField using the cot lookup.
+
+        """
         with register_lookup(DecimalField, Cot):
             DecimalModel.objects.create(n1=Decimal("12.0"), n2=Decimal("0"))
             DecimalModel.objects.create(n1=Decimal("1.0"), n2=Decimal("0"))

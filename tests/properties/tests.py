@@ -13,6 +13,11 @@ class PropertyTests(TestCase):
 
     def test_setter(self):
         # The "full_name" property hasn't provided a "set" method.
+        """
+        Tests that the 'full_name' attribute is read-only and cannot be set directly, 
+        either through setter method or during object initialization, 
+        and ensures that a custom setter for 'full_name_2' correctly updates the 'first_name' attribute.
+        """
         with self.assertRaises(AttributeError):
             setattr(self.a, "full_name", "Paul McCartney")
 
